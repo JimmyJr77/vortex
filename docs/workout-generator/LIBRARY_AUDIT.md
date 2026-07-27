@@ -9,13 +9,17 @@ The migration preserves every legacy exercise:
 | Measure | Count |
 |---|---:|
 | Legacy exercise rows | 1,676 |
-| Active canonical definitions | 1,366 |
-| Archived redundant definitions | 310 |
-| Canonical variant rows | 1,769 |
-| Contextual delivery profiles | 1,866 |
+| Active canonical definitions | 1,280 |
+| Archived redundant definitions | 396 |
+| Canonical variant rows | 1,823 |
+| Contextual delivery profiles | 1,974 |
+| Explicit identity resolutions | 634 |
+| Relationship proposals | 201 |
+| Calibration proposals | 342 |
+| Candidate media records | 5,061 |
 | Migration coverage | 100% |
 | Published canonical definitions | 0 |
-| Active quarantined test packets | 1,366 |
+| Current quarantined test packets | 1,280 |
 
 No migrated card is treated as production-approved. Migration creates stable
 canonical identity and provenance, then leaves the definition, variant, and
@@ -30,8 +34,8 @@ The final audit found four blockers on every active card:
 - score calibration anchors need independent approval;
 - publication needs current two-person approval.
 
-The other structural categories are complete on 30 cards and remain incomplete
-on 1,336:
+The other structural categories are complete on 44 cards and remain incomplete
+on 1,236:
 
 - anatomy and biomechanics need human completion;
 - environment and population constraints need human completion;
@@ -272,8 +276,45 @@ ten alternate assessments, five review-only graph proposals, and nine
 review-only calibration proposals. Candidate metadata is not evidence that a
 human viewed or approved a video.
 
-The final 1,366-definition library preserves all 1,676 source mappings, 1,769
-variant rows, and 1,866 delivery profiles and still has zero direct
+Migrations 351 and 352 resolve three additional direct synonyms:
+
+- `Quadruped Thread-the-Needle Rotation` consolidates into
+  `Quadruped Thread-the-Needle`; heel-sit position is an exact variant and
+  shortened range is a modifier.
+- `Single-Leg Tripod Balance` consolidates into
+  `Single-Leg Tripod Balance Hold`; support and visual input are exact variants,
+  while reaching, unstable surfaces, load, and perturbation remain separate.
+- `Split Squat Iso Hold` consolidates into `Split Squat Isometric Hold`; hand
+  support and goblet load are exact variants, while rear-foot elevation,
+  dynamic repetitions, and perturbation remain separate.
+
+The three completed cards add eight selectable variants, 16 contextual
+profiles, 48 candidate evidence sections, 12 oEmbed-metadata-only media
+candidates, 23 alternate assessments, 13 review-only graph proposals, and 24
+review-only calibrations. Their packets pass every automated structural
+category and remain blocked only by exact-match media review, coach graph
+approval, independent score calibration, and publication approval.
+
+Migrations 353 and 354 resolve nine more redundant definitions:
+
+- three Athletic/Landing/Control Snap-Down labels consolidate into the
+  no-flight, no-rebound `Snap-Down to Stick`;
+- two Mirror Shuffle labels consolidate into the live, noncontact partner
+  leader-follower task;
+- both five-yard accel/decel sources become exact distance variants of
+  `Sprint-to-Stick Deceleration`;
+- two in-place/jumps labels consolidate into `Single-Leg Pogo`.
+
+The four survivors add eight selectable variants, 16 contextual profiles, 64
+candidate evidence sections, 16 oEmbed-metadata-only media candidates, 45
+persisted alternate assessments, 12 review-only graph proposals, and 24
+review-only calibrations. The packet source has 46 alternates because it also
+documents `Single-Leg Pogo Hold-to-Hop` as a distinct hold-entry and
+terminal-stick sequence. Exact video playback/content review and every
+human-controlled approval remain unresolved.
+
+After migration 368, the 1,331-definition library preserves all 1,676 source
+mappings, 1,803 variant rows, and 1,934 delivery profiles and still has zero direct
 canonical-name, display-name, alias-to-alias, or alias-to-name collisions.
 
 Migration 347 removes the enumerated legacy skill- and proficiency-level keys
@@ -294,38 +335,128 @@ validation use the same recursive semantic boundary, so later drafts or
 research packets cannot reintroduce a level classification.
 
 Migrations 304 and 305 complete the enforceable two-axis exercise difficulty
-contract. Technical complexity and physical difficulty are assessed
-independently, and overall difficulty is derived as their maximum. Existing
+contract. Exercise complexity (stored under the legacy `technicalComplexity`
+field name) and physical difficulty are assessed independently, and overall
+difficulty is derived as their maximum. Existing
 traceable difficulty profiles supplied complete core scores for 1,663 of 1,676
 legacy exercises; the other 13 have no source assessment and remain explicitly
 quarantined. Overall-difficulty calibration is no longer independently
 proposable, and no approval or publication state was created by the backfill.
 
-After migration 349 and the full persisted audit, 30 cards have complete
+After migration 368 and the full persisted audit, 42 cards have complete
 automated structure and are blocked only by honest human gates:
 exact-match media approval, coach-approved graph relationships, approved
-difficulty calibration, and publication approval. All 1,366 definitions remain
+difficulty calibration, and publication approval. All 1,331 definitions remain
 quarantined and none are published.
 
 The all-library audit now precomputes normalized identity names and bigrams once.
 The same indexed all-card duplicate semantics avoid rebuilding identity terms
-inside every pairwise comparison. The 1,366-card disposable audit retains that
+inside every pairwise comparison. The 1,331-card disposable audit retains that
 optimization.
 
-## High-similarity identity review after migration 349
+Migration 360 completes the consolidated `Reactive Hop-to-Cut` and
+`Seated Overhead Press` survivors. It adds six exact selectable variants, 12
+contextual delivery profiles, 32 candidate evidence sections, eight retained
+oEmbed-healthy media candidates, 20 alternate assessments, eight review-only
+graph proposals, and 18 review-only calibration proposals. The three reactive
+videos are explicitly comparison-only because title metadata does not show the
+complete hop-to-cut sequence. The five seated-press videos are title-level
+candidates but have not received full-video, exact-configuration, cue, safety,
+caption, accessibility, or approval review. Both packets pass every automated
+structural category and retain exactly four blockers: media review, graph
+approval, calibration approval, and publication approval.
+
+Migrations 361 and 362 resolve and complete the Hip Thrust family. Five
+implement-, load-, or laterality-labelled sources consolidate into the stable
+`distance-jump-hip-thrust` definition, now canonically named `Hip Thrust`.
+Floor-supported Glute Bridge remains a separate exercise. Feet-Elevated Hip
+Thrust and the mixed bench-or-floor eccentric source remain active and
+`needs_human_review` because their support geometry is unresolved.
+
+The completed survivor has eight exact selectable variants, 16 contextual
+profiles, 16 candidate evidence sections, five current oEmbed-healthy media
+candidates, 14 alternate assessments, 12 review-only graph proposals, and 24
+review-only calibration proposals. Its packet passes every structural
+category. The only blockers are exact-match media review, coach graph approval,
+independent score calibration, and publication approval. The two unresolved
+source identities remain a separate explicit human gate.
+
+Migrations 363 and 364 resolve the Ball Drop cluster. `Partner Tennis Ball Drop
+Sprint` consolidates into the stable `ball-drop-reaction-sprint` survivor
+because both sources require a partner release, acceleration, and securing the
+ball before its second bounce. Cone run-through/stick completion, a required
+hop, a second late direction cue, capture followed by a called cut, and
+cue-selected gate running remain distinct ordered tasks. Migration 365
+completes the survivor as `Partner Ball-Drop Chase and Catch` with two exact
+implement variants, four contextual delivery profiles, 16 candidate evidence
+sections, five current oEmbed-healthy media candidates, 12 alternate
+assessments, four review-only graph proposals, and six review-only difficulty
+calibrations. It carries exercise-complexity and physical-difficulty scores
+only. Full-video exact-match, caption, accessibility, graph, score, and
+publication review remain quarantined human gates.
+
+Migrations 366 and 368 consolidate three additional Alternating Bounds
+definitions into the stable `alternate-leg-bound-for-distance` identity, now
+displayed as `Alternating Bounds`. Generic wording, mixed height-and-distance
+emphasis, vertical emphasis, distance, contacts, start leg, effort, and
+measurement remain aliases, exact variants, or delivery dimensions. The source
+variants are archived and nonselectable; every source mapping, alias, evidence
+record, and media candidate remains traceable. Eight inherited media links are
+explicitly quarantined as title-level movement mismatches: three show lateral
+bounds or a scissor jump and five show same-leg bounds.
+
+Migration 367 completes the survivor with traditional mixed-projection and
+sprint-oriented distance/rhythm variants, four contextual delivery profiles,
+16 evidence sections, five current oEmbed-healthy candidate links, 12
+alternate assessments, two review-only relationship proposals, and six
+review-only difficulty calibrations. Difficulty is exercise complexity plus
+physical difficulty, with overall equal to their maximum; no athlete skill
+level is attached to the exercise. The card passes every automated structural
+category and remains blocked only by exact-match media review, coach graph
+approval, independent calibration, and publication approval.
+
+Migrations 369 and 370 resolve and complete the stationary Split Squat family.
+`Barbell Split Squat`, `Bodyweight Split Squat`, `Front-Rack Kettlebell Split
+Squat`, `Sandbag Split Squat`, `Slow Eccentric Split Squat`, and `Split Squat
+Eccentric to Pause` consolidate into `split-squat`; implement, quantity, load
+position, support, and tempo become exact variants. `Landmine Handle-Grip Split
+Squat` consolidates into `landmine-split-squat`, but the survivor remains
+identity-quarantined because its source permits both a stationary split squat
+and a stepping reverse lunge.
+
+Floor-based Split Squat and Rear-Foot-Elevated Split Squat remain separate
+stable definitions because rear-foot elevation changes support geometry,
+balance, setup, rear-limb contribution, entry, exit, and failure handling.
+Migration 370 completes both cards with 14 exact variants, 28 contextual
+profiles, 32 candidate evidence sections, ten current oEmbed-metadata-only
+media candidates, 24 alternate assessments, 12 review-only relationship
+proposals, and 42 review-only difficulty calibrations. Both cards pass every
+automated structural category and remain blocked only by full-video exact-match
+review, approved relationship coverage, independent calibration, and
+publication approval.
+
+Difficulty on these cards is strictly an exercise assessment. Each exact
+variant stores exercise complexity and physical difficulty, and overall
+difficulty is mechanically the greater of the two. Athlete proficiency and
+skill-library levels are absent from exercise definitions, variants, profiles,
+research packets, and test packets. The phrase “Beginner to Advanced” is
+retained only as the unmodified title of one quarantined video candidate and
+does not create exercise metadata.
+
+## High-similarity identity review after migration 370
 
 The clean persisted audit reports:
 
 | Duplicate-review measure | Count |
 |---|---:|
-| Raw score-72-or-higher pairs | 952 |
-| Unresolved score-72-or-higher pairs | 864 |
-| Raw score-85-or-higher pairs | 87 |
+| Raw score-72-or-higher pairs | 906 |
+| Unresolved score-72-or-higher pairs | 787 |
+| Unresolved score-80-or-higher pairs | 176 |
 | Unresolved score-85-or-higher pairs | 0 |
 | Unresolved score-90-or-higher pairs | 0 |
 | Exact identity collisions | 0 |
-| Adjudicated distinct high-similarity pairs | 88 |
-| Explicit human-review identity quarantines | 0 |
+| Adjudicated distinct high-similarity pairs | 119 |
+| Explicit human-review identity quarantines | 2 |
 
 Migration 339 consolidated 148 active synonym or exact-variant definitions.
 Migration 340 adjudicated 70 mechanics-based distinct pairs and temporarily
@@ -334,7 +465,30 @@ Migrations 341–343 resolve those three and consolidate the low-amplitude
 bilateral lateral hop and countermovement chest-pass sources as exact variants.
 Migration 345 then resolves the Pallof family and removes eight additional
 lower-confidence warnings from the unresolved queue. Migration 348 removes the
-redundant Stir-the-Pot Plank pair. The remaining 864
+redundant Stir-the-Pot Plank pair. Migration 351 removes the three direct
+static-control synonyms. Migrations 353 and 354 remove nine additional
+redundant definitions and document the Single-Leg Pogo versus Hold-to-Hop
+boundary. Migration 355 then resolves ten score-84 warnings using explicit
+rotation, contact-order, support-geometry, projection, terminal-action, stance,
+and footwork boundaries. Migration 356 consolidates twelve researched
+Drop/Depth Jump and Falling Start duplicates and records the contact-strategy,
+projection, landing-only, and no-sprint-hold boundaries. Migration 357 records
+five more mechanics-based distinct pairs and quarantines the under-specified
+Single-Leg Line Hop and Stick source without assigning a reviewer. Migration
+358 consolidates the angle-labelled Reactive Hop-to-Cut and implement-labelled
+Seated Overhead Press sources as controlled variants. Migration 359 records the
+marked-approach Reactive 45-Degree Cut and discrete-hop Reactive Hop-to-Cut as
+distinct ordered-contact identities. Migration 360 completes both survivors
+without modifying the identity queue. Migration 361 then consolidates five Hip
+Thrust source definitions and routes two support-geometry ambiguities to human
+review; migration 362 completes the survivor without changing those identity
+decisions. Migration 363 consolidates the exact Partner Tennis Ball Drop Sprint
+identity and records six mechanics-based Ball Drop boundaries; migration 364
+records the catch-to-cut versus hop-and-go boundary; migration 365 completes
+the survivor without changing identity state. Migrations 366 and 368 then
+consolidate the mixed-projection, generic, and height-emphasis Alternating
+Bounds sources; migration 367 completes the survivor without changing any
+human-controlled review state. The remaining 807
 score-72-to-84 pairs form an intentionally conservative review queue and are
 not direct-collision claims.
 
@@ -344,6 +498,125 @@ definition, variant, delivery-profile, score, or legacy-exercise JSON; 1,112
 retained level assignments in the dedicated skill library; zero
 overall-difficulty mismatches where both core dimensions are present; and zero
 fabricated card, media, graph, or calibration approvals.
+
+## Score-81 audit and final score-80 migration-380 completion
+
+Migrations 371–380 supersede the migration-370 queue snapshot above.
+Migrations 371–374 completed the score-83 batch and the recursive
+exercise-card/skill-library boundary. Migrations 375 and 376 then adjudicated
+all 51 newly exposed score-82 pairs: 31 were recorded as mechanically distinct,
+one was honestly quarantined because the line-hop source omits identity facts,
+and 19 duplicate or controlled-variant definitions were consolidated into
+stable survivors. Migrations 377 and 378 adjudicated all 52 newly exposed
+score-81 pairs plus two alias-driven pairs that appeared after consolidation:
+35 were recorded as mechanically distinct, four were honestly quarantined,
+and 15 duplicate or controlled-variant definitions were consolidated. The
+remaining high-similarity queue is:
+
+| Duplicate-review measure | Count |
+|---|---:|
+| Active canonical definitions | 1,280 |
+| Raw score-72-or-higher pairs | 843 |
+| Unresolved score-72-or-higher pairs | 638 |
+| Unresolved score-80-or-higher pairs | 43 |
+| Unresolved score-81-or-higher pairs | 9 |
+| Unresolved score-82-or-higher pairs | 5 |
+| Unresolved score-83-or-higher pairs | 4 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Unresolved score-90-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+| Adjudicated distinct similarity pairs | 205 |
+
+All nine score-81-or-higher pairs are explicit unreviewed
+`needs_human_review` records, not unclassified collisions. The four new
+score-81 cases are Dumbbell Sumo Squat versus Goblet Squat, Lateral Line Pogo
+versus Line Pogo Hops, One-Arm Landmine Arc Press versus Square-Stance One-Arm
+Landmine Press, and Single-Leg Line Hop and Stick versus Triple-Line Hop and
+Stick. The five prior cases remain quarantined for missing direction, contact,
+stance, hand, or reset facts.
+
+The final disposable audit contains 1,676 legacy source mappings, 1,280 active
+and 396 archived canonical definitions, 1,823 variants, 1,974 delivery
+profiles, 634 identity decisions, 201 review-only relationship proposals, 342
+review-only calibration proposals, and 5,061 unapproved media candidates.
+Forty-four cards meet the automated structural contract; 1,236 still need one
+or more structural backfills. No card is releasable yet because all 1,280
+remain quarantined behind human media,
+relationship, calibration, and publication gates.
+
+Migration 373 completes Hamstring Slider Curl with six exact variants, 12
+profiles, 16 candidate evidence sections, five oEmbed-healthy but unapproved
+media candidates, 11 alternate assessments, ten review-only relationships, 18
+review-only calibrations, and one quarantined test packet. Migration 374 then
+removes neutral level-classification audit keys from identity evidence and
+adds the sixth database-level no-level constraint.
+
+Migration 375 persists 31 mechanics-based distinct decisions and one
+`needs_human_review` decision. Migration 376 consolidates 19 sources whose
+differences are exact implement, support, lever, terminal-landing, range,
+distance, target, external-load, or contextual-delivery dimensions. Source
+mappings, aliases, candidate evidence, candidate media, and legacy execution
+remain traceable; migrated legacy variants are archived and nonselectable.
+Neither migration creates a reviewer, approval, or publication state.
+
+Migration 377 persists 35 mechanics-based distinct decisions and four
+`needs_human_review` decisions. Migration 378 consolidates 15 sources whose
+differences are exact route naming, implement or pivot, support height,
+wall orientation, countermovement, tempo, continuous shifting, obstacle,
+contraction emphasis, box target, terminal wording, or airborne foot exchange.
+Two post-consolidation alias pairs—Medicine Ball Chest Pass versus Rotational
+Throw and dynamic Goblet Squat versus its bottom isometric hold—are explicitly
+recorded as distinct. No human-controlled state is inferred.
+
+Migrations 379 and 380 finish the score-80 batch. Migration 379 records 24
+mechanically distinct boundaries and quarantines Line Hops versus Line Pogo
+Hops because direction, crossing, and foot-contact facts are missing.
+Migration 380 consolidates 14 start, assistance, bar-position, pause, tempo,
+implement, pin-height, rebound-direction, apparatus, load-shape, eccentric,
+isometric, and mobility-sequence variants. The post-consolidation pass also
+resolves all alias-driven score-80-or-higher pairs, including the stable
+Bench Press identity versus Bench Press Pin Iso and Dumbbell Z-Press, and the
+unified short sprint versus Falling Start.
+
+The migration-380 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,266 |
+| Archived canonical definitions | 410 |
+| Variants | 1,823 |
+| Delivery profiles | 1,974 |
+| Identity decisions | 673 |
+| Distinct identity boundaries | 251 |
+| Duplicate consolidations | 409 |
+| Explicit identity-review quarantines | 13 |
+| Candidate media records | 5,061 |
+| Review-only relationship proposals | 201 |
+| Review-only calibration proposals | 342 |
+| Raw score-72-or-higher similarity pairs | 820 |
+| Unresolved score-72-or-higher pairs | 595 |
+| Unresolved score-75-or-higher pairs | 313 |
+| Unresolved score-80-or-higher pairs | 10 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+All ten score-80-or-higher pairs are explicit unreviewed
+`needs_human_review` records. The automated audit has complete one-to-one
+migration coverage and quarantines all 1,266 active cards. Forty-three cards
+pass every non-human automated content check. One otherwise-complete Hamstring
+Slider Curl card still has explicit taxonomy and graph-integrity blockers, and
+1,222 cards still need broad anatomy, difficulty, load, fatigue, constraints,
+delivery, athlete, coach, and operations backfill. No card is published.
+
+The recursive final invariant audit checks all 38 JSON columns and all three
+scalar skill/proficiency columns on exercise-related base tables. It reports
+zero level keys, zero scalar assignments, and zero
+`overall != max(complexity, physical difficulty)` violations. Of 1,476 active
+canonical variants, 1,464 have populated difficulty records; the remaining 12
+stay quarantined for backfill. All 1,663 legacy score rows are populated and
+formula-consistent. All 1,112 dedicated skill-library level assignments remain
+intact.
 
 ## Run the audit
 
@@ -357,6 +630,19 @@ DATABASE_URL=postgresql://... DATABASE_SSL=false \
 Use `--json` for the complete per-card packet and `--no-persist` for a read-only
 run. The command exits nonzero when one-to-one migration coverage is broken.
 Quarantined content is expected and does not make the audit command fail.
+
+Use the reusable unresolved-pair queue instead of reading the full per-card
+packet when selecting the next identity cluster:
+
+```sh
+DATABASE_URL=postgresql://... DATABASE_SSL=false \
+  npm --prefix backend run report:canonical-identity-queue -- \
+  --facility=1 --threshold=72 --limit=50
+```
+
+The report returns each unresolved pair once in descending similarity order,
+excludes explicit distinct/consolidated decisions, and separately reports
+exact collisions. Add `--json` for automation.
 
 After the audit, run `npm --prefix backend run check:canonical-release --
 --facility=1`. This second command intentionally exits nonzero while library,

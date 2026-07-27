@@ -1,0 +1,468 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.51",
+  "batchKey": "ball-drop-chase-catch-family-v1",
+  "snapshotAt": "2026-07-26T23:08:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "ball_catching_visual_information",
+      "claims": [
+        "{{canonicalName}} is a live partner-release task in which the athlete waits for a real ball drop, accelerates toward the object, secures it before a declared bounce limit, decelerates safely, and fully resets.",
+        "Ball type, release height and position, start stance and distance, bounce limit, and dose are exact variant or delivery fields; adding a required hop, second cue, post-capture cut, or cue-selected gate creates a different ordered action."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "agility_perception_action_meta_analysis",
+      "claims": [
+        "The family combines live visual perception-action coupling, short acceleration, visual tracking, interceptive capture, and controlled deceleration.",
+        "The ball-release event must remain unpredictable enough that the athlete reacts to information rather than guessing."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Short acceleration uses coordinated hip, knee, and ankle action with meaningful posterior-chain contribution; visual tracking, reaching, and grasp add head-eye, shoulder, elbow, wrist, hand, and trunk demands.",
+        "The card records contributors and stabilizers without claiming muscle isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Acceleration quality depends on effective horizontal force application and coordinated lower-limb mechanics.",
+        "A valid repetition also preserves continuous ball tracking, controlled approach speed, capture without diving or collision, and an organized run-out."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "ball_catching_visual_information",
+      "claims": [
+        "Ball-flight information constrains gaze and hand movement, while an irregular reaction-ball bounce adds tracking and interception uncertainty.",
+        "Score only exercise complexity and physical difficulty for each exact variant, with overall equal to their maximum; athlete experience is handled through readiness and dosage."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Track high-intent starts, sprint distance, total ground contacts, braking exposures, failed captures, local posterior-chain and calf fatigue, technical change, and recovery.",
+        "Repeated sprint fatigue can change timing and mechanics, so output work stops before guessing, delayed tracking, diving, noisy braking, or speed loss."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Require a trained cue partner, declared ball, measured start distance, clear chase lane, safe capture area, and unobstructed deceleration run-out on a level nonslip surface.",
+        "The cue partner must use a visible neutral hold and release the ball without body-language or timing tells."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Short acceleration work is programmed with low repetition counts and enough recovery to preserve fast, technically controlled efforts.",
+        "Declare successful trials rather than treating every attempt as a repetition, balance release locations, and cap misses so the task does not reward reckless diving."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "ball_catching_visual_information",
+      "claims": [
+        "Instruction must establish where to look, what constitutes the true release, the bounce limit, the allowed capture method, and the run-out before speed progresses.",
+        "Cue wait, see the release, push into the lane, track the ball, secure it without diving, and decelerate through the clear run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Stop for pain, dizziness, visual disturbance, slip, fall, collision risk, unsafe reach or dive, lane intrusion, loss of braking control, repeated guessing, or a meaningful decline in acceleration or capture quality.",
+        "Do not shorten the lane, raise speed, reduce the bounce limit, or add irregular bounce until the current task remains safe and repeatable."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "agility_perception_action_meta_analysis",
+      "claims": [
+        "Use the task when live perception-action coupling and first-step acceleration serve the session objective; a preplanned start does not provide the same perceptual constraint.",
+        "Place high-intent trials while the athlete is fresh and account for cumulative sprint, change-of-direction, impact, calf, Achilles, hamstring, and cognitive-decision budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ball_catching_visual_information",
+      "claims": [
+        "The athlete needs the exact start mark, partner position, ball, release rule, bounce limit, lane, capture rule, run-out, repetitions, rest, and stop conditions before the first trial.",
+        "Nonvideo written, still-image, walkthrough, and live-demonstration alternatives remain available."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "agility_perception_action_meta_analysis",
+      "claims": [
+        "The coach observes cue neutrality, false starts, release pickup, first organized step, acceleration path, gaze, capture, braking, run-out, repeatability, and fatigue.",
+        "Record successful and failed trials separately and never improve a score by making the release unsafe or ambiguous."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Individualize task distance, speed, ball predictability, bounce limit, release height, instruction format, visual contrast, recovery, and supervision to the athlete and environment.",
+        "A rolled-ball or predictable underhand-release regression is a distinct proposed task and must not be silently substituted for the live drop contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "change_direction_training_scoping_review",
+      "claims": [
+        "A point-to-gate drill, ball-drop plus late direction cue, capture-to-cut, and hop-and-go task change perception or movement actions and remain separate definitions.",
+        "Tennis-ball and reaction-ball versions remain variants only when both preserve live release, chase, secure-before-limit, controlled deceleration, and full reset."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five inherited candidates returned current oEmbed title, channel, and embed-player metadata; full viewing, exact-variant matching, cue and safety review, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "ball-drop-reaction-sprint",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "A live partner-release chase-and-capture task: wait in a declared stance, react only after a real ball drop, accelerate from a measured start mark, track and secure the ball before a declared bounce limit, decelerate inside a clear run-out, return the ball, and fully reset.",
+        "currentCardFindings": [
+          "The stable legacy slug is retained, but the canonical name should specify the partner ball-drop chase-and-catch contract.",
+          "Ball Drop Reaction Drill, Reaction Ball Drop Sprint, Partner Reaction Ball Drop Sprint, and Partner Tennis Ball Drop Sprint sources describe the same base action with ball, release, distance, bounce-limit, or wording differences.",
+          "The current active generic variants do not declare release geometry, ball flight, bounce limit, capture, run-out, dose, quality gate, or stop rules and are not safely selectable.",
+          "The cone run-through/stick, required hop, second late direction cue, post-capture cut, and cue-selected gate cards have distinct ordered actions and remain separate definitions.",
+          "Five inherited YouTube links returned current oEmbed metadata, but no full-video exact-match, safety, caption, accessibility, reviewer, or approval decision has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "live_visual_reaction",
+            "short_acceleration",
+            "object_interception",
+            "controlled_deceleration"
+          ],
+          "jointActions": [
+            "head_eye_tracking",
+            "hip_extension",
+            "knee_extension_and_flexion_control",
+            "ankle_plantarflexion_and_stiffness",
+            "trunk_stabilization",
+            "shoulder_elbow_wrist_positioning",
+            "hand_grasp"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse"
+          ],
+          "laterality": "release_side_and_capture_hand_declared_or_balanced",
+          "intent": "react_to_true_release_then_capture_and_stop_safely"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 52,
+          "baseOverallDifficulty": 52,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "tennis-ball-partner-drop-catch",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 52,
+            "overallDifficulty": 52
+          },
+          {
+            "variantKey": "reaction-ball-partner-drop-secure",
+            "exerciseComplexity": 60,
+            "physicalDifficulty": 54,
+            "overallDifficulty": 60
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_live_reaction_acceleration_object_interception_and_deceleration",
+          "primaryStress": [
+            "visual_release_pickup",
+            "first_step_acceleration",
+            "ball_flight_tracking",
+            "capture_timing",
+            "controlled_braking"
+          ],
+          "fatigueSensitivity": "false_start_tracking_delay_acceleration_path_capture_dive_braking_and_run_out_quality"
+        },
+        "identityDecision": {
+          "consolidatedSources": [
+            "ball-drop-reaction",
+            "partner-reaction-ball-drop-sprint",
+            "reaction-ball-drop-sprint",
+            "partner-tennis-ball-drop-sprint"
+          ],
+          "distinctBoundaries": [
+            "ball-drop-point-and-sprint-cone-reaction",
+            "reaction-ball-drop-to-hop-and-go",
+            "ball-drop-sprint-plus-direction-cue",
+            "reaction-ball-drop-catch-to-cut",
+            "gate-reaction-drill"
+          ],
+          "decision": "duplicate_consolidated_with_two_exact_ball_flight_variants"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "trained_cue_partner",
+            "declared_ball",
+            "measured_start_mark",
+            "clear_chase_lane",
+            "safe_capture_and_run_out_zone"
+          ],
+          "environment": [
+            "level_nonslip_surface",
+            "unobstructed_ball_sightline",
+            "no_cross_traffic",
+            "sufficient_lighting_and_visual_contrast"
+          ],
+          "population": [
+            "understands_release_and_bounce_rules",
+            "pain_free_short_acceleration_and_deceleration",
+            "can_capture_without_diving",
+            "can_follow_stop_command"
+          ]
+        },
+        "proposedDosage": {
+          "technique": "2-4 sets of 2-4 trials with 45-90 seconds between trials",
+          "output": "3-5 sets of 1-3 high-intent trials with 90-180 seconds between trials",
+          "distance": "3-8 yards from athlete start to release line",
+          "bounceLimit": "declared per variant and readiness",
+          "progressWhen": "true-cue reaction, clean first step, capture, braking, and run-out remain repeatable without guessing or diving"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Neutral hold",
+            "Release without a tell",
+            "Make the ball reachable but challenging",
+            "Score the catch and the stop"
+          ],
+          "athleteInstructions": [
+            "Wait for the drop",
+            "See it, then push",
+            "Track and secure",
+            "Run out under control"
+          ],
+          "commonFaults": [
+            "guessing_before_release",
+            "partner_timing_or_body_language_tell",
+            "eyes_leave_ball",
+            "overstriding_or_crossing_the_first_step",
+            "diving_or_reckless_reach",
+            "uncontrolled_braking",
+            "conditioning_volume"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clear_lane_and_run_out",
+            "ball_and_release_rule_declared",
+            "submaximal_rehearsal_passed",
+            "safe_capture_and_stop_demonstrated"
+          ],
+          "stopRules": [
+            "pain_or_neurologic_symptoms",
+            "dizziness_or_visual_disturbance",
+            "slip_fall_or_collision_risk",
+            "unsafe_reach_or_dive",
+            "repeated_guessing",
+            "capture_or_braking_quality_decline",
+            "lane_or_partner_communication_failure"
+          ]
+        },
+        "programmingDecision": "Retain one stable partner ball-drop chase-and-catch identity with tennis-ball and reaction-ball variants. Keep the card in review until evidence, media, graph, calibration, and publication gates receive real human decisions."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=axhMilEMbnU",
+          "title": "#SpeedWOD: Tennis Ball Drills",
+          "channelName": "Compete Strength and Conditioning",
+          "sourceQuery": "inherited ball-drop reaction candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:08:00.000Z"
+          },
+          "notes": "Current oEmbed metadata only. Broad tennis-ball drill title; exact live drop, bounce limit, capture, run-out, instruction, safety, captions, accessibility, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-CnxAvMs_24",
+          "title": "Ball Drop Reactive Drill",
+          "channelName": "J Es",
+          "sourceQuery": "inherited ball-drop reaction candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:08:00.000Z"
+          },
+          "notes": "Current title and oEmbed response only. Full exact-contract and human quality review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IIeZL5uH23s",
+          "title": "Ball Drop Reactive Drill",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "inherited ball-drop reaction candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:08:00.000Z"
+          },
+          "notes": "Current title and oEmbed response only. Full exact-contract, population, safety, captions, accessibility, and approval review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=r36sPP2pYTw",
+          "title": "Partner Ball Drop",
+          "channelName": "Hand Eye Coaches",
+          "sourceQuery": "inherited partner ball-drop candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:08:00.000Z"
+          },
+          "notes": "Current title and oEmbed response only. Exact sprint distance, bounce limit, capture, run-out, cue quality, safety, captions, accessibility, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=RMV48ID6YV4",
+          "title": "Tennis Ball Reaction Start l Increase your Speed",
+          "channelName": "Brandon Holder",
+          "sourceQuery": "inherited reaction-start candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:08:00.000Z"
+          },
+          "notes": "Current oEmbed metadata only. Title suggests a reaction start; capture-before-bounce and safe run-out exact match require full human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Partner Tennis Ball Drop Sprint",
+          "classification": "same_identity",
+          "rationale": "The source preserves live release, chase, capture before a bounce limit, controlled deceleration, and reset.",
+          "distinguishingDimensions": {
+            "ballType": "tennis_ball",
+            "releasePosition": "declared",
+            "bounceLimit": "declared"
+          }
+        },
+        {
+          "name": "Partner Reaction Ball Drop Sprint",
+          "classification": "new_variant",
+          "rationale": "An irregular reaction-ball bounce changes tracking uncertainty while preserving chase, secure-before-limit, braking, and reset.",
+          "distinguishingDimensions": {
+            "ballType": "reaction_ball",
+            "flightPredictability": "irregular_after_bounce"
+          }
+        },
+        {
+          "name": "Ball Drop/Point-and-Sprint Cone Reaction",
+          "classification": "new_definition",
+          "rationale": "The cue selects or starts a cone route ending in run-through or stick rather than required ball capture.",
+          "distinguishingDimensions": {
+            "target": "cone_route",
+            "terminalAction": "run_through_or_stick"
+          }
+        },
+        {
+          "name": "Reaction Ball Drop to Hop-and-Go",
+          "classification": "new_definition",
+          "rationale": "A required hop contact before acceleration changes ordered action and impact exposure.",
+          "distinguishingDimensions": {
+            "requiredInitialAction": "hop_contact",
+            "terminalAction": "acceleration"
+          }
+        },
+        {
+          "name": "Ball Drop Sprint plus Direction Cue",
+          "classification": "new_definition",
+          "rationale": "A second late directional cue creates a two-stimulus compound decision task.",
+          "distinguishingDimensions": {
+            "stimulusCount": 2,
+            "secondStimulus": "late_direction"
+          }
+        },
+        {
+          "name": "Reaction Ball Drop Catch to Cut",
+          "classification": "new_definition",
+          "rationale": "A required post-capture called cut extends the ordered action beyond capture and braking.",
+          "distinguishingDimensions": {
+            "postCaptureAction": "called_exit_cut"
+          }
+        },
+        {
+          "name": "Gate Reaction Drill",
+          "classification": "new_definition",
+          "rationale": "Cue-selected gate acceleration has no required object chase or capture.",
+          "distinguishingDimensions": {
+            "target": "cone_gate",
+            "captureRequired": false
+          }
+        },
+        {
+          "name": "Rolled Ball Chase",
+          "classification": "new_definition",
+          "rationale": "Rolling changes object trajectory, pickup mechanics, and capture timing.",
+          "distinguishingDimensions": {
+            "objectTrajectory": "ground_roll"
+          }
+        },
+        {
+          "name": "One-Bounce Limit",
+          "classification": "modifier_annotation",
+          "rationale": "Bounce limit changes task pressure and dose when release, chase, capture, and run-out remain unchanged.",
+          "distinguishingDimensions": {
+            "bounceLimit": 1
+          }
+        },
+        {
+          "name": "Two-Bounce Limit",
+          "classification": "modifier_annotation",
+          "rationale": "A larger bounce allowance is a delivery regression, not a new movement.",
+          "distinguishingDimensions": {
+            "bounceLimit": 2
+          }
+        },
+        {
+          "name": "Lateral Release Offset",
+          "classification": "new_variant",
+          "rationale": "A declared lateral release changes projection direction and braking while preserving object chase and capture.",
+          "distinguishingDimensions": {
+            "releaseOffset": "left_or_right_declared",
+            "sideBalanceRequired": true
+          }
+        },
+        {
+          "name": "Pre-Planned Sprint Start",
+          "classification": "new_definition",
+          "rationale": "A known go time removes the live perception-action constraint and object-interception goal.",
+          "distinguishingDimensions": {
+            "cuePredictability": "preplanned",
+            "captureRequired": false
+          }
+        }
+      ]
+    }
+  ]
+}

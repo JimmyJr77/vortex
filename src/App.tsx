@@ -256,9 +256,13 @@ function App() {
               )
             }
           />
-          <Route 
-            path="/strength-conditioning" 
-            element={<StrengthFitness onSignUpClick={handleContactClick} />} 
+          <Route
+            path="/fit-and-flip"
+            element={<StrengthFitness onSignUpClick={handleContactClick} />}
+          />
+          <Route
+            path="/strength-conditioning"
+            element={<Navigate to="/fit-and-flip" replace />}
           />
           <Route 
             path="/ninja" 

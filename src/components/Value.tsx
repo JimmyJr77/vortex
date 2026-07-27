@@ -191,10 +191,10 @@ const Value = () => {
       </section>
 
       {/* Tiered Value Section */}
-      <section className="section-padding bg-gray-50">
-        <div className="container-custom">
+      <section className="bg-black px-4 py-12 sm:px-6 md:bg-gray-50 md:px-8 md:py-16 lg:px-12">
+        <div className="mx-auto w-full max-w-7xl">
           <motion.div
-            className="bg-black rounded-3xl p-12"
+            className="bg-transparent p-0 md:rounded-3xl md:bg-black md:p-12"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -214,7 +214,7 @@ const Value = () => {
               {valueTiers.map((tier, index) => (
                 <motion.div
                   key={tier.classes}
-                  className="bg-white/10 rounded-2xl p-6"
+                  className="w-full rounded-2xl bg-white/10 p-7 md:p-6"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}

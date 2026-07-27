@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-27.45",
+  "registryVersion": "2026-07-27.54",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -918,6 +918,27 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 84
     },
+    "supine_sliding_leg_curl_emg_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41318473/",
+      "title": "Persistent neuromuscular deficits in the posterior kinetic chain following hamstring strain injury: EMG insights from nordic hamstring curl, kettlebell swing, and supine sliding leg curl",
+      "publisher": "Journal of Orthopaedic Surgery and Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "hamstring_force_stretch_eccentric_slider_2026": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41730607/",
+      "title": "Hamstring force and stretch during progressively increasing running speeds and the eccentric phase of resistance training exercises commonly used for injury prevention and rehabilitation",
+      "publisher": "British Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "hamstring_exercise_selection_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27467123/",
+      "title": "Impact of exercise selection on hamstring muscle activation",
+      "publisher": "British Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
     "eccentric_romanian_deadlift_hamstring_adaptation": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/40085810/",
       "title": "Hamstrings Muscle Architecture and Morphology Following 6 wk of an Eccentrically Biased Romanian Deadlift or Nordic Hamstring Exercise Intervention",
@@ -946,6 +967,41 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 87
     },
+    "unilateral_barbell_exercise_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29870422/",
+      "title": "Muscle Activation in Unilateral Barbell Exercises: Implications for Strength Training and Rehabilitation",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "rfess_rear_leg_moment": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12408075/",
+      "title": "Rear Leg-derived Moment Contributes to Resistance Against Hip Extension in Bulgarian Split Squats",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "rfess_strength_symmetry_validity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31524778/",
+      "title": "Validity and Reliability of the Rear Foot Elevated Split Squat 5 Repetition Maximum to Determine Unilateral Leg Strength Symmetry",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "acsm_resistance_training_position_stand_2026": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "title": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "publisher": "Medicine and Science in Sports and Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 96
+    },
+    "resistance_prescription_network_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/",
+      "title": "Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis",
+      "publisher": "British Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 94
+    },
     "nsca_foundations_single_arm_half_kneeling_press": {
       "url": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
       "title": "Foundations of Fitness Programming",
@@ -959,6 +1015,13 @@
       "publisher": "European Journal of Applied Physiology",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 88
+    },
+    "seated_barbell_dumbbell_shoulder_press": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "title": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
     },
     "dumbbell_kettlebell_overhead_press_emg": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
@@ -1128,12 +1191,68 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 91
     },
+    "agility_perception_action_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "title": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "change_direction_training_scoping_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "title": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "unilateral_hopping_leg_stiffness": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "title": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "publisher": "Human Movement Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "plyometric_lower_limb_stiffness_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "title": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "publisher": "Journal of Sport and Health Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
     "youtube_embed_help": {
       "url": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
       "title": "Embed videos and playlists",
       "publisher": "YouTube Help",
       "kind": "manufacturer_instruction",
       "evidenceQuality": 82
+    },
+    "barbell_hip_thrust_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33780488/",
+      "title": "A comprehensive biomechanical analysis of the barbell hip thrust",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "hip_thrust_glute_bridge_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35586943/",
+      "title": "Electromyographic differences of the gluteus maximus, gluteus medius, biceps femoris, and vastus lateralis between the barbell hip thrust and barbell glute bridge",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "barbell_hip_thrust_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31191088/",
+      "title": "Barbell Hip Thrust, Muscular Activation and Performance: A Systematic Review",
+      "publisher": "Journal of Sports Science & Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "single_leg_hip_thrust_glute_force": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36918403/",
+      "title": "Gluteal Muscle Forces during Hip-Focused Injury Prevention and Rehabilitation Exercises",
+      "publisher": "Medicine & Science in Sports & Exercise",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
     }
   }
 }

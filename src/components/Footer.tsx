@@ -35,7 +35,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
       name: 'Athleticism Accelerator',
       href: getHubSiteUrl('/vortex-athletics'),
     },
-    { name: 'Fit & Flip', href: getHubSiteUrl('/strength-conditioning') },
+    { name: 'Fit & Flip', href: getHubSiteUrl('/fit-and-flip') },
     { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
     { name: 'Drop-In Classes', href: getHubSiteUrl('/drop-in') },
     { name: 'Contact & Location', href: getHubSiteUrl('/contact') },

@@ -126,7 +126,7 @@ const Programs = () => {
                     {Content}
                   </a>
                 ) : program.title === "Strength & Conditioning" ? (
-                  <Link to="/strength-conditioning">
+                  <Link to="/fit-and-flip">
                     {Content}
                   </Link>
                 ) : program.title === "Ninja Athlete" && !NINJA_PROGRAM_ON_HOLD ? (

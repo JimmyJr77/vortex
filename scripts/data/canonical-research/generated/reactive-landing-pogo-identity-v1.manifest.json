@@ -1,0 +1,31 @@
+{
+  "batchKey": "reactive-landing-pogo-identity-v1",
+  "researchVersion": "2026-07-27.46",
+  "generatedAt": "2026-07-26T18:30:00.000Z",
+  "cards": [
+    {
+      "slug": "snap-down-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 10
+    },
+    {
+      "slug": "mirror-shuffle",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 10
+    },
+    {
+      "slug": "sprint-to-stick-deceleration",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 11
+    },
+    {
+      "slug": "single-leg-pogo",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 15
+    }
+  ]
+}

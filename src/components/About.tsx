@@ -140,7 +140,7 @@ const About = ({ onSignUpClick, hideStrategicLocation = false, hideDifference = 
 
         {/* Mission Statement */}
         <motion.div
-          className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-12 md:p-16 text-center"
+          className="hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-12 text-center md:block md:p-16"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
@@ -200,6 +200,74 @@ const About = ({ onSignUpClick, hideStrategicLocation = false, hideDifference = 
             </div>
           </div>
         </motion.div>
+
+        <motion.details
+          className="group rounded-2xl border border-gray-200 bg-white text-black shadow-lg md:hidden"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 font-display text-2xl font-bold [&::-webkit-details-marker]:hidden">
+            <span>OUR MISSION &amp; OUR MINDSET</span>
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-2xl font-normal text-white transition-transform duration-300 group-open:rotate-45"
+              aria-hidden="true"
+            >
+              +
+            </span>
+          </summary>
+
+          <div className="border-t border-gray-200 px-6 pb-8 pt-6">
+            <h2 className="mb-4 text-3xl font-display font-bold text-black">
+              OUR MISSION
+            </h2>
+            <p className="text-base leading-relaxed text-gray-700">
+              At Vortex Athletics, our mission is to harness the power of gymnastics and technology to transform
+              youth athletes into champions, regardless of sport. By merging rigorous gymnastics training,
+              advanced technology, and a relentless competitive mindset, we empower each participant to
+              cultivate strength, explosiveness, precise body control, and the resilience to &ldquo;fail their
+              way to success.&rdquo; We don&apos;t merely train athletes. We guide future leaders toward a complete
+              transformation that fuels excellence in every aspect of life.
+            </p>
+
+            {onSignUpClick && (
+              <Link
+                to={getSiteEnrollHref()}
+                className="mt-6 inline-block rounded-lg border-2 border-vortex-red px-6 py-3 font-semibold text-vortex-red transition-colors duration-300 hover:bg-vortex-red hover:text-white"
+              >
+                Join the Transformation
+              </Link>
+            )}
+
+            <div className="mt-8 border-t border-gray-200 pt-8">
+              <h2 className="mb-6 text-3xl font-display font-bold text-black">
+                OUR MINDSET
+              </h2>
+              <div className="space-y-7 text-left">
+                <div>
+                  <h3 className="mb-3 text-xl font-display font-bold text-black">
+                    &ldquo;Fail Your Way to Success&rdquo;
+                  </h3>
+                  <p className="leading-relaxed text-gray-700">
+                    We teach children to find fun in overcoming adversity and achieving success
+                    through a competitive edge. Our athletes are simultaneously pushed and cared for.
+                  </p>
+                </div>
+                <div className="border-t border-gray-200 pt-7">
+                  <h3 className="mb-3 text-xl font-display font-bold text-black">
+                    &ldquo;It&apos;s okay to lose. It&apos;s not okay to be okay with losing.&rdquo;
+                  </h3>
+                  <p className="leading-relaxed text-gray-700">
+                    Losing is part of growth—we accept it as feedback, not as fate. What we don&apos;t
+                    accept is settling. Our athletes learn to use every loss as fuel to get better,
+                    not as permission to stop caring.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.details>
 
         {!hideStrategicLocation && <StrategicLocation className="mt-16" />}
       </div>

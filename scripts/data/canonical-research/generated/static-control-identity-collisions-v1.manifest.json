@@ -1,0 +1,25 @@
+{
+  "batchKey": "static-control-identity-collisions-v1",
+  "researchVersion": "2026-07-27.45",
+  "generatedAt": "2026-07-26T20:30:00.000Z",
+  "cards": [
+    {
+      "slug": "quadruped-thread-the-needle",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 7
+    },
+    {
+      "slug": "single-leg-balance-hold-tripod-foot",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "split-squat-isometric-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 8
+    }
+  ]
+}

@@ -8,6 +8,7 @@ interface ProgramTile {
   image: string
   imageAlt: string
   to?: string
+  lighterImage?: boolean
 }
 
 const tiles: ProgramTile[] = [
@@ -20,9 +21,10 @@ const tiles: ProgramTile[] = [
   {
     title: 'Fit & Flip',
     teaser: 'Strength, conditioning, and acrobatics for the complete athlete.',
-    image: '/tumbling.jpeg',
-    imageAlt: 'Young athlete performing a flip during tumbling training at Vortex',
-    to: '/strength-conditioning',
+    image: '/fit-and-flip.jpeg',
+    imageAlt: 'Young athlete performing a flip on a trampoline at Vortex',
+    to: '/fit-and-flip',
+    lighterImage: true,
   },
   {
     title: 'Speed & Agility Training',
@@ -36,6 +38,12 @@ const tiles: ProgramTile[] = [
     image: '/strength.jpeg',
     imageAlt: 'Strength and power training equipment at Vortex',
   },
+  {
+    title: 'Lifting Fundamentals',
+    teaser: 'Learn safe and proper techniques for strength training. 8 & up.',
+    image: '/lifting-fundamentals.jpeg',
+    imageAlt: 'Young athlete practicing a barbell lift at Vortex',
+  },
 ]
 
 const tileClassName =
@@ -45,6 +53,23 @@ export default function AcceleratorProgramTiles() {
   return (
     <section className="section-padding bg-black">
       <div className="container-custom">
+        <motion.div
+          className="mx-auto mb-12 max-w-4xl text-center md:mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="mb-4 text-4xl font-display font-bold text-white md:text-5xl">
+            Fit &amp; Flip
+          </h2>
+          <p className="text-lg leading-relaxed text-gray-300 md:text-xl">
+            Vortex Athletic&apos;s foundational athletics training program. Athletes train in
+            1.5 hour blocks and combine advanced athletics training with tumbling,
+            coordination, and body control. All training is underpinned by our Athleticism
+            Accelerator training philosophy.
+          </p>
+        </motion.div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8">
           {tiles.map((tile, index) => {
             const content = (
@@ -52,11 +77,19 @@ export default function AcceleratorProgramTiles() {
                 <img
                   src={tile.image}
                   alt={tile.imageAlt}
-                  className="absolute inset-0 h-full w-full object-cover brightness-75 transition-transform duration-500 group-hover:scale-105"
+                  className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+                    tile.lighterImage ? 'brightness-100' : 'brightness-75'
+                  }`}
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
+                <div
+                  className={`absolute inset-0 z-[1] ${
+                    tile.lighterImage
+                      ? 'bg-gradient-to-b from-black/60 via-black/20 to-transparent'
+                      : 'bg-gradient-to-t from-black/85 via-black/40 to-black/20'
+                  }`}
+                />
                 <div className="absolute inset-0 z-10 flex flex-col p-6 text-left md:p-8">
                   <h3 className="mb-2 text-2xl font-display font-bold text-white md:text-3xl">
                     {tile.title}

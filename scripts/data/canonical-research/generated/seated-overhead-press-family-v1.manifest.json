@@ -1,0 +1,13 @@
+{
+  "batchKey": "seated-overhead-press-family-v1",
+  "researchVersion": "2026-07-26.49",
+  "generatedAt": "2026-07-26T22:20:00.000Z",
+  "cards": [
+    {
+      "slug": "seated-barbell-overhead-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 12
+    }
+  ]
+}

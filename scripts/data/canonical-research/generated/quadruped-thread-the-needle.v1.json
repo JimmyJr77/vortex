@@ -1,0 +1,424 @@
+{
+  "facilityId": 1,
+  "slug": "quadruped-thread-the-needle",
+  "researchVersion": "2026-07-27.45",
+  "assessmentSummary": {
+    "identity": "A hands-and-knees or declared heel-sit quadruped action in which one palm-up arm reaches beneath the torso, reverses, and rotates open while the support shoulder and pelvis remain controlled.",
+    "currentCardFindings": [
+      "Quadruped Thread-the-Needle, Reach, and Rotation name the same reach-under then open action.",
+      "Standard and heel-sit support are exact selectable variants; range and pause are modifiers.",
+      "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 14,
+      "baseOverallDifficulty": 28,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "quadruped-thread-and-open",
+        "exerciseComplexity": 28,
+        "physicalDifficulty": 14,
+        "derivedOverallDifficulty": 28
+      },
+      {
+        "variantKey": "heel-sit-thread-and-open",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 16,
+        "derivedOverallDifficulty": 34
+      }
+    ],
+    "identityDecision": {
+      "versus": "quadruped-thread-the-needle-rotation",
+      "decision": "duplicate_consolidated",
+      "boundary": "same_quadruped_reach_under_then_open_rotation_action"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From an exact hands-and-knees or declared heel-sit quadruped base, keep the support arm active and pelvis controlled, reach the moving arm palm-up beneath the torso through pain-free range, then reverse and rotate it open as the eyes follow the hand. Exhale through the owned range, return without momentum, and stop before shoulder support, pelvic control, breathing, or symptom-free motion changes.",
+      "familyKey": "quadruped_thread_and_open_rotation",
+      "movementPatterns": [
+        "rotate",
+        "brace"
+      ],
+      "bodyRegions": [
+        "spine",
+        "rib_cage",
+        "shoulder",
+        "wrist",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat"
+      ],
+      "environment": {
+        "setup": {
+          "handsUnderShoulders": true,
+          "movingSideAndRangeDeclared": true,
+          "kneesUnderOrBehindHipsByVariant": true
+        },
+        "space": {
+          "trafficControlled": true,
+          "clearReachRadiusMeters": 1.25,
+          "overheadClearanceRequired": true
+        },
+        "support": {
+          "optionalKneePadding": true,
+          "wristAndKneeContactComfortRequired": true
+        },
+        "surface": {
+          "avoid": [
+            "wet",
+            "loose",
+            "uneven"
+          ],
+          "required": "stable_nonslip"
+        },
+        "sharedStation": {
+          "athletesPerStation": 1,
+          "offsetFromWalkingAndThrowingLanes": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_wrist_elbow_shoulder_neck_back_or_knee_symptoms",
+          "recent_upper_extremity_or_spinal_procedure",
+          "dizziness_with_head_turning"
+        ],
+        "doNotUseWhen": [
+          "acute_or_increasing_pain",
+          "neurologic_or_dizziness_symptoms",
+          "unsafe_floor_or_clearance",
+          "cannot_support_bodyweight_through_contact_arm"
+        ],
+        "medicalScope": "The card does not diagnose, treat, or clear symptoms; follow the athlete care plan and local scope.",
+        "prerequisites": [
+          "pain_free_quadruped_support",
+          "safe_floor_transfer",
+          "pain_free_cross_body_reach",
+          "controlled_breathing"
+        ],
+        "regressionOrder": [
+          "shorter_pain_free_range",
+          "standard_quadruped_instead_of_heel_sit",
+          "forearm_or_elevated_support_requires_new_variant_review",
+          "side_lying_open_book_substitution"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "The defining action is a quadruped reach under the torso followed by a controlled reversal into open rotation.",
+        "The added words reach or rotation name existing phases and do not create separate exercise identities."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Declare the support base, moving side, palm-up thread, open rotation, owned range, tempo, repetitions, and pelvic-control standard.",
+        "Side-lying rotation and hand-behind-head rotation without a thread-under path remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Thoracic rotation coordinates spinal, rib-cage, scapular, shoulder, and trunk musculature while one arm provides closed-chain support.",
+        "The card does not claim muscle isolation or exact activation magnitude."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Quadruped thoracic rotation appears in the exercise literature, and heel-sit positioning can constrain lumbar and pelvic contribution.",
+        "Exact pain-free range and contact comfort remain individual selection constraints."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Complexity rises with a heel-sit constraint, greater owned range, longer pauses, and stricter pelvic control.",
+        "Exercise difficulty uses complexity and physical demand only, with overall equal to their maximum."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Loading is bodyweight support through one hand and both knees while the other arm moves.",
+        "Track support-shoulder, wrist, and trunk fatigue plus loss of support, range, pelvic control, or breath."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Use a stable nonslip surface, comfortable wrist and knee contacts, clear reach space, and a safe floor transfer.",
+        "Do not use through pain, neurologic symptoms, dizziness, or unsafe support."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Use slow side-balanced quality repetitions and controlled breathing rather than fatigue-seeking volume.",
+        "Stop before range shrinks, compensation rises, support collapses, or symptoms appear."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Set the base, declare the side, thread palm-up, reverse without momentum, open through owned range, and return.",
+        "Instruction includes breathing, range, dose, quality gate, stop rules, and finish."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Stop for symptoms, support collapse, pelvic spin, forced range, breath holding, or unsafe floor conditions.",
+        "A symptom-free shorter range is preferred to forcing an endpoint."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Use only when the drill improves or preserves rotation quality for the intended session context.",
+        "Direct outcome evidence for the exact exercise and variants is limited, so universal transfer is not claimed."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete guidance names expected and unexpected sensations, self-checks, accessibility choices, and nonvideo instruction.",
+        "The athlete reports symptoms and side differences rather than forcing symmetry."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The coach observes support, pelvis, thorax, breath, range, reversal, and side symmetry.",
+        "Record the exact variant, side, range, dose, compensation, symptoms, and stop reason."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "sourceTitle": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Padding, shorter range, fewer repetitions, slower motion, standard quadruped, and side-lying substitution can improve access.",
+        "A different support configuration requires exact variant review."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Heel-sit support is a variant and shorter range is a modifier.",
+        "Side-lying Open Book, hand-behind-head rotation, loaded work, and ballistic work require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=4EPsl0epycc",
+      "title": "Quadruped Thread the Needle Thoracic Rotation",
+      "channelName": "Restore Physical Therapy, LLC",
+      "sourceQuery": "quadruped thread the needle thoracic rotation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Cn43k8-7iik",
+      "title": "Thoracic Quadruped Thread the Needle",
+      "channelName": "Physical Therapy First",
+      "sourceQuery": "quadruped thread the needle thoracic rotation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Q4fKfxG33sY",
+      "title": "Quadruped Thread The Needle",
+      "channelName": "Tactical Athlete Performance & Physical Therapy",
+      "sourceQuery": "quadruped thread the needle",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7VQU2-yFZME",
+      "title": "Quadruped Thread the Needle",
+      "channelName": "Theory of Motion Exercise Library",
+      "sourceQuery": "quadruped thread the needle",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Quadruped Thread-the-Needle Rotation",
+      "classification": "same_identity",
+      "rationale": "Rotation names the existing open phase.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Quadruped Thread-the-Needle Reach",
+      "classification": "same_identity",
+      "rationale": "Reach names the existing thread-under phase.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Heel-Sit Thread-the-Needle",
+      "classification": "new_variant",
+      "rationale": "Heel-sit support constrains pelvic contribution while preserving the defining action.",
+      "distinguishingDimensions": {
+        "hipPosition": "heel_sit"
+      }
+    },
+    {
+      "name": "Short-Range Thread-the-Needle",
+      "classification": "modifier_annotation",
+      "rationale": "A shorter owned range changes access and dose but not support or action.",
+      "distinguishingDimensions": {
+        "range": "shorter_owned"
+      }
+    },
+    {
+      "name": "Side-Lying Open Book",
+      "classification": "new_definition",
+      "rationale": "Side-lying support and no thread-under path change setup and action.",
+      "distinguishingDimensions": {
+        "supportBase": "side_lying",
+        "action": "open_only"
+      }
+    },
+    {
+      "name": "Quadruped Hand-Behind-Head Rotation",
+      "classification": "new_definition",
+      "rationale": "Hand-behind-head open-and-close rotation omits the palm-up thread-under path.",
+      "distinguishingDimensions": {
+        "handPosition": "behind_head"
+      }
+    },
+    {
+      "name": "Loaded or Ballistic Thread-the-Needle",
+      "classification": "new_definition",
+      "rationale": "Load or ballistic intent changes loading, speed, and failure consequence.",
+      "distinguishingDimensions": {
+        "externalLoadOrBallisticIntent": true
+      }
+    }
+  ]
+}

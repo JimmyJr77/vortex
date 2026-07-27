@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, Ticket, X } from 'lucide-react'
+import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
 import { getLoggedInMemberEmail } from '../utils/portalSession'
@@ -100,11 +100,12 @@ export default function DropInPage() {
   return <div className="min-h-screen bg-gray-50">
     <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-14 text-white">
       <div className="container-custom max-w-5xl text-center">
-        <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-vortex-red/20 px-4 py-2 text-sm font-bold text-red-200"><Ticket className="h-4 w-4" /> Single-day classes only</div>
         <h1 className="font-display text-4xl font-bold md:text-6xl">
           Drop-In Gymnastics &amp; Youth Classes in Bowie, MD
         </h1>
-        <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-300">Browse the same class catalog, then choose one upcoming day without starting a monthly enrollment.</p>
+        <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-300">
+          Sign up for a drop-in class. First class for non-members is free. Member discounts apply and all members get 4 free drop-ins per year. Schedule make-up classes here as well
+        </p>
       </div>
     </section>
 

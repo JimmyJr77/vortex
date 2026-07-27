@@ -11,7 +11,7 @@ export type HubNavMenuEntry =
 /** Hub site nav: programs, summer offerings, then sport sites. */
 export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
   { kind: 'item', label: 'Vortex Athletics', to: '/vortex-athletics' },
-  { kind: 'item', label: 'Fit & Flip', to: '/strength-conditioning', indented: true },
+  { kind: 'item', label: 'Fit & Flip', to: '/fit-and-flip', indented: true },
   { kind: 'item', label: 'Drop-In Classes', to: '/drop-in', indented: true },
   { kind: 'item', label: 'Contact & Location', to: '/contact' },
   { kind: 'specialPages' },

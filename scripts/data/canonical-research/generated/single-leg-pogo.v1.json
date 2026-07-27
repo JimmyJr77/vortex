@@ -1,0 +1,543 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-pogo",
+  "researchVersion": "2026-07-27.46",
+  "assessmentSummary": {
+    "identity": "Repeated low-amplitude ankle-dominant hops on one declared leg, with quick contacts and no intentional stabilization between repetitions.",
+    "currentCardFindings": [
+      "Single-Leg Pogo in Place and Single-Leg Pogo Jumps are redundant definitions consolidated into the survivor.",
+      "Support, stationary versus forward or lateral travel, cadence, amplitude, and contact count are exact variant or dose dimensions.",
+      "Single-Leg Pogo Hold-to-Hop remains distinct because it begins with a balance hold and terminates each short bout with a stick or full reset.",
+      "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 46,
+      "absoluteLoadDemand": 54,
+      "baseOverallDifficulty": 54,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "supported-stationary-low-amplitude",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 40,
+        "derivedOverallDifficulty": 40
+      },
+      {
+        "variantKey": "stationary-low-amplitude",
+        "exerciseComplexity": 46,
+        "physicalDifficulty": 54,
+        "derivedOverallDifficulty": 54
+      },
+      {
+        "variantKey": "linear-forward-traveling",
+        "exerciseComplexity": 58,
+        "physicalDifficulty": 64,
+        "derivedOverallDifficulty": 64
+      },
+      {
+        "variantKey": "lateral-line",
+        "exerciseComplexity": 62,
+        "physicalDifficulty": 66,
+        "derivedOverallDifficulty": 66
+      }
+    ],
+    "identityDecision": {
+      "versus": [
+        "single-leg-pogo-in-place",
+        "single-leg-pogo-jumps"
+      ],
+      "decision": "duplicate_consolidated",
+      "boundary": "same_repeated_unilateral_ankle_dominant_hopping_action"
+    },
+    "distinctIdentityDecision": {
+      "versus": "single-leg-pogo-hold-to-hop",
+      "decision": "distinct_exercises",
+      "boundary": "continuous_contacts_without_stick_vs_hold_entry_short_bout_terminal_stick"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T18:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Balance on the declared leg with support, direction, amplitude, cadence, arm action, contact count, and finish rule specified by the exact variant. Perform repeated low-amplitude ankle-dominant hops with a tall organized trunk, the foot returning under the hip or to the declared line, the knee tracking with the foot, and the pelvis controlled. Use quick quiet contacts without an intentional stick between repetitions; stop before contact time, sound, alignment, height, direction, or symptoms change.",
+      "familyKey": "repeated_unilateral_ankle_dominant_pogo",
+      "movementPatterns": [
+        "jump",
+        "locomote"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "line_tape",
+        "wall",
+        "mat"
+      ],
+      "environment": {
+        "setup": {
+          "footwearAndSurfaceRecorded": true,
+          "side_support_direction_amplitude_cadence_contacts_and_finish_declared": true
+        },
+        "space": {
+          "runOutMeters": 3,
+          "travelLaneMeters": {
+            "target": 8,
+            "maximum": 12,
+            "minimum": 5
+          },
+          "crossTrafficProhibited": true,
+          "stationaryRadiusMeters": 1.5
+        },
+        "record": [
+          "side",
+          "support",
+          "direction",
+          "amplitude",
+          "cadence",
+          "contacts",
+          "distance",
+          "contact_quality",
+          "finish_rule"
+        ],
+        "surface": {
+          "avoid": [
+            "wet",
+            "uneven",
+            "very_hard_for_high_volume",
+            "soft_unstable"
+          ],
+          "required": "flat_dry_stable_high_traction_with_appropriate_compliance"
+        },
+        "traffic": {
+          "coachSightlineRequired": true,
+          "stationSeparationMeters": 2.5,
+          "oneAthletePerLaneOrStation": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_foot_ankle_achilles_calf_knee_hip_or_back_symptoms",
+          "recent_lower_extremity_procedure",
+          "limited_unilateral_impact_exposure",
+          "large_side_difference"
+        ],
+        "doNotUseWhen": [
+          "pain_or_limp",
+          "unsafe_surface_or_lane",
+          "cannot_control_supported_low_amplitude_variant",
+          "contacts_are_loud_slow_or_unstable",
+          "fatigue_already_changes_landing"
+        ],
+        "medicalScope": "This card is not rehabilitation prescription, tendon treatment, or clearance.",
+        "prerequisites": [
+          "pain_free_bilateral_pogo_or_repeated_calf_raise",
+          "controlled_single_leg_stance",
+          "can_land_single_leg_quietly",
+          "understands_contact_and_stop_rule"
+        ],
+        "regressionOrder": [
+          "supported_stationary",
+          "fewer_contacts",
+          "lower_amplitude",
+          "slower_declared_cadence",
+          "bilateral_pogo_substitution"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned public oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Repeated low-amplitude unilateral ankle-dominant contacts without an intentional inter-repetition stick define this card.",
+        "Support and travel direction are selectable variants; bilateral contacts, higher projected bounds, terminal sticks, obstacles, loads, and linked actions remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "The card is a unilateral repeated-contact jump pattern with sagittal action plus frontal- and transverse-plane control.",
+        "Stationary, forward-traveling, and lateral-line variants preserve repeated contacts while changing support or landing location."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Foot, ankle, knee, hip, pelvis, and trunk coordinate repeated unilateral spring contacts, with high local demand at the foot-calf-Achilles complex.",
+        "Muscle roles are not isolation claims, and exact tissue loading cannot be inferred from the label alone."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Unilateral and bilateral hopping produce different stiffness behavior, supporting a distinct laterality contract.",
+        "Exact cadence, amplitude, direction, dose, readiness threshold, and score for these variants are not directly validated."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Complexity rises when hand support is removed or the landing location travels; physical difficulty rises with unsupported contacts, speed, amplitude, direction, density, and accumulated impact.",
+        "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency remains a skill-library concept."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Every landing contact counts toward unilateral impact and foot-calf-Achilles volume, with secondary knee, hip, and trunk control demand.",
+        "End the set before contact sound or time, heel behavior, landing location, alignment, height, cadence, support use, or symptoms change."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Use a flat dry nonslip surface, adequate footwear, marked personal space, clear travel lanes, and a stable support only for the supported variant.",
+        "Do not use through pain, swelling, giving way, unsafe balance, poor landing tolerance, or untracked same-session impact."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Dose by quality contacts per side with declared cadence, amplitude, direction, rest, and cumulative impact budget.",
+        "Exact contact counts, recovery windows, and difficulty scores remain review and calibration proposals."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Declare side, support, direction, line or lane, contact count, cadence, amplitude, arm action, finish rule, rest, and stop signal.",
+        "Stay tall and springy, return the foot to the declared location, keep quick quiet contacts, and do not insert a stick between repetitions."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Stop for symptoms, swelling, giving way, heel slam, loud or slow contacts, landing drift, knee or pelvis collapse, altered cadence, excessive support, or unsafe surface.",
+        "Reduce contacts or return to supported or bilateral work when quality cannot be restored."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Use fresh in lower-leg, landing, sprint, or jump preparation when repeated unilateral contacts serve the objective.",
+        "Count every contact and avoid post-fatigue impact density or untracked overlap with running and jumping."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Athlete support explains expected foot-calf effort, unexpected symptoms, contact self-checks, side reporting, access options, and nonvideo instruction.",
+        "The athlete reports contact deterioration or Achilles-area symptoms immediately."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Coach support covers side balance, support use, foot return, sound, contact time, heel behavior, knee-pelvis-trunk alignment, travel path, and cumulative contacts.",
+        "The coach reduces direction or support demand before adding contacts, amplitude, or density."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Stable light hand support, fewer contacts, lower cadence, smaller amplitude, stationary placement, longer rest, or a high-contrast line can improve access.",
+        "Bilateral pogo is a separate laterality identity rather than an undeclared modification."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Supported stationary, unsupported stationary, linear-forward, and lateral-line tasks are exact variants; cadence and contact count are modifiers.",
+        "Bilateral, terminal-stick, hop-and-stick, bound, obstacle, loaded, reactive, and linked sprint or jump tasks require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Yq75-6SUn7A",
+      "title": "How To Do Single Leg Pogo Hops",
+      "channelName": "Swift Movement Academy",
+      "sourceQuery": "single leg pogo hops",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=346nxpp5ZtU",
+      "title": "Single Leg Stationary Pogo Hop",
+      "channelName": "N2AthleteX Performance Training",
+      "sourceQuery": "single leg pogo hops",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=U12iOibPX98",
+      "title": "Single Leg Pogo Jumps",
+      "channelName": "RADCENTRE",
+      "sourceQuery": "single leg pogo hops",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=MYnVANm8H9E",
+      "title": "Single Leg Linear Pogo Hops",
+      "channelName": "N2AthleteX Performance Training",
+      "sourceQuery": "single leg pogo hops",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Leg Pogo in Place",
+      "classification": "same_identity",
+      "rationale": "In place is the stationary exact variant of the canonical action.",
+      "distinguishingDimensions": {
+        "direction": "stationary"
+      }
+    },
+    {
+      "name": "Single-Leg Pogo Jumps",
+      "classification": "same_identity",
+      "rationale": "Jumps pluralizes the repeated unilateral pogo action.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Supported Stationary Single-Leg Pogo",
+      "classification": "new_variant",
+      "rationale": "Light hand support reduces balance demand while preserving the action.",
+      "distinguishingDimensions": {
+        "support": "stable_hand",
+        "direction": "stationary"
+      }
+    },
+    {
+      "name": "Unsupported Stationary Single-Leg Pogo",
+      "classification": "new_variant",
+      "rationale": "Removing support raises control demand without adding travel.",
+      "distinguishingDimensions": {
+        "support": "none_used",
+        "direction": "stationary"
+      }
+    },
+    {
+      "name": "Linear Forward-Traveling Single-Leg Pogo",
+      "classification": "new_variant",
+      "rationale": "Forward travel changes landing location and projection while preserving repeated contacts.",
+      "distinguishingDimensions": {
+        "direction": "linear_forward"
+      }
+    },
+    {
+      "name": "Lateral Line Single-Leg Pogo",
+      "classification": "new_variant",
+      "rationale": "Small lateral line crossings add frontal-plane landing-location demand.",
+      "distinguishingDimensions": {
+        "direction": "lateral_line"
+      }
+    },
+    {
+      "name": "Single-Leg Pogo Cadence, Amplitude, or Contact Change",
+      "classification": "modifier_annotation",
+      "rationale": "Cadence, low amplitude, arm action, footwear, surface, and contact count scale a declared variant.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "cadence",
+          "low_amplitude",
+          "arm_action",
+          "footwear",
+          "surface",
+          "contacts"
+        ]
+      }
+    },
+    {
+      "name": "Bilateral Pogo Jump",
+      "classification": "new_definition",
+      "rationale": "Two-leg contacts change laterality, load distribution, and balance demand.",
+      "distinguishingDimensions": {
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Single-Leg Pogo Hold-to-Hop",
+      "classification": "new_definition",
+      "rationale": "A declared balance hold, short pogo bout, and terminal stick or reset change the action sequence and finish.",
+      "distinguishingDimensions": {
+        "entry": "balance_hold",
+        "terminalAction": "stick_or_full_reset"
+      }
+    },
+    {
+      "name": "Single-Leg Pogo Hold-Stick",
+      "classification": "new_definition",
+      "rationale": "A terminal hold between sequences changes the continuous repeated-contact action.",
+      "distinguishingDimensions": {
+        "terminalAction": "stick"
+      }
+    },
+    {
+      "name": "Single-Leg Hop-and-Stick",
+      "classification": "new_definition",
+      "rationale": "Each higher-amplitude hop ends in stabilization rather than another quick contact.",
+      "distinguishingDimensions": {
+        "action": "hop_then_stick"
+      }
+    },
+    {
+      "name": "Single-Leg Bound or High-Knee Pogo",
+      "classification": "new_definition",
+      "rationale": "Greater projection or a high-knee cycle changes amplitude, joint action, and intent.",
+      "distinguishingDimensions": {
+        "action": "bound_or_high_knee_cycle"
+      }
+    },
+    {
+      "name": "Single-Leg Hurdle, Box, or Cone Pogo",
+      "classification": "new_definition",
+      "rationale": "An obstacle changes clearance, consequence, space, and contact strategy.",
+      "distinguishingDimensions": {
+        "obstacle": true
+      }
+    },
+    {
+      "name": "Loaded, Resisted, or Reactive Single-Leg Pogo",
+      "classification": "new_definition",
+      "rationale": "External load, resistance, or an unpredictable cue changes force, decision, and safety constraints.",
+      "distinguishingDimensions": {
+        "addedConstraint": [
+          "load",
+          "resistance",
+          "reactive_cue"
+        ]
+      }
+    },
+    {
+      "name": "Pogo-to-Sprint or Pogo-to-Jump Combination",
+      "classification": "new_definition",
+      "rationale": "A linked sprint or jump adds a second action and sequence.",
+      "distinguishingDimensions": {
+        "sequence": [
+          "pogo",
+          "sprint_or_jump"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,459 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.50",
+  "batchKey": "hip-thrust-family-v1",
+  "snapshotAt": "2026-07-26T22:46:26.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "hip_thrust_glute_bridge_emg",
+      "claims": [
+        "Hip Thrust is an upper-back-supported hip-extension task with the feet supported, a declared implement and load position, an owned top position, and a controlled return.",
+        "Band, barbell, dumbbell, kettlebell, plate, sandbag, and bodyweight loading are variants when support geometry and joint action remain the same; floor-supported glute bridge is a separate definition."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "barbell_hip_thrust_systematic_review",
+      "claims": [
+        "The family is classified as supported horizontal hip extension with bilateral or unilateral laterality, sagittal-plane hip extension, knee-position control, and trunk-pelvis stabilization.",
+        "Exact cards declare upper-back support, foot support, laterality, implement, implement quantity, load position, range, tempo, top-position standard, breathing, setup, exit, and dose."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "barbell_hip_thrust_biomechanics",
+      "claims": [
+        "The hip extensors provide the primary joint moment while the knee, ankle, trunk, and pelvis have supporting and stabilizing roles that vary through the movement.",
+        "The card tracks gluteus maximus, hamstrings, adductor magnus, quadriceps, calves, abdominal wall, spinal stabilizers, hip, knee, ankle, lumbopelvic complex, and upper-back contact without claiming isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "barbell_hip_thrust_biomechanics",
+      "claims": [
+        "Hip-extensor demand is substantial and changes through the lifting phase; range, support height, shin position, external load, and top-position control therefore require explicit declaration.",
+        "The valid repetition finishes through hip extension without substituting lumbar extension, pelvic rotation, foot movement, or loss of upper-back support."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "single_leg_hip_thrust_glute_force",
+      "claims": [
+        "External loading and single-leg execution change physical demand and stabilization requirements, so difficulty is assigned per exact variant.",
+        "Score exercise complexity and physical difficulty only, derive overall as their maximum, and keep athlete experience or proficiency out of the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "barbell_hip_thrust_biomechanics",
+      "claims": [
+        "External mass, band tension, laterality, repetitions, range, tempo, top holds, and proximity to failure jointly determine load and fatigue.",
+        "Track local hip-extensor fatigue, hamstring cramping, trunk-position loss, foot pressure, contact discomfort, technical sensitivity, setup burden, and recovery before other high-force hip-extension or sprint work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Resistance exercise requires inspected equipment, stable setup, appropriate technique, supervision, and controlled progression.",
+        "Require a stable nonmoving upper-back support, level nonslip floor, clear working zone, intact implement and padding, secure plates and collars where applicable, and a controlled loading and unloading plan."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Resistance-training dose depends on load, repetitions, sets, rest, exercise order, training objective, and the ability to preserve technique.",
+        "Use quality repetitions through an owned range at a declared effort, with enough rest to preserve support contact, pelvis and rib control, foot pressure, top position, and equipment control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Instruction should establish equipment, body position, action, breathing, and safe finish before load progresses.",
+        "Cue the declared upper-back contact, foot position and pressure, ribs over pelvis, controlled hip extension, owned top position without lumbar overextension, same-path lowering, and secure equipment exit."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Qualified supervision, correct technique, manageable resistance, and gradual progression are central resistance-training safeguards.",
+        "Stop for pain, numbness, dizziness, pressure symptoms, support or implement movement, loss of upper-back contact, foot slip, uncontrolled pelvic rotation, lumbar overextension, asymmetric range, cramping that changes motion, grinding, failed repetition, or unsafe unloading."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "barbell_hip_thrust_systematic_review",
+      "claims": [
+        "Hip thrust loading is used to train hip-extension strength and power-related qualities, but exercise selection and transfer depend on the objective and surrounding program.",
+        "Place high-load variants before fatigue-sensitive sprinting, jumping, or technique work when quality is the priority, and account for cumulative posterior-chain loading, local fatigue, setup time, and recovery."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Athletes need the exact support, foot, load, start, action, finish, breathing, and equipment-exit sequence in plain language.",
+        "Expose variant, load, range, tempo, repetitions, rest, expected effort, self-checks, symptom guidance, contact comfort, and safe loading and unloading before the set starts."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "barbell_hip_thrust_biomechanics",
+      "claims": [
+        "Hip-extension demand changes through the repetition, making setup and position observations necessary rather than relying on a top-position snapshot.",
+        "Coach support should verify support height and stability, foot distance and pressure, knee tracking, pelvis and rib position, upper-back contact, range, tempo, symmetry, load control, effort, and safe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Resistance training should be individualized to body size, readiness, equipment fit, technical control, and supervision.",
+        "Accessibility options include bodyweight, lighter or padded load, a lower stable support, shorter owned range, bilateral rather than unilateral execution, fewer repetitions, longer rest, live or tactile setup assistance, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "hip_thrust_glute_bridge_emg",
+      "claims": [
+        "Barbell hip thrust and barbell glute bridge have biomechanical and muscle-activity differences and should not be collapsed into one identity.",
+        "Implement, load, laterality, range, tempo, pause, and declared support height are variants within an exact upper-back-supported contract; changing to floor shoulder support or a fixed-path machine requires a separate definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube currently supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five representative candidates returned current oEmbed metadata and title-level family or implement matches, but full viewing, exact support and load review, captions, accessibility, cue quality, safety, and human approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "distance-jump-hip-thrust",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "Upper back supported on a declared stable bench or box, feet supported on the floor, hips lowering and extending through an owned range, with exact laterality, implement, load position, tempo, top-position standard, and safe setup and exit declared.",
+        "currentCardFindings": [
+          "The stable legacy slug is misleading, but the canonical name is already Hip Thrust and the slug remains preserved for identity stability.",
+          "Five active source definitions describe the same upper-back-supported action with implement, load, or laterality changes and should consolidate as exact variants.",
+          "Feet-Elevated Hip Thrust does not declare whether shoulders or feet are elevated, and Hip Thrust Eccentric Lower permits either bench hip thrust or floor bridge setup; both remain separate and quarantined for human identity review.",
+          "Inherited source variants do not declare support height, foot position, load operations, range, tempo, top-position standard, fatigue, stop, or delivery contracts and are not selectable.",
+          "Twenty-nine inherited YouTube links returned current oEmbed metadata; five representative candidates are retained, but none has been fully viewed, exact-variant approved, accessibility reviewed, or approved for publication."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "supported_horizontal_hip_extension",
+            "controlled_eccentric_return",
+            "lumbopelvic_stabilization"
+          ],
+          "jointActions": [
+            "hip_extension",
+            "hip_flexion_control",
+            "knee_position_stabilization",
+            "ankle_position_stabilization",
+            "thoracolumbar_anti_extension",
+            "pelvic_rotation_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "variant_declared",
+          "intent": "controlled_supported_hip_extension"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 34,
+          "baseOverallDifficulty": 42,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "bodyweight-bilateral-upper-back-supported",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 30,
+            "overallDifficulty": 38
+          },
+          {
+            "variantKey": "barbell-bilateral-upper-back-supported",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 62,
+            "overallDifficulty": 62
+          },
+          {
+            "variantKey": "band-bilateral-upper-back-supported",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 46,
+            "overallDifficulty": 46
+          },
+          {
+            "variantKey": "dumbbell-bilateral-upper-back-supported",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 44,
+            "overallDifficulty": 44
+          },
+          {
+            "variantKey": "kettlebell-bilateral-upper-back-supported",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 44,
+            "overallDifficulty": 44
+          },
+          {
+            "variantKey": "plate-bilateral-upper-back-supported",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 42,
+            "overallDifficulty": 42
+          },
+          {
+            "variantKey": "sandbag-bilateral-upper-back-supported",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 50,
+            "overallDifficulty": 50
+          },
+          {
+            "variantKey": "bodyweight-single-leg-upper-back-supported",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 48,
+            "overallDifficulty": 58
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_or_external_load_supported_hip_extension",
+          "implementVariants": [
+            "bodyweight",
+            "barbell",
+            "band",
+            "dumbbell",
+            "kettlebell",
+            "plate",
+            "sandbag"
+          ],
+          "primaryStress": [
+            "hip_extensor_force",
+            "lumbopelvic_control",
+            "foot_pressure_and_knee_tracking",
+            "upper_back_contact",
+            "eccentric_lowering",
+            "equipment_control"
+          ],
+          "fatigueSensitivity": "pelvic_rib_position_range_symmetry_foot_pressure_cramping_and_equipment_control"
+        },
+        "identityDecision": {
+          "consolidatedSources": [
+            "band-hip-thrust",
+            "barbell-hip-thrust",
+            "hip-thrust-loaded-glute-bridge",
+            "sandbag-hip-thrust-strength",
+            "single-leg-hip-thrust"
+          ],
+          "humanReviewBoundaries": [
+            "feet-elevated-hip-thrust",
+            "hip-thrust-eccentric-lower"
+          ],
+          "decision": "duplicate_consolidated_with_variant_preservation",
+          "boundary": "same_upper_back_supported_hip_extension"
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=LM8XHLYJoYs",
+          "title": "Proper Hip Thrust Form",
+          "channelName": "Bret Contreras Glute Guy",
+          "sourceQuery": "inherited hip thrust candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T22:46:26.000Z"
+          },
+          "notes": "Family-level title match. Full support, implement, range, cue, safety, caption, accessibility, and approval review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1QSrtSBJ2Xo",
+          "title": "Band Hip Thrust",
+          "channelName": "Girls Gone Strong",
+          "sourceQuery": "inherited band hip thrust candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T22:46:26.000Z"
+          },
+          "notes": "Title-level band variant match. Full viewing and exact-variant human review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=29OfN4ztW_g",
+          "title": "Dumbbell Hip Thrust (FULL TUTORIAL) - Glute Exercises for Beginners",
+          "channelName": "J2FIT Strength & Conditioning",
+          "sourceQuery": "inherited dumbbell hip thrust candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T22:46:26.000Z"
+          },
+          "notes": "Title-level dumbbell variant match. Full viewing, support geometry, setup, safety, captions, accessibility, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=J7L0749hx_w",
+          "title": "Kettlebell Hip Thrust",
+          "channelName": "Functional Bodybuilding",
+          "sourceQuery": "inherited kettlebell hip thrust candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T22:46:26.000Z"
+          },
+          "notes": "Title-level kettlebell variant match. Full exact-variant and human demonstration review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=c3_Pbv_FQZg",
+          "title": "Sandbag Hip Thrust Demo",
+          "channelName": "Steph Gaudreau",
+          "sourceQuery": "inherited sandbag hip thrust candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T22:46:26.000Z"
+          },
+          "notes": "Title-level sandbag variant match. Full support, load placement, cue, safety, caption, accessibility, and approval review remain unresolved."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Bodyweight Bilateral Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "Removing external load preserves upper-back support and the bilateral hip-extension action.",
+          "distinguishingDimensions": {
+            "implement": "bodyweight",
+            "laterality": "bilateral"
+          }
+        },
+        {
+          "name": "Barbell Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A padded barbell across the pelvis changes load magnitude and equipment operations without changing exercise identity.",
+          "distinguishingDimensions": {
+            "implement": "barbell",
+            "loadPosition": "across_pelvis"
+          }
+        },
+        {
+          "name": "Band Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A declared anchored band changes resistance profile and setup while preserving upper-back-supported hip extension.",
+          "distinguishingDimensions": {
+            "implement": "anchored_band",
+            "resistanceProfile": "increasing_tension"
+          }
+        },
+        {
+          "name": "Dumbbell Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A dumbbell across the pelvis changes load handling while preserving the same support and action.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "loadPosition": "across_pelvis"
+          }
+        },
+        {
+          "name": "Kettlebell Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A kettlebell across the pelvis changes contact and handling while preserving the same support and action.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell",
+            "loadPosition": "across_pelvis"
+          }
+        },
+        {
+          "name": "Plate Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A plate across the pelvis is an implement and handling variant of the same upper-back-supported action.",
+          "distinguishingDimensions": {
+            "implement": "weight_plate",
+            "loadPosition": "across_pelvis"
+          }
+        },
+        {
+          "name": "Sandbag Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "A sandbag changes load distribution and setup while preserving upper-back-supported bilateral hip extension.",
+          "distinguishingDimensions": {
+            "implement": "sandbag",
+            "loadPosition": "across_pelvis"
+          }
+        },
+        {
+          "name": "Single-Leg Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "One-foot support changes laterality, pelvic-control demand, load distribution, and side-balanced dose while preserving the hip-thrust support contract.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral",
+            "footSupport": "one_foot"
+          }
+        },
+        {
+          "name": "Feet-Elevated Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "Foot elevation can be a surface-height variant only when upper-back support and both elevated surfaces are explicitly declared; the existing source card is quarantined because it does not resolve that geometry.",
+          "distinguishingDimensions": {
+            "footSupportHeight": "elevated_declared",
+            "identityReview": "required_for_existing_source"
+          }
+        },
+        {
+          "name": "Eccentric Hip Thrust",
+          "classification": "new_variant",
+          "rationale": "An eccentric emphasis is a tempo variant only when the upper-back-supported hip-thrust setup is explicit; the existing mixed bridge-or-bench source remains quarantined.",
+          "distinguishingDimensions": {
+            "tempo": "eccentric_emphasis",
+            "identityReview": "required_for_existing_source"
+          }
+        },
+        {
+          "name": "Barbell Glute Bridge",
+          "classification": "new_definition",
+          "rationale": "Shoulders and upper back on the floor create a different support geometry, range, setup, and mechanical task.",
+          "distinguishingDimensions": {
+            "upperBodySupport": "floor",
+            "movementIdentity": "glute_bridge"
+          }
+        },
+        {
+          "name": "Hip Thrust Machine",
+          "classification": "new_definition",
+          "rationale": "A machine constrains the resistance path, support geometry, belt or pad, setup, and failure protocol.",
+          "distinguishingDimensions": {
+            "resistanceConstraint": "machine_fixed_path"
+          }
+        },
+        {
+          "name": "Frog Pump",
+          "classification": "new_definition",
+          "rationale": "A frog-leg floor position changes hip rotation, foot contact, range, support, and movement identity.",
+          "distinguishingDimensions": {
+            "upperBodySupport": "floor",
+            "hipPosition": "abducted_externally_rotated"
+          }
+        },
+        {
+          "name": "Paused Hip Thrust",
+          "classification": "modifier_annotation",
+          "rationale": "A declared top hold changes tempo and fatigue without requiring a new identity when every other exact variant dimension is unchanged.",
+          "distinguishingDimensions": {
+            "topHoldSeconds": "declared"
+          }
+        }
+      ]
+    }
+  ]
+}

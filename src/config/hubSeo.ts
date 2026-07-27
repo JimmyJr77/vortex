@@ -38,10 +38,10 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     priority: 0.8,
   },
   {
-    path: '/strength-conditioning',
-    title: 'Fit & Flip | Adult Fitness & Acrobatics, Bowie MD',
+    path: '/fit-and-flip',
+    title: 'Fit & Flip Athletic Training | Vortex Athletics Bowie',
     description:
-      'Adult fitness, conditioning, and acrobatics in Bowie, MD. Functional strength and mobility for all levels. Try a class today.',
+      'Foundational athletic training combining advanced athletics, tumbling, coordination, and body control in 1.5-hour training blocks.',
     priority: 0.8,
   },
   {

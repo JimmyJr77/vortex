@@ -194,7 +194,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   const url = buildCanonical(HUB_ORIGIN, pathname)
   const breadcrumbName: Record<string, string> = {
     '/ninja': 'Kids Ninja Classes',
-    '/strength-conditioning': 'Fit & Flip Adult Fitness',
+    '/fit-and-flip': 'Fit & Flip Athletic Training',
     '/vortex-athletics': 'Vortex Athletics',
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
@@ -244,12 +244,12 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       }),
     )
   }
-  if (pathname === '/strength-conditioning') {
+  if (pathname === '/fit-and-flip') {
     schema.push(
       serviceSchema({
-        name: 'Fit & Flip Adult Fitness & Acrobatics',
+        name: 'Fit & Flip Foundational Athletic Training',
         description:
-          'Adult fitness, conditioning, and acrobatics in Bowie, MD. Functional strength and mobility for adults and athletes.',
+          'Foundational athletics training combining advanced athletic development with tumbling, coordination, and body control in 1.5-hour blocks.',
         url,
       }),
     )

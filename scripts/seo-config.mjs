@@ -6,7 +6,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/vortex-athletics', priority: '0.9', changefreq: 'weekly' },
   { path: '/ninja', priority: '0.8', changefreq: 'weekly' },
-  { path: '/strength-conditioning', priority: '0.8', changefreq: 'weekly' },
+  { path: '/fit-and-flip', priority: '0.8', changefreq: 'weekly' },
   { path: '/summer-athletic-training', priority: '0.9', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },

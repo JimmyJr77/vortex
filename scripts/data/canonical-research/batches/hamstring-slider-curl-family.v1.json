@@ -1,0 +1,455 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.54",
+  "batchKey": "hamstring-slider-curl-family-v1",
+  "snapshotAt": "2026-07-27T00:40:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "supine_sliding_leg_curl_emg_2025",
+      "claims": [
+        "The stable identity is a supine sliding leg curl: shoulders and trunk supported on the floor, one or both heels on declared low-friction sliders, hips held in a bridge or managed by the exact variant, controlled knee extension as the heels travel away, and knee flexion as the heels return.",
+        "Slider or towel, bilateral or unilateral execution, range, hip-height policy, full-cycle versus eccentric-only action, assistance, tempo, repetitions, and rest are exact variants when the supine sliding knee-flexion contract remains unchanged."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "hamstring_exercise_selection_activation",
+      "claims": [
+        "Classify the family as a floor-supported knee-flexion and eccentric knee-extension exercise with isometric or controlled hip-extension support rather than as a hip-hinge, machine curl, or locomotor task.",
+        "Exact cards declare laterality, slider and surface, hip-height policy, knee range, contraction path, return method, tempo, repetitions, rest, and finish."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "hamstring_exercise_selection_activation",
+      "claims": [
+        "The hamstrings provide knee-flexion and eccentric knee-extension force; the gluteals and trunk contribute to the bridge and lumbopelvic position, while the calves may assist through heel contact.",
+        "The card tracks hip, knee, ankle, pelvis, lumbar spine, hamstrings, gluteals, calves, and trunk stabilizers without claiming isolation or equal regional recruitment."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "hamstring_force_stretch_eccentric_slider_2026",
+      "claims": [
+        "Unilateral eccentric slider execution can create substantial hamstring force, while force and muscle stretch differ from sprinting and from other hamstring exercises; exercise selection cannot be inferred from one generic posterior-chain label.",
+        "Laterality, knee range, hip position, eccentric speed, assistance, friction, and fatigue must be declared because they change force demand and the ability to preserve the bridge."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "hamstring_force_stretch_eccentric_slider_2026",
+      "claims": [
+        "Single-leg and eccentric-only executions increase physical demand and control requirements relative to short-range bilateral repetitions, so difficulty is assigned per exact variant.",
+        "Score exercise complexity and physical difficulty only, derive overall difficulty as their maximum, and do not place athlete proficiency or skill-library levels on the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "hamstring_force_stretch_eccentric_slider_2026",
+      "claims": [
+        "The load is bodyweight transmitted through one or both heels, with effective demand altered by lever length, friction, hip height, range, tempo, assistance, and proximity to technical failure.",
+        "Track local hamstring and calf fatigue, cramping, loss of bridge height, shortened range, faster-than-declared lowering, pelvic rotation, technical sensitivity, soreness, and recovery before sprinting, hinging, or other high-force hamstring work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise selection and progression require an exact task, manageable dose, stable setup, and technique that can be repeated.",
+        "Require a clean level floor, matched intact sliders or towels on a compatible predictable surface, clear heel travel, a comfortable shoulder and head position, and no cross-traffic."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "resistance_prescription_network_meta_analysis",
+      "claims": [
+        "Resistance-training outcomes depend on the combined prescription of sets, repetitions, load, effort, frequency, and recovery rather than on an exercise name alone.",
+        "Use quality repetitions through declared range and tempo with enough rest to preserve hip height, pelvic control, heel path, knee range, breathing, and the exact return method; stop before cramping or technical failure changes the action."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "supine_sliding_leg_curl_emg_2025",
+      "claims": [
+        "Instruction should establish the supine start, heel-slider contact, bridge position, knee-extension slide, knee-flexion return or assisted reset, breathing, and safe finish before increasing range or laterality.",
+        "Cue quiet ribs and pelvis, heel pressure, hips held at the declared height, slow controlled travel, symmetrical paths when bilateral, and a complete reset before the next repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Qualified supervision, correct technique, manageable resistance, and gradual progression are central safeguards for resistance exercise.",
+        "Stop for sharp or increasing pain, a hamstring pull or grab, cramping that changes motion, numbness, dizziness, giving way, slider escape, uncontrolled knee extension, hip drop, pelvic rotation, lumbar compensation, inability to return, or a changed repetition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "hamstring_force_stretch_eccentric_slider_2026",
+      "claims": [
+        "Slider curls are one knee-flexion-focused posterior-chain option; their force and length demands differ from sprinting, Romanian deadlifts, bridges, and Nordic curls.",
+        "Account for cumulative hamstring exposure, sprinting, hinging, Nordics, jumping, soreness, and prior strain history; place higher-demand eccentric variants where their quality and downstream recovery can be protected."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Athletes need the exact side, slider, range, hip-height, tempo, return method, repetitions, rest, expected effort, and stop rules before beginning.",
+        "Plain-language self-checks should make it clear that a shorter controlled range is preferable to hips dropping, heels escaping, pelvis turning, cramping, or an uncontrolled final third."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "hamstring_force_stretch_eccentric_slider_2026",
+      "claims": [
+        "Because force changes with variant and execution, coaches should observe more than whether the heels move.",
+        "Coach support verifies slider and surface compatibility, heel path, hip height, pelvic and rib position, knee range, tempo, assistance, left-right behavior, symptoms, fatigue, and the ability to finish without an uncontrolled reset."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise should be individualized to controllable range, symptoms, equipment, and the objective.",
+        "Accessibility options include bilateral rather than unilateral execution, shorter heel travel, hips lowered between repetitions, concentric assistance, a more predictable low-friction surface, fewer repetitions, longer rest, still images, audio cues, or a live walkthrough."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "hamstring_exercise_selection_activation",
+      "claims": [
+        "Nordic curls, machine leg curls, Swiss-ball curls, bridges, Romanian deadlifts, and sliders have different support, joint motion, force, or length contracts and should not be collapsed into one identity.",
+        "Bilateral, alternating, single-leg, short-range, full-cycle, and eccentric-only slider executions remain exact variants when the same supine slider action and return method are declared."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube currently supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five inherited candidates returned current oEmbed title and channel metadata that names the slider-curl family or exact eccentric variant; playback, complete viewing, exact execution match, captions, accessibility, instructional quality, safety, and human approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "hamstring-slider-curl",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "Supine with shoulders and trunk supported, one or both heels on declared sliders over a compatible low-friction surface, hips held or reset exactly as declared, knees extending as the heels slide away under control, and knees flexing to return the heels or using an exact assisted reset.",
+        "currentCardFindings": [
+          "Hamstring Slider Curl and Sliding Hamstring Curl sources describe the same bilateral supine bridge-and-slide action.",
+          "Sliding Hamstring Curl Eccentric preserves the same action and is consolidated as an eccentric-only tempo and return-method variant rather than a separate definition.",
+          "The legacy source incorrectly names a kettlebell or trap-bar deadlift as a prerequisite; this completion replaces that with direct pain-free bridge, slider, and knee-flexion readiness checks.",
+          "Legacy variants do not fully declare laterality, exact slider and surface, hip-height policy, knee range, contraction path, return method, tempo, rest, fatigue, or stop rules and are not selectable.",
+          "Five inherited YouTube links have current oEmbed title and channel metadata only; none has been fully viewed or approved for exact variant, instruction, safety, captions, accessibility, or publication."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "supine_sliding_knee_flexion",
+            "controlled_eccentric_knee_extension",
+            "bridge_and_lumbopelvic_stabilization"
+          ],
+          "jointActions": [
+            "knee_flexion",
+            "eccentric_knee_extension_control",
+            "hip_extension_isometric_or_controlled",
+            "ankle_position_stabilization",
+            "lumbopelvic_anti_extension_and_rotation"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_control",
+            "transverse_control"
+          ],
+          "laterality": "variant_declared_bilateral_alternating_or_unilateral",
+          "intent": "quality_knee_flexion_strength_and_eccentric_control"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 44,
+          "baseOverallDifficulty": 44,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "bilateral-short-range-bridge-reset",
+            "exerciseComplexity": 28,
+            "physicalDifficulty": 32,
+            "overallDifficulty": 32
+          },
+          {
+            "variantKey": "bilateral-full-cycle",
+            "exerciseComplexity": 34,
+            "physicalDifficulty": 44,
+            "overallDifficulty": 44
+          },
+          {
+            "variantKey": "bilateral-eccentric-only-reset-down",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 48,
+            "overallDifficulty": 48
+          },
+          {
+            "variantKey": "alternating-full-cycle",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 52,
+            "overallDifficulty": 52
+          },
+          {
+            "variantKey": "single-leg-full-cycle",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 62,
+            "overallDifficulty": 62
+          },
+          {
+            "variantKey": "single-leg-eccentric-only-assisted-return",
+            "exerciseComplexity": 52,
+            "physicalDifficulty": 66,
+            "overallDifficulty": 66
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_through_declared_heel_slider_contacts",
+          "primaryStress": [
+            "hamstring_knee_flexion",
+            "eccentric_knee_extension_control",
+            "hip_extension_and_lumbopelvic_control",
+            "calf_and_heel_contact",
+            "slider_path_control"
+          ],
+          "fatigueSensitivity": "hamstring_cramping_hip_height_pelvic_rotation_knee_range_eccentric_speed_heel_path_and_return_method"
+        },
+        "identityDecision": {
+          "consolidatedSources": [
+            "sliding-hamstring-curl-eccentric"
+          ],
+          "decision": "one_supine_slider_curl_identity_with_exact_laterality_range_contraction_tempo_and_return_variants"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "sliders"
+          ],
+          "environment": [
+            "clean_level_floor",
+            "compatible_predictable_low_friction_surface",
+            "clear_heel_travel_and_no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_supine_bridge",
+            "controlled_short_range_bilateral_slide",
+            "can_follow_range_tempo_return_and_stop_rules"
+          ]
+        },
+        "proposedDosage": {
+          "capacity": "2-4 sets of 4-12 quality repetitions with 60-180 seconds recovery according to variant, range, laterality, and effort",
+          "resilience": "2-4 sets of 3-8 controlled repetitions or 15-40 seconds of accumulated eccentric work with 75-180 seconds recovery",
+          "progressWhen": "hip height, pelvis, ribs, heel paths, declared range, tempo, return method, breathing, and symptoms remain repeatable through every repetition"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the sliders and bridge",
+            "Keep the pelvis quiet",
+            "Slide only as far as you can own",
+            "Curl the heels without losing hip height",
+            "Use the declared reset"
+          ],
+          "athleteInstructions": [
+            "Heels on sliders",
+            "Lift and hold your hips",
+            "Slide out slowly",
+            "Pull back or reset exactly as assigned",
+            "Stop before a cramp changes the rep"
+          ],
+          "commonFaults": [
+            "hip_drop",
+            "pelvic_rotation",
+            "uncontrolled_last_third",
+            "heels_escape_or_diverge",
+            "range_shortens",
+            "tempo_speeds_up",
+            "wrong_return_method",
+            "cramping_changes_motion"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "matched_intact_sliders_and_compatible_surface",
+            "clear_heel_path",
+            "pain_free_bridge_and_short_range_rehearsal",
+            "side_range_tempo_return_and_finish_declared"
+          ],
+          "stopRules": [
+            "sharp_or_increasing_pain_or_hamstring_grab",
+            "cramping_that_changes_motion",
+            "slider_escape_or_uncontrolled_knee_extension",
+            "hip_pelvis_or_trunk_control_loss",
+            "cannot_complete_declared_return_or_safe_finish"
+          ]
+        },
+        "programmingDecision": "Retain one stable Hamstring Slider Curl identity with exact bilateral, alternating, unilateral, range, full-cycle, eccentric-only, assistance, tempo, surface, and dose variants. Keep media, graph edges, calibrations, card review, and publication quarantined for human review."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=AlTI3igOaLw",
+          "title": "Exercise Tutorial: Hamstring Curl With Slider",
+          "channelName": "Travis Tarrant",
+          "sourceQuery": "inherited hamstring slider curl candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T00:39:00.000Z"
+          },
+          "notes": "Title/channel/oEmbed metadata only; playback and every human review dimension remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=4lp8W4ztK4k",
+          "title": "Slider Hamstring Curl",
+          "channelName": "Peak Athletic Training",
+          "sourceQuery": "inherited slider hamstring curl candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T00:39:00.000Z"
+          },
+          "notes": "Title/channel/oEmbed metadata only; playback and every human review dimension remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=5HSIt7T8JCk",
+          "title": "Alternating Hamstring Slide Curl Demo",
+          "channelName": "Steph Gaudreau - Fuel Your Strength",
+          "sourceQuery": "inherited alternating hamstring slider candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T00:39:00.000Z"
+          },
+          "notes": "Title/channel/oEmbed metadata only; playback and every human review dimension remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=URPkeNfJN0I",
+          "title": "Bilateral (Double) Leg Hamstring Slider   Eccentric Focus",
+          "channelName": "Activ8 Health Club",
+          "sourceQuery": "inherited bilateral eccentric slider candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T00:39:00.000Z"
+          },
+          "notes": "Title/channel/oEmbed metadata only; playback and every human review dimension remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=2ShLmP5NL5w",
+          "title": "Single Leg Eccentric Hamstring Slider",
+          "channelName": "healthandperformance",
+          "sourceQuery": "inherited single-leg eccentric slider candidate",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T00:39:00.000Z"
+          },
+          "notes": "Title/channel/oEmbed metadata only; playback and every human review dimension remain unresolved."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Sliding Hamstring Curl",
+          "classification": "same_identity",
+          "rationale": "Sliding and slider describe the same low-friction heel-travel action.",
+          "distinguishingDimensions": {
+            "alias": true
+          }
+        },
+        {
+          "name": "Bilateral Short-Range Slider Curl",
+          "classification": "new_variant",
+          "rationale": "Shorter heel travel preserves the action while changing lever length, range, and physical demand.",
+          "distinguishingDimensions": {
+            "variantKey": "bilateral-short-range-bridge-reset"
+          }
+        },
+        {
+          "name": "Sliding Hamstring Curl Eccentric",
+          "classification": "new_variant",
+          "rationale": "Eccentric-only slide-out with hips lowered for reset changes contraction emphasis, return method, tempo, and dose within the same identity.",
+          "distinguishingDimensions": {
+            "variantKey": "bilateral-eccentric-only-reset-down"
+          }
+        },
+        {
+          "name": "Alternating Hamstring Slider Curl",
+          "classification": "new_variant",
+          "rationale": "Alternating legs changes laterality and stabilization while preserving the supine slider curl.",
+          "distinguishingDimensions": {
+            "variantKey": "alternating-full-cycle"
+          }
+        },
+        {
+          "name": "Single-Leg Hamstring Slider Curl",
+          "classification": "new_variant",
+          "rationale": "One working heel changes laterality, load, pelvic control, and fatigue within the same action.",
+          "distinguishingDimensions": {
+            "variantKey": "single-leg-full-cycle"
+          }
+        },
+        {
+          "name": "Single-Leg Eccentric Hamstring Slider",
+          "classification": "new_variant",
+          "rationale": "Unilateral eccentric-only travel with an assisted return preserves the slider identity while changing contraction and physical demand.",
+          "distinguishingDimensions": {
+            "variantKey": "single-leg-eccentric-only-assisted-return"
+          }
+        },
+        {
+          "name": "Swiss-Ball Hamstring Curl",
+          "classification": "new_definition",
+          "rationale": "A rolling unstable ball changes support geometry, friction, ankle contact, balance, and return behavior.",
+          "distinguishingDimensions": {
+            "implement": "swiss_ball"
+          }
+        },
+        {
+          "name": "Nordic Hamstring Curl",
+          "classification": "new_definition",
+          "rationale": "Tall-kneeling forward fall with fixed ankles changes support, joint actions, force direction, failure response, and assistance.",
+          "distinguishingDimensions": {
+            "support": "fixed_ankles_tall_kneeling"
+          }
+        },
+        {
+          "name": "Machine Leg Curl",
+          "classification": "new_definition",
+          "rationale": "A fixed-path machine with an external resistance arm changes posture, load profile, setup, and equipment constraints.",
+          "distinguishingDimensions": {
+            "equipment": "leg_curl_machine"
+          }
+        },
+        {
+          "name": "Romanian Deadlift",
+          "classification": "new_definition",
+          "rationale": "Standing hip-dominant hinge loading differs from floor-supported knee-flexion slider mechanics.",
+          "distinguishingDimensions": {
+            "primaryAction": "loaded_hip_hinge"
+          }
+        },
+        {
+          "name": "Slider Surface Friction",
+          "classification": "modifier_annotation",
+          "rationale": "Surface and slider pairing changes effective resistance and must be recorded without creating an athlete level.",
+          "distinguishingDimensions": {
+            "modifier": "declared_slider_surface_pair"
+          }
+        }
+      ]
+    }
+  ]
+}

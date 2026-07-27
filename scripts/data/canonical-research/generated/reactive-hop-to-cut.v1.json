@@ -1,0 +1,406 @@
+{
+  "facilityId": 1,
+  "slug": "reactive-hop-to-cut",
+  "researchVersion": "2026-07-26.48",
+  "assessmentSummary": {
+    "identity": "A discrete bilateral hop with a valid left-right direction cue delivered during flight or landing, followed by an organized bilateral landing, one declared directional cut, controlled acceleration through the response lane, braking in the finish zone, and full reset.",
+    "currentCardFindings": [
+      "The survivor captures live-cue decision intent but does not declare the hop takeoff, landing contact, cut angle, plant convention, exit distance, terminal action, or valid reset.",
+      "The consolidated 45-degree source establishes angle as a variant dimension but its generic instructions do not establish a selectable exact contract.",
+      "The existing baseline and archived source variant have inconsistent legacy difficulty and incomplete load, fatigue, constraints, support, dosage, quality-gate, and stop-rule data.",
+      "Three inherited candidate links currently return oEmbed metadata, but title-level metadata does not match the complete hop-to-cut sequence; exact media remains blocked."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bilateral_hop",
+        "reactive_landing",
+        "directional_cut",
+        "short_acceleration",
+        "controlled_deceleration"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion_takeoff",
+        "hip_knee_ankle_landing_absorption",
+        "frontal_transverse_redirection",
+        "horizontal_repropulsion",
+        "trunk_orientation_and_bracing"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse"
+      ],
+      "laterality": "bilateral_hop_then_unilateral_cut_with_both_response_directions_programmed",
+      "intent": "wait_for_valid_cue_then_land_redirect_accelerate_and_finish_under_control"
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 64,
+      "absoluteLoadDemand": 58,
+      "baseOverallDifficulty": 64,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "bilateral-hop-reactive-45-cut",
+        "exerciseComplexity": 64,
+        "physicalDifficulty": 54,
+        "overallDifficulty": 64
+      },
+      {
+        "variantKey": "bilateral-hop-reactive-90-cut",
+        "exerciseComplexity": 72,
+        "physicalDifficulty": 62,
+        "overallDifficulty": 72
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_reactive_hop_landing_cut_and_acceleration",
+      "contactsPerRep": {
+        "hopTakeoffs": 1,
+        "hopLandings": 1,
+        "cutPlants": 1,
+        "exitContacts": "distance_dependent"
+      },
+      "primaryStress": [
+        "landing_impact",
+        "directional_braking",
+        "frontal_transverse_stabilization",
+        "reactive_decision",
+        "reacceleration"
+      ],
+      "fatigueSensitivity": "response_accuracy_landing_alignment_plant_contacts_and_exit_speed"
+    },
+    "identityDecision": {
+      "consolidatedSource": "reactive-45-degree-hop-to-cut",
+      "decision": "duplicate_consolidated",
+      "boundary": "same_cue_driven_hop_landing_to_directional_cut"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T22:20:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete waits for a live cue (coach points during hop/landing), selects the correct answer, performs the movement response, and resets before the next rep. The rep counts only when the athlete reacts to the real stimulus rather than guessing early.",
+      "familyKey": "Reactive Change of Direction, Braking, and Re-Acceleration",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Reactive Hop-to-Cut is defined by a discrete hop, a valid directional cue during flight or landing, an organized landing contact, a cut response, controlled exit acceleration, and reset.",
+        "Cut angle, direction, cue modality, response options, approach speed, and exit distance remain declared variants or delivery dimensions; removing the hop creates a different ordered-contact identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive agility couples an external stimulus to a directional movement response rather than preplanning the answer.",
+        "The exact card must declare hop takeoff and landing, cue source and timing, valid responses, cut angle and technique, exit lane, terminal action, laterality, and reset."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Cutting coordinates foot and ankle, knee, hip, pelvis, and trunk mechanics while accepting and redirecting horizontal momentum.",
+        "The card assigns quadriceps, gluteal, hamstring, calf, adductor, foot, hip-stabilizer, and trunk roles without claiming one isolated tissue controls the task."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Cut angle, approach speed, braking strategy, center-of-mass position, trunk orientation, and plant mechanics affect performance and joint loading.",
+        "The hop adds takeoff, flight, and landing before the cut; the athlete must land under control, orient the plant to the cue, redirect without extra recovery contacts, and accelerate into the declared lane."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Reactive cue uncertainty and the required landing-to-cut transition add perceptual, coordination, braking, and reacceleration demands beyond a preplanned cut.",
+        "Score each exact variant by exercise complexity and physical difficulty only, derive overall as their maximum, and use no exercise skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "The task combines hop takeoff, landing impact, directional braking, cutting impulse, and acceleration contacts; body mass, angle, speed, surface, footwear, repetitions, and rest determine exposure.",
+        "Track jump and landing contacts, cut contacts, high-speed contacts, impact, eccentric stress, technical sensitivity, decision error, local lower-limb fatigue, and recovery before another high-intent exposure."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "sourceTitle": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "A repeatable cutting assessment requires declared lane geometry, observation angle, task instructions, and safe space.",
+        "Require a level high-traction surface, marked hop and response zones, clear exit and run-out lanes, noncrossing traffic, suitable footwear, visible cue source, and coach sightlines."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Change-of-direction training methods must preserve task intent and technique rather than collapsing all work into undifferentiated conditioning.",
+        "Prescribe discrete side-balanced attempts with full reset, declared cue timing and angle, enough rest to preserve decision and contact quality, and a hard stop when latency, accuracy, landing, plant, or exit quality degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific external or task-focused feedback can improve landing behavior, while excessive simultaneous cues can interfere with learning.",
+        "Use a short cue sequence: wait for the valid cue, land under the hips, orient the plant, push through the correct exit lane, brake the finish, and fully reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing and redirection quality depend on progressive exposure, coaching, materials, and task-specific control.",
+        "Stop for pain, giving way, apprehension, false starts, repeated wrong responses, one-foot or uncontrolled hop landing, valgus, trunk loss, foot slip, extra recovery contacts, missed lane, unsafe traffic, or declining speed and control."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive agility should preserve perception-action coupling and should not be replaced by a known preplanned answer.",
+        "Place the drill in a fresh movement-intelligence or output block after the athlete owns the hop landing and planned cut; reduce cue choices or speed before increasing angle, uncertainty, or volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "sourceTitle": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athlete support should show the hop zone, cue source, landing, plant, exit lane, finish, and reset from views that expose trunk and lower-limb alignment.",
+        "Provide the response rule in plain language, a rehearsal at reduced speed, left-right examples, self-checks, symptom guidance, and text or still-image alternatives to video."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "sourceTitle": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "A structured observation tool can improve reliability when coaches evaluate trunk and lower-limb alignment during a 45-degree cut.",
+        "Coach support should record cue timing, response accuracy, hop and landing contact, plant foot, cut angle, extra contacts, exit quality, both-side comparison, symptoms, stop reason, and the single correction used."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training tasks should match physical and psychosocial readiness, technical competence, supervision, and appropriately scaled equipment and space.",
+        "Accessibility options include a step-and-stick before the hop, lower hop amplitude, preannounced cue set, one response direction, slower exit, larger lane, longer reset, visual or auditory cue choice, and a planned cut substitution."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Cut angle and task constraints alter cutting mechanics while preserving a declared hop-to-cut identity when the hop, cue window, landing transition, and cut response remain.",
+        "A marked-approach cut without the hop, a hop-to-stick without a cut, repeated line hops, contact evasion, or a terminal hold without exit acceleration changes the action sequence and requires separate review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube currently supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "All three inherited links returned current oEmbed metadata, but their titles describe a coach-led cut, general angle cuts, and mirror shuffle rather than the complete hop-to-cut sequence; they remain comparison candidates, not exact-match or approved demonstrations."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=atcDcplGsdI",
+      "title": "Linear Acceleration to 45 Degree Cut (Coach Led)",
+      "channelName": "Performance Course",
+      "sourceQuery": "inherited reactive hop-to-cut source candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Comparison candidate for coach-led 45-degree redirection. Title metadata does not establish a preceding hop or cue during flight/landing; exact match and all human review gates remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GJsAcnLHqdE",
+      "title": "45, 90 and 180 degree cuts - Drill (Deceleration)",
+      "channelName": "B7Tal",
+      "sourceQuery": "inherited reactive hop-to-cut source candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Angle and deceleration comparison candidate. Title metadata does not establish the hop, reactive cue window, or exact terminal contract; human viewing and approval remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QEk95UCvmwg",
+      "title": "Partner Mirror Shuffle | Reactive Agility & Footwork Drill for Athletes",
+      "channelName": "uoasportsagility",
+      "sourceQuery": "inherited reactive hop-to-cut source candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Reactive-cue comparison candidate only. The title identifies a different leader-follower shuffle action; it cannot satisfy exact-match media approval for this card."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Reactive 45-Degree Hop-to-Cut",
+      "classification": "same_identity",
+      "rationale": "The 45-degree qualifier declares the baseline cut-angle variant while preserving the same hop, cue, landing, cut, and exit sequence.",
+      "distinguishingDimensions": {
+        "cutAngleDegrees": 45,
+        "identityChange": "none"
+      }
+    },
+    {
+      "name": "Reactive 90-Degree Hop-to-Cut",
+      "classification": "new_variant",
+      "rationale": "A sharper declared cut angle changes braking and redirection demand while retaining the exact hop-to-cue-to-cut sequence.",
+      "distinguishingDimensions": {
+        "cutAngleDegrees": 90,
+        "mechanicalDemand": "greater_redirection"
+      }
+    },
+    {
+      "name": "Verbal-Cue Reactive Hop-to-Cut",
+      "classification": "modifier_annotation",
+      "rationale": "Cue modality changes perception and delivery but not the movement sequence when timing and response options remain declared.",
+      "distinguishingDimensions": {
+        "cueModality": "verbal"
+      }
+    },
+    {
+      "name": "Visual-Cue Reactive Hop-to-Cut",
+      "classification": "modifier_annotation",
+      "rationale": "A visual direction cue is a delivery dimension of the same reactive task.",
+      "distinguishingDimensions": {
+        "cueModality": "visual"
+      }
+    },
+    {
+      "name": "Reactive 45-Degree Cut",
+      "classification": "new_definition",
+      "rationale": "Removing the discrete hop and landing-to-cut transition changes the ordered contact, impact, cue, fatigue, and coaching contract.",
+      "distinguishingDimensions": {
+        "initialAction": "marked_approach_without_hop",
+        "orderedContacts": "approach_to_cut"
+      }
+    },
+    {
+      "name": "Hop-to-Stick",
+      "classification": "new_definition",
+      "rationale": "A terminal held landing omits the directional cut and exit acceleration.",
+      "distinguishingDimensions": {
+        "terminalAction": "landing_stick",
+        "cut": "absent"
+      }
+    },
+    {
+      "name": "Single-Leg Hop-to-Cut",
+      "classification": "new_variant",
+      "rationale": "Single-leg takeoff and landing materially alter laterality, impact distribution, readiness, and difficulty but can remain a reviewed exact variant if the cue-to-cut sequence is preserved.",
+      "distinguishingDimensions": {
+        "hopTakeoff": "single_leg",
+        "hopLanding": "single_leg"
+      }
+    },
+    {
+      "name": "Reactive Hop-to-Cut with Contact Evasion",
+      "classification": "new_definition",
+      "rationale": "Adding an opponent or evasive collision problem changes the stimulus, space, safety, and primary task.",
+      "distinguishingDimensions": {
+        "opponentContact": "possible",
+        "primaryStimulus": "evasion"
+      }
+    }
+  ]
+}

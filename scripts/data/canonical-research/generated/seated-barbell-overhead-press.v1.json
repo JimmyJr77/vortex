@@ -1,0 +1,476 @@
+{
+  "facilityId": 1,
+  "slug": "seated-barbell-overhead-press",
+  "researchVersion": "2026-07-26.49",
+  "assessmentSummary": {
+    "identity": "A strict bilateral overhead press from a declared stable seated bench, with or without declared back support, no deliberate leg drive, an exact barbell or two-dumbbell grip and rack, an owned pain-free overhead finish, controlled same-path return, and secure rerack or set-down.",
+    "currentCardFindings": [
+      "The survivor still carries an implement-specific slug but now has the stable canonical name Seated Overhead Press and preserves both barbell and dumbbell aliases.",
+      "The source cards do not consistently declare bench angle, back support, grip, rack, range, tempo, spotting, pickup, set-down, or failure protocol; their baseline variants are not selectable completion contracts.",
+      "Barbell and dumbbell conditions preserve the seated strict vertical press but require separate exact variants because stability, independent-arm demand, path, loading potential, and equipment operations differ.",
+      "Eight inherited links currently return oEmbed metadata; five representative title-level candidates are retained, but no full viewing, exact-variant review, captions, accessibility, safety review, or approval has occurred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "seated_vertical_push",
+        "bilateral_overhead_press",
+        "controlled_eccentric_return",
+        "trunk_bracing"
+      ],
+      "jointActions": [
+        "shoulder_flexion_and_abduction",
+        "scapular_upward_rotation",
+        "elbow_extension",
+        "elbow_flexion_control",
+        "wrist_stabilization",
+        "thoracolumbar_anti_extension"
+      ],
+      "planes": [
+        "scapular",
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "bilateral",
+      "intent": "strict_vertical_press_without_deliberate_leg_drive"
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 46,
+      "absoluteLoadDemand": 58,
+      "baseOverallDifficulty": 58,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "barbell-unsupported-pronated",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 58,
+        "overallDifficulty": 58
+      },
+      {
+        "variantKey": "barbell-back-supported-pronated",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 60,
+        "overallDifficulty": 60
+      },
+      {
+        "variantKey": "dumbbell-back-supported-neutral",
+        "exerciseComplexity": 46,
+        "physicalDifficulty": 50,
+        "overallDifficulty": 50
+      },
+      {
+        "variantKey": "dumbbell-back-supported-pronated",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 52,
+        "overallDifficulty": 52
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "bilateral_external_load_vertical_press",
+      "implementVariants": [
+        "barbell",
+        "two_dumbbells"
+      ],
+      "primaryStress": [
+        "deltoid_and_triceps_force",
+        "scapular_upward_rotation_control",
+        "rotator_cuff_stabilization",
+        "grip_and_wrist_control",
+        "trunk_anti_extension",
+        "eccentric_lowering"
+      ],
+      "fatigueSensitivity": "path_symmetry_range_rib_position_rep_speed_and_equipment_control"
+    },
+    "identityDecision": {
+      "consolidatedSource": "seated-dumbbell-overhead-press",
+      "decision": "duplicate_consolidated",
+      "boundary": "same_strict_bilateral_seated_vertical_press"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T22:20:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Seated Barbell Overhead Press as a controlled, progressively loaded barbell strength pattern. The athlete creates tension before the first rep, moves through the range they can own, and finishes each repetition with the same posture and control they started with.",
+      "familyKey": "Seated vertical push strength",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 50,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Seated Overhead Press is a strict bilateral overhead press from a declared seated base without deliberate leg drive, using an owned start, overhead finish, and controlled return.",
+        "Barbell and dumbbell are loading-modality variants of the seated shoulder press; standing, half-kneeling, Z-press, behind-neck, machine, single-arm, and push-press tasks cross body-position, path, laterality, or leg-drive boundaries."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead press variations must declare body position, implement, path in front of or behind the head, grip, and support condition.",
+        "The exact contract declares bench angle and back support, bilateral implement and quantity, grip, rack, strict no-leg-drive action, press path, range, tempo, breathing, spotting, pickup, set-down, and dose."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead pressing recruits anterior, medial, and posterior deltoid, triceps, upper trapezius, pectoralis major, and stabilizing musculature according to configuration.",
+        "The card declares glenohumeral, scapulothoracic, elbow, wrist, thoracic, lumbar, pelvic, hip, knee, and foot roles without claiming isolated activation or universal superiority."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Seated barbell and dumbbell shoulder presses differ in stability demand, muscle activity, and maximum load while preserving the same seated overhead pressing pattern.",
+        "Barbell constrains both hands to one implement; dumbbells permit independent paths. Back support, grip, rack, scapular motion, rib-pelvis control, owned range, and symmetric controlled lowering must be declared."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Loading modality and body position alter stability demand and achievable load, so exact variants require separate difficulty values.",
+        "Score exercise complexity and physical difficulty only, derive overall as their maximum, and keep athlete experience or proficiency out of the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead press configuration changes shoulder and arm muscle demand and cannot be represented by load alone.",
+        "Track external mass, repetitions, tempo, range, proximity to failure, deltoid and triceps demand, scapular and rotator-cuff demand, grip, trunk compensation, technical sensitivity, spotting, and recovery before other overhead work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance exercise requires appropriate equipment inspection, setup, technique, supervision, and controlled progression.",
+        "Require a stable bench of declared angle, level floor, overhead clearance, intact rack or dumbbells, collars where applicable, clear pickup and set-down paths, suitable spotter access, and no traffic through the lifting zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance-training dose depends on training status, load, repetitions, sets, rest, exercise order, and intended adaptation.",
+        "Use quality repetitions in an owned range with a declared load or effort target and enough rest to preserve path and posture; stop before grinding, asymmetry, range loss, unsafe reracking, or compensation."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Safe resistance instruction establishes the equipment, start position, controlled action, breathing, and spotting before loading progresses.",
+        "Cue feet and seat set, ribs over pelvis, rack and grip fixed, press without leg drive or backward lean, finish in the owned overhead position, lower to the same rack, and secure the implement before relaxing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, correct technique, manageable resistance, and gradual progression are central resistance-training safeguards.",
+        "Stop for pain, numbness, dizziness, pressure symptoms, loss of balance or bench contact, rib flare or spinal extension, asymmetric path, wrist or elbow collapse, shrugging with lost control, range loss, grinding, failed rep, unsafe spot, rack error, or dropped implement."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Barbell and dumbbell conditions produce different stability and strength outputs even in the same seated position.",
+        "Choose implement and support according to the session objective, equipment, athlete control, and spotting; place high-load strength work before fatigue-sensitive overhead skills or dense conditioning and account for total shoulder and triceps volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athletes need a clear start, action, finish, breathing, and equipment-control sequence before resistance is increased.",
+        "Expose bench angle, back support, implement, grip, rack, load, range, tempo, repetitions, rest, expected effort, self-checks, pain guidance, spotter signal, and safe pickup and set-down in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Seated barbell and dumbbell presses are not mechanically identical despite sharing the press pattern.",
+        "Coach support should verify bench and rack, feet and seat, rib-pelvis position, scapular motion, elbow and wrist stack, implement path, symmetry, range, tempo, breathing, rep speed, effort, spotter readiness, and secure finish."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance training should be individualized to readiness, body size, equipment fit, technical control, and supervision.",
+        "Accessibility options include lighter dumbbells, a neutral grip, greater back support, shorter pain-free range, fewer repetitions, longer rest, a landmine or non-overhead substitution after review, and text, still-image, audio, tactile, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Barbell versus dumbbell and seated versus standing conditions can be compared while remaining explicit configuration variables.",
+        "Implement, grip, back support, range, and tempo are variants; changing to standing, Z-press, single-arm, behind-neck, machine, landmine, or push-press changes the base, path, laterality, resistance constraint, or leg-drive action and requires separate review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube currently supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five retained barbell and dumbbell candidates returned current oEmbed metadata and title-level configuration matches, but full viewing, exact bench, grip, rack, path, range, tempo, spotting, captions, accessibility, cue quality, safety, and human approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ECWxumBMLVQ",
+      "title": "How To: Seated Barbell Shoulder Press",
+      "channelName": "ScottHermanFitness",
+      "sourceQuery": "inherited seated barbell overhead press candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Title-level seated barbell match. Full viewing and exact bench, grip, rack, path, range, tempo, spotting, caption, safety, accessibility, and approval review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PhCNJy_Td7U",
+      "title": "How To: SEATED PRESS - The Press Accessory You NEED To Try!",
+      "channelName": "Barbell Logic",
+      "sourceQuery": "inherited seated barbell overhead press candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Seated press teaching candidate. Title does not state every exact variant dimension; full human review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b5JzUH8gsOg",
+      "title": "How to Do Seated Overhead Dumbbell Press | Arm Workout",
+      "channelName": "Howcast",
+      "sourceQuery": "inherited seated dumbbell overhead press candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Title-level seated dumbbell match. Exact grip, support, path, range, setup, safety, and instructional quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=C0We_bEyxlM",
+      "title": "How To Do: Seated Dumbbell Overhead Press",
+      "channelName": "MuscleWiki",
+      "sourceQuery": "inherited seated dumbbell overhead press candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Title-level seated dumbbell match. Full exact-variant and human demonstration review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xg-7dS8ZGKE",
+      "title": "Seated Dumbbell Overhead Press",
+      "channelName": "Women's Strength Nation by Holly Perkins",
+      "sourceQuery": "inherited seated dumbbell overhead press candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T22:20:00.000Z"
+      },
+      "notes": "Title-level seated dumbbell match. Full review of setup, exact mechanics, safety, captions, accessibility, and approval remains unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Seated Barbell Overhead Press",
+      "classification": "new_variant",
+      "rationale": "A barbell links both hands to one implement while preserving the seated strict vertical press.",
+      "distinguishingDimensions": {
+        "implement": "barbell",
+        "independentArmDemand": false
+      }
+    },
+    {
+      "name": "Seated Dumbbell Overhead Press",
+      "classification": "new_variant",
+      "rationale": "Two dumbbells permit independent paths and alter stability, pickup, set-down, and loading without changing the seated strict press.",
+      "distinguishingDimensions": {
+        "implement": "two_dumbbells",
+        "independentArmDemand": true
+      }
+    },
+    {
+      "name": "Back-Supported Seated Overhead Press",
+      "classification": "new_variant",
+      "rationale": "A declared upright back support changes trunk stabilization and bench setup while preserving the seated bilateral press.",
+      "distinguishingDimensions": {
+        "backSupport": "upright_bench",
+        "benchAngle": "declared"
+      }
+    },
+    {
+      "name": "Unsupported Seated Overhead Press",
+      "classification": "new_variant",
+      "rationale": "Removing back support increases trunk-position demand while preserving the seated bilateral press and no-leg-drive contract.",
+      "distinguishingDimensions": {
+        "backSupport": "none"
+      }
+    },
+    {
+      "name": "Neutral-Grip Seated Dumbbell Press",
+      "classification": "new_variant",
+      "rationale": "Grip changes wrist, elbow, and shoulder orientation while retaining the same two-dumbbell seated press.",
+      "distinguishingDimensions": {
+        "implement": "two_dumbbells",
+        "grip": "neutral"
+      }
+    },
+    {
+      "name": "Standing Overhead Press",
+      "classification": "new_definition",
+      "rationale": "Standing removes the seated base and changes lower-body, balance, trunk, setup, and fatigue demands.",
+      "distinguishingDimensions": {
+        "base": "standing"
+      }
+    },
+    {
+      "name": "Z-Press",
+      "classification": "new_definition",
+      "rationale": "A floor-seated long-sit base changes hip and hamstring constraints, trunk demand, setup, and exit.",
+      "distinguishingDimensions": {
+        "base": "floor_long_sit",
+        "bench": "absent"
+      }
+    },
+    {
+      "name": "Seated Single-Arm Overhead Press",
+      "classification": "new_definition",
+      "rationale": "Unilateral loading changes laterality, anti-lateral-flexion and anti-rotation demand, and side-balanced dosage.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Seated Push Press",
+      "classification": "new_definition",
+      "rationale": "Deliberate lower-body or trunk drive changes the primary action from strict strength to linked power.",
+      "distinguishingDimensions": {
+        "legDrive": "deliberate",
+        "primaryStimulus": "linked_power"
+      }
+    },
+    {
+      "name": "Behind-the-Neck Seated Press",
+      "classification": "new_definition",
+      "rationale": "A behind-neck path changes start position, shoulder range, bar path, spotting, and safety contract.",
+      "distinguishingDimensions": {
+        "barPath": "behind_neck"
+      }
+    },
+    {
+      "name": "Machine Seated Shoulder Press",
+      "classification": "new_definition",
+      "rationale": "A machine imposes a fixed resistance path, seat geometry, handles, setup, and failure protocol.",
+      "distinguishingDimensions": {
+        "resistanceConstraint": "machine_fixed_path"
+      }
+    },
+    {
+      "name": "Seated Landmine Press",
+      "classification": "new_definition",
+      "rationale": "The landmine uses a fixed diagonal arc rather than a free vertical path.",
+      "distinguishingDimensions": {
+        "pressPath": "fixed_diagonal_arc"
+      }
+    }
+  ]
+}

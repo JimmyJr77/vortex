@@ -1,0 +1,452 @@
+{
+  "facilityId": 1,
+  "slug": "split-squat-isometric-hold",
+  "researchVersion": "2026-07-27.45",
+  "assessmentSummary": {
+    "identity": "A static split-squat position at a declared stance, depth, torso, support, and load contract, with a controlled hold, breathing, and exit.",
+    "currentCardFindings": [
+      "Split Squat Iso Hold and Split Squat Isometric Hold are the same identity.",
+      "Supported bodyweight, unsupported bodyweight, and goblet-loaded mid-range holds are exact variants.",
+      "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 36,
+      "absoluteLoadDemand": 42,
+      "baseOverallDifficulty": 42,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "supported-bodyweight-mid-range",
+        "exerciseComplexity": 26,
+        "physicalDifficulty": 32,
+        "derivedOverallDifficulty": 32
+      },
+      {
+        "variantKey": "unsupported-bodyweight-mid-range",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 42,
+        "derivedOverallDifficulty": 42
+      },
+      {
+        "variantKey": "goblet-loaded-mid-range",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 58,
+        "derivedOverallDifficulty": 58
+      }
+    ],
+    "identityDecision": {
+      "versus": "split-squat-iso-hold",
+      "decision": "duplicate_consolidated",
+      "boundary": "same_static_split_squat_hold_action"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Set the declared split stance and optional support, lower to the recorded mid-range knee and hip position, keep the front foot grounded and knee tracking, back heel raised, pelvis and ribs controlled, then hold with normal breathing for the prescribed quality time. End the effort and exit under control before depth changes, the knee drifts, the back knee rests, posture twists, breathing fails, or symptoms appear.",
+      "familyKey": "static_split_stance_squat_hold",
+      "movementPatterns": [
+        "squat",
+        "brace"
+      ],
+      "bodyRegions": [
+        "hip",
+        "knee",
+        "ankle",
+        "pelvis",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "wall",
+        "rack",
+        "dumbbell",
+        "mat"
+      ],
+      "environment": {
+        "load": {
+          "clearSetDownZoneRequired": true,
+          "dumbbellInspectionRequiredWhenLoaded": true
+        },
+        "setup": {
+          "backKneeMustNotRestUnlessSeparateVariant": true,
+          "side_stride_depth_torso_and_holdDeclared": true
+        },
+        "space": {
+          "trafficControlled": true,
+          "clearExitAreaMeters": 1.5
+        },
+        "support": {
+          "supportHeightDeclared": true,
+          "wallOrRackMustBeStableWhenUsed": true
+        },
+        "surface": {
+          "avoid": [
+            "wet",
+            "loose",
+            "uneven"
+          ],
+          "required": "level_firm_nonslip"
+        },
+        "sharedStation": {
+          "athletesPerStation": 1,
+          "spotterOrCoachAccessForLoadedVariant": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_foot_ankle_knee_hip_or_back_symptoms",
+          "recent_lower_extremity_or_spinal_procedure",
+          "balance_limit",
+          "blood_pressure_or_pressure_symptom_precautions"
+        ],
+        "doNotUseWhen": [
+          "acute_or_increasing_pain",
+          "numbness_tingling_dizziness_or_pressure_symptoms",
+          "unsafe_surface_support_or_load",
+          "cannot_exit_without_collapse_or_dropping_load"
+        ],
+        "medicalScope": "The card does not prescribe rehabilitation or clear symptoms; follow the athlete care plan and local scope.",
+        "prerequisites": [
+          "pain_free_split_stance",
+          "controlled_split_squat_descent",
+          "safe_exit_from_declared_depth",
+          "normal_breathing_under_submaximal_tension"
+        ],
+        "regressionOrder": [
+          "add_stable_hand_support",
+          "reduce_depth",
+          "shorten_hold",
+          "reduce_or_remove_external_load",
+          "wall_sit_review_only_substitution"
+        ],
+        "individualizationRequired": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The defining action is a static split-squat position at a declared depth.",
+        "Iso is an abbreviation of isometric and does not create a second identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Declare side, stance, depth, torso, support, load, hold duration, breathing, quality gate, and exit.",
+        "Dynamic repetitions, rear-foot elevation, perturbation, and jumps require separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The split stance loads quadriceps and hip extensors with foot, ankle, hip, pelvis, and trunk stabilization.",
+        "Contribution varies with stance, depth, torso, load, and individual anatomy."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/38026855/",
+      "sourceTitle": "Effects of step lengths on biomechanical characteristics of lower extremity during split squat movement",
+      "sourcePublisher": "Frontiers in Bioengineering and Biotechnology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Stride length and joint angles change lower-extremity mechanics, so exact setup must be recorded.",
+        "An isometric produces force without intentional joint motion at the declared position."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+      "sourceTitle": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review",
+      "sourcePublisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Hand support lowers balance complexity; external load primarily raises physical demand and failure consequence.",
+        "Overall difficulty is the maximum of exercise complexity and physical demand."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+      "sourceTitle": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review",
+      "sourcePublisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Isometric adaptations depend on task variables including muscle length, intensity, and intent.",
+        "Track stance, depth, load, hold time, local fatigue, postural drift, breathing, and side difference."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Use a stable surface and support, clear exit and set-down space, inspected load, and an exact depth marker.",
+        "Do not continue through symptoms, breath holding, collapse, or unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+      "sourceTitle": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review",
+      "sourcePublisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Use submaximal quality holds with side-balanced sets and adequate rest; exact dose follows the intended adaptation.",
+        "Actual quality time ends at the first failed criterion."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Set stance and support, descend to recorded depth, establish foot-knee-pelvis-trunk position, breathe, hold, and exit before change.",
+        "Instruction names load, time, quality gate, stop rules, and set-down."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Stop for symptoms, giving way, breath holding, depth drift, knee collapse, load instability, or unsafe exit.",
+        "Use support, shallower depth, shorter time, or less load after review."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+      "sourceTitle": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review",
+      "sourcePublisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Use supported bodyweight for access, unsupported bodyweight for capacity, and loaded holds only after position and exit are repeatable.",
+        "Count local lower-body and postural fatigue before speed, jump, or high-priority strength work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Athlete guidance names expected effort, unexpected symptoms, self-checks, accessibility choices, and nonvideo instruction.",
+        "The athlete exits before failure and reports actual quality time."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/38026855/",
+      "sourceTitle": "Effects of step lengths on biomechanical characteristics of lower extremity during split squat movement",
+      "sourcePublisher": "Frontiers in Bioengineering and Biotechnology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "The coach verifies stance, depth, support, load, knee and foot, pelvis and trunk, breathing, and exit.",
+        "Record actual quality time and why the hold ended."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Stable support, shallower depth, shorter holds, bodyweight, and a wall-sit substitution can reduce balance or load demand.",
+        "A back-knee pad is an exit marker, not a resting surface in these variants."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "sourceTitle": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Supported, unsupported, and goblet-loaded mid-range holds are exact variants; stance and duration are modifiers.",
+        "Rear-foot elevation, dynamic motion, perturbation, partner resistance, and jumps require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=9-E7YW2WAlM",
+      "title": "Resilient Performance - Split Squat Isometric Hold",
+      "channelName": "Resilient Performance Physical Therapy",
+      "sourceQuery": "split squat isometric hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FvrSfS9cQ9w",
+      "title": "How To: Split Squat Iso Hold",
+      "channelName": "Live Lean TV Daily Exercises",
+      "sourceQuery": "split squat iso hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=nRCANP7XsHE",
+      "title": "How To Do Split Squat Isometric Hold | Invictus Fitness",
+      "channelName": "CrossFit Invictus",
+      "sourceQuery": "split squat isometric hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OgAuRVSPd5c",
+      "title": "Split Squat Isometric Hold",
+      "channelName": "Calvin Dietz",
+      "sourceQuery": "split squat isometric hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Split Squat Iso Hold",
+      "classification": "same_identity",
+      "rationale": "Iso is an abbreviation of isometric.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Supported Bodyweight Split Squat Hold",
+      "classification": "new_variant",
+      "rationale": "Hand support lowers balance complexity.",
+      "distinguishingDimensions": {
+        "support": "stable_hand",
+        "load": "bodyweight"
+      }
+    },
+    {
+      "name": "Unsupported Bodyweight Split Squat Hold",
+      "classification": "new_variant",
+      "rationale": "Removing support raises postural demand.",
+      "distinguishingDimensions": {
+        "support": "none_used",
+        "load": "bodyweight"
+      }
+    },
+    {
+      "name": "Goblet-Loaded Split Squat Hold",
+      "classification": "new_variant",
+      "rationale": "Goblet load raises physical demand while preserving the static position.",
+      "distinguishingDimensions": {
+        "load": "dumbbell_goblet"
+      }
+    },
+    {
+      "name": "Split Squat Hold Depth or Duration Change",
+      "classification": "modifier_annotation",
+      "rationale": "Stance, depth, torso, and duration modify dose without automatically adding an identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "stance",
+          "depth",
+          "torso",
+          "hold_duration"
+        ]
+      }
+    },
+    {
+      "name": "Rear-Foot-Elevated Split Squat Isometric",
+      "classification": "new_definition",
+      "rationale": "Rear-foot elevation changes support, mechanics, balance, and load distribution.",
+      "distinguishingDimensions": {
+        "rearFoot": "elevated"
+      }
+    },
+    {
+      "name": "Dynamic Split Squat",
+      "classification": "new_definition",
+      "rationale": "Repeated descent and ascent replace the static hold.",
+      "distinguishingDimensions": {
+        "action": "dynamic_repetitions"
+      }
+    },
+    {
+      "name": "Perturbed or Partner-Resisted Split Squat Hold",
+      "classification": "new_definition",
+      "rationale": "External force changes predictability, loading, and supervision.",
+      "distinguishingDimensions": {
+        "forceSource": "partner_or_perturbation"
+      }
+    }
+  ]
+}

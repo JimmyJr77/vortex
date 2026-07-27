@@ -88,7 +88,7 @@ export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: b
     '/ninja',
     '/vortex-athletics',
     '/summer-athletic-training',
-    '/strength-conditioning',
+    '/fit-and-flip',
     '/gymnastics',
     '/artistic-gymnastics',
     '/artistic-gymnastics-early',

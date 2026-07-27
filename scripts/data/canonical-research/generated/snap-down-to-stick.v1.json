@@ -1,0 +1,461 @@
+{
+  "facilityId": 1,
+  "slug": "snap-down-to-stick",
+  "researchVersion": "2026-07-27.46",
+  "assessmentSummary": {
+    "identity": "A no-flight bilateral action that moves rapidly from tall posture into a declared athletic stance and holds a static no-rebound finish.",
+    "currentCardFindings": [
+      "Three redundant definitions describe the same rapid bilateral descent and stick and are consolidated into this survivor.",
+      "The legacy survivor text incorrectly described a box jump; the corrected card explicitly excludes flight, rebound, and external height.",
+      "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 32,
+      "absoluteLoadDemand": 22,
+      "baseOverallDifficulty": 32,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "bilateral-tall-reach-stick",
+        "exerciseComplexity": 32,
+        "physicalDifficulty": 22,
+        "derivedOverallDifficulty": 32
+      }
+    ],
+    "identityDecision": {
+      "versus": [
+        "snap-down-to-athletic-stick",
+        "snapdown-landing-stick",
+        "snap-down-to-stick-control-version"
+      ],
+      "decision": "duplicate_consolidated",
+      "boundary": "same_rapid_tall_to_bilateral_athletic_stick_action"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T18:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand tall with feet at the declared width and arms in the declared start position. Rapidly drive the arms down while lowering the center of mass into a bilateral athletic stance; contact or settle through the whole foot, align each knee with the foot, organize the trunk over the pelvis, and hold the finish for the declared time without a rebound or extra step. Reset fully and stop before speed, contact sound, alignment, breathing, or control changes.",
+      "familyKey": "bilateral_snap_down_landing_stick",
+      "movementPatterns": [
+        "squat",
+        "land"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "line_tape",
+        "mat"
+      ],
+      "environment": {
+        "setup": {
+          "externalHeight": false,
+          "stickTimeDeclared": true,
+          "landingWidthDeclared": true,
+          "feetAndArmStartDeclared": true
+        },
+        "space": {
+          "runOutRequired": false,
+          "clearRadiusMeters": 1.5,
+          "overheadClearanceRequired": true
+        },
+        "record": [
+          "footwear",
+          "surface",
+          "stance_width",
+          "arm_start",
+          "target_depth",
+          "stick_seconds"
+        ],
+        "surface": {
+          "avoid": [
+            "wet",
+            "loose",
+            "uneven",
+            "crowded"
+          ],
+          "required": "flat_dry_stable_nonslip"
+        },
+        "traffic": {
+          "oneAthletePerStation": true,
+          "separateFromJumpAndSprintLanes": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_foot_ankle_knee_hip_or_back_symptoms",
+          "recent_lower_extremity_procedure",
+          "dizziness_or_balance_concern",
+          "fear_of_rapid_descent"
+        ],
+        "doNotUseWhen": [
+          "pain_or_giving_way",
+          "unsafe_surface_or_clearance",
+          "cannot_control_drop_squat",
+          "cannot_hold_finish_without_step",
+          "coach_cannot_observe"
+        ],
+        "medicalScope": "This card does not diagnose, rehabilitate, or clear an athlete; follow the care plan and local scope.",
+        "prerequisites": [
+          "pain_free_bodyweight_squat_to_declared_depth",
+          "safe_rapid_descent",
+          "can_hold_bilateral_athletic_stance",
+          "understands_stop_signal"
+        ],
+        "regressionOrder": [
+          "slower_drop_squat_to_stick",
+          "shallower_depth",
+          "hands_at_chest",
+          "fewer_repetitions",
+          "longer_reset"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned public oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "A rapid tall-to-athletic bilateral descent followed by a static no-rebound finish defines this card; no flight or external height is required.",
+        "Athletic, landing, and control labels name the same action, while stance, arm start, depth, speed, and hold time are variant or dose dimensions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The card is a bilateral land-and-squat preparation pattern without a required aerial phase.",
+        "Jump, rebound, unilateral, box, depth-drop, and moving-entry tasks remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Rapid ankle, knee, and hip flexion control organizes the descent while foot, frontal-plane, transverse-plane, and trunk control stabilize the finish.",
+        "The listed muscles describe contributing roles and do not claim isolation or exact activation magnitude."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Landing instruction and feedback can alter measured landing mechanics, but direct transfer to this exact no-flight snap-down has not been established.",
+        "The quality contract therefore records whole-foot pressure, knee-foot alignment, trunk control, contact sound, and a motionless finish without claiming injury prevention."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Exercise complexity rises with faster descent, more demanding arm starts, deeper target positions, stricter alignment, and longer stick criteria; physical difficulty remains modest without flight or external load.",
+        "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency is not an exercise-card field."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Load is bodyweight through a bilateral closed chain with rapid eccentric control and a low contact budget.",
+        "Dose stays quality-limited and ends before descent speed, contact sound, alignment, breathing, or finish control changes."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Use a flat dry nonslip floor, overhead clearance, a marked personal station, and direct observation.",
+        "Do not add a box, drop height, rebound, or conditioning density to this identity."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Use short sets of fully reset repetitions with a declared two-to-three-second stick and ample rest.",
+        "Exact repetitions and scores are programming proposals pending calibration rather than externally validated prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Declare stance, arm start, target depth, repetitions, hold time, quality gate, and stop signal before starting.",
+        "Reach tall, snap down, organize the whole foot and knee, freeze without rebound, breathe, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Stop for symptoms, giving way, uncontrolled contact, repeated knee or trunk collapse, extra steps, breath holding, fear, or unsafe floor conditions.",
+        "A failed stick is recorded rather than hidden or converted into another repetition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Use as low-impact landing-shape preparation before more demanding jump, sprint, or deceleration work when it improves the session task.",
+        "Do not use completion of this drill alone as proof of readiness for high-impact activity."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support names expected effort, unexpected symptoms, self-checks, access options, and nonvideo instruction.",
+        "The athlete reports symptoms, fear, loss of pressure, or a failed stick immediately."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Coach support covers front and side observation, fault correction order, demonstration, group spacing, and exact recording.",
+        "The coach reduces speed before increasing depth or volume and stops for persistent faults or symptoms."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A slower drop, shallower depth, hands-at-chest start, visual floor marker, fewer repetitions, or longer reset can improve access.",
+        "A slow Drop Squat to Stick is a separate regression identity rather than silently changing the rapid snap-down contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Arm position and depth are modifiers; athletic, landing, and control names are the same identity.",
+        "Slow drop squats, jumps, rebounds, unilateral finishes, and external-height tasks require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=UiMZXWq_ad4",
+      "title": "Snap Down + Stick",
+      "channelName": "Athletic Growth Lab",
+      "sourceQuery": "snap down stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=a11nfa1O4tY",
+      "title": "Snap Down & Stick",
+      "channelName": "Alex Bunt",
+      "sourceQuery": "snap down stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LTsBb91VWzg",
+      "title": "Snap Down Stick",
+      "channelName": "WheelerHealthyU",
+      "sourceQuery": "snap down stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NaL3MlQLlz0",
+      "title": "Snap Down and Stick",
+      "channelName": "Nick Westcott",
+      "sourceQuery": "snap down stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Snap-Down to Athletic Stick",
+      "classification": "same_identity",
+      "rationale": "Athletic names the canonical bilateral finish and adds no action.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Snapdown Landing Stick",
+      "classification": "same_identity",
+      "rationale": "Landing stick names the defining terminal hold.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Snap-Down to Stick Control Version",
+      "classification": "same_identity",
+      "rationale": "Control is the canonical no-rebound delivery intent.",
+      "distinguishingDimensions": {
+        "deliveryIntent": "control"
+      }
+    },
+    {
+      "name": "Arms-at-Chest Snap-Down",
+      "classification": "modifier_annotation",
+      "rationale": "Arm start changes cueing and momentum but preserves the rapid descent and stick.",
+      "distinguishingDimensions": {
+        "armStart": "chest"
+      }
+    },
+    {
+      "name": "Shallow Snap-Down to Stick",
+      "classification": "modifier_annotation",
+      "rationale": "A shallower owned finish changes range and dose without adding an action.",
+      "distinguishingDimensions": {
+        "depth": "shallower_owned"
+      }
+    },
+    {
+      "name": "Drop Squat to Stick",
+      "classification": "new_definition",
+      "rationale": "A deliberately slower descent removes the defining rapid snap.",
+      "distinguishingDimensions": {
+        "descentSpeed": "controlled_slow",
+        "reactiveSnap": false
+      }
+    },
+    {
+      "name": "Snap-Down to Jump and Stick",
+      "classification": "new_definition",
+      "rationale": "A takeoff and aerial phase add a jump after the snap-down.",
+      "distinguishingDimensions": {
+        "flight": true,
+        "sequence": [
+          "snap_down",
+          "jump",
+          "stick"
+        ]
+      }
+    },
+    {
+      "name": "Snap-Down to Pogo Rebound",
+      "classification": "new_definition",
+      "rationale": "A rebound replaces the static no-rebound finish.",
+      "distinguishingDimensions": {
+        "terminalAction": "rebound"
+      }
+    },
+    {
+      "name": "Single-Leg Snap-Down Stick",
+      "classification": "new_definition",
+      "rationale": "A unilateral finish changes laterality, balance, load distribution, and consequence.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Box or Depth Snap-Down Stick",
+      "classification": "new_definition",
+      "rationale": "External height adds flight or drop-height exposure absent from this card.",
+      "distinguishingDimensions": {
+        "externalHeight": true
+      }
+    }
+  ]
+}

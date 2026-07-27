@@ -1778,3 +1778,821 @@ test('Stir-the-Pot batch consolidates the redundant plank label and scores exact
       && alternate.classification === 'new_definition'
   )))
 })
+
+test('static-control collision batch consolidates three exact synonyms and preserves candidate-only media gates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/static-control-identity-collisions.v1.json',
+    ),
+    'utf8',
+  ))
+
+  for (const sourceKey of [
+    'ace_thread_the_needle',
+    'thoracic_exercise_prescription_review',
+    'single_leg_balance_training_review',
+    'foot_strength_athletes_review',
+    'split_squat_joint_angles_loading',
+    'split_squat_step_length_biomechanics',
+    'isometric_training_adaptations_review',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+
+  const expected = new Map([
+    ['quadruped-thread-the-needle', [
+      ['quadruped-thread-and-open', 28, 14, 28],
+      ['heel-sit-thread-and-open', 34, 16, 34],
+    ]],
+    ['single-leg-balance-hold-tripod-foot', [
+      ['supported-eyes-open', 22, 18, 22],
+      ['unsupported-eyes-open', 34, 24, 34],
+      ['unsupported-eyes-closed', 52, 28, 52],
+    ]],
+    ['split-squat-isometric-hold', [
+      ['supported-bodyweight-mid-range', 26, 32, 32],
+      ['unsupported-bodyweight-mid-range', 36, 42, 42],
+      ['goblet-loaded-mid-range', 44, 58, 58],
+    ]],
+  ])
+
+  assert.equal(batch.researchVersion, '2026-07-27.45')
+  assert.equal(batch.cards.length, 3)
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug,
+        familyKey: 'static_control_candidate',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 2,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 4)
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.decision,
+      'duplicate_consolidated',
+    )
+    assert.deepEqual(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.derivedOverallDifficulty,
+      ]),
+      expected.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+        variant.derivedOverallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === false
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const quadruped = batch.cards.find((card) => (
+    card.slug === 'quadruped-thread-the-needle'
+  ))
+  const balance = batch.cards.find((card) => (
+    card.slug === 'single-leg-balance-hold-tripod-foot'
+  ))
+  const splitSquat = batch.cards.find((card) => (
+    card.slug === 'split-squat-isometric-hold'
+  ))
+  assert.ok(quadruped.alternateAssessments.some((alternate) => (
+    alternate.name === 'Quadruped Thread-the-Needle Rotation'
+      && alternate.classification === 'same_identity'
+  )))
+  assert.ok(balance.alternateAssessments.some((alternate) => (
+    alternate.name === 'Single-Leg Balance Reach Clock'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(splitSquat.alternateAssessments.some((alternate) => (
+    alternate.name === 'Rear-Foot-Elevated Split Squat Isometric'
+      && alternate.classification === 'new_definition'
+  )))
+})
+
+test('reactive landing and pogo batch consolidates nine definitions while preserving mechanical boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/reactive-landing-pogo-identity.v1.json',
+    ),
+    'utf8',
+  ))
+
+  for (const sourceKey of [
+    'landing_intervention_systematic_review',
+    'landing_feedback_systematic_review',
+    'agility_perception_action_meta_analysis',
+    'change_direction_training_scoping_review',
+    'horizontal_deceleration_review',
+    'unilateral_hopping_leg_stiffness',
+    'plyometric_lower_limb_stiffness_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+
+  const expected = new Map([
+    ['snap-down-to-stick', [
+      ['bilateral-tall-reach-stick', 32, 22, 32],
+    ]],
+    ['mirror-shuffle', [
+      ['partner-lateral-leader-follower', 58, 40, 58],
+    ]],
+    ['sprint-to-stick-deceleration', [
+      ['five-yard-planned-stick', 48, 54, 54],
+      ['seven-to-ten-yard-planned-stick', 56, 68, 68],
+    ]],
+    ['single-leg-pogo', [
+      ['supported-stationary-low-amplitude', 34, 40, 40],
+      ['stationary-low-amplitude', 46, 54, 54],
+      ['linear-forward-traveling', 58, 64, 64],
+      ['lateral-line', 62, 66, 66],
+    ]],
+  ])
+
+  assert.equal(batch.researchVersion, '2026-07-27.46')
+  assert.equal(batch.cards.length, 4)
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug,
+        familyKey: 'reactive_landing_pogo_candidate',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 2,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 4)
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.decision,
+      'duplicate_consolidated',
+    )
+    assert.deepEqual(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.derivedOverallDifficulty,
+      ]),
+      expected.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+        variant.derivedOverallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === false
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const snapDown = batch.cards.find((card) => (
+    card.slug === 'snap-down-to-stick'
+  ))
+  const mirror = batch.cards.find((card) => card.slug === 'mirror-shuffle')
+  const sprint = batch.cards.find((card) => (
+    card.slug === 'sprint-to-stick-deceleration'
+  ))
+  const pogo = batch.cards.find((card) => card.slug === 'single-leg-pogo')
+  assert.ok(snapDown.alternateAssessments.some((alternate) => (
+    alternate.name === 'Drop Squat to Stick'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(mirror.alternateAssessments.some((alternate) => (
+    alternate.name === 'Lateral Shuffle Mechanics Walkthrough'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(sprint.alternateAssessments.some((alternate) => (
+    alternate.name === 'Seven-to-Ten-Yard Planned Sprint-to-Stick'
+      && alternate.classification === 'new_variant'
+  )))
+  assert.equal(
+    pogo.assessmentSummary.distinctIdentityDecision.decision,
+    'distinct_exercises',
+  )
+  assert.ok(pogo.alternateAssessments.some((alternate) => (
+    alternate.name === 'Single-Leg Pogo Hold-to-Hop'
+      && alternate.classification === 'new_definition'
+  )))
+})
+
+test('reactive hop-to-cut and seated overhead press packets preserve exact variants and human media gates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const cases = [
+    {
+      filename: 'reactive-hop-to-cut-family.v1.json',
+      canonicalName: 'Reactive Hop-to-Cut',
+      expectedMedia: 3,
+      expectedVariants: [
+        ['bilateral-hop-reactive-45-cut', 64, 54, 64],
+        ['bilateral-hop-reactive-90-cut', 72, 62, 72],
+      ],
+      consolidatedSource: 'reactive-45-degree-hop-to-cut',
+    },
+    {
+      filename: 'seated-overhead-press-family.v1.json',
+      canonicalName: 'Seated Overhead Press',
+      expectedMedia: 5,
+      expectedVariants: [
+        ['barbell-unsupported-pronated', 50, 58, 58],
+        ['barbell-back-supported-pronated', 44, 60, 60],
+        ['dumbbell-back-supported-neutral', 46, 50, 50],
+        ['dumbbell-back-supported-pronated', 48, 52, 52],
+      ],
+      consolidatedSource: 'seated-dumbbell-overhead-press',
+    },
+  ]
+
+  for (const item of cases) {
+    const batch = JSON.parse(readFileSync(
+      path.join(RESEARCH_ROOT, 'batches', item.filename),
+      'utf8',
+    ))
+    const [cardSpec] = batch.cards
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: item.canonicalName,
+        familyKey: 'candidate_family',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, item.expectedMedia)
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.consolidatedSource,
+      item.consolidatedSource,
+    )
+    assert.deepEqual(
+      cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.overallDifficulty,
+      ]),
+      item.expectedVariants,
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+        variant.overallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+})
+
+test('hip thrust packet separates glute bridges, preserves exact variants, and has no exercise skill levels', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'hip-thrust-family.v1.json'),
+    'utf8',
+  ))
+  const [cardSpec] = batch.cards
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Hip Thrust',
+      familyKey: 'hip_extension',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.deepEqual(
+    cardSpec.assessmentSummary.identityDecision.consolidatedSources,
+    [
+      'band-hip-thrust',
+      'barbell-hip-thrust',
+      'hip-thrust-loaded-glute-bridge',
+      'sandbag-hip-thrust-strength',
+      'single-leg-hip-thrust',
+    ],
+  )
+  assert.deepEqual(
+    cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.overallDifficulty,
+    ]),
+    [
+      ['bodyweight-bilateral-upper-back-supported', 38, 30, 38],
+      ['barbell-bilateral-upper-back-supported', 48, 62, 62],
+      ['band-bilateral-upper-back-supported', 44, 46, 46],
+      ['dumbbell-bilateral-upper-back-supported', 42, 44, 44],
+      ['kettlebell-bilateral-upper-back-supported', 42, 44, 44],
+      ['plate-bilateral-upper-back-supported', 42, 42, 42],
+      ['sandbag-bilateral-upper-back-supported', 46, 50, 50],
+      ['bodyweight-single-leg-upper-back-supported', 58, 48, 58],
+    ],
+  )
+  assert.ok(
+    cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )),
+  )
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Barbell Glute Bridge'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.deepEqual(
+    cardSpec.assessmentSummary.identityDecision.humanReviewBoundaries,
+    ['feet-elevated-hip-thrust', 'hip-thrust-eccentric-lower'],
+  )
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})
+
+test('ball-drop chase-and-catch packet preserves ordered actions and difficulty-only variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches',
+      'ball-drop-chase-catch-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const [cardSpec] = batch.cards
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Ball Drop Reaction Sprint',
+      familyKey: 'Reactive Start & Chase',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 12)
+  assert.deepEqual(
+    cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.overallDifficulty,
+    ]),
+    [
+      ['tennis-ball-partner-drop-catch', 48, 52, 52],
+      ['reaction-ball-partner-drop-secure', 60, 54, 60],
+    ],
+  )
+  assert.ok(
+    cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )),
+  )
+  assert.deepEqual(
+    cardSpec.assessmentSummary.identityDecision.distinctBoundaries,
+    [
+      'ball-drop-point-and-sprint-cone-reaction',
+      'reaction-ball-drop-to-hop-and-go',
+      'ball-drop-sprint-plus-direction-cue',
+      'reaction-ball-drop-catch-to-cut',
+      'gate-reaction-drill',
+    ],
+  )
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})
+
+test('alternating-bounds packet consolidates aliases into difficulty-only exact variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches',
+      'alternating-bounds-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const [cardSpec] = batch.cards
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Alternating Bounds',
+      familyKey: 'Alternating unilateral horizontal multi-step bound',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 2,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 12)
+  assert.deepEqual(
+    cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.overallDifficulty,
+    ]),
+    [
+      ['traditional-height-distance', 58, 62, 62],
+      ['sprint-bound-distance', 66, 68, 68],
+    ],
+  )
+  assert.ok(
+    cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )),
+  )
+  assert.deepEqual(
+    cardSpec.assessmentSummary.identityDecision.consolidatedSources,
+    [
+      'alternate-bounds-for-height-and-distance',
+      'alternating-bounds',
+      'alternating-bounds-for-height',
+    ],
+  )
+  assert.deepEqual(
+    cardSpec.assessmentSummary.identityDecision.alreadyConsolidatedSources,
+    ['alternating-bounds-for-distance'],
+  )
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})
+
+test('split-squat packets preserve the rear-support boundary and difficulty-only exact variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'split-squat-family.v1.json'),
+    'utf8',
+  ))
+  const expected = new Map([
+    ['split-squat', [
+      ['supported-bodyweight-standard', 28, 26, 28],
+      ['bodyweight-standard', 34, 32, 34],
+      ['two-dumbbell-suitcase', 42, 48, 48],
+      ['barbell-back-rack', 52, 62, 62],
+      ['single-kettlebell-front-rack', 46, 46, 46],
+      ['double-kettlebell-front-rack', 50, 56, 56],
+      ['sandbag-front-hold', 44, 50, 50],
+      ['bodyweight-slow-eccentric-pause', 44, 42, 44],
+    ]],
+    ['bulgarian-split-squat', [
+      ['supported-bodyweight-rear-foot-elevated', 36, 36, 36],
+      ['bodyweight-rear-foot-elevated', 44, 42, 44],
+      ['two-dumbbell-suitcase-rear-foot-elevated', 50, 54, 54],
+      ['barbell-back-rack-rear-foot-elevated', 60, 68, 68],
+      ['single-kettlebell-goblet-rear-foot-elevated', 52, 52, 52],
+      ['bodyweight-slow-eccentric-pause-rear-foot-elevated', 52, 50, 52],
+    ]],
+  ])
+
+  assert.equal(registryDocument.registryVersion, '2026-07-27.54')
+  for (const sourceKey of [
+    'split_squat_step_length_biomechanics',
+    'unilateral_barbell_exercise_activation',
+    'rfess_rear_leg_moment',
+    'rfess_strength_symmetry_validity',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-27.53')
+  assert.equal(batch.cards.length, 2)
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug === 'split-squat'
+          ? 'Split Squat'
+          : 'Rear-Foot-Elevated Split Squat',
+        familyKey: cardSpec.slug === 'split-squat'
+          ? 'stationary_split_stance_squat'
+          : 'rear_foot_elevated_stationary_split_squat',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 2,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 12)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.overallDifficulty,
+      ]),
+      expected.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+        variant.overallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const splitSquat = batch.cards.find((card) => card.slug === 'split-squat')
+  const rearFootElevated = batch.cards.find((card) => (
+    card.slug === 'bulgarian-split-squat'
+  ))
+  assert.ok(splitSquat.alternateAssessments.some((alternate) => (
+    alternate.name === 'Rear-Foot-Elevated Split Squat'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(rearFootElevated.alternateAssessments.some((alternate) => (
+    alternate.name === 'Floor-Based Split Squat'
+      && alternate.classification === 'new_definition'
+  )))
+})
+
+test('hamstring slider curl research batch preserves exact variants, difficulty-only scoring, and candidate-only media', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/hamstring-slider-curl-family.v1.json',
+    ),
+    'utf8',
+  ))
+
+  for (const sourceKey of [
+    'supine_sliding_leg_curl_emg_2025',
+    'hamstring_force_stretch_eccentric_slider_2026',
+    'hamstring_exercise_selection_activation',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-27.54')
+  assert.equal(batch.cards.length, 1)
+
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Hamstring Slider Curl',
+      familyKey: 'supine_sliding_knee_flexion_curl',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 2,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 11)
+  assert.deepEqual(
+    cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.overallDifficulty,
+    ]),
+    [
+      ['bilateral-short-range-bridge-reset', 28, 32, 32],
+      ['bilateral-full-cycle', 34, 44, 44],
+      ['bilateral-eccentric-only-reset-down', 38, 48, 48],
+      ['alternating-full-cycle', 44, 52, 52],
+      ['single-leg-full-cycle', 50, 62, 62],
+      ['single-leg-eccentric-only-assisted-return', 52, 66, 66],
+    ],
+  )
+  assert.ok(
+    cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )),
+  )
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})

@@ -1,0 +1,450 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-balance-hold-tripod-foot",
+  "researchVersion": "2026-07-27.45",
+  "assessmentSummary": {
+    "identity": "A static single-leg stance that maintains heel, first-metatarsal-head, and fifth-metatarsal-head contact with controlled knee, pelvis, trunk, and a declared support and visual condition.",
+    "currentCardFindings": [
+      "Single-Leg Balance Hold — Tripod Foot and Single-Leg Tripod Balance are the same identity.",
+      "Supported eyes-open, unsupported eyes-open, and unsupported eyes-closed are exact variants.",
+      "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 34,
+      "absoluteLoadDemand": 24,
+      "baseOverallDifficulty": 34,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "supported-eyes-open",
+        "exerciseComplexity": 22,
+        "physicalDifficulty": 18,
+        "derivedOverallDifficulty": 22
+      },
+      {
+        "variantKey": "unsupported-eyes-open",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 24,
+        "derivedOverallDifficulty": 34
+      },
+      {
+        "variantKey": "unsupported-eyes-closed",
+        "exerciseComplexity": 52,
+        "physicalDifficulty": 28,
+        "derivedOverallDifficulty": 52
+      }
+    ],
+    "identityDecision": {
+      "versus": "single-leg-tripod-balance",
+      "decision": "duplicate_consolidated",
+      "boundary": "same_static_single_leg_tripod_balance_action"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand on one leg beside an available support when required. Maintain contact through the heel, first-metatarsal head, and fifth-metatarsal head without clawing the toes; keep the stance knee softly flexed and tracking, pelvis and ribs stacked, and head quiet for the declared visual condition and hold time. Touch support or set the lifted foot down before an uncontrolled step, alignment change, breath holding, or symptom.",
+      "familyKey": "static_single_leg_tripod_balance",
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "wall",
+        "mirror"
+      ],
+      "environment": {
+        "space": {
+          "sharpEdgesRemoved": true,
+          "trafficControlled": true,
+          "clearFallRadiusMeters": 1.5
+        },
+        "visual": {
+          "lightingAdequate": true,
+          "fixedGazeTargetForEyesOpen": true,
+          "eyesClosedRequiresCloseSupervision": true
+        },
+        "support": {
+          "supportMustNotMove": true,
+          "stableHandSupportWithinReachWhenRequired": true
+        },
+        "surface": {
+          "avoid": [
+            "wet",
+            "loose",
+            "highly_compliant",
+            "uneven_unless_separately_reviewed"
+          ],
+          "required": "level_firm_nonslip"
+        },
+        "footwear": {
+          "tractionChecked": true,
+          "conditionDeclared": "barefoot_or_secure_footwear"
+        },
+        "sharedStation": {
+          "athletesPerStation": 1,
+          "coachCanInterveneWithoutCollision": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "recent_ankle_knee_hip_or_foot_injury",
+          "known_fall_risk",
+          "vestibular_or_visual_impairment",
+          "dizziness",
+          "reduced_plantar_sensation"
+        ],
+        "doNotUseWhen": [
+          "unsafe_fall_environment",
+          "acute_or_increasing_pain",
+          "dizziness_or_neurologic_symptoms",
+          "required_support_unavailable",
+          "cannot_exit_without_uncontrolled_fall"
+        ],
+        "medicalScope": "The card is not a diagnostic balance test and does not clear fall risk, injury, or neurologic symptoms.",
+        "prerequisites": [
+          "pain_free_bilateral_stance",
+          "safe_weight_shift",
+          "safe_step_down_or_hand_support_strategy"
+        ],
+        "regressionOrder": [
+          "add_stable_hand_support",
+          "eyes_open_fixed_gaze",
+          "shorter_hold",
+          "allow_controlled_touch_down",
+          "tandem_balance_review_only_substitution"
+        ],
+        "individualizationRequired": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "The defining action is a static single-leg stance with declared tripod contact and controlled posture.",
+        "Naming order does not create another exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Declare side, hand support, visual condition, footwear, surface, stance posture, hold duration, touch-down rule, and fall space.",
+        "Reaching, unstable surfaces, external load, and perturbation require separate review."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739583/",
+      "sourceTitle": "How to Evaluate and Improve Foot Strength in Athletes: An Update",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Foot and ankle musculature contributes to pressure control while knee, hip, pelvis, and trunk musculature organizes posture.",
+        "The card does not claim that one muscle or visible arch shape alone determines balance."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Single-leg postural control uses ankle, hip, and safe touch-down strategies under the declared sensory condition.",
+        "Removing support or vision raises balance complexity without adding external impact."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Complexity rises when hand support and then visual input are removed; physical demand changes more modestly.",
+        "Overall exercise difficulty is the maximum of complexity and physical demand."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739583/",
+      "sourceTitle": "How to Evaluate and Improve Foot Strength in Athletes: An Update",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Loading is bodyweight through one stance limb; external load and unstable surfaces are excluded.",
+        "Track foot, calf, hip, and postural fatigue plus touch-downs, toe clawing, alignment change, and unsafe sway."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Use a firm nonslip surface, clear fall space, adequate light, declared footwear, and stable support when needed.",
+        "Eyes-closed work requires close supervision and is not an automatic progression."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Single-leg balance benefits have occurred across varied protocols, so the card uses submaximal quality holds rather than claiming one universal dose.",
+        "Actual clean time ends at the first failed posture or safety criterion."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Set the tripod, shift to one leg, soften the knee, stack pelvis and ribs, use the declared visual condition, and hold only while controlled.",
+        "Instruction includes the safe support or touch-down strategy."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Stop for pain, giving way, numbness, tingling, dizziness, unsafe sway, unavailable support, or an uncontrolled step.",
+        "Restore support or a lower-demand stance before repeating."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Supported, unsupported eyes-open, and eyes-closed holds serve different balance and supervision contexts.",
+        "Balance gains are task-sensitive, so universal transfer is not claimed."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Athlete guidance distinguishes expected small sway from symptoms and explains support, touch-down, and nonvideo options.",
+        "The athlete reports touch-downs and side differences."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739583/",
+      "sourceTitle": "How to Evaluate and Improve Foot Strength in Athletes: An Update",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The coach verifies exact support and sensory conditions and observes foot, knee, pelvis, trunk, breathing, and fall strategy.",
+        "Record actual clean hold time and touch-downs rather than only the target."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Stable support, eyes open, shorter holds, secure footwear, touch-down permission, and tandem stance can improve access.",
+        "Removing support or vision is optional and requires the exact safety contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "sourceTitle": "Single Leg Balance Training: A Systematic Review",
+      "sourcePublisher": "Perceptual and Motor Skills",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Supported, unsupported, and eyes-closed conditions are exact variants; footwear and duration are modifiers.",
+        "Reach tasks, loaded holds, perturbations, and unstable surfaces require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=cOjBPzFz32E",
+      "title": "FOOT TRIPOD EXERCISES   OBTAIN BALANCE AND STABILITY",
+      "channelName": "Jason Hughes",
+      "sourceQuery": "single leg foot tripod balance hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vKonzLCxWrg",
+      "title": "Single Leg Balance",
+      "channelName": "Ramage Performance Therapy",
+      "sourceQuery": "single leg balance foot tripod",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vr2yG84vnnA",
+      "title": "How to Perform the Short Foot Exercise Progressing to Single Leg Balance | Exercise Tutorial",
+      "channelName": "Dr. Karen Thomas ",
+      "sourceQuery": "short foot single leg balance",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XhiffPgvEJ4",
+      "title": "Single Leg Balance in Short Foot Position",
+      "channelName": "Dr. Michael Cortese - The Runner Guy",
+      "sourceQuery": "single leg balance short foot position",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T20:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Leg Tripod Balance",
+      "classification": "same_identity",
+      "rationale": "Naming order does not change the action.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Supported Eyes-Open Tripod Hold",
+      "classification": "new_variant",
+      "rationale": "Hand support reduces balance complexity.",
+      "distinguishingDimensions": {
+        "support": "stable_hand",
+        "vision": "eyes_open"
+      }
+    },
+    {
+      "name": "Unsupported Eyes-Open Tripod Hold",
+      "classification": "new_variant",
+      "rationale": "Removing hand support raises balance complexity.",
+      "distinguishingDimensions": {
+        "support": "none_used",
+        "vision": "eyes_open"
+      }
+    },
+    {
+      "name": "Unsupported Eyes-Closed Tripod Hold",
+      "classification": "new_variant",
+      "rationale": "Removing vision raises sensory and supervision demand.",
+      "distinguishingDimensions": {
+        "vision": "eyes_closed",
+        "supervision": "close"
+      }
+    },
+    {
+      "name": "Barefoot or Shoe-On Tripod Hold",
+      "classification": "modifier_annotation",
+      "rationale": "Footwear changes sensory input and traction but not the action.",
+      "distinguishingDimensions": {
+        "footwear": "declared"
+      }
+    },
+    {
+      "name": "Single-Leg Balance Reach Clock",
+      "classification": "new_definition",
+      "rationale": "Reaching adds dynamic center-of-mass movement.",
+      "distinguishingDimensions": {
+        "action": "multidirectional_reach"
+      }
+    },
+    {
+      "name": "Single-Leg Balance on Unstable Surface",
+      "classification": "new_definition",
+      "rationale": "An unstable surface changes environment, mechanics, and fall risk.",
+      "distinguishingDimensions": {
+        "surface": "unstable"
+      }
+    },
+    {
+      "name": "Loaded or Perturbed Single-Leg Hold",
+      "classification": "new_definition",
+      "rationale": "External load or perturbation changes loading and force predictability.",
+      "distinguishingDimensions": {
+        "externalLoadOrPerturbation": true
+      }
+    }
+  ]
+}

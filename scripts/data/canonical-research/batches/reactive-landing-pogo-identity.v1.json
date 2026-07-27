@@ -1,0 +1,1308 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.46",
+  "batchKey": "reactive-landing-pogo-identity-v1",
+  "snapshotAt": "2026-07-26T18:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned public oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "snap-down-to-stick",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "A rapid tall-to-athletic bilateral descent followed by a static no-rebound finish defines this card; no flight or external height is required.",
+            "Athletic, landing, and control labels name the same action, while stance, arm start, depth, speed, and hold time are variant or dose dimensions."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "The card is a bilateral land-and-squat preparation pattern without a required aerial phase.",
+            "Jump, rebound, unilateral, box, depth-drop, and moving-entry tasks remain separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Rapid ankle, knee, and hip flexion control organizes the descent while foot, frontal-plane, transverse-plane, and trunk control stabilize the finish.",
+            "The listed muscles describe contributing roles and do not claim isolation or exact activation magnitude."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Landing instruction and feedback can alter measured landing mechanics, but direct transfer to this exact no-flight snap-down has not been established.",
+            "The quality contract therefore records whole-foot pressure, knee-foot alignment, trunk control, contact sound, and a motionless finish without claiming injury prevention."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Exercise complexity rises with faster descent, more demanding arm starts, deeper target positions, stricter alignment, and longer stick criteria; physical difficulty remains modest without flight or external load.",
+            "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency is not an exercise-card field."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Load is bodyweight through a bilateral closed chain with rapid eccentric control and a low contact budget.",
+            "Dose stays quality-limited and ends before descent speed, contact sound, alignment, breathing, or finish control changes."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Use a flat dry nonslip floor, overhead clearance, a marked personal station, and direct observation.",
+            "Do not add a box, drop height, rebound, or conditioning density to this identity."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Use short sets of fully reset repetitions with a declared two-to-three-second stick and ample rest.",
+            "Exact repetitions and scores are programming proposals pending calibration rather than externally validated prescriptions."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Declare stance, arm start, target depth, repetitions, hold time, quality gate, and stop signal before starting.",
+            "Reach tall, snap down, organize the whole foot and knee, freeze without rebound, breathe, and reset."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Stop for symptoms, giving way, uncontrolled contact, repeated knee or trunk collapse, extra steps, breath holding, fear, or unsafe floor conditions.",
+            "A failed stick is recorded rather than hidden or converted into another repetition."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Use as low-impact landing-shape preparation before more demanding jump, sprint, or deceleration work when it improves the session task.",
+            "Do not use completion of this drill alone as proof of readiness for high-impact activity."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Athlete support names expected effort, unexpected symptoms, self-checks, access options, and nonvideo instruction.",
+            "The athlete reports symptoms, fear, loss of pressure, or a failed stick immediately."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "Coach support covers front and side observation, fault correction order, demonstration, group spacing, and exact recording.",
+            "The coach reduces speed before increasing depth or volume and stops for persistent faults or symptoms."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "landing_feedback_systematic_review",
+          "claims": [
+            "A slower drop, shallower depth, hands-at-chest start, visual floor marker, fewer repetitions, or longer reset can improve access.",
+            "A slow Drop Squat to Stick is a separate regression identity rather than silently changing the rapid snap-down contract."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Arm position and depth are modifiers; athletic, landing, and control names are the same identity.",
+            "Slow drop squats, jumps, rebounds, unilateral finishes, and external-height tasks require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A no-flight bilateral action that moves rapidly from tall posture into a declared athletic stance and holds a static no-rebound finish.",
+        "currentCardFindings": [
+          "Three redundant definitions describe the same rapid bilateral descent and stick and are consolidated into this survivor.",
+          "The legacy survivor text incorrectly described a box jump; the corrected card explicitly excludes flight, rebound, and external height.",
+          "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 32,
+          "absoluteLoadDemand": 22,
+          "baseOverallDifficulty": 32,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "bilateral-tall-reach-stick",
+            "exerciseComplexity": 32,
+            "physicalDifficulty": 22,
+            "derivedOverallDifficulty": 32
+          }
+        ],
+        "identityDecision": {
+          "versus": [
+            "snap-down-to-athletic-stick",
+            "snapdown-landing-stick",
+            "snap-down-to-stick-control-version"
+          ],
+          "decision": "duplicate_consolidated",
+          "boundary": "same_rapid_tall_to_bilateral_athletic_stick_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Snap-Down to Athletic Stick",
+          "classification": "same_identity",
+          "rationale": "Athletic names the canonical bilateral finish and adds no action.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Snapdown Landing Stick",
+          "classification": "same_identity",
+          "rationale": "Landing stick names the defining terminal hold.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Snap-Down to Stick Control Version",
+          "classification": "same_identity",
+          "rationale": "Control is the canonical no-rebound delivery intent.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "control"
+          }
+        },
+        {
+          "name": "Arms-at-Chest Snap-Down",
+          "classification": "modifier_annotation",
+          "rationale": "Arm start changes cueing and momentum but preserves the rapid descent and stick.",
+          "distinguishingDimensions": {
+            "armStart": "chest"
+          }
+        },
+        {
+          "name": "Shallow Snap-Down to Stick",
+          "classification": "modifier_annotation",
+          "rationale": "A shallower owned finish changes range and dose without adding an action.",
+          "distinguishingDimensions": {
+            "depth": "shallower_owned"
+          }
+        },
+        {
+          "name": "Drop Squat to Stick",
+          "classification": "new_definition",
+          "rationale": "A deliberately slower descent removes the defining rapid snap.",
+          "distinguishingDimensions": {
+            "descentSpeed": "controlled_slow",
+            "reactiveSnap": false
+          }
+        },
+        {
+          "name": "Snap-Down to Jump and Stick",
+          "classification": "new_definition",
+          "rationale": "A takeoff and aerial phase add a jump after the snap-down.",
+          "distinguishingDimensions": {
+            "flight": true,
+            "sequence": [
+              "snap_down",
+              "jump",
+              "stick"
+            ]
+          }
+        },
+        {
+          "name": "Snap-Down to Pogo Rebound",
+          "classification": "new_definition",
+          "rationale": "A rebound replaces the static no-rebound finish.",
+          "distinguishingDimensions": {
+            "terminalAction": "rebound"
+          }
+        },
+        {
+          "name": "Single-Leg Snap-Down Stick",
+          "classification": "new_definition",
+          "rationale": "A unilateral finish changes laterality, balance, load distribution, and consequence.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Box or Depth Snap-Down Stick",
+          "classification": "new_definition",
+          "rationale": "External height adds flight or drop-height exposure absent from this card.",
+          "distinguishingDimensions": {
+            "externalHeight": true
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=UiMZXWq_ad4",
+          "title": "Snap Down + Stick",
+          "channelName": "Athletic Growth Lab",
+          "sourceQuery": "snap down stick exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=a11nfa1O4tY",
+          "title": "Snap Down & Stick",
+          "channelName": "Alex Bunt",
+          "sourceQuery": "snap down stick exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LTsBb91VWzg",
+          "title": "Snap Down Stick",
+          "channelName": "WheelerHealthyU",
+          "sourceQuery": "snap down stick exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=NaL3MlQLlz0",
+          "title": "Snap Down and Stick",
+          "channelName": "Nick Westcott",
+          "sourceQuery": "snap down stick exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        }
+      ]
+    },
+    {
+      "slug": "mirror-shuffle",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "A leader and follower face each other in a bounded lane; the follower responds to the leader's live body movement using lateral shuffle footwork without contact.",
+            "Drill, partner, box, and lane labels do not add an action; a preplanned route removes the defining perception-action coupling."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "The task is reactive lateral locomotion with live visual cueing and planned spatial boundaries.",
+            "Crossover, sprint exit, tag, ball, resistance, hopping, crawling, and ladder tasks remain separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "Hip, knee, ankle, foot, and trunk actions repeatedly accelerate and brake the body laterally while maintaining frontal- and transverse-plane control.",
+            "The card makes no muscle-isolation or exact force-distribution claim."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Live opponent information couples perception and movement selection, distinguishing reactive agility from preplanned change of direction.",
+            "Evidence supports that distinction, but exact outcome magnitude for this mirror-shuffle format is not established."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Complexity rises with leader unpredictability, response speed, lane width, stricter accuracy, and role switching; physical difficulty rises with speed, braking force, round length, and density.",
+            "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency belongs only to skill-library cards."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "Repeated lateral accelerations and braking load the adductors, lateral hip, quadriceps, calves, trunk, and attention.",
+            "End the round before accuracy, spacing, footwork, posture, or braking quality declines."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Use a flat dry nonslip bounded lane, matched partners, declared roles, no contact, and enough separation from other pairs.",
+            "Do not run the task when spacing, footwear, floor conditions, or partner behavior is unsafe."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Use short accurate rounds with complete role rotation and enough rest to preserve reading and braking quality.",
+            "Exact round duration, accuracy threshold, and score remain calibration proposals."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Declare lane, roles, spacing, allowed shuffle-only footwork, round time, accuracy target, stop signal, and role-switch rule.",
+            "The follower reads the partner's body, moves laterally without crossing the feet, preserves spacing, and brakes inside the lane."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "Stop for symptoms, collision risk, repeated foot crossing, loss of spacing, uncontrolled braking, guessing, boundary violations, or partner mismatch.",
+            "Regress to a preplanned lateral walkthrough when live cueing prevents safe mechanics."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Use fresh after lateral mechanics when live perception-action coupling serves the session objective.",
+            "Do not default to conditioning density or use a solo preplanned shuffle under this identity."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "Athlete support explains both roles, expected lateral and attention effort, self-checks, nonvideo instruction, and how to report unsafe speed or symptoms.",
+            "The athlete reports missed reads and unsafe spacing rather than guessing faster."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "Coach support covers pairing, cue behavior, spacing, stance, first step, foot crossing, braking, accuracy, role balance, and group traffic.",
+            "The coach reduces leader speed or lane demand before extending round duration."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "agility_perception_action_meta_analysis",
+          "claims": [
+            "A slower leader, narrower lane, shorter round, larger spacing, stronger visual contrast, or rehearsed first round can improve access.",
+            "A preplanned walkthrough is a distinct regression identity because it removes live perception-action coupling."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "change_direction_training_scoping_review",
+          "claims": [
+            "Lane size, round time, speed, spacing, and role order are modifiers; partner and drill names are the same identity.",
+            "Preplanned, crossover, sprint-exit, pursuit/contact, implement, obstacle, or alternate-locomotion tasks require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A noncontact partner leader-follower task in which the follower reacts to live body movement using lateral shuffle footwork inside a declared lane.",
+        "currentCardFindings": [
+          "Mirror Shuffle Drill and Partner Mirror Shuffle are redundant labels for the same live partner task.",
+          "Partner role and bounded lane are defining setup requirements, while speed, spacing, round time, and role order are delivery dimensions.",
+          "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 40,
+          "baseOverallDifficulty": 58,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "partner-lateral-leader-follower",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 40,
+            "derivedOverallDifficulty": 58
+          }
+        ],
+        "identityDecision": {
+          "versus": [
+            "mirror-shuffle-drill",
+            "partner-mirror-shuffle"
+          ],
+          "decision": "duplicate_consolidated",
+          "boundary": "same_live_partner_lateral_leader_follower_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Mirror Shuffle Drill",
+          "classification": "same_identity",
+          "rationale": "Drill adds no action to the live partner lateral mirror task.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Partner Mirror Shuffle",
+          "classification": "same_identity",
+          "rationale": "Partner names the live cue source already required by the identity.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Partner Mirror Shuffle Box",
+          "classification": "same_identity",
+          "rationale": "A bounded box or lane is an exact setup for the same task.",
+          "distinguishingDimensions": {
+            "boundaryShape": "box_or_lane"
+          }
+        },
+        {
+          "name": "Mirror Shuffle Lane Width or Round-Time Change",
+          "classification": "modifier_annotation",
+          "rationale": "Lane width, spacing, speed, and round time scale the same task.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "lane_width",
+              "spacing",
+              "leader_speed",
+              "round_time"
+            ]
+          }
+        },
+        {
+          "name": "Role-Switched Mirror Shuffle",
+          "classification": "modifier_annotation",
+          "rationale": "Switching leader and follower is delivery rotation, not a new exercise.",
+          "distinguishingDimensions": {
+            "role": "leader_or_follower"
+          }
+        },
+        {
+          "name": "Lateral Shuffle Mechanics Walkthrough",
+          "classification": "new_definition",
+          "rationale": "A preplanned route removes live perception-action coupling.",
+          "distinguishingDimensions": {
+            "cue": "preplanned",
+            "partner": false
+          }
+        },
+        {
+          "name": "Partner Mirror Shuffle with Crossover",
+          "classification": "new_definition",
+          "rationale": "Crossover footwork changes the movement and rotational demands.",
+          "distinguishingDimensions": {
+            "footwork": "crossover"
+          }
+        },
+        {
+          "name": "Mirror Shuffle to Sprint Exit",
+          "classification": "new_definition",
+          "rationale": "A linear sprint exit adds a second locomotor action and finish.",
+          "distinguishingDimensions": {
+            "terminalAction": "sprint_exit"
+          }
+        },
+        {
+          "name": "Partner Mirror Tag",
+          "classification": "new_definition",
+          "rationale": "Tag contact and pursuit rules add interaction and collision constraints.",
+          "distinguishingDimensions": {
+            "task": "pursuit",
+            "contact": "tag"
+          }
+        },
+        {
+          "name": "Ball, Resistance, Hop, Crawl, or Ladder Mirror",
+          "classification": "new_definition",
+          "rationale": "Added implements, locomotor actions, or obstacles materially change the task.",
+          "distinguishingDimensions": {
+            "addedConstraint": [
+              "ball",
+              "resistance",
+              "hop",
+              "crawl",
+              "ladder"
+            ]
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=oXPagj--ejE",
+          "title": "Partner Mirror (Shuffle)",
+          "channelName": "Tinsley Performance",
+          "sourceQuery": "partner mirror shuffle drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=XPWv2pEnrpY",
+          "title": "Partner Mirror Drill: Shuffle",
+          "channelName": "N1 Motion",
+          "sourceQuery": "partner mirror shuffle drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=KlFU0pAGdgo",
+          "title": "Shuffle Mirror Drill",
+          "channelName": "Patrick Nolan",
+          "sourceQuery": "partner mirror shuffle drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=znHwPessi3Q",
+          "title": "Side Shuffle Mirror Drill",
+          "channelName": "Bullett Performance Training",
+          "sourceQuery": "partner mirror shuffle drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        }
+      ]
+    },
+    {
+      "slug": "sprint-to-stick-deceleration",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "A planned straight-line acceleration transitions through a declared braking zone into a controlled bilateral athletic stick without a cut, turn, or reacceleration.",
+            "Five-yard and seven-to-ten-yard approaches are exact distance variants because they change entry speed and braking demand, not the accelerate-brake-stick sequence."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "The card combines linear locomotion and planned horizontal deceleration with a bilateral static finish.",
+            "Reactive cues, multidirectional cuts, backpedal entries, resistance, run-through finishes, and reacceleration remain separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Foot, ankle, knee, hip, and trunk actions absorb and redirect forward momentum through repeated braking contacts.",
+            "The listed muscles describe contributors to braking and stabilization without claiming isolation."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Horizontal deceleration requires braking force, eccentric capacity, posture control, and multi-step organization; achieved entry velocity materially changes demand.",
+            "Exact card distances and dose thresholds are programming proposals rather than directly validated prescriptions."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Complexity rises with approach speed, braking precision, shorter zones, and stricter stick criteria; physical difficulty rises with entry velocity, hard braking contacts, and density.",
+            "Overall exercise difficulty equals the greater of complexity and physical difficulty; exercise cards do not classify athlete proficiency."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Short acceleration plus multi-step braking creates substantial eccentric and impact demand in the quadriceps, calves, gluteals, hamstrings, adductors, and trunk.",
+            "Track hard braking events and end before run-throughs, panic steps, twisting stops, alignment loss, or declining entry intent."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Use a flat dry high-traction surface, measured approach and braking zones, clear runout, one-way lanes, and one athlete per lane.",
+            "Do not prescribe a speed or braking zone the athlete cannot repeatedly own."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Use low numbers of fully recovered quality events, count hard braking contacts, and cap cumulative sprint, impact, and braking budgets.",
+            "The longer approach carries higher physical difficulty and requires repeatable success at the shorter variant first."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Declare approach distance, start stance, entry intent, braking zone, finish mark, stick time, repetitions, lane order, and stop signal.",
+            "Accelerate straight, lower under control before the line, use ordered braking steps, stop without twisting, and hold the finish."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Stop for symptoms, giving way, panic steps, run-through, twisting, repeated alignment loss, unsafe traffic, surface failure, or inability to stop inside the zone.",
+            "Reduce intent or extend the braking zone before adding repetitions."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Use fresh in movement-learning or early output work before fatigue-heavy lower-body training.",
+            "Do not hide the braking dose inside conditioning or combine it with untracked high-speed running."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Athlete support explains the lane, expected braking effort, self-checks, symptoms, confidence reporting, and how to reduce speed safely.",
+            "The athlete reports a run-through, twist, panic step, or fear rather than forcing the target speed."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Coach support covers measuring zones, traffic flow, posture, braking onset, foot sequence, stop location, stick quality, and cumulative exposure.",
+            "The coach reduces intent or returns to the shorter distance when braking is not repeatable."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Lower intent, a shorter approach, longer braking zone, fewer events, longer rest, and high-contrast markings can improve access.",
+            "A lower-speed eccentric stop is a distinct substitution when the athlete cannot yet own acceleration entry."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Five-yard and seven-to-ten-yard approaches are variants; intent, zone length, stance, and hold time are modifiers.",
+            "Cuts, reactive cues, reacceleration, backpedal entries, resistance, and run-through finishes require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A planned linear acceleration followed by multi-step horizontal braking to a controlled bilateral static stick.",
+        "currentCardFindings": [
+          "Two five-yard source definitions are exact distance variants of the generic Sprint-to-Stick Deceleration identity.",
+          "Five-yard and seven-to-ten-yard variants make entry-distance and braking-demand differences selectable without duplicating identities.",
+          "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 54,
+          "baseOverallDifficulty": 54,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "five-yard-planned-stick",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 54,
+            "derivedOverallDifficulty": 54
+          },
+          {
+            "variantKey": "seven-to-ten-yard-planned-stick",
+            "exerciseComplexity": 56,
+            "physicalDifficulty": 68,
+            "derivedOverallDifficulty": 68
+          }
+        ],
+        "identityDecision": {
+          "versus": [
+            "5-yard-acceleration-decel-stick",
+            "5-yard-accel-to-decel-stick"
+          ],
+          "decision": "duplicate_consolidated",
+          "boundary": "same_linear_acceleration_braking_to_bilateral_stick_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "5-Yard Acceleration Decel Stick",
+          "classification": "same_identity",
+          "rationale": "The five-yard source is an exact distance variant of this identity.",
+          "distinguishingDimensions": {
+            "approachYards": 5
+          }
+        },
+        {
+          "name": "5-Yard Accel to Decel Stick",
+          "classification": "same_identity",
+          "rationale": "Accel and decel abbreviate the same five-yard action.",
+          "distinguishingDimensions": {
+            "approachYards": 5,
+            "nameAbbreviation": true
+          }
+        },
+        {
+          "name": "Five-Yard Planned Sprint-to-Stick",
+          "classification": "new_variant",
+          "rationale": "Five yards constrains achieved entry speed and braking demand.",
+          "distinguishingDimensions": {
+            "approachYards": 5
+          }
+        },
+        {
+          "name": "Seven-to-Ten-Yard Planned Sprint-to-Stick",
+          "classification": "new_variant",
+          "rationale": "A longer approach can raise entry velocity and braking demand.",
+          "distinguishingDimensions": {
+            "approachYards": [
+              7,
+              10
+            ]
+          }
+        },
+        {
+          "name": "Entry Intent or Braking-Zone Change",
+          "classification": "modifier_annotation",
+          "rationale": "Intent, braking-zone length, start stance, and stick duration scale a declared distance variant.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "entry_intent",
+              "braking_zone",
+              "start_stance",
+              "stick_duration"
+            ]
+          }
+        },
+        {
+          "name": "Sprint to Cut or Turn",
+          "classification": "new_definition",
+          "rationale": "A directional turn changes plane, foot strategy, and exit.",
+          "distinguishingDimensions": {
+            "terminalAction": "cut_or_turn"
+          }
+        },
+        {
+          "name": "Reactive Sprint-to-Stick",
+          "classification": "new_definition",
+          "rationale": "An unpredictable cue adds decision demand and response timing.",
+          "distinguishingDimensions": {
+            "cue": "reactive"
+          }
+        },
+        {
+          "name": "Sprint-to-Stick-to-Reacceleration",
+          "classification": "new_definition",
+          "rationale": "Reacceleration adds a second output phase after the stop.",
+          "distinguishingDimensions": {
+            "terminalAction": "reacceleration"
+          }
+        },
+        {
+          "name": "Backpedal-to-Sprint-to-Stick",
+          "classification": "new_definition",
+          "rationale": "Backpedal entry adds a transition and different locomotor sequence.",
+          "distinguishingDimensions": {
+            "entry": "backpedal_to_forward"
+          }
+        },
+        {
+          "name": "Resisted or Partner-Pulled Sprint-to-Stick",
+          "classification": "new_definition",
+          "rationale": "External resistance changes mechanics, loading, equipment, and safety.",
+          "distinguishingDimensions": {
+            "externalResistance": true
+          }
+        },
+        {
+          "name": "Run-Through Deceleration",
+          "classification": "new_definition",
+          "rationale": "A run-through finish omits the defining bilateral static stick.",
+          "distinguishingDimensions": {
+            "finish": "run_through"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=me6P9C_OKLQ",
+          "title": "5 yd acceleration / deceleration",
+          "channelName": "Jason Raynor",
+          "sourceQuery": "sprint to stick deceleration drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=_fyxBMgo7ZM",
+          "title": "Sprint to Stick Deceleration Football Speed",
+          "channelName": "TheSOApodcast !",
+          "sourceQuery": "sprint to stick deceleration drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=WVmGIlxUMLU",
+          "title": "Basic Acceleration to Deceleration drill",
+          "channelName": "EARTHSTRONG TRAINING",
+          "sourceQuery": "sprint to stick deceleration drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iYnDMplt6qI",
+          "title": "Acceleration/ Deceleration Drill with Speed",
+          "channelName": "PhysioRun",
+          "sourceQuery": "sprint to stick deceleration drill",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        }
+      ]
+    },
+    {
+      "slug": "single-leg-pogo",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Repeated low-amplitude unilateral ankle-dominant contacts without an intentional inter-repetition stick define this card.",
+            "Support and travel direction are selectable variants; bilateral contacts, higher projected bounds, terminal sticks, obstacles, loads, and linked actions remain separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "The card is a unilateral repeated-contact jump pattern with sagittal action plus frontal- and transverse-plane control.",
+            "Stationary, forward-traveling, and lateral-line variants preserve repeated contacts while changing support or landing location."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Foot, ankle, knee, hip, pelvis, and trunk coordinate repeated unilateral spring contacts, with high local demand at the foot-calf-Achilles complex.",
+            "Muscle roles are not isolation claims, and exact tissue loading cannot be inferred from the label alone."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Unilateral and bilateral hopping produce different stiffness behavior, supporting a distinct laterality contract.",
+            "Exact cadence, amplitude, direction, dose, readiness threshold, and score for these variants are not directly validated."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Complexity rises when hand support is removed or the landing location travels; physical difficulty rises with unsupported contacts, speed, amplitude, direction, density, and accumulated impact.",
+            "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency remains a skill-library concept."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Every landing contact counts toward unilateral impact and foot-calf-Achilles volume, with secondary knee, hip, and trunk control demand.",
+            "End the set before contact sound or time, heel behavior, landing location, alignment, height, cadence, support use, or symptoms change."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Use a flat dry nonslip surface, adequate footwear, marked personal space, clear travel lanes, and a stable support only for the supported variant.",
+            "Do not use through pain, swelling, giving way, unsafe balance, poor landing tolerance, or untracked same-session impact."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Dose by quality contacts per side with declared cadence, amplitude, direction, rest, and cumulative impact budget.",
+            "Exact contact counts, recovery windows, and difficulty scores remain review and calibration proposals."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Declare side, support, direction, line or lane, contact count, cadence, amplitude, arm action, finish rule, rest, and stop signal.",
+            "Stay tall and springy, return the foot to the declared location, keep quick quiet contacts, and do not insert a stick between repetitions."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Stop for symptoms, swelling, giving way, heel slam, loud or slow contacts, landing drift, knee or pelvis collapse, altered cadence, excessive support, or unsafe surface.",
+            "Reduce contacts or return to supported or bilateral work when quality cannot be restored."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Use fresh in lower-leg, landing, sprint, or jump preparation when repeated unilateral contacts serve the objective.",
+            "Count every contact and avoid post-fatigue impact density or untracked overlap with running and jumping."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Athlete support explains expected foot-calf effort, unexpected symptoms, contact self-checks, side reporting, access options, and nonvideo instruction.",
+            "The athlete reports contact deterioration or Achilles-area symptoms immediately."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Coach support covers side balance, support use, foot return, sound, contact time, heel behavior, knee-pelvis-trunk alignment, travel path, and cumulative contacts.",
+            "The coach reduces direction or support demand before adding contacts, amplitude, or density."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "unilateral_hopping_leg_stiffness",
+          "claims": [
+            "Stable light hand support, fewer contacts, lower cadence, smaller amplitude, stationary placement, longer rest, or a high-contrast line can improve access.",
+            "Bilateral pogo is a separate laterality identity rather than an undeclared modification."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "plyometric_lower_limb_stiffness_meta_analysis",
+          "claims": [
+            "Supported stationary, unsupported stationary, linear-forward, and lateral-line tasks are exact variants; cadence and contact count are modifiers.",
+            "Bilateral, terminal-stick, hop-and-stick, bound, obstacle, loaded, reactive, and linked sprint or jump tasks require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "Repeated low-amplitude ankle-dominant hops on one declared leg, with quick contacts and no intentional stabilization between repetitions.",
+        "currentCardFindings": [
+          "Single-Leg Pogo in Place and Single-Leg Pogo Jumps are redundant definitions consolidated into the survivor.",
+          "Support, stationary versus forward or lateral travel, cadence, amplitude, and contact count are exact variant or dose dimensions.",
+          "Single-Leg Pogo Hold-to-Hop remains distinct because it begins with a balance hold and terminates each short bout with a stick or full reset.",
+          "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 54,
+          "baseOverallDifficulty": 54,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "supported-stationary-low-amplitude",
+            "exerciseComplexity": 34,
+            "physicalDifficulty": 40,
+            "derivedOverallDifficulty": 40
+          },
+          {
+            "variantKey": "stationary-low-amplitude",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 54,
+            "derivedOverallDifficulty": 54
+          },
+          {
+            "variantKey": "linear-forward-traveling",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 64,
+            "derivedOverallDifficulty": 64
+          },
+          {
+            "variantKey": "lateral-line",
+            "exerciseComplexity": 62,
+            "physicalDifficulty": 66,
+            "derivedOverallDifficulty": 66
+          }
+        ],
+        "identityDecision": {
+          "versus": [
+            "single-leg-pogo-in-place",
+            "single-leg-pogo-jumps"
+          ],
+          "decision": "duplicate_consolidated",
+          "boundary": "same_repeated_unilateral_ankle_dominant_hopping_action"
+        },
+        "distinctIdentityDecision": {
+          "versus": "single-leg-pogo-hold-to-hop",
+          "decision": "distinct_exercises",
+          "boundary": "continuous_contacts_without_stick_vs_hold_entry_short_bout_terminal_stick"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Single-Leg Pogo in Place",
+          "classification": "same_identity",
+          "rationale": "In place is the stationary exact variant of the canonical action.",
+          "distinguishingDimensions": {
+            "direction": "stationary"
+          }
+        },
+        {
+          "name": "Single-Leg Pogo Jumps",
+          "classification": "same_identity",
+          "rationale": "Jumps pluralizes the repeated unilateral pogo action.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Supported Stationary Single-Leg Pogo",
+          "classification": "new_variant",
+          "rationale": "Light hand support reduces balance demand while preserving the action.",
+          "distinguishingDimensions": {
+            "support": "stable_hand",
+            "direction": "stationary"
+          }
+        },
+        {
+          "name": "Unsupported Stationary Single-Leg Pogo",
+          "classification": "new_variant",
+          "rationale": "Removing support raises control demand without adding travel.",
+          "distinguishingDimensions": {
+            "support": "none_used",
+            "direction": "stationary"
+          }
+        },
+        {
+          "name": "Linear Forward-Traveling Single-Leg Pogo",
+          "classification": "new_variant",
+          "rationale": "Forward travel changes landing location and projection while preserving repeated contacts.",
+          "distinguishingDimensions": {
+            "direction": "linear_forward"
+          }
+        },
+        {
+          "name": "Lateral Line Single-Leg Pogo",
+          "classification": "new_variant",
+          "rationale": "Small lateral line crossings add frontal-plane landing-location demand.",
+          "distinguishingDimensions": {
+            "direction": "lateral_line"
+          }
+        },
+        {
+          "name": "Single-Leg Pogo Cadence, Amplitude, or Contact Change",
+          "classification": "modifier_annotation",
+          "rationale": "Cadence, low amplitude, arm action, footwear, surface, and contact count scale a declared variant.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "cadence",
+              "low_amplitude",
+              "arm_action",
+              "footwear",
+              "surface",
+              "contacts"
+            ]
+          }
+        },
+        {
+          "name": "Bilateral Pogo Jump",
+          "classification": "new_definition",
+          "rationale": "Two-leg contacts change laterality, load distribution, and balance demand.",
+          "distinguishingDimensions": {
+            "laterality": "bilateral"
+          }
+        },
+        {
+          "name": "Single-Leg Pogo Hold-to-Hop",
+          "classification": "new_definition",
+          "rationale": "A declared balance hold, short pogo bout, and terminal stick or reset change the action sequence and finish.",
+          "distinguishingDimensions": {
+            "entry": "balance_hold",
+            "terminalAction": "stick_or_full_reset"
+          }
+        },
+        {
+          "name": "Single-Leg Pogo Hold-Stick",
+          "classification": "new_definition",
+          "rationale": "A terminal hold between sequences changes the continuous repeated-contact action.",
+          "distinguishingDimensions": {
+            "terminalAction": "stick"
+          }
+        },
+        {
+          "name": "Single-Leg Hop-and-Stick",
+          "classification": "new_definition",
+          "rationale": "Each higher-amplitude hop ends in stabilization rather than another quick contact.",
+          "distinguishingDimensions": {
+            "action": "hop_then_stick"
+          }
+        },
+        {
+          "name": "Single-Leg Bound or High-Knee Pogo",
+          "classification": "new_definition",
+          "rationale": "Greater projection or a high-knee cycle changes amplitude, joint action, and intent.",
+          "distinguishingDimensions": {
+            "action": "bound_or_high_knee_cycle"
+          }
+        },
+        {
+          "name": "Single-Leg Hurdle, Box, or Cone Pogo",
+          "classification": "new_definition",
+          "rationale": "An obstacle changes clearance, consequence, space, and contact strategy.",
+          "distinguishingDimensions": {
+            "obstacle": true
+          }
+        },
+        {
+          "name": "Loaded, Resisted, or Reactive Single-Leg Pogo",
+          "classification": "new_definition",
+          "rationale": "External load, resistance, or an unpredictable cue changes force, decision, and safety constraints.",
+          "distinguishingDimensions": {
+            "addedConstraint": [
+              "load",
+              "resistance",
+              "reactive_cue"
+            ]
+          }
+        },
+        {
+          "name": "Pogo-to-Sprint or Pogo-to-Jump Combination",
+          "classification": "new_definition",
+          "rationale": "A linked sprint or jump adds a second action and sequence.",
+          "distinguishingDimensions": {
+            "sequence": [
+              "pogo",
+              "sprint_or_jump"
+            ]
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Yq75-6SUn7A",
+          "title": "How To Do Single Leg Pogo Hops",
+          "channelName": "Swift Movement Academy",
+          "sourceQuery": "single leg pogo hops",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=346nxpp5ZtU",
+          "title": "Single Leg Stationary Pogo Hop",
+          "channelName": "N2AthleteX Performance Training",
+          "sourceQuery": "single leg pogo hops",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=U12iOibPX98",
+          "title": "Single Leg Pogo Jumps",
+          "channelName": "RADCENTRE",
+          "sourceQuery": "single leg pogo hops",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=MYnVANm8H9E",
+          "title": "Single Leg Linear Pogo Hops",
+          "channelName": "N2AthleteX Performance Training",
+          "sourceQuery": "single leg pogo hops",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T18:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+        }
+      ]
+    }
+  ]
+}

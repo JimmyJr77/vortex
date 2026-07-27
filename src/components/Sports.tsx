@@ -33,7 +33,7 @@ const SPORT_TILES: SportTile[] = [
     teaser: 'Strength, conditioning, and acrobatics for the complete athlete.',
     image: '/strength.jpeg',
     kind: 'internal',
-    to: '/strength-conditioning',
+    to: '/fit-and-flip',
   },
   {
     title: 'Gymnastics',

@@ -307,7 +307,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              <Link to="/strength-conditioning">
+              <Link to="/fit-and-flip">
                 <motion.button
                   className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
@@ -476,7 +476,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              <Link to="/strength-conditioning" className="w-full max-w-xs">
+              <Link to="/fit-and-flip" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}

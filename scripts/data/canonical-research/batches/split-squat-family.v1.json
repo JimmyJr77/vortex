@@ -1,0 +1,331 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.53",
+  "batchKey": "split-squat-family-v1",
+  "snapshotAt": "2026-07-26T23:55:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "unilateral_barbell_exercise_activation",
+      "claims": [
+        "The cited study treats floor-based split squat and rear-foot-elevated split squat as separately named unilateral barbell exercises.",
+        "{{canonicalName}} uses the exact support geometry declared by its card; implement, load position, hand support, and tempo are variants, not athlete proficiency levels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Split-squat stance length changes lower-extremity kinematics, kinetics, and measured muscle activity.",
+        "Declare lead side, stance, support contact, trunk strategy, range, implement, load position, tempo, and finish; stepping lunges, isometric holds, and jumps remain separate actions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "unilateral_barbell_exercise_activation",
+      "claims": [
+        "The study measured vastus lateralis, biceps femoris, gluteus maximus, and gluteus medius activity during split-squat variants.",
+        "The card declares lead foot, ankle, knee, hip, pelvis, trunk, optional upper-extremity load handling, sagittal motion, multiplanar stabilization, and side-specific asymmetrical support."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "rfess_rear_leg_moment",
+      "claims": [
+        "Rear-foot-elevated split-squat mechanics change with stance width and trunk angle, and the rear leg can contribute resistance against lead-hip extension.",
+        "Observable gates include exact support contact, stationary feet, whole lead-foot pressure, controlled knee path, organized pelvis and trunk, owned range, lead-leg-biased ascent, balance, and safe entry and exit."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Support geometry, stance, range, load, and fatigue alter the coordination and physical demands of an exact split-squat execution.",
+        "Score only exercise complexity and physical difficulty for each exact variant and derive overall difficulty as their maximum; do not assign an exercise-card skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "unilateral_barbell_exercise_activation",
+      "claims": [
+        "Relative loading and proximity to fatigue affect interpretation of lower-extremity muscle activity in unilateral exercises.",
+        "Track lead-leg fatigue, stabilization demand, optional grip and bracing fatigue, eccentric exposure, side differences, technical change, and recovery without claiming one universal load."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "rfess_rear_leg_moment",
+      "claims": [
+        "Rear support, stance width, and trunk orientation are meaningful execution conditions rather than interchangeable setup details.",
+        "Require a level high-traction surface, stable support when elevated, clear station, exact implement and load, controlled pickup and set-down, pain-free range, safe side change, and adequate coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "resistance_prescription_network_meta_analysis",
+      "claims": [
+        "Resistance-training outcomes vary with load, sets, frequency, and outcome specificity; no single prescription is optimal for every purpose.",
+        "Use side-balanced quality sets, record actual repetitions and load, and stop before stance, support, knee, pelvis, trunk, breathing, tempo, or load-control quality changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Because stance length changes mechanics, setup instructions must preserve an individualized repeatable stance.",
+        "State the lead side and support, keep the front foot connected, lower through owned range, track the knee, drive through the lead leg, finish in the same stance, and exit or set down safely."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance-training prescription should be individualized to the outcome, exercise, dose, and person rather than driven by a universal fatigue target.",
+        "Stop for pain, pinching, numbness, giving way, dizziness, support movement, balance loss, uncontrolled joint or trunk motion, unsafe load handling, missed tempo, grinding, or a changed repetition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Load, volume, effort, and specificity materially affect resistance-training adaptations.",
+        "Choose the exact support and load variant from current ability, symptoms, objective, logistics, cumulative unilateral-leg and trunk fatigue, duration, and safe failure options; athlete readiness is not stored as an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "rfess_strength_symmetry_validity",
+      "claims": [
+        "Side-specific RFESS performance can be measured repeatably under a declared test protocol, but interpretation depends on the exact loading and protocol.",
+        "Expose side, stance, support, implement, load, range, tempo, repetitions, rest, expected sensations, self-checks, stop signal, and after-set reporting in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "rfess_rear_leg_moment",
+      "claims": [
+        "Stance, trunk position, and rear-limb contribution affect rear-foot-elevated split-squat mechanics.",
+        "Coach support should expose station and support inspection, side and stance, lead-foot and knee path, rear-leg contribution, pelvis and trunk, range, load, tempo, fatigue, symptoms, substitutions, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise can be individualized across equipment, load, volume, and effort while retaining outcome specificity.",
+        "Accessibility options include stable hand support, floor-based support, bodyweight loading, adjusted stance, shorter pain-free range, fewer repetitions, longer rest, and written, audio, still-image, walkthrough, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "unilateral_barbell_exercise_activation",
+      "claims": [
+        "Floor split squat, single-leg squat, and rear-foot-elevated split squat are treated as distinct exercise conditions.",
+        "Implement and tempo changes can remain variants, while rear- or front-foot elevation, stepping, isometric contraction, perturbation, takeoff, flight, and landing change identity or require explicit review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five candidates per card returned current title, channel, and oEmbed metadata only; playback, exact support and load match, instruction, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "split-squat",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "A stationary side-specific split-stance squat with the whole lead foot and rear forefoot on the floor, a controlled descent through declared pain-free range, lead-leg-biased ascent, and return to the same balanced stance without stepping.",
+        "currentCardFindings": [
+          "Bodyweight, dumbbell, barbell, kettlebell, sandbag, and slow-eccentric source definitions preserve the same floor-supported stationary action and were consolidated as exact variants.",
+          "The legacy sources incompletely declared stance, side, load position, tempo, range, support, pickup, set-down, dose, quality gates, and stop rules.",
+          "Rear-foot elevation, front-foot elevation, stepping lunges, isometric holds, perturbation, and jumps change support, contact sequence, contraction, or ordered actions and remain separate identities.",
+          "The Landmine Split Squat source permits either a stationary split squat or stepping reverse lunge and remains identity-quarantined for human re-authoring.",
+          "Five direct video candidates have title, channel, and oEmbed metadata only; no playback or human exact-variant, safety, caption, accessibility, or approval review has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "brace"],
+          "jointActions": [
+            "lead_ankle_dorsiflexion_and_plantarflexion",
+            "lead_knee_flexion_and_extension",
+            "bilateral_hip_flexion_and_extension",
+            "rear_forefoot_floor_support",
+            "pelvic_and_spinal_stabilization"
+          ],
+          "planes": ["sagittal", "frontal_control", "transverse_control"],
+          "laterality": "asymmetrical_bilateral_support_with_lead_leg_bias",
+          "intent": "stationary_side_specific_lower_body_strength"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 32,
+          "baseOverallDifficulty": 34,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {"variantKey": "supported-bodyweight-standard", "exerciseComplexity": 28, "physicalDifficulty": 26, "overallDifficulty": 28},
+          {"variantKey": "bodyweight-standard", "exerciseComplexity": 34, "physicalDifficulty": 32, "overallDifficulty": 34},
+          {"variantKey": "two-dumbbell-suitcase", "exerciseComplexity": 42, "physicalDifficulty": 48, "overallDifficulty": 48},
+          {"variantKey": "barbell-back-rack", "exerciseComplexity": 52, "physicalDifficulty": 62, "overallDifficulty": 62},
+          {"variantKey": "single-kettlebell-front-rack", "exerciseComplexity": 46, "physicalDifficulty": 46, "overallDifficulty": 46},
+          {"variantKey": "double-kettlebell-front-rack", "exerciseComplexity": 50, "physicalDifficulty": 56, "overallDifficulty": 56},
+          {"variantKey": "sandbag-front-hold", "exerciseComplexity": 44, "physicalDifficulty": 50, "overallDifficulty": 50},
+          {"variantKey": "bodyweight-slow-eccentric-pause", "exerciseComplexity": 44, "physicalDifficulty": 42, "overallDifficulty": 44}
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_or_declared_external_load_in_stationary_split_stance",
+          "primaryStress": ["lead_quadriceps", "lead_gluteals", "adductors", "ankle_and_hip_stabilizers", "trunk", "optional_grip"],
+          "fatigueSensitivity": "stance_foot_pressure_knee_path_pelvis_trunk_rear_leg_contribution_tempo_balance_and_load_handling"
+        },
+        "identityDecision": {
+          "consolidatedSources": [
+            "barbell-split-squat",
+            "bodyweight-split-squat",
+            "front-rack-kettlebell-split-squat",
+            "sandbag-split-squat-strength",
+            "slow-eccentric-split-squat",
+            "split-squat-eccentric-to-pause"
+          ],
+          "decision": "duplicate_definitions_consolidated_as_exact_variants"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["none"],
+          "environment": ["level_dry_stable_high_traction_surface", "clear_station_and_set_down_zone", "no_cross_traffic"],
+          "population": ["pain_free_stationary_split_stance", "repeatable_lead_foot_knee_pelvis_and_trunk_control", "can_follow_stop_and_set_down_rules"]
+        },
+        "proposedDosage": {
+          "capacity": "2-5 sets of 3-12 quality repetitions per side with 60-240 seconds recovery according to load and objective",
+          "resilience": "2-4 sets of 5-10 controlled repetitions per side at submaximal load with 60-180 seconds recovery",
+          "progressWhen": "both sides preserve stance, lead-foot pressure, knee path, pelvis, trunk, range, tempo, breathing, finish, and load control"
+        },
+        "proposedInstructions": {
+          "coachCues": ["Set the split", "Keep the front foot heavy", "Lower straight down", "Drive through the lead leg", "Finish in the same stance"],
+          "athleteInstructions": ["Set your feet", "Own the front foot", "Lower under control", "Stand without stepping"],
+          "commonFaults": ["stepping", "front_foot_pressure_loss", "knee_path_loss", "rear_leg_drives_rep", "pelvis_or_trunk_change", "unsafe_load_handling"]
+        },
+        "proposedSafety": {
+          "readiness": ["safe_station_support_and_load", "pain_free_bodyweight_rehearsal", "side_stance_range_tempo_and_finish_declared"],
+          "stopRules": ["pain_numbness_giving_way_or_dizziness", "balance_or_load_loss", "foot_knee_pelvis_or_trunk_control_loss", "missed_tempo_or_changed_repetition"]
+        },
+        "programmingDecision": "Retain one stable floor-based Split Squat identity with exact support, implement, load-position, and tempo variants. Keep all candidates, graph edges, calibrations, and publication state quarantined for human review."
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=G_1gjHaIG8s", "title": "Split Squats with Mike Boyle | Ep 96 | Movement Fix Monday | Dr. Ryan DeBell5", "channelName": "The Movement Fix", "sourceQuery": "split squat tutorial", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=u705lnY8CBc", "title": "Exercise Tutorial: DB Split Squat", "channelName": "Travis Tarrant", "sourceQuery": "dumbbell split squat tutorial", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=vSjYwubBgU8", "title": "Split Squat", "channelName": "Mike Boyle Strength & Conditioning", "sourceQuery": "split squat exercise", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=3evOOHpMEI8", "title": "Dumbbell Split Squat", "channelName": "Jon-Erik Kawamoto", "sourceQuery": "dumbbell split squat exercise", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=8Elq99nHIHU", "title": "Barbell Split Squat (Exercise Library)", "channelName": "Horton Barbell", "sourceQuery": "barbell split squat exercise", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."}
+      ],
+      "alternateAssessments": [
+        {"name": "Bodyweight Split Squat", "classification": "same_identity", "rationale": "Absence of external load preserves the stationary floor-supported split-stance action.", "distinguishingDimensions": {"variantKey": "bodyweight-standard"}},
+        {"name": "Dumbbell Split Squat", "classification": "new_variant", "rationale": "Handheld dumbbells change grip, load position, pickup, and set-down within the same action.", "distinguishingDimensions": {"variantKey": "two-dumbbell-suitcase"}},
+        {"name": "Barbell Split Squat", "classification": "new_variant", "rationale": "Back-rack loading changes bracing, supervision, failure consequence, and rack requirements.", "distinguishingDimensions": {"variantKey": "barbell-back-rack"}},
+        {"name": "Front-Rack Kettlebell Split Squat", "classification": "new_variant", "rationale": "Kettlebell quantity, side, and rack position are exact load dimensions.", "distinguishingDimensions": {"variantKey": "single-kettlebell-front-rack"}},
+        {"name": "Slow Eccentric Split Squat", "classification": "new_variant", "rationale": "Slower lowering preserves the action while changing tempo, eccentric stress, duration, and fatigue.", "distinguishingDimensions": {"variantKey": "bodyweight-slow-eccentric-pause"}},
+        {"name": "Rear-Foot-Elevated Split Squat", "classification": "new_definition", "rationale": "Elevating the rear foot changes support geometry, balance, setup, rear-limb contribution, and exit.", "distinguishingDimensions": {"rearFootSupport": "elevated"}},
+        {"name": "Front-Foot-Elevated Split Squat", "classification": "new_definition", "rationale": "Elevating the whole lead foot changes support geometry and available range.", "distinguishingDimensions": {"leadFootSupport": "elevated"}},
+        {"name": "Reverse Lunge", "classification": "new_definition", "rationale": "Stepping backward and returning adds foot motion and a different start and finish sequence.", "distinguishingDimensions": {"orderedActions": ["step_back", "lower", "return"]}},
+        {"name": "Split Squat Isometric Hold", "classification": "new_definition", "rationale": "Holding a fixed position changes contraction and dose from dynamic repetitions.", "distinguishingDimensions": {"contraction": "isometric_hold"}},
+        {"name": "Split-Squat Jump", "classification": "new_definition", "rationale": "Takeoff, flight, impact, and landing change the action and risk contract.", "distinguishingDimensions": {"flight": true}},
+        {"name": "Split Squat ISO with Perturbation", "classification": "new_definition", "rationale": "Partner perturbation adds external disturbance, group logistics, and recovery actions.", "distinguishingDimensions": {"externalDisturbance": "partner_perturbation"}},
+        {"name": "Landmine Split Squat", "classification": "new_definition", "rationale": "The source permits stationary split stance or stepping reverse lunge and remains identity-quarantined.", "distinguishingDimensions": {"identityState": "needs_human_review"}}
+      ]
+    },
+    {
+      "slug": "bulgarian-split-squat",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "A stationary side-specific split squat with the rear foot placed on a stable declared support, whole lead foot on the floor, controlled descent through declared pain-free range, lead-leg-biased ascent, and return to the same balanced rear-foot-elevated stance.",
+        "currentCardFindings": [
+          "Bulgarian Split Squat and rear-foot-elevated legacy sources preserve the same support geometry and dynamic repetition action.",
+          "Dumbbell, barbell, kettlebell, stable-hand-support, and slow-eccentric executions are exact variants when rear support, stance, load position, and tempo are declared.",
+          "Floor split squats, front-foot elevation, isometric holds, suspension support, jumping to a box, and stepping lunges change support, contraction, or ordered action and remain distinct or review-only.",
+          "The title phrase Beginner to Advanced on one media candidate is only a video title and is not exercise-card proficiency metadata.",
+          "Five direct video candidates have title, channel, and oEmbed metadata only; no playback or human exact-variant, safety, caption, accessibility, or approval review has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "brace"],
+          "jointActions": [
+            "lead_ankle_dorsiflexion_and_plantarflexion",
+            "lead_knee_flexion_and_extension",
+            "bilateral_hip_flexion_and_extension",
+            "rear_foot_external_support",
+            "pelvic_and_spinal_stabilization"
+          ],
+          "planes": ["sagittal", "frontal_control", "transverse_control"],
+          "laterality": "asymmetrical_bilateral_support_with_rear_foot_elevation_and_lead_leg_bias",
+          "intent": "rear_foot_elevated_side_specific_lower_body_strength"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 42,
+          "baseOverallDifficulty": 44,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {"variantKey": "supported-bodyweight-rear-foot-elevated", "exerciseComplexity": 36, "physicalDifficulty": 36, "overallDifficulty": 36},
+          {"variantKey": "bodyweight-rear-foot-elevated", "exerciseComplexity": 44, "physicalDifficulty": 42, "overallDifficulty": 44},
+          {"variantKey": "two-dumbbell-suitcase-rear-foot-elevated", "exerciseComplexity": 50, "physicalDifficulty": 54, "overallDifficulty": 54},
+          {"variantKey": "barbell-back-rack-rear-foot-elevated", "exerciseComplexity": 60, "physicalDifficulty": 68, "overallDifficulty": 68},
+          {"variantKey": "single-kettlebell-goblet-rear-foot-elevated", "exerciseComplexity": 52, "physicalDifficulty": 52, "overallDifficulty": 52},
+          {"variantKey": "bodyweight-slow-eccentric-pause-rear-foot-elevated", "exerciseComplexity": 52, "physicalDifficulty": 50, "overallDifficulty": 52}
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_or_declared_external_load_with_rear_foot_on_stable_support",
+          "primaryStress": ["lead_quadriceps", "lead_gluteals", "hamstrings", "rear_hip", "ankle_and_hip_stabilizers", "trunk", "optional_grip"],
+          "fatigueSensitivity": "support_contact_entry_exit_lead_foot_knee_path_rear_leg_contribution_pelvis_trunk_tempo_balance_and_load_handling"
+        },
+        "identityDecision": {
+          "aliases": ["Bulgarian Split Squat", "Rear-Foot-Elevated Split Squat", "RFESS"],
+          "decision": "stable_rear_foot_elevated_identity_with_exact_support_load_and_tempo_variants"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["bench"],
+          "environment": ["level_dry_stable_high_traction_surface", "stable_nonslip_rear_support", "clear_entry_exit_and_set_down_zone", "no_cross_traffic"],
+          "population": ["pain_free_floor_split_squat", "safe_rear_support_entry_and_exit", "repeatable_lead_foot_knee_pelvis_and_trunk_control", "can_follow_stop_and_set_down_rules"]
+        },
+        "proposedDosage": {
+          "capacity": "2-5 sets of 3-10 quality repetitions per side with 90-240 seconds recovery according to load and objective",
+          "resilience": "2-4 sets of 5-8 controlled repetitions per side at submaximal load with 75-180 seconds recovery",
+          "progressWhen": "both sides preserve support, entry and exit, lead-foot pressure, knee path, pelvis, trunk, range, tempo, breathing, finish, and load control"
+        },
+        "proposedInstructions": {
+          "coachCues": ["Inspect the support", "Set the rear foot", "Own the whole front foot", "Drive through the lead leg", "Exit under control"],
+          "athleteInstructions": ["Set the back foot safely", "Keep the front foot heavy", "Lower under control", "Stand and finish balanced"],
+          "commonFaults": ["support_movement", "unsafe_entry_or_exit", "front_foot_pressure_loss", "knee_path_loss", "rear_leg_drives_rep", "pelvis_or_trunk_change", "unsafe_load_handling"]
+        },
+        "proposedSafety": {
+          "readiness": ["safe_floor_support_station_and_load", "controlled_entry_exit_and_bodyweight_rehearsal", "side_support_height_stance_range_tempo_and_finish_declared"],
+          "stopRules": ["pain_numbness_giving_way_or_dizziness", "support_balance_or_load_loss", "lead_foot_knee_pelvis_or_trunk_control_loss", "missed_tempo_or_changed_repetition"]
+        },
+        "programmingDecision": "Retain one stable Rear-Foot-Elevated Split Squat identity, with Bulgarian Split Squat as an alias and exact support, implement, load-position, and tempo variants. Keep all candidates, graph edges, calibrations, and publication state quarantined for human review."
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=2C-uNgKwPLE", "title": "How To: Bulgarian Split Squat", "channelName": "ScottHermanFitness", "sourceQuery": "Bulgarian split squat tutorial", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=hiLF_pF3EJM", "title": "Stop F*cking Up Bulgarian Split Squats (PROPER FORM!)", "channelName": "ATHLEAN-X™", "sourceQuery": "Bulgarian split squat form", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=pbNXlcpsPXQ", "title": "Eccentric Emphasis Rear Foot Elevated Split Squat", "channelName": "Michael Boyle", "sourceQuery": "eccentric rear foot elevated split squat", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=IaXttrJcVTA", "title": "Inside the MBSC Staff Meeting: Rear Foot Elevated Split Squats", "channelName": "Mike Boyle Strength & Conditioning", "sourceQuery": "rear foot elevated split squat", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; playback and all human review dimensions remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=rah3eJCPXHA", "title": "Bulgarian Split Squat Form Tutorial | Beginner to Advanced", "channelName": "MuscleWiki", "sourceQuery": "Bulgarian split squat tutorial", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-07-26T23:55:00.000Z"}, "notes": "Title/channel/oEmbed metadata only; the title does not create exercise-card proficiency metadata, and playback plus all human review dimensions remain unresolved."}
+      ],
+      "alternateAssessments": [
+        {"name": "Bulgarian Split Squat", "classification": "same_identity", "rationale": "Bulgarian Split Squat is retained as the common alias for rear-foot-elevated split squat.", "distinguishingDimensions": {"rearFootSupport": "elevated"}},
+        {"name": "Dumbbell Bulgarian Split Squat", "classification": "new_variant", "rationale": "Dumbbells change grip, load position, pickup, and set-down within the same rear-foot-elevated action.", "distinguishingDimensions": {"variantKey": "two-dumbbell-suitcase-rear-foot-elevated"}},
+        {"name": "Barbell Bulgarian Split Squat", "classification": "new_variant", "rationale": "Back-rack loading changes bracing, supervision, failure consequence, and rack requirements.", "distinguishingDimensions": {"variantKey": "barbell-back-rack-rear-foot-elevated"}},
+        {"name": "Kettlebell Bulgarian Split Squat", "classification": "new_variant", "rationale": "A declared kettlebell hold and load preserve the rear-foot-elevated action.", "distinguishingDimensions": {"variantKey": "single-kettlebell-goblet-rear-foot-elevated"}},
+        {"name": "Rear-Foot-Elevated Split Squat Negative", "classification": "new_variant", "rationale": "Slow lowering preserves the action while changing tempo, eccentric stress, duration, and fatigue.", "distinguishingDimensions": {"variantKey": "bodyweight-slow-eccentric-pause-rear-foot-elevated"}},
+        {"name": "Floor-Based Split Squat", "classification": "new_definition", "rationale": "Rear-forefoot floor contact changes support geometry and is retained as the Split Squat card.", "distinguishingDimensions": {"rearFootSupport": "floor"}},
+        {"name": "Front-Foot-Elevated Split Squat", "classification": "new_definition", "rationale": "Elevating the lead foot instead of the rear foot changes support geometry and range.", "distinguishingDimensions": {"leadFootSupport": "elevated"}},
+        {"name": "Rear-Foot-Elevated Split Squat Isometric Hold", "classification": "new_definition", "rationale": "A fixed hold changes contraction type and dose from dynamic repetitions.", "distinguishingDimensions": {"contraction": "isometric_hold"}},
+        {"name": "Rear-Foot-Elevated Split Squat Jump to Box", "classification": "new_definition", "rationale": "Takeoff, flight, target box, impact, and terminal landing add ordered actions.", "distinguishingDimensions": {"orderedActions": ["rear_foot_elevated_takeoff", "flight", "box_landing"]}},
+        {"name": "Suspension Rear-Foot-Elevated Split Squat", "classification": "new_variant", "rationale": "Suspended rear-foot support may preserve the action but changes stability and requires exact review.", "distinguishingDimensions": {"rearFootSupport": "suspension", "proposalOnly": true}},
+        {"name": "Forward-Lean Rear-Foot-Elevated Split Squat", "classification": "modifier_annotation", "rationale": "Trunk angle changes joint demand and must be declared without creating an athlete level.", "distinguishingDimensions": {"modifier": "declared_trunk_angle"}},
+        {"name": "Supported Rear-Foot-Elevated Split Squat", "classification": "new_variant", "rationale": "Stable hand support preserves the action while reducing balance and failure demand.", "distinguishingDimensions": {"variantKey": "supported-bodyweight-rear-foot-elevated"}}
+      ]
+    }
+  ]
+}

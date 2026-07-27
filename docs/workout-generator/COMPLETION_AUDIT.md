@@ -73,9 +73,10 @@ rollout plan.
   is capped, production-authority fields are rejected, prompts are not retained,
   and drafts remain unsaved until a human explicitly saves and reviews them.
 - The calibration workspace supports reviewed 20/40/60/80 score anchors with
-  independent approval and supersession history. Technical complexity and
-  physical difficulty are calibrated independently; overall difficulty is
-  derived as their maximum and cannot receive a new independent calibration.
+  independent approval and supersession history. Exercise complexity (stored
+  under the legacy `technicalComplexity` field name) and physical difficulty
+  are calibrated independently; overall difficulty is derived as their maximum
+  and cannot receive a new independent calibration.
   Migrations 245 and 304 store the audit trail without mutating published
   cards.
 - Deterministic selection projects cumulative grip, local-muscle, spinal,
@@ -84,7 +85,7 @@ rollout plan.
   budgets. See `CALIBRATION_AND_FATIGUE.md`.
 - Migration 246 and the canonical library audit produce and persist a named
   automated test packet for every migrated exercise. The measured baseline is
-  1,676/1,676 legacy sources mapped into 1,366 active canonical definitions, all
+  1,676/1,676 legacy sources mapped into 1,331 active canonical definitions, all
   honestly quarantined and none published. See `LIBRARY_AUDIT.md`.
 - Generated workouts include distinct coach and athlete projections. The coach
   projection retains logistics, budgets, quality gates, substitutions, and
@@ -100,32 +101,34 @@ rollout plan.
 
 On 2026-07-26:
 
-- 808 backend Node tests ran serially: 788 passed, 20 integration-environment tests
+- 832 backend Node tests ran serially: 812 passed, 20 integration-environment tests
   skipped intentionally, and none failed. The focused platform suite separately
-  passed all 591 tests. This includes all 25 named golden
+  passed all 615 tests. This includes all 25 named golden
   scenarios and the governance, graph-swap, AI-quarantine, anatomy/load,
   difficulty-model, and telemetry suites,
 - a 7,000-card deterministic generation test completed in under the five-second
   release ceiling,
 - the complete migration chain passed on disposable PostgreSQL,
-- all 1,676 legacy exercise sources were audited through their 1,366 active
+- all 1,676 legacy exercise sources were audited through their 1,331 active
   canonical definitions, and every active definition remains quarantined
   pending human review,
 - the production reference card passed a real repository save/load round trip
   while its missing-media publication gate remained active,
-- 310 redundant definitions were consolidated into canonical identities while
-  preserving 1,769 canonical variants, 1,866 delivery profiles, and all legacy
+- 345 redundant definitions were consolidated into canonical identities while
+  preserving 1,803 canonical variants, 1,934 delivery profiles, and all legacy
   source mappings; direct identity collisions are zero. All score-85-or-higher
-  candidate pairs now have deterministic identity decisions, no pair remains
-  in `needs_human_review`, and no unresolved pair scores 85 or higher.
+  candidate pairs now have deterministic identity decisions and no unresolved
+  pair scores 85 or higher. One score-84 source pair remains honestly
+  quarantined in `needs_human_review`.
 - Focused ESLint passed for the canonical backend, route, and coach UI files.
 - `npm run build` completed successfully.
 - The canonical release-readiness command correctly exited blocked: zero
   definitions are published, all seven phase pools have zero published depth,
   zero graph edges or calibration anchors are approved, and no real coach-pilot
   review has been recorded. Those are rollout gates, not migration failures.
-- The complete migration sequence through migration 350 and every add-on was
-  applied successfully from a blank disposable PostgreSQL 15 database.
+- The complete staged migration sequence through migration 368 and every add-on
+  was applied successfully in disposable PostgreSQL 15. Migration 360 was
+  applied to a clean verified migration-359 clone.
   Migrations 304 and 305 were also applied through the normal runner and
   directly rerun; the final migration-305 rerun performed zero inserts and zero
   updates. Migration 306 was applied in both the fresh-chain rehearsal and the
@@ -367,12 +370,368 @@ On 2026-07-26:
   review-only graph proposals, and nine review-only calibration proposals.
   Candidate media remain unviewed/unapproved and no human-controlled state is
   inferred.
+- Migrations 351 and 352 consolidate three direct synonym collisions:
+  `Quadruped Thread-the-Needle Rotation` into
+  `Quadruped Thread-the-Needle`, `Single-Leg Tripod Balance` into
+  `Single-Leg Tripod Balance Hold`, and `Split Squat Iso Hold` into
+  `Split Squat Isometric Hold`. The three survivors contain eight exact
+  selectable variants, 16 contextual profiles, 48 section-evidence records,
+  12 candidate YouTube links, 23 alternate assessments, 13 review-only graph
+  proposals, and 24 review-only calibration proposals. Support base, sensory
+  input, heel-sit position, depth, load, and duration remain variant or
+  delivery dimensions. No exercise skill/proficiency level or human approval
+  is created. The normal runner recorded checksums `167629815` and
+  `3035058632`; direct reruns were idempotent. After the persisted audit, all
+  three packets have exactly four intended blockers: media review, graph
+  approval, independent calibration, and publication approval.
+- Migrations 353 and 354 consolidate nine redundant definitions into four
+  stable identities: `Snap-Down to Stick`, `Mirror Shuffle`,
+  `Sprint-to-Stick Deceleration`, and `Single-Leg Pogo`. The completion
+  migration adds eight exact selectable variants, 16 contextual profiles, 64
+  section-evidence records, 16 candidate YouTube records, 45 persisted
+  alternate assessments, 12 review-only graph proposals, and 24 review-only
+  calibration proposals. The four source research packets contain 46 alternate
+  assessments because `Single-Leg Pogo Hold-to-Hop` is also recorded as an
+  explicit distinct-identity boundary. Candidate videos have public oEmbed
+  metadata only; playback, full-video exact match, captions, cue quality,
+  accessibility, and human approval remain unresolved. No exercise
+  skill/proficiency field or approval is created.
+- The normal runner recorded migrations 353 and 354 with checksums `2791168556`
+  and `2475934959` on a fresh migration-352 clone. A second runner invocation
+  skipped both as already applied. The persisted audit reproduced 1,354 active
+  definitions, 322 archived definitions, 1,785 variants, 1,898 delivery
+  profiles, 1,676 source mappings, 419 identity resolutions, 153 graph edges,
+  and 228 review-only calibrations. Each of the four completed packets has
+  exactly four intended blockers: media, graph, calibration, and publication.
+  A separate disposable clone with a pre-existing `human_review` distinct
+  decision for Single-Leg Pogo versus Hold-to-Hop retained its source and
+  rationale; migration 353 inserted no deterministic replacement.
+- Migration 355 records ten additional score-84 candidates as distinct
+  movement contracts without modifying exercise cards or creating approval.
+  The normal runner recorded checksum `2413835711`; a second invocation skipped
+  the migration as already applied. The resulting audit reports 429 identity
+  resolutions, 843 unresolved score-72-or-higher pairs, 201 unresolved
+  score-80-or-higher pairs, and zero exact or score-85-or-higher collisions.
+  All ten new rows are quarantined and have no reviewer. A separate disposable
+  fixture preserved an existing `human_review` source, rationale, and evidence
+  for the 180-degree-versus-90-degree pair and inserted deterministic rows only
+  for the other nine pairs.
+- Migration 356 archives twelve researched duplicate definitions under the
+  stable `Drop Jump`, `Depth Jump`, and `Falling Start Sprint` identities and
+  records five adjacent movement boundaries. The normal runner recorded
+  checksum `1852495431`; runner and direct SQL reruns were idempotent. The
+  persisted audit reports 1,342 active definitions, 334 archived definitions,
+  446 identity resolutions, 928 raw similarity pairs, 828 unresolved
+  score-72-or-higher pairs, 195 unresolved score-80-or-higher pairs, and zero
+  exact or score-85-or-higher collisions. All 1,676 source mappings, 1,785
+  variants, and 1,898 profiles remain present. A synthetic disposable
+  `human_review` decision made the migration fail before changing any row.
+- Migration 357 records five additional mechanics-based distinct decisions
+  and one honest `needs_human_review` quarantine for the under-specified
+  Single-Leg Line Hop and Stick source. It creates no reviewer or approval. The
+  normal runner recorded checksum `1161327212`; runner and direct SQL reruns
+  were idempotent. The persisted audit reports 452 identity resolutions, 823
+  unresolved score-72-or-higher pairs, 190 unresolved score-80-or-higher pairs,
+  105 adjudicated distinct similarity pairs, one explicit unreviewed identity
+  quarantine, and zero exact or score-85-or-higher collisions.
+- Migration 358 consolidates the angle-labelled Reactive Hop-to-Cut and the
+  implement-labelled Seated Overhead Press source definitions. The normal
+  runner recorded checksum `295775030`; direct SQL rerun was idempotent. The
+  migrated state has 1,340 active definitions, 336 archived definitions, and
+  preserves all 1,676 source mappings, 1,785 variants, and 1,898 profiles.
+  Both survivors retain aliases and exact variant dimensions, while the
+  under-specified legacy baseline variants remain archived and nonselectable.
+  A disposable `human_review` distinct decision caused the migration to abort
+  before changing any of the four definitions.
+- Migration 359 records the marked-approach Reactive 45-Degree Cut and the
+  discrete-hop Reactive Hop-to-Cut as distinct ordered-contact identities. The
+  normal runner recorded checksum `2712597092`; direct SQL rerun was
+  idempotent. The resulting audit reports 455 identity resolutions, 926 raw
+  similarity pairs, 821 unresolved score-72-or-higher pairs, 188 unresolved
+  score-80-or-higher pairs, one explicit unreviewed identity quarantine, and
+  zero exact or score-85-or-higher collisions.
+- Migration 360 completes the consolidated Reactive Hop-to-Cut and Seated
+  Overhead Press survivors with six exact selectable variants, 12 contextual
+  profiles, 32 candidate evidence sections, eight retained oEmbed-healthy
+  media candidates, 20 alternate assessments, eight controlled review-only
+  graph proposals, and 18 review-only calibration proposals. The normal runner
+  recorded checksum `1751488238`; a direct SQL rerun was idempotent. A
+  synthetic review timestamp in a separate disposable clone caused the
+  migration to fail before changing either card. The persisted audit now has
+  39 structurally complete candidates and 1,301 incomplete candidates. Each
+  completed survivor has exactly four honest blockers: media, graph,
+  calibration, and publication. The library has 1,791 variants, 1,910
+  profiles, 161 review-only graph edges, 246 review-only calibrations, no
+  approvals, and no published definitions. A recursive key-aware audit found
+  zero exercise-level or proficiency-classification metadata keys while all
+  1,112 skill-library level assignments remain intact.
+- Migration 361 consolidates five Hip Thrust sources whose differences are
+  implement, load handling, resistance profile, or laterality into the stable
+  `distance-jump-hip-thrust` survivor, canonically named `Hip Thrust`. It keeps
+  floor-supported Glute Bridge distinct and creates deterministic
+  `needs_human_review` records for Feet-Elevated Hip Thrust and the mixed
+  bench-or-floor eccentric source because their upper-body support geometry is
+  unresolved. All source mappings, aliases, variants, evidence, and candidate
+  media remain traceable. The normal runner recorded checksum `1327784462`,
+  skipped the migration on a second invocation, and the direct rerun was
+  idempotent. A synthetic
+  `human_review` distinct decision caused the migration to abort before
+  changing either source.
+- Migration 362 completes the Hip Thrust survivor with eight exact selectable
+  variants, 16 contextual profiles, 16 candidate evidence sections, five
+  oEmbed-healthy media candidates, 14 alternate assessments, 12 review-only
+  graph proposals, and 24 review-only calibration proposals. The normal runner
+  recorded checksum `652761332`, skipped the migration on a second invocation,
+  and the direct rerun was idempotent. A separate clone with a synthetic review
+  timestamp caused completion to abort before changing the card. The persisted
+  audit reports 40 structurally complete candidates and 1,295 incomplete
+  candidates. Hip Thrust passes every
+  structural generation, anatomy, load/fatigue, logistics, athlete-support,
+  coach-support, and provenance check. Its only failures are the intended
+  media, graph, calibration, and publication human gates.
+- The migration-362 disposable state has 1,335 active and 341 archived
+  definitions, 1,799 variants, 1,926 profiles, 462 identity resolutions, 173
+  review-only graph edges, 270 review-only calibrations, all 1,676 source
+  mappings, zero published definitions, and zero direct identity collisions.
+  The conservative queue contains 920 raw and 815 unresolved
+  score-72-or-higher pairs, including 186 score-80-or-higher pairs and none at
+  score 85 or higher. Recursive database checks find zero level-classification
+  keys on definitions, variants, or profiles, zero legacy exercise level
+  values, and all 1,112 dedicated skill-library assignments intact.
+- Migration 363 consolidates `Partner Tennis Ball Drop Sprint` into the stable
+  `ball-drop-reaction-sprint` identity and records six distinct ordered-task
+  boundaries across cone completion, required-hop, second-cue, catch-to-cut,
+  and cue-selected-gate executions. All source mappings, aliases, candidate
+  media, evidence, variants, and profiles remain traceable. The normal runner
+  recorded checksum `366911576`; direct SQL application and rerun were
+  idempotent. A protected review-state clone failed closed before source
+  movement or archival.
+- Migration 364 records `Reaction Ball Drop Catch to Cut` and `Reaction Ball
+  Drop to Hop and Go` as distinct because capture-then-cut and
+  hop-then-acceleration have different ordered contacts, terminal actions,
+  impact, and coaching contracts. The normal runner recorded checksum
+  `923720790`; direct SQL application and rerun were idempotent.
+- Migration 365 completes `Partner Ball-Drop Chase and Catch` with two exact
+  implement variants, four contextual delivery profiles, 16 evidence sections,
+  five metadata/oEmbed-healthy candidate videos, 12 alternate assessments,
+  four review-only graph edges, and six review-only difficulty calibrations.
+  The normal runner recorded checksum `1368659813`; direct SQL application and
+  rerun were idempotent. A protected review timestamp caused the migration to
+  fail before changing the card. The exercise carries complexity and physical-
+  difficulty scores only; overall is their maximum and no exercise proficiency
+  level is introduced. Full-video exact-match, caption, accessibility, graph,
+  score, and publication review remain quarantined.
+- The migration-365 disposable state has 1,334 active and 342 archived
+  definitions, 1,801 variants, 1,930 profiles, 470 identity resolutions, 177
+  review-only graph edges, 276 review-only calibrations, all 1,676 source
+  mappings, zero published definitions, and zero direct identity collisions.
+  The persisted audit reports 41 structurally complete candidates and 1,293
+  incomplete candidates. The conservative queue contains 919 raw and 807
+  unresolved score-72-or-higher pairs, including 185 score-80-or-higher pairs
+  and none at score 85 or higher. Recursive database checks find zero exercise
+  level assignments while all 1,112 dedicated skill-library assignments remain
+  intact.
+- Migrations 366 and 368 consolidate the mixed-projection, generic, and
+  height-emphasis Alternating Bounds definitions into the stable
+  `alternate-leg-bound-for-distance` survivor. Migration 367 completes that
+  survivor as `Alternating Bounds` with traditional and sprint-oriented exact
+  variants, four contextual profiles, 16 evidence sections, five
+  oEmbed-healthy candidate videos, 12 alternate assessments, two review-only
+  graph proposals, and six review-only difficulty calibrations. Eight inherited
+  lateral-, scissor-jump-, or same-leg-bound links remain traceable mismatches.
+  Exercise difficulty contains complexity and physical difficulty only, with
+  overall equal to their maximum; the exercise carries no skill-library level.
+- The normal runner recorded migrations 366–368 with checksums `623752536`,
+  `1694429056`, and `3242120071`; a second invocation skipped all three.
+  Direct SQL reruns were idempotent. Separate disposable clones with protected
+  review timestamps caused migrations 367 and 368 to abort before changing
+  card content or identity state.
+- The migration-368 disposable state has 1,331 active and 345 archived
+  definitions, 1,803 variants, 1,934 delivery profiles, 473 identity
+  resolutions, 179 review-only graph edges, 282 review-only calibrations, all
+  1,676 source mappings, zero published definitions, and zero direct identity
+  collisions. The persisted audit reports 42 structurally complete candidates
+  and 1,289 incomplete candidates. The conservative queue contains 913 raw and
+  807 unresolved score-72-or-higher pairs, including 185 score-80-or-higher
+  pairs and none at score 85 or higher. Database checks find zero exercise
+  level values or prohibited proficiency keys and all 1,112 dedicated
+  skill-library level assignments intact.
+- Migration 369 consolidates six load/tempo-specific stationary Split Squat
+  definitions into the stable `split-squat` survivor and consolidates
+  `landmine-handle-grip-split-squat` into `landmine-split-squat`. It records
+  nine direct support, stance, contraction, or ordered-action boundaries as
+  distinct and leaves the broader landmine card in `needs_human_review`
+  because its source permits both a stationary split squat and a stepping
+  reverse lunge. No human decision is inferred.
+- Migration 370 completes `split-squat` and `bulgarian-split-squat`, now
+  canonically named `Rear-Foot-Elevated Split Squat`, with 14 exact variants,
+  28 contextual delivery profiles, 32 evidence sections, ten current
+  oEmbed-metadata-only media candidates, 24 alternate assessments, 12
+  review-only relationship proposals, 42 review-only calibration proposals,
+  and two quarantined automated card-test packets. Floor rear-forefoot support
+  and rear-foot elevation remain separate stable identities. Every variant
+  stores exercise complexity and physical difficulty only; overall difficulty
+  is their maximum. No exercise proficiency or skill-library level is stored.
+- The normal runner recorded migrations 369 and 370 with checksums
+  `3926893406` and `247855041`; a second invocation skipped both. Direct SQL
+  reruns were idempotent. Separate disposable clones proved that migration 369
+  aborts before consolidating a reviewed source and migration 370 aborts
+  before overwriting a reviewed survivor. The protected card versions,
+  statuses, provenance, and identity state remained unchanged.
+- The migration-370 disposable state has 1,324 active and 352 archived
+  definitions, 1,817 variants, 1,962 delivery profiles, 490 identity
+  resolutions, 191 review-only graph edges, 324 review-only calibrations, all
+  1,676 source mappings, zero published definitions, and zero direct identity
+  collisions. The persisted audit reports 44 structurally complete candidates
+  and 1,280 incomplete candidates. The conservative queue contains 906 raw and
+  787 unresolved score-72-or-higher pairs, including 176
+  score-80-or-higher pairs and none at score 85 or higher. Recursive database
+  checks find zero exercise level values and zero prohibited skill/proficiency
+  keys across definition, variant, delivery-profile, legacy-source, score, and
+  alternate JSON while all 1,112 dedicated skill-library level assignments
+  remain intact.
+- Both completed Split Squat cards pass all automated structural, taxonomy,
+  anatomy, difficulty, load, fatigue, constraint, delivery, dosage,
+  instruction, user-support, coach-support, operations, and graph-integrity
+  checks. They remain quarantined only for real full-video exact-match review,
+  approved graph coverage, independent score calibration, and publication
+  approval. The production release gate remains correctly blocked at zero
+  published definitions, zero approved graph edges, zero approved
+  calibrations, and zero completed coach pilots.
+- Migration 371 records 25 score-83 mechanics-based distinct decisions and
+  three unreviewed ambiguity quarantines. Migration 372 consolidates ten
+  duplicate or controlled-variant definitions while preserving source
+  mappings, aliases, candidate evidence, media, alternate assessments, and
+  archived legacy execution. Separate disposable sentinels proved that
+  migration 371 preserves an existing human decision and migration 372 aborts
+  before changing a published source.
+- Migration 373 completes Hamstring Slider Curl with six exact variants, 12
+  contextual profiles, 16 evidence sections, five oEmbed-healthy candidate
+  videos, 11 alternate assessments, ten review-only relationship proposals,
+  18 review-only calibration proposals, and one quarantined automated packet.
+  The six variants use complexity/physical-difficulty pairs of `28/32`,
+  `34/44`, `38/48`, `44/52`, `50/62`, and `52/66`; overall is their maximum.
+  Every load and fatigue score is an integer from 1 to 100, while the
+  non-jumping landing-contact count correctly remains zero. A disposable
+  published-card sentinel proved that the migration aborts before overwriting
+  human-controlled state.
+- Migration 374 removes 251 neutral skill/proficiency audit keys from exercise
+  identity evidence without changing any identity decision, rationale,
+  provenance, reviewer state, or timestamp. It adds a database constraint for
+  that surface. A synthetic non-neutral `ADVANCED` assignment made the
+  migration abort and left the record unchanged. The final recursive audit
+  checks 38 exercise JSON columns and three scalar columns: all report zero
+  level classifications. All 1,112 dedicated skill-library level assignments
+  remain intact.
+- Migration 375 records 31 score-82 mechanics-based distinct decisions and one
+  unreviewed ambiguity quarantine. Migration 376 consolidates 19 exact
+  implement, support, lever, terminal-landing, contraction, distance, target,
+  load, or contextual-delivery variants. Every source mapping, alias, candidate
+  evidence record, candidate media record, and archived legacy variant remains
+  traceable. No reviewer or approval state is synthesized.
+- Disposable negative-path tests proved migration 375 aborts and rolls back all
+  decisions when an endpoint is archived without a matching historical
+  resolution. Migration 376 aborts before changing any source when a synthetic
+  protected media state is present. A direct migration run, a production-order
+  clean bootstrap, and a second normal initializer pass all completed; the
+  second pass skipped both migrations.
+- The normal runner recorded migrations 371–376 with checksums `3525352483`,
+  `2196858359`, `3019395498`, `1957102287`, `1133059338`, and `4145321007`.
+  The clean migration-376 disposable state has 1,295 active and 381 archived
+  definitions, 1,823 variants, 1,974 delivery profiles, 580 identity decisions,
+  201 unapproved relationship proposals, 342 unapproved calibrations, 5,061
+  unapproved media candidates, all 1,676 source mappings, zero published
+  definitions, and zero direct identity collisions.
+- The migration-376 canonical audit reports 865 raw and 693 unresolved
+  score-72-or-higher pairs, 91 unresolved score-80-or-higher pairs, five
+  unresolved score-82-or-higher pairs, four unresolved score-83-or-higher
+  pairs, and none at score 85 or higher. All five score-82-or-higher pairs have
+  explicit unreviewed `needs_human_review` records. Forty-five cards meet the
+  automated structural contract; the remaining 1,250 require additional card
+  backfill. No card passes release readiness because human media, graph,
+  calibration, and publication approvals have not occurred.
+- Migration 377 records 35 score-81 mechanics-based distinct decisions and
+  four unreviewed ambiguity quarantines. The missing facts are dumbbell load
+  position, line-pogo direction, landmine support stance, and line-hop
+  direction/contact count. Migration 378 consolidates 15 exact route,
+  implement, support, orientation, countermovement, tempo, obstacle,
+  contraction, box-target, terminal-wording, or foot-exchange variants.
+- Consolidation exposed Medicine Ball Chest Pass versus Rotational Throw and
+  dynamic Goblet Squat versus its bottom isometric hold. Migration 377 records
+  both as mechanically distinct. The score-81 queue then contains only nine
+  explicit unreviewed `needs_human_review` records and no unclassified pair.
+- Disposable negative-path tests proved migration 377 aborts and rolls back all
+  decisions for an unexplained archived endpoint, while migration 378 aborts
+  before changing a source with synthetic protected media state. Direct SQL,
+  production-order clean bootstrap, normal-runner registration, and second-run
+  skip paths all passed.
+- The normal runner recorded migrations 377 and 378 with checksums
+  `3945179680` and `328478309`. The clean migration-378 state has 1,280 active
+  and 396 archived definitions, 1,823 variants, 1,974 delivery profiles, 634
+  identity decisions, 201 unapproved relationships, 342 unapproved
+  calibrations, 5,061 unapproved media candidates, all 1,676 source mappings,
+  zero published definitions, and zero direct identity collisions.
+- The final canonical audit reports 843 raw and 638 unresolved
+  score-72-or-higher pairs, 43 unresolved score-80-or-higher pairs, nine
+  unresolved score-81-or-higher pairs, and none at score 85 or higher. All nine
+  score-81-or-higher pairs have explicit unreviewed `needs_human_review`
+  records. Forty-four cards meet the automated structural contract; the
+  remaining 1,236 require additional card backfill. No card passes release
+  readiness because human media, graph, calibration, and publication approvals
+  have not occurred.
+- Migration 379 records 24 score-80 mechanics-based distinct decisions and one
+  unreviewed Line Hops versus Line Pogo Hops ambiguity quarantine. It also
+  records the three transitive boundaries exposed by alias consolidation:
+  dynamic Bench Press versus Bench Press Pin Iso, unified Bench Press versus
+  floor-seated Dumbbell Z-Press, and the unified short sprint versus Falling
+  Start. No human decision or approval is inferred.
+- Migration 380 consolidates 14 exact start, assistance, bar-position, pause,
+  tempo, implement, pin-height, rebound-direction, apparatus, load-shape,
+  eccentric, isometric, and mobility-sequence variants. It retains all 1,676
+  source mappings, aliases, candidate evidence, candidate media, and archived
+  nonselectable legacy variants. Barbell and Dumbbell Bench Press now share the
+  stable `Bench Press` identity while implement, independent-arm demand, setup,
+  spotting, range, load, and dose remain exact variant dimensions.
+- Disposable negative-path tests prove migration 379 aborts and rolls back all
+  decisions for an unexplained archived endpoint. Migration 380 aborts before
+  changing a source with synthetic protected media state and separately aborts
+  for an archived duplicate without its required identity resolution. Direct
+  SQL execution and rerun are idempotent. The normal platform runner records
+  migrations 379 and 380 with checksums `1642176101` and `2572935333`, and a
+  second invocation skips them.
+- The migration-380 canonical state has 1,266 active and 410 archived
+  definitions, 1,823 variants, 1,974 delivery profiles, 673 identity
+  resolutions, 201 unapproved relationships, 342 unapproved calibrations,
+  5,061 unapproved media candidates, all 1,676 source mappings, zero published
+  definitions, and zero direct identity collisions. The identity queue has 820
+  raw and 595 unresolved score-72-or-higher pairs, 313 score-75-or-higher
+  pairs, ten score-80-or-higher pairs, and none at score 85 or higher. Every
+  score-80-or-higher pair is an explicit unreviewed `needs_human_review`
+  quarantine.
+- The complete migration-380 audit has one-to-one migration coverage and
+  quarantines all 1,266 cards. Forty-three cards pass every non-human automated
+  content check; Hamstring Slider Curl is otherwise complete but retains
+  explicit taxonomy and graph-integrity blockers, while 1,222 cards still need
+  broad structural backfill. Of 1,476 active variants, 1,464 have complete
+  complexity/physical-difficulty records and zero derived-overall formula
+  violations. The recursive audit finds zero prohibited level keys across 38
+  exercise JSON columns, zero assignments across three exercise scalar level
+  columns, six active database guards, and all 1,112 dedicated skill-library
+  level assignments intact.
+- The production release gate remains correctly blocked: zero published cards,
+  zero approved relationship edges, zero approved calibration anchors, zero
+  phase depth in the published selection pool, and zero real coach-pilot
+  reviews. Candidate URLs and oEmbed metadata remain unapproved; no external
+  playback, exact-match media review, caption review, accessibility review, or
+  human approval is claimed.
 - A blank disposable PostgreSQL 15 database successfully ran the complete
-  migration chain through migration 350 and reproduced 1,366 active
-  definitions, 310 archived definitions, 1,769 variants, 1,866 delivery
-  profiles, 1,676 source mappings, 406 identity resolutions, 128 graph edges,
-  and 180 review-only calibrations. Migrations 345–350 reran idempotently in
-  disposable rehearsal databases.
+  migration chain through migration 350; exact-source migrations 351 and 352
+  were replayed on a clean clone, and migrations 353–360 were then applied
+  through the normal runner on clean clones. Migrations 361 and 362 were
+  applied to clean migration-360 and migration-361 clones respectively.
+  Migrations 345–380 have
+  direct or runner-level idempotency evidence in disposable rehearsal
+  databases.
 - Migration 305 used traceable legacy difficulty profiles to populate physical
   difficulty for 287 previously incomplete variants and mechanically derived
   overall difficulty for every supported variant. The resulting coverage is
@@ -383,18 +742,18 @@ On 2026-07-26:
   created. The migration fails closed rather than changing a published variant,
   current approved card review, or approved score record.
 - Deterministic repeat tests use deep equality with the same seed.
-- All 267 canonical-research JSON artifacts pass the exercise-difficulty
+- All 299 canonical-research JSON artifacts pass the exercise-difficulty
   invariant. The normalization tool corrected 278 historical candidate-summary
-  overall scores across 164 files so overall now equals the greater of
-  technical complexity and physical or absolute-load demand; non-core
-  dimensions remain separately available to planning.
+  overall scores across 164 files so overall now equals the greater of exercise
+  complexity and physical difficulty. The legacy storage names remain
+  `technicalComplexity` and `absoluteLoadDemand`; non-core dimensions remain
+  separately available to planning.
 - The duplicate-candidate audit now builds and reuses one normalized identity
   index. Its indexed results are regression-tested against the direct matcher,
-  and the complete 1,366-card audit avoids rebuilding identity terms inside
-  every pairwise comparison. Thirty cards now pass every structural category
-  and remain quarantined only on
-  explicit human calibration, graph-review, media-review, and publication
-  gates.
+  and the complete 1,266-card audit avoids rebuilding identity terms inside
+  every pairwise comparison. Forty-three cards pass every non-human automated
+  content check and remain quarantined on explicit human calibration,
+  graph-review, media-review, and publication gates.
 - Golden quality evaluation is at least 90/100 with safety and logistics at
   100/100.
 
@@ -402,7 +761,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 350 in a
+1. Apply the complete migration sequence through migration 380 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

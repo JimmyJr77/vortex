@@ -1,0 +1,481 @@
+{
+  "facilityId": 1,
+  "slug": "mirror-shuffle",
+  "researchVersion": "2026-07-27.46",
+  "assessmentSummary": {
+    "identity": "A noncontact partner leader-follower task in which the follower reacts to live body movement using lateral shuffle footwork inside a declared lane.",
+    "currentCardFindings": [
+      "Mirror Shuffle Drill and Partner Mirror Shuffle are redundant labels for the same live partner task.",
+      "Partner role and bounded lane are defining setup requirements, while speed, spacing, round time, and role order are delivery dimensions.",
+      "Four media links have current public oEmbed metadata only and remain unviewed candidates."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 40,
+      "baseOverallDifficulty": 58,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "partner-lateral-leader-follower",
+        "exerciseComplexity": 58,
+        "physicalDifficulty": 40,
+        "derivedOverallDifficulty": 58
+      }
+    ],
+    "identityDecision": {
+      "versus": [
+        "mirror-shuffle-drill",
+        "partner-mirror-shuffle"
+      ],
+      "decision": "duplicate_consolidated",
+      "boundary": "same_live_partner_lateral_leader_follower_action"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T18:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Two athletes face each other inside a declared lateral lane. One leads with unpredictable lateral shuffle direction and controlled stops while the follower reads the leader body movement and mirrors without guessing, crossing the feet, colliding, or leaving the boundary. Roles, lane width, leader speed, cue rules, round time, accuracy target, spacing, and rest are declared before the set; stop before reaction accuracy, posture, braking, or spacing deteriorates.",
+      "familyKey": "partner_lateral_mirror_shuffle",
+      "movementPatterns": [
+        "locomote"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "core",
+        "full_body"
+      ],
+      "requiredEquipment": [
+        "cones",
+        "partner"
+      ],
+      "optionalEquipment": [
+        "timer",
+        "line_tape"
+      ],
+      "environment": {
+        "setup": {
+          "validMovement": "lateral_shuffle_only",
+          "boundariesVisible": true,
+          "roleSwitchDeclared": true,
+          "leaderAndFollowerDeclared": true
+        },
+        "space": {
+          "runOutMeters": 2,
+          "laneWidthYards": {
+            "target": 4,
+            "maximum": 5,
+            "minimum": 3
+          },
+          "partnerSpacingMeters": {
+            "target": 2,
+            "maximum": 3,
+            "minimum": 1.5
+          },
+          "crossTrafficProhibited": true
+        },
+        "record": [
+          "lane_width",
+          "partner_spacing",
+          "leader_speed",
+          "round_seconds",
+          "role",
+          "correct_reads",
+          "false_starts",
+          "boundary_errors"
+        ],
+        "surface": {
+          "avoid": [
+            "wet",
+            "uneven",
+            "hard_obstacles"
+          ],
+          "required": "flat_dry_high_traction"
+        },
+        "traffic": {
+          "athletesPerStation": 2,
+          "coachSightlineRequired": true,
+          "stationSeparationMeters": 3
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_groin_ankle_knee_hip_or_back_symptoms",
+          "history_of_collision_fear",
+          "attention_or_processing_support_needed",
+          "large_size_or_speed_mismatch"
+        ],
+        "doNotUseWhen": [
+          "unsafe_surface_or_lane",
+          "no_appropriate_partner",
+          "cannot_shuffle_without_crossing_or_collision",
+          "pain_or_limp",
+          "cannot_understand_or_follow_stop_signal"
+        ],
+        "medicalScope": "This card is training, not diagnosis or return-to-play clearance.",
+        "prerequisites": [
+          "pain_free_lateral_shuffle",
+          "controlled_lateral_stop_both_directions",
+          "understands_leader_follower_rule",
+          "can_maintain_safe_spacing"
+        ],
+        "regressionOrder": [
+          "preplanned_lateral_shuffle_walkthrough",
+          "slower_leader",
+          "narrower_lane",
+          "shorter_round",
+          "fewer_direction_changes"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned public oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "A leader and follower face each other in a bounded lane; the follower responds to the leader's live body movement using lateral shuffle footwork without contact.",
+        "Drill, partner, box, and lane labels do not add an action; a preplanned route removes the defining perception-action coupling."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "The task is reactive lateral locomotion with live visual cueing and planned spatial boundaries.",
+        "Crossover, sprint exit, tag, ball, resistance, hopping, crawling, and ladder tasks remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Hip, knee, ankle, foot, and trunk actions repeatedly accelerate and brake the body laterally while maintaining frontal- and transverse-plane control.",
+        "The card makes no muscle-isolation or exact force-distribution claim."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Live opponent information couples perception and movement selection, distinguishing reactive agility from preplanned change of direction.",
+        "Evidence supports that distinction, but exact outcome magnitude for this mirror-shuffle format is not established."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Complexity rises with leader unpredictability, response speed, lane width, stricter accuracy, and role switching; physical difficulty rises with speed, braking force, round length, and density.",
+        "Overall exercise difficulty equals the greater of complexity and physical difficulty; athlete proficiency belongs only to skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Repeated lateral accelerations and braking load the adductors, lateral hip, quadriceps, calves, trunk, and attention.",
+        "End the round before accuracy, spacing, footwork, posture, or braking quality declines."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Use a flat dry nonslip bounded lane, matched partners, declared roles, no contact, and enough separation from other pairs.",
+        "Do not run the task when spacing, footwear, floor conditions, or partner behavior is unsafe."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Use short accurate rounds with complete role rotation and enough rest to preserve reading and braking quality.",
+        "Exact round duration, accuracy threshold, and score remain calibration proposals."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Declare lane, roles, spacing, allowed shuffle-only footwork, round time, accuracy target, stop signal, and role-switch rule.",
+        "The follower reads the partner's body, moves laterally without crossing the feet, preserves spacing, and brakes inside the lane."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Stop for symptoms, collision risk, repeated foot crossing, loss of spacing, uncontrolled braking, guessing, boundary violations, or partner mismatch.",
+        "Regress to a preplanned lateral walkthrough when live cueing prevents safe mechanics."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Use fresh after lateral mechanics when live perception-action coupling serves the session objective.",
+        "Do not default to conditioning density or use a solo preplanned shuffle under this identity."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Athlete support explains both roles, expected lateral and attention effort, self-checks, nonvideo instruction, and how to report unsafe speed or symptoms.",
+        "The athlete reports missed reads and unsafe spacing rather than guessing faster."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Coach support covers pairing, cue behavior, spacing, stance, first step, foot crossing, braking, accuracy, role balance, and group traffic.",
+        "The coach reduces leader speed or lane demand before extending round duration."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12912675/",
+      "sourceTitle": "Optimizing Agility Training in Team Sport Players—The Role of Perception-Action Coupling: A Systematic Review with Multi-Level Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "A slower leader, narrower lane, shorter round, larger spacing, stronger visual contrast, or rehearsed first round can improve access.",
+        "A preplanned walkthrough is a distinct regression identity because it removes live perception-action coupling."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Lane size, round time, speed, spacing, and role order are modifiers; partner and drill names are the same identity.",
+        "Preplanned, crossover, sprint-exit, pursuit/contact, implement, obstacle, or alternate-locomotion tasks require separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=oXPagj--ejE",
+      "title": "Partner Mirror (Shuffle)",
+      "channelName": "Tinsley Performance",
+      "sourceQuery": "partner mirror shuffle drill",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XPWv2pEnrpY",
+      "title": "Partner Mirror Drill: Shuffle",
+      "channelName": "N1 Motion",
+      "sourceQuery": "partner mirror shuffle drill",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KlFU0pAGdgo",
+      "title": "Shuffle Mirror Drill",
+      "channelName": "Patrick Nolan",
+      "sourceQuery": "partner mirror shuffle drill",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=znHwPessi3Q",
+      "title": "Side Shuffle Mirror Drill",
+      "channelName": "Bullett Performance Training",
+      "sourceQuery": "partner mirror shuffle drill",
+      "linkStatus": "healthy",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T18:15:00.000Z"
+      },
+      "notes": "oEmbed metadata only; embed playback and full-video exact match remain unresolved."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Mirror Shuffle Drill",
+      "classification": "same_identity",
+      "rationale": "Drill adds no action to the live partner lateral mirror task.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Partner Mirror Shuffle",
+      "classification": "same_identity",
+      "rationale": "Partner names the live cue source already required by the identity.",
+      "distinguishingDimensions": {
+        "nameOnly": true
+      }
+    },
+    {
+      "name": "Partner Mirror Shuffle Box",
+      "classification": "same_identity",
+      "rationale": "A bounded box or lane is an exact setup for the same task.",
+      "distinguishingDimensions": {
+        "boundaryShape": "box_or_lane"
+      }
+    },
+    {
+      "name": "Mirror Shuffle Lane Width or Round-Time Change",
+      "classification": "modifier_annotation",
+      "rationale": "Lane width, spacing, speed, and round time scale the same task.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "lane_width",
+          "spacing",
+          "leader_speed",
+          "round_time"
+        ]
+      }
+    },
+    {
+      "name": "Role-Switched Mirror Shuffle",
+      "classification": "modifier_annotation",
+      "rationale": "Switching leader and follower is delivery rotation, not a new exercise.",
+      "distinguishingDimensions": {
+        "role": "leader_or_follower"
+      }
+    },
+    {
+      "name": "Lateral Shuffle Mechanics Walkthrough",
+      "classification": "new_definition",
+      "rationale": "A preplanned route removes live perception-action coupling.",
+      "distinguishingDimensions": {
+        "cue": "preplanned",
+        "partner": false
+      }
+    },
+    {
+      "name": "Partner Mirror Shuffle with Crossover",
+      "classification": "new_definition",
+      "rationale": "Crossover footwork changes the movement and rotational demands.",
+      "distinguishingDimensions": {
+        "footwork": "crossover"
+      }
+    },
+    {
+      "name": "Mirror Shuffle to Sprint Exit",
+      "classification": "new_definition",
+      "rationale": "A linear sprint exit adds a second locomotor action and finish.",
+      "distinguishingDimensions": {
+        "terminalAction": "sprint_exit"
+      }
+    },
+    {
+      "name": "Partner Mirror Tag",
+      "classification": "new_definition",
+      "rationale": "Tag contact and pursuit rules add interaction and collision constraints.",
+      "distinguishingDimensions": {
+        "task": "pursuit",
+        "contact": "tag"
+      }
+    },
+    {
+      "name": "Ball, Resistance, Hop, Crawl, or Ladder Mirror",
+      "classification": "new_definition",
+      "rationale": "Added implements, locomotor actions, or obstacles materially change the task.",
+      "distinguishingDimensions": {
+        "addedConstraint": [
+          "ball",
+          "resistance",
+          "hop",
+          "crawl",
+          "ladder"
+        ]
+      }
+    }
+  ]
+}
