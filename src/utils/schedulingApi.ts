@@ -39,6 +39,38 @@ export interface SchedulingTimeSlot {
   displayLabel?: string
 }
 
+export interface DailyRosterAthlete {
+  signupId: number
+  memberId: number | null
+  firstName: string
+  lastName: string
+  name: string
+}
+
+export interface DailyRosterClass {
+  eventId: string
+  formId: number
+  slotGroupId: number
+  timeSlotId: number
+  programName: string | null
+  className: string
+  offeringLabel: string | null
+  startTime: string | null
+  endTime: string | null
+  timeLabel: string
+  athletes: DailyRosterAthlete[]
+  athleteCount: number
+}
+
+export interface DailyRoster {
+  date: string
+  dateLabel: string
+  timeZone: string
+  classes: DailyRosterClass[]
+  classCount: number
+  athleteCount: number
+}
+
 export interface SchedulingSlotGroup {
   id: number
   formId: number
@@ -1823,6 +1855,12 @@ export async function adminSimulateDiscountOrder(payload: {
 
 export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary[]> {
   const res = await adminApiRequest('/api/admin/scheduling/forms')
+  return parseJson(res)
+}
+
+export async function adminFetchDailyRoster(date: string): Promise<DailyRoster> {
+  const params = new URLSearchParams({ date })
+  const res = await adminApiRequest(`/api/admin/scheduling/daily-roster?${params.toString()}`)
   return parseJson(res)
 }
 

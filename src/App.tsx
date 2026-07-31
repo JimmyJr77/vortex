@@ -84,21 +84,22 @@ function App() {
     // Admin portal requires both flag and JWT (see Login.tsx)
     setIsAdmin(hasAdminSession())
 
-    // Check if member is already logged in
+    // Restore member session from storage. Do not force activePortal back to
+    // "website" on every location change — that kicks users out of admin/coach/
+    // member while they are still logged in. Stripe returns are the exception.
     const storedToken = localStorage.getItem('vortex_member_token')
     const storedMember = localStorage.getItem('vortex_member')
-    
+
     if (storedToken && storedMember) {
       try {
         setMemberToken(storedToken)
-        setMember(JSON.parse(storedMember))
-        // Stripe returns must enter the portal so checkout confirmation, billing
-        // refresh, and recovery messaging actually run. Ordinary visits still
-        // remain on the public site.
+        setMember(JSON.parse(storedMember) as PortalAccount)
         const returnParams = new URLSearchParams(location.search)
         const isStripeReturn = returnParams.has('billing') || returnParams.has('enrollment')
-        setActivePortal(isStripeReturn ? 'member' : 'website')
-        setShowMemberDashboard(isStripeReturn)
+        if (isStripeReturn) {
+          setActivePortal('member')
+          setShowMemberDashboard(true)
+        }
       } catch (error) {
         console.error('Error parsing stored member data:', error)
         clearPortalSession()
@@ -108,6 +109,15 @@ function App() {
     captureUtmFromLocation()
     trackPageView(location.pathname)
   }, [location.pathname, location.search])
+
+  // If the user selected Admin but the admin flag/token was missing, restore it
+  // from the shared member session instead of falling through to the public site.
+  useEffect(() => {
+    if (activePortal !== 'admin' || isAdmin || !member || !memberToken) return
+    if (!getAvailablePortals(member).includes('admin')) return
+    persistAdminSessionFromAccount(memberToken, member)
+    setIsAdmin(true)
+  }, [activePortal, isAdmin, member, memberToken])
 
   // Deep links that require account context open login when the session expired.
   useEffect(() => {
@@ -161,8 +171,30 @@ function App() {
       setShowMemberDashboard(false)
       return
     }
+
+    if (portal === 'admin') {
+      if (member && memberToken && getAvailablePortals(member).includes('admin')) {
+        persistAdminSessionFromAccount(memberToken, member)
+        setIsAdmin(true)
+      } else if (!hasAdminSession()) {
+        // Admin requested but no admin session — keep them in a portal they can use.
+        const fallback = member ? bestPortalForAccount(member) : 'website'
+        if (fallback === 'website' || fallback === 'admin') {
+          setActivePortal('website')
+          setShowMemberDashboard(false)
+          return
+        }
+        setActivePortal(fallback)
+        setShowMemberDashboard(true)
+        return
+      }
+      setActivePortal('admin')
+      setShowMemberDashboard(false)
+      return
+    }
+
     setActivePortal(portal)
-    setShowMemberDashboard(portal === 'member' || portal === 'coach')
+    setShowMemberDashboard(true)
   }
 
   // If user is admin, show admin panel

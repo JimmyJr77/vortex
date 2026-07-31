@@ -125,6 +125,14 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     trackPageView(location.pathname, { googleAnalytics: !isPreview })
   }, [location.pathname, isPreview])
 
+  // Restore admin session when switching into Admin from a shared member login.
+  useEffect(() => {
+    if (activePortal !== 'admin' || isAdmin || !member || !memberToken) return
+    if (!getAvailablePortals(member).includes('admin')) return
+    persistAdminSessionFromAccount(memberToken, member)
+    setIsAdmin(true)
+  }, [activePortal, isAdmin, member, memberToken])
+
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)
     setInquirySourcePath(location.pathname)
@@ -168,8 +176,29 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       setShowMemberDashboard(false)
       return
     }
+
+    if (portal === 'admin') {
+      if (member && memberToken && getAvailablePortals(member).includes('admin')) {
+        persistAdminSessionFromAccount(memberToken, member)
+        setIsAdmin(true)
+      } else if (localStorage.getItem('vortex_admin') !== 'true') {
+        const fallback = member ? bestPortalForAccount(member) : 'website'
+        if (fallback === 'website' || fallback === 'admin') {
+          setActivePortal('website')
+          setShowMemberDashboard(false)
+          return
+        }
+        setActivePortal(fallback)
+        setShowMemberDashboard(true)
+        return
+      }
+      setActivePortal('admin')
+      setShowMemberDashboard(false)
+      return
+    }
+
     setActivePortal(portal)
-    setShowMemberDashboard(portal === 'member' || portal === 'coach')
+    setShowMemberDashboard(true)
   }
 
   if (isAdmin && activePortal === 'admin') {

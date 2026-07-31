@@ -45,6 +45,35 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
   - type: cron
+    name: vortex-daily-roster
+    runtime: node
+    branch: main
+    autoDeployTrigger: commit
+    rootDir: backend
+    # 11:00 UTC is 7:00 AM EDT / 6:00 AM EST for the Eastern-time roster date.
+    schedule: "0 11 * * *"
+    buildCommand: npm install
+    startCommand: npm run roster:daily
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: EMAIL_REPLY_TO
+        value: frontdesk@vortexathletics.com
+      - key: DAILY_ROSTER_EMAIL
+        value: team@vortexathletics.com
+  - type: cron
     name: vortex-stripe-reconciliation
     runtime: node
     branch: main

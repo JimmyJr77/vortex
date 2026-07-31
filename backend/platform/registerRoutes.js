@@ -77,6 +77,7 @@ import {
 import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
 import { listDisputeCases, syncDisputeCase, updateDisputeEvidence } from '../billing/disputeOperations.js'
 import { getStripeOperationsDashboard, runStripeReconciliation } from '../billing/stripeReconciliation.js'
+import { buildPaymentRegistrationReport } from '../billing/paymentRegistrationReport.js'
 import {
   beginBillingAdminAction,
   finishBillingAdminAction,
@@ -1349,6 +1350,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     } catch (err) {
       console.error('[billing] family-lookup:', err)
       res.status(500).json({ success: false, message: 'Failed to search family billing accounts' })
+    }
+  })
+
+  app.get('/api/admin/billing/payment-registration-report', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    try {
+      const days = req.query.days == null ? 30 : Number(req.query.days)
+      if (!Number.isInteger(days) || days < 1 || days > 365) {
+        return res.status(400).json({ success: false, message: 'days must be an integer from 1 to 365' })
+      }
+      const data = await buildPaymentRegistrationReport(pool, { days })
+      res.json({ success: true, data })
+    } catch (err) {
+      console.error('[billing] payment-registration-report:', err)
+      res.status(500).json({ success: false, message: 'Failed to build payment registration report' })
     }
   })
 
@@ -2817,15 +2832,23 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const obj = event.data?.object ?? {}
         void emitStripePaymentFailedEvent(pool, { object: obj })
         const accountId = await resolveStripeWebhookAccountId(pool, obj)
+        const failureReason =
+          obj.last_payment_error?.message ||
+          obj.charges?.data?.[0]?.failure_message ||
+          obj.failure_message ||
+          null
+        await recordStripeBillingAlert(pool, {
+          event,
+          object: { ...obj, reason: failureReason, metadata: { ...(obj.metadata ?? {}), familyBillingAccountId: accountId ? String(accountId) : undefined } },
+          alertType: 'payment_failed',
+          severity: 'warning',
+          message: `Stripe payment failed${obj.id ? ` (${obj.id})` : ''}${failureReason ? `: ${failureReason}` : ''}`,
+        })
         const shouldNotifyCustomer = event.type === 'invoice.payment_failed' || !obj.invoice
         if (accountId && shouldNotifyCustomer) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {
             const amountCents = obj.amount_due ?? obj.amount ?? obj.amount_total ?? 0
-            const failureReason =
-              obj.last_payment_error?.message ||
-              obj.charges?.data?.[0]?.failure_message ||
-              null
             notifyPaymentFailed(pool, {
               account: acct.rows[0],
               amountCents,
@@ -2836,7 +2859,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           }
         }
         if (event.type === 'invoice.payment_failed' && accountId) {
-          const failureReason = obj.last_payment_error?.message || obj.charges?.data?.[0]?.failure_message || null
           await recordPaymentRecoveryExhaustedAlert(pool, { event, invoice: obj, accountId, failureReason })
         }
       }

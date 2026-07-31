@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Calendar, Loader2, X } from 'lucide-react'
+import { Calendar, ClipboardList, Loader2, Printer, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
 import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
@@ -11,6 +11,8 @@ import {
   adminFetchOrphanedSignups,
   adminFetchOfferings,
   adminSelectOffering,
+  adminFetchDailyRoster,
+  type DailyRoster,
   type SchedulingFormDetail,
   type SchedulingFormSummary,
   type SchedulingSignup,
@@ -44,6 +46,17 @@ const PANELS: { id: Panel; label: string }[] = [
   { id: 'slots', label: 'Timeslots' },
 ]
 
+const easternDate = () => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.year}-${values.month}-${values.day}`
+}
+
 const AdminScheduling = ({
   navigationIntent = null,
   onNavigationIntentConsumed,
@@ -64,6 +77,10 @@ const AdminScheduling = ({
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
   const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const programsLoaded = useRef(false)
+  const [rosterDate, setRosterDate] = useState(easternDate)
+  const [dailyRoster, setDailyRoster] = useState<DailyRoster | null>(null)
+  const [rosterLoading, setRosterLoading] = useState(false)
+  const [rosterError, setRosterError] = useState<string | null>(null)
 
   const syncSelectedOffering = useCallback((list: SchedulingOffering[]) => {
     setSelectedOffering((current) => {
@@ -296,6 +313,18 @@ const AdminScheduling = ({
     [handleOfferingSelect],
   )
 
+  const generateDailyRoster = async () => {
+    setRosterLoading(true)
+    setRosterError(null)
+    try {
+      setDailyRoster(await adminFetchDailyRoster(rosterDate))
+    } catch (e) {
+      setRosterError(e instanceof Error ? e.message : 'Failed to generate daily roster')
+    } finally {
+      setRosterLoading(false)
+    }
+  }
+
   if (loading && topPrograms.length === 0) {
     return (
       <div className="space-y-8">
@@ -326,6 +355,80 @@ const AdminScheduling = ({
           Configure class offerings and timeslots. New athletes complete the official account signup form before enrolling.
         </p>
       </div>
+
+      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm print:border-0 print:shadow-none">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between print:hidden">
+          <div>
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <ClipboardList className="h-5 w-5 text-vortex-red" />
+              Full day roster
+            </h3>
+            <p className="mt-1 text-sm text-gray-600">Generate every scheduled class and its enrolled athletes.</p>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <label className="text-xs font-semibold text-gray-600">
+              Roster date
+              <input
+                type="date"
+                value={rosterDate}
+                onChange={(event) => setRosterDate(event.target.value)}
+                className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm font-normal text-gray-900"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => void generateDailyRoster()}
+              disabled={rosterLoading || !rosterDate}
+              className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {rosterLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ClipboardList className="h-4 w-4" />}
+              Generate roster
+            </button>
+          </div>
+        </div>
+
+        {rosterError && <p className="mt-3 text-sm text-red-700">{rosterError}</p>}
+
+        {dailyRoster && (
+          <div className="mt-5" id="daily-roster-report">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Daily roster</h3>
+                <p className="text-sm text-gray-600">
+                  {dailyRoster.dateLabel} · {dailyRoster.classCount} classes · {dailyRoster.athleteCount} enrollments
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 print:hidden"
+              >
+                <Printer className="h-4 w-4" /> Print
+              </button>
+            </div>
+            {dailyRoster.classes.length === 0 ? (
+              <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">No classes are scheduled for this date.</p>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2 print:grid-cols-1">
+                {dailyRoster.classes.map((item) => (
+                  <article key={item.eventId} className="break-inside-avoid rounded-lg border border-gray-200 p-4">
+                    <h4 className="font-semibold text-gray-900">{item.timeLabel} · {item.className}</h4>
+                    {item.programName && <p className="text-xs text-gray-500">{item.programName}</p>}
+                    <p className="mt-1 text-sm text-gray-600">{item.athleteCount} enrolled</p>
+                    {item.athletes.length ? (
+                      <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-gray-900">
+                        {item.athletes.map((athlete) => <li key={athlete.signupId}>{athlete.name}</li>)}
+                      </ol>
+                    ) : (
+                      <p className="mt-2 text-sm text-gray-500">No enrolled athletes</p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="lg:w-64 shrink-0">

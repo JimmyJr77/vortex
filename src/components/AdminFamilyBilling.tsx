@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Copy, Link2, Loader2, Mail, Plus, Receipt, RefreshCw, Repeat, Tag } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
+import PaymentRegistrationReport from './billing/PaymentRegistrationReport'
 
 interface MonthlyTotals {
   grossCents: number
@@ -212,6 +213,7 @@ function money(cents: number): string {
 }
 
 export default function AdminFamilyBilling() {
+  const [showPaymentReport, setShowPaymentReport] = useState(false)
   const [familyId, setFamilyId] = useState('')
   const [lookupResults, setLookupResults] = useState<FamilyLookupResult[]>([])
   const [account, setAccount] = useState<BillingAccount | null>(null)
@@ -503,6 +505,8 @@ export default function AdminFamilyBilling() {
   const bundles = account?.bundlePasses ?? []
   const bundleUsage = account?.bundleUsage ?? []
 
+  if (showPaymentReport) return <PaymentRegistrationReport onBack={() => setShowPaymentReport(false)} />
+
   const statusBadge = (status: string) => {
     const map: Record<string, string> = {
       active: 'bg-green-50 text-green-700',
@@ -514,8 +518,8 @@ export default function AdminFamilyBilling() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Family Billing</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Family Billing</h2>
         <p className="text-sm text-gray-600">
           Statement-style account: recurring enrollments, one-time charges, payments, refunds, and class bundles.
         </p>
@@ -536,6 +540,9 @@ export default function AdminFamilyBilling() {
               <Copy className="h-3.5 w-3.5" /> Copy
             </button>
           </div>
+          <button type="button" onClick={() => setShowPaymentReport(true)} className="mt-3 inline-flex items-center rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+            Generate 30-day payment report
+          </button>
         </div>
       )}
 

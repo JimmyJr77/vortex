@@ -31,6 +31,7 @@
     "eval:prescription": "node ../scripts/evaluate-prescription-quality.mjs",
     "sync:golden-requirements": "node ../scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",
     "billing:recurring": "node scheduling/runRecurringCharges.js",
+    "roster:daily": "node scheduling/runDailyRoster.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",
     "stripe:reconcile": "node billing/runStripeReconciliation.js",
     "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",

@@ -13,6 +13,8 @@ import {
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
 import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
+import { buildDailyRoster, dateInTimeZone, validateRosterDate } from './dailyRoster.js'
+import { sendRegistrationNotification } from './registrationNotificationEmail.js'
 import { broadcastMessageEvent } from '../platform/messageRealtime.js'
 import { sendDemotionEmail } from './demotionEmail.js'
 import { sendMagicLinkEmail } from './magicLinkEmail.js'
@@ -94,6 +96,15 @@ import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
+
+function enrollmentDueNowCents(preview) {
+  if (!preview) return 0
+  const fees = Math.round((Number(preview.additionalFeesOneTime) || 0) * 100)
+  const firstMonth = Math.round(Number(preview.firstMonth?.totalCents) || 0)
+  const passes = Math.round(Number(preview.passPurchaseTotalCents) || 0)
+  const carriedForward = Math.max(0, Math.round(Number(preview.carriedForward?.totalCents) || 0))
+  return Math.max(0, fees + firstMonth + passes + carriedForward)
+}
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -1723,6 +1734,20 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    async adminDailyRoster(req, res) {
+      try {
+        const date = req.query.date == null ? dateInTimeZone() : validateRosterDate(req.query.date)
+        if (!date) {
+          return res.status(400).json({ success: false, message: 'date must be a valid YYYY-MM-DD date' })
+        }
+        const result = await buildDailyRoster(pool, date)
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminDailyRoster:', err)
+        res.status(500).json({ success: false, message: 'Failed to generate daily roster' })
+      }
+    },
+
     async adminFormSlotEnrollments(req, res) {
       try {
         const formId = Number(req.params.formId)
@@ -2389,6 +2414,12 @@ export function createSchedulingHandlers(pool) {
             mandateWaiver: detail.mandateWaiver,
           })
 
+          try {
+            await sendRegistrationNotification(pool, { signupIds: [signupId], paidCents: 0 })
+          } catch (emailErr) {
+            console.error('[scheduling] team registration alert failed:', emailErr.message)
+          }
+
           const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [signupId])
           const positionMessage = buildSignupPositionMessage({
             status: signupStatus,
@@ -2821,6 +2852,15 @@ export function createSchedulingHandlers(pool) {
               slotLabel: signupResult.slotLabel,
               pricing: signupResult.pricing,
             })
+          }
+
+          try {
+            await sendRegistrationNotification(pool, {
+              signupIds: signupResults.map((result) => result.signupId),
+              paidCents: enrollmentDueNowCents(orderPreviewSnapshot),
+            })
+          } catch (emailErr) {
+            console.error('[scheduling] team registration alert failed:', emailErr.message)
           }
 
           res.json({
