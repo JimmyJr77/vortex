@@ -37,6 +37,10 @@ type Failure = {
   severity: string
   stripeObjectId: string | null
   message: string
+  attemptedAmountCents: number
+  attemptCount: number | null
+  nextPaymentAttempt: number | null
+  failureReason: string | null
   createdAt: string
   registrations: Registration[]
 }
@@ -149,6 +153,12 @@ export default function PaymentRegistrationReport({ onBack }: { onBack: () => vo
                     <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">{failure.alertType.replaceAll('_', ' ')}</span>
                   </div>
                   <p className="mt-2 text-red-800">{failure.message}</p>
+                  <div className="mt-2 grid gap-2 text-xs text-gray-700 sm:grid-cols-3">
+                    <div><span className="text-gray-500">Attempted:</span> <strong>{money(failure.attemptedAmountCents)}</strong></div>
+                    <div><span className="text-gray-500">Attempts:</span> <strong>{failure.attemptCount ?? '—'}</strong></div>
+                    <div><span className="text-gray-500">Next retry:</span> <strong>{failure.nextPaymentAttempt ? dateTime(new Date(failure.nextPaymentAttempt * 1000).toISOString()) : '—'}</strong></div>
+                  </div>
+                  {failure.failureReason && <p className="mt-1 text-xs text-gray-600">Reason: {failure.failureReason}</p>}
                   {failure.stripeObjectId && <p className="mt-1 break-all text-xs text-gray-500">Stripe object: {failure.stripeObjectId}</p>}
                   {failure.registrations.length > 0 && <p className="mt-2 text-xs text-gray-600">Registrations: {failure.registrations.map((registration) => `${registration.memberName} — ${registration.className}`).join('; ')}</p>}
                 </div>

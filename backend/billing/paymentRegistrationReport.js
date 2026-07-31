@@ -160,6 +160,10 @@ export async function buildPaymentRegistrationReport(pool, { days = 30 } = {}) {
     stripeObjectId: row.stripe_object_id || null,
     message: row.message,
     details: row.details || {},
+    attemptedAmountCents: number(row.details?.amount),
+    attemptCount: row.details?.attemptCount == null ? null : number(row.details.attemptCount),
+    nextPaymentAttempt: row.details?.nextPaymentAttempt || null,
+    failureReason: row.details?.reason || null,
     createdAt: row.created_at,
     registrations: row.family_id == null ? [] : registrationsByFamily.get(Number(row.family_id)) || [],
   }))
