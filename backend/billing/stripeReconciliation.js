@@ -187,18 +187,45 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
 export async function getStripeOperationsDashboard(pool) {
   await ensureSchema(pool)
   const [alerts, recentRuns, webhookCounts, webhookIncidents] = await Promise.all([
-    pool.query(`SELECT * FROM stripe_billing_alert WHERE resolved_at IS NULL ORDER BY created_at DESC LIMIT 100`),
+    pool.query(`
+      SELECT a.*,
+             f.family_name,
+             NULLIF(TRIM(CONCAT_WS(' ', payer.first_name, payer.last_name)), '') AS payer_name,
+             COALESCE(NULLIF(TRIM(fba.billing_email), ''), NULLIF(TRIM(payer.email), '')) AS payer_email,
+             NULLIF(a.details->>'amount', '')::numeric AS attempted_amount,
+             a.details->>'reason' AS failure_reason,
+             a.details->>'attemptCount' AS attempt_count,
+             a.details->>'nextPaymentAttempt' AS next_payment_attempt
+      FROM stripe_billing_alert a
+      LEFT JOIN family_billing_account fba ON fba.id = a.family_billing_account_id
+      LEFT JOIN family f ON f.id = fba.family_id
+      LEFT JOIN member payer ON payer.id = fba.payer_member_id
+      WHERE a.resolved_at IS NULL
+      ORDER BY a.created_at DESC LIMIT 100
+    `),
     pool.query(`SELECT * FROM stripe_reconciliation_run ORDER BY started_at DESC LIMIT 10`),
     pool.query(`SELECT status, COUNT(*)::int AS count FROM stripe_webhook_event
       WHERE received_at >= now() - interval '7 days' GROUP BY status`),
     pool.query(
-      `SELECT event_id, event_type, status, attempts,
+      `SELECT e.event_id, e.event_type, e.status, e.attempts,
               LEFT(COALESCE(last_error, ''), 500) AS last_error,
-              received_at, processed_at, updated_at
-       FROM stripe_webhook_event
-       WHERE status = 'failed'
-          OR (status = 'processing' AND updated_at < now() - interval '15 minutes')
-       ORDER BY updated_at DESC
+              e.received_at, e.processed_at, e.updated_at,
+              a.stripe_object_id, a.message AS alert_message,
+              f.family_name,
+              NULLIF(TRIM(CONCAT_WS(' ', payer.first_name, payer.last_name)), '') AS payer_name,
+              COALESCE(NULLIF(TRIM(fba.billing_email), ''), NULLIF(TRIM(payer.email), '')) AS payer_email,
+              NULLIF(a.details->>'amount', '')::numeric AS attempted_amount,
+              a.details->>'reason' AS failure_reason,
+              a.details->>'attemptCount' AS attempt_count,
+              a.details->>'nextPaymentAttempt' AS next_payment_attempt
+       FROM stripe_webhook_event e
+       LEFT JOIN stripe_billing_alert a ON a.stripe_event_id = e.event_id
+       LEFT JOIN family_billing_account fba ON fba.id = a.family_billing_account_id
+       LEFT JOIN family f ON f.id = fba.family_id
+       LEFT JOIN member payer ON payer.id = fba.payer_member_id
+       WHERE e.status = 'failed'
+          OR (e.status = 'processing' AND e.updated_at < now() - interval '15 minutes')
+       ORDER BY e.updated_at DESC
        LIMIT 25`,
     ),
   ])

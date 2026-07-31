@@ -153,6 +153,13 @@ interface StripeAlert {
   message: string
   stripe_object_id: string | null
   created_at: string
+  family_name?: string | null
+  payer_name?: string | null
+  payer_email?: string | null
+  attempted_amount?: number | null
+  failure_reason?: string | null
+  attempt_count?: string | null
+  next_payment_attempt?: string | null
 }
 
 interface StripeOperations {
@@ -193,6 +200,15 @@ interface StripeOperations {
     last_error: string | null
     received_at: string
     updated_at: string
+    stripe_object_id?: string | null
+    alert_message?: string | null
+    family_name?: string | null
+    payer_name?: string | null
+    payer_email?: string | null
+    attempted_amount?: number | null
+    failure_reason?: string | null
+    attempt_count?: string | null
+    next_payment_attempt?: string | null
   }>
 }
 
@@ -616,7 +632,10 @@ export default function AdminFamilyBilling() {
                   <div key={alert.id} className="flex flex-col gap-2 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className={alert.severity === 'critical' ? 'font-semibold text-red-700' : 'font-semibold text-amber-700'}>{alert.message}</div>
-                      <div className="text-xs text-gray-500">{alert.alert_type.replaceAll('_', ' ')} · {new Date(alert.created_at).toLocaleString()}{alert.stripe_object_id ? ` · ${alert.stripe_object_id}` : ''}</div>
+                      <div className="text-xs text-gray-700">{alert.payer_name || alert.family_name || 'Customer not identified'}{alert.payer_email ? ` · ${alert.payer_email}` : ''}{alert.attempted_amount != null ? ` · Attempted ${money(Number(alert.attempted_amount))}` : ''}</div>
+                      <div className="text-xs text-gray-500">{alert.alert_type.replaceAll('_', ' ')} · {new Date(alert.created_at).toLocaleString()}{alert.stripe_object_id ? ` · ${alert.stripe_object_id}` : ''}{alert.attempt_count ? ` · ${alert.attempt_count} attempts` : ''}</div>
+                      {alert.failure_reason && <div className="text-xs text-red-700">Reason: {alert.failure_reason}</div>}
+                      {!alert.payer_name && !alert.family_name && alert.attempted_amount == null && <div className="text-xs text-gray-500">Historical webhook delivery failure: no customer or payment amount was attached to this event.</div>}
                     </div>
                     <button type="button" onClick={() => void resolveAlert(alert.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-xs disabled:opacity-50">Mark resolved</button>
                   </div>
@@ -660,8 +679,12 @@ export default function AdminFamilyBilling() {
                           {incident.status} · {incident.attempts} attempt{incident.attempts === 1 ? '' : 's'}
                         </span>
                       </div>
-                      <div className="mt-1 break-all text-gray-500">{incident.event_id} · {new Date(incident.updated_at).toLocaleString()}</div>
-                      {incident.last_error && <div className="mt-1 break-words text-red-700">{incident.last_error}</div>}
+                      <div className="mt-1 break-all text-gray-500">{incident.event_id} · {new Date(incident.updated_at).toLocaleString()}{incident.stripe_object_id ? ` · ${incident.stripe_object_id}` : ''}</div>
+                      <div className="mt-1 text-gray-700">{incident.payer_name || incident.family_name || 'Customer not identified'}{incident.payer_email ? ` · ${incident.payer_email}` : ''}{incident.attempted_amount != null ? ` · Attempted ${money(Number(incident.attempted_amount))}` : ''}</div>
+                      {incident.alert_message && <div className="mt-1 break-words text-red-700">{incident.alert_message}</div>}
+                      {incident.last_error && <div className="mt-1 break-words text-red-700">Technical error: {incident.last_error}</div>}
+                      {incident.failure_reason && <div className="mt-1 text-gray-600">Reason: {incident.failure_reason}</div>}
+                      {!incident.payer_name && !incident.family_name && incident.attempted_amount == null && <div className="mt-1 text-gray-500">No customer or payment amount was attached to this webhook event.</div>}
                     </div>
                   ))}
                   {(operations.webhookIncidents ?? []).length === 0 && (
