@@ -2746,6 +2746,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         }
       } else if (event.type === 'invoice.paid') {
         const invoice = event.data?.object ?? {}
+        const stripe = await getStripeClient()
         const payment = await recordPaidStripeInvoice(pool, invoice, { stripe })
         if (payment) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [payment.family_billing_account_id])
