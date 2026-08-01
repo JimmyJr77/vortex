@@ -5,6 +5,32 @@ import { OPPORTUNITY_CATEGORIES, seedOpportunities } from './opportunityData.js'
 const VALID_STATUS = new Set(['new', 'researching', 'contacted', 'negotiating', 'won', 'passed'])
 const VALID_PRIORITY = new Set(['high', 'medium', 'low'])
 const clean = (value, max = 2000) => String(value ?? '').trim().slice(0, max)
+const LEGACY_ROCHESTER_SEED_URLS = [
+  'https://www.fdhbcuclassic.com/become-a-vendor',
+  'https://www.swpc.org/events/south-wedge-festival',
+  'https://www.cityofrochester.gov/events/great-new-york-state-flea-public-market-2026',
+  'https://www.queerartsfest.com/',
+  'https://www.sunshinecamp.org/events/',
+  'https://www.paullouisarena.com/',
+  'https://www.filmrochester.org/guide/esl-sports-centre/',
+  'https://www.cityofrochester.gov/departments/department-recreation-and-human-services-drhs/r-central',
+]
+
+async function insertSeedOpportunities(pool) {
+  for (const item of seedOpportunities) {
+    await pool.query(`
+      INSERT INTO admin_opportunities (
+        name, category, kind, status, priority, location, event_date, deadline,
+        contact_name, contact_email, contact_phone, website_url, source_url,
+        audience, support_offer, edge_strategy, notes
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+    `, [
+      item.name, item.category, item.kind, item.status, item.priority, item.location,
+      item.eventDate, item.deadline, item.contactName, item.contactEmail, item.contactPhone,
+      item.websiteUrl, item.sourceUrl, item.audience, item.supportOffer, item.edgeStrategy, item.notes,
+    ])
+  }
+}
 
 export async function initOpportunityTables(pool) {
   await pool.query(`
@@ -34,21 +60,21 @@ export async function initOpportunityTables(pool) {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
+  await pool.query(`ALTER TABLE admin_opportunities ADD COLUMN IF NOT EXISTS opportunity_value INTEGER NOT NULL DEFAULT 0`)
+  await pool.query(`ALTER TABLE admin_opportunities ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN NOT NULL DEFAULT FALSE`)
   const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM admin_opportunities')
-  if (rows[0].count > 0) return
-  for (const item of seedOpportunities) {
-    await pool.query(`
-      INSERT INTO admin_opportunities (
-        name, category, kind, status, priority, location, event_date, deadline,
-        contact_name, contact_email, contact_phone, website_url, source_url,
-        audience, support_offer, edge_strategy, notes
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-    `, [
-      item.name, item.category, item.kind, item.status, item.priority, item.location,
-      item.eventDate, item.deadline, item.contactName, item.contactEmail, item.contactPhone,
-      item.websiteUrl, item.sourceUrl, item.audience, item.supportOffer, item.edgeStrategy, item.notes,
-    ])
+  if (rows[0].count === 0) {
+    await insertSeedOpportunities(pool)
+    return
   }
+
+  // The original starter catalog was mistakenly seeded for Rochester. Replace only
+  // those known seed records; preserve any other records an admin may have created.
+  const legacy = await pool.query(
+    'DELETE FROM admin_opportunities WHERE source_url = ANY($1::text[]) RETURNING id',
+    [LEGACY_ROCHESTER_SEED_URLS],
+  )
+  if (legacy.rowCount > 0) await insertSeedOpportunities(pool)
 }
 
 function payload(body = {}) {
@@ -70,6 +96,7 @@ function payload(body = {}) {
     supportOffer: clean(body.supportOffer),
     edgeStrategy: clean(body.edgeStrategy),
     notes: clean(body.notes, 4000),
+    opportunityValue: Math.max(0, Math.min(100, Number(body.opportunityValue) || 0)),
   }
 }
 
@@ -94,6 +121,8 @@ const mapRow = (row) => ({
   notes: row.notes || '',
   lastVerifiedAt: row.last_verified_at,
   updatedAt: row.updated_at,
+  opportunityValue: Number(row.opportunity_value ?? 0),
+  isFavorite: Boolean(row.is_favorite),
 })
 
 export function registerOpportunityRoutes(app, pool) {
@@ -109,9 +138,7 @@ export function registerOpportunityRoutes(app, pool) {
     try {
       const { rows } = await pool.query(`
         SELECT * FROM admin_opportunities
-        ORDER BY
-          CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
-          event_date NULLS LAST, updated_at DESC
+        ORDER BY is_favorite DESC, opportunity_value DESC, event_date NULLS LAST, updated_at DESC
       `)
       res.json({ success: true, data: { opportunities: rows.map(mapRow), categories: OPPORTUNITY_CATEGORIES, aiEnabled: isLlmConfigured() } })
     } catch (error) {
@@ -124,12 +151,18 @@ export function registerOpportunityRoutes(app, pool) {
     const item = payload(req.body)
     if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
     try {
+      const duplicate = await pool.query(
+        `SELECT id FROM admin_opportunities WHERE LOWER(name)=LOWER($1)
+         AND COALESCE(LOWER(location),'')=COALESCE(LOWER($2),'') LIMIT 1`,
+        [item.name, item.location],
+      )
+      if (duplicate.rows[0]) return res.status(409).json({ success: false, message: 'A matching opportunity already exists.' })
       const { rows } = await pool.query(`
         INSERT INTO admin_opportunities (
           name, category, kind, status, priority, location, event_date, deadline,
           contact_name, contact_email, contact_phone, website_url, source_url,
-          audience, support_offer, edge_strategy, notes, created_by, updated_by
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$18)
+          audience, support_offer, edge_strategy, notes, opportunity_value, created_by, updated_by
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$19)
         RETURNING *
       `, [...Object.values(item), req.adminId])
       res.status(201).json({ success: true, data: mapRow(rows[0]) })
@@ -143,21 +176,41 @@ export function registerOpportunityRoutes(app, pool) {
     const item = payload(req.body)
     if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
     try {
+      const duplicate = await pool.query(
+        `SELECT id FROM admin_opportunities WHERE id <> $3 AND LOWER(name)=LOWER($1)
+         AND COALESCE(LOWER(location),'')=COALESCE(LOWER($2),'') LIMIT 1`,
+        [item.name, item.location, req.params.id],
+      )
+      if (duplicate.rows[0]) return res.status(409).json({ success: false, message: 'A matching opportunity already exists.' })
       const { rows } = await pool.query(`
         UPDATE admin_opportunities SET
           name=$1, category=$2, kind=$3, status=$4, priority=$5, location=$6,
           event_date=$7, deadline=$8, contact_name=$9, contact_email=$10,
           contact_phone=$11, website_url=$12, source_url=$13, audience=$14,
-          support_offer=$15, edge_strategy=$16, notes=$17, updated_by=$18,
-          last_verified_at=CASE WHEN $19::boolean THEN NOW() ELSE last_verified_at END,
+          support_offer=$15, edge_strategy=$16, notes=$17, opportunity_value=$18, updated_by=$19,
+          last_verified_at=CASE WHEN $20::boolean THEN NOW() ELSE last_verified_at END,
           updated_at=NOW()
-        WHERE id=$20 RETURNING *
+        WHERE id=$21 RETURNING *
       `, [...Object.values(item), req.adminId, Boolean(req.body.markVerified), req.params.id])
       if (!rows[0]) return res.status(404).json({ success: false, message: 'Opportunity not found' })
       res.json({ success: true, data: mapRow(rows[0]) })
     } catch (error) {
       console.error('[opportunities] update failed:', error)
       res.status(500).json({ success: false, message: 'Unable to update opportunity' })
+    }
+  })
+
+  app.patch('/api/admin/opportunities/:id/favorite', async (req, res) => {
+    try {
+      const { rows } = await pool.query(
+        'UPDATE admin_opportunities SET is_favorite=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
+        [Boolean(req.body?.isFavorite), req.params.id],
+      )
+      if (!rows[0]) return res.status(404).json({ success: false, message: 'Opportunity not found' })
+      res.json({ success: true, data: mapRow(rows[0]) })
+    } catch (error) {
+      console.error('[opportunities] favorite failed:', error)
+      res.status(500).json({ success: false, message: 'Unable to update favorite' })
     }
   })
 
