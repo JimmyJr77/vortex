@@ -960,12 +960,32 @@ On 2026-07-26:
   difficulty-invariant tests pass 100/100, and the complete platform suite
   passes 649/649. A fresh-clone database rerun remains required for the final
   guard text before migration 398 is promoted.
+- Migration 401 completes the research and migration implementation for
+  Landmine Push Press, One-Arm Landmine Split Jerk, and Landmine
+  Squat-to-Press. It preserves migration 388's two-hand push-press
+  consolidation and models hand count and fixed stance as exact variants while
+  retaining the split receive and full-squat action as separate identities.
+- The batch adds seven difficulty-only review variants, 14 delivery profiles,
+  48 evidence rows, 11 pending non-embeddable YouTube candidates, 18 alternate
+  assessments, eight review-only relationships, 21 review-only calibrations,
+  and three quarantined packets. It creates no media, graph, calibration,
+  card-review, variant, profile, or publication approval and stores no exercise
+  skill/proficiency classification.
+- Migration 401's research-packet and static fail-closed invariants pass
+  locally: 102 focused tests, focused ESLint, the 651-test platform suite,
+  management and launch smoke checks, CI syntax checks, and the production
+  build are green. The full backend suite has one unrelated billing assertion
+  mismatch in firstMonthProration.test.js (a four-digit-year expectation versus
+  the current full-date idempotency key), and repository-wide ESLint retains 45
+  errors outside these files. Disposable PostgreSQL application and rerun,
+  normal-runner checksum verification, generated packet export, and the updated
+  full-library audit remain pending.
 
 ## Operational release gates
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 398 in a
+1. Apply the complete migration sequence through migration 401 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

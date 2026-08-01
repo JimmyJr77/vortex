@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-27.56",
+  "registryVersion": "2026-07-31.58",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -1288,6 +1288,69 @@
       "publisher": "Journal of Sports Science & Medicine",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 88
+    },
+    "push_press_jerk_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34704894/",
+      "title": "No differences in weightlifting overhead pressing exercises kinetics",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "nsca_push_jerk_technique": {
+      "url": "https://www.nsca.com/education/articles/kinetic-select/push-jerk/",
+      "title": "Push Jerk",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "ace_squat_to_overhead_press": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/357/squat-to-overhead-press/",
+      "title": "Squat to Overhead Press",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "breaking_muscle_landmine_push_press": {
+      "url": "https://breakingmuscle.com/overhead-press-variations/",
+      "title": "8 Overhead Press Variations for Stronger Shoulders",
+      "publisher": "Breaking Muscle",
+      "kind": "expert_instruction",
+      "evidenceQuality": 66
+    },
+    "landmine_squat_muscle_activity_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34341315/",
+      "title": "Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "acsm_landmine_squat_exercise": {
+      "url": "https://doi.org/10.1249/FIT.0000000000000982",
+      "title": "The Landmine Squat Exercise",
+      "publisher": "ACSM's Health & Fitness Journal",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "lower_limb_joint_kinetics_reverse_lunge": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26418958/",
+      "title": "Joint Kinetics and Kinematics During Common Lower Limb Rehabilitation Exercises",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "army_landmine_rear_lunge_press": {
+      "url": "https://www.benning.army.mil/tenant/wtc/content/PDF/ARN45013-ATP_7-22.02-001-WEB-4.pdf",
+      "title": "Holistic Health and Fitness Drills and Exercises: Landmine Drill 2 Rear Lunge to Press",
+      "publisher": "United States Army",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "breaking_muscle_landmine_lower_body": {
+      "url": "https://breakingmuscle.com/best-landmine-workouts/",
+      "title": "The Best Landmine Workouts for More Muscle and Better Conditioning",
+      "publisher": "Breaking Muscle",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
     }
   }
 }

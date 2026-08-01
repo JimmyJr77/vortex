@@ -14,7 +14,8 @@ const TABS: Array<{ id: MemberAccountTab; label: string }> = [
   { id: 'security', label: 'Account Security' },
   { id: 'enrollments', label: 'Enrollments' },
   { id: 'notes', label: 'Conversations & Comments' },
-  { id: 'billing', label: 'Billing & Accounts' },
+  { id: 'current-bill', label: 'Current Bill' },
+  { id: 'billing-history', label: 'Billing History' },
   { id: 'missed-classes', label: 'Missed Classes' },
 ]
 
@@ -25,10 +26,12 @@ interface Props {
   initialTab?: MemberAccountTab
 }
 
+const EMPTY_ROLES: MemberRole[] = []
+
 export default function MemberAccountPanel({
   memberId,
   memberName,
-  listRoles = [],
+  listRoles = EMPTY_ROLES,
   initialTab = 'details',
 }: Props) {
   const [activeTab, setActiveTab] = useState<MemberAccountTab>(initialTab)
@@ -68,7 +71,7 @@ export default function MemberAccountPanel({
     } finally {
       setLoading(false)
     }
-  }, [memberId])
+  }, [listRoles, memberId])
 
   useEffect(() => {
     void load()
@@ -121,8 +124,11 @@ export default function MemberAccountPanel({
             />
           )}
           {activeTab === 'notes' && <MemberStaffNotesTab memberId={memberId} />}
-          {activeTab === 'billing' && (
-            <MemberBillingTab memberId={memberId} familyId={member.familyId} />
+          {activeTab === 'current-bill' && (
+            <MemberBillingTab familyId={member.familyId} view="current" />
+          )}
+          {activeTab === 'billing-history' && (
+            <MemberBillingTab familyId={member.familyId} view="history" />
           )}
           {activeTab === 'missed-classes' && <MemberMissedClassesTab memberId={memberId} />}
         </>

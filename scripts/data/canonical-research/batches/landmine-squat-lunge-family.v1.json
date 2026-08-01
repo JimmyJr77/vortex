@@ -1,0 +1,460 @@
+{
+  "batchKey": "landmine-squat-lunge-family-v1",
+  "researchVersion": "2026-07-31.58",
+  "snapshotAt": "2026-07-31T22:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "acsm_landmine_squat_exercise",
+      "claims": [
+        "A landmine squat uses a barbell constrained around a fixed pivot; rack position, stance, support, foot movement, lower-body action, press action, path, and repetition boundary remain identity-critical.",
+        "{{canonicalName}} must declare whether the athlete faces toward or away from the pivot, where the sleeve is supported, whether the feet remain fixed, and whether a press is part of the repetition."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Squat, stationary split squat, and stepping lunge tasks differ in base of support, laterality, joint contribution, and repetition boundary.",
+        "Stance width and length, rack, hand count, arm-leg relationship, foot elevation, step direction, depth, tempo, range, load, and press timing are controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "landmine_squat_muscle_activity_kinetics",
+      "claims": [
+        "Landmine squat loading involves the quadriceps, hamstrings and hip extensors with forces influenced by the anchored loading direction.",
+        "Record foot, ankle, knee, hip, pelvis, spine, trunk and grip contributions; add shoulder, scapular and elbow contributions only when the exact variant supports or presses the sleeve."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "landmine_squat_muscle_activity_kinetics",
+      "claims": [
+        "Landmine and goblet squat conditions produce different muscle activity and ground-reaction-force components, so implement geometry and body position cannot be treated as interchangeable.",
+        "Observable gates include a secure pivot, repeatable stance and distance, owned depth, foot-knee-pelvis control, declared rack, controlled ascent and a planned return or set-down."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "lower_limb_joint_kinetics_reverse_lunge",
+      "claims": [
+        "Lower-limb joint angles, moments and ground-reaction forces differ across squat and lunge tasks, supporting exact-variant assessment.",
+        "Score exercise complexity and physical difficulty independently for each exact variant; derive overall difficulty as their maximum. Exercise cards contain no athlete skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance-training stress depends on load, volume, effort, exercise selection, frequency and progression.",
+        "{{canonicalName}} can contribute quadriceps, gluteal, adductor, hamstring, calf, trunk and grip fatigue; press variants also add shoulder, upper-chest, triceps and scapular fatigue."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "Landmine work requires a stable rated anchor, compatible barbell and loading hardware, and clear space for the complete bar and plate arc.",
+        "Declare floor traction, collars, plates, sleeve support, stance or step lane, pickup, return, set-down, coach position and the moving-bar exclusion zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "resistance_prescription_network_meta_analysis",
+      "claims": [
+        "Training outcomes depend on sets, repetitions, load, effort, frequency and recovery rather than the exercise name alone.",
+        "Use dose and rest that preserve the exact stance or step, depth, rack, path, side balance, action order and controlled return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "acsm_landmine_squat_exercise",
+      "claims": [
+        "Instruction must separate equipment setup, rack transfer, stance or step, descent, bottom position, ascent, optional press, return and set-down.",
+        "The athlete and coach must know which foot or side leads, what depth counts, where pressure is maintained, when the press begins, and how a failed repetition is ended."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, suitable equipment and gradual progression are core safeguards for resistance exercise.",
+        "Stop for pain, neurologic symptoms, dizziness, anchor or collar movement, plate shift, lost foot pressure, uncontrolled knee or pelvic motion, balance loss, trunk collapse, grinding, collision risk or loss of the planned return."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Exercise selection and resistance-training dose should be individualized to the intended adaptation, current capacity and recovery context.",
+        "Place heavy or high-coordination landmine squat and lunge work before material lower-body, pressing, grip or conditioning fatigue when strength, force or action quality is the priority."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "acsm_landmine_squat_exercise",
+      "claims": [
+        "The athlete needs the exact rack, stance, distance from pivot, hand count, side or step sequence, depth, load, repetitions, rest and stop signal.",
+        "Reduce load, range, velocity or support demand rather than silently changing from a stationary split squat to a stepping lunge or from a squat to a press combination."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landmine_squat_muscle_activity_kinetics",
+      "claims": [
+        "The anchored resistance gives coaches observable setup, loading-direction, stance, path, range and finish checkpoints.",
+        "Coach support should expose anchor, collars, plate clearance, rack, stance, distance, side, step, depth, alignment, press timing, symptoms, dose, fatigue and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise can be individualized through load, volume, range, effort, equipment and progression while preserving the intended task.",
+        "Options include a lighter or unloaded bar, reduced owned depth, fewer repetitions, longer rest, floor markers, a stable external support, written or audio cues, still images and live instruction; substitutions require reviewed identities."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "lower_limb_joint_kinetics_reverse_lunge",
+      "claims": [
+        "Stationary split squats and stepping lunges have different start, support and repetition boundaries; a press adds an upper-body action and force-transfer demand.",
+        "Rack, hand count, attachment and arm-leg relationship can be exact variants inside a fixed action sequence; foot elevation, stepping, added press, rotation, jump or clean can change identity."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube documents privacy-enhanced embedding, but a discovered watch URL does not prove current embed permission or exact exercise match.",
+        "The listed public-search candidates are unverified. Playback, oEmbed, embedding, exact-variant, cue, safety, caption, accessibility, quality, reviewer and approval checks remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "landmine-front-squat",
+      "assessmentSummary": {
+        "identity": "A bilateral squat performed facing a rated landmine pivot while supporting the sleeve at a declared central chest rack, descending to an owned depth and standing through the fixed diagonal arc before returning to the same rack.",
+        "currentCardFindings": [
+          "The existing card uses generic landmine language and does not lock the central rack, pivot distance, stance, depth, path or safe transfer and set-down.",
+          "Migration 391 preserves Landmine Front Squat as distinct from free-weight Front Squat because the fixed pivot changes implement geometry, force direction, path, grip and failure response.",
+          "Migration 389 preserves the front-supported squat as distinct from Landmine Hack Squat, whose sleeve is supported behind or beside the shoulder while facing away from the pivot."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "face_toward_pivot", "central_chest_rack", "bilateral_fixed_stance", "owned_squat_depth", "fixed_diagonal_arc", "controlled_return"],
+          "jointActions": ["ankle_dorsiflexion_then_plantarflexion", "knee_flexion_then_extension", "hip_flexion_then_extension", "pelvis_and_spine_stabilization", "isometric_elbow_wrist_and_grip_support"],
+          "planes": ["sagittal_squat_with_oblique_external_force", "frontal_and_transverse_stabilization"],
+          "laterality": "bilateral_lower_body_with_central_or_offset_front_rack",
+          "intent": "controlled_front_supported_landmine_squat"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["quadriceps", "gluteus_maximus", "adductor_magnus"],
+          "secondaryMusclesAndTissues": ["hamstrings", "calf_complex", "abdominal_wall_and_obliques", "spinal_stabilizers", "upper_back", "forearm_and_hand_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "spine", "shoulder", "elbow", "wrist", "hand"],
+          "primaryActions": ["establish_central_front_rack_and_distance", "brace_and_descend", "maintain_foot_and_knee_tracking", "stand_through_fixed_arc", "return_to_rack_and_set_down"]
+        },
+        "proposedDifficulty": {"technicalComplexity": 50, "absoluteLoadDemand": 58, "coordinationDemand": 50, "supervisionDemand": 48, "failureConsequence": 52, "impact": 0, "workCapacityDemand": 58, "baseOverallDifficulty": 58},
+        "variantDifficultyCandidates": [
+          {"variantKey": "bilateral-central-chest-sleeve-front-squat", "exerciseComplexity": 48, "physicalDifficulty": 58, "derivedOverallDifficulty": 58, "basis": "central two-hand support reduces asymmetry while retaining fixed-pivot distance and rack-control demands"},
+          {"variantKey": "unilateral-shoulder-rack-front-squat", "exerciseComplexity": 56, "physicalDifficulty": 56, "derivedOverallDifficulty": 56, "basis": "one-shoulder support adds anti-rotation, side balance and side-dose requirements while the feet remain bilateral"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_planned_impact",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["loaded_knee_and_hip_extension", "anterior_trunk_bracing", "rack_and_grip_support"],
+          "cumulativeBudgets": ["bilateral_squat_repetitions", "knee_and_hip_loading", "trunk_bracing", "rack_and_grip_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["quadriceps", "gluteals", "adductors", "trunk", "upper_back", "grip"],
+          "earlyFatigueSignals": ["depth_or_distance_drift", "heel_or_foot_pressure_loss", "knee_tracking_loss", "pelvic_shift", "rack_separation", "trunk_collapse", "uncontrolled_return"],
+          "downstreamConflicts": ["heavy_squatting_or_lunging", "jumping_or_sprinting", "trunk_bracing_work", "grip_intensive_work"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_strength": 48, "heavy_or_high_volume": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed"],
+          "environment": ["level_high_traction_floor", "clear_squat_and_bar_arc", "clear_pickup_return_and_set_down_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_owned_squat", "can_hold_declared_front_rack", "can_preserve_foot_knee_pelvis_and_trunk_control", "can_control_return_and_set_down"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "capacity-front-squat-strength", "phaseKey": "capacity", "purpose": "Build bilateral squat strength and load tolerance through a repeatable anchored front-supported path.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [4, 10], "rpe": [5, 8], "restSeconds": [120, 300], "tempo": "controlled_descent_owned_turnaround"}},
+          {"profileKey": "control-front-squat-pattern", "phaseKey": "control_resilience", "purpose": "Rehearse stance, pivot distance, rack, depth and alignment under low fatigue.", "dosage": {"sets": [2, 4], "repsPerSideOrTotal": [4, 8], "rpe": [3, 6], "restSeconds": [75, 180], "tempo": "slow_controlled_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, load, central rack, stance, pivot distance, target depth and set-down plan.", "Require whole-foot pressure, tracked knees, owned depth and a repeatable path relative to the pivot.", "End the set when depth, stance, rack, alignment or return changes."],
+          "athlete": ["Hold the sleeve at the center of your chest, set your distance and brace.", "Squat between your feet while keeping the rack connected and knees tracking with the toes.", "Drive the floor away, finish tall and return the sleeve under control."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_central_rack_stance_and_distance", "owned_depth", "whole_foot_pressure_and_knee_tracking", "stable_trunk_and_rack", "controlled_return_and_set_down"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "foot_pressure_or_knee_tracking_loss", "pelvic_shift_or_trunk_collapse", "rack_or_grip_loss", "grinding_or_uncontrolled_return"]
+        }
+      },
+      "alternateAssessments": [
+        {"name": "Bilateral Central-Rack Landmine Front Squat", "classification": "new_variant", "rationale": "Two-hand central support is the base exact landmine front-squat variant.", "distinguishingDimensions": {"variantKey": "bilateral-central-chest-sleeve-front-squat", "handCount": 2, "rack": "central_chest"}},
+        {"name": "Unilateral Shoulder-Rack Landmine Front Squat", "classification": "new_variant", "rationale": "A one-shoulder rack adds anti-rotation and side-dose demands without changing the bilateral squat action.", "distinguishingDimensions": {"variantKey": "unilateral-shoulder-rack-front-squat", "handCount": 1, "rack": "declared_shoulder"}},
+        {"name": "Landmine Hack Squat", "classification": "new_definition", "rationale": "Facing away with the sleeve beside or behind a shoulder changes load position, body orientation, path and failure response.", "distinguishingDimensions": {"existingSlug": "landmine-hack-squat", "orientation": "away_from_pivot"}},
+        {"name": "Landmine Squat-to-Press", "classification": "new_definition", "rationale": "Adding a press after the squat changes the ordered action, upper-body load and repetition boundary.", "distinguishingDimensions": {"existingSlug": "landmine-squat-to-press", "addedAction": "press"}},
+        {"name": "Free-Weight Front Squat", "classification": "new_definition", "rationale": "A free barbell or other anterior implement lacks the fixed pivot and diagonal landmine force path.", "distinguishingDimensions": {"existingSlug": "front-squat", "anchor": "none"}},
+        {"name": "Depth, Heel Elevation, Pause or Tempo", "classification": "modifier_annotation", "rationale": "These change range and dose while the front-supported fixed-pivot squat identity remains intact.", "distinguishingDimensions": {"modifiers": ["depth", "heel_elevation", "bottom_pause", "eccentric_tempo", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=docorX86lEg", "title": "How To Do The Landmine Front Squat (The Right Way)", "channelName": "Fitness 4 Back Pain", "sourceQuery": "landmine front squat tutorial", "notes": "Public search result candidate. Playback, oEmbed, exact rack, stance, depth, embedding, captions, quality, reviewer and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=rxwiKvk4H2s", "title": "Landmine Goblet Squat Beginner Friendly Strength", "channelName": "Chris Liddle: Fitness, Growth, and Skills", "sourceQuery": "landmine goblet squat", "notes": "Public search result candidate. Naming equivalence, exact setup and every media gate remain pending."},
+        {"url": "https://www.youtube.com/watch?v=oTRl7p13XtY", "title": "Landmine Goblet Squat - OPEX Exercise Library", "channelName": "OPEX Fitness", "sourceQuery": "landmine goblet squat exercise", "notes": "Public search result candidate. Naming equivalence, exact setup and every media gate remain pending."},
+        {"url": "https://www.youtube.com/watch?v=hLVh6VDjpDg", "title": "Landmine Squat", "channelName": "Breaking Muscle", "sourceQuery": "landmine squat exercise", "notes": "Public article embed candidate. Exact rack, stance, range and all media gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=NfoJhEvRcFA", "title": "Landmine goblet squat", "channelName": null, "sourceQuery": "landmine front squat", "notes": "Public article-linked candidate. Channel, playback, exact match and all approval gates remain pending."}
+      ]
+    },
+    {
+      "slug": "landmine-hack-squat",
+      "assessmentSummary": {
+        "identity": "A bilateral squat performed facing away from a rated landmine pivot with the sleeve supported beside the upper trapezius or shoulder, feet positioned forward to follow the fixed arc, descending to an owned depth and driving up and back before a controlled rerack.",
+        "currentCardFindings": [
+          "The existing card does not declare away-from-pivot orientation, sleeve side, shoulder contact, foot position, rack transfer, depth or safe exit.",
+          "Migration 389 preserves this identity from Landmine Front Squat because load position, body orientation, path, stance, center of mass and failure response differ.",
+          "The shoulder side must alternate across matched sets or be explicitly dose-balanced; a machine hack squat does not share the free sleeve and landmine-pivot setup."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "face_away_from_pivot", "sleeve_on_declared_upper_trapezius", "feet_forward_of_body", "bilateral_fixed_stance", "owned_depth", "up_and_back_ascent", "controlled_rerack"],
+          "jointActions": ["ankle_dorsiflexion_then_plantarflexion", "knee_flexion_then_extension", "hip_flexion_then_extension", "pelvis_and_spine_stabilization", "isometric_shoulder_and_hand_support"],
+          "planes": ["sagittal_squat_with_oblique_external_force", "frontal_and_transverse_stabilization"],
+          "laterality": "bilateral_lower_body_with_declared_unilateral_shoulder_contact",
+          "intent": "controlled_shoulder_supported_angled_hack_squat"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["quadriceps", "gluteus_maximus", "adductor_magnus"],
+          "secondaryMusclesAndTissues": ["hamstrings", "calf_complex", "abdominal_wall_and_obliques", "spinal_stabilizers", "upper_trapezius_and_shoulder_contact_tissues", "forearm_and_hand_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "spine", "shoulder", "elbow", "wrist", "hand"],
+          "primaryActions": ["transfer_sleeve_to_declared_shoulder", "establish_forward_foot_position", "brace_and_descend", "maintain_foot_and_knee_tracking", "drive_up_and_back", "rerack_and_set_down"]
+        },
+        "proposedDifficulty": {"technicalComplexity": 54, "absoluteLoadDemand": 64, "coordinationDemand": 54, "supervisionDemand": 60, "failureConsequence": 62, "impact": 0, "workCapacityDemand": 64, "baseOverallDifficulty": 64},
+        "variantDifficultyCandidates": [
+          {"variantKey": "shoulder-supported-away-facing-hack-squat", "exerciseComplexity": 54, "physicalDifficulty": 64, "derivedOverallDifficulty": 64, "basis": "away-facing shoulder support and a fixed angled path permit substantial lower-body loading but require exact transfer and exit control"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_planned_impact",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["loaded_knee_and_hip_extension", "shoulder_contact_and_trunk_bracing", "rack_transfer_and_grip"],
+          "cumulativeBudgets": ["bilateral_squat_repetitions", "knee_and_hip_loading", "shoulder_contact", "trunk_bracing", "grip_and_transfer_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["quadriceps", "gluteals", "adductors", "calves", "trunk", "loaded_side_upper_trapezius_and_shoulder", "grip"],
+          "earlyFatigueSignals": ["foot_position_or_depth_drift", "heel_or_knee_tracking_loss", "pelvic_shift", "sleeve_roll_or_contact_loss", "trunk_collapse", "slow_grinding_ascent", "unsafe_rerack"],
+          "downstreamConflicts": ["heavy_squatting_or_lunging", "jumping_or_sprinting", "shoulder_contact_or_carry_work", "trunk_and_grip_work"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_strength": 48, "heavy_or_high_volume": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed", "declared_contact_padding_if_used"],
+          "environment": ["level_high_traction_floor", "clear_away_facing_squat_arc", "safe_sleeve_transfer_and_rerack_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_owned_squat", "tolerates_declared_shoulder_contact", "can_control_sleeve_transfer", "can_preserve_foot_knee_pelvis_and_trunk_control", "has_safe_rerack_plan"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "capacity-hack-squat-strength", "phaseKey": "capacity", "purpose": "Build lower-body strength through the exact away-facing shoulder-supported landmine path.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [5, 12], "rpe": [5, 8], "restSeconds": [150, 360], "tempo": "controlled_descent_owned_ascent"}},
+          {"profileKey": "control-hack-squat-setup", "phaseKey": "control_resilience", "purpose": "Rehearse sleeve transfer, foot position, shoulder contact, depth and rerack at low fatigue.", "dosage": {"sets": [2, 4], "repsPerSideOrTotal": [3, 6], "rpe": [3, 6], "restSeconds": [90, 210], "tempo": "slow_controlled_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, load, shoulder side, contact surface, foot position, depth, assistance and rerack plan.", "Require stable shoulder contact, whole-foot pressure, tracked knees and a repeatable up-and-back path.", "End the set before contact, balance, depth, alignment, speed or rerack degrades."],
+          "athlete": ["Face away, place the sleeve on the called shoulder and walk your feet into the marked position.", "Stay connected to the sleeve, squat to the owned depth and drive up and back along the bar path.", "Finish balanced and follow the called rerack before leaving the lane."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_shoulder_contact_and_foot_position", "owned_depth", "whole_foot_pressure_and_knee_tracking", "stable_sleeve_and_trunk", "controlled_rerack_and_set_down"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "sleeve_roll_or_shoulder_contact_loss", "foot_pressure_or_knee_tracking_loss", "pelvic_shift_or_trunk_collapse", "balance_loss_grinding_or_unsafe_rerack"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "breaking_muscle_landmine_lower_body",
+          "claims": [
+            "The expert demonstration describes facing away, supporting the sleeve beside the upper trapezius, placing the feet forward, descending with flat feet and driving up and back.",
+            "This source is instructional candidate evidence only; exact load, range, side-balance, accessibility and approval require human review."
+          ]
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Shoulder-Supported Landmine Hack Squat", "classification": "new_variant", "rationale": "This is the base exact away-facing landmine hack-squat contract.", "distinguishingDimensions": {"variantKey": "shoulder-supported-away-facing-hack-squat", "orientation": "away_from_pivot"}},
+        {"name": "Padded Sleeve or Viking-Handle Support", "classification": "modifier_annotation", "rationale": "Padding or a compatible attachment changes contact and grip without changing the squat action when the same path is preserved.", "distinguishingDimensions": {"modifiers": ["contact_padding", "compatible_handle_attachment"]}},
+        {"name": "Landmine Front Squat", "classification": "new_definition", "rationale": "Facing the pivot with a central chest rack changes orientation, load position and failure response.", "distinguishingDimensions": {"existingSlug": "landmine-front-squat", "orientation": "toward_pivot"}},
+        {"name": "Machine Hack Squat", "classification": "new_definition", "rationale": "A machine carriage, back pad and sled path are a different equipment and support contract.", "distinguishingDimensions": {"equipment": "hack_squat_machine"}},
+        {"name": "Landmine Split Squat", "classification": "new_definition", "rationale": "A stationary asymmetrical stance creates unilateral side dose and balance demands.", "distinguishingDimensions": {"existingSlug": "landmine-split-squat", "stance": "split"}},
+        {"name": "Depth, Heel Elevation or Tempo", "classification": "modifier_annotation", "rationale": "These scale range and dose while preserving the away-facing shoulder-supported identity.", "distinguishingDimensions": {"modifiers": ["depth", "heel_elevation", "eccentric_tempo", "bottom_pause", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=0X3mydcwZGU", "title": "Landmine Hack Squat", "channelName": "The Official Beast Lab presented by Greg Gurenlian", "sourceQuery": "landmine hack squat", "notes": "Public search result candidate. Playback, oEmbed, exact setup, embedding, captions, quality, reviewer and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=KnT02UvXUJE", "title": "HAVE YOU TRIED A LANDMINE HACK SQUAT?", "channelName": "Tom Peto Training", "sourceQuery": "landmine hack squat demo", "notes": "Public search result candidate. Exact shoulder support, foot position and every media gate remain pending."},
+        {"url": "https://www.youtube.com/watch?v=BS9jpHWIwH8", "title": "Landmine Hack Squat", "channelName": "Breaking Muscle", "sourceQuery": "landmine hack squat exercise", "notes": "Public article embed candidate. Playback, exact variant and every approval gate remain pending."}
+      ]
+    },
+    {
+      "slug": "landmine-split-squat",
+      "assessmentSummary": {
+        "identity": "A stationary landmine split squat performed from a declared fore-aft stance that remains fixed for the set, using a declared sleeve or compatible-handle rack, lowering the rear knee under control and returning to the same stance without stepping.",
+        "currentCardFindings": [
+          "Migration 369 consolidates Landmine Handle-Grip Split Squat into this survivor because attachment and wrist position are exact dimensions, but quarantines the source because legacy copy alternates between stationary and stepping actions.",
+          "This packet explicitly re-authors the candidate identity as stationary; the migration-369 human-review resolution and publication quarantine must remain until a reviewer accepts that re-authoring.",
+          "Migration 381 preserves this card from Landmine Front Squat, and migration 385 preserves it from Landmine Hack Squat, based on stance, laterality, balance, setup and dose."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["lunge", "squat", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "stationary_fore_aft_stance", "no_required_step", "declared_rack_and_attachment", "declared_arm_lead_leg_relationship", "rear_knee_descent", "front_leg_emphasis", "return_to_same_stance"],
+          "jointActions": ["front_ankle_dorsiflexion_then_plantarflexion", "bilateral_knee_flexion_then_extension", "front_hip_flexion_then_extension", "pelvis_and_trunk_stabilization", "isometric_shoulder_elbow_wrist_and_grip_support"],
+          "planes": ["sagittal_split_squat", "frontal_and_transverse_stabilization"],
+          "laterality": "unilateral_front_leg_emphasis_with_declared_rack_relationship",
+          "intent": "controlled_stationary_split_squat_strength"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["front_leg_quadriceps", "front_leg_gluteus_maximus", "adductor_magnus"],
+          "secondaryMusclesAndTissues": ["hamstrings", "calf_complex", "rear_leg_hip_flexors_and_stabilizers", "gluteus_medius", "abdominal_wall_and_obliques", "spinal_stabilizers", "forearm_and_hand_flexors"],
+          "joints": ["front_and_rear_foot", "ankle", "knee", "hip", "pelvis", "spine", "shoulder", "elbow", "wrist", "hand"],
+          "primaryActions": ["establish_declared_stationary_split_and_rack", "brace_and_descend_rear_knee", "maintain_front_foot_and_knee_tracking", "stand_without_stepping", "return_and_set_down"]
+        },
+        "proposedDifficulty": {"technicalComplexity": 60, "absoluteLoadDemand": 60, "coordinationDemand": 62, "supervisionDemand": 56, "failureConsequence": 56, "impact": 0, "workCapacityDemand": 60, "baseOverallDifficulty": 60},
+        "variantDifficultyCandidates": [
+          {"variantKey": "ipsilateral-shoulder-rack-stationary-split-squat", "exerciseComplexity": 58, "physicalDifficulty": 58, "derivedOverallDifficulty": 58, "basis": "working-side shoulder and lead leg share a side while the stance remains fixed"},
+          {"variantKey": "contralateral-shoulder-rack-stationary-split-squat", "exerciseComplexity": 62, "physicalDifficulty": 58, "derivedOverallDifficulty": 62, "basis": "cross-body rack and lead-leg pairing add anti-rotation and coaching demand"},
+          {"variantKey": "two-hand-neutral-handle-stationary-split-squat", "exerciseComplexity": 54, "physicalDifficulty": 62, "derivedOverallDifficulty": 62, "basis": "two-hand neutral-handle support reduces rack asymmetry but can support greater external load"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_planned_impact",
+          "externalLoadMethods": ["landmine_barbell_sleeve", "reviewed_compatible_neutral_handle"],
+          "primaryStress": ["front_leg_knee_and_hip_extension", "pelvic_and_trunk_stabilization", "rack_and_grip_support"],
+          "cumulativeBudgets": ["split_squat_repetitions_per_side", "front_leg_knee_and_hip_loading", "pelvic_stability", "trunk_and_grip_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["front_leg_quadriceps_and_gluteals", "adductors", "calves", "hip_stabilizers", "trunk", "rack_and_grip"],
+          "earlyFatigueSignals": ["stance_length_or_width_drift", "front_heel_or_knee_tracking_loss", "pelvic_rotation_or_drop", "rear_knee_path_drift", "rack_separation", "push_off_or_step", "uncontrolled_return"],
+          "downstreamConflicts": ["heavy_squatting_lunging_or_sprinting", "jumping_or_change_of_direction", "single_leg_balance_work", "trunk_and_grip_work"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_strength": 48, "heavy_or_high_volume": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed", "compatible_handle_if_declared", "stance_markers"],
+          "environment": ["level_high_traction_floor", "clear_stationary_split_and_bar_arc", "safe_pickup_return_and_set_down_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_stationary_split_squat", "can_hold_declared_rack", "can_preserve_front_foot_knee_pelvis_and_trunk_control", "can complete_reps_without_stepping", "can_control_return_and_set_down"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "capacity-stationary-split-squat-strength", "phaseKey": "capacity", "purpose": "Build side-specific lower-body strength through a repeatable stationary landmine split stance.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [4, 10], "rpe": [5, 8], "restSeconds": [120, 300], "tempo": "controlled_descent_owned_ascent"}},
+          {"profileKey": "control-stationary-split-squat", "phaseKey": "control_resilience", "purpose": "Rehearse exact stance, rack, side relationship, depth and pelvic control under low fatigue.", "dosage": {"sets": [2, 4], "repsPerSideOrTotal": [3, 8], "rpe": [3, 6], "restSeconds": [90, 210], "tempo": "slow_controlled_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, load, rack or handle, lead leg, arm-leg relationship, stance markers, depth and set-down plan.", "Require fixed feet, whole front-foot pressure, tracked knee, level pelvis and a return to the same stance.", "End the set when stance, balance, alignment, rack or return changes."],
+          "athlete": ["Set the called split stance and rack before the first rep; your feet stay there.", "Lower the rear knee while keeping pressure through the whole front foot and the front knee tracking.", "Stand back to the same split stance without stepping or pushing off, then rerack under control."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_rack_attachment_lead_leg_and_stance", "feet_remain_fixed", "front_foot_pressure_and_knee_tracking", "stable_pelvis_trunk_and_rack", "controlled_return_and_set_down"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_plate_or_handle_movement", "stance_or_balance_loss", "front_heel_or_knee_tracking_loss", "pelvic_rotation_drop_or_trunk_collapse", "push_off_step_or_uncontrolled_return"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "split_squat_step_length_biomechanics",
+          "claims": [
+            "Split-squat stance geometry changes lower-limb mechanics and must be prescribed as an exact dimension.",
+            "This packet re-authors the landmine candidate as stationary but does not approve or erase migration 369's unresolved source-identity review."
+          ]
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Ipsilateral Shoulder-Rack Landmine Split Squat", "classification": "new_variant", "rationale": "Shoulder rack and lead leg share a side within the fixed-stance identity.", "distinguishingDimensions": {"variantKey": "ipsilateral-shoulder-rack-stationary-split-squat", "rackToLeadLeg": "ipsilateral"}},
+        {"name": "Contralateral Shoulder-Rack Landmine Split Squat", "classification": "new_variant", "rationale": "The cross-body rack changes trunk stabilization and side-dose demands.", "distinguishingDimensions": {"variantKey": "contralateral-shoulder-rack-stationary-split-squat", "rackToLeadLeg": "contralateral"}},
+        {"name": "Two-Hand Neutral-Handle Landmine Split Squat", "classification": "new_variant", "rationale": "The consolidated legacy handle changes attachment, wrist and load handling while the stance remains stationary.", "distinguishingDimensions": {"variantKey": "two-hand-neutral-handle-stationary-split-squat", "legacySourceSlug": "landmine-handle-grip-split-squat"}},
+        {"name": "Landmine Reverse Lunge", "classification": "new_definition", "rationale": "A reverse lunge steps away from and returns to a bilateral start each repetition.", "distinguishingDimensions": {"requiredFootMotion": "step_back_and_return"}},
+        {"name": "Rear-Foot-Elevated Landmine Split Squat", "classification": "new_definition", "rationale": "Rear-foot elevation changes support, range, balance, loading and failure response.", "distinguishingDimensions": {"support": "rear_foot_elevated"}},
+        {"name": "Stance, Depth, Pause or Tempo", "classification": "modifier_annotation", "rationale": "These scale mechanics and dose while the fixed-foot split-squat action remains intact.", "distinguishingDimensions": {"modifiers": ["stance_length", "stance_width", "depth", "bottom_pause", "eccentric_tempo", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=Vse04Q-SFz4", "title": "The Landmine Split Squat", "channelName": "Testosterone Nation", "sourceQuery": "landmine split squat", "notes": "Public search result candidate. Playback, oEmbed, exact stationary action, rack relationship, embedding, captions, quality, reviewer and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=c-MKGioqmbQ", "title": "Exercise Demo: Landmine Split Squat", "channelName": "Justin Ochoa", "sourceQuery": "landmine split squat exercise demo", "notes": "Public search result candidate. Exact stance, rack and every media gate remain pending."},
+        {"url": "https://www.youtube.com/watch?v=yx-ta5JphKo", "title": "Landmine Split Squat | Exercise Demo | Coaching Software | QuickCoach", "channelName": "QuickCoach", "sourceQuery": "landmine split squat tutorial", "notes": "Public search result candidate. Exact arm-leg relationship and all approval gates remain pending."}
+      ]
+    },
+    {
+      "slug": "landmine-reverse-lunge-to-press",
+      "assessmentSummary": {
+        "identity": "A unilateral landmine combination beginning from a bilateral stance and declared shoulder rack, stepping the declared leg backward into a controlled reverse lunge, driving through the front leg to return toward standing while pressing through the fixed diagonal arc, then lowering to the same rack.",
+        "currentCardFindings": [
+          "The existing card does not lock the working arm, step-back leg, front leg, press timing, start and finish stance, depth, return or side-dose accounting.",
+          "The canonical candidate defines the press during the drive back toward standing; pressing during the step-back descent is a different ordered-action proposal and is not silently accepted.",
+          "Landmine Split Squat keeps the feet fixed and has no required press; Landmine Squat-to-Press uses a bilateral squat rather than a step-back lunge."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["lunge", "push", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "unilateral_shoulder_rack", "bilateral_start_and_finish", "declared_step_back_leg", "controlled_reverse_lunge", "drive_to_stand_and_diagonal_press", "declared_arm_leg_relationship", "controlled_return"],
+          "jointActions": ["step_back_hip_and_knee_flexion", "front_leg_hip_and_knee_extension", "ankle_stabilization", "shoulder_flexion_in_landmine_arc", "scapular_upward_rotation_and_protraction", "elbow_extension", "trunk_anti_rotation_and_anti_extension"],
+          "planes": ["sagittal_reverse_lunge_and_oblique_press", "frontal_and_transverse_stabilization"],
+          "laterality": "unilateral_press_with_declared_step_back_and_front_leg_relationship",
+          "intent": "controlled_reverse_lunge_to_continuous_drive_and_press"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["front_leg_quadriceps", "front_leg_gluteus_maximus", "anterior_deltoid", "clavicular_pectoralis_major", "triceps_brachii"],
+          "secondaryMusclesAndTissues": ["hamstrings", "adductors", "calf_complex", "hip_stabilizers", "serratus_anterior", "trapezius", "rotator_cuff", "abdominal_wall_and_obliques", "spinal_stabilizers", "forearm_and_hand_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "spine", "glenohumeral", "scapulothoracic", "acromioclavicular", "elbow", "wrist", "hand"],
+          "primaryActions": ["establish_bilateral_start_and_shoulder_rack", "step_declared_leg_back", "descend_under_control", "drive_through_front_leg_and_return", "press_through_landmine_arc", "lower_to_same_rack_and_reset"]
+        },
+        "proposedDifficulty": {"technicalComplexity": 68, "absoluteLoadDemand": 58, "coordinationDemand": 70, "supervisionDemand": 62, "failureConsequence": 60, "impact": 1, "workCapacityDemand": 62, "baseOverallDifficulty": 68},
+        "variantDifficultyCandidates": [
+          {"variantKey": "working-arm-ipsilateral-to-step-back-leg-drive-to-press", "exerciseComplexity": 66, "physicalDifficulty": 58, "derivedOverallDifficulty": 66, "basis": "working arm and step-back leg share a side while the opposite front leg drives the return and press"},
+          {"variantKey": "working-arm-contralateral-to-step-back-leg-drive-to-press", "exerciseComplexity": 70, "physicalDifficulty": 58, "derivedOverallDifficulty": 70, "basis": "cross-body arm and step-back pairing increase anti-rotation, balance and coaching demand"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "low_stepping_contact_no_planned_jump",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["front_leg_lunge_and_return_force", "diagonal_shoulder_and_elbow_press", "pelvic_and_trunk_stabilization", "grip_and_return_control"],
+          "cumulativeBudgets": ["reverse_lunge_repetitions_per_side", "front_leg_knee_and_hip_loading", "angled_press_repetitions", "trunk_anti_rotation", "grip_and_return_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["front_leg_quadriceps_and_gluteals", "adductors", "calves", "hip_stabilizers", "anterior_shoulder", "triceps", "scapular_stabilizers", "trunk", "grip"],
+          "earlyFatigueSignals": ["step_length_or_foot_placement_drift", "front_heel_or_knee_tracking_loss", "pelvic_rotation_or_drop", "early_or_disconnected_press", "balance_or_bar_speed_loss", "incomplete_return", "uncontrolled_lowering"],
+          "downstreamConflicts": ["heavy_squatting_lunging_or_sprinting", "jumping_or_change_of_direction", "high_velocity_pressing_throwing_or_hitting", "single_leg_balance_work", "grip_intensive_conditioning"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_strength_power": 48, "heavy_or_high_volume": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed", "step_markers"],
+          "environment": ["level_high_traction_floor", "clear_step_back_and_bar_arc", "safe_pickup_return_and_set_down_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_reverse_lunge_and_press", "can_hold_declared_shoulder_rack", "can_step_and_return_without_balance_loss", "can_link_front_leg_drive_to_press", "can control_return_and_set_down"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "capacity-reverse-lunge-to-press", "phaseKey": "capacity", "purpose": "Build repeatable side-specific lower-to-upper strength through the exact step-back, return and press sequence.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [3, 8], "rpe": [5, 8], "restSeconds": [120, 300], "tempo": "controlled_lunge_continuous_drive_to_press"}},
+          {"profileKey": "output-reverse-lunge-to-press", "phaseKey": "output", "purpose": "Express a crisp front-leg drive into the anchored press at low volume before timing degrades.", "dosage": {"sets": [3, 6], "repsPerSideOrTotal": [2, 5], "rpe": [4, 7], "restSeconds": [150, 300], "tempo": "controlled_step_explosive_return_and_press_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, load, working arm, step-back leg, markers, press timing, side sequence and set-down plan.", "Require a controlled step and lunge, whole front-foot pressure, tracked knee and continuous drive toward standing into the press.", "End the set when step, alignment, timing, speed, balance, finish or return changes."],
+          "athlete": ["Start square with the sleeve at the called shoulder and the called leg ready to step back.", "Step back under control, own the lunge, then drive through the front foot and carry that return into the press.", "Finish balanced, lower to the same shoulder and reset your feet before the next rep."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_arm_step_back_leg_and_markers", "controlled_reverse_lunge", "front_foot_pressure_and_knee_tracking", "continuous_return_to_press", "balanced_finish_and_controlled_reset"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "step_marker_or_balance_loss", "front_heel_or_knee_tracking_loss", "pelvic_rotation_or_trunk_collapse", "disconnected_early_or_grinding_press", "incomplete_return_or_uncontrolled_lowering"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "lower_limb_joint_kinetics_reverse_lunge",
+          "claims": [
+            "Reverse-lunge joint angles, moments and forces differ from single-leg squat and forward-lunge tasks, supporting explicit step direction and side-dose accounting.",
+            "The study does not validate a universal loaded landmine dose; exact load, press timing and recovery remain candidate programming decisions."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "army_landmine_rear_lunge_press",
+          "claims": [
+            "The Army drill documents a bilateral rear-lunge-to-press sequence in which the press occurs during the step-back action.",
+            "That timing is retained as a separate proposal for human adjudication rather than conflated with this candidate's drive-back-to-standing press sequence."
+          ]
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Ipsilateral Arm-to-Step-Back-Leg Reverse Lunge to Press", "classification": "new_variant", "rationale": "The working arm and step-back leg share a side within the defined drive-to-press sequence.", "distinguishingDimensions": {"variantKey": "working-arm-ipsilateral-to-step-back-leg-drive-to-press", "armToStepBackLeg": "ipsilateral"}},
+        {"name": "Contralateral Arm-to-Step-Back-Leg Reverse Lunge to Press", "classification": "new_variant", "rationale": "The cross-body relationship changes trunk stabilization and side-dose demands.", "distinguishingDimensions": {"variantKey": "working-arm-contralateral-to-step-back-leg-drive-to-press", "armToStepBackLeg": "contralateral"}},
+        {"name": "Bilateral Rear Lunge While Pressing", "classification": "new_definition", "rationale": "Pressing during the step-back descent has a different action order and overhead support phase from pressing during the return toward standing.", "distinguishingDimensions": {"status": "proposal_only_human_review_required", "pressTiming": "during_step_back_descent"}},
+        {"name": "Landmine Reverse Lunge", "classification": "new_definition", "rationale": "Removing the press changes the upper-body action, force transfer, dose and repetition boundary.", "distinguishingDimensions": {"addedAction": "none"}},
+        {"name": "Landmine Split Squat to Press", "classification": "new_definition", "rationale": "A fixed split stance has no required step away from and return to a bilateral start.", "distinguishingDimensions": {"startAndFinish": "stationary_split"}},
+        {"name": "Step Length, Lunge Depth, Press Range or Tempo", "classification": "modifier_annotation", "rationale": "These scale the exact step-back and drive-to-press sequence without changing its ordered identity.", "distinguishingDimensions": {"modifiers": ["step_length", "lunge_depth", "press_range", "eccentric_tempo", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=PSvv3LvzIkQ", "title": "Landmine Reverse Lunge + Press", "channelName": "Jenny LaBaw", "sourceQuery": "landmine reverse lunge to press", "notes": "Public search result candidate. Playback, oEmbed, exact arm-leg relationship and press timing, embedding, captions, quality, reviewer and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=DqwMGTl4gvk", "title": "Landmine Single Arm Reverse Lunge to Press", "channelName": "Garrett McLaughlin", "sourceQuery": "single arm landmine reverse lunge to press", "notes": "Public search result candidate. Exact step and press sequence and every media gate remain pending."},
+        {"url": "https://www.youtube.com/watch?v=1GzW5PGkmt8", "title": "Reverse Lunge & Press", "channelName": "Higher Level Performance", "sourceQuery": "landmine reverse lunge and press", "notes": "Public article-linked candidate. Playback, exact variant and every approval gate remain pending."}
+      ]
+    }
+  ]
+}

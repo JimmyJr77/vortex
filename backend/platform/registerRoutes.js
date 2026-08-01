@@ -1386,10 +1386,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           subscriptions: view.subscriptions,
           subscriptionHistory: view.subscriptionHistory,
           monthlyTotals: view.monthlyTotals,
+          membershipRenewsOn: view.membershipRenewsOn ?? null,
+          hasActiveMembership: Boolean(view.hasActiveMembership),
           refunds: view.refunds,
           ledger: view.ledger,
           bundlePasses: view.bundlePasses,
           bundleUsage: view.bundleUsage,
+          currentPeriod: view.currentPeriod,
+          billingHistory: view.billingHistory,
         },
       })
     } catch (err) {

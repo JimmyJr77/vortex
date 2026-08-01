@@ -1,0 +1,390 @@
+{
+  "batchKey": "landmine-explosive-press-family-v1",
+  "researchVersion": "2026-07-31.57",
+  "snapshotAt": "2026-07-31T18:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "A landmine constrains the free end of a barbell to an angled arc about a fixed pivot; support base, hand count, start rack, lower-body action, receiving action, path, and terminal event remain identity-critical.",
+        "{{canonicalName}} must declare the ordered lower-body and press actions rather than using press, push press, jerk, and squat-to-press as interchangeable labels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "push_press_jerk_kinetics",
+      "claims": [
+        "Push press and jerk tasks share dip and thrust phases but differ in the receiving action after propulsion.",
+        "Hand count, stance, dip depth, drive timing, foot displacement, receiving dip, squat depth, range, load, rest, and side dose are controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "nsca_push_jerk_technique",
+      "claims": [
+        "Dip-drive pressing combines rapid hip, knee, and ankle extension with shoulder and elbow action, scapular control, trunk bracing, grip, and a declared receiving base.",
+        "Record lower-extremity force production, anterior shoulder and upper-chest pressing, triceps, scapular stabilizers, rotator cuff, trunk, forearm, and hand contributions without claiming isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "landmine_press_kinematics_2026",
+      "claims": [
+        "The bar path and observed landmine-press kinematics depend on the fixed pivot, body position, start height, range, and external load.",
+        "Observable gates include a secure anchor, repeatable rack, controlled dip, continuous drive into the fixed arc, declared receiving action, owned finish, and controlled return."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "push_press_jerk_kinetics",
+      "claims": [
+        "Dip, thrust, and receiving demands change with exact exercise execution even when related overhead press tasks are loaded at the same relative intensity.",
+        "Score exercise complexity and physical difficulty independently for each exact variant; derive overall difficulty as their maximum. Exercise cards contain no athlete skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance-training stress depends on load, volume, effort, exercise selection, frequency, and progression.",
+        "{{canonicalName}} can contribute shoulder, upper-chest, triceps, hip, knee, ankle, trunk, grip, eccentric-return, and high-velocity neural fatigue; exact cumulative budgets depend on the declared variant."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "Landmine work requires a stable rated anchor, compatible barbell and loading hardware, and clear space for the complete bar and plate arc.",
+        "Declare floor traction, collars, plates, rack transfer, stance, side, dip and receiving space, pickup, set-down, coach position, and the moving-sleeve exclusion zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "resistance_prescription_network_meta_analysis",
+      "claims": [
+        "Training outcomes depend on sets, repetitions, load, effort, frequency, and recovery rather than the exercise name alone.",
+        "Use short quality sets and enough rest to preserve the exact dip, drive, press path, receiving action, bar speed, side balance, finish, and safe return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_push_jerk_technique",
+      "claims": [
+        "Instruction must separate setup, dip, drive, press or catch, recovery, return, and set-down phases.",
+        "The athlete and coach must know whether feet may move, whether a receiving dip is required, what depth and range count, and how a failed repetition is returned."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, suitable equipment, and gradual progression are core safeguards for resistance exercise.",
+        "Stop for pain, neurologic symptoms, dizziness, anchor or collar movement, plate shift, uncontrolled dip or catch, foot-placement error, trunk collapse, grinding, dropped load, collision risk, or loss of the planned set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Exercise selection and resistance-training dose should be individualized to the intended adaptation, current capacity, and recovery context.",
+        "Place high-velocity landmine press variants before material lower-body, shoulder, triceps, throwing, contact, grip, or conditioning fatigue when power and timing are priorities."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_push_jerk_technique",
+      "claims": [
+        "The athlete needs the exact start rack, hand count, stance, dip, drive, foot action, receiving action, load, repetitions, rest, side sequence, and stop signal.",
+        "Reduce load, range, velocity, or complexity rather than silently changing the exercise sequence or accepting an uncontrolled catch."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landmine_press_kinematics_2026",
+      "claims": [
+        "The fixed pivot gives coaches observable setup, path, range, timing, and finish checkpoints.",
+        "Coach support should expose anchor, collars, plate clearance, rack, hand count, stance, dip depth, drive timing, foot movement, receiving position, velocity intent, symptoms, dose, fatigue, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise can be individualized through load, volume, range, effort, equipment, and progression while preserving the intended task.",
+        "Options include a lighter or unloaded bar, fewer repetitions, longer rest, low-velocity rehearsal, floor markers, written or audio cues, still images, and live instruction; substitutions require reviewed identities."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "push_press_jerk_kinetics",
+      "claims": [
+        "Push press, push jerk, and split jerk share propulsion phases but have different receiving actions and must remain explicit identities.",
+        "Hand count and stance can be exact variants inside a fixed action sequence; adding a full squat, clean, lunge, rotation, release, or split catch changes the exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube documents privacy-enhanced embedding, but a discovered watch URL does not prove current embed permission or exact exercise match.",
+        "The listed public-search candidates are unverified. Playback, oEmbed, embedding, exact-variant, cue, safety, caption, accessibility, quality, reviewer, and approval checks remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "one-arm-landmine-push-press",
+      "assessmentSummary": {
+        "identity": "A standing landmine push press from a declared shoulder or two-hand central rack, using a controlled shallow dip and continuous forceful hip-knee-ankle drive into the anchored diagonal press, finishing tall without a second receiving dip or deliberate foot relocation, then returning under control.",
+        "currentCardFindings": [
+          "Migration 388 already consolidates the former Two-Hand Landmine Push Press source into this survivor and renames the display identity Landmine Push Press, but the surviving card still needs exact hand-count variants and full structural content.",
+          "One-hand and two-hand execution are exact variants of the same dip-drive press identity; hand count changes symmetry, trunk demand, load tolerance, stance, and side dosage rather than the ordered action.",
+          "Push jerk, split jerk, squat-to-press, rotational press, clean-to-press, and strict press change receiving action or ordered movement and remain separate identities."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["push", "squat", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "standing_declared_stance", "shallow_countermovement_dip", "continuous_triple_extension_drive", "diagonal_press_arc", "no_second_receiving_dip", "no_deliberate_foot_relocation", "controlled_return"],
+          "jointActions": ["ankle_dorsiflexion_then_plantarflexion", "knee_flexion_then_extension", "hip_flexion_then_extension", "shoulder_flexion_in_landmine_arc", "scapular_upward_rotation_protraction_and_posterior_tilt", "elbow_extension", "wrist_grip_and_trunk_stabilization"],
+          "planes": ["oblique_sagittal_press_and_lower_body_motion", "frontal_and_transverse_stabilization"],
+          "laterality": "bilateral_lower_body_with_unilateral_or_bilateral_press",
+          "intent": "high_velocity_dip_drive_angled_press"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["quadriceps", "gluteus_maximus", "calf_complex", "anterior_deltoid", "clavicular_pectoralis_major", "triceps_brachii"],
+          "secondaryMusclesAndTissues": ["hamstrings", "serratus_anterior", "upper_and_lower_trapezius", "rotator_cuff", "abdominal_wall_and_obliques", "spinal_stabilizers", "forearm_and_hand_flexors"],
+          "joints": ["ankle", "foot", "knee", "hip", "pelvis", "spine", "glenohumeral", "scapulothoracic", "acromioclavicular", "elbow", "radioulnar", "wrist", "hand"],
+          "primaryActions": ["establish_rack_and_stance", "brace_before_dip", "dip_shallowly_with_whole_foot_pressure", "reverse_into_continuous_triple_extension", "transfer_impulse_into_diagonal_press", "finish_tall_without_redip", "return_to_same_rack_and_set_down"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 54,
+          "coordinationDemand": 60,
+          "supervisionDemand": 52,
+          "failureConsequence": 52,
+          "impact": 1,
+          "workCapacityDemand": 54,
+          "baseOverallDifficulty": 56
+        },
+        "variantDifficultyCandidates": [
+          {"variantKey": "unilateral-square-stance-dip-drive", "exerciseComplexity": 56, "physicalDifficulty": 52, "derivedOverallDifficulty": 56, "basis": "unilateral rack and square lower-body drive add anti-rotation and side-dose demands"},
+          {"variantKey": "unilateral-split-stance-dip-drive", "exerciseComplexity": 60, "physicalDifficulty": 52, "derivedOverallDifficulty": 60, "basis": "a declared stagger changes force symmetry and coordination while preserving the no-step push-press sequence"},
+          {"variantKey": "bilateral-square-stance-dip-drive", "exerciseComplexity": 52, "physicalDifficulty": 56, "derivedOverallDifficulty": 56, "basis": "two-hand symmetry reduces anti-rotation but permits greater external load"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "low_impact_no_planned_jump_or_catch",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["rapid_lower_body_impulse", "angled_shoulder_and_elbow_press_force", "scapular_and_rotator_cuff_control", "trunk_force_transfer", "grip_wrist_and_return_control"],
+          "cumulativeBudgets": ["high_velocity_press_repetitions", "knee_hip_and_ankle_drive", "shoulder_chest_and_triceps_loading", "scapular_and_rotator_cuff_demand", "trunk_and_grip_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["quadriceps", "gluteals", "calves", "anterior_shoulder", "upper_chest", "triceps", "scapular_stabilizers", "trunk", "grip"],
+          "earlyFatigueSignals": ["dip_depth_drift", "heel_or_foot_pressure_loss", "early_arm_press", "pause_between_drive_and_press", "rib_flare_or_rotation", "slow_bar_speed", "redip_or_step", "uncontrolled_return"],
+          "downstreamConflicts": ["heavy_squatting_or_jumping", "heavy_or_high_velocity_pressing", "throwing_or_hitting", "grip_intensive_work", "conditioning_that_degrades_power"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_power": 36, "heavy_or_high_volume": 48}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed"],
+          "environment": ["level_high_traction_floor", "clear_bar_and_plate_arc", "clear_dip_drive_and_set_down_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_shallow_dip_and_press", "can_hold_rack_and_brace", "can_link_dip_drive_and_press_without_redip", "can_control_return_and_set_down", "can_preserve_side_balance_for_unilateral_variants"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "output-high-velocity-push-press", "phaseKey": "output", "purpose": "Develop repeatable lower-to-upper force transfer and diagonal pressing velocity before fatigue.", "dosage": {"sets": [3, 6], "repsPerSideOrTotal": [2, 5], "rpe": [5, 8], "restSeconds": [120, 300], "tempo": "explosive_drive_full_reset"}},
+          {"profileKey": "capacity-strength-power-push-press", "phaseKey": "capacity", "purpose": "Build load tolerance in the fixed dip-drive sequence without turning the set into conditioning.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [3, 8], "rpe": [6, 8], "restSeconds": [120, 240], "tempo": "fast_concentric_controlled_return"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, load, rack, hand count, stance, side sequence, and lane clearance.", "Require a shallow vertical dip, whole-foot pressure, continuous drive into the bar, and no second receiving dip.", "End the set when timing, speed, finish, side balance, or controlled return changes."],
+          "athlete": ["Set the bar at the declared rack and brace before moving.", "Dip straight down a little, drive the floor away, and send that force through the sleeve.", "Finish tall without stepping or dipping again, then lower to the same rack under control."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_hand_count_stance_and_side", "repeatable_shallow_dip", "continuous_drive_to_press", "no_redip_or_foot_relocation", "owned_finish", "controlled_return_and_set_down"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "uncontrolled_dip_or_foot_pressure", "early_arm_press_or_timing_break", "redip_step_or_rotation", "bar_speed_loss", "uncontrolled_return_or_unsafe_set_down"]
+        }
+      },
+      "alternateAssessments": [
+        {"name": "Unilateral Square-Stance Landmine Push Press", "classification": "new_variant", "rationale": "One shoulder rack and a parallel stance preserve the dip-drive identity while adding unilateral trunk and side-dose demands.", "distinguishingDimensions": {"variantKey": "unilateral-square-stance-dip-drive", "handCount": 1, "stance": "square"}},
+        {"name": "Unilateral Split-Stance Landmine Push Press", "classification": "new_variant", "rationale": "A fixed staggered stance changes force symmetry and must be declared, but no foot moves during the repetition.", "distinguishingDimensions": {"variantKey": "unilateral-split-stance-dip-drive", "handCount": 1, "stance": "fixed_split"}},
+        {"name": "Bilateral Landmine Push Press", "classification": "new_variant", "rationale": "Two hands change symmetry, grip and load tolerance without changing the shallow dip-drive press sequence.", "distinguishingDimensions": {"variantKey": "bilateral-square-stance-dip-drive", "handCount": 2, "stance": "square", "legacySourceSlug": "two-hand-landmine-push-press"}},
+        {"name": "One-Arm Landmine Split Jerk", "classification": "new_definition", "rationale": "The jerk adds a rapid split-foot receiving phase and recovery after propulsion.", "distinguishingDimensions": {"existingSlug": "one-arm-landmine-split-jerk", "receivingAction": "split_catch"}},
+        {"name": "Landmine Squat-to-Press", "classification": "new_definition", "rationale": "A full squat immediately followed by a press is a longer ordered action than the shallow push-press dip.", "distinguishingDimensions": {"existingSlug": "landmine-squat-to-press", "lowerBodyAction": "full_squat"}},
+        {"name": "Paused or Tempo Landmine Push Press", "classification": "modifier_annotation", "rationale": "Pause, load, range and return tempo change dose, but a pause between drive and press that destroys force transfer no longer satisfies the power variant.", "distinguishingDimensions": {"modifiers": ["dip_pause", "load", "range", "return_tempo"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=MwXJebZh4nk", "title": "Single-Arm Landmine Push Press | Exercise Demo", "channelName": "Red Dot Fitness", "sourceQuery": "single arm landmine push press exercise demo", "notes": "Public search result candidate. Playback, oEmbed, exact stance and sequence, embedding, cues, captions, accessibility, quality, reviewer, and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=M7P7qPojHZE", "title": "Landmine push press", "channelName": null, "sourceQuery": "unilateral landmine push press", "notes": "Public search result candidate linked from a landmine exercise guide. All verification and exact-variant gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=2O-AaN6dUSc", "title": "Single Arm Landmine Push Press", "channelName": null, "sourceQuery": "single arm landmine push press", "notes": "Public search result candidate linked from a landmine shoulder exercise guide. All verification and exact-variant gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=u-HAgu0odgY", "title": "Landmine Push Press", "channelName": "Breaking Muscle", "sourceQuery": "landmine push press exercise", "notes": "Public search result candidate. Hand count and exact push-press sequence require human review; all media gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=Rc23TMvgY34", "title": "Landmine Push Press", "channelName": "Testosterone Nation", "sourceQuery": "landmine push press", "notes": "Public search result candidate. Hand count, stance, exact sequence and all media approval gates remain pending."}
+      ]
+    },
+    {
+      "slug": "one-arm-landmine-split-jerk",
+      "assessmentSummary": {
+        "identity": "A unilateral landmine jerk beginning from a declared shoulder rack and bilateral start, using a controlled dip and explosive drive, then rapidly splitting the feet to receive and stabilize the bar with the working arm extended before a declared recovery sequence and controlled return.",
+        "currentCardFindings": [
+          "The existing card is generic landmine language and does not declare the split receiving phase, lead-leg relationship, recovery order, catch ownership, or failed-repetition response.",
+          "The working-arm-to-lead-leg relationship must be explicit because it changes cross-body stabilization and side-dose accounting.",
+          "A push press has no receiving split; a fixed split-stance press starts in the split; neither is an interchangeable label for this jerk."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["push", "lunge", "brace", "landing"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "unilateral_shoulder_rack", "bilateral_start", "controlled_dip", "explosive_drive", "rapid_split_foot_receive", "declared_lead_leg_relationship", "stable_extended_arm_catch", "declared_recovery_order"],
+          "jointActions": ["ankle_knee_and_hip_dip_drive", "rapid_hip_and_knee_split_receive", "shoulder_flexion_in_landmine_arc", "scapular_upward_rotation_and_stabilization", "elbow_extension_and_catch", "trunk_anti_extension_anti_rotation_and_anti_lateral_flexion"],
+          "planes": ["oblique_sagittal_press", "sagittal_split_and_recovery", "frontal_and_transverse_stabilization"],
+          "laterality": "unilateral_press_with_declared_split_lead_leg",
+          "intent": "ballistic_drive_and_split_receive"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["quadriceps", "gluteals", "calf_complex", "anterior_deltoid", "clavicular_pectoralis_major", "triceps_brachii"],
+          "secondaryMusclesAndTissues": ["hamstrings", "hip_stabilizers", "adductors", "serratus_anterior", "trapezius", "rotator_cuff", "abdominal_wall_and_obliques", "spinal_stabilizers", "forearm_and_hand_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "spine", "glenohumeral", "scapulothoracic", "acromioclavicular", "elbow", "wrist", "hand"],
+          "primaryActions": ["establish_bilateral_start_and_shoulder_rack", "dip_and_drive", "move_bar_through_landmine_arc", "rapidly_split_feet_and_receive", "stabilize_extended_arm_and_split_base", "recover_in_declared_order", "return_and_set_down"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 60,
+          "coordinationDemand": 74,
+          "supervisionDemand": 66,
+          "failureConsequence": 64,
+          "impact": 3,
+          "workCapacityDemand": 58,
+          "baseOverallDifficulty": 70
+        },
+        "variantDifficultyCandidates": [
+          {"variantKey": "working-arm-ipsilateral-to-lead-leg-split-jerk", "exerciseComplexity": 68, "physicalDifficulty": 60, "derivedOverallDifficulty": 68, "basis": "same-side arm and lead leg require a declared but commonly demonstrated split relationship"},
+          {"variantKey": "working-arm-contralateral-to-lead-leg-split-jerk", "exerciseComplexity": 72, "physicalDifficulty": 60, "derivedOverallDifficulty": 72, "basis": "cross-body arm and lead-leg pairing adds stabilization and coaching demand"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "low_to_moderate_split_foot_contact",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["rapid_lower_body_impulse", "split_foot_braking_and_stabilization", "angled_unilateral_press_and_catch", "trunk_anti_motion", "grip_and_return_control"],
+          "cumulativeBudgets": ["high_velocity_jerk_repetitions", "split_contacts_per_leg", "shoulder_and_triceps_power", "lower_body_drive", "trunk_and_grip_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["quadriceps", "gluteals", "calves", "lead_and_trail_leg_stabilizers", "anterior_shoulder", "triceps", "scapular_stabilizers", "trunk", "grip"],
+          "earlyFatigueSignals": ["dip_drift", "incomplete_drive", "late_or_short_split", "unstable_or_narrow_catch", "bent_elbow_receive", "bar_body_desynchronization", "incorrect_recovery_order", "uncontrolled_return"],
+          "downstreamConflicts": ["jump_landing_or_change_of_direction", "heavy_lower_body_strength", "high_velocity_pressing_or_throwing", "overhead_or_hand_support_skill", "fatiguing_conditioning"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_power": 48, "heavy_or_high_contact": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed", "visible_split_markers"],
+          "environment": ["level_high_traction_floor", "clear_bar_arc", "clear_forward_and_backward_split_space", "clear_recovery_and_set_down_zone", "coach_outside_bar_path"],
+          "populationReadiness": ["pain_free_dip_drive_and_split_receive", "can_hold_unloaded_split_landing", "can_receive_light_bar_with_extended_arm", "can recover feet in declared order", "can control return_and_set_down"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "movement-intelligence-split-receive", "phaseKey": "movement_intelligence", "purpose": "Rehearse arm-leg relationship, dip-drive timing, split geometry, catch ownership, and recovery at low fatigue.", "dosage": {"sets": [3, 5], "repsPerSide": [1, 3], "rpe": [3, 6], "restSeconds": [90, 210], "tempo": "explosive_light_load_full_reset"}},
+          {"profileKey": "output-split-jerk-power", "phaseKey": "output", "purpose": "Express high-quality unilateral landmine power through a repeatable split receive before fatigue.", "dosage": {"sets": [3, 6], "repsPerSide": [1, 3], "rpe": [5, 8], "restSeconds": [150, 360], "tempo": "max_intent_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify the exact working arm, lead leg, split markers, load, rack, recovery order, and failed-repetition plan.", "Require a vertical dip, complete drive, fast feet, stable extended-arm receive, and owned split before recovery.", "Stop on any timing, contact, catch, balance, bar-speed, or return error."],
+          "athlete": ["Start square with the sleeve at the declared shoulder and brace.", "Dip, drive, then move the feet fast into the marked split as the arm finishes.", "Freeze the catch, recover in the called order, and lower only after balance is owned."],
+          "qualityGates": ["secure_anchor_and_clear_split_lane", "declared_arm_lead_leg_relationship", "repeatable_dip_and_drive", "fast_accurate_split", "stable_extended_arm_receive", "owned_recovery_order", "controlled_return"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "missed_split_marker_or_foot_collision", "unstable_or_bent_arm_catch", "bar_body_timing_failure", "incorrect_recovery_or_balance_loss", "dropped_or_uncontrolled_bar"]
+        }
+      },
+      "alternateAssessments": [
+        {"name": "Ipsilateral Arm-to-Lead-Leg Landmine Split Jerk", "classification": "new_variant", "rationale": "Working arm and lead leg share a side; the exact relationship controls coaching and side dose.", "distinguishingDimensions": {"variantKey": "working-arm-ipsilateral-to-lead-leg-split-jerk", "workingArmToLeadLeg": "ipsilateral"}},
+        {"name": "Contralateral Arm-to-Lead-Leg Landmine Split Jerk", "classification": "new_variant", "rationale": "Working arm opposes the lead leg, creating a different cross-body stabilization demand.", "distinguishingDimensions": {"variantKey": "working-arm-contralateral-to-lead-leg-split-jerk", "workingArmToLeadLeg": "contralateral"}},
+        {"name": "Landmine Push Press", "classification": "new_definition", "rationale": "Push press finishes tall without a rapid split-foot receiving phase.", "distinguishingDimensions": {"existingSlug": "one-arm-landmine-push-press", "receivingAction": "none"}},
+        {"name": "Fixed Split-Stance One-Arm Landmine Press", "classification": "new_definition", "rationale": "The feet begin and remain split while the press is performed; there is no catch-under sequence.", "distinguishingDimensions": {"existingSlug": "landmine-press", "variant": "unilateral_fixed_split_stance_strict"}},
+        {"name": "Landmine Push Jerk", "classification": "new_definition", "rationale": "A push jerk receives with both feet in a shallow squat rather than a fore-aft split.", "distinguishingDimensions": {"receivingAction": "bilateral_quarter_squat"}},
+        {"name": "Split Depth or Recovery-Foot Emphasis", "classification": "modifier_annotation", "rationale": "Marker distance and recovery cue can scale a valid split jerk if the rapid split receive remains intact.", "distinguishingDimensions": {"modifiers": ["split_length", "split_width", "recovery_order", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=ccpp98MbLoM", "title": "Single Arm Landmine Split Jerk", "channelName": "Tinsley Performance", "sourceQuery": "single arm landmine split jerk", "notes": "Public search result candidate. Playback, oEmbed, arm-leg relationship, exact catch and recovery, embedding, captions, quality, reviewer, and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=5Rebfu_-T98", "title": "Landmine Split Jerk", "channelName": "Testosterone Nation", "sourceQuery": "landmine split jerk", "notes": "Public search result candidate. All exact-variant and media review gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=J4MJUcilrmo", "title": "Landmine Split Jerk", "channelName": "The Official Beast Lab presented by Greg Gurenlian", "sourceQuery": "landmine split jerk exercise", "notes": "Public search result candidate. All exact-variant and media review gates remain pending."}
+      ]
+    },
+    {
+      "slug": "landmine-squat-to-press",
+      "assessmentSummary": {
+        "identity": "A landmine squat-to-press beginning with the sleeve at a declared chest or shoulder rack, descending through a deliberate squat to an owned depth, then standing and continuously transferring lower-body force into the anchored diagonal press before a controlled return to the rack.",
+        "currentCardFindings": [
+          "The existing card does not distinguish a deliberate squat from the shallow dip of a push press or declare hand count, squat depth, rack, action continuity, and return.",
+          "Two-hand and one-hand versions preserve the squat-to-press ordered identity but require exact variants because symmetry, balance, load and side dose differ.",
+          "A clean-to-press adds pickup and turnover before the rack; a reverse-lunge-to-press changes the lower-body action; both remain separate identities."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "push", "brace"],
+          "movementQualifiers": ["rated_fixed_landmine_pivot", "declared_chest_or_shoulder_rack", "deliberate_owned_squat", "continuous_stand_to_diagonal_press", "no_release", "controlled_return"],
+          "jointActions": ["ankle_dorsiflexion_and_plantarflexion", "knee_flexion_and_extension", "hip_flexion_and_extension", "shoulder_flexion_in_landmine_arc", "scapular_upward_rotation_and_protraction", "elbow_extension", "trunk_and_grip_stabilization"],
+          "planes": ["sagittal_squat", "oblique_sagittal_press", "frontal_and_transverse_stabilization"],
+          "laterality": "bilateral_lower_body_with_bilateral_or_unilateral_press",
+          "intent": "continuous_squat_drive_to_angled_press"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": ["quadriceps", "gluteus_maximus", "adductor_magnus", "anterior_deltoid", "clavicular_pectoralis_major", "triceps_brachii"],
+          "secondaryMusclesAndTissues": ["hamstrings", "calf_complex", "serratus_anterior", "trapezius", "rotator_cuff", "abdominal_wall_and_obliques", "spinal_stabilizers", "forearm_and_hand_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "spine", "glenohumeral", "scapulothoracic", "acromioclavicular", "elbow", "wrist", "hand"],
+          "primaryActions": ["establish_rack_and_squat_stance", "brace_and_descend_to_owned_depth", "maintain_foot_and_knee_tracking", "stand_and_transfer_force_continuously", "press_through_fixed_arc", "own_finish", "return_to_rack_and_set_down"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 60,
+          "absoluteLoadDemand": 60,
+          "coordinationDemand": 62,
+          "supervisionDemand": 54,
+          "failureConsequence": 54,
+          "impact": 1,
+          "workCapacityDemand": 64,
+          "baseOverallDifficulty": 60
+        },
+        "variantDifficultyCandidates": [
+          {"variantKey": "bilateral-continuous-squat-to-press", "exerciseComplexity": 58, "physicalDifficulty": 60, "derivedOverallDifficulty": 60, "basis": "two-hand central rack supports symmetry and loading while preserving a long compound repetition"},
+          {"variantKey": "unilateral-continuous-squat-to-press", "exerciseComplexity": 62, "physicalDifficulty": 58, "derivedOverallDifficulty": 62, "basis": "one shoulder rack adds anti-rotation, balance and side-dose demands"}
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_planned_impact",
+          "externalLoadMethods": ["barbell_landmine_sleeve_and_declared_plate_mass"],
+          "primaryStress": ["loaded_squat", "continuous_lower_to_upper_force_transfer", "angled_press", "trunk_stabilization", "grip_and_eccentric_return"],
+          "cumulativeBudgets": ["squat_repetitions_and_knee_hip_loading", "angled_press_repetitions", "whole_body_work_capacity", "trunk_bracing", "grip_and_return_fatigue"]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": ["quadriceps", "gluteals", "adductors", "calves", "anterior_shoulder", "triceps", "scapular_stabilizers", "trunk", "grip"],
+          "earlyFatigueSignals": ["depth_or_foot_pressure_drift", "knee_collapse_or_pelvic_shift", "trunk_flexion_or_rib_flare", "pause_or_disconnection_between_stand_and_press", "arm_dominant_finish", "shortened_range", "uncontrolled_return"],
+          "downstreamConflicts": ["heavy_squatting_or_lunging", "jumping_or_sprinting", "heavy_pressing_or_throwing", "grip_intensive_work", "high_density_conditioning"],
+          "recoveryWindowHours": {"technique_or_light": 24, "moderate_strength_power": 48, "heavy_or_high_volume": 72}
+        },
+        "proposedConstraints": {
+          "requiredEquipment": ["rated_landmine", "barbell", "collars", "plates_as_prescribed"],
+          "environment": ["level_high_traction_floor", "clear_squat_and_bar_arc", "clear_pickup_return_and_set_down_zone", "coach_outside_moving_bar_path"],
+          "populationReadiness": ["pain_free_owned_squat_and_press", "can_hold_declared_rack", "can track feet_knees_pelvis_and_trunk", "can link_stand_to_press_without_loss_of_balance", "can_control_return_and_set_down"]
+        },
+        "proposedDeliveryProfiles": [
+          {"profileKey": "capacity-squat-to-press-strength", "phaseKey": "capacity", "purpose": "Build whole-body squat and angled press strength through repeatable compound repetitions.", "dosage": {"sets": [3, 5], "repsPerSideOrTotal": [4, 8], "rpe": [6, 8], "restSeconds": [120, 300], "tempo": "controlled_squat_continuous_drive_controlled_return"}},
+          {"profileKey": "output-squat-to-press-power", "phaseKey": "output", "purpose": "Express force through a continuous squat-to-press sequence at low volume before fatigue.", "dosage": {"sets": [3, 6], "repsPerSideOrTotal": [2, 5], "rpe": [5, 8], "restSeconds": [150, 300], "tempo": "controlled_descent_explosive_stand_and_press_full_reset"}}
+        ],
+        "proposedInstructions": {
+          "coach": ["Verify anchor, collars, rack, hand count, stance, depth target, load, clearance, and set-down plan.", "Require an owned squat with foot and knee tracking followed by continuous transfer into the press.", "Stop when squat shape, transition timing, finish, side balance, or return changes."],
+          "athlete": ["Hold the sleeve at the called rack, set your squat stance, and brace.", "Squat to the owned depth, drive the floor away, and carry that rise into the press.", "Finish stacked, return to the rack under control, and reset before the next rep."],
+          "qualityGates": ["secure_anchor_collars_and_clearance", "declared_rack_hand_count_and_depth", "owned_squat_with_foot_knee_tracking", "continuous_stand_to_press", "stacked_finish", "repeatable_range", "controlled_return_and_set_down"],
+          "stopRules": ["pain_neurologic_symptoms_or_dizziness", "anchor_collar_or_plate_movement", "loss_of_foot_pressure_or_knee_tracking", "pelvic_shift_or_trunk_collapse", "disconnected_or_arm_only_press", "balance_or_range_loss", "uncontrolled_return_or_set_down"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "ace_squat_to_overhead_press",
+          "claims": [
+            "ACE describes the squat-to-overhead-press sequence as a squat followed by standing while pressing, supporting an explicit ordered squat-and-press contract.",
+            "For the landmine version, the rack, owned squat depth, continuous transition, fixed diagonal arc, finish, return, and set-down must be declared."
+          ]
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Bilateral Landmine Squat-to-Press", "classification": "new_variant", "rationale": "Two hands at a central rack preserve the squat-to-press action while changing symmetry and load tolerance.", "distinguishingDimensions": {"variantKey": "bilateral-continuous-squat-to-press", "handCount": 2}},
+        {"name": "Unilateral Landmine Squat-to-Press", "classification": "new_variant", "rationale": "A single shoulder rack adds anti-rotation and side-dose requirements within the same ordered action.", "distinguishingDimensions": {"variantKey": "unilateral-continuous-squat-to-press", "handCount": 1}},
+        {"name": "Landmine Push Press", "classification": "new_definition", "rationale": "Push press uses a shallow propulsion dip rather than a deliberate squat through the prescribed depth.", "distinguishingDimensions": {"existingSlug": "one-arm-landmine-push-press", "lowerBodyAction": "shallow_dip_drive"}},
+        {"name": "Landmine Clean to Press", "classification": "new_definition", "rationale": "Clean-to-press adds pickup, pull, turnover or transfer, and receiving actions before the press.", "distinguishingDimensions": {"existingSlug": "landmine-clean-to-press", "entryAction": "clean"}},
+        {"name": "Landmine Reverse Lunge to Press", "classification": "new_definition", "rationale": "A step-back lunge changes support, laterality, lower-body action and side dose.", "distinguishingDimensions": {"existingSlug": "landmine-reverse-lunge-to-press", "lowerBodyAction": "reverse_lunge"}},
+        {"name": "Squat Depth, Tempo, or Pause", "classification": "modifier_annotation", "rationale": "Owned depth, tempo and pause change dose and difficulty while the squat-to-press sequence remains intact.", "distinguishingDimensions": {"modifiers": ["squat_depth", "eccentric_tempo", "bottom_pause", "load"]}}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=0oJsNm_MreY", "title": "Landmine Squat To Press", "channelName": "Muscle & Motion", "sourceQuery": "landmine squat to press", "notes": "Public search result candidate. Playback, oEmbed, exact rack, depth and sequence, embedding, captions, accessibility, quality, reviewer, and approval remain pending."},
+        {"url": "https://www.youtube.com/watch?v=G9RpZXJcg10", "title": "Landmine Squat to Press", "channelName": "Simone Sports Performance", "sourceQuery": "landmine squat to press exercise", "notes": "Public search result candidate. All exact-variant and media review gates remain pending."},
+        {"url": "https://www.youtube.com/watch?v=qFwUiUkMlFg", "title": "Landmine Squat to Press", "channelName": "Isaac Hadac", "sourceQuery": "landmine squat to press", "notes": "Public search result candidate. All exact-variant and media review gates remain pending."}
+      ]
+    }
+  ]
+}

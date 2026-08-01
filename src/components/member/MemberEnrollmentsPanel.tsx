@@ -56,6 +56,79 @@ interface Props {
 
 type ViewMode = 'class' | 'member'
 
+type EnrollmentColumn = {
+  key: string
+  header: string
+  width: string
+  cell: (row: MemberEnrollmentRow) => ReactNode
+}
+
+const BY_CLASS_COLUMNS: EnrollmentColumn[] = [
+  {
+    key: 'member',
+    header: 'Member',
+    width: '24%',
+    cell: (row) => memberDisplayName(row),
+  },
+  {
+    key: 'offerings',
+    header: 'Offerings',
+    width: '26%',
+    cell: (row) => offeringsCell(row),
+  },
+  {
+    key: 'slot',
+    header: 'Time',
+    width: '28%',
+    cell: (row) => timeCell(row),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: '22%',
+    cell: (row) => statusBadge(row),
+  },
+]
+
+const BY_MEMBER_COLUMNS: EnrollmentColumn[] = [
+  {
+    key: 'sport',
+    header: 'Sport',
+    width: '13%',
+    cell: (row) => textOrDash(row.sport_name),
+  },
+  {
+    key: 'program',
+    header: 'Program',
+    width: '18%',
+    cell: (row) => textOrDash(row.program_name),
+  },
+  {
+    key: 'class',
+    header: 'Class',
+    width: '20%',
+    cell: (row) => textOrDash(row.class_name),
+  },
+  {
+    key: 'offerings',
+    header: 'Offerings',
+    width: '17%',
+    cell: (row) => offeringsCell(row),
+  },
+  {
+    key: 'slot',
+    header: 'Time',
+    width: '18%',
+    cell: (row) => timeCell(row),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: '14%',
+    cell: (row) => statusBadge(row),
+  },
+]
+
 function memberDisplayName(row: MemberEnrollmentRow, currentMemberId?: number | null) {
   const name = `${row.member_first_name} ${row.member_last_name}`.trim() || 'Member'
   if (currentMemberId != null && row.member_id === currentMemberId) {
@@ -150,7 +223,7 @@ function EnrollmentTable({
   onManage,
 }: {
   rows: MemberEnrollmentRow[]
-  columns: Array<{ key: string; header: string; cell: (row: MemberEnrollmentRow) => ReactNode }>
+  columns: EnrollmentColumn[]
   onManage?: (row: MemberEnrollmentRow) => void
 }) {
   if (rows.length === 0) return null
@@ -159,7 +232,13 @@ function EnrollmentTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm table-auto border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
+      <table className="w-full min-w-[760px] text-sm table-fixed border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
+        <colgroup>
+          {columns.map((col) => (
+            <col key={col.key} style={{ width: col.width }} />
+          ))}
+          {showActions && <col style={{ width: '72px' }} />}
+        </colgroup>
         <thead>
           <tr className="border-b border-gray-200 text-left text-gray-600">
             {columns.map((col) => (
@@ -452,38 +531,7 @@ export default function MemberEnrollmentsPanel({
           <EnrollmentTable
             rows={displayEnrollments}
             onManage={handleManage}
-            columns={[
-              {
-                key: 'sport',
-                header: 'Sport',
-                cell: (row) => textOrDash(row.sport_name),
-              },
-              {
-                key: 'program',
-                header: 'Program',
-                cell: (row) => textOrDash(row.program_name),
-              },
-              {
-                key: 'class',
-                header: 'Class',
-                cell: (row) => textOrDash(row.class_name),
-              },
-              {
-                key: 'offerings',
-                header: 'Offerings',
-                cell: (row) => offeringsCell(row),
-              },
-              {
-                key: 'slot',
-                header: 'Time',
-                cell: (row) => timeCell(row),
-              },
-              {
-                key: 'status',
-                header: 'Status',
-                cell: (row) => statusBadge(row),
-              },
-            ]}
+            columns={BY_MEMBER_COLUMNS}
           />
         ) : view === 'class' ? (
           <div className="space-y-6">
@@ -493,28 +541,9 @@ export default function MemberEnrollmentsPanel({
                 <EnrollmentTable
                   rows={rows}
                   onManage={handleManage}
-                  columns={[
-                    {
-                      key: 'member',
-                      header: 'Member',
-                      cell: (row) => memberDisplayName(row, currentMemberId),
-                    },
-                    {
-                      key: 'offerings',
-                      header: 'Offerings',
-                      cell: (row) => offeringsCell(row),
-                    },
-                    {
-                      key: 'slot',
-                      header: 'Time',
-                      cell: (row) => timeCell(row),
-                    },
-                    {
-                      key: 'status',
-                      header: 'Status',
-                      cell: (row) => statusBadge(row),
-                    },
-                  ]}
+                  columns={BY_CLASS_COLUMNS.map((column) => column.key === 'member'
+                    ? { ...column, cell: (row) => memberDisplayName(row, currentMemberId) }
+                    : column)}
                 />
               </section>
             ))}
@@ -529,38 +558,7 @@ export default function MemberEnrollmentsPanel({
                   <EnrollmentTable
                     rows={rows}
                     onManage={handleManage}
-                    columns={[
-                      {
-                        key: 'sport',
-                        header: 'Sport',
-                        cell: (row) => textOrDash(row.sport_name),
-                      },
-                      {
-                        key: 'program',
-                        header: 'Program',
-                        cell: (row) => textOrDash(row.program_name),
-                      },
-                      {
-                        key: 'class',
-                        header: 'Class',
-                        cell: (row) => textOrDash(row.class_name),
-                      },
-                      {
-                        key: 'offerings',
-                        header: 'Offerings',
-                        cell: (row) => offeringsCell(row),
-                      },
-                      {
-                        key: 'slot',
-                        header: 'Time',
-                        cell: (row) => timeCell(row),
-                      },
-                      {
-                        key: 'status',
-                        header: 'Status',
-                        cell: (row) => statusBadge(row),
-                      },
-                    ]}
+                    columns={BY_MEMBER_COLUMNS}
                   />
                 </section>
               )

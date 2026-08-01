@@ -119,6 +119,13 @@ test('buildBillingAccountView falls back when v_account_ledger is missing', asyn
   assert.equal(view.ledger[0].amountCents, 5000)
   assert.equal(view.membershipRenewsOn, null)
   assert.equal(view.hasActiveMembership, false)
+  assert.ok(view.currentPeriod)
+  assert.equal(view.currentPeriod.totals.balanceDueCents, 0)
+  assert.equal(view.billingHistory.length, 12)
+  const registrationMonth = view.billingHistory.find((month) =>
+    month.lines.some((line) => line.description === 'Registration fee'),
+  )
+  assert.ok(registrationMonth)
   assert.ok(queries.some((q) => q.includes('v_account_ledger')))
 })
 
@@ -156,4 +163,6 @@ test('buildBillingAccountView tolerates missing billing_subscription table', asy
   assert.deepEqual(view.subscriptions, [])
   assert.deepEqual(view.subscriptionHistory, [])
   assert.equal(view.chargesCents, 0)
+  assert.ok(view.currentPeriod)
+  assert.equal(view.billingHistory.length, 12)
 })

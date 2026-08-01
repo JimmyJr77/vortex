@@ -2422,7 +2422,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
+  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2610,7 +2610,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
+  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2730,7 +2730,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
+  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2815,5 +2815,274 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
   assert.match(arcCard.assessmentSummary.identity, /not yet established/)
   assert.ok(arcCard.mediaCandidates.every((candidate) => (
     /pending|unresolved|review/i.test(candidate.notes)
+  )))
+})
+
+test('landmine explosive press packets consolidate hand count while preserving action boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/landmine-explosive-press-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const expectedDifficulty = new Map([
+    ['one-arm-landmine-push-press', [
+      ['unilateral-square-stance-dip-drive', 56, 52, 56],
+      ['unilateral-split-stance-dip-drive', 60, 52, 60],
+      ['bilateral-square-stance-dip-drive', 52, 56, 56],
+    ]],
+    ['one-arm-landmine-split-jerk', [
+      ['working-arm-ipsilateral-to-lead-leg-split-jerk', 68, 60, 68],
+      ['working-arm-contralateral-to-lead-leg-split-jerk', 72, 60, 72],
+    ]],
+    ['landmine-squat-to-press', [
+      ['bilateral-continuous-squat-to-press', 58, 60, 60],
+      ['unilateral-continuous-squat-to-press', 62, 58, 62],
+    ]],
+  ])
+  const expectedMedia = new Map([
+    ['one-arm-landmine-push-press', 5],
+    ['one-arm-landmine-split-jerk', 3],
+    ['landmine-squat-to-press', 3],
+  ])
+
+  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  for (const sourceKey of [
+    'nsca_landmine_press_implementation',
+    'landmine_press_kinematics_2026',
+    'push_press_jerk_kinetics',
+    'nsca_push_jerk_technique',
+    'ace_squat_to_overhead_press',
+    'breaking_muscle_landmine_push_press',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-31.57')
+  assert.equal(batch.cards.length, 3)
+
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug === 'one-arm-landmine-push-press'
+          ? 'Landmine Push Press'
+          : cardSpec.slug
+            .split('-')
+            .map((word) => word[0].toUpperCase() + word.slice(1))
+            .join(' '),
+        familyKey: 'landmine_explosive_press_family',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(
+      result.packet.mediaCandidates.length,
+      expectedMedia.get(cardSpec.slug),
+    )
+    assert.equal(result.packet.alternateAssessments.length, 6)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.derivedOverallDifficulty,
+      ]),
+      expectedDifficulty.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+        variant.derivedOverallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'unverified'
+        && candidate.embeddingAllowed === false
+        && candidate.externalVerification === null
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const pushPress = batch.cards.find((card) => (
+    card.slug === 'one-arm-landmine-push-press'
+  ))
+  assert.ok(pushPress.alternateAssessments.some((alternate) => (
+    alternate.name === 'Bilateral Landmine Push Press'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.legacySourceSlug
+        === 'two-hand-landmine-push-press'
+  )))
+  assert.ok(batch.cards.every((card) => (
+    card.mediaCandidates.length >= 3 && card.mediaCandidates.length <= 5
+  )))
+})
+
+test('landmine squat and lunge packets preserve support, foot-motion, and action-order boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/landmine-squat-lunge-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const expectedDifficulty = new Map([
+    ['landmine-front-squat', [
+      ['bilateral-central-chest-sleeve-front-squat', 48, 58, 58],
+      ['unilateral-shoulder-rack-front-squat', 56, 56, 56],
+    ]],
+    ['landmine-hack-squat', [
+      ['shoulder-supported-away-facing-hack-squat', 54, 64, 64],
+    ]],
+    ['landmine-split-squat', [
+      ['ipsilateral-shoulder-rack-stationary-split-squat', 58, 58, 58],
+      ['contralateral-shoulder-rack-stationary-split-squat', 62, 58, 62],
+      ['two-hand-neutral-handle-stationary-split-squat', 54, 62, 62],
+    ]],
+    ['landmine-reverse-lunge-to-press', [
+      ['working-arm-ipsilateral-to-step-back-leg-drive-to-press', 66, 58, 66],
+      ['working-arm-contralateral-to-step-back-leg-drive-to-press', 70, 58, 70],
+    ]],
+  ])
+  const expectedMedia = new Map([
+    ['landmine-front-squat', 5],
+    ['landmine-hack-squat', 3],
+    ['landmine-split-squat', 3],
+    ['landmine-reverse-lunge-to-press', 3],
+  ])
+
+  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  for (const sourceKey of [
+    'landmine_squat_muscle_activity_kinetics',
+    'acsm_landmine_squat_exercise',
+    'lower_limb_joint_kinetics_reverse_lunge',
+    'army_landmine_rear_lunge_press',
+    'breaking_muscle_landmine_lower_body',
+    'split_squat_step_length_biomechanics',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-31.58')
+  assert.equal(batch.cards.length, 4)
+
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug
+          .split('-')
+          .map((word) => word[0].toUpperCase() + word.slice(1))
+          .join(' '),
+        familyKey: 'landmine_squat_lunge_family',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(
+      result.packet.mediaCandidates.length,
+      expectedMedia.get(cardSpec.slug),
+    )
+    assert.equal(result.packet.alternateAssessments.length, 6)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.derivedOverallDifficulty,
+      ]),
+      expectedDifficulty.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+        variant.derivedOverallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'unverified'
+        && candidate.embeddingAllowed === false
+        && candidate.externalVerification === null
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const splitSquat = batch.cards.find((card) => (
+    card.slug === 'landmine-split-squat'
+  ))
+  assert.ok(splitSquat.assessmentSummary.currentCardFindings.some((finding) => (
+    /Migration 369/.test(finding) && /quarantines/.test(finding)
+  )))
+  assert.ok(splitSquat.alternateAssessments.some((alternate) => (
+    alternate.name === 'Two-Hand Neutral-Handle Landmine Split Squat'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.legacySourceSlug
+        === 'landmine-handle-grip-split-squat'
+  )))
+
+  const reverseLungePress = batch.cards.find((card) => (
+    card.slug === 'landmine-reverse-lunge-to-press'
+  ))
+  assert.ok(reverseLungePress.alternateAssessments.some((alternate) => (
+    alternate.name === 'Bilateral Rear Lunge While Pressing'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.status
+        === 'proposal_only_human_review_required'
+  )))
+  assert.ok(batch.cards.every((card) => (
+    card.mediaCandidates.length >= 3 && card.mediaCandidates.length <= 5
   )))
 })

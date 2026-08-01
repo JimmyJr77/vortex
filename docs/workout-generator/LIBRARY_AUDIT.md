@@ -974,6 +974,38 @@ evidence/media/alternate rows, 21 review calibration rows, zero proficiency
 paths, zero invalid difficulty formulas, zero non-candidate media states, and
 zero approved graph or calibration records. A direct rerun was idempotent.
 
+Migration 401 adds the next researched landmine cluster without weakening the
+media or proficiency boundaries:
+
+- Migration 388's two-hand-landmine-push-press consolidation remains the
+  identity authority. Landmine Push Press now has exact unilateral
+  square-stance, unilateral fixed-split-stance, and bilateral square-stance
+  variants; hand count and fixed stance do not create duplicate definitions.
+- One-Arm Landmine Split Jerk remains distinct because it adds rapid split
+  footwork, an extended-arm receive, catch stabilization, and ordered recovery.
+  Landmine Squat-to-Press remains distinct because it requires a deliberate
+  squat before continuous force transfer into the press.
+- The three cards add seven difficulty-only review variants, 14 contextual
+  delivery profiles, 48 evidence rows, 11 public-search YouTube candidates,
+  18 alternate assessments, eight review-only relationships, 21 review-only
+  calibrations, and three quarantined card-test packets.
+- The media candidates are deliberately stored with pending link state,
+  embedding disabled, exact match unset, and no reviewer or approval. Search
+  discovery does not substitute for playback, oEmbed, embedding, caption,
+  accessibility, safety, cue, or demonstration-quality review.
+- Exercise scores contain only exercise complexity and physical difficulty;
+  overall is their maximum. Athlete skill and proficiency levels remain
+  exclusive to the skill library.
+
+The research packet and static migration invariants pass locally. The focused
+102-test packet, focused ESLint, complete 651-test platform suite, management
+and launch smoke checks, CI syntax checks, and production build are green. The
+full backend suite retains one unrelated billing-test expectation mismatch, and
+repository-wide ESLint retains 45 errors outside this batch. A fresh disposable
+PostgreSQL application, direct idempotency rerun, runner checksum test,
+generated packet export, and full-library audit remain required before migration
+401 is promoted.
+
 ## Run the audit
 
 Apply all migrations, then run:

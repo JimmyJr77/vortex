@@ -345,6 +345,10 @@ const ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/398_coaching_one_arm_landmine_base_family_completion.sql', import.meta.url),
   'utf8',
 )
+const LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/401_coaching_landmine_explosive_press_family_completion.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -4397,6 +4401,139 @@ test('one-arm landmine base completion builds exact cards and keeps ambiguous Ar
   )
   assert.doesNotMatch(
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('landmine explosive press completion preserves action identities and difficulty-only scoring', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'401_coaching_landmine_explosive_press_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'one-arm-landmine-push-press',
+    'two-hand-landmine-push-press',
+    'one-arm-landmine-split-jerk',
+    'landmine-squat-to-press',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const variantKey of [
+    'unilateral-square-stance-dip-drive',
+    'unilateral-split-stance-dip-drive',
+    'bilateral-square-stance-dip-drive',
+    'working-arm-ipsilateral-to-lead-leg-split-jerk',
+    'working-arm-contralateral-to-lead-leg-split-jerk',
+    'bilateral-continuous-squat-to-press',
+    'unilateral-continuous-squat-to-press',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    'MwXJebZh4nk',
+    'M7P7qPojHZE',
+    '2O-AaN6dUSc',
+    'u-HAgu0odgY',
+    'Rc23TMvgY34',
+    'ccpp98MbLoM',
+    '5Rebfu_-T98',
+    'J4MJUcilrmo',
+    '0oJsNm_MreY',
+    'G9RpZXJcg10',
+    'qFwUiUkMlFg',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity, seed\.physical\)/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  for (const actionIdentity of [
+    'push_press_no_receiving_dip',
+    'split_jerk_receive',
+    'full_squat_to_press',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(actionIdentity),
+    )
+  }
+  for (const profileKey of [
+    'movement-intelligence-receive',
+    'capacity-strength-power',
+    'output-power',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(profileKey),
+    )
+  }
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /ARRAY\[1409,1410,1416,1417\]/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /migration-388 two-hand push-press consolidation/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /refused to overwrite % protected canonical definition/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /human-reviewed legacy score record/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /link_status = 'pending'/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })

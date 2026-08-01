@@ -3,7 +3,8 @@ export type MemberAccountTab =
   | 'security'
   | 'enrollments'
   | 'notes'
-  | 'billing'
+  | 'current-bill'
+  | 'billing-history'
   | 'missed-classes'
 
 export interface MemberRole {

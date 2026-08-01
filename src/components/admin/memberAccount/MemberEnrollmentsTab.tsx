@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Zap, RotateCcw } from 'lucide-react'
-import { adminFetchMemberEnrollments, type AdminEnrollmentRow } from '../../../utils/schedulingApi'
+import {
+  adminFetchMemberEnrollments,
+  adminFetchMemberPricingSummary,
+  type AdminEnrollmentRow,
+  type MemberPricingSummary,
+} from '../../../utils/schedulingApi'
 import { adminApiRequest } from '../../../utils/api'
 import AdminEnrollmentActionModal, {
   AdminEnrollmentStatusBadge,
@@ -22,10 +27,9 @@ type MemberEnrollmentGroup = FamilyMemberRef & {
   rows: AdminEnrollmentRow[]
 }
 
-type FamilyMonthlyTotals = {
-  grossCents: number
-  discountCents: number
-  netCents: number
+type FamilyBillingSnapshot = {
+  monthlyTotals: { grossCents: number; discountCents: number; netCents: number } | null
+  subscriptions: Array<{ sourceType?: string | null; sourceId?: string | number | null; status?: string }>
 }
 
 function memberLabel(member: { firstName?: string | null; lastName?: string | null }) {
@@ -122,9 +126,10 @@ export default function MemberEnrollmentsTab({
   // Route params can arrive as strings at runtime despite this component's TS contract.
   // Normalize once so the selected member and their family_member row share one Map key.
   const selectedMemberId = Number(memberId)
+  const [visibleMemberId, setVisibleMemberId] = useState(selectedMemberId)
   const [groups, setGroups] = useState<MemberEnrollmentGroup[]>([])
-  const [monthlyTotals, setMonthlyTotals] = useState<FamilyMonthlyTotals | null>(null)
-  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null)
+  const [pricing, setPricing] = useState<MemberPricingSummary | null>(null)
+  const [warnings, setWarnings] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRow, setActiveRow] = useState<AdminEnrollmentRow | null>(null)
@@ -139,6 +144,7 @@ export default function MemberEnrollmentsTab({
     })
     for (const member of familyData?.members ?? []) {
       if (member.id == null) continue
+      if (member.isActive === false && Number(member.id) !== selectedMemberId) continue
       byId.set(Number(member.id), {
         id: Number(member.id),
         firstName: member.firstName || '',
@@ -155,9 +161,9 @@ export default function MemberEnrollmentsTab({
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    setDuplicateWarning(null)
+    setWarnings([])
     try {
-      const [results, billingResult] = await Promise.all([
+      const [results, pricingResult, billingResult] = await Promise.all([
         Promise.all(
           familyMembers.map(async (member) => {
             try {
@@ -166,7 +172,9 @@ export default function MemberEnrollmentsTab({
                 id: member.id,
                 firstName: data.member?.firstName || member.firstName,
                 lastName: data.member?.lastName || member.lastName,
-                rows: data.rows ?? [],
+                rows: (data.rows ?? []).filter((row) =>
+                  ['confirmed', 'active', 'waitlisted', 'paused'].includes(row.status),
+                ),
               } satisfies MemberEnrollmentGroup
             } catch (err) {
               if (member.id === selectedMemberId) throw err
@@ -177,12 +185,16 @@ export default function MemberEnrollmentsTab({
             }
           }),
         ),
+        adminFetchMemberPricingSummary(selectedMemberId),
         familyId
           ? adminApiRequest(`/api/admin/families/${familyId}/billing-account`)
               .then(async (response) => {
                 if (!response.ok) return null
                 const body = await response.json()
-                return (body.data?.monthlyTotals ?? null) as FamilyMonthlyTotals | null
+                return {
+                  monthlyTotals: body.data?.monthlyTotals ?? null,
+                  subscriptions: body.data?.subscriptions ?? [],
+                } as FamilyBillingSnapshot
               })
               .catch(() => null)
           : Promise.resolve(null),
@@ -190,7 +202,12 @@ export default function MemberEnrollmentsTab({
 
       const enrollmentKeys = new Set<string>()
       const activeClassKeys = new Set<string>()
-      const suspectedDuplicates: string[] = []
+      const reconciliationWarnings: string[] = []
+      const subscriptionSignupIds = new Set(
+        (billingResult?.subscriptions ?? [])
+          .filter((subscription) => subscription.sourceType === 'scheduling_signup' && subscription.status !== 'cancelled')
+          .map((subscription) => Number(subscription.sourceId)),
+      )
       for (const group of results) {
         for (const row of group.rows) {
           const key = `${row.source}-${row.id}`
@@ -201,22 +218,29 @@ export default function MemberEnrollmentsTab({
 
           if (['confirmed', 'active', 'waitlisted', 'paused'].includes(row.status)) {
             const classKey = [group.id, row.form_id, row.slot_group_id, row.time_slot_id].join(':')
-            if (activeClassKeys.has(classKey)) suspectedDuplicates.push(memberLabel(group))
+            if (activeClassKeys.has(classKey)) {
+              reconciliationWarnings.push(`Possible duplicate active registration for ${memberLabel(group)}: ${row.class_name || 'class'} (enrollment ${row.id}).`)
+            }
             activeClassKeys.add(classKey)
+          }
+          if (['confirmed', 'active'].includes(row.status) && !subscriptionSignupIds.has(row.id)) {
+            reconciliationWarnings.push(`${memberLabel(group)}'s ${row.class_name || 'class'} enrollment ${row.id} is not linked to recurring billing.`)
           }
         }
       }
-      setGroups(results)
-      setMonthlyTotals(billingResult)
-      if (suspectedDuplicates.length > 0) {
-        setDuplicateWarning(
-          `Possible duplicate enrollment records found for ${[...new Set(suspectedDuplicates)].join(', ')}. Review the enrollment IDs before changing billing.`,
-        )
+
+      const expectedCents = Math.round((pricingResult.preview?.estimatedMonthlyTotal ?? 0) * 100)
+      const persistedCents = billingResult?.monthlyTotals?.netCents ?? 0
+      if (expectedCents !== persistedCents) {
+        reconciliationWarnings.push(`Expected family pricing is ${money(expectedCents)}, but recurring billing is ${money(persistedCents)}. Billing records require review.`)
       }
+      setGroups(results)
+      setPricing(pricingResult)
+      setWarnings([...new Set(reconciliationWarnings)])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load enrollments')
       setGroups([])
-      setMonthlyTotals(null)
+      setPricing(null)
     } finally {
       setLoading(false)
     }
@@ -226,7 +250,14 @@ export default function MemberEnrollmentsTab({
     void load()
   }, [load])
 
+  useEffect(() => {
+    setVisibleMemberId(selectedMemberId)
+  }, [selectedMemberId])
+
   const hasAnyRows = groups.some((group) => group.rows.length > 0)
+  const visibleGroup = groups.find((group) => group.id === visibleMemberId) ?? groups[0]
+  const expectedMonthlyCents = Math.round((pricing?.preview?.estimatedMonthlyTotal ?? 0) * 100)
+  const discountCents = Math.round((pricing?.preview?.totalDiscountMonthly ?? 0) * 100)
 
   return (
     <div className="space-y-4">
@@ -234,8 +265,8 @@ export default function MemberEnrollmentsTab({
         <div>
           <h4 className="text-sm font-semibold text-gray-900">Enrollments</h4>
           <p className="text-xs text-gray-500">
-            Classes for this member and their family, grouped by family member. Family billing uses
-            the billing account's discounts and adjustments.
+            Select a family member to see their current class registrations. Expected family pricing
+            comes from the enrollment pricing engine.
           </p>
         </div>
         <button
@@ -247,59 +278,69 @@ export default function MemberEnrollmentsTab({
         </button>
       </div>
 
+      {familyMembers.length > 1 ? (
+        <label className="block max-w-sm text-sm font-medium text-gray-700">
+          Family member
+          <select value={visibleMemberId} onChange={(event) => setVisibleMemberId(Number(event.target.value))} className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900">
+            {familyMembers.map((member) => <option key={member.id} value={member.id}>{memberLabel(member)}{member.id === selectedMemberId ? ' (selected account)' : ''}</option>)}
+          </select>
+        </label>
+      ) : null}
+
       {loading ? (
         <div className="flex items-center gap-2 text-gray-500 text-sm py-6">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading enrollments…
         </div>
       ) : error ? (
         <p className="text-sm text-red-600">{error}</p>
-      ) : !hasAnyRows && groups.length <= 1 ? (
+      ) : !hasAnyRows ? (
         <p className="text-sm text-gray-400">No enrollments on record.</p>
       ) : (
         <div className="space-y-5">
-          {groups.map((group) => (
+          {visibleGroup ? (
             <section
-              key={group.id}
+              key={visibleGroup.id}
               className="rounded-xl border border-gray-200 bg-white overflow-hidden"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 bg-gray-50 border-b border-gray-200">
                 <h5 className="text-sm font-bold text-gray-900">
-                  {memberLabel(group)}
-                  {group.id === selectedMemberId ? (
+                  {memberLabel(visibleGroup)}
+                  {visibleGroup.id === selectedMemberId ? (
                     <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-vortex-red">
                       Selected
                     </span>
                   ) : null}
                 </h5>
                 <span className="text-xs text-gray-500">
-                  {group.rows.length} enrollment{group.rows.length === 1 ? '' : 's'}
+                  {visibleGroup.rows.length} enrollment{visibleGroup.rows.length === 1 ? '' : 's'}
                 </span>
               </div>
               <div className="p-3">
-                <EnrollmentTable rows={group.rows} onManage={setActiveRow} />
+                <EnrollmentTable rows={visibleGroup.rows} onManage={setActiveRow} />
               </div>
             </section>
-          ))}
+          ) : null}
 
-          {hasAnyRows && monthlyTotals ? (
+          {pricing ? (
             <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 flex items-center justify-between gap-3">
               <div>
-                <span className="text-sm font-semibold text-gray-900">Family monthly billing</span>
-                {monthlyTotals.discountCents > 0 ? (
+                <span className="text-sm font-semibold text-gray-900">Expected family monthly cost</span>
+                {discountCents > 0 ? (
                   <div className="text-xs text-green-700">
-                    {money(monthlyTotals.discountCents)} in billing discounts applied
+                    {money(discountCents)} in pricing discounts applied
                   </div>
                 ) : null}
               </div>
-              <span className="text-sm font-semibold text-gray-900">{money(monthlyTotals.netCents)}</span>
+              <span className="text-sm font-semibold text-gray-900">{money(expectedMonthlyCents)}</span>
             </div>
           ) : null}
         </div>
       )}
 
-      {duplicateWarning ? (
+      {warnings.length > 0 ? (
         <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          {duplicateWarning}
+          <p className="font-semibold">Enrollment and billing records need review</p>
+          <ul className="mt-1 list-disc space-y-1 pl-5">{warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
         </div>
       ) : null}
 
