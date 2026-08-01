@@ -115,6 +115,7 @@ export default function MemberAccountPanel({
             <MemberEnrollmentsTab
               memberId={memberId}
               memberName={memberName}
+              familyId={member.familyId}
               familyData={familyData}
               enrollments={member.enrollments ?? []}
             />
