@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState, type SyntheticEvent } from 'react'
-import { Volume2, VolumeX } from 'lucide-react'
 import type { MessageRow } from './types'
 import {
-  criticalBubbleFlashStyle,
   messageBubbleClassName,
   messageFooterMeta,
-  resolveSenderPortal,
   type MessageViewer,
 } from './messageBubbleStyle'
 import MessageAttachmentDisplay from './MessageAttachmentDisplay'
@@ -13,7 +10,6 @@ import MessagingFileChip from './MessagingFileChip'
 import MessageReactionBar, { type MessageReactionGroup } from './MessageReactionBar'
 import MessageMentionBody from './MessageMentionBody'
 import { viewerIsMentioned } from './messageMentions'
-import { isCriticalFlashMuted, setCriticalFlashMuted } from './criticalFlashMute'
 import type { MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
@@ -63,31 +59,16 @@ export default function MessageBubble({
   const isDeleted = Boolean(message.deleted_at)
   const isEdited = Boolean(message.edited_at) && !isDeleted
   const isCritical = Boolean(message.is_critical) && !isDeleted
-  const senderPortal = resolveSenderPortal(message)
-  const [criticalFlashMuted, setCriticalFlashMutedState] = useState(() =>
-    isCritical ? isCriticalFlashMuted(message.id) : false,
-  )
   const mentionedYou = viewerIsMentioned(message, viewer)
   const files = message.files ?? []
+  const reactions = message.reactions ?? []
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const longPressHandled = useRef(false)
   const [actionMenu, setActionMenu] = useState<{ x: number; y: number } | null>(null)
 
-  useEffect(() => {
-    if (!isCritical) return
-    setCriticalFlashMutedState(isCriticalFlashMuted(message.id))
-  }, [isCritical, message.id])
-
-  const toggleCriticalFlashMute = () => {
-    const next = !criticalFlashMuted
-    setCriticalFlashMuted(message.id, next)
-    setCriticalFlashMutedState(next)
-  }
-
-  const showCriticalFlash = isCritical && !criticalFlashMuted
-
-  const hasContextMenu = Boolean(onReply || onPinComment || (canUnpin && onUnpin))
+  const canReact = !isDeleted && threadId != null && Boolean(role && fetcher) && !reactionsDisabled && !pinSelectionActive
+  const hasContextMenu = Boolean(canReact || onReply || onPinComment || (canUnpin && onUnpin))
 
   useEffect(() => {
     if (!actionMenu) return
@@ -122,11 +103,10 @@ export default function MessageBubble({
   return (
     <div
       className={`${messageBubbleClassName(message, viewer)}${
-        mentionedYou || isCritical ? ' ring-2 ring-vortex-red ring-offset-1' : ''
+        mentionedYou && !isCritical ? ' ring-2 ring-vortex-red ring-offset-1' : ''
       }${pinSelected ? ' ring-2 ring-amber-400 ring-offset-1' : ''}${
         pinSelectionActive && !isDeleted ? ' cursor-pointer' : ''
-      }${showCriticalFlash ? ' message-bubble-critical-flash' : ''} flex flex-col touch-manipulation`}
-      style={showCriticalFlash ? criticalBubbleFlashStyle(senderPortal) : undefined}
+      }${reactions.length > 0 ? ' mb-3' : ''} relative flex flex-col touch-manipulation`}
       onClick={pinSelectionActive ? handleBubbleClick : undefined}
       onContextMenu={(e) => {
         if (longPressHandled.current) {
@@ -177,6 +157,21 @@ export default function MessageBubble({
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
+          {canReact && role && fetcher && threadId != null ? (
+            <div className="border-b border-gray-100 px-2 py-1.5">
+              <p className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">React</p>
+              <MessageReactionBar
+                role={role}
+                threadId={threadId}
+                messageId={message.id}
+                fetcher={fetcher}
+                reactions={reactions}
+                mode="picker"
+                onPicked={() => setActionMenu(null)}
+                onUpdated={(updated) => onReactionsUpdated?.(message.id, updated)}
+              />
+            </div>
+          ) : null}
           {onReply && (
             <button
               type="button"
@@ -230,31 +225,12 @@ export default function MessageBubble({
       {(isCritical || isDeleted || isEdited) && (
         <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
           {isCritical && (
-            <>
-              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                Critical
-              </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleCriticalFlashMute()
-                }}
-                className="inline-flex items-center justify-center rounded-full p-0.5 text-amber-800/80 hover:text-amber-900 hover:bg-amber-100/80"
-                aria-label={criticalFlashMuted ? 'Unmute critical alert flash' : 'Mute critical alert flash'}
-                aria-pressed={criticalFlashMuted}
-                title={criticalFlashMuted ? 'Unmute flash' : 'Mute flash'}
-              >
-                {criticalFlashMuted ? (
-                  <VolumeX className="w-3 h-3" aria-hidden />
-                ) : (
-                  <Volume2 className="w-3 h-3" aria-hidden />
-                )}
-              </button>
-            </>
+            <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              Critical
+            </span>
           )}
           {message.requires_ack && isCritical && (
-            <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-800">
+            <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
               Ack required
             </span>
           )}
@@ -275,7 +251,7 @@ export default function MessageBubble({
           <div className="italic text-gray-500 text-sm">This message was deleted.</div>
         ) : (
           message.body && (
-            <MessageMentionBody body={message.body} participants={participants} viewer={viewer} />
+            <MessageMentionBody body={message.body} participants={participants} viewer={viewer} inverted={isCritical} />
           )
         )}
         {!isDeleted && message.attachment_url && (
@@ -294,17 +270,6 @@ export default function MessageBubble({
         )}
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0 w-full">
-        {!isDeleted && threadId != null && role && fetcher && (
-          <MessageReactionBar
-            role={role}
-            threadId={threadId}
-            messageId={message.id}
-            fetcher={fetcher}
-            reactions={message.reactions}
-            disabled={reactionsDisabled || pinSelectionActive}
-            onUpdated={(reactions) => onReactionsUpdated?.(message.id, reactions)}
-          />
-        )}
         <div className="ml-auto shrink-0 text-[10px] text-right opacity-70 tabular-nums whitespace-nowrap leading-tight">
           {footerMeta}
           {isEdited && !isDeleted && message.edited_at && (
@@ -312,6 +277,18 @@ export default function MessageBubble({
           )}
         </div>
       </div>
+      {reactions.length > 0 && threadId != null && role && fetcher ? (
+        <MessageReactionBar
+          role={role}
+          threadId={threadId}
+          messageId={message.id}
+          fetcher={fetcher}
+          reactions={reactions}
+          disabled={reactionsDisabled || pinSelectionActive}
+          className="absolute -bottom-3 left-3 z-10"
+          onUpdated={(updated) => onReactionsUpdated?.(message.id, updated)}
+        />
+      ) : null}
     </div>
   )
 }

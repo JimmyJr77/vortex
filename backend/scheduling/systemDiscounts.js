@@ -430,7 +430,9 @@ export async function computeAccountDiscountStats(
   if (!familyId && !memberId) return empty
 
   let dbLines = []
-  if (familyId) {
+  if (options.replaceDbLines) {
+    dbLines = []
+  } else if (familyId) {
     dbLines = await loadFamilyDbPaidLines(pool, familyId)
   } else {
     dbLines = await loadMemberDbPaidLines(pool, memberId)

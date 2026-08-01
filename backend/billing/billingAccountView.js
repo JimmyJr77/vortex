@@ -13,6 +13,7 @@
 
 import { loadPassUsageHistory } from '../programs/multiClassPass.js'
 import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
+import { buildRecurringBreakpoints } from './recurringPeriodPricing.js'
 import { reconcileEnrollmentLedger } from './enrollmentLedgerReconcile.js'
 import { isGenericCardMethod } from './paymentMethodLabel.js'
 import {
@@ -240,6 +241,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   }
 
   let subscriptions = []
+  let rawSubscriptions = []
   let subscriptionHistory = []
   try {
     const subsRes = await pool.query(
@@ -252,7 +254,8 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
       `,
       subParams,
     )
-    subscriptions = subsRes.rows.map(mapSubscription)
+    rawSubscriptions = subsRes.rows
+    subscriptions = rawSubscriptions.map(mapSubscription)
 
     const historyRes = await pool.query(
       `
@@ -268,6 +271,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   } catch (err) {
     logBillingQueryError('subscriptions', err)
     subscriptions = []
+    rawSubscriptions = []
     subscriptionHistory = []
   }
 
@@ -281,6 +285,18 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     },
     { grossCents: 0, discountCents: 0, netCents: 0 },
   )
+  let recurringBreakpoints = []
+  if (familyScope) {
+    try {
+      recurringBreakpoints = await buildRecurringBreakpoints(pool, {
+        familyId: account.family_id,
+        subscriptions: rawSubscriptions,
+        charges,
+      })
+    } catch (err) {
+      console.warn('[billingAccountView] recurring breakpoints:', err?.message ?? err)
+    }
+  }
 
   let membershipRedemptions = []
   try {
@@ -400,11 +416,31 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     bundleUsage = []
   }
 
+  const currentPeriod = buildCurrentPeriod({
+    charges,
+    payments,
+    subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
+  })
+  const currentPricing = recurringBreakpoints.find((item) => item.periodKey === currentPeriod.key)
+  if (currentPricing) {
+    const bySubscription = new Map(currentPricing.lines.map((line) => [Number(line.subscriptionId), line]))
+    currentPeriod.recurringEnrollments = currentPeriod.recurringEnrollments.map((subscription) => {
+      const line = bySubscription.get(Number(subscription.id))
+      return line ? {
+        ...subscription,
+        monthlyAmountCents: line.grossCents,
+        discountAmountCents: line.discountCents,
+        netMonthlyCents: line.netCents,
+      } : subscription
+    })
+  }
+
   return {
     charges,
     subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
     subscriptionHistory: subscriptionHistory.filter((s) => !isAnnualMembershipSubscription(s)),
     monthlyTotals,
+    recurringBreakpoints,
     membershipRenewsOn,
     hasActiveMembership,
     payments,
@@ -416,11 +452,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     balanceCents,
     bundlePasses,
     bundleUsage,
-    currentPeriod: buildCurrentPeriod({
-      charges,
-      payments,
-      subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
-    }),
+    currentPeriod,
     billingHistory: familyScope
       ? buildBillingHistory({ charges, payments, months: 12 })
       : buildBillingHistory({

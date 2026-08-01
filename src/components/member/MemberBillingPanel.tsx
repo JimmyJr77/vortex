@@ -132,6 +132,12 @@ export interface MemberBillingAccountData {
   bundleUsage?: BillingBundleUsage[]
   currentPeriod?: BillingCurrentPeriod | null
   billingHistory?: BillingHistoryMonth[]
+  recurringBreakpoints?: Array<{
+    periodKey: string
+    grossCents: number
+    discountCents: number
+    netCents: number
+  }>
 }
 
 interface MemberBillingPanelProps {
@@ -255,6 +261,23 @@ export default function MemberBillingPanel({
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null)
   const period = billingAccount?.currentPeriod
   const totals = period?.totals
+  const currentRecurring = billingAccount?.recurringBreakpoints?.find(
+    (item) => item.periodKey === period?.key,
+  )
+  const postedRecurringCents = period?.recurringCharges.reduce(
+    (sum, charge) => sum + charge.amountCents,
+    0,
+  ) ?? 0
+  const unpostedRecurringCents = Math.max(0, (currentRecurring?.netCents ?? 0) - postedRecurringCents)
+  const recurringSummary = billingAccount?.recurringBreakpoints?.length
+    ? billingAccount.recurringBreakpoints
+        .map((item) => {
+          const [year, month] = item.periodKey.split('-').map(Number)
+          const label = new Date(year, month - 1, 1).toLocaleDateString('en-US', { month: 'short' })
+          return `${formatMoney(item.netCents)}/mo (${label})`
+        })
+        .join(' | ')
+    : `${formatMoney(billingAccount?.monthlyTotals?.netCents ?? 0)}/mo`
 
   if (billingLoading) {
     return (
@@ -281,7 +304,7 @@ export default function MemberBillingPanel({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           <div className="rounded-xl border border-gray-200 p-4">
             <p className="text-xs uppercase tracking-wide text-gray-500">New charges</p>
-            <p className="text-xl font-bold text-gray-900">{formatMoney(totals?.chargesCents ?? 0)}</p>
+            <p className="text-xl font-bold text-gray-900">{formatMoney((totals?.chargesCents ?? 0) + unpostedRecurringCents)}</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
             <p className="text-xs uppercase tracking-wide text-gray-500">Outstanding balance</p>
@@ -297,7 +320,7 @@ export default function MemberBillingPanel({
           </div>
           <div className="rounded-xl border-2 border-black p-4 col-span-2 sm:col-span-1">
             <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
-            <p className="text-xl font-bold text-black">{formatMoney(totals?.balanceDueCents ?? 0)}</p>
+            <p className="text-xl font-bold text-black">{formatMoney((totals?.balanceDueCents ?? 0) + unpostedRecurringCents)}</p>
           </div>
         </div>
 
@@ -308,7 +331,7 @@ export default function MemberBillingPanel({
               <p className="text-sm text-gray-500">
                 Recurring monthly total:{' '}
                 <span className="text-gray-900">
-                  {formatMoney(billingAccount!.monthlyTotals!.netCents)}/mo
+                  {recurringSummary}
                 </span>
               </p>
             )}

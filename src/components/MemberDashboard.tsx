@@ -2055,13 +2055,12 @@ export default function MemberDashboard({
                     <div className="py-12 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">No family members found</div>
                   ) : (
                     <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
-                      <table className="w-full text-sm border-collapse min-w-[820px]">
+                      <table className="w-full text-sm border-collapse min-w-[680px]">
                         <thead>
                           <tr className="border-b border-gray-200 text-left text-gray-600 bg-gray-50">
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Member</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Contact</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Age</th>
-                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Enrolled In</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap w-0 text-right">Actions</th>
                           </tr>
@@ -2090,13 +2089,6 @@ export default function MemberDashboard({
                                 </td>
                                 <td className="py-3 px-4 align-middle text-gray-700">
                                   {member.age ?? '—'}
-                                </td>
-                                <td className="py-3 px-4 align-middle text-gray-700 max-w-[220px]">
-                                  {hasEnrollments ? (
-                                    <span className="text-xs">{enrollmentSummary}</span>
-                                  ) : (
-                                    <span className="text-gray-400">—</span>
-                                  )}
                                 </td>
                                 <td className="py-3 px-4 align-middle">
                                   <div className="flex flex-wrap gap-1">

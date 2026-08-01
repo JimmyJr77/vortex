@@ -17,6 +17,8 @@ interface MessageReactionBarProps {
   onUpdated?: (reactions: MessageReactionGroup[]) => void
   disabled?: boolean
   className?: string
+  mode?: 'selected' | 'picker'
+  onPicked?: () => void
 }
 
 const QUICK_EMOJI = ['👍', '❤️', '😂', '🎉', '👀']
@@ -36,6 +38,8 @@ export default function MessageReactionBar({
   onUpdated,
   disabled = false,
   className = '',
+  mode = 'selected',
+  onPicked,
 }: MessageReactionBarProps) {
   const [busy, setBusy] = useState(false)
 
@@ -58,6 +62,7 @@ export default function MessageReactionBar({
         }) as MessageReactionGroup[]
         onUpdated?.(updated)
       }
+      onPicked?.()
     } catch {
       /* best-effort */
     } finally {
@@ -67,28 +72,17 @@ export default function MessageReactionBar({
 
   return (
     <div className={`flex flex-wrap items-center gap-1 min-w-0 ${className}`.trim()}>
-      {reactions.map((r) => (
+      {(mode === 'picker' ? QUICK_EMOJI.map((emoji) => ({ emoji, count: reactions.find((reaction) => reaction.emoji === emoji)?.count ?? 0 })) : reactions).map((r) => (
         <button
           key={r.emoji}
           type="button"
           disabled={disabled || busy}
           onClick={() => void toggleReaction(r.emoji)}
-          className="inline-flex items-center gap-0.5 rounded-full bg-white/80 border border-gray-200 px-1.5 py-0.5 text-[11px] hover:bg-gray-50 disabled:opacity-50"
+          className={mode === 'picker' ? 'inline-flex h-8 w-8 items-center justify-center rounded-full text-base hover:bg-gray-100 disabled:opacity-50' : 'inline-flex items-center gap-0.5 rounded-full bg-white border border-gray-200 px-1.5 py-0.5 text-[11px] shadow-sm hover:bg-gray-50 disabled:opacity-50'}
+          aria-label={`${r.count > 0 ? 'Remove' : 'Add'} ${r.emoji} reaction`}
         >
           <span>{r.emoji}</span>
-          <span className="font-semibold text-gray-600">{r.count}</span>
-        </button>
-      ))}
-      {!disabled && QUICK_EMOJI.filter((e) => !reactions.some((r) => r.emoji === e)).map((emoji) => (
-        <button
-          key={emoji}
-          type="button"
-          disabled={busy}
-          onClick={() => void toggleReaction(emoji)}
-          className="rounded-full px-1 py-0.5 text-[11px] opacity-50 hover:opacity-100 hover:bg-white/60 disabled:opacity-30"
-          aria-label={`React with ${emoji}`}
-        >
-          {emoji}
+          {mode === 'selected' ? <span className="font-semibold text-gray-600">{r.count}</span> : null}
         </button>
       ))}
     </div>

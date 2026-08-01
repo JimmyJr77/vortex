@@ -21,9 +21,18 @@ interface AdminBillingAccount {
   subscriptions?: AdminSubscription[]
   charges?: AdminCharge[]
   payments?: BillingPaymentRow[]
+  recurringBreakpoints?: RecurringBreakpoint[]
 }
 
-type AdminSubscription = BillingSubscriptionSummary & { memberId?: number | null }
+interface RecurringBreakpoint {
+  periodKey: string
+  grossCents: number
+  discountCents: number
+  netCents: number
+  lines: Array<{ subscriptionId: number; grossCents: number; discountCents: number; netCents: number }>
+}
+
+type AdminSubscription = BillingSubscriptionSummary & { memberId?: number | null; startDate?: string | null }
 
 interface AdminCharge {
   id: number
@@ -144,23 +153,12 @@ function buildBillingHistoryFallback(account: AdminBillingAccount, asOf = new Da
 }
 
 function uncoveredRecurringCents(account: AdminBillingAccount, period: BillingCurrentPeriod) {
-  const active = (account.subscriptions ?? []).filter((subscription) => subscription.status === 'active')
-  const charges = (account.charges ?? []).filter((charge) =>
+  const expected = account.recurringBreakpoints?.find((item) => item.periodKey === period.key)?.netCents
+  if (expected == null) return 0
+  const posted = (account.charges ?? []).filter((charge) =>
     monthKey(chargeOccurredAt(charge)) === period.key && chargeCategory(charge) === 'recurring',
-  )
-  const usedChargeIndexes = new Set<number>()
-  return active.reduce((sum, subscription) => {
-    const matchIndex = charges.findIndex((charge, index) => {
-      if (usedChargeIndexes.has(index)) return false
-      if (charge.subscriptionId === subscription.id || charge.sourceId?.startsWith(`${subscription.id}:`)) return true
-      return charge.memberId === subscription.memberId && charge.amountCents === subscription.netMonthlyCents
-    })
-    if (matchIndex >= 0) {
-      usedChargeIndexes.add(matchIndex)
-      return sum
-    }
-    return sum + subscription.netMonthlyCents
-  }, 0)
+  ).reduce((sum, charge) => sum + charge.amountCents, 0)
+  return Math.max(0, expected - posted)
 }
 
 function BillingLine({
@@ -230,6 +228,9 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
     ['Payments', totals.paymentsCents],
     ['Balance due', totals.balanceDueCents + unpostedRecurringCents],
   ] as const
+  const recurringSummary = account.recurringBreakpoints?.length
+    ? account.recurringBreakpoints.map((item) => `${money(item.netCents)}/mo (${monthLabel(item.periodKey).split(' ')[0]})`).join(' | ')
+    : `${money(account.monthlyTotals?.netCents)}/mo`
 
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">
@@ -256,7 +257,7 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
       </div>
 
       <div className="mb-6 space-y-1 text-sm text-gray-500">
-        <p>Recurring monthly total: <span className="text-gray-900">{money(account.monthlyTotals?.netCents)}/mo</span></p>
+        <p>Recurring monthly total: <span className="text-gray-900">{recurringSummary}</span></p>
         {unpostedRecurringCents > 0 ? <p className="text-amber-700">Includes {money(unpostedRecurringCents)} in expected recurring tuition not yet posted to this month's ledger.</p> : null}
         {account.membershipRenewsOn ? <p>Membership Renews on: <span className="text-gray-900">{shortDate(account.membershipRenewsOn)}</span></p> : null}
       </div>

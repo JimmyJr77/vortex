@@ -1373,6 +1373,7 @@ export async function computeDiscountLayer(
     promoCodes = [],
     memberContext = null,
     previewExistingLines = [],
+    replaceDbLines = false,
   },
 ) {
   const empty = {
@@ -1491,7 +1492,7 @@ export async function computeDiscountLayer(
           pool,
           { familyId, memberId },
           lines,
-          { minPerClassCents, previewExistingLines },
+          { minPerClassCents, previewExistingLines, replaceDbLines },
         )
         const attachStats = (line) => {
           line.accountPaidClassCount = accountStats.paidClassCount

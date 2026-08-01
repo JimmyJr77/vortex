@@ -18,6 +18,7 @@ import {
   toDateString,
 } from './billingSubscriptions.js'
 import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
+import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
 
 /**
  * @param {import('pg').Pool} pool
@@ -61,6 +62,7 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
 
   let chargesPosted = 0
   let periodsAdvanced = 0
+  const periodPricing = new Map()
 
   for (const sub of due.rows) {
     let nextBill = parseDbDate(sub.next_bill_date)
@@ -73,6 +75,27 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
       const followingBill = addMonthsClamped(nextBill, 1, anchorDay)
       const periodStart = toDateString(nextBill)
       const periodEnd = toDateString(new Date(followingBill.getTime() - 24 * 60 * 60 * 1000))
+
+      const pricingKey = `${sub.family_billing_account_id}:${period}`
+      let familyPricing = periodPricing.get(pricingKey)
+      if (!familyPricing) {
+        const [subscriptionsRes, chargesRes, accountRes] = await Promise.all([
+          pool.query(`SELECT * FROM billing_subscription WHERE family_billing_account_id = $1 AND status = 'active'`, [sub.family_billing_account_id]),
+          pool.query(`SELECT * FROM billing_charge WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`, [sub.family_billing_account_id]),
+          pool.query(`SELECT family_id FROM family_billing_account WHERE id = $1`, [sub.family_billing_account_id]),
+        ])
+        familyPricing = await priceRecurringPeriod(pool, {
+          familyId: accountRes.rows[0]?.family_id,
+          subscriptions: subscriptionsRes.rows,
+          charges: chargesRes.rows,
+          periodKey: period,
+        })
+        periodPricing.set(pricingKey, familyPricing)
+      }
+      const periodLine = familyPricing.lines.find((line) => Number(line.subscriptionId) === Number(sub.id))
+      const grossCents = periodLine?.grossCents ?? Number(sub.monthly_amount_cents)
+      const discountCents = periodLine?.discountCents ?? Number(sub.discount_amount_cents)
+      const netCents = periodLine?.netCents ?? Number(sub.net_monthly_cents)
 
       const ins = await pool.query(
         `
@@ -91,9 +114,9 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
           sub.member_id,
           `${sub.id}:${period}`,
           sub.description,
-          sub.net_monthly_cents,
-          sub.monthly_amount_cents,
-          sub.discount_amount_cents,
+          netCents,
+          grossCents,
+          discountCents,
           sub.id,
           periodStart,
           periodEnd,

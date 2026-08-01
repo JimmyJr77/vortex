@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import type { MessageRow } from './types'
 import { formatMessageSenderDisplayName, formatMessageTime } from './messageFormatting'
 
@@ -57,35 +56,14 @@ export function isOwnMessage(message: MessageRow, viewer: MessageViewer): boolea
   return false
 }
 
-function portalBubbleStyles(portal: SenderPortal): string {
+function portalBubbleStyles(portal: SenderPortal, ownMessage: boolean): string {
   switch (portal) {
     case 'coach':
-      return 'bg-red-50 text-gray-900 border border-red-400'
+      return 'bg-orange-100 text-orange-950'
     case 'admin':
-      return 'bg-gray-100 text-gray-900 border border-gray-600'
+      return 'bg-pink-100 text-pink-950'
     default:
-      return 'bg-blue-50 text-gray-900 border border-blue-100'
-  }
-}
-
-/** Base bubble colors for critical flash animation (must match portalBubbleStyles). */
-export function criticalBubbleFlashStyle(portal: SenderPortal): CSSProperties {
-  switch (portal) {
-    case 'coach':
-      return {
-        '--critical-bubble-base-bg': '#fef2f2',
-        '--critical-bubble-base-border': '#f87171',
-      } as CSSProperties
-    case 'admin':
-      return {
-        '--critical-bubble-base-bg': '#f3f4f6',
-        '--critical-bubble-base-border': '#4b5563',
-      } as CSSProperties
-    default:
-      return {
-        '--critical-bubble-base-bg': '#eff6ff',
-        '--critical-bubble-base-border': '#dbeafe',
-      } as CSSProperties
+      return ownMessage ? 'bg-blue-100 text-blue-950' : 'bg-green-100 text-green-950'
   }
 }
 
@@ -98,8 +76,12 @@ export function portalShortLabel(portal: SenderPortal): string {
 export function messageBubbleClassName(message: MessageRow, viewer: MessageViewer): string {
   const base = 'rounded-lg px-3 py-2 text-sm max-w-[85%]'
   const portal = resolveSenderPortal(message)
-  const align = isOwnMessage(message, viewer) ? 'ml-auto' : 'ml-0'
-  return `${base} ${align} ${portalBubbleStyles(portal)}`
+  const ownMessage = isOwnMessage(message, viewer)
+  const align = ownMessage ? 'ml-auto' : 'ml-0'
+  const color = message.is_critical && !message.deleted_at
+    ? 'bg-red-600 text-white'
+    : portalBubbleStyles(portal, ownMessage)
+  return `${base} ${align} ${color}`
 }
 
 export function senderLabel(message: MessageRow, viewer: MessageViewer): string | null {
