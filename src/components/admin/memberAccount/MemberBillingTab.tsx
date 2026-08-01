@@ -18,6 +18,27 @@ interface AdminBillingAccount {
   billingHistory?: BillingHistoryMonth[]
   bundlePasses?: BillingBundlePass[]
   bundleUsage?: BillingBundleUsage[]
+  subscriptions?: AdminSubscription[]
+  charges?: AdminCharge[]
+  payments?: BillingPaymentRow[]
+}
+
+type AdminSubscription = BillingSubscriptionSummary & { memberId?: number | null }
+
+interface AdminCharge {
+  id: number
+  memberId?: number | null
+  memberName?: string | null
+  sourceType?: string | null
+  sourceId?: string | null
+  subscriptionId?: number | null
+  description: string
+  amountCents: number
+  grossAmountCents?: number
+  discountAmountCents?: number
+  chargeType?: string
+  servicePeriodStart?: string | null
+  createdAt: string
 }
 
 function money(cents: number | null | undefined) {
@@ -30,6 +51,116 @@ function shortDate(value: string) {
   const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/)
   if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).toLocaleDateString()
   return new Date(value).toLocaleDateString()
+}
+
+function monthKey(value: string | Date) {
+  if (typeof value === 'string') {
+    const match = value.match(/^(\d{4})-(\d{2})/)
+    if (match) return `${match[1]}-${match[2]}`
+  }
+  const date = value instanceof Date ? value : new Date(value)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+function monthLabel(key: string) {
+  const [year, month] = key.split('-').map(Number)
+  return new Date(year, month - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function chargeOccurredAt(charge: AdminCharge) {
+  if (charge.sourceType === 'scheduling_signup' && charge.chargeType === 'recurring') return charge.createdAt
+  return charge.servicePeriodStart || charge.createdAt
+}
+
+function chargeCategory(charge: AdminCharge) {
+  if (charge.sourceType === 'additional_fee') return 'membership_fee'
+  if (charge.chargeType === 'credit' || charge.amountCents < 0) return 'credit'
+  if (charge.chargeType === 'adjustment' && charge.amountCents > 0) return 'debit'
+  if (charge.sourceType === 'billing_subscription' || charge.chargeType === 'recurring') return 'recurring'
+  return 'one_time'
+}
+
+function toPeriodCharge(charge: AdminCharge): BillingPeriodCharge {
+  return {
+    id: charge.id,
+    description: charge.description,
+    amountCents: charge.amountCents,
+    grossCents: charge.grossAmountCents ?? charge.amountCents,
+    discountCents: charge.discountAmountCents ?? 0,
+    occurredAt: chargeOccurredAt(charge),
+    memberName: charge.memberName,
+  }
+}
+
+function buildCurrentPeriodFallback(account: AdminBillingAccount, asOf = new Date()): BillingCurrentPeriod {
+  const key = monthKey(asOf)
+  const charges = (account.charges ?? []).filter((charge) => monthKey(chargeOccurredAt(charge)) === key)
+  const payments = (account.payments ?? []).filter((payment) => monthKey(payment.paidAt) === key)
+  const byCategory = (category: string) => charges.filter((charge) => chargeCategory(charge) === category)
+  const ordinaryCharges = charges.filter((charge) => !['credit', 'debit'].includes(chargeCategory(charge)))
+  const chargesCents = ordinaryCharges.reduce((sum, charge) => sum + charge.amountCents, 0)
+  const debitsCents = byCategory('debit').reduce((sum, charge) => sum + charge.amountCents, 0)
+  const creditsCents = byCategory('credit').reduce((sum, charge) => sum + Math.abs(charge.amountCents), 0)
+  const paymentsCents = payments.reduce((sum, payment) => sum + payment.amountCents, 0)
+  const [year, month] = key.split('-').map(Number)
+  return {
+    key,
+    label: monthLabel(key),
+    startDate: `${key}-01`,
+    endDate: `${key}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`,
+    totals: { chargesCents, debitsCents, creditsCents, paymentsCents, balanceDueCents: chargesCents + debitsCents - creditsCents - paymentsCents },
+    membershipFees: byCategory('membership_fee').map((charge) => ({ description: charge.description, amountCents: charge.amountCents, paidAt: charge.createdAt, memberName: charge.memberName })),
+    recurringEnrollments: (account.subscriptions ?? []).filter((subscription) => subscription.status === 'active'),
+    recurringCharges: byCategory('recurring').map(toPeriodCharge),
+    oneTimePurchases: byCategory('one_time').map(toPeriodCharge),
+    debits: byCategory('debit').map(toPeriodCharge),
+    credits: byCategory('credit').map(toPeriodCharge),
+    payments,
+  }
+}
+
+function buildBillingHistoryFallback(account: AdminBillingAccount, asOf = new Date()): BillingHistoryMonth[] {
+  const cursor = new Date(asOf.getFullYear(), asOf.getMonth(), 1)
+  return Array.from({ length: 12 }, () => {
+    const key = monthKey(cursor)
+    const monthCharges = (account.charges ?? []).filter((charge) => monthKey(chargeOccurredAt(charge)) === key)
+    const monthPayments = (account.payments ?? []).filter((payment) => monthKey(payment.paidAt) === key)
+    const lines = [
+      ...monthCharges.map((charge) => ({ kind: chargeCategory(charge), description: charge.description, grossCents: charge.grossAmountCents ?? charge.amountCents, discountCents: charge.discountAmountCents ?? 0, netCents: charge.amountCents, occurredAt: chargeOccurredAt(charge), memberName: charge.memberName })),
+      ...monthPayments.map((payment) => ({ kind: 'payment', description: payment.method || 'Payment', netCents: -payment.amountCents, occurredAt: payment.paidAt })),
+    ].sort((a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime())
+    const [year, month] = key.split('-').map(Number)
+    const result: BillingHistoryMonth = {
+      periodKey: key,
+      label: monthLabel(key),
+      startDate: `${key}-01`,
+      endDate: `${key}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`,
+      closingBalanceCents: lines.reduce((sum, line) => sum + line.netCents, 0),
+      lines,
+    }
+    cursor.setMonth(cursor.getMonth() - 1)
+    return result
+  })
+}
+
+function uncoveredRecurringCents(account: AdminBillingAccount, period: BillingCurrentPeriod) {
+  const active = (account.subscriptions ?? []).filter((subscription) => subscription.status === 'active')
+  const charges = (account.charges ?? []).filter((charge) =>
+    monthKey(chargeOccurredAt(charge)) === period.key && chargeCategory(charge) === 'recurring',
+  )
+  const usedChargeIndexes = new Set<number>()
+  return active.reduce((sum, subscription) => {
+    const matchIndex = charges.findIndex((charge, index) => {
+      if (usedChargeIndexes.has(index)) return false
+      if (charge.subscriptionId === subscription.id || charge.sourceId?.startsWith(`${subscription.id}:`)) return true
+      return charge.memberId === subscription.memberId && charge.amountCents === subscription.netMonthlyCents
+    })
+    if (matchIndex >= 0) {
+      usedChargeIndexes.add(matchIndex)
+      return sum
+    }
+    return sum + subscription.netMonthlyCents
+  }, 0)
 }
 
 function BillingLine({
@@ -89,14 +220,15 @@ function PaymentList({ payments }: { payments: BillingPaymentRow[] }) {
 }
 
 function CurrentBill({ account }: { account: AdminBillingAccount }) {
-  const period = account.currentPeriod
-  const totals = period?.totals
+  const period = account.currentPeriod ?? buildCurrentPeriodFallback(account)
+  const totals = period.totals
+  const unpostedRecurringCents = uncoveredRecurringCents(account, period)
   const cards = [
-    ['New charges', totals?.chargesCents],
-    ['Outstanding balance', totals?.debitsCents],
-    ['Credits', totals?.creditsCents],
-    ['Payments', totals?.paymentsCents],
-    ['Balance due', totals?.balanceDueCents],
+    ['New charges', totals.chargesCents + unpostedRecurringCents],
+    ['Outstanding balance', totals.debitsCents],
+    ['Credits', totals.creditsCents],
+    ['Payments', totals.paymentsCents],
+    ['Balance due', totals.balanceDueCents + unpostedRecurringCents],
   ] as const
 
   return (
@@ -104,7 +236,7 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
       <div className="mb-6">
         <h4 className="flex items-center gap-2 text-xl font-bold text-gray-900">
           <CreditCard className="h-6 w-6 text-vortex-red" />
-          {period?.label ?? 'Current billing cycle'}
+          {period.label}
         </h4>
         <p className="mt-1 text-sm text-gray-600">
           This account uses calendar-month billing. Charges and payments for the current month appear
@@ -125,14 +257,15 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
 
       <div className="mb-6 space-y-1 text-sm text-gray-500">
         <p>Recurring monthly total: <span className="text-gray-900">{money(account.monthlyTotals?.netCents)}/mo</span></p>
+        {unpostedRecurringCents > 0 ? <p className="text-amber-700">Includes {money(unpostedRecurringCents)} in expected recurring tuition not yet posted to this month's ledger.</p> : null}
         {account.membershipRenewsOn ? <p>Membership Renews on: <span className="text-gray-900">{shortDate(account.membershipRenewsOn)}</span></p> : null}
       </div>
 
-      {(period?.membershipFees.length ?? 0) > 0 ? (
+      {period.membershipFees.length > 0 ? (
         <>
           <h5 className="mb-2 text-sm font-semibold text-gray-900">Membership fee</h5>
           <div className="mb-4 divide-y divide-gray-100 pl-4">
-            {period!.membershipFees.map((fee, index) => (
+            {period.membershipFees.map((fee, index) => (
               <BillingLine key={`${fee.description}-${index}`} primary={fee.description} meta={[fee.memberName, `Paid ${shortDate(fee.paidAt)}`].filter(Boolean).join(' · ')} amount={money(fee.amountCents)} />
             ))}
           </div>
@@ -140,18 +273,18 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
       ) : null}
 
       <h5 className="mb-2 text-sm font-semibold text-gray-900">Recurring enrollments</h5>
-      {(period?.recurringEnrollments.length ?? 0) === 0 ? (
+      {period.recurringEnrollments.length === 0 ? (
         <p className="mb-4 pl-4 text-sm text-gray-500">No recurring enrollments on the billing account.</p>
       ) : (
         <div className="mb-4 divide-y divide-gray-100 pl-4">
-          {period!.recurringEnrollments.map((sub: BillingSubscriptionSummary) => (
+          {period.recurringEnrollments.map((sub: BillingSubscriptionSummary) => (
             <BillingLine key={sub.id} primary={sub.description} meta={[sub.memberName, sub.status, sub.nextBillDate ? `next ${shortDate(sub.nextBillDate)}` : null].filter(Boolean).join(' · ')} amount={money(sub.netMonthlyCents)} />
           ))}
         </div>
       )}
 
       <h5 className="mb-2 text-sm font-semibold text-gray-900">One-time purchases</h5>
-      <ChargeList items={period?.oneTimePurchases ?? []} empty="No one-time purchases this month." />
+      <ChargeList items={period.oneTimePurchases} empty="No one-time purchases this month." />
       {(account.bundlePasses?.length ?? 0) > 0 ? (
         <>
           <h5 className="mb-2 text-sm font-semibold text-gray-900">Class bundles</h5>
@@ -163,11 +296,11 @@ function CurrentBill({ account }: { account: AdminBillingAccount }) {
         </>
       ) : null}
       <h5 className="mb-2 text-sm font-semibold text-gray-900">Outstanding balance</h5>
-      <ChargeList items={period?.debits ?? []} empty="No outstanding balance items." />
+      <ChargeList items={period.debits} empty="No outstanding balance items." />
       <h5 className="mb-2 text-sm font-semibold text-gray-900">Credits</h5>
-      <ChargeList items={period?.credits ?? []} empty="No credits." />
+      <ChargeList items={period.credits} empty="No credits." />
       <h5 className="mb-2 text-sm font-semibold text-gray-900">Payments this month</h5>
-      <PaymentList payments={period?.payments ?? []} />
+      <PaymentList payments={period.payments} />
     </section>
   )
 }
@@ -216,5 +349,8 @@ export default function MemberBillingTab({ familyId, view }: { familyId: number 
   if (loading) return <div className="flex items-center gap-2 py-6 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading billing…</div>
   if (error) return <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
   if (!account) return <p className="text-sm text-gray-500">This account is not linked to a family billing account.</p>
-  return view === 'current' ? <CurrentBill account={account} /> : <BillingHistory months={account.billingHistory ?? []} />
+  const history = (account.billingHistory?.length ?? 0) > 0
+    ? account.billingHistory!
+    : buildBillingHistoryFallback(account)
+  return view === 'current' ? <CurrentBill account={account} /> : <BillingHistory months={history} />
 }

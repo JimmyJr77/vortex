@@ -7,7 +7,7 @@
 -- mixed stationary and stepping actions. This migration re-authors a
 -- stationary candidate without approving or deleting that unresolved review.
 --
--- Public-search YouTube URLs are stored as pending, non-embeddable candidates.
+-- Public-search YouTube URLs are stored as unverified, non-embeddable candidates.
 -- No playback, oEmbed, exact-match, caption, accessibility, quality, reviewer,
 -- media, graph, calibration, card, or publication approval is claimed.
 --
@@ -711,3 +711,1229 @@ BEGIN
     fatigue_profile_json = EXCLUDED.fatigue_profile_json,
     programming_profile_json = EXCLUDED.programming_profile_json,
     updated_at = now();
+
+  INSERT INTO coaching.exercise_delivery_profile_v1 (
+    variant_id,
+    profile_key,
+    phase_key,
+    role,
+    purpose,
+    phase_suitability,
+    methodology_alignment,
+    objective_relevance_json,
+    dosage_json,
+    quality_gate,
+    stop_rules,
+    coach_instructions,
+    athlete_instructions,
+    expected_adaptation,
+    equipment_required,
+    logistics_json,
+    substitution_ids,
+    status,
+    time_model_json,
+    dose_scaling_json,
+    measurement_json,
+    support_prompts_json
+  )
+  SELECT
+    variant.id,
+    profile.profile_key,
+    profile.phase_key,
+    'primary',
+    CASE profile.profile_key
+      WHEN 'control-pattern'
+        THEN 'Rehearse the exact orientation, rack, stance or step, alignment, range, return, and set-down at low fatigue.'
+      WHEN 'output-power'
+        THEN 'Express a crisp front-leg return into the anchored press before step accuracy, timing, speed, or balance degrades.'
+      ELSE 'Build repeatable lower-body and exact-variant load tolerance without changing the stance, action order, or return.'
+    END,
+    CASE profile.profile_key
+      WHEN 'control-pattern' THEN 92
+      ELSE 90
+    END,
+    90,
+    jsonb_build_object(
+      'lowerBodyStrength',seed.physical,
+      'technicalQuality',seed.technical_fatigue,
+      'sideControl',seed.coordination,
+      'impact',seed.impact,
+      'pressingPower',CASE
+        WHEN seed.action_identity = 'reverse_lunge_return_to_press'
+          THEN seed.coordination
+        ELSE 0
+      END
+    ),
+    CASE profile.profile_key
+      WHEN 'control-pattern' THEN jsonb_build_object(
+        'sets',jsonb_build_array(2,4),
+        'repsPerSideOrTotal',jsonb_build_array(3,8),
+        'rpe',jsonb_build_array(3,6),
+        'restSeconds',jsonb_build_array(75,210),
+        'tempo','slow_controlled_full_reset',
+        'stopBeforeFailure',TRUE
+      )
+      WHEN 'output-power' THEN jsonb_build_object(
+        'sets',jsonb_build_array(3,6),
+        'repsPerSideOrTotal',jsonb_build_array(2,5),
+        'rpe',jsonb_build_array(4,7),
+        'restSeconds',jsonb_build_array(150,300),
+        'tempo','controlled_step_explosive_return_and_press_full_reset',
+        'stopBeforeFailure',TRUE
+      )
+      ELSE jsonb_build_object(
+        'sets',jsonb_build_array(3,5),
+        'repsPerSideOrTotal',CASE
+          WHEN seed.action_identity = 'reverse_lunge_return_to_press'
+            THEN jsonb_build_array(3,8)
+          ELSE jsonb_build_array(4,10)
+        END,
+        'rpe',jsonb_build_array(5,8),
+        'restSeconds',jsonb_build_array(120,360),
+        'tempo','controlled_descent_owned_ascent_and_return',
+        'stopBeforeFailure',TRUE
+      )
+    END,
+    'Every counted repetition preserves secure equipment, the declared orientation, rack or attachment, stance or step, side relationship, range, action order, alignment, return, and set-down.',
+    ARRAY[
+      'Stop for pain, neurologic symptoms, or dizziness.',
+      'Stop for anchor, collar, plate, handle, padding, floor, or lane failure.',
+      'Stop when stance, step, foot pressure, knee tracking, pelvis, trunk, rack, press timing, balance, range, or return differs from the exact variant.',
+      'Do not continue to grinding or uncontrolled failure.'
+    ]::TEXT[],
+    ARRAY[
+      'Verify equipment, orientation, rack or attachment, stance or step, side sequence, target range, load, and exit before the set.',
+      'Observe feet, knees, pelvis, trunk, rack, path, action order, finish, return, and set-down.',
+      'End the set at the first material alignment, timing, speed, balance, equipment, or symptom fault.'
+    ]::TEXT[],
+    ARRAY[
+      'Use the called rack or attachment, stance or step, side, and range.',
+      'Follow the exact squat, stationary split squat, hack squat, or reverse-lunge-to-press action without improvising.',
+      'Own the finish and return under control; stop when shape, timing, speed, or balance changes.'
+    ]::TEXT[],
+    CASE profile.profile_key
+      WHEN 'control-pattern'
+        THEN 'More repeatable setup, lower-body alignment, path, range, return, and set-down at low fatigue.'
+      WHEN 'output-power'
+        THEN 'Improved high-quality front-leg force transfer into the anchored press.'
+      ELSE 'Improved exact-variant lower-body strength, side balance, trunk control, and load tolerance.'
+    END,
+    ARRAY['landmine','barbell']::TEXT[],
+    jsonb_build_object(
+      'athletesPerStation',1,
+      'coachSightline','anchor_bar_and_plate_zone_feet_knees_pelvis_trunk_rack_path_and_return',
+      'requiredClearance','complete_bar_plate_stance_step_transfer_and_set_down_zone',
+      'setupSeconds',90,
+      'transitionSeconds',30,
+      'sharedEquipmentPolicy','Only one athlete enters the moving bar and plate zone.'
+    ),
+    '{}'::UUID[],
+    'review',
+    jsonb_build_object(
+      'repSeconds',CASE
+        WHEN seed.action_identity = 'reverse_lunge_return_to_press'
+          THEN 8
+        ELSE 6
+      END,
+      'setupSeconds',90,
+      'transitionSeconds',30,
+      'restIsExplicit',TRUE
+    ),
+    jsonb_build_object(
+      'scaleDown',jsonb_build_array('reduce_load','reduce_owned_range','reduce_repetitions','increase_rest','add_stable_support_when_identity_allows'),
+      'scaleUp',jsonb_build_array('increase_load_small_increment','increase_owned_range','increase_side_control','increase_velocity_only_for_output_profile'),
+      'neverScaleBy',jsonb_build_array('undeclared_stance_or_step_change','undeclared_rack_or_attachment_change','adding_foot_elevation','changing_press_timing','continuing_through_pain_or_loss_of_control')
+    ),
+    jsonb_build_object(
+      'track',jsonb_build_array('variant_key','orientation','rack_or_attachment','stance_or_step','side_relationship','range','load','sets','repetitions','rpe','rest_seconds','quality_stops'),
+      'qualityThreshold','All counted repetitions meet the exact variant gate.'
+    ),
+    jsonb_build_object(
+      'beforeSet',jsonb_build_array('confirm_exact_variant','confirm_equipment_and_lane','confirm_side_order_range_and_exit'),
+      'duringSet',jsonb_build_array('watch_alignment_path_action_order_and_symptoms','announce_first_material_quality_stop'),
+      'afterSet',jsonb_build_array('record_side_load_repetitions_rpe_and_faults','adjust_next_set_without_changing_identity')
+    )
+  FROM squat_lunge_variant_seed seed
+  JOIN coaching.exercise_definition_v1 definition
+    ON definition.facility_id = 1
+   AND definition.slug = seed.slug
+   AND definition.status <> 'archived'
+  JOIN coaching.exercise_variant_v1 variant
+    ON variant.definition_id = definition.id
+   AND variant.variant_key = seed.variant_key
+  CROSS JOIN LATERAL (
+    SELECT
+      CASE
+        WHEN raw.profile_key = 'control-pattern'
+          AND seed.action_identity = 'reverse_lunge_return_to_press'
+          THEN 'output-power'
+        ELSE raw.profile_key
+      END AS profile_key,
+      CASE
+        WHEN raw.profile_key = 'control-pattern'
+          AND seed.action_identity = 'reverse_lunge_return_to_press'
+          THEN 'output'
+        WHEN raw.profile_key = 'control-pattern'
+          THEN 'control_resilience'
+        ELSE 'capacity'
+      END AS phase_key
+    FROM (
+      VALUES
+        ('control-pattern'),
+        ('capacity-strength')
+    ) AS raw(profile_key)
+  ) profile
+  ON CONFLICT (variant_id, profile_key)
+  DO UPDATE SET
+    phase_key = EXCLUDED.phase_key,
+    role = EXCLUDED.role,
+    purpose = EXCLUDED.purpose,
+    phase_suitability = EXCLUDED.phase_suitability,
+    methodology_alignment = EXCLUDED.methodology_alignment,
+    objective_relevance_json = EXCLUDED.objective_relevance_json,
+    dosage_json = EXCLUDED.dosage_json,
+    quality_gate = EXCLUDED.quality_gate,
+    stop_rules = EXCLUDED.stop_rules,
+    coach_instructions = EXCLUDED.coach_instructions,
+    athlete_instructions = EXCLUDED.athlete_instructions,
+    expected_adaptation = EXCLUDED.expected_adaptation,
+    equipment_required = EXCLUDED.equipment_required,
+    logistics_json = EXCLUDED.logistics_json,
+    substitution_ids = EXCLUDED.substitution_ids,
+    status = 'review',
+    time_model_json = EXCLUDED.time_model_json,
+    dose_scaling_json = EXCLUDED.dose_scaling_json,
+    measurement_json = EXCLUDED.measurement_json,
+    support_prompts_json = EXCLUDED.support_prompts_json,
+    updated_at = now();
+
+  CREATE TEMP TABLE squat_lunge_evidence_seed (
+    section_key TEXT PRIMARY KEY,
+    source_url TEXT NOT NULL,
+    source_title TEXT NOT NULL,
+    source_publisher TEXT NOT NULL,
+    source_kind TEXT NOT NULL,
+    evidence_quality SMALLINT NOT NULL,
+    claims_json JSONB NOT NULL
+  ) ON COMMIT DROP;
+
+  INSERT INTO squat_lunge_evidence_seed VALUES
+    (
+      'identity',
+      'https://doi.org/10.1249/FIT.0000000000000982',
+      'The Landmine Squat Exercise',
+      'ACSM''s Health & Fitness Journal',
+      'peer_reviewed_research',
+      86,
+      '["A landmine squat uses a barbell constrained around a fixed pivot; rack, stance, support, foot movement, action order, path, and repetition boundary remain identity-critical.","Every candidate must declare orientation, sleeve support, foot policy, range, return, and whether a press is part of the repetition."]'::JSONB
+    ),
+    (
+      'taxonomy',
+      'https://www.frontiersin.org/journals/bioengineering-and-biotechnology/articles/10.3389/fbioe.2023.1277493/full',
+      'The effects of step length on the biomechanics of split squat movement',
+      'Frontiers in Bioengineering and Biotechnology',
+      'peer_reviewed_research',
+      88,
+      '["Squat, stationary split squat, and stepping lunge tasks differ in base of support, laterality, joint contribution, and repetition boundary.","Stance geometry, rack, hand count, arm-leg relationship, foot elevation, step direction, depth, tempo, load, and press timing are controlled dimensions."]'::JSONB
+    ),
+    (
+      'anatomy',
+      'https://pubmed.ncbi.nlm.nih.gov/34341315/',
+      'Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women',
+      'Journal of Strength and Conditioning Research',
+      'peer_reviewed_research',
+      90,
+      '["Landmine squat loading involves quadriceps, hamstring, and hip-extensor contributions with forces influenced by the anchored loading direction.","Record lower-extremity, pelvis, trunk, rack, and grip contributions; press variants also include shoulder, scapular, elbow, and wrist actions."]'::JSONB
+    ),
+    (
+      'biomechanics',
+      'https://pubmed.ncbi.nlm.nih.gov/34341315/',
+      'Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women',
+      'Journal of Strength and Conditioning Research',
+      'peer_reviewed_research',
+      90,
+      '["Landmine and goblet squat conditions produce different muscle activity and ground-reaction-force components, so implement geometry and body position are not interchangeable.","Observe secure pivot, stance and distance, owned range, foot-knee-pelvis control, rack, ascent path, return, and set-down."]'::JSONB
+    ),
+    (
+      'difficulty',
+      'https://pubmed.ncbi.nlm.nih.gov/26418958/',
+      'Joint Kinetics and Kinematics During Common Lower Limb Rehabilitation Exercises',
+      'Journal of Athletic Training',
+      'peer_reviewed_research',
+      88,
+      '["Lower-limb joint angles, moments, and ground-reaction forces differ across squat and lunge tasks, supporting exact-variant assessment.","Exercise complexity and physical difficulty are scored independently; overall equals their maximum. Exercise cards contain no athlete proficiency level."]'::JSONB
+    ),
+    (
+      'load_fatigue_recovery',
+      'https://pubmed.ncbi.nlm.nih.gov/34341315/',
+      'Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women',
+      'Journal of Strength and Conditioning Research',
+      'peer_reviewed_research',
+      90,
+      '["Landmine loading changes muscle activity and force components, so bar mass, plate mass, pivot distance, range, repetitions, tempo, side dose, and rest must be tracked.","Budget lower-body, trunk, rack, grip, pressing, technical fatigue, and recovery according to the exact variant."]'::JSONB
+    ),
+    (
+      'constraints',
+      'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+      'The Landmine Press—Implementation and Variation',
+      'National Strength and Conditioning Association',
+      'professional_standard',
+      84,
+      '["Landmine work requires a stable anchor, compatible barbell and loading hardware, and clear space for the complete bar and plate arc.","Declare floor traction, collars, plates, rack or attachment, stance or step lane, pickup, return, set-down, coach position, and exclusion zone."]'::JSONB
+    ),
+    (
+      'dosage',
+      'https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/',
+      'Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis',
+      'British Journal of Sports Medicine',
+      'peer_reviewed_research',
+      94,
+      '["Resistance dose and recovery account for sets, repetitions, load, effort, frequency, and exercise selection.","Use dose and rest that preserve exact stance or step, depth, rack, path, side balance, action order, and return."]'::JSONB
+    ),
+    (
+      'instructions',
+      'https://doi.org/10.1249/FIT.0000000000000982',
+      'The Landmine Squat Exercise',
+      'ACSM''s Health & Fitness Journal',
+      'peer_reviewed_research',
+      86,
+      '["Instruction separates equipment setup, rack transfer, stance or step, descent, bottom position, ascent, optional press, return, and set-down.","Declare lead side, counted range, pressure, press timing, and the response to a failed repetition."]'::JSONB
+    ),
+    (
+      'safety_stop_rules',
+      'https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf',
+      'Youth Resistance Training: Updated Position Statement Paper From the NSCA',
+      'National Strength and Conditioning Association',
+      'professional_standard',
+      88,
+      '["Qualified supervision, manageable resistance, correct technique, suitable equipment, and gradual progression are core safeguards.","Stop for symptoms, equipment movement, lost foot pressure, uncontrolled knee or pelvic motion, balance loss, trunk collapse, grinding, collision risk, or loss of the planned return."]'::JSONB
+    ),
+    (
+      'programming',
+      'https://pubmed.ncbi.nlm.nih.gov/34341315/',
+      'Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women',
+      'Journal of Strength and Conditioning Research',
+      'peer_reviewed_research',
+      90,
+      '["Anchored loading direction and exact execution affect the task and must be selected for the intended adaptation.","Place heavy or high-coordination variants before material lower-body, pressing, grip, or conditioning fatigue when force or action quality is the priority."]'::JSONB
+    ),
+    (
+      'athlete_support',
+      'https://doi.org/10.1249/FIT.0000000000000982',
+      'The Landmine Squat Exercise',
+      'ACSM''s Health & Fitness Journal',
+      'peer_reviewed_research',
+      86,
+      '["The athlete needs the exact rack, stance, pivot distance, hand count, side or step sequence, depth, load, repetitions, rest, and stop signal.","Reduce load, range, velocity, or support demand rather than silently changing stationary and stepping actions or adding a press."]'::JSONB
+    ),
+    (
+      'coach_support',
+      'https://pubmed.ncbi.nlm.nih.gov/34341315/',
+      'Differences in Muscle Activity and Kinetics Between the Goblet Squat and Landmine Squat in Men and Women',
+      'Journal of Strength and Conditioning Research',
+      'peer_reviewed_research',
+      90,
+      '["Anchored resistance gives coaches observable setup, loading-direction, stance, path, range, and finish checkpoints.","Expose anchor, collars, clearance, rack, stance, distance, side, step, depth, alignment, press timing, symptoms, dose, fatigue, and shutdown actions."]'::JSONB
+    ),
+    (
+      'accessibility',
+      'https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/',
+      'Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis',
+      'British Journal of Sports Medicine',
+      'peer_reviewed_research',
+      94,
+      '["Resistance exercise can be individualized through load, volume, range, effort, equipment, and recovery while preserving the intended task.","Options include a lighter bar, reduced owned range, fewer repetitions, longer rest, stable support, floor markers, written or audio cues, still images, and live instruction."]'::JSONB
+    ),
+    (
+      'alternates',
+      'https://pubmed.ncbi.nlm.nih.gov/26418958/',
+      'Joint Kinetics and Kinematics During Common Lower Limb Rehabilitation Exercises',
+      'Journal of Athletic Training',
+      'peer_reviewed_research',
+      88,
+      '["Stationary split squats and stepping lunges have different support and repetition boundaries; a press adds upper-body action and force transfer.","Rack, hand count, attachment, and arm-leg relationship can be variants; foot elevation, stepping, added press, rotation, jump, or clean can change identity."]'::JSONB
+    ),
+    (
+      'media',
+      'https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en',
+      'Embed videos and playlists',
+      'YouTube Help',
+      'manufacturer_instruction',
+      82,
+      '["YouTube documents privacy-enhanced embedding, but a discovered watch URL does not prove current embed permission or exact exercise match.","The stored public-search candidates remain pending and non-embeddable until playback, oEmbed, exact-variant, cue, safety, caption, accessibility, quality, reviewer, and approval checks occur."]'::JSONB
+    );
+
+  INSERT INTO coaching.exercise_section_evidence_v1 (
+    definition_id,
+    reviewed_card_version,
+    section_key,
+    source_url,
+    source_title,
+    source_publisher,
+    source_kind,
+    claims_json,
+    evidence_quality,
+    review_status,
+    reviewer_user_id,
+    reviewed_at
+  )
+  SELECT
+    definition.id,
+    definition.card_version,
+    evidence.section_key,
+    evidence.source_url,
+    evidence.source_title,
+    evidence.source_publisher,
+    evidence.source_kind,
+    evidence.claims_json,
+    evidence.evidence_quality,
+    'candidate',
+    NULL,
+    NULL
+  FROM coaching.exercise_definition_v1 definition
+  CROSS JOIN squat_lunge_evidence_seed evidence
+  WHERE definition.facility_id = 1
+    AND definition.slug = ANY(target_slugs)
+    AND definition.status <> 'archived'
+  ON CONFLICT (
+    definition_id,
+    reviewed_card_version,
+    section_key,
+    source_url
+  )
+  DO UPDATE SET
+    source_title = EXCLUDED.source_title,
+    source_publisher = EXCLUDED.source_publisher,
+    source_kind = EXCLUDED.source_kind,
+    claims_json = EXCLUDED.claims_json,
+    evidence_quality = EXCLUDED.evidence_quality,
+    review_status = 'candidate',
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    updated_at = now();
+
+  CREATE TEMP TABLE squat_lunge_relationship_seed (
+    from_slug TEXT NOT NULL,
+    from_key TEXT NOT NULL,
+    to_slug TEXT NOT NULL,
+    to_key TEXT NOT NULL,
+    relationship TEXT NOT NULL,
+    similarity SMALLINT NOT NULL,
+    reason TEXT NOT NULL,
+    conditions JSONB NOT NULL,
+    PRIMARY KEY (from_slug, from_key, to_slug, to_key, relationship)
+  ) ON COMMIT DROP;
+
+  INSERT INTO squat_lunge_relationship_seed VALUES
+    ('landmine-front-squat','bilateral-central-chest-sleeve-front-squat','landmine-front-squat','unilateral-shoulder-rack-front-squat','lateral_substitution',84,'Rack and hand count change symmetry, trunk demand, grip, load tolerance, and side dose while the bilateral fixed-pivot squat remains.','{"changedAttributes":["rack","hand_count","load_symmetry","trunk_demand","side_dose"],"reassessLoadAndDose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-front-squat','unilateral-shoulder-rack-front-squat','landmine-front-squat','bilateral-central-chest-sleeve-front-squat','lateral_substitution',84,'Rack and hand count change symmetry, trunk demand, grip, load tolerance, and side dose while the bilateral fixed-pivot squat remains.','{"changedAttributes":["rack","hand_count","load_symmetry","trunk_demand","side_dose"],"reassessLoadAndDose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-front-squat','bilateral-central-chest-sleeve-front-squat','landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','progression',68,'The stationary split squat adds a unilateral base, declared lead leg, side relationship, and balance demand.','{"changedAttributes":["stance","laterality","rack","side_relationship","balance"],"condition":"objective_accepts_unilateral_stationary_strength_and_identity_review_is_approved","humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','landmine-front-squat','bilateral-central-chest-sleeve-front-squat','regression',68,'The bilateral central-rack front squat removes the unilateral stationary split and side relationship.','{"changedAttributes":["stance","laterality","rack","side_relationship","balance"],"condition":"objective_accepts_bilateral_squat_and_redosed_load","humanReviewRequired":true}'::JSONB),
+    ('landmine-hack-squat','shoulder-supported-away-facing-hack-squat','landmine-front-squat','bilateral-central-chest-sleeve-front-squat','lateral_substitution',62,'Both are anchored squat patterns, but body orientation, sleeve support, force direction, transfer, and failure response differ.','{"changedAttributes":["orientation","load_position","support","transfer","failure_response"],"reassessLoadRangeAndExit":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-front-squat','bilateral-central-chest-sleeve-front-squat','landmine-hack-squat','shoulder-supported-away-facing-hack-squat','lateral_substitution',62,'Both are anchored squat patterns, but body orientation, sleeve support, force direction, transfer, and failure response differ.','{"changedAttributes":["orientation","load_position","support","transfer","failure_response"],"reassessLoadRangeAndExit":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','landmine-split-squat','contralateral-shoulder-rack-stationary-split-squat','lateral_substitution',86,'The fixed-foot split-squat action remains while the rack-to-lead-leg relationship changes cross-body stabilization and side dose.','{"changedAttributes":["rack_to_lead_leg","trunk_stabilization","side_dose"],"requiresExactSideRedose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','contralateral-shoulder-rack-stationary-split-squat','landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','lateral_substitution',86,'The fixed-foot split-squat action remains while the rack-to-lead-leg relationship changes cross-body stabilization and side dose.','{"changedAttributes":["rack_to_lead_leg","trunk_stabilization","side_dose"],"requiresExactSideRedose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','landmine-split-squat','two-hand-neutral-handle-stationary-split-squat','lateral_substitution',78,'A two-hand compatible handle changes attachment, rack, symmetry, grip, and load tolerance while both feet remain fixed.','{"changedAttributes":["attachment","rack","hand_count","symmetry","grip","load_tolerance"],"reassessEquipmentLoadAndDose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','two-hand-neutral-handle-stationary-split-squat','landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','lateral_substitution',78,'A unilateral shoulder rack changes attachment, symmetry, trunk demand, grip, and side dose while both feet remain fixed.','{"changedAttributes":["attachment","rack","hand_count","symmetry","trunk_demand","side_dose"],"reassessEquipmentLoadAndDose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','landmine-reverse-lunge-to-press','working-arm-ipsilateral-to-step-back-leg-drive-to-press','progression',60,'The reverse-lunge-to-press adds a required step away from and return to a bilateral start plus an ordered press.','{"changedAttributes":["foot_motion","start_finish","press_action","timing","upper_body_load"],"condition":"objective_accepts_step_and_press_and_both_identities_are_reviewed","humanReviewRequired":true}'::JSONB),
+    ('landmine-reverse-lunge-to-press','working-arm-ipsilateral-to-step-back-leg-drive-to-press','landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','regression',60,'The stationary split squat removes the repeated step and press while preserving a declared unilateral rack and lead-leg relationship.','{"changedAttributes":["foot_motion","start_finish","press_action","timing","upper_body_load"],"condition":"objective_accepts_stationary_lower_body_strength_and_identity_review_is_approved","humanReviewRequired":true}'::JSONB),
+    ('landmine-reverse-lunge-to-press','working-arm-ipsilateral-to-step-back-leg-drive-to-press','landmine-reverse-lunge-to-press','working-arm-contralateral-to-step-back-leg-drive-to-press','lateral_substitution',84,'The same step-back and drive-to-press sequence uses the opposite arm-to-step-back-leg relationship.','{"changedAttributes":["arm_to_step_back_leg","cross_body_stabilization","side_dose"],"requiresExactSideRedose":true,"humanReviewRequired":true}'::JSONB),
+    ('landmine-reverse-lunge-to-press','working-arm-contralateral-to-step-back-leg-drive-to-press','landmine-reverse-lunge-to-press','working-arm-ipsilateral-to-step-back-leg-drive-to-press','lateral_substitution',84,'The same step-back and drive-to-press sequence uses the opposite arm-to-step-back-leg relationship.','{"changedAttributes":["arm_to_step_back_leg","cross_body_stabilization","side_dose"],"requiresExactSideRedose":true,"humanReviewRequired":true}'::JSONB);
+
+  INSERT INTO coaching.exercise_relationship_v1 (
+    from_variant_id,
+    to_variant_id,
+    relationship,
+    similarity_score,
+    dimensions,
+    reason,
+    conditions_json,
+    review_status,
+    created_by,
+    reviewed_by,
+    reviewed_at
+  )
+  SELECT
+    from_variant.id,
+    to_variant.id,
+    seed.relationship,
+    seed.similarity,
+    ARRAY['complexity','load','stability','action_sequence','support']::TEXT[],
+    seed.reason,
+    seed.conditions,
+    'review',
+    NULL,
+    NULL,
+    NULL
+  FROM squat_lunge_relationship_seed seed
+  JOIN coaching.exercise_definition_v1 from_definition
+    ON from_definition.facility_id = 1
+   AND from_definition.slug = seed.from_slug
+  JOIN coaching.exercise_variant_v1 from_variant
+    ON from_variant.definition_id = from_definition.id
+   AND from_variant.variant_key = seed.from_key
+  JOIN coaching.exercise_definition_v1 to_definition
+    ON to_definition.facility_id = 1
+   AND to_definition.slug = seed.to_slug
+  JOIN coaching.exercise_variant_v1 to_variant
+    ON to_variant.definition_id = to_definition.id
+   AND to_variant.variant_key = seed.to_key
+  ON CONFLICT (from_variant_id, to_variant_id, relationship)
+  DO UPDATE SET
+    similarity_score = EXCLUDED.similarity_score,
+    dimensions = EXCLUDED.dimensions,
+    reason = EXCLUDED.reason,
+    conditions_json = EXCLUDED.conditions_json,
+    review_status = 'review',
+    created_by = NULL,
+    reviewed_by = NULL,
+    reviewed_at = NULL,
+    updated_at = now()
+  WHERE coaching.exercise_relationship_v1.review_status = 'review';
+
+  INSERT INTO coaching.exercise_score_calibration_v1 (
+    facility_id,
+    variant_id,
+    dimension,
+    proposed_score,
+    anchor_tier,
+    rationale,
+    status,
+    version,
+    created_by,
+    reviewed_by,
+    review_notes,
+    reviewed_at
+  )
+  SELECT
+    1,
+    variant.id,
+    calibration.dimension,
+    calibration.score,
+    CASE
+      WHEN calibration.score < 30 THEN 20
+      WHEN calibration.score < 50 THEN 40
+      WHEN calibration.score < 70 THEN 60
+      ELSE 80
+    END,
+    CASE calibration.dimension
+      WHEN 'technicalComplexity'
+        THEN 'Candidate exercise-complexity score reflects exact orientation, rack, support, stance or step, side relationship, action order, path, range, return, and control; human anchor review is pending.'
+      WHEN 'absoluteLoadDemand'
+        THEN 'Candidate physical-difficulty score reflects external load tolerance, lower-body force, unilateral or pressing demand, trunk transfer, grip, and repeatable quality; human anchor review is pending.'
+      ELSE 'Overall is deterministically derived as the maximum of exercise complexity and physical difficulty; human calibration approval is pending.'
+    END,
+    'review',
+    1,
+    NULL,
+    NULL,
+    'Research proposal only; compare against approved facility anchors before approval.',
+    NULL
+  FROM squat_lunge_variant_seed seed
+  JOIN coaching.exercise_definition_v1 definition
+    ON definition.facility_id = 1
+   AND definition.slug = seed.slug
+  JOIN coaching.exercise_variant_v1 variant
+    ON variant.definition_id = definition.id
+   AND variant.variant_key = seed.variant_key
+  CROSS JOIN LATERAL (
+    VALUES
+      ('technicalComplexity', seed.complexity),
+      ('absoluteLoadDemand', seed.physical),
+      ('baseOverallDifficulty', greatest(seed.complexity, seed.physical))
+  ) AS calibration(dimension, score)
+  ON CONFLICT (facility_id, variant_id, dimension, version)
+  DO UPDATE SET
+    proposed_score = EXCLUDED.proposed_score,
+    anchor_tier = EXCLUDED.anchor_tier,
+    rationale = EXCLUDED.rationale,
+    status = 'review',
+    created_by = NULL,
+    reviewed_by = NULL,
+    review_notes = EXCLUDED.review_notes,
+    reviewed_at = NULL,
+    updated_at = now()
+  WHERE coaching.exercise_score_calibration_v1.status = 'review';
+
+  CREATE TEMP TABLE squat_lunge_media_seed (
+    slug TEXT NOT NULL,
+    video_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    channel_name TEXT,
+    source_query TEXT NOT NULL,
+    notes TEXT NOT NULL,
+    PRIMARY KEY (slug, video_id)
+  ) ON COMMIT DROP;
+
+  INSERT INTO squat_lunge_media_seed VALUES
+    ('landmine-front-squat','docorX86lEg','How To Do The Landmine Front Squat (The Right Way)','Fitness 4 Back Pain','landmine front squat tutorial','Public search result candidate. Playback, oEmbed, exact rack, stance, depth, embedding, captions, quality, reviewer and approval remain pending.'),
+    ('landmine-front-squat','rxwiKvk4H2s','Landmine Goblet Squat Beginner Friendly Strength','Chris Liddle: Fitness, Growth, and Skills','landmine goblet squat','Public search result candidate. Naming equivalence, exact setup and every media gate remain pending.'),
+    ('landmine-front-squat','oTRl7p13XtY','Landmine Goblet Squat - OPEX Exercise Library','OPEX Fitness','landmine goblet squat exercise','Public search result candidate. Naming equivalence, exact setup and every media gate remain pending.'),
+    ('landmine-front-squat','hLVh6VDjpDg','Landmine Squat','Breaking Muscle','landmine squat exercise','Public article embed candidate. Exact rack, stance, range and all media gates remain pending.'),
+    ('landmine-front-squat','NfoJhEvRcFA','Landmine goblet squat',NULL,'landmine front squat','Public article-linked candidate. Channel, playback, exact match and all approval gates remain pending.'),
+    ('landmine-hack-squat','0X3mydcwZGU','Landmine Hack Squat','The Official Beast Lab presented by Greg Gurenlian','landmine hack squat','Public search result candidate. Playback, oEmbed, exact setup, embedding, captions, quality, reviewer and approval remain pending.'),
+    ('landmine-hack-squat','KnT02UvXUJE','HAVE YOU TRIED A LANDMINE HACK SQUAT?','Tom Peto Training','landmine hack squat demo','Public search result candidate. Exact shoulder support, foot position and every media gate remain pending.'),
+    ('landmine-hack-squat','BS9jpHWIwH8','Landmine Hack Squat','Breaking Muscle','landmine hack squat exercise','Public article embed candidate. Playback, exact variant and every approval gate remain pending.'),
+    ('landmine-split-squat','Vse04Q-SFz4','The Landmine Split Squat','Testosterone Nation','landmine split squat','Public search result candidate. Playback, oEmbed, exact stationary action, rack relationship, embedding, captions, quality, reviewer and approval remain pending.'),
+    ('landmine-split-squat','c-MKGioqmbQ','Exercise Demo: Landmine Split Squat','Justin Ochoa','landmine split squat exercise demo','Public search result candidate. Exact stance, rack and every media gate remain pending.'),
+    ('landmine-split-squat','yx-ta5JphKo','Landmine Split Squat | Exercise Demo | Coaching Software | QuickCoach','QuickCoach','landmine split squat tutorial','Public search result candidate. Exact arm-leg relationship and all approval gates remain pending.'),
+    ('landmine-reverse-lunge-to-press','PSvv3LvzIkQ','Landmine Reverse Lunge + Press','Jenny LaBaw','landmine reverse lunge to press','Public search result candidate. Playback, oEmbed, exact arm-leg relationship and press timing, embedding, captions, quality, reviewer and approval remain pending.'),
+    ('landmine-reverse-lunge-to-press','DqwMGTl4gvk','Landmine Single Arm Reverse Lunge to Press','Garrett McLaughlin','single arm landmine reverse lunge to press','Public search result candidate. Exact step and press sequence and every media gate remain pending.'),
+    ('landmine-reverse-lunge-to-press','1GzW5PGkmt8','Reverse Lunge & Press','Higher Level Performance','landmine reverse lunge and press','Public article-linked candidate. Playback, exact variant and every approval gate remain pending.');
+
+  INSERT INTO coaching.exercise_media_candidate_v1 (
+    definition_id,
+    variant_id,
+    reviewed_card_version,
+    url,
+    embed_url,
+    video_id,
+    title,
+    channel_name,
+    duration_seconds,
+    language_code,
+    captions_available,
+    embedding_allowed,
+    exact_variant_match,
+    demonstration_quality_score,
+    link_status,
+    review_status,
+    discovery_method,
+    source_query,
+    reviewer_user_id,
+    reviewed_at,
+    notes
+  )
+  SELECT
+    definition.id,
+    NULL,
+    definition.card_version,
+    'https://www.youtube.com/watch?v=' || media.video_id,
+    'https://www.youtube-nocookie.com/embed/' || media.video_id,
+    media.video_id,
+    media.title,
+    media.channel_name,
+    NULL,
+    'en',
+    NULL,
+    FALSE,
+    NULL,
+    NULL,
+    'unverified',
+    'candidate',
+    'manual_research',
+    media.source_query,
+    NULL,
+    NULL,
+    media.notes
+  FROM squat_lunge_media_seed media
+  JOIN coaching.exercise_definition_v1 definition
+    ON definition.facility_id = 1
+   AND definition.slug = media.slug
+   AND definition.status <> 'archived'
+  ON CONFLICT (definition_id, reviewed_card_version, video_id)
+  DO UPDATE SET
+    variant_id = NULL,
+    url = EXCLUDED.url,
+    embed_url = EXCLUDED.embed_url,
+    title = EXCLUDED.title,
+    channel_name = EXCLUDED.channel_name,
+    duration_seconds = NULL,
+    language_code = 'en',
+    captions_available = NULL,
+    embedding_allowed = FALSE,
+    exact_variant_match = NULL,
+    demonstration_quality_score = NULL,
+    link_status = 'unverified',
+    review_status = 'candidate',
+    discovery_method = 'manual_research',
+    source_query = EXCLUDED.source_query,
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    notes = EXCLUDED.notes,
+    updated_at = now();
+
+  CREATE TEMP TABLE squat_lunge_alternate_seed (
+    slug TEXT NOT NULL,
+    alternate_name TEXT NOT NULL,
+    classification TEXT NOT NULL,
+    rationale TEXT NOT NULL,
+    dimensions JSONB NOT NULL,
+    proposed_card JSONB,
+    PRIMARY KEY (slug, alternate_name)
+  ) ON COMMIT DROP;
+
+  INSERT INTO squat_lunge_alternate_seed VALUES
+    ('landmine-front-squat','Bilateral Central-Rack Landmine Front Squat','new_variant','Two-hand central support is the base exact landmine front-squat variant.','{"variantKey":"bilateral-central-chest-sleeve-front-squat","handCount":2,"rack":"central_chest"}'::JSONB,NULL),
+    ('landmine-front-squat','Unilateral Shoulder-Rack Landmine Front Squat','new_variant','A one-shoulder rack adds anti-rotation and side-dose demands without changing the bilateral squat action.','{"variantKey":"unilateral-shoulder-rack-front-squat","handCount":1,"rack":"declared_shoulder"}'::JSONB,NULL),
+    ('landmine-front-squat','Landmine Hack Squat','new_definition','Facing away with the sleeve beside or behind a shoulder changes load position, body orientation, path and failure response.','{"existingSlug":"landmine-hack-squat","orientation":"away_from_pivot"}'::JSONB,NULL),
+    ('landmine-front-squat','Landmine Squat-to-Press','new_definition','Adding a press after the squat changes the ordered action, upper-body load and repetition boundary.','{"existingSlug":"landmine-squat-to-press","addedAction":"press"}'::JSONB,NULL),
+    ('landmine-front-squat','Free-Weight Front Squat','new_definition','A free barbell or other anterior implement lacks the fixed pivot and diagonal landmine force path.','{"existingSlug":"front-squat","anchor":"none"}'::JSONB,NULL),
+    ('landmine-front-squat','Depth, Heel Elevation, Pause or Tempo','modifier_annotation','These change range and dose while the front-supported fixed-pivot squat identity remains intact.','{"modifiers":["depth","heel_elevation","bottom_pause","eccentric_tempo","load"]}'::JSONB,NULL),
+    ('landmine-hack-squat','Shoulder-Supported Landmine Hack Squat','new_variant','This is the base exact away-facing landmine hack-squat contract.','{"variantKey":"shoulder-supported-away-facing-hack-squat","orientation":"away_from_pivot"}'::JSONB,NULL),
+    ('landmine-hack-squat','Padded Sleeve or Viking-Handle Support','modifier_annotation','Padding or a compatible attachment changes contact and grip without changing the squat action when the same path is preserved.','{"modifiers":["contact_padding","compatible_handle_attachment"]}'::JSONB,NULL),
+    ('landmine-hack-squat','Landmine Front Squat','new_definition','Facing the pivot with a central chest rack changes orientation, load position and failure response.','{"existingSlug":"landmine-front-squat","orientation":"toward_pivot"}'::JSONB,NULL),
+    ('landmine-hack-squat','Machine Hack Squat','new_definition','A machine carriage, back pad and sled path are a different equipment and support contract.','{"equipment":"hack_squat_machine"}'::JSONB,NULL),
+    ('landmine-hack-squat','Landmine Split Squat','new_definition','A stationary asymmetrical stance creates unilateral side dose and balance demands.','{"existingSlug":"landmine-split-squat","stance":"split"}'::JSONB,NULL),
+    ('landmine-hack-squat','Depth, Heel Elevation or Tempo','modifier_annotation','These scale range and dose while preserving the away-facing shoulder-supported identity.','{"modifiers":["depth","heel_elevation","eccentric_tempo","bottom_pause","load"]}'::JSONB,NULL),
+    ('landmine-split-squat','Ipsilateral Shoulder-Rack Landmine Split Squat','new_variant','Shoulder rack and lead leg share a side within the fixed-stance identity.','{"variantKey":"ipsilateral-shoulder-rack-stationary-split-squat","rackToLeadLeg":"ipsilateral"}'::JSONB,NULL),
+    ('landmine-split-squat','Contralateral Shoulder-Rack Landmine Split Squat','new_variant','The cross-body rack changes trunk stabilization and side-dose demands.','{"variantKey":"contralateral-shoulder-rack-stationary-split-squat","rackToLeadLeg":"contralateral"}'::JSONB,NULL),
+    ('landmine-split-squat','Two-Hand Neutral-Handle Landmine Split Squat','new_variant','The consolidated legacy handle changes attachment, wrist and load handling while the stance remains stationary.','{"variantKey":"two-hand-neutral-handle-stationary-split-squat","legacySourceSlug":"landmine-handle-grip-split-squat"}'::JSONB,NULL),
+    ('landmine-split-squat','Landmine Reverse Lunge','new_definition','A reverse lunge steps away from and returns to a bilateral start each repetition.','{"requiredFootMotion":"step_back_and_return"}'::JSONB,NULL),
+    ('landmine-split-squat','Rear-Foot-Elevated Landmine Split Squat','new_definition','Rear-foot elevation changes support, range, balance, loading and failure response.','{"support":"rear_foot_elevated"}'::JSONB,NULL),
+    ('landmine-split-squat','Stance, Depth, Pause or Tempo','modifier_annotation','These scale mechanics and dose while the fixed-foot split-squat action remains intact.','{"modifiers":["stance_length","stance_width","depth","bottom_pause","eccentric_tempo","load"]}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Ipsilateral Arm-to-Step-Back-Leg Reverse Lunge to Press','new_variant','The working arm and step-back leg share a side within the defined drive-to-press sequence.','{"variantKey":"working-arm-ipsilateral-to-step-back-leg-drive-to-press","armToStepBackLeg":"ipsilateral"}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Contralateral Arm-to-Step-Back-Leg Reverse Lunge to Press','new_variant','The cross-body relationship changes trunk stabilization and side-dose demands.','{"variantKey":"working-arm-contralateral-to-step-back-leg-drive-to-press","armToStepBackLeg":"contralateral"}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Bilateral Rear Lunge While Pressing','new_definition','Pressing during the step-back descent has a different action order and overhead support phase from pressing during the return toward standing.','{"status":"proposal_only_human_review_required","pressTiming":"during_step_back_descent"}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Landmine Reverse Lunge','new_definition','Removing the press changes the upper-body action, force transfer, dose and repetition boundary.','{"addedAction":"none"}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Landmine Split Squat to Press','new_definition','A fixed split stance has no required step away from and return to a bilateral start.','{"startAndFinish":"stationary_split"}'::JSONB,NULL),
+    ('landmine-reverse-lunge-to-press','Step Length, Lunge Depth, Press Range or Tempo','modifier_annotation','These scale the exact step-back and drive-to-press sequence without changing its ordered identity.','{"modifiers":["step_length","lunge_depth","press_range","eccentric_tempo","load"]}'::JSONB,NULL);
+
+  INSERT INTO coaching.exercise_alternate_assessment_v1 (
+    definition_id,
+    reviewed_card_version,
+    alternate_name,
+    classification,
+    rationale,
+    distinguishing_dimensions,
+    proposed_card_json,
+    review_status,
+    reviewer_user_id,
+    reviewed_at
+  )
+  SELECT
+    definition.id,
+    definition.card_version,
+    alternate.alternate_name,
+    alternate.classification,
+    alternate.rationale,
+    alternate.dimensions,
+    alternate.proposed_card,
+    'candidate',
+    NULL,
+    NULL
+  FROM squat_lunge_alternate_seed alternate
+  JOIN coaching.exercise_definition_v1 definition
+    ON definition.facility_id = 1
+   AND definition.slug = alternate.slug
+   AND definition.status <> 'archived'
+  ON CONFLICT (definition_id, reviewed_card_version, alternate_name)
+  DO UPDATE SET
+    classification = EXCLUDED.classification,
+    rationale = EXCLUDED.rationale,
+    distinguishing_dimensions = EXCLUDED.distinguishing_dimensions,
+    proposed_card_json = EXCLUDED.proposed_card_json,
+    review_status = 'candidate',
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    updated_at = now();
+
+  INSERT INTO coaching.exercise_card_test_packet_v1 (
+    definition_id,
+    facility_id,
+    card_version,
+    schema_version,
+    audit_version,
+    status,
+    checks_json,
+    blocking_issues_json,
+    human_review_required,
+    checked_at
+  )
+  SELECT
+    definition.id,
+    definition.facility_id,
+    definition.card_version,
+    definition.schema_version,
+    migration_key,
+    'quarantined',
+    jsonb_build_object(
+      'stableIdentityAndAliases',TRUE,
+      'identityResolved',definition.slug <> 'landmine-split-squat',
+      'controlledTaxonomyPresent',TRUE,
+      'anatomyJointsActionsPlanesLateralityPresent',TRUE,
+      'difficultyFormulaValid',NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_variant_v1 variant
+        WHERE variant.definition_id = definition.id
+          AND variant.status = 'review'
+          AND (variant.difficulty_json->>'baseOverallDifficulty')::INTEGER
+            <> greatest(
+              (variant.difficulty_json->>'technicalComplexity')::INTEGER,
+              (variant.difficulty_json->>'absoluteLoadDemand')::INTEGER
+            )
+      ),
+      'exerciseProficiencyClassificationAbsent',
+        NOT coaching.exercise_json_has_level_classification(
+          jsonb_build_array(
+            definition.provenance_json,
+            definition.environment_json,
+            definition.population_json,
+            definition.anatomy_json,
+            definition.athlete_support_json,
+            definition.coach_support_json,
+            definition.support_operations_json
+          )
+        ),
+      'loadFatigueRecoveryPresent',(
+        SELECT count(*)
+        FROM coaching.exercise_variant_v1 variant
+        WHERE variant.definition_id = definition.id
+          AND variant.status = 'review'
+          AND variant.load_profile_json <> '{}'::JSONB
+          AND variant.fatigue_profile_json <> '{}'::JSONB
+      ) > 0,
+      'equipmentEnvironmentPopulationPresent',
+        cardinality(definition.required_equipment) > 0
+        AND definition.environment_json <> '{}'::JSONB
+        AND definition.population_json <> '{}'::JSONB,
+      'deliveryProfilesPresent',(
+        SELECT count(*)
+        FROM coaching.exercise_variant_v1 variant
+        JOIN coaching.exercise_delivery_profile_v1 profile
+          ON profile.variant_id = variant.id
+        WHERE variant.definition_id = definition.id
+          AND profile.status = 'review'
+      ) > 0,
+      'coachAndAthleteSupportPresent',
+        definition.coach_support_json <> '{}'::JSONB
+        AND definition.athlete_support_json <> '{}'::JSONB,
+      'allEvidenceSectionsPresent',(
+        SELECT count(DISTINCT evidence.section_key)
+        FROM coaching.exercise_section_evidence_v1 evidence
+        WHERE evidence.definition_id = definition.id
+          AND evidence.reviewed_card_version = definition.card_version
+          AND evidence.review_status = 'candidate'
+      ) = 16,
+      'mediaCandidateCount',(
+        SELECT count(DISTINCT media.video_id)
+        FROM coaching.exercise_media_candidate_v1 media
+        WHERE media.definition_id = definition.id
+          AND media.reviewed_card_version = definition.card_version
+          AND media.review_status = 'candidate'
+          AND media.link_status = 'unverified'
+          AND media.embedding_allowed IS FALSE
+      ),
+      'mediaVerifiedOrApprovedCount',(
+        SELECT count(*)
+        FROM coaching.exercise_media_candidate_v1 media
+        WHERE media.definition_id = definition.id
+          AND media.reviewed_card_version = definition.card_version
+          AND (
+            media.link_status = 'healthy'
+            OR media.embedding_allowed IS TRUE
+            OR media.exact_variant_match IS NOT NULL
+            OR media.review_status <> 'candidate'
+          )
+      ),
+      'alternateAssessmentsPresent',(
+        SELECT count(*)
+        FROM coaching.exercise_alternate_assessment_v1 alternate
+        WHERE alternate.definition_id = definition.id
+          AND alternate.reviewed_card_version = definition.card_version
+          AND alternate.review_status = 'candidate'
+      ) = 6,
+      'relationshipsAreReviewOnly',NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_variant_v1 variant
+        JOIN coaching.exercise_relationship_v1 relationship
+          ON relationship.from_variant_id = variant.id
+          OR relationship.to_variant_id = variant.id
+        WHERE variant.definition_id = definition.id
+          AND relationship.review_status <> 'review'
+      ),
+      'calibrationsAreReviewOnly',NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_variant_v1 variant
+        JOIN coaching.exercise_score_calibration_v1 calibration
+          ON calibration.variant_id = variant.id
+        WHERE variant.definition_id = definition.id
+          AND calibration.status <> 'review'
+      ),
+      'selectableExactVariantCount',(
+        SELECT count(*)
+        FROM coaching.exercise_variant_v1 variant
+        WHERE variant.definition_id = definition.id
+          AND variant.status = 'review'
+          AND variant.requirements_json->>'selectable' = 'true'
+      )
+    ),
+    jsonb_build_array(
+      jsonb_build_object(
+        'code','CARD-MEDIA-01',
+        'message','Three to five public-search YouTube candidates require playback, oEmbed, exact-variant, safety, cue, caption, accessibility, quality, reviewer, and approval review.'
+      ),
+      jsonb_build_object(
+        'code','CARD-PUBLISH-01',
+        'message','No current two-person card or publication approval exists.'
+      ),
+      jsonb_build_object(
+        'code','CARD-GRAPH-03',
+        'message','Review-only progression, regression, and substitution relationships require human approval.'
+      ),
+      jsonb_build_object(
+        'code','CARD-CALIBRATION-01',
+        'message','Difficulty proposals require independent human anchor review.'
+      )
+    ) || CASE
+      WHEN definition.slug = 'landmine-split-squat' THEN jsonb_build_array(
+        jsonb_build_object(
+          'code','CARD-IDENTITY-02',
+          'message','Migration 369 preserved an unresolved identity boundary between the re-authored stationary landmine split squat and a broader legacy split-squat source; human review is required.'
+        )
+      )
+      ELSE '[]'::JSONB
+    END,
+    TRUE,
+    now()
+  FROM coaching.exercise_definition_v1 definition
+  WHERE definition.facility_id = 1
+    AND definition.slug = ANY(target_slugs)
+    AND definition.status <> 'archived'
+  ON CONFLICT (definition_id)
+  DO UPDATE SET
+    facility_id = EXCLUDED.facility_id,
+    card_version = EXCLUDED.card_version,
+    schema_version = EXCLUDED.schema_version,
+    audit_version = EXCLUDED.audit_version,
+    status = EXCLUDED.status,
+    checks_json = EXCLUDED.checks_json,
+    blocking_issues_json = EXCLUDED.blocking_issues_json,
+    human_review_required = TRUE,
+    checked_at = now();
+
+  IF EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+      AND variant.status = 'review'
+      AND (
+        (variant.difficulty_json->>'baseOverallDifficulty')::INTEGER
+          <> greatest(
+            (variant.difficulty_json->>'technicalComplexity')::INTEGER,
+            (variant.difficulty_json->>'absoluteLoadDemand')::INTEGER
+          )
+        OR coaching.exercise_json_has_level_classification(
+          jsonb_build_array(
+            variant.difficulty_json,
+            variant.requirements_json,
+            variant.load_profile_json,
+            variant.fatigue_profile_json,
+            variant.programming_profile_json
+          )
+        )
+      )
+  ) THEN
+    RAISE EXCEPTION
+      '% produced an invalid difficulty formula or prohibited level classification',
+      migration_key;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+    JOIN coaching.exercise_delivery_profile_v1 profile
+      ON profile.variant_id = variant.id
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+      AND profile.status = 'review'
+      AND coaching.exercise_json_has_level_classification(
+        jsonb_build_array(
+          profile.objective_relevance_json,
+          profile.dosage_json,
+          profile.logistics_json,
+          profile.time_model_json,
+          profile.dose_scaling_json,
+          profile.measurement_json,
+          profile.support_prompts_json
+        )
+      )
+  ) THEN
+    RAISE EXCEPTION
+      '% produced a prohibited level classification in a delivery profile',
+      migration_key;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 definition
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+      AND (
+        definition.card_version <> 2
+        OR definition.status <> 'review'
+        OR definition.approved_video_url IS NOT NULL
+        OR definition.reviewed_by IS NOT NULL
+        OR definition.approved_by IS NOT NULL
+        OR definition.last_reviewed_at IS NOT NULL
+        OR definition.provenance_json->>'structuralCompletionMigration'
+          IS DISTINCT FROM migration_key
+        OR coaching.exercise_json_has_level_classification(
+          jsonb_build_array(
+            definition.provenance_json,
+            definition.environment_json,
+            definition.population_json,
+            definition.anatomy_json,
+            definition.athlete_support_json,
+            definition.coach_support_json,
+            definition.support_operations_json
+          )
+        )
+      )
+  ) THEN
+    RAISE EXCEPTION
+      '% did not leave every target at unapproved review card version 2 without proficiency metadata',
+      migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM squat_lunge_variant_seed seed
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = 1
+     AND definition.slug = seed.slug
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+     AND variant.variant_key = seed.variant_key
+     AND variant.status = 'review'
+  ) <> 8 THEN
+    RAISE EXCEPTION '% did not create all 8 exact review variants', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM squat_lunge_variant_seed seed
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = 1
+     AND definition.slug = seed.slug
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+     AND variant.variant_key = seed.variant_key
+    JOIN coaching.exercise_delivery_profile_v1 profile
+      ON profile.variant_id = variant.id
+     AND profile.status = 'review'
+  ) <> 16 THEN
+    RAISE EXCEPTION '% did not create all 16 contextual delivery profiles', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_section_evidence_v1 evidence
+      ON evidence.definition_id = definition.id
+     AND evidence.reviewed_card_version = definition.card_version
+     AND evidence.review_status = 'candidate'
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+  ) <> 64 THEN
+    RAISE EXCEPTION '% did not create all 64 candidate evidence rows', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_media_candidate_v1 media
+      ON media.definition_id = definition.id
+     AND media.reviewed_card_version = definition.card_version
+     AND media.review_status = 'candidate'
+     AND media.link_status = 'unverified'
+     AND media.embedding_allowed IS FALSE
+     AND media.exact_variant_match IS NULL
+     AND media.demonstration_quality_score IS NULL
+     AND media.reviewer_user_id IS NULL
+     AND media.reviewed_at IS NULL
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+  ) <> 14 THEN
+    RAISE EXCEPTION '% did not create all 14 unverified, non-embeddable media candidates', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_alternate_assessment_v1 alternate
+      ON alternate.definition_id = definition.id
+     AND alternate.reviewed_card_version = definition.card_version
+     AND alternate.review_status = 'candidate'
+     AND alternate.reviewer_user_id IS NULL
+     AND alternate.reviewed_at IS NULL
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+  ) <> 24 THEN
+    RAISE EXCEPTION '% did not create all 24 candidate alternate assessments', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM squat_lunge_relationship_seed seed
+    JOIN coaching.exercise_definition_v1 from_definition
+      ON from_definition.facility_id = 1
+     AND from_definition.slug = seed.from_slug
+    JOIN coaching.exercise_variant_v1 from_variant
+      ON from_variant.definition_id = from_definition.id
+     AND from_variant.variant_key = seed.from_key
+    JOIN coaching.exercise_definition_v1 to_definition
+      ON to_definition.facility_id = 1
+     AND to_definition.slug = seed.to_slug
+    JOIN coaching.exercise_variant_v1 to_variant
+      ON to_variant.definition_id = to_definition.id
+     AND to_variant.variant_key = seed.to_key
+    JOIN coaching.exercise_relationship_v1 relationship
+      ON relationship.from_variant_id = from_variant.id
+     AND relationship.to_variant_id = to_variant.id
+     AND relationship.relationship = seed.relationship
+     AND relationship.review_status = 'review'
+     AND relationship.reviewed_by IS NULL
+     AND relationship.reviewed_at IS NULL
+  ) <> 14 THEN
+    RAISE EXCEPTION '% did not create all 14 review-only relationships', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM squat_lunge_variant_seed seed
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = 1
+     AND definition.slug = seed.slug
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+     AND variant.variant_key = seed.variant_key
+    JOIN coaching.exercise_score_calibration_v1 calibration
+      ON calibration.variant_id = variant.id
+     AND calibration.status = 'review'
+     AND calibration.reviewed_by IS NULL
+     AND calibration.reviewed_at IS NULL
+     AND calibration.dimension IN (
+       'technicalComplexity',
+       'absoluteLoadDemand',
+       'baseOverallDifficulty'
+     )
+  ) <> 24 THEN
+    RAISE EXCEPTION '% did not create all 24 review-only calibration rows', migration_key;
+  END IF;
+
+  IF (
+    SELECT count(*)
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_card_test_packet_v1 packet
+      ON packet.definition_id = definition.id
+     AND packet.card_version = definition.card_version
+     AND packet.status = 'quarantined'
+     AND packet.human_review_required IS TRUE
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+  ) <> 4 THEN
+    RAISE EXCEPTION '% did not create all 4 quarantined card test packets', migration_key;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_media_candidate_v1 media
+      ON media.definition_id = definition.id
+     AND media.reviewed_card_version = definition.card_version
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+      AND (
+        media.review_status <> 'candidate'
+        OR media.link_status <> 'unverified'
+        OR media.embedding_allowed IS DISTINCT FROM FALSE
+        OR media.exact_variant_match IS NOT NULL
+        OR media.demonstration_quality_score IS NOT NULL
+        OR media.reviewer_user_id IS NOT NULL
+        OR media.reviewed_at IS NOT NULL
+      )
+  ) OR EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 definition
+    JOIN coaching.exercise_alternate_assessment_v1 alternate
+      ON alternate.definition_id = definition.id
+     AND alternate.reviewed_card_version = definition.card_version
+    WHERE definition.facility_id = 1
+      AND definition.slug = ANY(target_slugs)
+      AND (
+        alternate.review_status <> 'candidate'
+        OR alternate.reviewer_user_id IS NOT NULL
+        OR alternate.reviewed_at IS NOT NULL
+      )
+  ) OR EXISTS (
+    SELECT 1
+    FROM squat_lunge_relationship_seed seed
+    JOIN coaching.exercise_definition_v1 from_definition
+      ON from_definition.facility_id = 1
+     AND from_definition.slug = seed.from_slug
+    JOIN coaching.exercise_variant_v1 from_variant
+      ON from_variant.definition_id = from_definition.id
+     AND from_variant.variant_key = seed.from_key
+    JOIN coaching.exercise_definition_v1 to_definition
+      ON to_definition.facility_id = 1
+     AND to_definition.slug = seed.to_slug
+    JOIN coaching.exercise_variant_v1 to_variant
+      ON to_variant.definition_id = to_definition.id
+     AND to_variant.variant_key = seed.to_key
+    JOIN coaching.exercise_relationship_v1 relationship
+      ON relationship.from_variant_id = from_variant.id
+     AND relationship.to_variant_id = to_variant.id
+     AND relationship.relationship = seed.relationship
+    WHERE relationship.review_status <> 'review'
+       OR relationship.reviewed_by IS NOT NULL
+       OR relationship.reviewed_at IS NOT NULL
+  ) OR EXISTS (
+    SELECT 1
+    FROM squat_lunge_variant_seed seed
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = 1
+     AND definition.slug = seed.slug
+    JOIN coaching.exercise_variant_v1 variant
+      ON variant.definition_id = definition.id
+     AND variant.variant_key = seed.variant_key
+    JOIN coaching.exercise_score_calibration_v1 calibration
+      ON calibration.variant_id = variant.id
+    WHERE calibration.status <> 'review'
+       OR calibration.reviewed_by IS NOT NULL
+       OR calibration.reviewed_at IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION '% created or retained an unsupported approval state', migration_key;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 survivor
+    JOIN coaching.exercise_definition_source_v1 source
+      ON source.definition_id = survivor.id
+     AND source.legacy_exercise_id = 1453
+    JOIN coaching.exercise_definition_v1 duplicate
+      ON duplicate.facility_id = survivor.facility_id
+     AND duplicate.slug = 'landmine-handle-grip-split-squat'
+     AND duplicate.status = 'archived'
+    WHERE survivor.facility_id = 1
+      AND survivor.slug = 'landmine-split-squat'
+      AND survivor.status = 'review'
+  ) THEN
+    RAISE EXCEPTION '% lost the archived handle-grip split-squat source mapping', migration_key;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM coaching.exercise_definition_v1 landmine
+    JOIN coaching.exercise_definition_v1 general
+      ON general.facility_id = landmine.facility_id
+     AND general.slug = 'split-squat'
+     AND general.status <> 'archived'
+    JOIN coaching.exercise_identity_resolution_v1 resolution
+      ON resolution.survivor_definition_id IN (landmine.id, general.id)
+     AND resolution.resolved_definition_id IN (landmine.id, general.id)
+     AND resolution.decision = 'needs_human_review'
+    WHERE landmine.facility_id = 1
+      AND landmine.slug = 'landmine-split-squat'
+      AND landmine.status = 'review'
+  ) THEN
+    RAISE EXCEPTION '% lost the unresolved split-squat identity-review boundary', migration_key;
+  END IF;
+END
+$$;

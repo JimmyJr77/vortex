@@ -966,7 +966,7 @@ On 2026-07-26:
   consolidation and models hand count and fixed stance as exact variants while
   retaining the split receive and full-squat action as separate identities.
 - The batch adds seven difficulty-only review variants, 14 delivery profiles,
-  48 evidence rows, 11 pending non-embeddable YouTube candidates, 18 alternate
+  48 evidence rows, 11 unverified non-embeddable YouTube candidates, 18 alternate
   assessments, eight review-only relationships, 21 review-only calibrations,
   and three quarantined packets. It creates no media, graph, calibration,
   card-review, variant, profile, or publication approval and stores no exercise
@@ -980,12 +980,57 @@ On 2026-07-26:
   errors outside these files. Disposable PostgreSQL application and rerun,
   normal-runner checksum verification, generated packet export, and the updated
   full-library audit remain pending.
+- Migration 402 completes candidate structure for Landmine Front Squat,
+  Landmine Hack Squat, Landmine Split Squat, and Landmine Reverse Lunge to
+  Press. It preserves migration 369's archived handle-grip source mapping and
+  the unresolved human-review boundary between the re-authored stationary
+  landmine split squat and the broader legacy split-squat source.
+- The batch adds eight exact difficulty-only review variants, 16 contextual
+  delivery profiles, 64 evidence rows, 14 unverified non-embeddable YouTube
+  candidates, 24 alternate assessments, 14 review-only relationships, 24
+  review-only calibrations, and four quarantined card-test packets. It creates
+  no approval state. The split-squat packet carries an additional
+  `CARD-IDENTITY-02` blocker.
+- Migration 402 stores no athlete skill or proficiency classification. Its
+  difficulty dimensions are exercise complexity and physical difficulty, with
+  overall derived as their maximum. Media discovery is not treated as
+  playback, exact-match, embedding, accessibility, reviewer, or approval
+  verification.
+- Migration 402's source packet and static invariants pass 104/104 focused
+  tests and focused ESLint. The complete platform suite passes 653/653, the
+  production build passes, and management/launch CI smoke checks pass. The
+  full backend suite passes 900 tests with 20 database-dependent skips and the
+  same unrelated first-month-proration assertion mismatch documented for
+  migration 401. Disposable PostgreSQL application remains unavailable in this
+  environment and is still a release gate.
+- Migration 403 completes the consolidated Cossack Squat candidate card and
+  preserves Cossack Shift to Wall Ball Toss as a distinct, nonselectable
+  identity quarantine. All 12 migration-307 duplicate consolidations and all
+  14 legacy source mappings are guarded rather than silently recreated.
+- The Cossack family adds 13 difficulty-only review variants: ten selectable
+  exact Cossack variants, two nonselectable Cossack variants with unresolved
+  reach or load identity, and one nonselectable wall-toss protocol. It also
+  adds 23 contextual or blocked delivery profiles, 32 evidence rows, ten
+  unverified non-embeddable YouTube candidates, 22 alternate assessments, 16
+  review-only relationships, 36 review-only calibrations, and two quarantined
+  card-test packets. The unspecified loaded variant deliberately has no
+  fabricated difficulty score.
+- Migration 403 stores no athlete skill or proficiency classification.
+  Difficulty is exercise complexity plus physical difficulty with overall
+  derived as their maximum. The wall-toss card remains blocked until throw
+  direction, target height, ball path, ball behavior, reception or retrieval,
+  side order, reset, and lane are independently authored and reviewed.
+- A schema-contract audit corrected migrations 401–403 to use the candidate
+  media table's allowed `unverified` link state. The 106 focused tests, focused
+  ESLint, and complete 655-test platform suite pass after that correction.
+  PostgreSQL application, direct idempotency rerun, normal-runner checksum
+  verification, packet export, and full-library audit remain release gates.
 
 ## Operational release gates
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 401 in a
+1. Apply the complete migration sequence through migration 403 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

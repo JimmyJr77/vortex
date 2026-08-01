@@ -48,6 +48,18 @@ const iconBtn =
 const thClass = 'py-3 pr-4 font-semibold whitespace-nowrap'
 const tdClass = 'py-3 pr-4 align-middle whitespace-nowrap'
 
+const adminTableColumns = (
+  <colgroup>
+    <col className="w-[14%]" />
+    <col className="w-[14%]" />
+    <col className="w-[12%]" />
+    <col className="w-[15%]" />
+    <col className="w-[25%]" />
+    <col className="w-[15%]" />
+    <col className="w-[5%]" />
+  </colgroup>
+)
+
 function adminCategoryLabel(isMaster: boolean): string {
   return isMaster ? 'Master' : 'Admin'
 }
@@ -288,7 +300,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         const data = await response.json()
         alert(data.message || 'Failed to archive admin')
       }
-    } catch (error) {
+    } catch {
       alert('Failed to archive admin')
     }
   }
@@ -310,7 +322,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
         const data = await response.json()
         alert(data.message || 'Failed to delete admin')
       }
-    } catch (error) {
+    } catch {
       alert('Failed to delete admin')
     }
   }
@@ -326,7 +338,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
     const protectedDefaultMaster = isProtectedDefaultMaster(admin)
     return (
     <tr key={admin.id} className="border-b border-gray-100 hover:bg-gray-50/80">
-      <td className={tdClass}>{admin.lastName}</td>
+      <td className={`${tdClass} pl-4`}>{admin.lastName}</td>
       <td className={tdClass}>{admin.firstName}</td>
       <td className={tdClass}>
         <span
@@ -406,7 +418,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
   const adminTableHead = (
     <thead>
       <tr className="border-b border-gray-200 text-left text-gray-600 text-sm">
-        <th className={thClass}>Last name</th>
+        <th className={`${thClass} pl-4`}>Last name</th>
         <th className={thClass}>First name</th>
         <th className={thClass}>Category</th>
         <th className={thClass}>Username</th>
@@ -432,7 +444,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       <section className="space-y-4">
         <h3 className="text-lg font-bold text-black">My account</h3>
         <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
-          <table className="w-full text-sm border-collapse min-w-[720px]">
+          <table className="w-full table-fixed text-sm border-collapse min-w-[980px]">
+            {adminTableColumns}
             {adminTableHead}
             <tbody>
               {myAccountData.firstName || myAccountData.lastName ? (
@@ -486,7 +499,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
           </div>
         ) : (
           <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
-            <table className="w-full text-sm border-collapse min-w-[720px]">
+            <table className="w-full table-fixed text-sm border-collapse min-w-[980px]">
+              {adminTableColumns}
               {adminTableHead}
               <tbody>{admins.map((admin) => renderAdminRow(admin, {
                 showEdit: true,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Archive, X, UserPlus, Eye, Edit2, Search, Users, Loader2, Trash2, DollarSign, ChevronDown } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Archive, X, UserPlus, Edit2, Search, Users, Loader2, DollarSign, ChevronDown } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
 import MemberPricingModal from './admin/MemberPricingModal'
@@ -46,8 +46,6 @@ interface UnifiedMember {
 
 const memberIconBtn =
   'p-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
-const memberIconBtnDanger =
-  'p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:pointer-events-none'
 const memberThClass = 'py-3 pr-4 font-semibold whitespace-nowrap'
 const memberTdClass = 'py-3 pr-4 align-middle'
 
@@ -148,11 +146,7 @@ function matchesAccountViewFilter(member: UnifiedMember, filter: AccountViewFilt
   }
 }
 
-interface AdminMembersProps {
-  isMasterAdmin?: boolean
-}
-
-export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProps) {
+export default function AdminMembers() {
   // Unified members state
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
@@ -160,10 +154,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
   const [accountViewFilter, setAccountViewFilter] = useState<AccountViewFilter>('all')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
   
-  // Delete confirmation state
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [memberToDelete, setMemberToDelete] = useState<{ id: number; name: string } | null>(null)
-  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [pricingMember, setPricingMember] = useState<UnifiedMember | null>(null)
   const [seedingDevMembers, setSeedingDevMembers] = useState(false)
 
@@ -262,45 +252,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
       console.error('Error archiving member:', error)
       alert('Failed to archive/unarchive member')
       return false
-    }
-  }
-  
-  // Delete member handler - opens confirmation dialog
-  const handleDeleteMemberClick = (id: number, firstName: string, lastName: string) => {
-    setMemberToDelete({ id, name: `${firstName} ${lastName}` })
-    setDeleteConfirmText('')
-    setDeleteConfirmOpen(true)
-  }
-  
-  // Delete member handler - actually deletes after confirmation
-  const handleDeleteMember = async () => {
-    if (!memberToDelete) return
-    
-    // Check if user typed "delete" (case-insensitive)
-    if (deleteConfirmText.toLowerCase().trim() !== 'delete') {
-      alert('Please type "delete" to confirm deletion')
-      return
-    }
-    
-    try {
-      const response = await adminApiRequest(`/api/admin/members/${memberToDelete.id}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setDeleteConfirmOpen(false)
-        setMemberToDelete(null)
-        setDeleteConfirmText('')
-        await fetchMembers()
-        alert(data.message || 'Member deleted successfully')
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to delete member')
-      }
-    } catch (error) {
-      console.error('Error deleting member:', error)
-      alert('Failed to delete member')
     }
   }
   
@@ -508,18 +459,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                           <div className="flex items-center gap-0.5">
                             <button
                               type="button"
-                              className={memberIconBtn}
-                              title="View account details"
-                              aria-label="View account details"
-                              onClick={() => {
-                                setExpandedMemberId(member.id)
-                                setExpandedTab('details')
-                              }}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              type="button"
                               className={`${memberIconBtn} text-emerald-700 hover:bg-emerald-50`}
                               title="Registrations & pricing"
                               aria-label="Registrations and pricing"
@@ -547,23 +486,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
                               <Archive className="w-4 h-4" />
                             </button>
                             )}
-                            {isMasterAdmin && !isDefaultMasterEmail(member.email) && (
-                              <button
-                                type="button"
-                                className={memberIconBtnDanger}
-                                title="Delete member permanently"
-                                aria-label="Delete member permanently"
-                                onClick={() =>
-                                  handleDeleteMemberClick(
-                                    member.id,
-                                    member.firstName,
-                                    member.lastName,
-                                  )
-                                }
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
                           </div>
                         </td>
                       </tr>
@@ -589,66 +511,6 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
           )
         })()}
       </motion.div>
-
-      {/* Delete Confirmation Dialog */}
-      <AnimatePresence>
-        {deleteConfirmOpen && memberToDelete && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[200] p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-            >
-              <h2 className="text-2xl font-bold text-red-600 mb-4">
-                Delete Member
-              </h2>
-              <p className="text-gray-700 mb-4">
-                Are you sure you want to permanently delete <strong>{memberToDelete.name}</strong>? This action cannot be undone.
-              </p>
-              <p className="text-gray-600 mb-4 text-sm">
-                To confirm deletion, please type <strong>"delete"</strong> in the box below:
-              </p>
-              <input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="Type 'delete' to confirm"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
-                autoFocus
-              />
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDeleteMember}
-                  disabled={deleteConfirmText.toLowerCase().trim() !== 'delete'}
-                  className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                    deleteConfirmText.toLowerCase().trim() === 'delete'
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  Delete Member
-                </button>
-                <button
-                  onClick={() => {
-                    setDeleteConfirmOpen(false)
-                    setMemberToDelete(null)
-                    setDeleteConfirmText('')
-                  }}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-semibold transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {pricingMember && (
         <MemberPricingModal
@@ -702,5 +564,3 @@ export default function AdminMembers({ isMasterAdmin = false }: AdminMembersProp
     </>
   )
 }
-
-

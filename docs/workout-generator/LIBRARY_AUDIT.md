@@ -989,7 +989,7 @@ media or proficiency boundaries:
   delivery profiles, 48 evidence rows, 11 public-search YouTube candidates,
   18 alternate assessments, eight review-only relationships, 21 review-only
   calibrations, and three quarantined card-test packets.
-- The media candidates are deliberately stored with pending link state,
+- The media candidates are deliberately stored with unverified link state,
   embedding disabled, exact match unset, and no reviewer or approval. Search
   discovery does not substitute for playback, oEmbed, embedding, caption,
   accessibility, safety, cue, or demonstration-quality review.
@@ -1005,6 +1005,71 @@ repository-wide ESLint retains 45 errors outside this batch. A fresh disposable
 PostgreSQL application, direct idempotency rerun, runner checksum test,
 generated packet export, and full-library audit remain required before migration
 401 is promoted.
+
+Migration 402 extends the reviewed landmine cluster across the squat and lunge
+identities:
+
+- Landmine Front Squat faces the pivot with a central chest or declared
+  unilateral shoulder rack. Landmine Hack Squat faces away with declared
+  shoulder support and a forward foot position. Their orientation, load
+  support, transfer, and failure responses remain separate even though both are
+  anchored squat patterns.
+- The Landmine Split Squat is re-authored as a stationary-foot identity with
+  ipsilateral shoulder-rack, contralateral shoulder-rack, and consolidated
+  two-hand neutral-handle variants. Migration 369's archived handle-grip source
+  mapping is preserved, as is its unresolved human-review boundary against the
+  broader legacy split-squat source.
+- Landmine Reverse Lunge to Press starts bilaterally, requires a declared step
+  back, and presses during the drive toward standing. Pressing during the
+  step-back descent remains a separate proposal requiring identity review.
+- The four cards add eight exact review variants, 16 contextual delivery
+  profiles, 64 candidate evidence rows, 14 public-search YouTube candidates,
+  24 alternate assessments, 14 review-only relationships, 24 review-only
+  calibrations, and four quarantined packets.
+- All media remains unverified and non-embeddable with exact-match, demonstration
+  quality, reviewer, and approval fields unset. Exercise cards contain no
+  athlete skill or proficiency labels; difficulty remains exercise complexity
+  plus physical difficulty with overall equal to their maximum.
+
+Disposable PostgreSQL application, direct idempotency rerun, normal-runner
+checksum verification, packet export, and full-library audit remain release
+gates for migration 402. The split-squat identity decision and all media,
+relationship, calibration, card, and publication reviews remain human work.
+Static verification passes 104/104 focused tests, focused ESLint, the complete
+653/653 platform suite, production build, and management/launch CI smoke
+checks. The full backend suite passes 900 tests with 20 database-dependent
+skips and retains the unrelated first-month-proration assertion mismatch.
+
+Migration 403 completes the next researched identity family without turning
+an ambiguous label into an executable exercise:
+
+- Cossack Squat owns the fixed-wide-stance lateral squat identity and ten
+  selectable exact variants spanning range, hold, pry, terminal stick, slow
+  eccentric work, thoracic-rotation reach, and declared kettlebell, landmine,
+  or sandbag loading. The generic reach and generic loaded forms remain
+  nonselectable; the latter has no score because its implement and load
+  position are unresolved.
+- Cossack Shift to Wall Ball Toss remains a separate, nonselectable composite.
+  Throw direction, target height, ball path, rebound behavior, reception or
+  retrieval, side order, reset, and lane must be defined before any production
+  prescription or exact-match media decision.
+- The two cards add 13 review variants, 23 contextual or blocked delivery
+  profiles, 32 candidate evidence rows, ten unverified non-embeddable YouTube
+  candidates, 22 alternate assessments, 16 review-only relationships, 36
+  review-only calibrations, and two quarantined test packets. All 12 prior
+  duplicate consolidations and all 14 legacy mappings are guarded.
+- The migration contains no athlete skill or proficiency classification.
+  Exercise complexity and physical difficulty are scored only when the exact
+  exercise is known; overall is their maximum. Media discovery creates no
+  playback, embedding, exact-match, reviewer, accessibility, or approval claim.
+
+A schema-contract review also corrected migrations 401–403 to use
+`unverified`, the allowed link state for candidate media, instead of the
+governance table's separate `pending` state. Focused verification now passes
+106/106, focused ESLint is clean, and the complete platform suite passes
+655/655. Disposable PostgreSQL application and idempotency proof, normal-runner
+checksum verification, packet export, and the refreshed full-library audit
+remain required before migration 403 is promoted.
 
 ## Run the audit
 

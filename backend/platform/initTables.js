@@ -399,6 +399,8 @@ export async function initPlatformTables(pool) {
     '399_stripe_pending_enrollment_setup_mode.sql',
     '400_stripe_pending_enrollment_processing_status.sql',
     '401_coaching_landmine_explosive_press_family_completion.sql',
+    '402_coaching_landmine_squat_lunge_family_completion.sql',
+    '403_coaching_cossack_squat_family_completion.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

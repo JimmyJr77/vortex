@@ -349,6 +349,14 @@ const LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/401_coaching_landmine_explosive_press_family_completion.sql', import.meta.url),
   'utf8',
 )
+const LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/402_coaching_landmine_squat_lunge_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const COSSACK_SQUAT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/403_coaching_cossack_squat_family_completion.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -4499,7 +4507,11 @@ test('landmine explosive press completion preserves action identities and diffic
   )
   assert.match(
     LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
-    /link_status = 'pending'/,
+    /link_status = 'unverified'/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
   )
   assert.match(
     LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
@@ -4534,6 +4546,265 @@ test('landmine explosive press completion preserves action identities and diffic
   )
   assert.doesNotMatch(
     LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('landmine squat and lunge completion preserves identity review and difficulty-only scoring', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'402_coaching_landmine_squat_lunge_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'landmine-front-squat',
+    'landmine-hack-squat',
+    'landmine-split-squat',
+    'landmine-reverse-lunge-to-press',
+    'landmine-handle-grip-split-squat',
+  ]) {
+    assert.match(
+      LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const variantKey of [
+    'bilateral-central-chest-sleeve-front-squat',
+    'unilateral-shoulder-rack-front-squat',
+    'shoulder-supported-away-facing-hack-squat',
+    'ipsilateral-shoulder-rack-stationary-split-squat',
+    'contralateral-shoulder-rack-stationary-split-squat',
+    'two-hand-neutral-handle-stationary-split-squat',
+    'working-arm-ipsilateral-to-step-back-leg-drive-to-press',
+    'working-arm-contralateral-to-step-back-leg-drive-to-press',
+  ]) {
+    assert.match(
+      LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    'docorX86lEg',
+    'rxwiKvk4H2s',
+    'oTRl7p13XtY',
+    'hLVh6VDjpDg',
+    'NfoJhEvRcFA',
+    '0X3mydcwZGU',
+    'KnT02UvXUJE',
+    'BS9jpHWIwH8',
+    'Vse04Q-SFz4',
+    'c-MKGioqmbQ',
+    'yx-ta5JphKo',
+    'PSvv3LvzIkQ',
+    'DqwMGTl4gvk',
+    '1GzW5PGkmt8',
+  ]) {
+    assert.match(
+      LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  for (const actionIdentity of [
+    'front_supported_fixed_pivot_squat',
+    'away_facing_shoulder_supported_hack_squat',
+    'stationary_split_squat_no_step',
+    'reverse_lunge_return_to_press',
+  ]) {
+    assert.match(
+      LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(actionIdentity),
+    )
+  }
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /ARRAY\[1418,1419,1420,1421,1453\]/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /requires the unresolved migration-369 split-squat review boundary/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /lost the archived handle-grip split-squat source mapping/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /link_status = 'unverified'/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-IDENTITY-02',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Cossack completion preserves consolidated variants and blocks unresolved identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'403_coaching_cossack_squat_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'cossack-squat',
+    'cossack-shift-to-wall-ball-toss',
+    'landmine-cossack-squat',
+    'loaded-cossack-squat',
+    'cossack-shift-with-reach',
+  ]) {
+    assert.match(COSSACK_SQUAT_COMPLETION_MIGRATION, new RegExp(slug))
+  }
+  for (const variantKey of [
+    'baseline',
+    'low-amplitude-shift',
+    'bottom-hold',
+    'bottom-pry',
+    'shift-to-stick',
+    'slow-eccentric-shift',
+    'reach-overlay',
+    'thoracic-rotation-reach',
+    'kettlebell-loaded',
+    'landmine-loaded',
+    'loaded-unspecified-implement',
+    'sandbag-loaded',
+    'unresolved-throw-protocol',
+  ]) {
+    assert.match(COSSACK_SQUAT_COMPLETION_MIGRATION, new RegExp(variantKey))
+  }
+  for (const videoId of [
+    'tpczTeSkHz0',
+    'iPZNB5GsOnM',
+    'nLNqEQ4B6XI',
+    'Zi_x6s6YXHo',
+    'usfu415_0AI',
+    'ZHp6dQyNTnA',
+    'WpsIRIJGW5o',
+    'G5C_rmEPVJU',
+    'OagZ48JldgQ',
+    'vQ45G3IXYKs',
+  ]) {
+    assert.match(COSSACK_SQUAT_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /'scoreDeferred',TRUE/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /requires all 12 migration-307 Cossack consolidations/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /did not create all 23 contextual or review-only profiles/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /did not create all 10 unverified, non-embeddable media candidates/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /link_status = 'unverified'/,
+  )
+  assert.doesNotMatch(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /WHEN seed\.selectable THEN 'primary'\s+ELSE 'avoid'/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /\('prepare-control','prepare_and_access'\)/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /SELECT 'identity-review-only','prepare_and_access'/,
+  )
+  assert.doesNotMatch(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /ELSE 'review_only'|'identity_review'/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-IDENTITY-03',
+    'CARD-IDENTITY-04',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(COSSACK_SQUAT_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })

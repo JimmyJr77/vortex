@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import type { KeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Calendar, Loader2, UserMinus, X, Zap } from 'lucide-react'
 import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered, memberEnrollmentCancelHeading } from '../../utils/enrollmentDisplayLine'
 import { memberCancelEnrollment, type MemberEnrollmentCancelResult } from '../../utils/schedulingApi'
@@ -59,7 +59,8 @@ type ViewMode = 'class' | 'member'
 type EnrollmentColumn = {
   key: string
   header: string
-  width: string
+  width: number
+  minWidth: number
   cell: (row: MemberEnrollmentRow) => ReactNode
 }
 
@@ -67,25 +68,29 @@ const BY_CLASS_COLUMNS: EnrollmentColumn[] = [
   {
     key: 'member',
     header: 'Member',
-    width: '24%',
+    width: 230,
+    minWidth: 150,
     cell: (row) => memberDisplayName(row),
   },
   {
     key: 'offerings',
     header: 'Offerings',
-    width: '26%',
+    width: 280,
+    minWidth: 170,
     cell: (row) => offeringsCell(row),
   },
   {
     key: 'slot',
     header: 'Time',
-    width: '28%',
+    width: 270,
+    minWidth: 170,
     cell: (row) => timeCell(row),
   },
   {
     key: 'status',
     header: 'Status',
-    width: '22%',
+    width: 180,
+    minWidth: 130,
     cell: (row) => statusBadge(row),
   },
 ]
@@ -94,37 +99,43 @@ const BY_MEMBER_COLUMNS: EnrollmentColumn[] = [
   {
     key: 'sport',
     header: 'Sport',
-    width: '13%',
+    width: 120,
+    minWidth: 90,
     cell: (row) => textOrDash(row.sport_name),
   },
   {
     key: 'program',
     header: 'Program',
-    width: '18%',
+    width: 190,
+    minWidth: 120,
     cell: (row) => textOrDash(row.program_name),
   },
   {
     key: 'class',
     header: 'Class',
-    width: '20%',
+    width: 230,
+    minWidth: 140,
     cell: (row) => textOrDash(row.class_name),
   },
   {
     key: 'offerings',
     header: 'Offerings',
-    width: '17%',
+    width: 220,
+    minWidth: 150,
     cell: (row) => offeringsCell(row),
   },
   {
     key: 'slot',
     header: 'Time',
-    width: '18%',
+    width: 210,
+    minWidth: 150,
     cell: (row) => timeCell(row),
   },
   {
     key: 'status',
     header: 'Status',
-    width: '14%',
+    width: 180,
+    minWidth: 130,
     cell: (row) => statusBadge(row),
   },
 ]
@@ -226,24 +237,92 @@ function EnrollmentTable({
   columns: EnrollmentColumn[]
   onManage?: (row: MemberEnrollmentRow) => void
 }) {
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() =>
+    Object.fromEntries(columns.map((column) => [column.key, column.width])),
+  )
+  const stopResizeRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    setColumnWidths(Object.fromEntries(columns.map((column) => [column.key, column.width])))
+  }, [columns])
+
+  useEffect(() => () => stopResizeRef.current?.(), [])
+
+  const setColumnWidth = useCallback((column: EnrollmentColumn, width: number) => {
+    setColumnWidths((current) => ({
+      ...current,
+      [column.key]: Math.max(column.minWidth, Math.round(width)),
+    }))
+  }, [])
+
+  const startResize = useCallback((event: ReactPointerEvent, column: EnrollmentColumn) => {
+    event.preventDefault()
+    event.stopPropagation()
+    stopResizeRef.current?.()
+    const startX = event.clientX
+    const startWidth = columnWidths[column.key] ?? column.width
+    const previousCursor = document.body.style.cursor
+    const previousUserSelect = document.body.style.userSelect
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    const onMove = (moveEvent: PointerEvent) => {
+      setColumnWidth(column, startWidth + moveEvent.clientX - startX)
+    }
+    const stop = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', stop)
+      window.removeEventListener('pointercancel', stop)
+      document.body.style.cursor = previousCursor
+      document.body.style.userSelect = previousUserSelect
+      stopResizeRef.current = null
+    }
+    stopResizeRef.current = stop
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', stop)
+    window.addEventListener('pointercancel', stop)
+  }, [columnWidths, setColumnWidth])
+
+  const resizeWithKeyboard = useCallback((event: KeyboardEvent, column: EnrollmentColumn) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+    event.preventDefault()
+    const delta = event.key === 'ArrowLeft' ? -16 : 16
+    setColumnWidth(column, (columnWidths[column.key] ?? column.width) + delta)
+  }, [columnWidths, setColumnWidth])
+
   if (rows.length === 0) return null
 
   const showActions = Boolean(onManage)
+  const tableWidth = columns.reduce(
+    (total, column) => total + (columnWidths[column.key] ?? column.width),
+    showActions ? 72 : 0,
+  )
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] text-sm table-fixed border-collapse [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap [&_th]:align-top [&_td]:align-top">
+      <table className="min-w-full text-sm table-fixed border-collapse [&_th]:align-top [&_td]:align-top" style={{ width: tableWidth }}>
         <colgroup>
           {columns.map((col) => (
-            <col key={col.key} style={{ width: col.width }} />
+            <col key={col.key} style={{ width: columnWidths[col.key] ?? col.width }} />
           ))}
           {showActions && <col style={{ width: '72px' }} />}
         </colgroup>
         <thead>
           <tr className="border-b border-gray-200 text-left text-gray-600">
             {columns.map((col) => (
-              <th key={col.key} className="py-2 pr-4 font-semibold">
-                {col.header}
+              <th key={col.key} className="relative py-2 pl-3 pr-5 font-semibold whitespace-nowrap">
+                <span>{col.header}</span>
+                <span
+                  role="separator"
+                  aria-label={`Resize ${col.header} column`}
+                  aria-orientation="vertical"
+                  aria-valuemin={col.minWidth}
+                  aria-valuenow={columnWidths[col.key] ?? col.width}
+                  tabIndex={0}
+                  onPointerDown={(event) => startResize(event, col)}
+                  onKeyDown={(event) => resizeWithKeyboard(event, col)}
+                  className="absolute inset-y-0 right-0 z-10 w-2 cursor-col-resize touch-none border-r border-transparent hover:border-vortex-red focus:border-vortex-red focus:outline-none"
+                />
               </th>
             ))}
             {showActions && (
@@ -255,8 +334,10 @@ function EnrollmentTable({
           {rows.map((row) => (
             <tr key={`${row.source || 'row'}-${row.id}`} className="border-b border-gray-100">
               {columns.map((col) => (
-                <td key={col.key} className="py-3 pr-4 text-gray-900">
-                  {col.cell(row)}
+                <td key={col.key} className="overflow-hidden py-3 pl-3 pr-4 text-gray-900">
+                  <div className={col.key === 'offerings' || col.key === 'slot' ? 'whitespace-normal break-words' : 'truncate whitespace-nowrap'}>
+                    {col.cell(row)}
+                  </div>
                 </td>
               ))}
               {showActions && (

@@ -6,7 +6,7 @@
 -- This migration completes that survivor and preserves split jerk and
 -- squat-to-press as separate ordered-action identities.
 --
--- Public-search YouTube URLs are stored as pending, non-embeddable candidates.
+-- Public-search YouTube URLs are stored as unverified, non-embeddable candidates.
 -- No oEmbed, playback, exact-match, caption, accessibility, quality, reviewer,
 -- media, graph, calibration, card, or publication approval is claimed.
 --
@@ -1547,7 +1547,7 @@ BEGIN
         WHERE media.definition_id = definition.id
           AND media.reviewed_card_version = definition.card_version
           AND media.review_status = 'candidate'
-          AND media.link_status = 'pending'
+          AND media.link_status = 'unverified'
           AND media.embedding_allowed IS FALSE
       ),
       'mediaVerifiedOrApprovedCount', (
@@ -1764,7 +1764,7 @@ BEGIN
       ON media.definition_id = definition.id
      AND media.reviewed_card_version = definition.card_version
      AND media.review_status = 'candidate'
-     AND media.link_status = 'pending'
+     AND media.link_status = 'unverified'
      AND media.embedding_allowed IS FALSE
      AND media.exact_variant_match IS NULL
      AND media.reviewer_user_id IS NULL
@@ -1869,7 +1869,7 @@ BEGIN
       AND definition.slug = ANY(target_slugs)
       AND (
         media.review_status <> 'candidate'
-        OR media.link_status <> 'pending'
+        OR media.link_status <> 'unverified'
         OR media.embedding_allowed IS DISTINCT FROM FALSE
         OR media.exact_variant_match IS NOT NULL
         OR media.demonstration_quality_score IS NOT NULL
@@ -1997,7 +1997,7 @@ BEGIN
     FALSE,
     NULL,
     NULL,
-    'pending',
+    'unverified',
     'candidate',
     'manual_research',
     media.source_query,
@@ -2026,7 +2026,7 @@ BEGIN
     embedding_allowed = FALSE,
     exact_variant_match = NULL,
     demonstration_quality_score = NULL,
-    link_status = 'pending',
+    link_status = 'unverified',
     review_status = 'candidate',
     discovery_method = 'manual_research',
     source_query = EXCLUDED.source_query,
@@ -2117,7 +2117,7 @@ BEGIN
             WHERE media.definition_id = definition.id
               AND media.reviewed_card_version = definition.card_version
               AND media.review_status = 'candidate'
-              AND media.link_status = 'pending'
+              AND media.link_status = 'unverified'
               AND media.embedding_allowed IS FALSE
           ),
           'mediaVerifiedOrApprovedCount', (
@@ -2154,7 +2154,7 @@ BEGIN
       ON media.definition_id = definition.id
      AND media.reviewed_card_version = definition.card_version
      AND media.review_status = 'candidate'
-     AND media.link_status = 'pending'
+     AND media.link_status = 'unverified'
      AND media.embedding_allowed IS FALSE
      AND media.exact_variant_match IS NULL
      AND media.demonstration_quality_score IS NULL
@@ -2164,7 +2164,7 @@ BEGIN
       AND definition.slug = ANY(target_slugs)
   ) <> 11 THEN
     RAISE EXCEPTION
-      '% did not create all 11 pending, non-embeddable media candidates',
+      '% did not create all 11 unverified, non-embeddable media candidates',
       migration_key;
   END IF;
 
@@ -2195,7 +2195,7 @@ BEGIN
       AND definition.slug = ANY(target_slugs)
       AND (
         media.review_status <> 'candidate'
-        OR media.link_status <> 'pending'
+        OR media.link_status <> 'unverified'
         OR media.embedding_allowed IS DISTINCT FROM FALSE
         OR media.exact_variant_match IS NOT NULL
         OR media.demonstration_quality_score IS NOT NULL

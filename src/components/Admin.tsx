@@ -431,7 +431,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'admins':
         return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
       case 'membership':
-        return <AdminMembers isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
+        return <AdminMembers />
       case 'messages':
         return (
           <AdminMessagesPanel

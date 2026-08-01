@@ -125,6 +125,76 @@ test('family batch can supply manual media candidates without fabricating verifi
   assert.equal(result.packet.mediaCandidates[0].externalVerification, null)
 })
 
+test('Cossack packets preserve exact implement variants and quarantine unresolved reach and wall-toss protocols', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/cossack-squat-family.v1.json'),
+    'utf8',
+  ))
+
+  const packets = batch.cards.map((cardSpec) => buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: cardSpec.slug === 'cossack-squat'
+        ? 'Cossack Squat'
+        : 'Cossack Shift to Wall Ball Toss',
+      familyKey: 'Frontal-plane squat',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  }))
+
+  for (const result of packets) {
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.reviewStatus !== 'approved'
+        && candidate.linkStatus === 'unverified'
+        && candidate.embeddingAllowed === false
+        && (candidate.exactVariantMatch ?? null) === null
+        && candidate.externalVerification === null
+    )))
+  }
+
+  const cossack = packets[0].packet
+  assert.equal(cossack.alternateAssessments.length, 15)
+  assert.equal(cossack.assessmentSummary.proposedDifficulty.baseOverallDifficulty, 48)
+  assert.equal(cossack.assessmentSummary.variantDifficultyCandidates.length, 13)
+  assert.ok(cossack.assessmentSummary.variantDifficultyCandidates.some((variant) => (
+    variant.variantKey === 'reach-overlay'
+      && variant.identityQuarantine === true
+  )))
+  assert.ok(cossack.assessmentSummary.variantDifficultyCandidates.some((variant) => (
+    variant.variantKey === 'loaded-unspecified-implement'
+      && variant.identityQuarantine === true
+      && variant.scoreDeferred === true
+  )))
+
+  const wallToss = packets[1].packet
+  assert.equal(wallToss.alternateAssessments.length, 7)
+  assert.match(
+    wallToss.assessmentSummary.identity,
+    /throw direction, target height, ball path, rebound behavior, reception, reset/i,
+  )
+  assert.match(
+    wallToss.assessmentSummary.proposedDosage.publicationBlock,
+    /No dose is production-authorized/i,
+  )
+})
+
 test('adductor rock-back family packet preserves unresolved variants and human media gates', () => {
   const registryDocument = JSON.parse(readFileSync(
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
