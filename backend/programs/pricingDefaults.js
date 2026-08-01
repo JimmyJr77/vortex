@@ -230,7 +230,8 @@ export async function resetAllClassesPricingToProgram(pool, programsId) {
   const result = await pool.query(
     `UPDATE scheduling_form
      SET pricing_overrides_program = FALSE, updated_at = now()
-     WHERE programs_id = $1 AND deleted_at IS NULL
+     WHERE deleted_at IS NULL
+       AND (programs_id = $1 OR program_id IN (SELECT id FROM program WHERE programs_id = $1))
      RETURNING id`,
     [programsId],
   )

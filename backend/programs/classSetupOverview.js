@@ -11,6 +11,7 @@ import {
   resolveProgramsSchema,
 } from './schema.js'
 import { hydrateProgramPricingRow } from './programPricingOptions.js'
+import { readCost } from './pricingDefaults.js'
 import { buildGroupDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 
 function resolveStatus({ classArchived, programArchived, classIsActive, programIsActive }) {
@@ -133,6 +134,9 @@ export async function buildClassSetupOverview(pool) {
         sf.id AS form_id,
         sf.is_active AS form_active,
         sf.pricing_overrides_program AS pricing_overrides_program,
+        sf.cost_amount_cents AS form_cost_amount_cents,
+        sf.cost_unit AS form_cost_unit,
+        sf.slot_cost_monthly_cents AS form_slot_cost_monthly_cents,
         pr.pricing_cost_options AS pricing_cost_options,
         pr.pricing_slot_cost_monthly_cents AS pricing_slot_cost_monthly_cents,
         pr.pricing_cost_unit AS pricing_cost_unit,
@@ -250,6 +254,17 @@ export async function buildClassSetupOverview(pool) {
       pricing_cost_amount_cents: row.pricing_cost_amount_cents,
     })
     const pricing = pricingDisplayFromOptions(hydrated?.pricing_cost_options ?? [])
+    const programCost = readCost({
+      pricing_cost_amount_cents: row.pricing_cost_amount_cents,
+      pricing_cost_unit: row.pricing_cost_unit,
+      pricing_slot_cost_monthly_cents: row.pricing_slot_cost_monthly_cents,
+    }, { amountKey: 'pricing_cost_amount_cents', unitKey: 'pricing_cost_unit', legacyKey: 'pricing_slot_cost_monthly_cents' })
+    const formCost = readCost({
+      cost_amount_cents: row.form_cost_amount_cents,
+      cost_unit: row.form_cost_unit,
+      slot_cost_monthly_cents: row.form_slot_cost_monthly_cents,
+    }, { amountKey: 'cost_amount_cents', unitKey: 'cost_unit', legacyKey: 'slot_cost_monthly_cents' })
+    const hasDifferentPrice = Boolean(formCost && (!programCost || formCost.amountCents !== programCost.amountCents || formCost.unit !== programCost.unit))
 
     return {
       classId: Number(row.class_id),
@@ -269,7 +284,7 @@ export async function buildClassSetupOverview(pool) {
       sportTags: row.sport_tags ?? '',
       formId,
       formActive: formId != null ? Boolean(row.form_active) : null,
-      pricingOverridesProgram: Boolean(row.pricing_overrides_program),
+      pricingOverridesProgram: Boolean(row.pricing_overrides_program) && hasDifferentPrice,
       offerings: formId != null ? offeringsByFormId.get(formId) ?? [] : [],
       slotGroups: formId != null ? slotGroupsByFormId.get(formId) ?? [] : [],
       enrolleeCount: formId != null ? enrolleesByFormId.get(formId) ?? 0 : 0,
