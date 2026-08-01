@@ -1022,9 +1022,10 @@ On 2026-07-26:
   side order, reset, and lane are independently authored and reviewed.
 - A schema-contract audit corrected migrations 401–403 to use the candidate
   media table's allowed `unverified` link state. The 106 focused tests, focused
-  ESLint, and complete 655-test platform suite pass after that correction.
-  PostgreSQL application, direct idempotency rerun, normal-runner checksum
-  verification, packet export, and full-library audit remain release gates.
+  ESLint, complete 655-test platform suite, production build, and
+  management/launch CI smoke checks pass after that correction. PostgreSQL
+  application, direct idempotency rerun, normal-runner checksum verification,
+  packet export, and full-library audit remain release gates.
 
 ## Operational release gates
 

@@ -1066,10 +1066,11 @@ an ambiguous label into an executable exercise:
 A schema-contract review also corrected migrations 401–403 to use
 `unverified`, the allowed link state for candidate media, instead of the
 governance table's separate `pending` state. Focused verification now passes
-106/106, focused ESLint is clean, and the complete platform suite passes
-655/655. Disposable PostgreSQL application and idempotency proof, normal-runner
-checksum verification, packet export, and the refreshed full-library audit
-remain required before migration 403 is promoted.
+106/106, focused ESLint is clean, the complete platform suite passes 655/655,
+the production build passes, and management/launch CI smoke checks pass.
+Disposable PostgreSQL application and idempotency proof, normal-runner checksum
+verification, packet export, and the refreshed full-library audit remain
+required before migration 403 is promoted.
 
 ## Run the audit
 
