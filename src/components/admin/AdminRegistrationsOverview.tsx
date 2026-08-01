@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClipboardList,
+  Download,
   Loader2,
   RotateCcw,
   Search,
@@ -20,10 +21,35 @@ import {
   adminFetchClassRegistrationSummaries,
   adminFetchEnrollmentsByMember,
   adminFetchFormSlotEnrollments,
+  adminFetchDailyRoster,
   type AdminClassRegistrationSummary,
   type AdminEnrollmentRow,
   type AdminFormSlotEnrollmentRow,
 } from '../../utils/schedulingApi'
+
+function easternDate(): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.year}-${values.month}-${values.day}`
+}
+
+function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
+  const rows = [['Class', 'Program', 'Time', 'Athlete']]
+  for (const item of roster.classes) {
+    for (const athlete of item.athletes) {
+      rows.push([item.className, item.programName || '', item.timeLabel, athlete.name])
+    }
+  }
+  const csv = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n')
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `daily-roster-${roster.date}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
 
 type OverviewMode = 'by-member' | 'by-program'
 type SortDir = 'asc' | 'desc'
@@ -513,8 +539,22 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
 export default function AdminRegistrationsOverview() {
   const [mode, setMode] = useState<OverviewMode>('by-program')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [rosterLoading, setRosterLoading] = useState(false)
+  const [rosterError, setRosterError] = useState<string | null>(null)
 
   const triggerRefresh = () => setRefreshKey((k) => k + 1)
+
+  const downloadDailyRoster = async () => {
+    setRosterLoading(true)
+    setRosterError(null)
+    try {
+      downloadDailyRosterCsv(await adminFetchDailyRoster(easternDate()))
+    } catch (err) {
+      setRosterError(err instanceof Error ? err.message : 'Failed to download daily roster')
+    } finally {
+      setRosterLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -528,7 +568,17 @@ export default function AdminRegistrationsOverview() {
             View registrations by member or browse class schedules and manage rosters.
           </p>
         </div>
-        <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => void downloadDailyRoster()}
+            disabled={rosterLoading}
+            className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {rosterLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Daily Roster
+          </button>
+          <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
           <button
             type="button"
             onClick={() => setMode('by-member')}
@@ -547,6 +597,8 @@ export default function AdminRegistrationsOverview() {
           >
             By Program
           </button>
+          </div>
+          {rosterError && <p className="basis-full text-right text-xs text-red-700">{rosterError}</p>}
         </div>
       </div>
 
