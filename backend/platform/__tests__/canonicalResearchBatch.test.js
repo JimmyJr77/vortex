@@ -2492,7 +2492,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2680,7 +2680,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2800,7 +2800,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2921,7 +2921,7 @@ test('landmine explosive press packets consolidate hand count while preserving a
     ['landmine-squat-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3052,7 +3052,7 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
     ['landmine-reverse-lunge-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-31.58')
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
   for (const sourceKey of [
     'landmine_squat_muscle_activity_kinetics',
     'acsm_landmine_squat_exercise',
@@ -3155,4 +3155,413 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
   assert.ok(batch.cards.every((card) => (
     card.mediaCandidates.length >= 3 && card.mediaCandidates.length <= 5
   )))
+})
+
+test('hill sprint acceleration packet separates grade identity, start variants, and physical difficulty', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/hill-sprint-acceleration-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Hill Sprint Acceleration',
+      familyKey: 'incline_resisted_acceleration',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  for (const sourceKey of [
+    'uphill_sprint_slope_kinematics',
+    'resisted_sprint_acceleration_meta_analysis',
+    'uphill_running_energy_resistance',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-08-01.1')
+  assert.equal(batch.cards.length, 1)
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 3)
+  assert.equal(result.packet.alternateAssessments.length, 7)
+  assert.deepEqual(cardSpec.assessmentSummary.proposedDifficulty, {
+    technicalComplexity: 52,
+    absoluteLoadDemand: 72,
+    coordinationDemand: 60,
+    supervisionDemand: 62,
+    failureConsequence: 66,
+    impact: 56,
+    workCapacityDemand: 48,
+    baseOverallDifficulty: 72,
+  })
+  assert.match(
+    cardSpec.assessmentSummary.identity,
+    /measured, uniform, traction-safe positive grade/,
+  )
+  assert.match(
+    cardSpec.assessmentSummary.programmingDecision,
+    /two-point and controlled falling-start variants/,
+  )
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Long Hill Sprint Conditioning'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Falling-Start Hill Sprint'
+      && alternate.classification === 'new_variant'
+  )))
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'unverified'
+      && candidate.embeddingAllowed === false
+      && candidate.externalVerification === null
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+})
+
+test('through-legs wall throw packet preserves throw-turn-catch order and quarantines adjacent media', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/through-legs-wall-throw-180-turn-catch.v1.json',
+    ),
+    'utf8',
+  ))
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Through-the-Legs Wall Throw, 180° Turn and Catch',
+      familyKey: 'throw_turn_catch_coordination',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(batch.researchVersion, '2026-08-01.2')
+  assert.equal(batch.cards.length, 1)
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 3)
+  assert.equal(result.packet.alternateAssessments.length, 6)
+  assert.equal(
+    cardSpec.assessmentSummary.proposedTaxonomy.sequence,
+    'throw_to_wall__stand_and_turn_180__reacquire__two_hand_catch',
+  )
+  assert.deepEqual(cardSpec.assessmentSummary.proposedDifficulty, {
+    technicalComplexity: 68,
+    absoluteLoadDemand: 30,
+    coordinationDemand: 82,
+    supervisionDemand: 72,
+    failureConsequence: 58,
+    impact: 16,
+    workCapacityDemand: 24,
+    baseOverallDifficulty: 68,
+  })
+  assert.ok(cardSpec.assessmentSummary.currentCardFindings.some((finding) => (
+    /legacy 180-Turn Wall Ball Catch-and-Throw reverses the order/i.test(finding)
+  )))
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'unverified'
+      && candidate.embeddingAllowed === false
+      && candidate.externalVerification === null
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Scaled Through-the-Legs Wall Throw, Turn and Catch Rehearsal'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.protocol === 'non_standardized_rehearsal'
+  )))
+})
+
+test('two-hand landmine arc packet separates the false one-arm lineage and preserves only automated embed health', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/two-hand-landmine-shoulder-to-shoulder-arc-press.v1.json',
+    ),
+    'utf8',
+  ))
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Two-Hand Landmine Shoulder-to-Shoulder Arc Press',
+      familyKey: 'two_hand_landmine_shoulder_to_shoulder_arc',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(batch.researchVersion, '2026-08-01.3')
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 8)
+  assert.equal(
+    cardSpec.assessmentSummary.proposedTaxonomy.sequence,
+    'one_shoulder_rack__up_and_across_arc__opposite_shoulder_rack',
+  )
+  for (const difficulty of [
+    cardSpec.assessmentSummary.proposedDifficulty,
+    ...cardSpec.assessmentSummary.variantDifficultyCandidates,
+  ]) {
+    assert.equal(
+      difficulty.baseOverallDifficulty,
+      Math.max(difficulty.technicalComplexity, difficulty.absoluteLoadDemand),
+    )
+  }
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'One-Arm Eccentric Landmine Press'
+      && alternate.classification === 'modifier_annotation'
+      && alternate.distinguishingDimensions.legacyExerciseId === 1414
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Rotational Landmine Rainbow'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+})
+
+test('wall-lean single-leg pogo packet retires ambiguous labels and preserves exact contact accounting', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/wall-lean-single-leg-pogo-variant.v1.json',
+    ),
+    'utf8',
+  ))
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Single-Leg Pogo',
+      familyKey: 'repeated_unilateral_ankle_dominant_pogo',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 2,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(batch.researchVersion, '2026-08-01.4')
+  assert.equal(batch.outputDirectory, '../generated/wall-lean-single-leg-pogo-variant')
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 9)
+  assert.equal(
+    cardSpec.assessmentSummary.proposedTaxonomy.sequence,
+    'establish_wall_lean__raise_nonworking_thigh__repeat_same_leg_contacts__controlled_reset__change_side',
+  )
+  assert.equal(
+    cardSpec.assessmentSummary.proposedDosage.measurement,
+    'count_each_landing_contact_and_record_actual_contacts_per_side_not_round_trips_or_time_alone',
+  )
+  for (const difficulty of [
+    cardSpec.assessmentSummary.proposedDifficulty,
+    ...cardSpec.assessmentSummary.variantDifficultyCandidates,
+  ]) {
+    assert.equal(
+      difficulty.baseOverallDifficulty ?? difficulty.derivedOverallDifficulty,
+      Math.max(
+        difficulty.technicalComplexity ?? difficulty.exerciseComplexity,
+        difficulty.absoluteLoadDemand ?? difficulty.physicalDifficulty,
+      ),
+    )
+  }
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wall-Supported Alternating Stride Pogo'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Contact Count, Cadence, Low Amplitude, Rest, or Starting Side'
+      && alternate.classification === 'modifier_annotation'
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+})
+
+test('opposite-leg bound packets preserve direction as a hard identity boundary', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/opposite-leg-bound-stick-direction-family.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.5')
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/opposite-leg-bound-stick-direction-family',
+  )
+  assert.equal(batch.cards.length, 2)
+
+  const expected = new Map([
+    ['bound-to-stick', {
+      canonicalName: 'Bound to Stick',
+      direction: 'forward',
+      sequence: 'declared_support_leg__forward_flight__opposite_leg_landing__terminal_hold__full_reset',
+      difficulty: [56, 64, 64],
+    }],
+    ['lateral-bound', {
+      canonicalName: 'Lateral Bound',
+      direction: 'lateral',
+      sequence: 'declared_support_leg__lateral_flight__opposite_leg_landing__terminal_hold__full_reset',
+      difficulty: [60, 66, 66],
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expectedCard = expected.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expectedCard.canonicalName,
+        familyKey: 'legacy_bound_family',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 9)
+    assert.equal(
+      cardSpec.assessmentSummary.proposedTaxonomy.sequence,
+      expectedCard.sequence,
+    )
+    assert.equal(
+      cardSpec.assessmentSummary.proposedTaxonomy.intent.includes(expectedCard.direction),
+      true,
+    )
+    assert.deepEqual(
+      [
+        cardSpec.assessmentSummary.proposedDifficulty.technicalComplexity,
+        cardSpec.assessmentSummary.proposedDifficulty.absoluteLoadDemand,
+        cardSpec.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+      ],
+      expectedCard.difficulty,
+    )
+    assert.ok(cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+      variant.derivedOverallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )))
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+      alternate.classification === 'new_definition'
+        && alternate.distinguishingDimensions.landingSide === 'same_leg'
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+  }
 })

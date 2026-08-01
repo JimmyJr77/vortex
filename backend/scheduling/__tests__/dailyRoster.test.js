@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   dateInTimeZone,
+  mergeDailyEnrollmentAthletes,
   renderDailyRosterEmail,
   validateRosterDate,
 } from '../dailyRoster.js'
@@ -9,6 +10,22 @@ import {
 test('dateInTimeZone uses the Eastern calendar date', () => {
   assert.equal(dateInTimeZone(new Date('2026-01-01T03:30:00Z')), '2025-12-31')
   assert.equal(dateInTimeZone(new Date('2026-07-31T12:00:00Z')), '2026-07-31')
+})
+
+test('daily enrollments combine monthly and drop-in attendees without duplicating a member', () => {
+  const monthly = [
+    { signupId: 1, source: 'scheduling', memberId: 9, firstName: 'Alex', lastName: 'Kim', name: 'Alex Kim', email: 'alex@example.com', enrollmentType: 'monthly' },
+    { signupId: 2, source: 'scheduling', memberId: 10, firstName: 'Sam', lastName: 'Lee', name: 'Sam Lee', email: 'sam@example.com', enrollmentType: 'temporary_block' },
+  ]
+  const dropIns = [
+    { signupId: 12, source: 'drop_in', memberId: 9, firstName: 'Alex', lastName: 'Kim', name: 'Alex Kim', email: 'alex@example.com', enrollmentType: 'drop_in' },
+    { signupId: 13, source: 'drop_in', memberId: 11, firstName: 'Jo', lastName: 'Ng', name: 'Jo Ng', email: 'jo@example.com', enrollmentType: 'drop_in' },
+  ]
+
+  const result = mergeDailyEnrollmentAthletes(monthly, dropIns)
+  assert.equal(result.length, 3)
+  assert.equal(result.find((row) => row.memberId === 9)?.source, 'drop_in')
+  assert.deepEqual(result.map((row) => row.name), ['Alex Kim', 'Sam Lee', 'Jo Ng'])
 })
 
 test('validateRosterDate rejects malformed and impossible dates', () => {

@@ -28,7 +28,13 @@ export interface MemberEnrollmentRow {
   cancel_effective_date?: string | null
   cancel_requested_at?: string | null
   created_at?: string | null
-  source?: 'scheduling' | 'legacy'
+  source?: 'scheduling' | 'drop_in' | 'legacy'
+  enrollment_type?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  enrollmentType?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  attendance_date?: string | null
+  attendanceDate?: string | null
+  billing_type?: 'recurring' | 'one_time'
+  billingType?: 'recurring' | 'one_time'
 }
 
 interface Props {
@@ -187,7 +193,7 @@ function textOrDash(value?: string | null) {
 }
 
 function canManageEnrollment(row: MemberEnrollmentRow) {
-  return row.source !== 'legacy'
+  return row.source !== 'legacy' && row.source !== 'drop_in'
 }
 
 function statusBadge(row: MemberEnrollmentRow) {
@@ -547,11 +553,10 @@ export default function MemberEnrollmentsPanel({
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Calendar className="w-7 h-7 text-vortex-red" />
-            Current Enrollments
+            Enrollments
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            Active class signups for your family. Billing renews on the 1st of each month; cancellations
-            take effect on the next billing date.
+            Current and past monthly, temporary, one-time, and drop-in class registrations for your family.
           </p>
         </div>
         {enrollments.length > 0 && !hideViewToggle && (

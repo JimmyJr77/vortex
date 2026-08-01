@@ -1,0 +1,484 @@
+{
+  "batchKey": "through-legs-wall-throw-180-turn-catch-v1",
+  "researchVersion": "2026-08-01.2",
+  "snapshotAt": "2026-08-01T16:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "through-legs-wall-throw-180-turn-catch",
+      "assessmentSummary": {
+        "identity": "A fixed-order coordination task: from behind a marked line with the back to a smooth wall, throw a specified light gymnastic ball directly through straddled legs to the wall, stand and turn 180 degrees toward the wall, then visually reacquire and catch the rebound with two hands before it touches the floor. Throw, turn, and catch are all identity-bearing; this is not the legacy catch-then-throw composite.",
+        "currentCardFindings": [
+          "This exact definition is newly authored because the legacy 180-Turn Wall Ball Catch-and-Throw reverses the order, makes catching optional, and does not name the ball or throw.",
+          "The Karlsruhe Institute of Technology source specifies a gymnastic ball, a smooth wall, a 3 m drop line, a visual wall marker, ten attempts, and separate scoring for throwing, turning, and catching.",
+          "The source is a coordination assessment for children; it does not establish a medicine-ball power exercise, a wall-ball squat-to-overhead shot, a universal training dose, or suitability for every population.",
+          "No exact full-sequence YouTube demonstration was located. All three video records are adjacent-component discovery candidates and remain non-embeddable until full human review."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "through_legs_two_hand_ball_throw",
+            "grounded_180_reorientation",
+            "two_hand_rebound_catch"
+          ],
+          "jointActions": [
+            "hip_hinge_and_straddle",
+            "two_hand_underhand_release",
+            "hip_knee_extension",
+            "foot_pivot_or_step_turn",
+            "visual_reacquisition",
+            "two_hand_catch_deceleration"
+          ],
+          "planes": [
+            "sagittal_throw_and_recovery",
+            "transverse_reorientation",
+            "frontal_postural_control"
+          ],
+          "laterality": "bilateral_throw_and_catch_with_turn_direction_recorded",
+          "sequence": "throw_to_wall__stand_and_turn_180__reacquire__two_hand_catch",
+          "intent": "precision_coordination_assessment_not_ballistic_power_or_conditioning"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteals",
+            "quadriceps",
+            "hamstrings",
+            "calves",
+            "abdominal_wall",
+            "posterior_deltoid",
+            "triceps",
+            "forearm_and_hand_muscles"
+          ],
+          "secondaryMuscles": [
+            "adductors",
+            "hip_rotators",
+            "spinal_stabilizers",
+            "rotator_cuff",
+            "scapular_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ],
+          "primaryActions": [
+            "hinge_and_underhand_throw",
+            "rapid_whole_body_reorientation",
+            "visual_tracking",
+            "rebound_catch_deceleration"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 68,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 82,
+          "supervisionDemand": 72,
+          "failureConsequence": 58,
+          "impact": 16,
+          "workCapacityDemand": 24,
+          "baseOverallDifficulty": 68
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "standardized-three-metre-assessment",
+            "technicalComplexity": 68,
+            "absoluteLoadDemand": 30,
+            "baseOverallDifficulty": 68,
+            "identityQuarantine": false
+          },
+          {
+            "variantKey": "scaled-coordination-rehearsal",
+            "technicalComplexity": 58,
+            "absoluteLoadDemand": 22,
+            "baseOverallDifficulty": 58,
+            "identityQuarantine": false
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "light_ball_throw_turn_and_rebound_reception",
+          "impactClass": "low_body_impact_with_ball_rebound_collision_risk",
+          "externalLoadMethod": "record_ball_type_diameter_mass_bounce_and_wall_distance",
+          "primaryStress": [
+            "hinge_and_recovery",
+            "rapid_reorientation",
+            "visual_tracking",
+            "hand_and_upper_body_rebound_deceleration"
+          ],
+          "fatigueProfile": [
+            "slower_turn",
+            "late_visual_pickup",
+            "rigid_or_face_level_catch",
+            "missed_wall",
+            "ball_contacts_floor",
+            "leaving_marked_area"
+          ],
+          "recoveryHours": "minimal_to_24_for_low_volume_light_ball_exposure_subject_to_symptoms_total_throwing_and_individual_response"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "specified_light_bouncing_gymnastic_ball",
+            "smooth_clear_wall",
+            "three_metre_drop_line_for_standardized_variant",
+            "visual_wall_marker",
+            "clear_rebound_and_miss_zone"
+          ],
+          "optionalEquipment": [
+            "attempt_scoring_sheet",
+            "video_capture",
+            "additional_floor_boundary_markers"
+          ],
+          "environment": [
+            "non_slip_level_floor",
+            "wall_clear_and_smooth_to_at_least_three_metres_for_standardized_variant",
+            "no_people_in_throw_rebound_or_miss_path",
+            "adequate_light_for_ball_tracking"
+          ],
+          "population": [
+            "can_hinge_straddle_stand_and_turn_without_pain_or_dizziness",
+            "can_track_and_receive_selected_ball_with_two_hands",
+            "understands_throw_turn_catch_order_and_stop_signal",
+            "standardized_scores_used_only_for_the_validated_population_and_protocol"
+          ]
+        },
+        "proposedDosage": {
+          "assessment": "ten_scored_attempts_after_instruction_and_allowed_familiarization_using_the_exact_standardized_setup",
+          "rehearsal": "two_to_four_sets_of_two_to_four_full_reset_repetitions_with_a_larger_or_lighter_predictable_ball_and_reduced_distance_as_needed",
+          "restSeconds": "fifteen_to_thirty_between_attempts_and_sixty_to_ninety_between_rehearsal_sets_or_longer_if_tracking_turn_or_catch_quality_declines",
+          "intensity": "precision_first_and_never_conditioning",
+          "measurement": "ball_wall_contact_turn_timing_floor_contact_catch_or_touch_location_boundary_exit_symptoms_and_exact_ball_setup",
+          "progressWhen": "the_throw_hits_the_wall_directly_the_turn_finishes_in_time_the_ball_is_found_early_and_two_hand_catches_stay_away_from_the_face"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Look through your legs and hit the wall",
+            "Stand and turn as soon as the ball leaves",
+            "Find the rebound early",
+            "Soft two-hand catch away from your face",
+            "Stay inside the marked area"
+          ],
+          "athleteInstructions": [
+            "Stand behind the assigned line with your back to the wall and the named ball in both hands",
+            "Straddle and look through your legs, then throw the ball directly to the wall without a floor bounce",
+            "Stand and turn one half rotation toward the wall immediately",
+            "Find the returning ball and catch it with two hands before it touches the floor",
+            "Control the ball, stop, and wait for the next attempt"
+          ],
+          "commonFaults": [
+            "ball_hits_floor_before_wall",
+            "late_or_incomplete_turn",
+            "eyes_close_or_look_away",
+            "rigid_hands_or_excess_body_motion",
+            "face_level_catch",
+            "leaving_marked_area",
+            "continuing_without_full_reset"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hinge_stand_and_grounded_turn",
+            "predictable_two_hand_catch_with_selected_ball",
+            "clear_wall_rebound_and_miss_zone",
+            "understands_no_chasing_into_occupied_space"
+          ],
+          "qualityGates": [
+            "exact_ball_wall_line_and_marker_are_declared",
+            "throw_reaches_wall_directly",
+            "turn_is_grounded_and_controlled",
+            "eyes_reacquire_ball_before_reception",
+            "catch_stays_away_from_face",
+            "attempt_ends_in_control_inside_clear_space"
+          ],
+          "stopRules": [
+            "pain_or_guarding",
+            "dizziness_or_disorientation",
+            "head_face_hand_shoulder_back_hip_knee_or_ankle_symptom",
+            "repeated_face_level_or_rigid_catch",
+            "unsafe_or_unpredictable_rebound",
+            "ball_or_athlete_enters_occupied_space",
+            "wall_floor_ball_or_marker_setup_changes",
+            "tracking_turn_or_catch_quality_materially_declines"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_standardized_coordination_assessment",
+            "dose": "ten_scored_attempts_with_exact_setup_and_full_recording",
+            "purpose": "assess_precision_coordination_using_the_documented_protocol"
+          },
+          {
+            "context": "movement_intelligence_scaled_sequence_rehearsal",
+            "dose": "two_to_four_sets_of_two_to_four_full_reset_repetitions",
+            "purpose": "practice_throw_turn_visual_reacquisition_and_safe_two_hand_reception_without_interpreting_scores_as_standardized"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "scaled_coordination_rehearsal",
+            "turn_find_and_catch_without_throw",
+            "through_legs_wall_throw_without_turn_or_catch"
+          ],
+          "progressions": [
+            "standardized_three_metre_assessment_after_exact_setup_and_familiarization"
+          ],
+          "substitutions": [
+            "none_for_standardized_score_unless_the_same_validated_protocol_is_preserved"
+          ],
+          "doNotSubstitute": [
+            "catch_then_wall_throw",
+            "medicine_ball_power_throw",
+            "wall_ball_squat_to_overhead_shot",
+            "180_catch_slam",
+            "jumping_180_catch"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "four_frame_sequence_diagram",
+            "three_metre_line_and_wall_marker_layout",
+            "turn_direction_arrow",
+            "safe_catch_window",
+            "stop_signal"
+          ],
+          "coach": [
+            "setup_measurement_checklist",
+            "attempt_scoring_sheet",
+            "side_view_for_throw_and_turn",
+            "wall_side_view_for_rebound_and_catch",
+            "miss_zone_and_group_spacing_layout"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "the exact Karlsruhe protocol, ball-catching perception-action research, youth supervision guidance, and explicit comparison with adjacent Vortex identities",
+          "uncertainty": "The source specifies a child coordination assessment but does not provide a universal training dose, adult normative interpretation, ball mass range, or exact YouTube demonstration. Scores and the rehearsal profile remain review-only proposals.",
+          "reviewNeeded": [
+            "translation_and_protocol_review",
+            "ball_specification_and_facility_risk_review",
+            "difficulty_anchor_comparison",
+            "population_and_normative_use_review",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Create a separate exact review-only definition. Permit the standardized variant only in an explicit assessment context using the documented setup; permit the scaled rehearsal only as non-normative sequence practice. Never alias or substitute the reversed legacy catch-then-throw composite, a medicine-ball power throw, a wall-ball shot, a slam, or a jumping turn-catch."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented task order is a direct through-the-legs throw to the wall, rapid 180-degree turn toward the wall, then rebound catch or touch.",
+            "{{canonicalName}} is a new exact throw-turn-catch identity and cannot replace the legacy catch-then-throw composite."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The protocol explicitly scores three sub-elements: throw, body rotation, and catch.",
+            "Classify the task by fixed sequence, through-the-legs throw, grounded 180-degree turn, wall rebound, two-hand catch, ball specification, distance, and terminal control."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented sequence combines a straddled hinge and throw, rapid standing reorientation, and two-hand rebound reception.",
+            "Represent lower-body recovery and turn, trunk control, shoulder and elbow throw actions, and hand and upper-body catch deceleration without treating this light-ball task as a medicine-ball power throw."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Catching performance changes with advance visual information and ball-flight constraints.",
+            "The athlete must finish the turn, visually reacquire the rebound, orient toward the wall and ball, and receive with adaptable hands rather than a rigid face-level catch."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Reduced advance visual information raises the perception-action demand of catching even when external load is light.",
+            "Score complexity and physical difficulty separately: the proposed overall score is driven by sequence and tracking complexity, not athlete proficiency or heavy load."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The source uses a gymnastic ball and ten attempts; it does not prescribe a medicine ball or conditioning density.",
+            "Record exact ball properties, attempts, misses, floor contacts, catch outcomes, symptoms, and overlapping throwing volume; stop before tracking or reception degrades."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The standardized setup uses a gymnastic ball, smooth wall, 3 m line, floor tape, visual wall marker, and scoring sheet.",
+            "Require a clear non-slip throw and rebound lane with no person in the ball path and distinguish any scaled rehearsal from the standardized setup."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented assessment uses ten attempts and awards execution-dependent points.",
+            "Ten attempts apply only to the exact assessment. The lower-volume rehearsal dose is a conservative programming proposal and must not be interpreted with standardized scores."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The source specifies looking through the legs, hitting the wall directly before any floor contact, turning quickly, catching with two hands, and remaining in place.",
+            "Instructions must preserve this order and distinguish successful catch, touch, floor contact, boundary exit, and failed direct wall throw."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Youth training should use qualified supervision, safe equipment, appropriate progression, and technically sound execution.",
+            "Stop for pain, dizziness, face-level or rigid reception, unsafe rebound, occupied miss space, setup drift, or material loss of throw, turn, tracking, or catch control."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The task objective is coordination performance in a precision task, not power or conditioning.",
+            "Select the standardized profile only when an explicit coordination assessment is required; use the rehearsal profile only for non-normative sequence practice."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The protocol names the start orientation, line, wall target, throw path, turn, catch objective, attempt count, and common errors.",
+            "Athlete support should show the four-frame sequence, layout, direct wall path, turn arrow, safe catch window, valid finish, and stop signal."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Ball-flight and visual-information constraints materially affect catching behavior.",
+            "Coach support must control ball, distance, wall, marker, lighting, turn direction, observation angle, scoring, miss management, full reset, and whether the attempt is standardized or rehearsal."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Exercise progression should match demonstrated technique and current capacity under qualified supervision.",
+            "For non-normative rehearsal only, scale with a larger or lighter predictable ball, shorter distance, slower turn, isolated components, visible arrows, demonstration, and extra reset time."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The exact protocol depends on its throw-turn-catch order, wall rebound, turn timing, and catch outcome.",
+            "Catch-then-throw, held-ball turn-and-throw, wall-ball shot, medicine-ball power throw, catch-and-slam, jumping turn-catch, and changed scoring protocols are separate identities or variants."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube supports privacy-enhanced embed URLs.",
+            "The three selected links are adjacent component candidates only. Availability, embedding, exact full sequence, ball and setup match, complete viewing, safety, captions, reviewer identity, and approval remain unverified human gates."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=uD-ERQqcz_Y",
+          "title": "180° Turn & Throw w/ Med Ball",
+          "channelName": "EDGE Athletics",
+          "sourceQuery": "throw through legs wall 180 turn catch ball",
+          "notes": "Adjacent turn-and-throw component using a different likely implement and reversed terminal action. It is not an exact match and cannot be embedded or approved without full human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=sMICxHYRlcQ",
+          "title": "180 Jump to Med Ball Catch w/ Partner",
+          "channelName": "Orenda Force",
+          "sourceQuery": "180 turn catch ball drill",
+          "notes": "Adjacent turn-and-catch component with a jump, partner delivery, and no through-the-legs wall throw. It is not an exact match."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=p4NlK0bCr_I",
+          "title": "Rapid Fire Rotational Med Ball Drill - Do With A Partner or Wall!",
+          "channelName": "Catching Made Simple (Coach Bougie)",
+          "sourceQuery": "wall rebound turn catch ball coordination",
+          "notes": "Adjacent rotational catch-and-release component. Turn angle, order, ball, distance, wall path, and terminal catch differ or remain unknown; no exact-match claim is made."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Scaled Through-the-Legs Wall Throw, Turn and Catch Rehearsal",
+          "classification": "new_variant",
+          "rationale": "A lighter or larger ball, shorter distance, or slower turn preserves the sequence for practice but invalidates standardized scoring and must be labeled as rehearsal.",
+          "distinguishingDimensions": {
+            "protocol": "non_standardized_rehearsal",
+            "ballDistanceOrSpeed": "scaled"
+          }
+        },
+        {
+          "name": "180-Turn Medicine-Ball Catch and Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Partner delivery, catch-first order, medicine-ball load, and a chest-pass terminal action define a different task.",
+          "distinguishingDimensions": {
+            "sequence": "turn_catch_throw",
+            "implement": "medicine_ball",
+            "terminalAction": "chest_pass"
+          }
+        },
+        {
+          "name": "180-Turn Prepositioned-Ball Wall Throw",
+          "classification": "new_definition",
+          "rationale": "Removing the rebound catch and starting with a held or prepositioned ball eliminates the perception-action reception task.",
+          "distinguishingDimensions": {
+            "sequence": "turn_throw",
+            "catch": "none"
+          }
+        },
+        {
+          "name": "180 Catch Slam",
+          "classification": "new_definition",
+          "rationale": "A partner-delivered catch followed by a downward slam changes order, load, terminal force vector, equipment, and miss zone.",
+          "distinguishingDimensions": {
+            "sequence": "turn_catch_slam",
+            "target": "floor",
+            "implement": "non_rebound_slam_ball"
+          }
+        },
+        {
+          "name": "Jumping 180 Turn and Catch",
+          "classification": "new_definition",
+          "rationale": "An aerial turn adds takeoff, landing, impact, and failure consequences and removes the exact grounded reorientation contract.",
+          "distinguishingDimensions": {
+            "turn": "aerial",
+            "impact": "landing"
+          }
+        },
+        {
+          "name": "Reactive Left-or-Right Turn Direction",
+          "classification": "new_variant",
+          "rationale": "An unpredictable turn-direction cue adds a choice requirement while retaining the physical sequence, but it is not part of the standardized protocol.",
+          "distinguishingDimensions": {
+            "cue": "unpredictable_turn_direction",
+            "protocol": "non_standardized"
+          }
+        }
+      ]
+    }
+  ]
+}

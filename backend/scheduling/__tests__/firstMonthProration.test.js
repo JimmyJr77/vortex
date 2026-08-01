@@ -466,7 +466,7 @@ test('persistSignupCharges posts additional_fee billing_charge and once-per-year
   assert.equal(pool.calls.feeRedemptions.length, 1)
   const feeCharge = pool.calls.charges.find((params) => params[3] === 'Annual Fee')
   assert.ok(feeCharge)
-  assert.match(String(feeCharge[2]), /^3:4:\d{4}$/)
+  assert.match(String(feeCharge[2]), /^3:4:\d{4}-\d{2}-\d{2}$/)
   assert.equal(feeCharge[4], 8500)
 })
 

@@ -64,14 +64,14 @@ BEGIN
       already_applied_count;
   END IF;
 
-  IF already_applied_count = 0 THEN
-    SELECT count(*)
+  SELECT count(*)
     INTO protected_count
     FROM coaching.exercise_definition_v1 definition
     WHERE definition.facility_id = 1
       AND definition.slug = ANY(target_slugs)
       AND (
-        definition.card_version <> 1
+        (already_applied_count = 0 AND definition.card_version <> 1)
+        OR (already_applied_count = 5 AND definition.card_version <> 2)
         OR definition.status IN ('published','deprecated')
         OR definition.reviewed_by IS NOT NULL
         OR definition.approved_by IS NOT NULL
@@ -229,7 +229,6 @@ BEGIN
         migration_key,
         protected_count;
     END IF;
-  END IF;
 
   CREATE TEMP TABLE one_arm_landmine_card_seed (
     slug TEXT PRIMARY KEY,
@@ -1918,7 +1917,6 @@ BEGIN
         THEN 'Candidate exercise-complexity score reflects exact base, orientation, laterality, equipment transfer, path, range, and control demands; human anchor review is pending.'
       WHEN 'absoluteLoadDemand'
         THEN 'Candidate physical-difficulty score reflects load tolerance, local pressing demand, base demand, and repeatable quality; human anchor review is pending.'
-      ELSE 'Overall is deterministically derived as the maximum of exercise complexity and physical difficulty; human calibration approval is pending.'
     END,
     'review',
     1,
@@ -1940,8 +1938,7 @@ BEGIN
   CROSS JOIN LATERAL (
     VALUES
       ('technicalComplexity', seed.complexity),
-      ('absoluteLoadDemand', seed.physical),
-      ('baseOverallDifficulty', greatest(seed.complexity, seed.physical))
+      ('absoluteLoadDemand', seed.physical)
   ) AS calibration(dimension, score)
   ON CONFLICT (
     facility_id,

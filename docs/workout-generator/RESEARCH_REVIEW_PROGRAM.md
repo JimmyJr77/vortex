@@ -1507,6 +1507,61 @@ sets exact-version match, demonstration quality, reviewer identity, or review
 approval. Importing a packet deliberately resets link verification, so oEmbed
 must be rerun after import if current availability is required.
 
+## Short-acceleration tranche (migrations 419–421)
+
+Twenty audited legacy sources now resolve to one stable Short Acceleration
+Sprint definition. Standing, two-point, three-point, falling, half-kneeling,
+and one standardized auditory go-signal are exact start variants. Distance,
+units, cones, lead side, intent, recovery, and run-out remain contextual dosage.
+The walk-in and longer build-up entries remain nonselectable until a human
+authors their exact ordered contracts.
+
+The candidate packet stores 24 unique evidence rows across all 16 controlled
+sections, four direct YouTube candidates, 37 alternate decisions, eight
+complexity/physical-difficulty assessments, eight delivery profiles, 14 graph
+proposals, 16 calibration proposals, and one automated card packet. All media
+remain unverified, non-embeddable, without an exact-match decision, and without
+a reviewer. Every relationship, calibration, source score, and card remains in
+review or quarantine.
+
+The post-consolidation identity audit also distinguishes hill acceleration,
+deceleration/re-acceleration, and live multi-gate choice reaction from a level
+single short acceleration. These are deterministic identity classifications,
+not human approvals. Athlete experience remains selection context only;
+exercise-card difficulty is complexity plus physical difficulty with overall
+derived as their maximum.
+
+## Hill Sprint Acceleration tranche (migration 422)
+
+Legacy Low-Incline Hill Sprint Acceleration and Hill Sprint Acceleration remain
+one stable incline-resisted acceleration identity. The current candidate card
+requires one explicit start variant, a measured and declared uniform positive
+grade that preserves sprint gait, a marked traction-safe lane, a visible
+finish, a safe summit run-out, and a separate controlled non-sprinted walk-back.
+The exact selectable starts are static two-point and controlled falling start.
+
+The card does not claim one universal grade or that uphill sprinting is
+superior to equal-volume level sprinting. Grade, distance, unit, markers, lead
+side, timing, intent, effort count, recovery, surface, and footwear remain
+delivery variables. Steep grinding, long hill conditioning, stairs, incline
+treadmill work, external sled or band resistance, downhill overspeed, uphill
+bounding, shuttles, and sprinted descents require separate cards or human
+authorship.
+
+The version-2 packet contains all 16 controlled evidence sections, three public
+YouTube discovery candidates, seven alternate assessments, two contextual
+delivery profiles, four graph proposals, four calibration proposals, two
+queued source-score packets, and one automated test packet. Media remain
+`unverified`, non-embeddable, without exact-match or quality scores and without
+a reviewer. Difficulty remains exercise complexity plus physical difficulty:
+52/72/72 for two-point and 56/72/72 for falling start. Athlete proficiency is
+not stored anywhere on the exercise card.
+
+Disposable PostgreSQL recorded checksum `1254677506`; direct and production
+runner re-entry passed, and an `in_review` sentinel proved protected state fails
+closed. These checks establish migration integrity, not human content,
+relationship, calibration, media, pilot, or publication approval.
+
 ## Quality reporting
 
 `buildCanonicalDataQualityReport` reports active definitions only and separates:
@@ -1549,3 +1604,137 @@ create the proposed definition or variant only after identity review.
 
 Publication remains quarantined until these gates and the existing canonical
 card, relationship, calibration, and workout-validation gates all pass.
+
+## 180-degree wall-ball identity resolution (migration 423)
+
+Legacy source 1284 remains the stable
+`180-turn-wall-ball-catch-and-throw` identity, but it is now an explicit
+nonselectable quarantine. Its source permits either receiving or picking up an
+unspecified ball before an unnamed wall throw, so sequence, ball, delivery,
+catch requirement, throw pattern, target, rebound, miss zone, reset, and valid
+terminal outcome cannot be inferred safely.
+
+A separate review-only card,
+`through-legs-wall-throw-180-turn-catch`, records the exact Karlsruhe Institute
+of Technology protocol: direct through-the-legs throw to a smooth wall,
+grounded 180-degree turn, visual reacquisition, and controlled two-hand rebound
+catch. The exact card has a standardized 3 m / ten-attempt assessment variant
+and a clearly non-normative scaled rehearsal variant. Difficulty is 68
+complexity / 30 physical / 68 overall for the assessment and 58 / 22 / 58 for
+the rehearsal. These are candidate exercise scores, not athlete skill or
+proficiency levels.
+
+The tranche stores 16 candidate evidence sections, three adjacent-component
+YouTube discovery links, six alternate assessments, three delivery profiles,
+two review-only relationship proposals, six review-only calibration proposals,
+one queued legacy source score, and two quarantined automated card packets.
+No exact full-sequence YouTube demonstration was located. Every link remains
+unverified, non-embeddable, without an exact-match decision, quality score,
+reviewer, or approval.
+
+The migration also records a deterministic distinct-identity boundary between
+the ambiguous legacy catch-or-pick-up/throw composite and the exact
+throw-turn-catch protocol. This closes their generated similarity pair without
+claiming human approval and refuses to overwrite any human-reviewed card,
+identity, media, relationship, calibration, or score state.
+
+## Landmine Arc identity resolution (migration 424)
+
+Migration 424 removes a mixed-lineage exercise identity. Legacy source 1413,
+named `one-arm-landmine-arc-press`, describes an ordinary unilateral fixed
+diagonal Landmine Press and is mapped to `landmine-press`. Legacy source 1414
+uses the same movement contract with eccentric emphasis and is mapped to that
+same definition with eccentric tempo retained as a delivery modifier. The old
+mixed card is archived; neither legacy row is treated as the two-hand arc.
+
+The new review-only `two-hand-landmine-shoulder-to-shoulder-arc-press` card is
+the bilateral task in which both hands control the landmine end from one
+shoulder, through a continuous high arc, to the opposite shoulder. Tall- and
+half-kneeling starts are exact selectable variants. Standing, unilateral
+presses, push presses or throws, and rotational landmine rainbows remain
+separate definitions or unresolved proposals. One repetition is one complete
+one-way shoulder-to-opposite-shoulder crossing; the card does not silently
+double it into an out-and-back cycle.
+
+The packet contains all 16 candidate evidence sections, five YouTube
+candidates whose oEmbed availability and embedding were checked
+programmatically, eight alternate assessments, four contextual delivery
+profiles, two review-only graph proposals, four review-only calibration
+proposals, and one quarantined automated test packet. Programmatic link health
+does not establish exercise identity or demonstration quality. Exact-match,
+reviewer, quality, approval, and publication fields remain unset.
+
+Tall-kneeling difficulty is 52 complexity / 48 physical / 52 derived overall;
+half-kneeling difficulty is 54 / 48 / 54. These are exercise-complexity and
+physical-difficulty assessments only. Athlete skill level or proficiency is
+not stored on the exercise card.
+
+Disposable PostgreSQL recorded checksum `2520926649`; direct execution,
+idempotent re-entry, and the production runner passed. A transaction-scoped
+published-card sentinel made the migration fail closed and rolled back. The
+card audit now fails only the deliberate human gates for exact-match media,
+approved graph relationships, approved calibration, and publication.
+
+## Ankling Pogo retirement and wall-lean variant (migration 425)
+
+Migration 425 retires `ankling-pogo-hop` and `wall-ankling-pogo` as
+nonprescribable legacy labels. Source 947 describes generic low-amplitude pogo
+work but does not declare support, laterality, displacement, ordered contacts,
+dose unit, or finish. Source 1085 adds wall pressure and stacked posture but
+still does not say whether contacts are bilateral, alternating, or repeated on
+one leg. Both source rows remain traceable to their archived cards and are not
+silently mapped to an exact exercise.
+
+The exact wall-lean option is instead a new review-only variant on the existing
+`single-leg-pogo` definition. Two hands press an immovable wall or rated rack,
+the athlete maintains a declared forward body line, one declared leg performs
+the repeated low-amplitude contacts, the opposite thigh holds its prescribed
+recovery position, every landing is one contact, and sides change only after a
+controlled two-foot reset. Light balance support, alternating wall contacts,
+wall marches, wall switches, traveling ankling, and bilateral pogos remain
+separate variants or definitions.
+
+The version-3 research packet contains all 16 evidence sections, five current
+YouTube oEmbed-healthy and embeddable candidates, nine alternate assessments,
+two contextual delivery profiles, one review-only contextual-substitution
+edge, two review-only calibration proposals, and a quarantined automated card
+packet. One candidate received automated visual inspection of the same-leg
+contact pattern; no candidate has an exact-match decision, quality score,
+human reviewer, or approval.
+
+Wall-lean variant difficulty is 48 exercise complexity / 52 physical
+difficulty / 52 derived overall. No athlete proficiency classification is
+stored. Disposable PostgreSQL recorded checksum `4272711159`; direct
+execution, clean re-entry, the production runner, and a rollback-only
+published-card sentinel passed.
+
+## Opposite-leg bound direction identities (migration 426)
+
+The generic `bound-to-stick` and `lateral-bound` labels now retain their stable
+slugs but declare exact movement contracts. The forward card projects from one
+leg to the opposite leg in a forward lane; the lateral card crosses from one
+leg to the opposite leg in a lateral lane. Both end in a declared stable hold
+and full reset. Direction, landing side, and terminal action are identity
+fields, not athlete skill classifications.
+
+The research packet uses alternate-leg bounding guidance, direction-specific
+jump-landing and single-leg-landing biomechanics, and unilateral plyometric
+stabilization evidence. Every claim is scoped to what its source supports; the
+card does not infer exact force thresholds, injury prediction, or automatic
+sport transfer. Forward difficulty is 56 exercise complexity / 64 physical
+difficulty / 64 derived overall. Lateral difficulty is 60 / 66 / 66.
+
+Each card has 16 candidate evidence sections, five candidate YouTube links,
+nine alternate assessments, two delivery profiles, one review-only
+substitution edge, two review-only calibration proposals, and a quarantined
+test packet. Automated oEmbed availability does not establish exact movement
+match or demonstration quality. Full playback, exact contact order, cueing,
+safety, captions, accessibility, reviewer identity, and every approval remain
+human work.
+
+Migration 426 also records the researched forward-versus-lateral boundary and
+the adjacent forward-versus-diagonal, forward-versus-rotational, and opposite-
+leg-lateral-versus-same-leg-lateral boundaries as distinct exercises. It
+refuses to overwrite published or human-reviewed state. Disposable PostgreSQL
+recorded checksum `1732038496`; direct execution, clean re-entry, the
+production runner, and rollback-only protected-state testing passed.

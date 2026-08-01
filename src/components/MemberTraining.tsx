@@ -269,6 +269,14 @@ interface ProgressData {
   results: Array<{ assessment_name: string; value_numeric: number | null; unit?: string | null; tested_at: string; tenet_name?: string | null }>
   skills: Array<{ skill_label?: string | null; exercise_name?: string | null; library_skill_name?: string | null; score: number | null; max_score: number | null; graded_at: string }>
   prs?: PrRow[]
+  evaluations?: Array<{
+    id: number
+    evaluated_at: string
+    coach_name?: string | null
+    first_name?: string | null
+    last_name?: string | null
+    report: { focus?: Array<{ movement: string; component: string; text: string }>; strengths?: Array<{ movement: string; component: string; text: string }>; coachNote?: string | null }
+  }>
 }
 
 export function MemberProgressTab() {
@@ -299,6 +307,7 @@ export function MemberProgressTab() {
   const trendData = (data?.results ?? []).map((r) => ({ date: new Date(r.tested_at).toLocaleDateString(), [r.assessment_name]: r.value_numeric }))
   const skillData = (data?.skills ?? []).map((s) => ({ name: s.library_skill_name || s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
   const prs = data?.prs ?? []
+  const evaluations = data?.evaluations ?? []
 
   return (
     <div className="space-y-4">
@@ -308,6 +317,19 @@ export function MemberProgressTab() {
       <WellnessCheckinCard />
 
       <MemberFormReviewCard />
+
+      <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <h3 className="font-semibold text-gray-800 mb-1">Gymnastics Evaluation Reports</h3>
+        <p className="text-xs text-gray-500 mb-3">Your coach’s focus areas and strengths from recent evaluations.</p>
+        {evaluations.length === 0 ? <div className="text-sm text-gray-500 py-4 text-center">No published evaluation reports yet.</div> : <div className="space-y-3">{evaluations.map((evaluation) => (
+          <div key={evaluation.id} className="rounded-lg border border-gray-100 p-3">
+            <div className="flex flex-wrap justify-between gap-2 text-sm font-medium text-gray-900"><span>{[evaluation.first_name, evaluation.last_name].filter(Boolean).join(' ') || 'My'} evaluation</span><span className="text-xs font-normal text-gray-500">{new Date(evaluation.evaluated_at).toLocaleDateString()}{evaluation.coach_name ? ` · ${evaluation.coach_name}` : ''}</span></div>
+            {(evaluation.report.focus?.length ?? 0) > 0 && <div className="mt-3"><div className="text-xs font-semibold uppercase tracking-wide text-vortex-red">Focus next</div><ul className="mt-1 space-y-1 text-sm text-gray-700">{evaluation.report.focus?.map((item, index) => <li key={index}>{item.text}</li>)}</ul></div>}
+            {(evaluation.report.strengths?.length ?? 0) > 0 && <div className="mt-3"><div className="text-xs font-semibold uppercase tracking-wide text-green-700">Strengths</div><ul className="mt-1 space-y-1 text-sm text-gray-700">{evaluation.report.strengths?.map((item, index) => <li key={index}>{item.text}</li>)}</ul></div>}
+            {evaluation.report.coachNote && <p className="mt-3 text-sm italic text-gray-600">{evaluation.report.coachNote}</p>}
+          </div>
+        ))}</div>}
+      </div>
 
       {(goals.length > 0 || achievements.length > 0) && (
         <div className="grid gap-4 lg:grid-cols-2">

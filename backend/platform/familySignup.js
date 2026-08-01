@@ -15,6 +15,7 @@ import {
 } from '../email/memberNotifications.js'
 import { countActiveFamilyMembers } from '../email/memberContact.js'
 import { verifyEnrollmentReceiptToken } from '../email/enrollmentReceiptService.js'
+import { sendDropInConfirmationNotifications } from '../scheduling/dropInNotificationEmail.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
@@ -1168,6 +1169,14 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
         })
       } catch (err) {
         console.warn('[signup] enrollment receipt failed:', err?.message || err)
+      }
+    }
+
+    if (result.completedDropIn?.id) {
+      try {
+        await sendDropInConfirmationNotifications(pool, Number(result.completedDropIn.id))
+      } catch (err) {
+        console.warn('[signup] drop-in confirmation notifications failed:', err?.message || err)
       }
     }
 

@@ -69,9 +69,9 @@ BEGIN
     AND definition.slug = ANY(target_slugs)
     AND definition.status <> 'archived';
 
-  IF source_count <> 14 THEN
+  IF source_count <> 15 THEN
     RAISE EXCEPTION
-      '% expected all 14 legacy mappings on the active survivor set; found %',
+      '% expected all 15 legacy mappings on the active survivor set; found %',
       migration_key,
       source_count;
   END IF;
@@ -110,14 +110,14 @@ BEGIN
       consolidated_count;
   END IF;
 
-  IF already_applied_count = 0 THEN
-    SELECT count(*)
+  SELECT count(*)
     INTO protected_count
     FROM coaching.exercise_definition_v1 definition
     WHERE definition.facility_id = 1
       AND definition.slug = ANY(target_slugs)
       AND (
-        definition.card_version <> 1
+        (already_applied_count = 0 AND definition.card_version <> 1)
+        OR (already_applied_count = 2 AND definition.card_version <> 2)
         OR definition.status IN ('published','deprecated')
         OR definition.reviewed_by IS NOT NULL
         OR definition.approved_by IS NOT NULL
@@ -260,6 +260,7 @@ BEGIN
         protected_count;
     END IF;
 
+    IF already_applied_count = 0 THEN
     UPDATE coaching.exercise_delivery_profile_v1 profile
     SET status = 'archived',
         updated_at = now()
@@ -1069,7 +1070,6 @@ BEGIN
         THEN 'Candidate exercise-complexity score reflects stance, range, side transfer, support, tempo, hold, reach, implement or ball action, and control; human anchor review is pending.'
       WHEN 'absoluteLoadDemand'
         THEN 'Candidate physical-difficulty score reflects bodyweight range, external load, isometric or eccentric exposure, adductor and lower-body force, grip, and repeatable quality; human anchor review is pending.'
-      ELSE 'Overall is deterministically derived as the maximum of exercise complexity and physical difficulty; human calibration approval is pending.'
     END,
     'review',
     1,
@@ -1087,8 +1087,7 @@ BEGIN
   CROSS JOIN LATERAL (
     VALUES
       ('technicalComplexity', seed.complexity),
-      ('absoluteLoadDemand', seed.physical),
-      ('baseOverallDifficulty', greatest(seed.complexity, seed.physical))
+      ('absoluteLoadDemand', seed.physical)
   ) AS calibration(dimension, score)
   WHERE calibration.score IS NOT NULL
   ON CONFLICT (facility_id, variant_id, dimension, version)
@@ -1701,13 +1700,12 @@ BEGIN
      AND calibration.reviewed_at IS NULL
      AND calibration.dimension IN (
        'technicalComplexity',
-       'absoluteLoadDemand',
-       'baseOverallDifficulty'
+       'absoluteLoadDemand'
      )
     WHERE seed.complexity IS NOT NULL
       AND seed.physical IS NOT NULL
-  ) <> 36 THEN
-    RAISE EXCEPTION '% did not create all 36 review-only calibration rows', migration_key;
+  ) <> 24 THEN
+    RAISE EXCEPTION '% did not create all 24 review-only calibration rows', migration_key;
   END IF;
 
   IF (
@@ -1824,8 +1822,8 @@ BEGIN
     AND definition.slug = ANY(target_slugs)
     AND definition.status = 'review';
 
-  IF source_count <> 14 THEN
-    RAISE EXCEPTION '% lost one or more of the 14 legacy source mappings', migration_key;
+  IF source_count <> 15 THEN
+    RAISE EXCEPTION '% lost one or more of the 15 legacy source mappings', migration_key;
   END IF;
 
   SELECT count(*)

@@ -99,6 +99,24 @@ const ensureProductionEnv = () => {
 }
 ensureProductionEnv()
 
+async function loadMemberEnrollmentMap(db, memberIds) {
+  const map = {}
+  if (!memberIds?.length) return map
+  const rows = await queryFamilyMemberEnrollments(db, memberIds.map(Number))
+  for (const row of rows) {
+    const memberId = Number(row.member_id)
+    if (!map[memberId]) map[memberId] = []
+    map[memberId].push({
+      ...row,
+      formId: row.form_id,
+      programDisplayName: row.class_name,
+      program_display_name: row.class_name,
+      createdAt: row.created_at,
+    })
+  }
+  return map
+}
+
 // The default master admin account is permanent: it cannot be deleted,
 // deactivated, or stripped of master admin access. Override via env if the
 // owner account email ever changes.
@@ -3644,28 +3662,7 @@ app.get('/api/admin/members', async (req, res) => {
     
     if (memberIds.length > 0) {
       try {
-        const enrollmentsQuery = `
-          SELECT 
-            ss.member_id,
-            json_agg(
-              jsonb_build_object(
-                'id', ss.id,
-                'form_id', ss.form_id,
-                'status', ss.status,
-                'program_display_name', COALESCE(p.display_name, sf.title, '')
-              )
-            ) as enrollments
-          FROM scheduling_signup ss
-          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
-          LEFT JOIN program p ON p.id = sf.program_id
-          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
-          GROUP BY ss.member_id
-        `
-        const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
-        
-        enrollmentsResult.rows.forEach(row => {
-          enrollmentsMap[row.member_id] = row.enrollments || []
-        })
+        enrollmentsMap = await loadMemberEnrollmentMap(pool, memberIds)
       } catch (enrollmentsError) {
         console.warn('[GET /api/admin/members] Error fetching enrollments:', enrollmentsError.message)
         enrollmentsMap = {}
@@ -4009,27 +4006,7 @@ app.get('/api/admin/athletes', async (req, res) => {
     
     if (memberIds.length > 0) {
       try {
-        const enrollmentsResult = await pool.query(`
-          SELECT 
-            ss.member_id,
-            json_agg(
-              jsonb_build_object(
-                'id', ss.id,
-                'form_id', ss.form_id,
-                'status', ss.status,
-                'program_display_name', COALESCE(p.display_name, sf.title, '')
-              )
-            ) as enrollments
-          FROM scheduling_signup ss
-          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
-          LEFT JOIN program p ON p.id = sf.program_id
-          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
-          GROUP BY ss.member_id
-        `, [memberIds])
-        
-        enrollmentsResult.rows.forEach(row => {
-          enrollmentsMap[row.member_id] = row.enrollments || []
-        })
+        enrollmentsMap = await loadMemberEnrollmentMap(pool, memberIds)
       } catch (enrollmentsError) {
         console.warn('Error fetching enrollments:', enrollmentsError.message)
       }
@@ -6555,28 +6532,7 @@ app.get('/api/admin/members/:id', async (req, res) => {
     // Get enrollments
     let enrollments = []
     try {
-      const enrollmentsResult = await pool.query(`
-        SELECT 
-          ss.id,
-          ss.form_id,
-          ss.status,
-          ss.created_at,
-          ss.updated_at,
-          COALESCE(p.display_name, sf.title) as program_display_name
-        FROM scheduling_signup ss
-        LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
-        LEFT JOIN program p ON p.id = sf.program_id
-        WHERE ss.member_id = $1 AND ss.orphaned_at IS NULL
-        ORDER BY ss.created_at DESC
-      `, [id])
-      enrollments = enrollmentsResult.rows.map(e => ({
-        id: e.id,
-        formId: e.form_id,
-        status: e.status,
-        programDisplayName: e.program_display_name,
-        createdAt: e.created_at,
-        updatedAt: e.updated_at
-      }))
+      enrollments = (await loadMemberEnrollmentMap(pool, [Number(id)]))[Number(id)] || []
     } catch (enrollmentsError) {
       console.warn('Error getting enrollments:', enrollmentsError.message)
     }
@@ -8515,27 +8471,7 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     let enrollmentsMap = {}
     if (memberIds.length > 0) {
       try {
-        const enrollmentsQuery = `
-          SELECT 
-            ss.member_id,
-            json_agg(
-              jsonb_build_object(
-                'id', ss.id,
-                'form_id', ss.form_id,
-                'status', ss.status,
-                'program_display_name', COALESCE(p.display_name, sf.title, '')
-              )
-            ) as enrollments
-          FROM scheduling_signup ss
-          LEFT JOIN scheduling_form sf ON sf.id = ss.form_id AND sf.deleted_at IS NULL
-          LEFT JOIN program p ON p.id = sf.program_id
-          WHERE ss.member_id = ANY($1::bigint[]) AND ss.orphaned_at IS NULL
-          GROUP BY ss.member_id
-        `
-        const enrollmentsResult = await pool.query(enrollmentsQuery, [memberIds])
-        enrollmentsResult.rows.forEach(row => {
-          enrollmentsMap[row.member_id] = row.enrollments || []
-        })
+        enrollmentsMap = await loadMemberEnrollmentMap(pool, memberIds)
       } catch (enrollmentsError) {
         console.log('Enrollments query failed (non-critical):', enrollmentsError.message)
         enrollmentsMap = {}

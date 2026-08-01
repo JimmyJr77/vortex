@@ -3,6 +3,7 @@ import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 import { loadActiveAnnualMembership } from './annualMembership.js'
 import { toUtcDateString } from './membershipAnniversary.js'
+import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -359,6 +360,11 @@ export async function initDropInTables(pool) {
   `)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_drop_in_slot_date ON drop_in_registration(slot_group_id, class_date, status)`)
   await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS uq_drop_in_lifetime_trial_member ON drop_in_registration(member_id) WHERE benefit_type='free_trial' AND member_id IS NOT NULL AND status <> 'cancelled'`)
+  await pool.query(`
+    ALTER TABLE drop_in_registration
+      ADD COLUMN IF NOT EXISTS member_confirmation_email_sent_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS team_notification_email_sent_at TIMESTAMPTZ
+  `)
   const fs = await import('fs')
   const path = await import('path')
   const { fileURLToPath } = await import('url')
@@ -599,12 +605,14 @@ export function registerDropInRoutes(app, pool) {
     const client = await pool.connect()
     try {
       const { slotGroupId, classDate, firstName, lastName, email, phone, useFreeTrial, promoCode } = req.body || {}
-      if (!slotGroupId || !/^\d{4}-\d{2}-\d{2}$/.test(String(classDate)) || !firstName || !lastName || !email) {
+      const authenticatedMember = await resolveMember(client, req)
+      const bookingEmail = authenticatedMember?.email?.trim() || String(email ?? '').trim()
+      const bookingPhone = authenticatedMember?.phone?.trim() || String(phone ?? '').trim() || null
+      if (!slotGroupId || !/^\d{4}-\d{2}-\d{2}$/.test(String(classDate)) || !firstName || !lastName || !bookingEmail) {
         return res.status(400).json({ success: false, message: 'Class, date, athlete name, and email are required.' })
       }
       await client.query('BEGIN')
       await expirePendingDropIns(client)
-      const authenticatedMember = await resolveMember(client, req)
       const member = await resolveBookingMember(client, authenticatedMember, { firstName, lastName })
       if (authenticatedMember && !member) {
         await client.query('ROLLBACK')
@@ -616,7 +624,7 @@ export function registerDropInRoutes(app, pool) {
       if (!authenticatedMember) {
         const existingAccount = await client.query(
           `SELECT 1 FROM member WHERE lower(email) = lower($1) AND is_active = TRUE LIMIT 1`,
-          [String(email).trim()],
+          [bookingEmail],
         )
         if (existingAccount.rows[0]) {
           await client.query('ROLLBACK')
@@ -675,7 +683,7 @@ export function registerDropInRoutes(app, pool) {
         ? null
         : await resolveDropInFreePass(client, {
             member,
-            email: String(email).trim(),
+            email: bookingEmail,
             promoCode,
             slot: slot.rows[0],
           })
@@ -698,7 +706,7 @@ export function registerDropInRoutes(app, pool) {
          RETURNING id`,
         [
           member?.id ?? null, slot.rows[0].form_id, slotGroupId, classDate,
-          String(firstName).trim(), String(lastName).trim(), String(email).trim(), phone || null,
+          String(firstName).trim(), String(lastName).trim(), bookingEmail, bookingPhone,
           benefitType, freePass?.templateId ?? null, freePass?.grantId ?? null,
           freePass?.promoCode ?? null, price.baseCents, price.discountPercent, price.totalCents, status,
         ],
@@ -754,6 +762,13 @@ export function registerDropInRoutes(app, pool) {
         )
       }
       await client.query('COMMIT')
+      if (status === 'confirmed') {
+        try {
+          await sendDropInConfirmationNotifications(pool, Number(inserted.rows[0].id))
+        } catch (emailError) {
+          console.error('[drop-ins] confirmation notifications:', emailError?.message || emailError)
+        }
+      }
       res.status(201).json({ success: true, data: { id: Number(inserted.rows[0].id), status, benefitType, ...price, accountRequired: status === 'account_required', signupUrl: status === 'account_required' ? `/signup/family?dropIn=${inserted.rows[0].id}` : null } })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})

@@ -22,6 +22,7 @@ import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './o
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 import { classCostCentsFromPricingBreakdown } from './systemDiscounts.js'
+import { queryFamilyMemberEnrollments } from '../platform/memberEnrollments.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -288,6 +289,15 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         classCostCents
     const adjustedCostCents = isPaused ? 0 : Math.max(0, baseNet - manualCents)
     const groupDiscountLabel = discountLabelBySignupId.get(Number(row.id)) ?? null
+    const billingType = row.pricing_breakdown?.billingType === 'one_time' || row.pricing_breakdown?.billing_type === 'one_time'
+      ? 'one_time'
+      : 'recurring'
+    const enrollmentType = billingType === 'one_time'
+      ? 'one_time'
+      : row.offering_id != null ? 'temporary_block' : 'monthly'
+    const attendanceDate = row.schedule_mode === 'date' && row.specific_date
+      ? String(row.specific_date).slice(0, 10)
+      : null
 
     const enriched = applyEnrollmentTaxonomy(
       {
@@ -319,11 +329,31 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         pause_mode: row.pause_mode ?? null,
         completed_at: row.completed_at,
         created_at: row.created_at,
+        enrollment_type: enrollmentType,
+        enrollmentType,
+        attendance_date: attendanceDate,
+        attendanceDate,
+        billing_type: billingType,
+        billingType,
       },
       taxonomy,
     )
     return enriched
   })
+
+  const dropInRows = (await queryFamilyMemberEnrollments(pool, [memberId]))
+    .filter((row) => row.source === 'drop_in')
+    .map((row) => ({
+      ...row,
+      schedule: row.slot_label,
+      class_cost_cents: Number(row.amount_cents || 0),
+      adjusted_cost_cents: Number(row.amount_cents || 0),
+      billing_status: 'one_time',
+      enrollment_type: 'drop_in',
+      enrollmentType: 'drop_in',
+      billing_type: 'one_time',
+      billingType: 'one_time',
+    }))
 
   return {
     member: {
@@ -331,6 +361,6 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       firstName: memberRow.first_name,
       lastName: memberRow.last_name,
     },
-    rows: schedulingRows,
+    rows: [...schedulingRows, ...dropInRows],
   }
 }

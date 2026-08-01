@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-31.58",
+  "registryVersion": "2026-08-01.59",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -273,6 +273,27 @@
       "publisher": "Frontiers in Physiology",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 88
+    },
+    "uphill_sprint_slope_kinematics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11217013/",
+      "title": "Kinematic and postural characteristics of sprint running on sloping surfaces",
+      "publisher": "Journal of Sports Sciences",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "resisted_sprint_acceleration_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11382779/",
+      "title": "The Effect of Resisted Sprint Training on Acceleration: A Systematic Review and Meta-Analysis",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "uphill_running_energy_resistance": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39191977/",
+      "title": "Energy cost of running uphill as compared to running on the level with impeding horizontal forces",
+      "publisher": "European Journal of Applied Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
     },
     "running_stiffness_literature_overview": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
@@ -1211,6 +1232,34 @@
       "publisher": "Human Movement Science",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "jump_landing_direction_stability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "title": "Jump-landing direction influences dynamic postural stability scores",
+      "publisher": "Journal of Science and Medicine in Sport",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "single_leg_landing_direction_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29619806/",
+      "title": "The influence of single-leg landing direction on lower limbs biomechanics",
+      "publisher": "Journal of Sports Medicine and Physical Fitness",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "unilateral_plyometric_landing_stabilization_rct": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11366841/",
+      "title": "Unilateral Plyometric Jump Training Shows Significantly More Effective than Bilateral Training in Improving Both Time to Stabilization and Peak Landing Force in Single-Leg Lend and Hold Test",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "world_athletics_plyometric_training_high_jump": {
+      "url": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "title": "Plyometric Training and the High Jump",
+      "publisher": "World Athletics",
+      "kind": "governing_body",
+      "evidenceQuality": 82
     },
     "plyometric_lower_limb_stiffness_meta_analysis": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",

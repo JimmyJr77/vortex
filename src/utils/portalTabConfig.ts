@@ -69,6 +69,15 @@ export function normalizeNavLayout<T extends string>(
     }
   }
 
+  const athleteDevelopmentIndex = result.findIndex(
+    (item) => item.type === 'section' && (item.id === 'athlete-dev' || item.label.toLowerCase() === 'athlete development'),
+  )
+  const evaluationIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'gymnastics-evaluations')
+  if (athleteDevelopmentIndex >= 0 && evaluationIndex >= 0) {
+    const [evaluation] = result.splice(evaluationIndex, 1)
+    result.splice(athleteDevelopmentIndex + (evaluationIndex < athleteDevelopmentIndex ? 0 : 1), 0, evaluation)
+  }
+
   return result
 }
 
@@ -138,6 +147,7 @@ export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; loc
   { key: 'regimens', label: 'Regimens' },
   { key: 'challenges', label: 'Challenges' },
   { key: 'assess', label: 'Assess' },
+  { key: 'gymnastics-evaluations', label: 'Evaluation Form' },
   { key: 'skills', label: 'Skill Tree' },
   { key: 'assign', label: 'Assign' },
   { key: 'messages', label: 'Messages' },
@@ -178,6 +188,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   regimens: { title: 'Regimens', description: 'Evergreen phase-balanced training templates.' },
   challenges: { title: 'Challenges', description: 'Run scored competitions.' },
   assess: { title: 'Assess & Grade', description: 'Record benchmarks and skills.' },
+  'gymnastics-evaluations': { title: 'Evaluation Form', description: 'Score gymnastics movements and publish athlete focus reports.' },
   skills: { title: 'Skill Tree', description: 'Prerequisite progressions and mastery.' },
   assign: { title: 'Assign & Share', description: 'Push plans to athletes.' },
   messages: { title: 'Messages', description: 'Talk with athletes, coaches, and admins.' },

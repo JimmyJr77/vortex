@@ -1,0 +1,19 @@
+{
+  "batchKey": "opposite-leg-bound-stick-direction-family-v1",
+  "researchVersion": "2026-08-01.5",
+  "generatedAt": "2026-08-01T23:30:00.000Z",
+  "cards": [
+    {
+      "slug": "bound-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 9
+    },
+    {
+      "slug": "lateral-bound",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 9
+    }
+  ]
+}

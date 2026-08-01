@@ -65,12 +65,14 @@ export function getMemberSessionToken(): string | null {
 }
 
 export function getLoggedInMemberEmail(): string | null {
+  return getLoggedInMemberAccount()?.email?.trim() || null
+}
+
+export function getLoggedInMemberAccount(): PortalAccount | null {
   try {
     const raw = localStorage.getItem('vortex_member')
     if (!raw) return null
-    const account = JSON.parse(raw) as PortalAccount
-    const email = account.email?.trim()
-    return email || null
+    return JSON.parse(raw) as PortalAccount
   } catch {
     return null
   }

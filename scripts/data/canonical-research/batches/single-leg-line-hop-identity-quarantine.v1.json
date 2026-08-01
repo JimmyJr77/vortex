@@ -1,0 +1,85 @@
+{
+  "batchKey": "single-leg-line-hop-identity-quarantine-v1",
+  "researchVersion": "2026-08-01.6",
+  "snapshotAt": "2026-08-01T23:55:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/single-leg-line-hop-identity-quarantine",
+  "sharedEvidence": [
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "The three inherited YouTube links returned current oEmbed metadata and iframe markup on 2026-08-01.",
+        "Two titles describe lateral line hops without a stick contract and one describes generic single-leg hops without a line or stick contract; none can resolve the legacy identity, and no exact-match or approval decision is created."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "single-leg-line-hop-and-stick",
+      "assessmentSummary": {
+        "identity": "Unresolved legacy label. The source does not establish line direction, whether the line is crossed, takeoff foot, landing foot, contact count, approach, terminal action, exit, or repetition boundary.",
+        "currentCardFindings": [
+          "The legacy description permits either an immediate reacceleration or a stable stick, so the named terminal action is contradicted by its own execution contract.",
+          "Setup text permits an approach and exit but never defines either, while the name alone does not establish lateral versus forward-back line crossing.",
+          "The source never states whether one declared leg both takes off and lands, whether contacts alternate, or whether the athlete performs one, three, or continuous hops.",
+          "Six active similarity pairs reflect valid competing interpretations already represented by exact cards; merging into any one would fabricate missing identity facts.",
+          "The three inherited videos are healthy and embeddable candidates for adjacent interpretations only. No candidate establishes the exact legacy exercise."
+        ],
+        "knownTaxonomy": {
+          "movementPatterns": ["jump", "land"],
+          "knownConstraints": ["single_leg_wording", "line_target_wording", "some_form_of_terminal_control_wording"],
+          "missingIdentityDimensions": ["projection_direction", "line_crossing", "takeoff_leg", "landing_leg", "contact_count", "contact_sequence", "approach", "terminal_action", "exit", "repetition_boundary"]
+        },
+        "anatomyDecision": "Do not assign an exact anatomy or joint-action contract until direction, laterality, contacts, and terminal action are fixed. Only generic lower-limb jump-landing involvement is supportable.",
+        "difficultyDecision": "Do not score exercise complexity or physical difficulty because the source does not define one exercise. Athlete skill or proficiency is also excluded.",
+        "loadFatigueDecision": "Do not assign impact, eccentric, fatigue, contact, or recovery budgets until foot count, direction, contact count, cadence, approach, and finish are fixed.",
+        "constraintDecision": "A visible line and high-traction surface are known, but lane direction, crossing geometry, landing zone, fall space, and traffic boundary cannot be specified from the source.",
+        "dosageDecision": "Block dosage and duration. Repetitions cannot be counted without a declared contact sequence and repetition boundary.",
+        "instructionDecision": "Do not render coach or athlete execution instructions from the ambiguous source. Route users to an exact reviewed interpretation instead.",
+        "safetyDecision": "Block selection before exposure. A safe setup cannot be derived while direction, approach, contact sequence, and terminal action are unresolved.",
+        "contextualDeliveryDecision": "Create no selectable delivery profile. Immediate reacceleration and terminal stabilization are different session tasks and cannot share one profile.",
+        "supportDecision": "User and coach support should explain why the card is unavailable, list the missing identity facts, and present exact alternatives without recommending one automatically.",
+        "proposedRelationships": {
+          "possibleExistingIdentities": ["single-leg-lateral-hop-to-stick", "single-leg-hop-to-stick", "triple-line-hop-and-stick", "single-leg-triple-hop-to-stick", "single-leg-landing-stick", "single-leg-pogo-hold-stick"],
+          "resolution": "retire_ambiguous_source_without_consolidation",
+          "doNotMerge": ["same_leg_lateral_discrete_hop", "generic_forward_discrete_hop", "three_contact_line_hop", "continuous_line_hops", "pogo_then_hold", "hop_then_reacceleration"]
+        },
+        "programmingDecision": "Archive the canonical and legacy card as nonprescribable while preserving the stable slug, source mapping, evidence, media candidates, and prior needs-human-review decisions. Do not map it to any exact active card unless a qualified human supplies authoritative identity evidence."
+      },
+      "evidence": [
+        {"sectionKey": "identity", "sourceKey": "emory_single_leg_lateral_line_jump_hold", "claims": ["Emory defines one exact interpretation using a single-leg start, one lateral jump over tape, a single-leg landing, and a timed hold.", "Those explicit facts are absent from the legacy card and therefore cannot be imported as if they were original identity evidence."]},
+        {"sectionKey": "taxonomy", "sourceKey": "nsca_lateral_line_hop_variations", "claims": ["NSCA describes multiple line-drill patterns and distinguishes foot count and direction.", "A generic line-hop label is insufficient for controlled taxonomy without direction, laterality, contact sequence, and finish."]},
+        {"sectionKey": "anatomy", "sourceKey": "single_leg_jump_direction_load_biomechanics", "claims": ["Single-leg jump-landing mechanics vary with direction and external load.", "Exact muscles, joint actions, planes, and laterality cannot be assigned beyond generic lower-limb jump-landing involvement until the legacy task is defined."]},
+        {"sectionKey": "biomechanics", "sourceKey": "lateral_single_leg_hop_balance_study", "claims": ["Forward and lateral single-leg hop landings produce different dynamic-balance demands.", "Direction is therefore a material missing biomechanical variable rather than a cosmetic label."]},
+        {"sectionKey": "difficulty", "sourceKey": "single_leg_jump_direction_load_biomechanics", "claims": ["Direction and loading change single-leg jump-landing demands.", "No complexity, physical-difficulty, or derived-overall score is proposed for an undefined exercise; athlete proficiency remains outside exercise cards."]},
+        {"sectionKey": "load_fatigue_recovery", "sourceKey": "side_hop_test_quality_reliability", "claims": ["Side-hop exposure and errors depend on contact count and execution quality.", "Impact, fatigue, and recovery cannot be budgeted from the legacy source because contact count, direction, and cadence are missing."]},
+        {"sectionKey": "constraints", "sourceKey": "emory_single_leg_lateral_line_jump_hold", "claims": ["An exact line-jump task declares the taped line, start, direction, landing, and hold.", "The legacy card provides only a generic line reference and cannot supply lane geometry, landing zone, or fall-space requirements."]},
+        {"sectionKey": "dosage", "sourceKey": "side_hop_test_quality_reliability", "claims": ["Side-hop testing counts defined contacts and quality errors.", "A repetition, contact, duration, or work-to-rest prescription is unsafe to infer without an ordered movement and terminal state."]},
+        {"sectionKey": "instructions", "sourceKey": "emory_single_leg_lateral_line_jump_hold", "claims": ["Executable instruction separates start leg, line crossing, landing leg, alignment, hold, and reset.", "The legacy card cannot be rendered as exact coach or athlete instructions because these fields are missing or contradictory."]},
+        {"sectionKey": "safety_stop_rules", "sourceKey": "landing_feedback_systematic_review", "claims": ["Landing feedback requires observable task-specific movement criteria.", "The correct fail-closed rule is to block selection until the task has a declared direction, contacts, landing, and finish; symptom stops do not repair an undefined task."]},
+        {"sectionKey": "programming", "sourceKey": "nsca_lateral_line_hop_variations", "claims": ["Line drills can target different footwork and agility patterns depending on the declared execution.", "A stable stick and immediate reacceleration are different programming intents and cannot be selected from one ambiguous profile."]},
+        {"sectionKey": "athlete_support", "sourceKey": "landing_intervention_systematic_review", "claims": ["Landing interventions depend on specific instruction, feedback, and progression.", "Athlete support must say that this card is unavailable and link to an exact alternative instead of guessing the intended drill."]},
+        {"sectionKey": "coach_support", "sourceKey": "side_hop_test_quality_reliability", "claims": ["Quality review records defined errors such as line contact, free-foot contact, double hops, and foot turns.", "Coach support must request direction, takeoff and landing legs, contacts, approach, finish, and repetition boundary before authoring a replacement."]},
+        {"sectionKey": "accessibility", "sourceKey": "landing_intervention_systematic_review", "claims": ["Task scaling presupposes a defined base task.", "No accessible regression can preserve an unknown identity; users should receive text alternatives and an exact lower-impact card chosen for the intended action."]},
+        {"sectionKey": "alternates", "sourceKey": "nsca_lateral_line_hop_variations", "claims": ["Single-leg, two-foot, lateral, forward-back, and repeated line drills are distinct executable patterns.", "Each plausible interpretation must be mapped to an existing exact card or authored separately after identity review."]},
+        {"sectionKey": "media", "sourceKey": "youtube_embed_help", "claims": ["Three inherited links returned current oEmbed metadata and iframe markup on 2026-08-01.", "Their titles expose adjacent interpretations but do not verify the legacy line direction, foot sequence, contact count, stick, exit, safety, quality, captions, accessibility, reviewer, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=ZHg88_EYQ74", "title": "Lateral Line Hops – Speed, Agility & Footwork", "channelName": "Train With Cuz", "sourceQuery": "single leg line hop and stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T23:50:00.000Z"}, "notes": "oEmbed returned current metadata and iframe markup. The title does not declare single-leg execution or a terminal stick, so this is adjacent evidence only."},
+        {"url": "https://www.youtube.com/watch?v=Jiukp-0mUIA", "title": "Lateral Line Hops", "channelName": "Travis Goyeneche", "sourceQuery": "single leg line hop and stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T23:50:00.000Z"}, "notes": "oEmbed returned current metadata and iframe markup. The title does not declare single-leg execution, contact count, or a terminal stick, so this is adjacent evidence only."},
+        {"url": "https://www.youtube.com/watch?v=7WgzHOQGgYw", "title": "Single Leg Hops | Exercise Tutorial", "channelName": "Elevate Yourself", "sourceQuery": "single leg line hop and stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T23:50:00.000Z"}, "notes": "oEmbed returned current metadata and iframe markup. The title does not declare a line, direction, contact count, or terminal stick, so this is adjacent evidence only."}
+      ],
+      "alternateAssessments": [
+        {"name": "Same-Leg Lateral Line Hop to Stick", "classification": "same_identity", "rationale": "If authoritative evidence establishes one lateral flight, same-leg takeoff and landing, terminal hold, and reset, the line is a target constraint on the existing Single-Leg Lateral Hop to Stick card.", "distinguishingDimensions": {"possibleMapping": "single-leg-lateral-hop-to-stick", "requiredFacts": ["lateral", "same_leg", "one_flight", "terminal_hold", "reset"]}},
+        {"name": "Single-Leg Forward Line Hop to Stick", "classification": "same_identity", "rationale": "If the line is a forward target and one same-leg flight ends in a hold, it may map to the exact general or forward single-leg hop-to-stick identity after human review.", "distinguishingDimensions": {"possibleMapping": "single-leg-hop-to-stick", "requiredFacts": ["forward", "same_leg", "one_flight", "terminal_hold"]}},
+        {"name": "Repeated Single-Leg Lateral Line Hops", "classification": "new_definition", "rationale": "Continuous line crossings remove the terminal hold and change contact count, cadence, fatigue, and impact budgets.", "distinguishingDimensions": {"direction": "lateral", "contacts": "repeated", "terminalAction": "continuous"}},
+        {"name": "Repeated Single-Leg Forward-Back Line Hops", "classification": "new_definition", "rationale": "Forward-back crossings use a different direction, contact sequence, and stabilization demand.", "distinguishingDimensions": {"direction": "forward_back", "contacts": "repeated"}},
+        {"name": "Triple-Line Hop and Stick", "classification": "same_identity", "rationale": "If authoritative evidence establishes exactly three declared contacts followed by a stick, use the existing exact Triple-Line Hop and Stick card.", "distinguishingDimensions": {"possibleMapping": "triple-line-hop-and-stick", "contacts": 3, "terminalAction": "stick"}},
+        {"name": "Single-Leg Line Hop to Reacceleration", "classification": "new_definition", "rationale": "An immediate exit is an agility transition with a different terminal action, space, dose, and success measure than a stick.", "distinguishingDimensions": {"terminalAction": "reacceleration", "exit": "declared"}},
+        {"name": "Line Width, Target Color, Hold Duration, Distance, Rest, or Starting Side", "classification": "modifier_annotation", "rationale": "These become modifiers only after direction, foot sequence, contact count, approach, terminal action, and repetition boundary are fixed.", "distinguishingDimensions": {"modifiers": ["line_width", "target_color", "hold_duration", "distance", "rest", "starting_side"]}}
+      ]
+    }
+  ]
+}

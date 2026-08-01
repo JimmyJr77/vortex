@@ -111,6 +111,7 @@ import {
 import { buildPhasePlan } from './phaseArchitect.js'
 import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 import { registerGameRoutes } from './coachGameRoutes.js'
+import { GYMNASTICS_EVALUATION_DEFINITION, buildGymnasticsFocusReport } from './gymnasticsEvaluationDefinition.js'
 import {
   CanonicalGenerationError,
   applyCanonicalWorkoutSwap,
@@ -3152,6 +3153,98 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/coach/gymnastics-evaluations/definition', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const tags = await pool.query(
+        `SELECT id, movement_key, component_key, label FROM coaching.gymnastics_issue_tag
+         WHERE facility_id = $1 AND archived = FALSE ORDER BY label`,
+        [req.platformAuth.user.facility_id],
+      )
+      ok(res, { movements: GYMNASTICS_EVALUATION_DEFINITION, customIssueTags: tags.rows })
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.post('/api/coach/gymnastics-evaluations/issue-tags', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const movementKey = String(req.body?.movement_key || '').trim()
+      const componentKey = String(req.body?.component_key || '').trim()
+      const label = String(req.body?.label || '').trim().slice(0, 240)
+      if (!movementKey || !componentKey || !label) return bad(res, 'Movement, component, and issue text are required.')
+      const result = await pool.query(
+        `INSERT INTO coaching.gymnastics_issue_tag (facility_id, movement_key, component_key, label, created_by)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (facility_id, movement_key, component_key, label)
+         DO UPDATE SET archived = FALSE RETURNING id, movement_key, component_key, label`,
+        [req.platformAuth.user.facility_id, movementKey, componentKey, label, Number(req.platformAuth.user.id)],
+      )
+      ok(res, result.rows[0])
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.get('/api/coach/athletes/:memberId/gymnastics-evaluations', ...can('coach_insights.view'), async (req, res) => {
+    try {
+      const memberId = num(req.params.memberId)
+      const rows = await pool.query(
+        `SELECT ge.*, u.full_name AS coach_name
+         FROM coaching.gymnastics_evaluation ge
+         LEFT JOIN public.app_user u ON u.id = ge.coach_user_id
+         WHERE ge.member_id = $1 AND ge.facility_id = $2 ORDER BY ge.evaluated_at DESC, ge.id DESC`,
+        [memberId, req.platformAuth.user.facility_id],
+      )
+      ok(res, rows.rows)
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.post('/api/coach/gymnastics-evaluations', ...can('athlete_grading.manage'), async (req, res) => {
+    const facilityId = Number(req.platformAuth.user.facility_id)
+    const memberId = num(req.body?.member_id)
+    const movements = Array.isArray(req.body?.movements) ? req.body.movements : []
+    if (memberId == null || movements.length === 0) return bad(res, 'Select an athlete and complete at least one movement.')
+    const member = await pool.query(`SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`, [memberId, facilityId])
+    if (member.rows.length === 0) return bad(res, 'Athlete not found.', 404)
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const created = await client.query(
+        `INSERT INTO coaching.gymnastics_evaluation (facility_id, member_id, coach_user_id, evaluated_at, coach_note, report)
+         VALUES ($1, $2, $3, COALESCE($4::date, CURRENT_DATE), $5, '{}'::jsonb) RETURNING *`,
+        [facilityId, memberId, Number(req.platformAuth.user.id), req.body?.evaluated_at || null, req.body?.coach_note || null],
+      )
+      const reportInput = { movements: [], coachNote: req.body?.coach_note || null }
+      for (const movement of movements) {
+        const movementRow = await client.query(
+          `INSERT INTO coaching.gymnastics_evaluation_movement (evaluation_id, movement_key, movement_label, variant_label, overall_score)
+           VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+          [created.rows[0].id, movement.key, movement.label, movement.variant || null, num(movement.overall_score)],
+        )
+        const reportMovement = { label: movement.label, variant: movement.variant || null, components: [] }
+        for (const component of Array.isArray(movement.components) ? movement.components : []) {
+          const componentRow = await client.query(
+            `INSERT INTO coaching.gymnastics_evaluation_component (movement_evaluation_id, component_key, component_label, score)
+             VALUES ($1, $2, $3, $4) RETURNING id`,
+            [movementRow.rows[0].id, component.key, component.label, num(component.score)],
+          )
+          const issues = Array.isArray(component.issues) ? component.issues.map((issue) => String(issue).trim()).filter(Boolean) : []
+          for (const label of issues) {
+            await client.query(
+              `INSERT INTO coaching.gymnastics_evaluation_issue (component_evaluation_id, issue_label)
+               VALUES ($1, $2)`, [componentRow.rows[0].id, label],
+            )
+          }
+          reportMovement.components.push({ label: component.label, score: num(component.score), issues })
+        }
+        reportInput.movements.push(reportMovement)
+      }
+      const report = buildGymnasticsFocusReport(reportInput)
+      await client.query(`UPDATE coaching.gymnastics_evaluation SET report = $2::jsonb WHERE id = $1`, [created.rows[0].id, JSON.stringify(report)])
+      await client.query('COMMIT')
+      ok(res, { ...created.rows[0], report })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message, 500)
+    } finally { client.release() }
+  })
+
   app.get('/api/coach/athletes/:memberId/grades', ...can('coach_insights.view'), async (req, res) => {
     try {
       const memberId = num(req.params.memberId)
@@ -5992,7 +6085,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
-      const [results, skills, prs] = await Promise.all([
+      const [results, skills, prs, evaluations] = await Promise.all([
         pool.query(
           `SELECT ar.value_numeric, ar.unit, ar.tested_at, a.name as assessment_name, t.name as tenet_name
            FROM coaching.assessment_result ar JOIN coaching.assessment a ON a.id = ar.assessment_id
@@ -6029,8 +6122,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
            WHERE pr.member_id = $1 ORDER BY pr.achieved_at DESC LIMIT 50`,
           [memberId],
         ),
+        pool.query(
+          `SELECT ge.id, ge.evaluated_at, ge.report, ge.coach_note, m.first_name, m.last_name, u.full_name AS coach_name
+           FROM coaching.gymnastics_evaluation ge
+           JOIN public.member m ON m.id = ge.member_id
+           LEFT JOIN public.app_user u ON u.id = ge.coach_user_id
+           WHERE ge.facility_id = $1 AND (
+             ge.member_id = $2 OR $2 = ANY(COALESCE(m.parent_guardian_ids, ARRAY[]::BIGINT[]))
+             OR EXISTS (SELECT 1 FROM parent_guardian_authority pga WHERE pga.child_member_id = m.id AND pga.parent_member_id = $2 AND pga.has_legal_authority = TRUE)
+           ) ORDER BY ge.evaluated_at DESC, ge.id DESC`,
+          [ctx.user.facility_id, memberId],
+        ),
       ])
-      ok(res, { results: results.rows, skills: skills.rows, prs: prs.rows })
+      ok(res, { results: results.rows, skills: skills.rows, prs: prs.rows, evaluations: evaluations.rows })
     } catch (error) {
       bad(res, error.message, 500)
     }

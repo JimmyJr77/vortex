@@ -357,6 +357,98 @@ const COSSACK_SQUAT_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/403_coaching_cossack_squat_family_completion.sql', import.meta.url),
   'utf8',
 )
+const ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/404_coaching_adductor_rockback_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/407_coaching_backpedal_to_sprint_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/408_coaching_hang_family_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/409_coaching_support_compression_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/410_coaching_hanging_leg_raise_l_sit_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/411_coaching_a_series_sprint_drills_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const ANKLING_STRAIGHT_LEG_IDENTITY_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/412_coaching_ankling_straight_leg_identity_lineage_correction.sql', import.meta.url),
+  'utf8',
+)
+const ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/413_coaching_ankling_straight_leg_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const SKIPPING_FAST_LEG_IDENTITY_PREPARATION_MIGRATION = readFileSync(
+  new URL('../../migrations/414_coaching_skipping_fast_leg_identity_preparation.sql', import.meta.url),
+  'utf8',
+)
+const SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/415_coaching_skipping_fast_leg_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const DRIBBLE_RUN_VARIANT_PREPARATION_MIGRATION = readFileSync(
+  new URL('../../migrations/416_coaching_dribble_run_variant_lineage_preparation.sql', import.meta.url),
+  'utf8',
+)
+const DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/417_coaching_dribble_run_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/418_coaching_pogo_dribble_identity_queue_closure.sql', import.meta.url),
+  'utf8',
+)
+const SHORT_ACCELERATION_IDENTITY_CONSOLIDATION_MIGRATION = readFileSync(
+  new URL('../../migrations/419_coaching_short_acceleration_identity_variant_consolidation.sql', import.meta.url),
+  'utf8',
+)
+const SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/420_coaching_short_acceleration_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const SHORT_ACCELERATION_IDENTITY_QUEUE_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/421_coaching_short_acceleration_identity_queue_closure.sql', import.meta.url),
+  'utf8',
+)
+const HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/422_coaching_hill_sprint_acceleration_research_completion.sql', import.meta.url),
+  'utf8',
+)
+const WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/423_coaching_180_wall_ball_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/424_coaching_landmine_arc_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/425_coaching_ankling_pogo_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/426_coaching_opposite_leg_bound_direction_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
+  new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
+  'utf8',
+)
+const UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/406_coaching_remaining_unclassified_identity_queue_closure.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -4624,7 +4716,24 @@ test('landmine squat and lunge completion preserves identity review and difficul
   )
   assert.match(
     LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
-    /ARRAY\[1418,1419,1420,1421,1453\]/,
+    /THEN 'resilience'/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /THEN 'control_resilience'/,
+  )
+  const variantSeedBlock = LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION.match(
+    /INSERT INTO squat_lunge_variant_seed VALUES([\s\S]*?)\n\n  INSERT INTO coaching\.exercise_variant_v1/,
+  )?.[1]
+  assert.ok(variantSeedBlock)
+  assert.doesNotMatch(variantSeedBlock, /,0,/)
+  assert.match(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /ARRAY\[1418,1419,1420,1421,1452\]/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    /legacy_exercise_id = 1453/,
   )
   assert.match(
     LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
@@ -4743,6 +4852,10 @@ test('Cossack completion preserves consolidated variants and blocks unresolved i
   )
   assert.match(
     COSSACK_SQUAT_COMPLETION_MIGRATION,
+    /expected all 15 legacy mappings on the active survivor set/,
+  )
+  assert.match(
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
     /did not create all 23 contextual or review-only profiles/,
   )
   assert.match(
@@ -4807,6 +4920,1825 @@ test('Cossack completion preserves consolidated variants and blocks unresolved i
     COSSACK_SQUAT_COMPLETION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
+})
+
+test('Adductor Rockback completion preserves support variants and defers unresolved identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'404_coaching_adductor_rockback_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'adductor-rockback',
+    'adductor-rockback-with-reach',
+    'adductor-rock-back-with-t-spine-reach',
+    'half-kneeling-adductor-rockback',
+  ]) {
+    assert.match(ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, new RegExp(slug))
+  }
+  for (const variantKey of [
+    'baseline',
+    'reach-overlay-unresolved',
+    'thoracic-rotation-reach',
+    'half-kneeling-kicking-access',
+    'elevated-hand-support',
+  ]) {
+    assert.match(ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, new RegExp(variantKey))
+  }
+  for (const videoId of [
+    'Vr0Us9LPGRg',
+    'yF8o6I6aSZg',
+    'zfO4HhPUxDw',
+    'Gf2eQUxG2HM',
+    'OH1uIXf0y-w',
+  ]) {
+    assert.match(ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /'scoreDeferred',TRUE/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /requires all 3 migration-308 Adductor Rockback consolidations/,
+  )
+  for (const expected of [
+    'did not create all 5 exact review variants',
+    'did not create all 5 contextual or review-only profiles',
+    'did not create all 16 candidate evidence rows',
+    'did not create all 5 unverified, non-embeddable media candidates',
+    'did not create all 11 candidate alternate assessments',
+    'did not create all 6 review-only relationships',
+    'did not create all 6 review-only calibration rows',
+  ]) {
+    assert.match(ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, new RegExp(expected))
+  }
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /WHEN seed\.selectable THEN 'primary'\s+ELSE 'avoid'/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /'prepare_and_access'/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /link_status = 'unverified'/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-IDENTITY-03',
+    'CARD-IDENTITY-04',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /ELSE 'review_only'|'identity_review'/,
+  )
+  assert.doesNotMatch(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Backpedal-to-Sprint completion preserves terminal-action boundaries and exact delivery contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'407_coaching_backpedal_to_sprint_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'backpedal-to-sprint-turn',
+    'backpedal-to-sprint-open-turn',
+    'backpedal-to-sprint-turn-on-signal',
+    'backpedal-to-sprint-to-stick',
+    'backpedal-turn-to-hop-and-go',
+  ]) {
+    assert.match(BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION, new RegExp(slug))
+  }
+  for (const variantKey of [
+    'preplanned-90',
+    'preplanned-180',
+    'reactive-90',
+    'reactive-180',
+    'preplanned-90-stick',
+    'preplanned-180-stick',
+    'reactive-90-stick',
+    'reactive-180-stick',
+    'free-deceleration-no-hold-unresolved',
+  ]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    'efQLNVcbacY',
+    'uCsY1saY1og',
+    'pjMhiDcQrNE',
+    'pkegBuBghpg',
+    '8DTlAOcua6s',
+    'H2d-tqSKxtg',
+    'II72PAlImbM',
+    'sz45B4GpEXw',
+    'xmQ6aSsDaE4',
+  ]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /'scoreDeferred',TRUE/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /requires both migration-339 Backpedal-to-Sprint consolidations/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /requires the researched sprint-through versus terminal-stick identity boundary/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /open_turn_sprint_through_vs_required_hop_contact_then_go/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /did not persist the Open Turn versus Hop-and-Go distinct boundary/,
+  )
+  for (const expected of [
+    'did not create all 9 exact review variants',
+    'did not create all 17 contextual or review-only profiles',
+    'did not create all 32 candidate evidence rows',
+    'did not create all 10 unverified, non-embeddable media candidates',
+    'did not create all 10 candidate alternate assessments',
+    'did not create all 16 review-only relationships',
+    'did not create all 16 review-only calibration rows',
+    'did not create both quarantined card test packets',
+  ]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const legacyExerciseId of [123, 297, 549, 1242]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(`\\(${legacyExerciseId}::BIGINT`),
+    )
+  }
+  for (const profileKey of [
+    'movement-rehearsal',
+    'quality-output',
+    'identity-review-only',
+  ]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(profileKey),
+    )
+  }
+  for (const phaseKey of ['movement_intelligence', 'output']) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(`'${phaseKey}'`),
+    )
+  }
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /link_status = 'unverified'/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-EVIDENCE-02',
+    'CARD-IDENTITY-05',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Hang-family completion preserves passive, active-isometric, and dynamic scapular identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'408_coaching_hang_family_research_completion\.sql'/,
+  )
+  for (const slug of [
+    'dead-hang',
+    'active-hang',
+    'scapular-pull-up',
+    'active-hang-scapular-hold',
+    'pull-up-chin-up',
+  ]) {
+    assert.match(HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION, new RegExp(slug))
+  }
+  for (const variantKey of [
+    'baseline',
+    'foot-assisted',
+    'band-assisted',
+    'ring',
+    'weighted',
+    'single-arm',
+  ]) {
+    assert.match(
+      HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    '0Bx_Ap7-EwU',
+    '2vspW4N4BMs',
+    '0HBhuaD_S7M',
+    'AH8YrGT9s1s',
+    'EmQVeAF_CJ0',
+    '0_YZc2yuKkE',
+    'kKXyCA7i-20',
+    'mtOAYPGRBMc',
+    'lqy8oud8FgQ',
+    'thmWJ-Z749M',
+    '-ZIpSoTRsuE',
+    'XIkPI-_80r4',
+    'd0DVd2V0n7A',
+    'qVFX6LnZF4A',
+    'kCoCVLZvI8E',
+  ]) {
+    assert.match(
+      HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /'scoreDeferred',seed\.complexity IS NULL OR seed\.physical IS NULL/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /Historical passive-or-active compound source remains identity-quarantined and deliberately unscored/,
+  )
+  for (const expected of [
+    'expected exactly all 6 migration-309 hang-family legacy mappings',
+    'requires all 18 exact migration-313 review variants',
+    'requires all 19 exact contextual hang-family delivery profiles',
+    'requires all 5 researched hang-family identity boundaries and consolidations',
+    'did not create all 48 candidate evidence rows',
+    'did not create all 15 unverified, non-embeddable media candidates',
+    'requires exactly 5 current media candidates per definition',
+    'did not create all 33 candidate alternate assessments',
+    'did not preserve 17 progression and create 17 inverse regression proposals',
+    'did not create all 36 review-only calibration rows',
+    'did not create all 3 quarantined card test packets',
+  ]) {
+    assert.match(
+      HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const legacyExerciseId of [200, 201, 820, 857, 1074, 1689]) {
+    assert.match(
+      HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(`\\(${legacyExerciseId}::BIGINT`),
+    )
+  }
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /link_status = 'unverified'/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed = FALSE/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  for (const blocker of [
+    'CARD-EVIDENCE-02',
+    'CARD-IDENTITY-05',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Support-compression completion separates grounded lifts, V-Sit, and Manna without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'409_coaching_support_compression_research_completion\.sql'/,
+  )
+  for (const slug of [
+    'straddle-compression-lift',
+    'v-sit',
+    'manna-hold',
+    'l-sit',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const variantKey of [
+    'baseline',
+    'bent-knee',
+    'pike',
+    'single-leg-pike',
+    'straddle',
+    'ring-support',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const boundaryKey of [
+    'grounded_dynamic_leg_lift_vs_static_above_horizontal_support',
+    'above_horizontal_v_position_vs_hips_and_legs_beyond_shoulders',
+    'grounded_dynamic_compression_vs_extreme_posterior_support_hold',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(boundaryKey),
+    )
+  }
+  for (const videoId of [
+    'WR3C2cliSaA',
+    'yQXnOuQqKYc',
+    '6w4gmF0NUX0',
+    'hEo814VH208',
+    'mC4sBN6E_R8',
+    '3HAQXpSpHBA',
+    'm2Di7xThWx0',
+    'P83rvEDFTjg',
+    'dzpeUQIp0cY',
+    'ARiWA2R6gzM',
+    'KJFW2rnownQ',
+    'dTPEnTZnHHo',
+    'OLFnFSTqP_c',
+    '7r5HgYtuwSs',
+    'BKwVJrGf5do',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  for (const expected of [
+    'expected exactly all 3 migration-312 legacy mappings',
+    'requires exactly all 8 migration-312 review variants',
+    'requires exactly all 8 migration-312 delivery profiles',
+    'did not preserve or create all 4 support-compression identity boundaries',
+    'did not create all 48 candidate evidence rows',
+    'did not create all 15 unverified, non-embeddable media candidates',
+    'requires exactly 5 current media candidates per definition',
+    'did not create all 24 candidate alternate assessments',
+    'did not preserve 8 graph proposals and create all 7 inverse proposals',
+    'did not create all 16 review-only calibration rows',
+    'did not create all 3 quarantined card test packets',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const legacyExerciseId of [803, 1704, 1705]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(`\\(${legacyExerciseId}::BIGINT`),
+    )
+  }
+  for (const blocker of [
+    'CARD-EVIDENCE-02',
+    'CARD-IDENTITY-05',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match=NULL/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id=NULL/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /'authoredDirection',TRUE/,
+  )
+  assert.match(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /NOT \(coalesce\(relationship\.conditions_json,'\{\}'::JSONB\)\?'inverseOfRelationship'\)/,
+  )
+  assert.doesNotMatch(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Hanging Leg Raise and L-Sit completion preserves support and contraction identities without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'410_coaching_hanging_leg_raise_l_sit_research_completion\.sql'/,
+  )
+  for (const slug of ['hanging-leg-raise', 'l-sit', 'hanging-l-sit']) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const variantKey of [
+    'baseline',
+    'straight-leg',
+    'bent-knee-eccentric-lower',
+    'tuck',
+    'one-leg',
+    'straddle',
+    'ring-support',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const boundaryKey of [
+    'straight_arm_push_support_vs_overhead_suspension',
+    'dynamic_hanging_hip_flexion_vs_static_hanging_hold',
+    'static_push_support_hold_vs_dynamic_overhead_suspension',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(boundaryKey),
+    )
+  }
+  for (const videoId of [
+    'dPwg1E_ygjc',
+    'p9hhX_Sx5v0',
+    'fLbZrF6MZuE',
+    'PjlPiVTtWA4',
+    'XykqIceOdso',
+    'H_iZG5-L_KI',
+    'IUZJoSP66HI',
+    'eywCpp0p7lg',
+    'jceq8cCj1z8',
+    'r-LQKNxGJB0',
+    'WHi1bvZLwlw',
+    '784YzIaJSJg',
+    'U5q6xbZ74Hw',
+    'zTNEqU6pWuE',
+    'TWpGkp1TvG0',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  for (const researchBatch of [
+    'hanging-leg-raise-family-v1',
+    'l-sit-support-and-hanging-family-v1',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(researchBatch),
+    )
+  }
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  for (const expected of [
+    'expected exactly all 7 migration-310/311 legacy mappings',
+    'requires exactly all 11 migration-310/311 review variants',
+    'requires exactly all 11 migration-310/311 delivery profiles',
+    'did not create all 3 Hanging Leg Raise/L-Sit identity boundaries',
+    'did not create all 48 candidate evidence rows',
+    'did not create all 15 unverified, non-embeddable media candidates',
+    'requires exactly 5 current media candidates per definition',
+    'did not create all 36 candidate alternate assessments',
+    'did not preserve 9 graph proposals, add 4 authored proposals, and create 11 inverse proposals',
+    'did not create all 22 review-only calibration rows',
+    'did not create all 3 quarantined card test packets',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const legacyExerciseId of [603, 604, 605, 778, 804, 819]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(`\\(${legacyExerciseId},|\\b${legacyExerciseId}\\b`),
+    )
+  }
+  for (const blocker of [
+    'CARD-EVIDENCE-02',
+    'CARD-IDENTITY-05',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /'authoredDirection',TRUE/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /NOT\(coalesce\(relationship\.conditions_json,'\{\}'::JSONB\)\?'inverseOfRelationship'\)/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match=NULL/,
+  )
+  assert.match(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id=NULL/,
+  )
+  assert.doesNotMatch(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('A-series completion consolidates cue labels and blocks unresolved contact contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'411_coaching_a_series_sprint_drills_research_completion\.sql'/,
+  )
+  for (const slug of [
+    'a-march',
+    'a-march-linear',
+    'a-march-mobility-with-arm-sweep',
+    'a-march-to-projection',
+    'a-skip',
+    'a-skip-pogo-rhythm',
+    'a-skip-rhythm-punch',
+    'a-skip-snap-down',
+    'a-skip-through-cone-gates',
+    'a-skip-through-ladder',
+    'a-skip-for-approach-rhythm',
+    'high-knee-a-march-ladder',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const identityMatch of [
+    'same_a_march_with_low_cadence_arm_action_emphasis',
+    'same_a_skip_with_rhythm_and_active_downstroke_cue',
+    'same_a_skip_with_active_downstroke_cue_not_bilateral_snap_down',
+    'same_a_skip_with_jump_approach_context_annotation',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(identityMatch),
+    )
+  }
+  for (const boundaryKey of [
+    'no_flight_alternating_march_vs_step_hop_skip_with_flight',
+    'base_no_flight_march_vs_unresolved_projection_sequence',
+    'ordinary_step_hop_skip_vs_unresolved_added_pogo_contact',
+    'base_a_skip_vs_unresolved_cone_gate_contact_rule',
+    'base_a_skip_vs_unresolved_ladder_cell_contact_rule',
+    'no_flight_a_march_vs_unresolved_march_or_running_ladder_contacts',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(boundaryKey),
+    )
+  }
+  for (const profileKey of [
+    'arm-sweep-mobility-context',
+    'rhythm-punch-cue',
+    'snap-down-cue',
+    'approach-rhythm-context',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(profileKey),
+    )
+  }
+  for (const expected of [
+    'requires exactly 7 active A-series canonical definitions',
+    'requires exactly all 12 audited legacy A-series mappings',
+    'requires one active baseline variant per canonical definition',
+    'did not create all 6 A-series active identity boundaries',
+    'did not create all 112 candidate evidence rows',
+    'did not create all 35 unverified media candidates',
+    'requires exactly 5 current media candidates per definition',
+    'did not create all 35 candidate alternate assessments',
+    'requires 8 retained and 4 contextual delivery profiles',
+    'did not create 6 authored and 6 inverse graph proposals',
+    'did not create all 14 review-only calibration rows',
+    'did not create all 7 quarantined card test packets',
+    'left an unresolved A-series definition structurally selectable',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const blocker of [
+    'CARD-IDENTITY-06',
+    'CARD-SELECTION-02',
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /'authoredDirection',TRUE/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /NOT\(coalesce\(relationship\.conditions_json,'\{\}'::JSONB\)\?'inverseOfRelationship'\)/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match=NULL/,
+  )
+  assert.match(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id=NULL/,
+  )
+  assert.doesNotMatch(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /link_status\s*(?:=|<>)\s*'pending'/,
+  )
+  assert.doesNotMatch(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('ankling and straight-leg completion corrects lineage and quarantines unresolved contacts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'412_coaching_ankling_straight_leg_identity_lineage_correction\.sql'/,
+  )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'413_coaching_ankling_straight_leg_research_completion\.sql'/,
+  )
+  for (const slug of [
+    'ankle-pogo-in-place',
+    'low-pogos',
+    'ankling-pogo-hop',
+    'wall-ankling-pogo',
+    'ankling-dribble-march',
+    'ankling-drill',
+    'ankling-walk',
+    'fast-ankling-pogo-march',
+    'distance-jump-straight-leg-bound-march',
+    'distance-jump-straight-leg-bound',
+    'straight-leg-ankling-ladder',
+    'straight-leg-bounds-to-sprint',
+  ]) {
+    assert.match(
+      ANKLING_STRAIGHT_LEG_IDENTITY_CORRECTION_MIGRATION +
+        ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const correction of [
+    'stationary_bilateral_low_pogo_identity',
+    'unresolved_wall_supported_ankling_contract',
+    'same_traveling_ankling_with_dribble_learning_cadence',
+    'same_traveling_ankling_with_walk_learning_cadence',
+    'straight_leg_march_no_flight',
+    'refused to override a human identity decision',
+    'expected nine surviving active family definitions',
+  ]) {
+    assert.match(
+      ANKLING_STRAIGHT_LEG_IDENTITY_CORRECTION_MIGRATION,
+      new RegExp(correction),
+    )
+  }
+  for (const profileKey of [
+    'low-pogo-preparation',
+    'dribble-march-learning-cadence',
+    'ankling-walk-learning-cadence',
+  ]) {
+    assert.match(
+      ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(profileKey),
+    )
+  }
+  for (const expected of [
+    'requires exactly nine active corrected definitions',
+    'requires exactly all % audited source mappings',
+    'requires one active baseline variant per definition',
+    'expected 144 candidate evidence rows',
+    'expected 45 quarantined media candidates',
+    'requires exactly five current media candidates per card',
+    'expected 45 candidate alternate assessments',
+    'expected ten retained plus three contextual profiles',
+    'expected eight authored and eight inverse graph proposals',
+    'expected 18 review-only calibration rows',
+    'expected nine current quarantined test packets',
+    'found an unresolved card that remains selectable',
+  ]) {
+    assert.match(
+      ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const blocker of [
+    'CARD-IDENTITY-06',
+    'CARD-SELECTION-02',
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match=NULL/,
+  )
+  assert.match(
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id=NULL/,
+  )
+  for (const migration of [
+    ANKLING_STRAIGHT_LEG_IDENTITY_CORRECTION_MIGRATION,
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+    )
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(
+      migration,
+      /approved_video_url\s*=\s*'https:\/\//,
+    )
+  }
+})
+
+test('skipping and fast-leg completion consolidates cadence and exact sources while quarantining unresolved contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'414_coaching_skipping_fast_leg_identity_preparation\.sql'/,
+  )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'415_coaching_skipping_fast_leg_research_completion\.sql'/,
+  )
+  for (const slug of [
+    'skipping-rhythm-drill',
+    'skipping-rhythm-change',
+    'cone-skip-rhythm-build',
+    'skipping-rhythm-change-with-ball-toss',
+    'power-skip-for-distance',
+    'fast-leg-cycle-drill',
+  ]) {
+    assert.match(
+      SKIPPING_FAST_LEG_IDENTITY_PREPARATION_MIGRATION +
+        SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const boundary of [
+    'ordinary_skip_vs_unresolved_marker_spacing_contract',
+    'ordinary_submaximal_skip_vs_horizontal_high_intent_power_skip',
+    'alternating_two_sided_step_hop_skip_vs_single_designated_leg_cycle',
+    'external_spacing_skip_vs_timed_object_dual_task_skip',
+    'sourceIdentityDuplicate',
+    'refused to override a human identity decision',
+    'expected one active baseline variant per active definition',
+  ]) {
+    assert.match(
+      SKIPPING_FAST_LEG_IDENTITY_PREPARATION_MIGRATION,
+      new RegExp(boundary),
+    )
+  }
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /'cadence-change-rhythm'/,
+  )
+  for (const expected of [
+    'requires exactly five active prepared definitions',
+    'requires exactly all % audited source mappings',
+    'requires one active baseline variant per active definition',
+    'expected 80 candidate evidence rows',
+    'expected 25 quarantined media candidates',
+    'requires exactly five current media candidates per card',
+    'expected 25 candidate alternate assessments',
+    'expected five retained plus one contextual profile',
+    'expected five authored and five inverse graph proposals',
+    'expected 10 review-only calibration rows',
+    'expected five current quarantined test packets',
+    'found an unresolved card that remains selectable',
+  ]) {
+    assert.match(
+      SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const blocker of [
+    'CARD-IDENTITY-06',
+    'CARD-SELECTION-02',
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match=NULL/,
+  )
+  assert.match(
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id=NULL/,
+  )
+  for (const migration of [
+    SKIPPING_FAST_LEG_IDENTITY_PREPARATION_MIGRATION,
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+    )
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(
+      migration,
+      /approved_video_url\s*=\s*'https:\/\//,
+    )
+  }
+})
+
+test('dribble-run completion restores controlled cycle-height variants and separates terminal sprint exposure', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'416_coaching_dribble_run_variant_lineage_preparation\.sql'/,
+  )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'417_coaching_dribble_run_research_completion\.sql'/,
+  )
+  for (const token of [
+    'low-dribble-run',
+    'high-dribble-run',
+    'dribble-build-to-sprint',
+    'low-ankle-shin-recovery',
+    'high-knee-recovery',
+    'fixed_dribble_cycle_vs_terminal_free_sprint_transition',
+    'refused to override a human identity decision',
+    'expected two controlled Dribble Run variants and one build-to-sprint baseline',
+  ]) {
+    assert.match(
+      DRIBBLE_RUN_VARIANT_PREPARATION_MIGRATION +
+        DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const expected of [
+    'requires exactly two active prepared definitions',
+    'requires exactly all % audited source mappings',
+    'requires the two controlled Dribble Run variants and one build-to-sprint baseline',
+    'expected 32 candidate evidence rows',
+    'expected 10 quarantined media candidates',
+    'requires exactly five current media candidates per card',
+    'expected 10 candidate alternate assessments',
+    'expected one active delivery profile per exact variant',
+    'expected three authored and three inverse graph proposals',
+    'expected six review-only calibration rows',
+    'expected two current quarantined test packets',
+  ]) {
+    assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, new RegExp(expected))
+  }
+  for (const blocker of [
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.match(
+    DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, /link_status='unverified'/)
+  assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, /embedding_allowed=FALSE/)
+  assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, /exact_variant_match=NULL/)
+  assert.match(DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, /reviewer_user_id=NULL/)
+  for (const migration of [
+    DRIBBLE_RUN_VARIANT_PREPARATION_MIGRATION,
+    DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+    )
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(migration, /approved_video_url\s*=\s*'https:\/\//)
+  }
+})
+
+test('post-family identity closure consolidates cadence-only pogos and separates ankling from dribbling', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'418_coaching_pogo_dribble_identity_queue_closure\.sql'/,
+  )
+  for (const token of [
+    'ankle-pogo-in-place',
+    'fast-low-pogos',
+    'ankling-drill',
+    'high-dribble-run',
+    'same_stationary_bilateral_ankle_pogo',
+    'no_flight_short_ankling_step_vs_cyclic_dribble_recovery',
+    'duplicate_consolidated',
+    'distinct_exercises',
+    'failed to persist both identity dispositions',
+    'refused to override a human identity decision',
+  ]) {
+    assert.match(POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION, new RegExp(token))
+  }
+  assert.match(
+    POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'approvalsCreated',FALSE/,
+  )
+  assert.doesNotMatch(
+    POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    POGO_DRIBBLE_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('short acceleration completion consolidates start cards into exact variants and blocks unresolved entries', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'419_coaching_short_acceleration_identity_variant_consolidation\.sql'/,
+  )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'420_coaching_short_acceleration_research_completion\.sql'/,
+  )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'421_coaching_short_acceleration_identity_queue_closure\.sql'/,
+  )
+  for (const token of [
+    'short_linear_acceleration_with_controlled_start_variant',
+    'standing-static',
+    'two-point-static',
+    'three-point-static',
+    'falling-start',
+    'half-kneeling-start',
+    'two-point-auditory-start',
+    'two-point-walk-in-provisional',
+    'three-point-build-up-provisional',
+    'expected all 20 audited sources on the survivor',
+    'expected one survivor, eight variants, eight profiles, and archived sources',
+    'refused to override a human identity decision',
+  ]) {
+    assert.match(
+      SHORT_ACCELERATION_IDENTITY_CONSOLIDATION_MIGRATION +
+        SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const expected of [
+    'requires exactly one active prepared survivor',
+    'requires the six exact and two provisional prepared variants',
+    'requires all eight generated research packets',
+    'requires candidate evidence for all 16 controlled sections',
+    'requires three to five quarantined media candidates',
+    'expected at least 30 candidate alternate assessments',
+    'expected one active delivery profile per exact variant',
+    'expected seven authored and seven inverse graph proposals',
+    'expected 16 review-only calibration proposals',
+    'expected 20 queued source-score packets',
+    'expected six selectable and two identity-blocked variants',
+    'expected one current quarantined version-2 test packet',
+    'Canonical candidate compatibility: exercise complexity 48/100, physical difficulty 68/100',
+    'ON CONFLICT\\(exercise_id\\) DO NOTHING',
+  ]) {
+    assert.match(
+      SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(expected),
+    )
+  }
+  for (const blocker of [
+    'CARD-IDENTITY-06',
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match IS NULL/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id IS NULL/,
+  )
+  for (const migration of [
+    SHORT_ACCELERATION_IDENTITY_CONSOLIDATION_MIGRATION,
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    SHORT_ACCELERATION_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+    )
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(migration, /approved_video_url\s*=\s*'https:\/\//)
+  }
+  for (const token of [
+    'level_unresisted_acceleration_vs_measured_incline_resisted_acceleration',
+    'single_start_acceleration_vs_ordered_brake_and_reacceleration',
+    'simple_go_signal_acceleration_vs_live_multi_option_choice_reaction',
+    'failed to persist all three identity boundaries',
+    'refused to override a human identity decision',
+    "'decisionScope','identity_only_not_human_approval'",
+    "'approvalsCreated',FALSE",
+  ]) {
+    assert.match(
+      SHORT_ACCELERATION_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+})
+
+test('hill sprint acceleration completion models grade, two starts, physical difficulty, and review quarantine', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'422_coaching_hill_sprint_acceleration_research_completion\.sql'/,
+  )
+  for (const token of [
+    'requires exactly legacy sources 126 and 332',
+    'two-point-shallow-grade',
+    'falling-shallow-grade',
+    'measured_declared_uniform_positive_grade_that_preserves_sprint_gait',
+    'controlled_non_sprinted_walk_back',
+    'gradeDistanceUnitMarkersTimingIntentAndRecoveryAreDeliveryDimensions',
+    'requires exactly 16 candidate evidence sections',
+    'requires exactly three quarantined media candidates',
+    'requires exactly seven candidate alternate assessments',
+    'expected one active delivery profile per exact variant',
+    'expected four review-only graph proposals',
+    'expected four review-only calibration proposals',
+    'expected two queued source-score packets',
+    'expected one current quarantined version-2 test packet',
+    'No external implement; grade and gravity materially raise physical demand.',
+    'CARD-GRADE-01',
+    'CARD-EVIDENCE-02',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /'two-point-shallow-grade'[\s\S]{0,180}52,72/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /'falling-shallow-grade'[\s\S]{0,180}56,72/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /link_status='unverified'/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /exact_variant_match IS NULL/,
+  )
+  assert.match(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /reviewer_user_id IS NULL/,
+  )
+  assert.doesNotMatch(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('180 wall-ball resolution quarantines the composite and creates the exact throw-turn-catch card without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'423_coaching_180_wall_ball_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    'requires exactly legacy source 1284',
+    'legacy-ambiguous-composite',
+    'identity_quarantine_do_not_prescribe',
+    'through-legs-wall-throw-180-turn-catch',
+    'standardized-three-metre-assessment',
+    'scaled-coordination-rehearsal',
+    'throw_to_wall__stand_and_turn_180__reacquire__two_hand_catch',
+    'standardized_scores_only_for_exact_validated_population_and_protocol',
+    'requires exactly 16 candidate evidence sections per card',
+    'expected two review-only graph proposals',
+    'expected one deterministic distinct-identity boundary',
+    'expected six review-only calibration proposals',
+    'expected one queued provisional source-score packet',
+    'expected current quarantined version-2 and version-1 packets',
+    "'trainingStimuli'",
+    "'weeklyExposure'",
+    "'uncertaintyPolicy'",
+    "'observationChecklist'",
+    "'modificationDecisionTree'",
+    "'retentionPolicy'",
+    "ARRAY\\['load','range','speed','complexity','stability'\\]",
+    'CARD-IDENTITY-01',
+    'CARD-PROTOCOL-01',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'identity_only_not_card_media_graph_calibration_or_publication_approval',
+  ]) {
+    assert.match(
+      WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /greatest\(seed\.complexity,seed\.physical\)/,
+  )
+  assert.match(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /embedding_allowed=FALSE/,
+  )
+  assert.match(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /ARRAY\['ball','distance','turn_speed','protocol','score_interpretation'\]/,
+  )
+  assert.doesNotMatch(
+    WALL_BALL_180_IDENTITY_RESOLUTION_MIGRATION,
+    /ARRAY\['Do not place this card in a workout/,
+  )
+})
+
+test('landmine arc resolution consolidates false one-arm sources and creates the exact two-hand arc without approvals or exercise levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'424_coaching_landmine_arc_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    'standard_one_arm_fixed_diagonal_press',
+    'standard_press_with_eccentric_tempo_modifier',
+    'two-hand-landmine-shoulder-to-shoulder-arc-press',
+    'tall-kneeling-two-hand-shoulder-to-shoulder',
+    'half-kneeling-two-hand-shoulder-to-shoulder',
+    'one_way_shoulder_to_shoulder_crossing',
+    'expected five embeddable but unapproved media candidates',
+    'expected seven deterministic exact-card boundaries',
+    'expected four planning-ready delivery profiles',
+    'expected four review-only calibration proposals',
+    'identity_only_not_card_media_graph_calibration_or_publication_approval',
+    "'trainingStimuli'",
+    "'weeklyExposure'",
+    "'uncertaintyPolicy'",
+    "'demonstrationPlan'",
+    "'modificationDecisionTree'",
+    "'retentionPolicy'",
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /'baseOverallDifficulty',52/,
+  )
+  assert.match(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /\{baseOverallDifficulty\}','54'::JSONB/,
+  )
+  assert.match(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /embedding_allowed=TRUE AND media\.exact_variant_match IS NULL/,
+  )
+  assert.match(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /review_status='candidate' AND media\.link_status='healthy'/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('ankling pogo resolution retires ambiguous labels and adds an exact wall-lean variant without approvals or exercise levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'425_coaching_ankling_pogo_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    'ankling-pogo-hop',
+    'wall-ankling-pogo',
+    'wall-lean-stationary-single-leg',
+    'same_leg_repeated_low_amplitude_ankle_dominant_hops',
+    'one_landing_contact_on_declared_support_leg',
+    'legacySourcesMappedToExactVariant',
+    'expected two planning-ready wall-lean profiles',
+    'expected five embeddable but unapproved media candidates',
+    'expected nine alternate assessments',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /'baseOverallDifficulty',52/,
+  )
+  assert.match(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /'difficultyModel','max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /media\.embedding_allowed=TRUE AND media\.exact_variant_match IS NULL/,
+  )
+  assert.match(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.doesNotMatch(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('opposite-leg bound direction resolution preserves stable slugs while separating forward and lateral tasks', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'426_coaching_opposite_leg_bound_direction_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    'Opposite-Leg Forward Bound to Stick',
+    'Opposite-Leg Lateral Bound to Stick',
+    'forward_vs_lateral_projection',
+    'opposite_leg_landing',
+    'terminal_hold',
+    'full_reset',
+    'distinct_exercises',
+    'expected complete candidate evidence coverage',
+    'expected candidate-only media and alternate packets',
+    'expected review-only delivery, calibration, and graph rows',
+    'did not resolve the direct identity collision',
+  ]) {
+    assert.match(
+      OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const score of [
+    /'technicalComplexity',56/,
+    /'absoluteLoadDemand',64/,
+    /'baseOverallDifficulty',64/,
+    /'technicalComplexity',60/,
+    /'absoluteLoadDemand',66/,
+    /'baseOverallDifficulty',66/,
+  ]) {
+    assert.match(OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION, score)
+  }
+  assert.match(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.match(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.doesNotMatch(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|formalProficiencyScope|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
+  for (const migration of [
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION,
+    LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION,
+    COSSACK_SQUAT_COMPLETION_MIGRATION,
+    ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION,
+    BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION,
+    HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION,
+    SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION,
+    HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION,
+    A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION,
+    ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION,
+    SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION,
+    DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION,
+    SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
+    LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
+    ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
+    OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /CROSS JOIN(?: LATERAL)? \(\s*VALUES[\s\S]{0,500}\('baseOverallDifficulty'/,
+    )
+  }
+})
+
+test('recent-family identity closure resolves authored mechanics and preserves ambiguous quarantines', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'405_coaching_recent_family_identity_boundary_closure\.sql'/,
+  )
+  assert.match(
+    RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+    /expected_count CONSTANT INTEGER := 18/,
+  )
+  for (const boundaryKey of [
+    'squat_only_vs_squat_then_press',
+    'frontal_lateral_shift_vs_sagittal_bilateral_squat',
+    'strict_press_vs_step_back_lunge_then_press',
+    'full_squat_press_vs_dip_drive_press',
+    'lateral_squat_vs_lateral_squat_release_target_protocol',
+    'angled_shoulder_press_vs_anti_rotation_press_out',
+    'stationary_split_squat_vs_dynamic_split_receive',
+    'vertical_kneeling_support_vs_supine_floor_support',
+    'supine_floor_press_vs_tall_kneeling_press',
+  ]) {
+    assert.match(
+      RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+      new RegExp(boundaryKey),
+    )
+  }
+  assert.match(
+    RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+    /'evidenceSource','current_authored_candidate_card_contracts'/,
+  )
+  assert.match(
+    RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+    /'approvalsCreated',FALSE/,
+  )
+  assert.match(
+    RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+    /refused to overwrite an existing decision/,
+  )
+  for (const unresolvedSlug of [
+    'one-arm-landmine-arc-press',
+    'split-squat',
+    'clean-grip-deadlift',
+    'sumo-deadlift',
+  ]) {
+    assert.doesNotMatch(
+      RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+      new RegExp(`'${unresolvedSlug}'`),
+    )
+  }
+  assert.doesNotMatch(
+    RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('remaining unclassified identity closure distinguishes Box Squat and quarantines Arc Press', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'406_coaching_remaining_unclassified_identity_queue_closure\.sql'/,
+  )
+  for (const slug of [
+    'box-squat',
+    'split-squat',
+    'landmine-squat-to-press',
+    'one-arm-landmine-arc-press',
+  ]) {
+    assert.match(
+      UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+      new RegExp(`'${slug}'`),
+    )
+  }
+  assert.match(
+    UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'bilateral_box_supported_squat_vs_stationary_split_stance_squat'/,
+  )
+  assert.match(
+    UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'authored_squat_to_press_vs_unresolved_arc_press_source'/,
+  )
+  assert.match(
+    UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'needs_human_review'/,
+  )
+  assert.match(
+    UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /'approvalsCreated',FALSE/,
+  )
+  assert.doesNotMatch(
+    UNCLASSIFIED_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('recent completion migrations protect reviewed content on clean re-entry', () => {
+  for (const [migration, completedCardCount, completedCardVersion] of [
+    [ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION, 5, 2],
+    [LANDMINE_EXPLOSIVE_PRESS_COMPLETION_MIGRATION, 3, 2],
+    [LANDMINE_SQUAT_LUNGE_COMPLETION_MIGRATION, 4, 2],
+    [COSSACK_SQUAT_COMPLETION_MIGRATION, 2, 2],
+    [ADDUCTOR_ROCKBACK_COMPLETION_MIGRATION, 1, 2],
+    [BACKPEDAL_TO_SPRINT_COMPLETION_MIGRATION, 2, 2],
+    [HANG_FAMILY_RESEARCH_COMPLETION_MIGRATION, 3, 4],
+    [SUPPORT_COMPRESSION_RESEARCH_COMPLETION_MIGRATION, 3, 2],
+    [HANGING_LEG_RAISE_L_SIT_RESEARCH_COMPLETION_MIGRATION, 3, 2],
+    [A_SERIES_SPRINT_DRILLS_RESEARCH_COMPLETION_MIGRATION, 7, 2],
+    [ANKLING_STRAIGHT_LEG_RESEARCH_COMPLETION_MIGRATION, 9, 2],
+    [SKIPPING_FAST_LEG_RESEARCH_COMPLETION_MIGRATION, 5, 2],
+    [DRIBBLE_RUN_RESEARCH_COMPLETION_MIGRATION, 2, 2],
+    [SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION, 1, 2],
+    [HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION, 1, 2],
+  ]) {
+    assert.match(
+      migration,
+      new RegExp(
+        `already_applied_count = ${completedCardCount}[\\s\\S]{0,500}definition\\.card_version <> ${completedCardVersion}`,
+      ),
+    )
+    assert.match(
+      migration,
+      /refused to overwrite % (?:human-)?reviewed or published|refused to overwrite % human-reviewed current-version/,
+    )
+  }
 })
 
 test('exercise identity evidence cannot retain skill or proficiency classifications', () => {

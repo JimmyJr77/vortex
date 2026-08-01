@@ -93,14 +93,14 @@ function EnrollmentTable({
                   <AdminEnrollmentStatusBadge row={row} />
                 </td>
                 <td className="px-3 py-2 text-center">
-                  <button
+                  {row.source === 'drop_in' ? <span className="text-xs text-gray-400">Read-only</span> : <button
                     type="button"
                     onClick={() => onManage(row)}
                     title="Manage enrollment"
                     className="inline-flex items-center justify-center rounded-md border border-gray-200 p-1.5 text-amber-600 hover:bg-amber-50 hover:border-amber-300"
                   >
                     <Zap className="w-4 h-4" />
-                  </button>
+                  </button>}
                 </td>
               </tr>
             )
@@ -172,9 +172,7 @@ export default function MemberEnrollmentsTab({
                 id: member.id,
                 firstName: data.member?.firstName || member.firstName,
                 lastName: data.member?.lastName || member.lastName,
-                rows: (data.rows ?? []).filter((row) =>
-                  ['confirmed', 'active', 'waitlisted', 'paused'].includes(row.status),
-                ),
+                rows: data.rows ?? [],
               } satisfies MemberEnrollmentGroup
             } catch (err) {
               if (member.id === selectedMemberId) throw err
@@ -223,7 +221,8 @@ export default function MemberEnrollmentsTab({
             }
             activeClassKeys.add(classKey)
           }
-          if (['confirmed', 'active'].includes(row.status) && !subscriptionSignupIds.has(row.id)) {
+          const recurringEnrollment = row.source === 'scheduling' && (row.billingType ?? row.billing_type) !== 'one_time'
+          if (recurringEnrollment && ['confirmed', 'active'].includes(row.status) && !subscriptionSignupIds.has(row.id)) {
             reconciliationWarnings.push(`${memberLabel(group)}'s ${row.class_name || 'class'} enrollment ${row.id} is not linked to recurring billing.`)
           }
         }
@@ -265,7 +264,7 @@ export default function MemberEnrollmentsTab({
         <div>
           <h4 className="text-sm font-semibold text-gray-900">Enrollments</h4>
           <p className="text-xs text-gray-500">
-            Select a family member to see their current class registrations. Expected family pricing
+            Select a family member to see their complete class registration history. Expected family pricing
             comes from the enrollment pricing engine.
           </p>
         </div>

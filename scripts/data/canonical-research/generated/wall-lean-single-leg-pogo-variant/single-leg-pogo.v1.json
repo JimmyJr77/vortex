@@ -1,0 +1,692 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-pogo",
+  "researchVersion": "2026-08-01.4",
+  "assessmentSummary": {
+    "identity": "From a declared forward wall lean, both hands maintain firm contact with an immovable support while one declared leg performs repeated low-amplitude ankle-dominant hops in place and the opposite thigh remains held in the declared recovery position. Each landing contact is counted; legs change only after a controlled reset.",
+    "currentCardFindings": [
+      "The existing Single-Leg Pogo definition already treats support as a variant dimension, but its supported baseline permits only light balance assistance and does not define a forward wall lean or intentional wall pressure.",
+      "Legacy Ankling Pogo Hop is generic template text that omits support, laterality, ordered contacts, displacement, and finish; it cannot be prescribed as an exact exercise.",
+      "Legacy Wall Ankling Pogo declares wall pressure and stacked posture but omits whether contacts are bilateral, alternating, or repeated on one leg; it also cannot be prescribed as an exact exercise.",
+      "A public Wall Drill SL Pogo candidate was visually inspected and showed a wall-supported forward lean with one leg repeatedly contacting while the opposite leg remained raised. This is automated candidate evidence, not human media approval.",
+      "Five exact-title candidates returned current YouTube oEmbed metadata and iframe markup; human exact-match and demonstration review remain mandatory."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "jump",
+        "brace"
+      ],
+      "jointActions": [
+        "repeated_support_leg_ankle_plantarflexion_and_dorsiflexion",
+        "short_range_support_knee_flexion_extension",
+        "contralateral_hip_flexion_hold",
+        "shoulder_elbow_and_trunk_isometric_wall_brace"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal_and_transverse_control"
+      ],
+      "laterality": "unilateral_repeated_contacts_with_separate_left_and_right_sets",
+      "sequence": "establish_wall_lean__raise_nonworking_thigh__repeat_same_leg_contacts__controlled_reset__change_side",
+      "intent": "low_amplitude_unilateral_ankle_spring_with_forward_body_line_and_stable_wall_pressure"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "soleus",
+        "gastrocnemius",
+        "foot_intrinsics"
+      ],
+      "secondaryMuscles": [
+        "tibialis_anterior",
+        "quadriceps",
+        "gluteus_medius",
+        "hip_flexors",
+        "abdominal_wall",
+        "serratus_anterior"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ],
+      "primaryActions": [
+        "same_leg_repeated_low_amplitude_hopping",
+        "opposite_thigh_position_hold",
+        "forward_lean_wall_brace"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 52,
+      "coordinationDemand": 50,
+      "supervisionDemand": 44,
+      "failureConsequence": 42,
+      "impact": 4,
+      "workCapacityDemand": 50,
+      "baseOverallDifficulty": 52,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "wall-lean-stationary-single-leg",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 52,
+        "derivedOverallDifficulty": 52
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_wall_braced_unilateral_repeated_low_amplitude_plyometric",
+      "impactClass": "moderate_unilateral_by_contact_count_amplitude_surface_and_body_angle",
+      "landingContactsPerRep": 1,
+      "externalLoadMethod": "bodyweight_with_declared_wall_lean_and_pressure",
+      "loadTracking": [
+        "side",
+        "body_angle",
+        "hand_position",
+        "recovery_leg_position",
+        "contacts",
+        "cadence",
+        "amplitude",
+        "surface",
+        "footwear",
+        "quality",
+        "symptoms"
+      ],
+      "primaryStress": [
+        "foot_calf_Achilles_cyclic_load",
+        "single_leg_impact",
+        "hip_pelvis_control",
+        "wall_brace"
+      ]
+    },
+    "proposedFatigueRecovery": {
+      "primaryFatigueSites": [
+        "foot",
+        "calf",
+        "Achilles_tendon",
+        "lateral_hip",
+        "hip_flexors",
+        "shoulder_girdle"
+      ],
+      "technicalSensitivity": [
+        "body_line_rises_or_sags",
+        "wall_pressure_changes",
+        "contact_becomes_loud_or_slow",
+        "foot_drifts",
+        "recovery_leg_drops",
+        "side_difference"
+      ],
+      "recoveryHours": "twenty_four_to_forty_eight_after_moderate_contact_volume_subject_to_symptoms_and_overlapping_running_jumping_or_calf_work",
+      "cumulativeBudget": {
+        "impact": 58,
+        "calfAchilles": 60,
+        "technicalSensitivity": 64,
+        "upperBodyBrace": 20
+      }
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "immovable_non_slip_wall_or_rated_rack",
+        "flat_dry_high_traction_surface",
+        "appropriate_footwear"
+      ],
+      "optionalEquipment": [
+        "floor_marker",
+        "contact_counter",
+        "cadence_feedback",
+        "video"
+      ],
+      "environment": [
+        "hands_and_feet_cannot_slip",
+        "clear_station_and_exit",
+        "no_cross_traffic",
+        "one_athlete_per_wall_station"
+      ],
+      "population": [
+        "pain_free_bilateral_pogo_or_calf_raise",
+        "controlled_single_leg_landing",
+        "can_hold_declared_wall_lean_and_recovery_leg_position",
+        "can_stop_on_command"
+      ]
+    },
+    "proposedDosage": {
+      "patterning": "one_to_three_sets_of_six_to_ten_contacts_per_side_with_forty_five_to_ninety_seconds_rest",
+      "elasticOutput": "two_to_four_sets_of_six_to_twelve_contacts_per_side_with_seventy_five_to_one_hundred_twenty_seconds_rest",
+      "maximumWithoutReview": "forty_quality_contacts_per_side_in_one_session",
+      "measurement": "count_each_landing_contact_and_record_actual_contacts_per_side_not_round_trips_or_time_alone",
+      "progressWhen": "both sides preserve the same body line, wall pressure, recovery position, quiet contact, foot return, cadence, and controlled reset"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Push the wall",
+        "Long line through the stance leg",
+        "Hold the opposite thigh",
+        "Bounce under the hip",
+        "Quick and quiet"
+      ],
+      "athleteInstructions": [
+        "Confirm the wall or rack cannot move or slip and that the floor and shoes are dry.",
+        "Place both hands at the declared height, walk the feet back, and establish the coached forward body line without bending at the waist.",
+        "Shift to the declared support leg and hold the opposite thigh in the prescribed recovery position.",
+        "Perform small repeated hops on the same support leg; return the foot beneath the hip and count every landing contact.",
+        "Stop while contacts remain quick and quiet, regain a two-foot stance, then reset before changing sides."
+      ],
+      "commonFaults": [
+        "alternating_legs_inside_the_set",
+        "wall_or_hands_slip",
+        "waist_folds_or_ribs_flare",
+        "recovery_leg_drops_or_cycles",
+        "foot_reaches_forward",
+        "heel_slams",
+        "contact_height_or_sound_drifts",
+        "counting_cycles_instead_of_contacts"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "support_and_surface_inspection",
+        "pain_free_low_pogo_and_single_leg_landing",
+        "controlled_setup_and_two_foot_exit",
+        "stop_signal_understood"
+      ],
+      "qualityGates": [
+        "same_leg_contacts_only",
+        "body_line_and_wall_pressure_stable",
+        "foot_returns_under_hip",
+        "quiet_repeatable_low_amplitude_contacts",
+        "recovery_leg_position_stable",
+        "controlled_two_foot_reset"
+      ],
+      "stopRules": [
+        "pain_guarding_numbness_dizziness_or_unusual_breathlessness",
+        "wall_rack_hand_or_foot_slip",
+        "body_line_wall_pressure_or_recovery_leg_position_changes",
+        "loud_slow_or_lengthening_contact",
+        "heel_slam_or_foot_reach",
+        "knee_pelvis_or_trunk_control_changes",
+        "two_consecutive_contacts_fail_quality"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access_wall_lean_patterning",
+        "dose": "one_to_three_sets_of_six_to_ten_contacts_per_side",
+        "purpose": "learn_same_leg_contact_rhythm_and_forward_body_line_with_a_stable_support"
+      },
+      {
+        "context": "output_wall_lean_elastic_contacts",
+        "dose": "two_to_four_sets_of_six_to_twelve_contacts_per_side",
+        "purpose": "express low_amplitude_unilateral_ankle_spring_without_free_balance_or_travel"
+      }
+    ],
+    "proposedRelationships": {
+      "lateralSubstitution": [
+        "supported_stationary_low_amplitude_single_leg_pogo_when_balance_assistance_not_forward_wall_pressure_is_the_goal"
+      ],
+      "progressions": [
+        "unsupported_stationary_single_leg_pogo_after_wall_lean_and_balance_supported_variants_are_controlled"
+      ],
+      "doNotMerge": [
+        "wall_drill_march",
+        "wall_drill_switch",
+        "wall_supported_alternating_stride_pogo",
+        "ankling_drill",
+        "bilateral_ankle_pogo"
+      ]
+    },
+    "programmingDecision": "Archive the two non-atomic legacy Ankling Pogo labels as nonprescribable evidence. Add this exact wall-lean same-leg repeated-contact task as a review-only variant of Single-Leg Pogo. Do not map either ambiguous legacy source to the variant, and do not publish until human content, media, calibration, relationship, pilot, and card review are complete.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T22:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Balance on the declared leg with support, direction, amplitude, cadence, arm action, contact count, and finish rule specified by the exact variant. Perform repeated low-amplitude ankle-dominant hops with a tall organized trunk, the foot returning under the hip or to the declared line, the knee tracking with the foot, and the pelvis controlled. Use quick quiet contacts without an intentional stick between repetitions; stop before contact time, sound, alignment, height, direction, or symptoms change.",
+      "familyKey": "repeated_unilateral_ankle_dominant_pogo",
+      "movementPatterns": [
+        "jump",
+        "locomote"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "line_tape",
+        "wall",
+        "mat"
+      ],
+      "environment": {
+        "setup": {
+          "footwearAndSurfaceRecorded": true,
+          "side_support_direction_amplitude_cadence_contacts_and_finish_declared": true
+        },
+        "space": {
+          "runOutMeters": 3,
+          "travelLaneMeters": {
+            "target": 8,
+            "maximum": 12,
+            "minimum": 5
+          },
+          "crossTrafficProhibited": true,
+          "stationaryRadiusMeters": 1.5
+        },
+        "record": [
+          "side",
+          "support",
+          "direction",
+          "amplitude",
+          "cadence",
+          "contacts",
+          "distance",
+          "contact_quality",
+          "finish_rule"
+        ],
+        "surface": {
+          "avoid": [
+            "wet",
+            "uneven",
+            "very_hard_for_high_volume",
+            "soft_unstable"
+          ],
+          "required": "flat_dry_stable_high_traction_with_appropriate_compliance"
+        },
+        "traffic": {
+          "coachSightlineRequired": true,
+          "stationSeparationMeters": 2.5,
+          "oneAthletePerLaneOrStation": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_foot_ankle_achilles_calf_knee_hip_or_back_symptoms",
+          "recent_lower_extremity_procedure",
+          "limited_unilateral_impact_exposure",
+          "large_side_difference"
+        ],
+        "doNotUseWhen": [
+          "pain_or_limp",
+          "unsafe_surface_or_lane",
+          "cannot_control_supported_low_amplitude_variant",
+          "contacts_are_loud_slow_or_unstable",
+          "fatigue_already_changes_landing"
+        ],
+        "medicalScope": "This card is not rehabilitation prescription, tendon treatment, or clearance.",
+        "prerequisites": [
+          "pain_free_bilateral_pogo_or_repeated_calf_raise",
+          "controlled_single_leg_stance",
+          "can_land_single_leg_quietly",
+          "understands_contact_and_stop_rule"
+        ],
+        "regressionOrder": [
+          "supported_stationary",
+          "fewer_contacts",
+          "lower_amplitude",
+          "slower_declared_cadence",
+          "bilateral_pogo_substitution"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed returned current public metadata and iframe markup for all five candidates on 2026-08-01.",
+        "Availability and embed metadata do not establish exact movement identity, complete playback, safety, cue quality, captions, accessibility, reviewer identity, or approval."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "World Athletics defines a wall-supported forward acceleration body position with hands on a stationary object and the torso aligned with the support leg.",
+        "The pogo variant adds repeated same-leg flight contacts; laterality, contact order, opposite-leg position, body angle, support pressure, count unit, and finish must remain explicit."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Repeated unilateral hopping is mechanically distinct from bilateral hopping.",
+        "Wall lean and intentional wall pressure are exact support and posture dimensions within the Single-Leg Pogo identity, not athlete skill levels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Foot, ankle, knee, hip, pelvis, and trunk coordinate repeated unilateral contacts.",
+        "Wall support adds hand, wrist, elbow, shoulder-girdle and trunk bracing without changing the contact leg's unilateral identity."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Unilateral hopping stiffness behavior differs from bilateral hopping and depends on the exact task.",
+        "Body angle, contact cadence, amplitude and wall force are unmeasured constraints here; no sprint-transfer or stiffness-value claim is inferred."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Unilateral impact and repeated contact control drive physical difficulty; forward wall posture, same-leg rhythm and opposite-leg hold drive complexity.",
+        "Overall difficulty is the maximum of exercise complexity and physical difficulty; athlete proficiency is excluded from exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Every landing counts toward unilateral impact and foot-calf-Achilles exposure even at low amplitude.",
+        "Track overlapping running, jumping, calf, ankle and wall-brace work and stop before contact or posture changes."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "The wall or stationary object and the athlete's body line are material setup constraints.",
+        "Require an immovable nonslip support, dry high-traction floor, clear station, practiced setup, and controlled exit."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Plyometric dose depends on contact exposure and task characteristics.",
+        "The proposed contact ranges and recovery windows are conservative programming proposals requiring coach and pilot review."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Wall drills require an explicit body position and support-leg alignment rather than generic jump cues.",
+        "Instructions separately define hand placement, body line, same-leg contacts, opposite-leg hold, contact counting, reset and side change."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Repeated hopping creates task-specific lower-limb stiffness and impact demands.",
+        "Stop for symptoms, slipping, body-line loss, loud or slow contacts, heel slam, reach, alignment drift, recovery-leg change or failed reset."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Wall-supported drills can teach acceleration-oriented posture and force direction.",
+        "This pogo remains a low-amplitude unilateral contact task and must not be claimed as equivalent to sprinting, marching or switching."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Athletes need a clear distinction between expected foot-calf effort and symptoms that require stopping.",
+        "Show setup, same-leg contact, opposite-leg hold, contact count, two-foot exit, side change and a nonvideo text alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10105022/",
+      "sourceTitle": "The effects of plyometric jump training on lower-limb stiffness in healthy individuals: A meta-analytical comparison",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Task-specific stiffness cannot be inferred from appearance alone.",
+        "Record side, body angle, support, recovery position, actual contacts, cadence, amplitude, surface, footwear, quality, symptoms and stop reason."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24290613/",
+      "sourceTitle": "Leg stiffness: comparison between unilateral and bilateral hopping tasks",
+      "sourcePublisher": "Human Movement Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Support can reduce balance demand while preserving unilateral contact exposure.",
+        "Scale contacts, amplitude, cadence, recovery-position height and rest; use the existing light-balance or bilateral variant when the wall-lean contract cannot be preserved."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Wall march and continuous wall sprint have explicit alternating leg actions distinct from same-leg repeated pogo contacts.",
+        "Light-balance support is a different Single-Leg Pogo variant; alternating stride pogos and wall switches require separate ordered-contact definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=uLagcbggFjs",
+      "title": "Wall Drill SL Pogo",
+      "channelName": "Kinetic | Sports Physical Therapy | Delafield, WI",
+      "sourceQuery": "wall single leg pogo",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T22:00:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup. Automated visual inspection observed a wall lean with repeated same-leg contacts and the opposite leg held raised. Full human exact-match, safety, cue, caption, accessibility, quality, reviewer, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iprr4n3k_rk",
+      "title": "Wall supported single leg pogo hop",
+      "channelName": "thespotter123",
+      "sourceQuery": "wall single leg pogo",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T22:00:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup; title is exact-adjacent. Playback, exact movement and variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vy_0AVL_Qbc",
+      "title": "Single Leg Wall Pogo",
+      "channelName": "Brendan Satterlund",
+      "sourceQuery": "wall single leg pogo",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T22:00:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup; title is exact-adjacent. Playback, exact movement and variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=do7hjBVIfFo",
+      "title": "Single Leg Wall Pogo",
+      "channelName": "All Seasons Club",
+      "sourceQuery": "wall single leg pogo",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T22:00:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup; title is exact-adjacent. Playback, exact movement and variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vACWLutUtvQ",
+      "title": "Single Leg Pogo Hop on Wall (Phase 1 Plyometrics)",
+      "channelName": "YourPhysicianCoach",
+      "sourceQuery": "wall single leg pogo",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T22:00:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup; title is exact-adjacent and uses population/program framing that requires human scope review. Playback, exact movement and variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Wall-Lean Stationary Single-Leg Pogo",
+      "classification": "new_variant",
+      "rationale": "Intentional wall pressure and a forward body line change support and posture while preserving repeated same-leg low-amplitude contacts.",
+      "distinguishingDimensions": {
+        "support": "intentional_wall_pressure",
+        "bodyLine": "forward_lean",
+        "contactSequence": "same_leg_repeated"
+      }
+    },
+    {
+      "name": "Light-Balance Supported Stationary Single-Leg Pogo",
+      "classification": "same_identity",
+      "rationale": "The existing supported variant uses the wall only for balance and remains a separate exact support option.",
+      "distinguishingDimensions": {
+        "support": "light_balance_only",
+        "bodyLine": "tall"
+      }
+    },
+    {
+      "name": "Unsupported Stationary Single-Leg Pogo",
+      "classification": "same_identity",
+      "rationale": "Removing support raises balance demand without changing laterality or repeated-contact action.",
+      "distinguishingDimensions": {
+        "support": "none",
+        "direction": "stationary"
+      }
+    },
+    {
+      "name": "Wall-Supported Alternating Stride Pogo",
+      "classification": "new_definition",
+      "rationale": "Alternating flight contacts change ordered contact sequence, side accounting and coordination.",
+      "distinguishingDimensions": {
+        "contactSequence": "alternating",
+        "flight": true
+      }
+    },
+    {
+      "name": "Wall Drill March",
+      "classification": "new_definition",
+      "rationale": "A deliberate alternating march has no repeated same-leg flight contacts.",
+      "distinguishingDimensions": {
+        "contactSequence": "alternating_step",
+        "flight": false
+      }
+    },
+    {
+      "name": "Wall Drill Switch",
+      "classification": "new_definition",
+      "rationale": "One or more reciprocal leg exchanges use a different ordered action and terminal rule.",
+      "distinguishingDimensions": {
+        "contactSequence": "reciprocal_switch"
+      }
+    },
+    {
+      "name": "Ankling Drill",
+      "classification": "new_definition",
+      "rationale": "Unsupported traveling alternating ankling changes support, displacement, contact sequence and dose unit.",
+      "distinguishingDimensions": {
+        "support": "none",
+        "travel": true,
+        "contactSequence": "alternating"
+      }
+    },
+    {
+      "name": "Bilateral Ankle Pogo",
+      "classification": "new_definition",
+      "rationale": "Synchronous two-leg contacts change laterality, load distribution and balance demand.",
+      "distinguishingDimensions": {
+        "laterality": "bilateral_synchronous"
+      }
+    },
+    {
+      "name": "Contact Count, Cadence, Low Amplitude, Rest, or Starting Side",
+      "classification": "modifier_annotation",
+      "rationale": "These dosage variables preserve the exact wall-lean same-leg identity when setup and contact sequence remain fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "contacts",
+          "cadence",
+          "low_amplitude",
+          "rest",
+          "starting_side"
+        ]
+      }
+    }
+  ]
+}

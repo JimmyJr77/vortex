@@ -99,14 +99,14 @@ BEGIN
       migration_key;
   END IF;
 
-  IF already_applied_count = 0 THEN
-    SELECT count(*)
+  SELECT count(*)
     INTO protected_count
     FROM coaching.exercise_definition_v1 definition
     WHERE definition.facility_id = 1
       AND definition.slug = ANY(target_slugs)
       AND (
-        definition.card_version <> 1
+        (already_applied_count = 0 AND definition.card_version <> 1)
+        OR (already_applied_count = 3 AND definition.card_version <> 2)
         OR definition.status IN ('published','deprecated')
         OR definition.reviewed_by IS NOT NULL
         OR definition.approved_by IS NOT NULL
@@ -247,6 +247,7 @@ BEGIN
         protected_count;
     END IF;
 
+    IF already_applied_count = 0 THEN
     UPDATE coaching.exercise_delivery_profile_v1 profile
     SET status = 'archived',
         updated_at = now()
@@ -1424,7 +1425,6 @@ BEGIN
         THEN 'Candidate exercise-complexity score reflects the exact ordered action, hand count, rack, stance, lower-body timing, receiving policy, path, range, and control; human anchor review is pending.'
       WHEN 'absoluteLoadDemand'
         THEN 'Candidate physical-difficulty score reflects external load tolerance, lower-body and pressing force, split or squat demand, trunk transfer, and repeatable quality; human anchor review is pending.'
-      ELSE 'Overall is deterministically derived as the maximum of exercise complexity and physical difficulty; human calibration approval is pending.'
     END,
     'review',
     1,
@@ -1442,8 +1442,7 @@ BEGIN
   CROSS JOIN LATERAL (
     VALUES
       ('technicalComplexity', seed.complexity),
-      ('absoluteLoadDemand', seed.physical),
-      ('baseOverallDifficulty', greatest(seed.complexity, seed.physical))
+      ('absoluteLoadDemand', seed.physical)
   ) AS calibration(dimension, score)
   ON CONFLICT (
     facility_id,
@@ -1834,12 +1833,11 @@ BEGIN
      AND calibration.reviewed_at IS NULL
      AND calibration.dimension IN (
        'technicalComplexity',
-       'absoluteLoadDemand',
-       'baseOverallDifficulty'
+       'absoluteLoadDemand'
      )
-  ) <> 21 THEN
+  ) <> 14 THEN
     RAISE EXCEPTION
-      '% did not create all 21 review-only calibration rows',
+      '% did not create all 14 review-only calibration rows',
       migration_key;
   END IF;
 

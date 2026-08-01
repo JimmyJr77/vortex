@@ -107,6 +107,67 @@ test('library audit rejects ambiguous facility scope', async () => {
   )
 })
 
+test('library audit accepts explicit primary-source provenance for a canonical-authored card without a legacy row', async () => {
+  const definitionId = '10000000-0000-4000-8000-000000000009'
+  const pool = {
+    async query(sql) {
+      if (sql.includes('SELECT * FROM coaching.exercise_definition_v1')) {
+        return { rows: [{
+          id: definitionId,
+          facility_id: 7,
+          legacy_exercise_id: null,
+          slug: 'canonical-authored-test',
+          canonical_name: 'Canonical Authored Test',
+          display_name: 'Canonical Authored Test',
+          aliases: [],
+          family_key: 'coordination',
+          schema_version: '1.0.0',
+          card_version: 1,
+          status: 'review',
+          movement_patterns: [],
+          body_regions: [],
+          required_equipment: [],
+          optional_equipment: [],
+          environment_json: {},
+          population_json: {},
+          anatomy_json: {},
+          provenance_json: {
+            canonicalAuthoredFromResearch: true,
+            primaryIdentitySource: 'https://example.com/primary-source',
+          },
+          approved_video_url: null,
+        }] }
+      }
+      if (sql.includes('FROM coaching.exercise_variant_v1 v')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_delivery_profile_v1 p')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_media_review_v1 mr')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_relationship_v1 r')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_score_calibration_v1 c')) return { rows: [] }
+      if (sql.includes(`SELECT 'movementPatterns' AS kind`)) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_identity_resolution_v1')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise WHERE facility_id=$1')) {
+        return { rows: [{ count: 0, mapped_count: 0 }] }
+      }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+
+  const report = await auditCanonicalExerciseLibrary(pool, {
+    facilityId: 7,
+    persist: false,
+  })
+  const provenanceCheck = report.packets[0].checks_json.find(
+    (check) => check.id === 'CARD-MIGRATION-01',
+  )
+  assert.equal(report.migrationCoverageComplete, true)
+  assert.equal(provenanceCheck.status, 'passed')
+  assert.deepEqual(provenanceCheck.evidence, {
+    legacyExerciseId: null,
+    canonicalAuthoredFromResearch: true,
+    primaryIdentitySource: 'https://example.com/primary-source',
+  })
+})
+
 test('library audit separates adjudicated-distinct identities from unresolved name similarity', async () => {
   const activeId = '10000000-0000-4000-8000-000000000001'
   const deadId = '10000000-0000-4000-8000-000000000002'

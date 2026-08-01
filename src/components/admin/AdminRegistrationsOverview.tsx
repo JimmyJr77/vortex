@@ -36,10 +36,14 @@ function easternDate(): string {
 }
 
 function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
-  const rows = [['Class', 'Program', 'Time', 'Athlete']]
+  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Enrollment type', 'Status', 'Email', 'Phone', 'Amount']]
   for (const item of roster.classes) {
     for (const athlete of item.athletes) {
-      rows.push([item.className, item.programName || '', item.timeLabel, athlete.name])
+      rows.push([
+        item.className, item.programName || '', item.timeLabel, athlete.name,
+        athlete.enrollmentType.replaceAll('_', ' '), athlete.status, athlete.email, athlete.phone,
+        `$${(athlete.amountCents / 100).toFixed(2)}`,
+      ])
     }
   }
   const csv = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n')
@@ -52,6 +56,7 @@ function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDail
 }
 
 type OverviewMode = 'by-member' | 'by-program'
+type EnrollmentTab = 'monthly' | 'daily'
 type SortDir = 'asc' | 'desc'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
@@ -536,7 +541,83 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
   )
 }
 
+function addDays(date: string, amount: number): string {
+  const value = new Date(`${date}T12:00:00Z`)
+  value.setUTCDate(value.getUTCDate() + amount)
+  return value.toISOString().slice(0, 10)
+}
+
+function enrollmentTypeLabel(value: string): string {
+  return ({ monthly: 'Monthly', temporary_block: 'Temporary block', one_time: 'One-time', drop_in: 'Drop-in' })[value] || value
+}
+
+function DailyEnrollmentsView() {
+  const [date, setDate] = useState(easternDate)
+  const [roster, setRoster] = useState<Awaited<ReturnType<typeof adminFetchDailyRoster>> | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      setRoster(await adminFetchDailyRoster(date))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load daily enrollments')
+      setRoster(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [date])
+
+  useEffect(() => { void load() }, [load])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-wrap items-end gap-2">
+          <button type="button" onClick={() => setDate((current) => addDays(current, -1))} className="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-gray-50" aria-label="Previous day">←</button>
+          <label className="text-sm font-semibold text-gray-700">
+            Date
+            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="ml-2 rounded-lg border border-gray-300 px-3 py-2 font-normal" />
+          </label>
+          <button type="button" onClick={() => setDate((current) => addDays(current, 1))} className="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-gray-50" aria-label="Next day">→</button>
+          <button type="button" onClick={() => setDate(easternDate())} className="rounded-lg px-3 py-2 text-sm font-semibold text-vortex-red hover:bg-red-50">Today</button>
+        </div>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-gray-50"><RotateCcw className="h-4 w-4" /> Refresh</button>
+          <button type="button" disabled={!roster} onClick={() => roster && downloadDailyRosterCsv(roster)} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Download className="h-4 w-4" /> Export CSV</button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 py-12 text-gray-600"><Loader2 className="h-5 w-5 animate-spin" /> Loading daily enrollments…</div>
+      ) : error ? (
+        <p className="rounded-lg bg-red-50 p-4 text-sm text-red-700">{error}</p>
+      ) : (
+        <>
+          <div><h3 className="text-lg font-bold text-gray-900">{roster?.dateLabel}</h3><p className="text-sm text-gray-600">{roster?.classCount ?? 0} classes · {roster?.athleteCount ?? 0} enrollments</p></div>
+          {(roster?.classes ?? []).map((item) => (
+            <section key={item.eventId} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <div className="border-b bg-gray-50 px-4 py-3"><h4 className="font-bold text-gray-900">{item.timeLabel} · {item.className}</h4>{item.programName ? <p className="text-sm text-gray-600">{item.programName}</p> : null}</div>
+              {item.athletes.length === 0 ? (
+                <p className="p-4 text-sm text-gray-500">No enrollments for this class.</p>
+              ) : (
+                <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-gray-600"><th className="p-3">Athlete</th><th className="p-3">Type</th><th className="p-3">Status</th><th className="p-3">Contact</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{item.athletes.map((athlete) => (
+                  <tr key={`${athlete.source}:${athlete.signupId}`} className="border-b last:border-0"><td className="p-3 font-semibold text-gray-900">{athlete.name}</td><td className="p-3"><span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold">{enrollmentTypeLabel(athlete.enrollmentType)}</span></td><td className="p-3 capitalize">{athlete.status}</td><td className="p-3 text-gray-600"><span className="block">{athlete.email || '—'}</span><span>{athlete.phone || ''}</span></td><td className="p-3 text-right">${(athlete.amountCents / 100).toFixed(2)}{athlete.benefitType ? <span className="block text-xs capitalize text-gray-500">{athlete.benefitType.replaceAll('_', ' ')}</span> : null}</td></tr>
+                ))}</tbody></table></div>
+              )}
+            </section>
+          ))}
+          {(roster?.classes.length ?? 0) === 0 ? <p className="rounded-xl border bg-white p-8 text-center text-sm text-gray-500">No classes are scheduled for this date.</p> : null}
+        </>
+      )}
+    </div>
+  )
+}
+
 export default function AdminRegistrationsOverview() {
+  const [activeTab, setActiveTab] = useState<EnrollmentTab>('monthly')
   const [mode, setMode] = useState<OverviewMode>('by-program')
   const [refreshKey, setRefreshKey] = useState(0)
   const [rosterLoading, setRosterLoading] = useState(false)
@@ -562,13 +643,15 @@ export default function AdminRegistrationsOverview() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <ClipboardList className="w-7 h-7 text-vortex-red" />
-            Enrollments
+            {activeTab === 'monthly' ? 'Monthly Enrollments' : 'Daily Enrollments'}
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            View registrations by member or browse class schedules and manage rosters.
+            {activeTab === 'monthly'
+              ? 'View recurring and temporary registrations by member or class schedule.'
+              : 'View everyone attending each class on a selected day.'}
           </p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        {activeTab === 'monthly' ? <div className="flex flex-wrap items-center justify-end gap-2">
           <button
             type="button"
             onClick={() => void downloadDailyRoster()}
@@ -599,10 +682,15 @@ export default function AdminRegistrationsOverview() {
           </button>
           </div>
           {rosterError && <p className="basis-full text-right text-xs text-red-700">{rosterError}</p>}
-        </div>
+        </div> : null}
       </div>
 
-      {mode === 'by-member' ? (
+      <div className="inline-flex overflow-hidden rounded-lg border border-gray-300 bg-white" role="tablist" aria-label="Enrollment views">
+        <button type="button" role="tab" aria-selected={activeTab === 'monthly'} onClick={() => setActiveTab('monthly')} className={`px-4 py-2 text-sm font-semibold ${activeTab === 'monthly' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'}`}>Monthly Enrollments</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'daily'} onClick={() => setActiveTab('daily')} className={`px-4 py-2 text-sm font-semibold ${activeTab === 'daily' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'}`}>Daily Enrollments</button>
+      </div>
+
+      {activeTab === 'daily' ? <DailyEnrollmentsView /> : mode === 'by-member' ? (
         <AdminEnrollmentsByMemberView key={`member-${refreshKey}`} onRefresh={triggerRefresh} />
       ) : (
         <AdminEnrollmentsByProgramView key={`program-${refreshKey}`} onRefresh={triggerRefresh} />

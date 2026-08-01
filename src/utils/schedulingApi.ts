@@ -41,10 +41,18 @@ export interface SchedulingTimeSlot {
 
 export interface DailyRosterAthlete {
   signupId: number
+  source: 'scheduling' | 'drop_in'
   memberId: number | null
   firstName: string
   lastName: string
   name: string
+  email: string
+  phone: string
+  status: string
+  enrollmentType: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  billingType: 'recurring' | 'one_time'
+  amountCents: number
+  benefitType: string | null
 }
 
 export interface DailyRosterClass {
@@ -1669,7 +1677,7 @@ export type AdminEnrollmentStatus =
 
 export interface AdminEnrollmentRow {
   id: number
-  source: 'scheduling'
+  source: 'scheduling' | 'drop_in'
   sport_name: string | null
   program_name: string | null
   class_name: string | null
@@ -1694,6 +1702,14 @@ export interface AdminEnrollmentRow {
   pause_mode: 'next_month' | 'prorated' | null
   completed_at: string | null
   created_at: string | null
+  enrollment_type?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  enrollmentType?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  attendance_date?: string | null
+  attendanceDate?: string | null
+  billing_type?: 'recurring' | 'one_time'
+  billingType?: 'recurring' | 'one_time'
+  amount_cents?: number
+  benefit_type?: string | null
 }
 
 export interface AdminMemberEnrollments {
@@ -1729,7 +1745,13 @@ export interface AdminPortalEnrollmentRow {
   cancel_effective_date?: string | null
   cancel_requested_at?: string | null
   created_at?: string | null
-  source?: 'scheduling' | 'legacy'
+  source?: 'scheduling' | 'drop_in' | 'legacy'
+  enrollment_type?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  enrollmentType?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
+  attendance_date?: string | null
+  attendanceDate?: string | null
+  billing_type?: 'recurring' | 'one_time'
+  billingType?: 'recurring' | 'one_time'
 }
 
 export interface AdminMemberWithEnrollments {

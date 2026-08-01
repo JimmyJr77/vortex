@@ -71,5 +71,7 @@ test('normalizePortalConfig preserves nav layout section breaks and tab order', 
   })
   assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Session Design'))
   assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Athlete Development'))
-  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'workout', 'skills'])
+  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'workout', 'gymnastics-evaluations'])
+  const athleteDevelopmentIndex = config.coach.navLayout.findIndex((item) => item.type === 'section' && item.id === 'athlete-dev')
+  assert.equal(config.coach.navLayout[athleteDevelopmentIndex + 1].key, 'gymnastics-evaluations')
 })

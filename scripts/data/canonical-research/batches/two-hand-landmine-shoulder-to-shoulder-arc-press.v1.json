@@ -1,0 +1,554 @@
+{
+  "batchKey": "two-hand-landmine-shoulder-to-shoulder-arc-press-v1",
+  "researchVersion": "2026-08-01.3",
+  "snapshotAt": "2026-08-01T20:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "two-hand-landmine-shoulder-to-shoulder-arc-press",
+      "assessmentSummary": {
+        "identity": "A two-hand landmine movement that starts with the bar end controlled at one shoulder, travels up and across in one continuous shoulder-to-shoulder arc while the trunk remains organized, and finishes under control at the opposite shoulder. One crossing is one repetition; direction, starting shoulder, kneeling base, load, range, tempo, and return must be declared.",
+        "currentCardFindings": [
+          "The legacy One-Arm Landmine Arc Press row does not describe this movement. Its description and execution are an ordinary one-arm fixed-diagonal press, and its paired One-Arm Eccentric Landmine Press differs only by lowering tempo.",
+          "Institute of Motion labels an embedded demonstration Arc Press and identifies half-kneeling and tall-kneeling bases. Automated visual research of the public storyboard observed two hands moving the free bar end between shoulder racks through a high side-to-side arc; this observation is candidate evidence, not a human media approval.",
+          "NIFS lists Landmine Press and Landmine Arc Press separately and names half-kneeling and standing options, supporting a distinct label but not by itself establishing every movement detail.",
+          "Five existing YouTube candidates previously returned oEmbed metadata and allow privacy-enhanced embedding. Exact-variant match, full playback review, safety, cue quality, captions, accessibility, reviewer identity, and approval all remain unresolved human gates."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "two_hand_shoulder_to_shoulder_landmine_arc",
+            "kneeling_anti_rotation_brace",
+            "controlled_upper_body_push_transfer"
+          ],
+          "jointActions": [
+            "bilateral_shoulder_flexion_and_horizontal_transfer",
+            "scapular_upward_rotation_and_protraction",
+            "elbow_extension_then_controlled_flexion",
+            "trunk_anti_rotation_and_anti_lateral_flexion"
+          ],
+          "planes": [
+            "oblique_frontal_arc",
+            "sagittal_press_component",
+            "transverse_stabilization"
+          ],
+          "laterality": "bilateral_hand_support_with_directional_start_shoulder_and_balanced_crossings",
+          "sequence": "one_shoulder_rack__up_and_across_arc__opposite_shoulder_rack",
+          "intent": "controlled_multiplanar_shoulder_and_trunk_strength_not_ballistic_rotation"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "anterior_deltoid",
+            "clavicular_pectoralis_major",
+            "triceps_brachii",
+            "serratus_anterior",
+            "trapezius",
+            "abdominal_wall"
+          ],
+          "secondaryMuscles": [
+            "rotator_cuff",
+            "latissimus_dorsi",
+            "forearm_and_hand_flexors",
+            "spinal_stabilizers",
+            "gluteals"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "glenohumeral",
+            "scapulothoracic",
+            "thoracic_spine",
+            "lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "two_hand_bar_end_control",
+            "oblique_upward_press_and_cross_body_transfer",
+            "controlled_opposite_shoulder_rack",
+            "anti_rotation_and_anti_lateral_flexion"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 54,
+          "absoluteLoadDemand": 48,
+          "coordinationDemand": 56,
+          "supervisionDemand": 48,
+          "failureConsequence": 48,
+          "impact": 1,
+          "workCapacityDemand": 50,
+          "baseOverallDifficulty": 54
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "tall-kneeling-two-hand-shoulder-to-shoulder",
+            "technicalComplexity": 52,
+            "absoluteLoadDemand": 48,
+            "baseOverallDifficulty": 52,
+            "identityQuarantine": false
+          },
+          {
+            "variantKey": "half-kneeling-two-hand-shoulder-to-shoulder",
+            "technicalComplexity": 54,
+            "absoluteLoadDemand": 48,
+            "baseOverallDifficulty": 54,
+            "identityQuarantine": false
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "two_hand_barbell_end_control_about_fixed_landmine_pivot",
+          "impactClass": "none",
+          "externalLoadMethod": "record_bar_type_plate_mass_attachment_grip_base_lead_leg_starting_shoulder_range_tempo_and_crossings",
+          "primaryStress": [
+            "shoulder_and_scapular_control",
+            "elbow_extension_and_controlled_return",
+            "grip_and_forearm_control",
+            "trunk_anti_rotation_and_anti_lateral_flexion",
+            "kneeling_base_tolerance"
+          ],
+          "fatigueProfile": [
+            "rib_flare_or_back_extension",
+            "torso_rotation_or_side_bend",
+            "uneven_or_collapsing_arc",
+            "wrist_or_grip_change",
+            "bar_end_drops_into_shoulder",
+            "range_or_direction_count_drift"
+          ],
+          "recoveryHours": "twenty_four_to_forty_eight_after_moderate_strength_volume_subject_to_load_symptoms_and_overlapping_pressing_throwing_grip_or_trunk_work"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "rated_fixed_landmine_pivot",
+            "compatible_barbell",
+            "secure_two_hand_free_end_interface",
+            "collars_when_loaded",
+            "kneeling_pad"
+          ],
+          "optionalEquipment": [
+            "plates",
+            "floor_markers",
+            "video_capture"
+          ],
+          "environment": [
+            "level_dry_non_slip_floor",
+            "full_bar_and_plate_arc_clear",
+            "no_person_inside_pivot_bar_or_plate_exclusion_zone",
+            "enough_space_for_controlled_pickup_set_down_and_exit"
+          ],
+          "population": [
+            "can_tolerate_selected_kneeling_base",
+            "can_control_unloaded_or_light_bar_end_through_owned_arc",
+            "can_keep_wrist_elbow_scapula_ribcage_and_pelvis_organized",
+            "understands_crossing_count_and_stop_signal"
+          ]
+        },
+        "proposedDosage": {
+          "patterning": "two_to_three_sets_of_four_to_six_total_one_way_crossings_with_full_control_and_alternated_starting_shoulder",
+          "controlledStrength": "three_to_four_sets_of_six_to_ten_total_crossings_at_a_load_that_preserves_the_same_arc_and_both_shoulder_racks",
+          "restSeconds": "sixty_to_one_hundred_twenty_between_sets_or_longer_when_grip_shoulders_or_trunk_change_the_path",
+          "intensity": "leave_two_or_more_clean_crossings_in_reserve_and_never_race_the_bar",
+          "measurement": "variant_base_lead_leg_starting_shoulder_bar_and_plate_load_attachment_range_tempo_total_crossings_quality_repetitions_rest_symptoms_and_stop_reason",
+          "progressWhen": "all_crossings_reach_both_declared_shoulder_racks_with_a_smooth_symmetric_arc_stacked_trunk_stable_base_and_controlled_set_down"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Two hands own the bar end",
+            "Start at one shoulder",
+            "Arc up and across",
+            "Keep ribs over pelvis",
+            "Finish softly at the other shoulder"
+          ],
+          "athleteInstructions": [
+            "Set the declared tall- or half-kneeling base on a pad and confirm the bar path is clear",
+            "Control the free end with two hands at the starting shoulder and stack wrists and elbows",
+            "Brace without holding your breath, then guide the bar up and across without turning or side-bending",
+            "Finish under control at the opposite shoulder; that one crossing is one repetition",
+            "Continue in alternating directions only while both sides match, then return and set the bar down as coached"
+          ],
+          "commonFaults": [
+            "one_hand_takes_over",
+            "gripping_an_unapproved_plate_edge_or_attachment",
+            "bar_cuts_straight_across_instead_of_clearing_the_head",
+            "rib_flare_back_extension_or_trunk_rotation",
+            "bar_end_drops_or_bounces_at_shoulder",
+            "range_shortens_in_one_direction",
+            "kneeling_base_or_lead_leg_changes",
+            "crossings_are_miscounted_as_round_trips"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "anchor_bar_collar_interface_floor_and_clearance_pass_inspection",
+            "pain_free_selected_kneeling_base",
+            "controlled_unloaded_or_light_rehearsal_both_directions",
+            "pickup_set_down_and_stop_signal_rehearsed"
+          ],
+          "qualityGates": [
+            "two_hands_remain_on_approved_interface",
+            "head_stays_clear_of_bar_and_plate_path",
+            "both_shoulder_racks_and_owned_arc_remain_repeatable",
+            "ribs_pelvis_and_kneeling_base_remain_organized",
+            "bar_end_is_decelerated_not_dropped",
+            "direction_count_and_starting_shoulder_are_recorded"
+          ],
+          "stopRules": [
+            "pain_guarding_numbness_dizziness_or_unusual_breathlessness",
+            "anchor_bar_collar_plate_or_attachment_moves_or_is_damaged",
+            "head_hand_or_body_enters_unsafe_bar_or_plate_path",
+            "grip_wrist_elbow_scapular_or_shoulder_control_changes",
+            "rib_flare_rotation_side_bend_or_base_shift",
+            "bar_end_drops_bounces_or_misses_declared_rack",
+            "two_consecutive_crossings_fail_the_quality_gate"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_multiplanar_arc_control",
+            "dose": "two_to_three_sets_of_four_to_six_total_crossings_with_sixty_to_ninety_seconds_rest",
+            "purpose": "learn_repeatable_two_hand_shoulder_to_shoulder_path_and_trunk_control"
+          },
+          {
+            "context": "capacity_controlled_multiplanar_press_strength",
+            "dose": "three_to_four_sets_of_six_to_ten_total_crossings_with_ninety_to_one_hundred_twenty_seconds_rest",
+            "purpose": "build_controlled_shoulder_grip_and_trunk_capacity_without_ballistic_rotation"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "tall_kneeling_variant_with_lighter_load_shorter_owned_arc_and_fewer_crossings",
+            "separately_defined_strict_landmine_press_when_side_to_side_path_is_not_tolerated"
+          ],
+          "progressions": [
+            "half_kneeling_variant_after_tall_kneeling_path_control",
+            "greater_owned_arc_or_load_only_after_symmetric_control"
+          ],
+          "substitutions": [
+            "other_reviewed_controlled_multiplanar_press_only_when_equipment_objective_and_constraints_match"
+          ],
+          "doNotSubstitute": [
+            "one_arm_strict_landmine_press",
+            "one_arm_eccentric_landmine_press_as_a_separate_identity",
+            "landmine_rotation_or_rainbow_with_deliberate_trunk_rotation",
+            "landmine_push_press_or_throw"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "three_frame_start_arc_finish_visual",
+            "one_crossing_equals_one_rep_counter",
+            "starting_shoulder_and_lead_leg_labels",
+            "head_and_plate_clearance_overlay",
+            "stop_signal_and_safe_set_down_clip"
+          ],
+          "coach": [
+            "anchor_bar_collar_interface_and_clearance_checklist",
+            "front_and_oblique_observation_views",
+            "base_lead_leg_start_direction_and_load_log",
+            "arc_symmetry_and_trunk_compensation_checklist",
+            "station_spacing_and_changeover_plan"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "professional exercise labels, automated visual observation of the Institute of Motion embedded demonstration, comparison with Vortex strict landmine press source rows, and existing landmine difficulty anchors",
+          "uncertainty": "No peer-reviewed study isolates this exact shoulder-to-shoulder arc. Exact interface, path landmarks, safe range, dose, difficulty scores, standing variant, media match, and progression ordering remain review-only proposals.",
+          "reviewNeeded": [
+            "qualified_identity_and_technique_review",
+            "equipment_interface_and_facility_risk_review",
+            "difficulty_anchor_comparison",
+            "dosage_and_recovery_review",
+            "full_media_playback_and_accessibility_review",
+            "pilot_observation"
+          ]
+        },
+        "programmingDecision": "Archive the misleading one-arm Arc identity after remapping legacy source 1413 to the standard strict Landmine Press family and source 1414 to the same family with an eccentric-tempo modifier. Create this separate two-hand shoulder-to-shoulder definition in review state with tall- and half-kneeling variants. Do not publish or select it until human content, equipment, media, calibration, relationship, pilot, and publication review are complete."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "institute_of_motion_landmine_arc_press",
+          "claims": [
+            "Institute of Motion labels its embedded demonstration Arc Press and names half-kneeling and tall-kneeling bases.",
+            "Automated storyboard observation indicates a two-hand shoulder-to-shoulder bar-end transfer; this supports a separate candidate definition but is not a human approval."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "nifs_landmine_press_options",
+          "claims": [
+            "NIFS lists Landmine Press and Landmine Arc Press as separate options and names kneeling or standing bases.",
+            "Taxonomy must distinguish hand count, start rack, path, endpoint, trunk-rotation policy, base, direction counting, and terminal control."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "nsca_landmine_press_implementation",
+          "claims": [
+            "The landmine is used for shoulder strength and stability through a barbell fixed to a stable base.",
+            "The proposed anatomy extends the known landmine press demands to the observed two-hand cross-body path and remains subject to exact-technique review."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "landmine_press_kinematics_2026",
+          "claims": [
+            "Landmine press loading and kinematics depend on the fixed pivot geometry and bar path.",
+            "Track bar angle, athlete distance, shoulder racks, range, direction, interface, and torso compensation rather than treating plate mass alone as load."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "institute_of_motion_landmine_arc_press",
+          "claims": [
+            "The observed task combines two-hand bar control, a high cross-body arc, kneeling base control, and repeated deceleration at alternating shoulders.",
+            "Difficulty is exercise complexity plus physical difficulty, with overall equal to their maximum; no athlete proficiency level belongs on the exercise card."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "landmine_press_kinematics_2026",
+          "claims": [
+            "Fixed-pivot geometry changes the relationship between external mass and force through the path.",
+            "Record bar, plates, pivot, interface, base, range, tempo, crossings, symptoms, and overlapping press, throw, grip, and trunk load; the proposed recovery window is conservative and review-only."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_landmine_press_implementation",
+          "claims": [
+            "A landmine requires a stable fixed base and compatible barbell setup.",
+            "Require a rated pivot, secure two-hand interface, collars, clear arc and exclusion zone, stable kneeling surface, and rehearsed pickup and set-down."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "nsca_landmine_press_implementation",
+          "claims": [
+            "Landmine pressing can serve strength and stability objectives, but the source does not prescribe this exact arc dose.",
+            "The proposed low-to-moderate crossing ranges, rest, and repetitions in reserve are programming inferences that require coach and pilot review."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "institute_of_motion_landmine_arc_press",
+          "claims": [
+            "The embedded demonstration provides visual evidence of two-hand control and shoulder-to-shoulder travel from kneeling bases.",
+            "Instructions must define start shoulder, one-way crossing count, high arc, opposite rack, trunk policy, reset, and set-down; human technique review remains pending."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_landmine_press_implementation",
+          "claims": [
+            "Stable equipment and controlled shoulder positioning are material to landmine press implementation.",
+            "Stop for symptoms, equipment movement, unsafe head or plate clearance, lost grip, compensation, dropped bar end, or repeated failure of the declared path."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nifs_landmine_press_options",
+          "claims": [
+            "NIFS presents the Arc Press as an overhead or vertical press option separate from the Landmine Press.",
+            "Use this candidate for controlled multiplanar shoulder and trunk work, not as a one-arm strict press, rotational rainbow, ballistic push press, or conditioning race."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "institute_of_motion_landmine_arc_press",
+          "claims": [
+            "The demonstration makes the start, cross-body arc, opposite finish, and kneeling base visible.",
+            "Athlete support should show start, arc and finish frames, rep counting, base labels, clearance, breathing, stop signal, and controlled set-down."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "landmine_press_kinematics_2026",
+          "claims": [
+            "Bar path and joint-angle observation can provide more useful control than plate mass alone.",
+            "Coach support should record setup, base, lead leg, start direction, path symmetry, bar load, range, tempo, quality crossings, rest, symptoms, and stop reason."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_landmine_press_implementation",
+          "claims": [
+            "Landmine loading can be adjusted through equipment, stance and range choices.",
+            "Scale with unloaded bar, shorter owned arc, fewer crossings, longer rest, reviewed base, demonstration, visual markers, or alternate instructions without inventing an athlete level."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "nifs_landmine_press_options",
+          "claims": [
+            "Landmine Press and Landmine Arc Press are listed separately, so the Arc label should not be an alias for a standard one-arm diagonal press.",
+            "Base changes may be variants; hand-count, rotation, leg drive, throw, terminal path, or mere eccentric tempo require explicit new-definition or modifier decisions."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube supports privacy-enhanced embed URLs.",
+            "Five candidates have prior automated oEmbed availability and embedding evidence, but exact movement match, complete playback, safety, cues, captions, accessibility, reviewer identity, and approval remain human review gates."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=JFwX9gJh8Fc",
+          "title": "Landmine - Arc Press for shoulders (half-kneeling and tall-kneeling)",
+          "channelName": "Brad Sims, CPT",
+          "sourceQuery": "landmine arc press shoulders",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T12:00:00.000Z"
+          },
+          "notes": "Institute of Motion embeds this candidate. Automated storyboard observation found two-hand shoulder-to-shoulder arc mechanics and tall- and half-kneeling bases. Human exact-variant, safety, cue, caption, accessibility, quality, reviewer, and approval review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=o77Fevbmr2g",
+          "title": "Standing Landmine OH Arc Press",
+          "channelName": "Functional Effect Fitness & Rehabilitation",
+          "sourceQuery": "standing landmine arc press",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T12:00:00.000Z"
+          },
+          "notes": "Prior oEmbed metadata responded. The title suggests a standing alternate, but hand count, full path, content, and all human review gates remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SEFb24cdAZs",
+          "title": "Unity Fitness - Landmine Arc Press",
+          "channelName": "Jordan Rudolph",
+          "sourceQuery": "landmine arc press",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T12:00:00.000Z"
+          },
+          "notes": "Prior oEmbed metadata responded. Hand count, base, path, safety, instruction quality, captions, accessibility, reviewer, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=KwQVonn3jeE",
+          "title": "Landmine Arc Press (prenatal)",
+          "channelName": "Karla Bosnar",
+          "sourceQuery": "landmine arc press",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T12:00:00.000Z"
+          },
+          "notes": "Prior oEmbed metadata responded. This is population-specific and cannot support general selection or any safety claim without full population, content, and media review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Sgikteuhkkw",
+          "title": "Landmine Arcs",
+          "channelName": "Josh Kauten",
+          "sourceQuery": "landmine arcs",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T12:00:00.000Z"
+          },
+          "notes": "Prior oEmbed metadata responded. The title is adjacent to the candidate identity; exact path, base, hand count, rotation, content quality, reviewer, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Tall-Kneeling Two-Hand Shoulder-to-Shoulder Arc Press",
+          "classification": "new_variant",
+          "rationale": "A symmetrical two-knee base preserves the two-hand shoulder-to-shoulder path while changing lower-body support and base-control demand.",
+          "distinguishingDimensions": {
+            "variantKey": "tall-kneeling-two-hand-shoulder-to-shoulder",
+            "base": "tall_kneeling"
+          }
+        },
+        {
+          "name": "Half-Kneeling Two-Hand Shoulder-to-Shoulder Arc Press",
+          "classification": "new_variant",
+          "rationale": "One foot forward creates an asymmetrical base; lead leg and starting shoulder must be declared and balanced.",
+          "distinguishingDimensions": {
+            "variantKey": "half-kneeling-two-hand-shoulder-to-shoulder",
+            "base": "half_kneeling"
+          }
+        },
+        {
+          "name": "Standing Two-Hand Landmine Arc Press",
+          "classification": "new_variant",
+          "rationale": "Standing preserves the candidate two-hand shoulder-to-shoulder path but changes support, load tolerance, lower-body contribution, pickup, and set-down; exact review is still required.",
+          "distinguishingDimensions": {
+            "base": "standing",
+            "reviewGate": "exact_path_and_no_leg_drive_review"
+          }
+        },
+        {
+          "name": "One-Arm Landmine Press",
+          "classification": "new_definition",
+          "rationale": "A one-arm fixed diagonal press from one shoulder to a forward finish is the existing Landmine Press family, not this two-hand shoulder-to-shoulder arc.",
+          "distinguishingDimensions": {
+            "existingSlug": "landmine-press",
+            "handCount": 1,
+            "terminalAction": "forward_diagonal_finish_then_same_rack_return"
+          }
+        },
+        {
+          "name": "One-Arm Eccentric Landmine Press",
+          "classification": "modifier_annotation",
+          "rationale": "A slower lowering phase changes contraction emphasis, load, fatigue, and dose within the standard one-arm press; it does not create an Arc identity.",
+          "distinguishingDimensions": {
+            "existingSlug": "landmine-press",
+            "modifiers": [
+              "eccentric_duration",
+              "concentric_assistance",
+              "tempo"
+            ],
+            "legacyExerciseId": 1414
+          }
+        },
+        {
+          "name": "Rotational Landmine Rainbow",
+          "classification": "new_definition",
+          "rationale": "Deliberate torso and hip rotation with a side-to-side bar path changes force strategy, planes, lower-body contribution, fatigue, and stop rules.",
+          "distinguishingDimensions": {
+            "primaryAction": "loaded_trunk_and_hip_rotation",
+            "rotationPolicy": "deliberate_rotation"
+          }
+        },
+        {
+          "name": "Landmine Push Press or Throw Through an Arc",
+          "classification": "new_definition",
+          "rationale": "Leg drive, ballistic intent, release, or an uncontrolled terminal action changes action order, power demand, equipment risk, and failure management.",
+          "distinguishingDimensions": {
+            "legDrive": true,
+            "intent": "ballistic",
+            "releaseOrCatch": "must_be_declared"
+          }
+        },
+        {
+          "name": "Tempo, Pause, Range, Load, or Starting-Shoulder Change",
+          "classification": "modifier_annotation",
+          "rationale": "These variables change dose or difficulty but preserve identity when two hands, selected base, shoulder-to-shoulder path, trunk policy, and controlled opposite rack remain fixed.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "tempo",
+              "pause",
+              "owned_range",
+              "load",
+              "starting_shoulder",
+              "crossing_count"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

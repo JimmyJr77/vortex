@@ -1,0 +1,619 @@
+{
+  "facilityId": 1,
+  "slug": "bound-to-stick",
+  "researchVersion": "2026-08-01.5",
+  "assessmentSummary": {
+    "identity": "From one declared support leg, project forward through flight, land on the opposite leg, absorb to a stable terminal hold for the declared duration without an extra hop or free-foot touch, then reset fully before the next attempt.",
+    "currentCardFindings": [
+      "The legacy name Bound to Stick omits direction and landing-side contract even though its description says one leg to the other and its planning summary says horizontal projection.",
+      "Bound convention alone is not enough for deterministic selection because same-leg forward hops, opposite-leg forward bounds, lateral bounds, diagonal bounds, continuous bounds, and reactive bounds have different contacts and loading.",
+      "The existing card requires a freeze and reset, so this audit preserves a discrete terminal-stick identity rather than converting it to continuous bounding.",
+      "Five exact-title candidates returned current YouTube oEmbed metadata and iframe markup; movement, safety, accessibility, and demonstration approval remain human-review gates."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "jump",
+        "land",
+        "locomote",
+        "brace"
+      ],
+      "jointActions": [
+        "support_hip_knee_and_ankle_extension_for_forward_projection",
+        "contralateral_hip_flexion_and_arm_drive",
+        "opposite_leg_hip_knee_and_ankle_flexion_for_absorption",
+        "foot_ankle_knee_hip_pelvis_and_trunk_stabilization"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal_and_transverse_control"
+      ],
+      "laterality": "unilateral_takeoff_to_opposite_leg_landing_with_balanced_left_and_right_attempts",
+      "sequence": "declared_support_leg__forward_flight__opposite_leg_landing__terminal_hold__full_reset",
+      "intent": "high_quality_forward_horizontal_projection_and_opposite_leg_braking"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "adductors",
+        "foot_intrinsics",
+        "tibialis_anterior",
+        "hip_flexors",
+        "abdominal_wall",
+        "spinal_extensors"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "shoulder"
+      ],
+      "primaryActions": [
+        "forward_projection",
+        "opposite_leg_landing_absorption",
+        "terminal_single_leg_stabilization"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 56,
+      "absoluteLoadDemand": 64,
+      "coordinationDemand": 60,
+      "supervisionDemand": 54,
+      "failureConsequence": 58,
+      "impact": 4,
+      "workCapacityDemand": 38,
+      "baseOverallDifficulty": 64,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline-opposite-leg-forward-terminal-stick",
+        "exerciseComplexity": 56,
+        "physicalDifficulty": 64,
+        "derivedOverallDifficulty": 64
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_discrete_unilateral_forward_plyometric",
+      "impactClass": "high_single_leg_landing_by_projection_distance_speed_surface_and_body_mass",
+      "landingContactsPerRep": 1,
+      "externalLoadMethod": "none_for_baseline",
+      "loadTracking": [
+        "takeoff_leg",
+        "landing_leg",
+        "distance",
+        "approach",
+        "arm_policy",
+        "hold_duration",
+        "contacts",
+        "rest",
+        "surface",
+        "footwear",
+        "quality",
+        "symptoms"
+      ],
+      "primaryStress": [
+        "landing_foot_ankle_Achilles",
+        "landing_knee_and_hip_eccentric_load",
+        "takeoff_posterior_chain",
+        "single_leg_braking_and_balance"
+      ]
+    },
+    "proposedFatigueRecovery": {
+      "primaryFatigueSites": [
+        "foot",
+        "calf",
+        "Achilles_tendon",
+        "quadriceps",
+        "hamstrings",
+        "gluteals"
+      ],
+      "technicalSensitivity": [
+        "shortened_projection",
+        "loud_or_stiff_landing",
+        "extra_hop",
+        "free_foot_touch",
+        "trunk_collapse_or_rotation",
+        "side_asymmetry"
+      ],
+      "recoveryHours": "forty_eight_to_seventy_two_after_high_intent_exposure_subject_to_symptoms_training_age_and_overlapping_sprint_jump_or_lower_body_loading",
+      "cumulativeBudget": {
+        "impact": 76,
+        "lowerLeg": 70,
+        "kneeHipEccentric": 72,
+        "technicalSensitivity": 78
+      }
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "flat_dry_high_traction_surface",
+        "clear_forward_lane_and_landing_zone",
+        "appropriate_footwear"
+      ],
+      "optionalEquipment": [
+        "start_line",
+        "landing_target",
+        "distance_measure",
+        "video"
+      ],
+      "environment": [
+        "no_cross_traffic",
+        "adequate_overrun_and_fall_space",
+        "landing_zone_visible_and_level",
+        "one_athlete_per_lane"
+      ],
+      "population": [
+        "pain_free_bilateral_landing_and_low_amplitude_unilateral_hop",
+        "can_control_step_to_opposite_leg_stick",
+        "can_hold_single_leg_finish_without_touchdown",
+        "can_stop_on_command"
+      ]
+    },
+    "proposedDosage": {
+      "movementIntelligence": "two_to_three_sets_of_two_to_three_attempts_per_takeoff_side_with_seventy_five_to_one_hundred_twenty_seconds_rest",
+      "output": "three_to_five_sets_of_one_to_three_attempts_per_takeoff_side_with_one_hundred_twenty_to_one_hundred_eighty_seconds_rest",
+      "maximumWithoutReview": "eighteen_total_landing_contacts_in_one_session",
+      "measurement": "count_each_opposite_leg_landing_as_one_contact_and_record_takeoff_side_landing_side_distance_hold_and_quality",
+      "progressWhen": "both directions of side transfer preserve projection intent quiet whole-foot absorption alignment declared hold and full reset"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Drive forward",
+        "Land on the other leg",
+        "Quiet whole foot",
+        "Own the brake",
+        "Hold then reset"
+      ],
+      "athleteInstructions": [
+        "Confirm the forward lane and landing zone are clear, dry, level, and long enough for a safe miss.",
+        "Start on the declared takeoff leg with the opposite thigh and arms ready to drive.",
+        "Project forward, travel through flight, and land on the opposite leg; do not turn the rep into a same-leg hop.",
+        "Absorb through the foot, ankle, knee, and hip with the pelvis and trunk controlled.",
+        "Hold for the declared duration without another hop or free-foot touch, then step out and reset fully."
+      ],
+      "commonFaults": [
+        "same_leg_landing",
+        "diagonal_or_lateral_drift",
+        "partial_foot_or_loud_contact",
+        "knee_or_pelvis_collapse",
+        "extra_hop_or_free_foot_touch",
+        "rushed_continuous_repetition",
+        "unrecorded_side_or_distance"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "surface_and_lane_inspection",
+        "pain_free_landing_warmup",
+        "controlled_step_to_opposite_leg_stick",
+        "stop_signal_understood"
+      ],
+      "qualityGates": [
+        "forward_projection_only",
+        "opposite_leg_landing",
+        "whole_foot_quiet_contact",
+        "foot_knee_hip_pelvis_trunk_control",
+        "declared_hold_without_extra_contact",
+        "full_reset"
+      ],
+      "stopRules": [
+        "pain_guarding_numbness_dizziness_or_unusual_breathlessness",
+        "unsafe_surface_lane_traffic_or_landing_space",
+        "wrong_landing_leg_or_direction",
+        "target_miss_or_partial_foot_contact",
+        "loud_stiff_or_collapsing_landing",
+        "extra_hop_free_foot_touch_or_failed_hold",
+        "two_consecutive_quality_failures_or_clear_output_decline"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_forward_opposite_leg_stick",
+        "dose": "two_to_three_sets_of_two_to_three_attempts_per_side",
+        "purpose": "learn_exact_forward_projection_landing_side_and_terminal_control"
+      },
+      {
+        "context": "output_forward_bound_to_stick",
+        "dose": "three_to_five_sets_of_one_to_three_attempts_per_side",
+        "purpose": "express_forward_horizontal_power_with_opposite_leg_braking_while_fresh"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "step_to_opposite_leg_stick",
+        "small_forward_bound_to_opposite_leg_stick",
+        "bilateral_forward_jump_to_stick"
+      ],
+      "progressions": [
+        "increase_forward_distance_without_losing_hold",
+        "forward_bound_to_planned_second_action_as_a_separate_definition"
+      ],
+      "substitutions": [
+        "same_leg_forward_hop_to_stick_when_same_leg_landing_is_required",
+        "lateral_bound_to_stick_when_frontal_projection_is_required"
+      ],
+      "doNotMerge": [
+        "single_leg_forward_hop_to_same_leg_stick",
+        "continuous_alternating_bounds",
+        "lateral_bound_to_stick",
+        "diagonal_bound_to_stick",
+        "reactive_bound_series"
+      ]
+    },
+    "programmingDecision": "Retain the stable bound-to-stick slug but rename and constrain the selectable baseline to an opposite-leg forward bound with terminal hold and full reset. Preserve the generic legacy label as an alias only. Keep the card review-only until content, media, scoring, relationship, pilot, and card reviewers approve it.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T23:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete bounds from one leg to the other and freezes the landing before resetting.",
+      "familyKey": "Unilateral bound control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five forward-bound candidate URLs returned oEmbed metadata and iframe markup on 2026-08-01.",
+        "Exact opposite-leg contact order, full playback, safety, cues, captions, accessibility, demonstration quality, reviewer identity, and approval remain unverified."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "World Athletics describes alternate-leg bounding as horizontal and vertical projection from one leg to the other.",
+        "This card adds a discrete terminal hold and full reset; forward direction, opposite-leg landing, hold, and reset are identity requirements rather than optional cues."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Forward, diagonal, and lateral jump-landings produce direction-specific postural-stability demands.",
+        "Direction and landing side therefore remain controlled taxonomy fields and are not interchangeable aliases."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29619806/",
+      "sourceTitle": "The influence of single-leg landing direction on lower limbs biomechanics",
+      "sourcePublisher": "Journal of Sports Medicine and Physical Fitness",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Forward single-leg landing uses coordinated foot, ankle, knee, hip, pelvis, and trunk absorption.",
+        "The opposite-leg takeoff-to-landing transition also requires contralateral swing and single-leg stabilization."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29619806/",
+      "sourceTitle": "The influence of single-leg landing direction on lower limbs biomechanics",
+      "sourcePublisher": "Journal of Sports Medicine and Physical Fitness",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Landing direction changes whole-body configuration and joint energy-absorption strategy.",
+        "No exact force, distance, or transfer claim is inferred for this coaching card."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Single-leg bounding is a high-intensity plyometric relative to double-leg hopping.",
+        "Overall exercise difficulty is the maximum of exercise complexity and physical difficulty; athlete proficiency is excluded."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Plyometrics rapidly accelerate and decelerate body mass and should not be performed while fatigued.",
+        "Every landing contact counts toward impact and overlapping sprint, jump, Achilles, knee, hip, and lower-body budgets."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Plyometric guidance calls for shock-absorbing surfaces, adequate space, warm-up, progression, and proper technique.",
+        "The forward lane and landing zone are hard selection constraints."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Plyometric volume is tracked by contacts and power work needs long recovery.",
+        "The proposed attempts, caps, and rest are conservative coaching proposals requiring pilot calibration."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "A reproducible jump-landing task must declare direction and stabilization finish.",
+        "Instructions separately state takeoff leg, forward direction, opposite landing leg, absorption, hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11366841/",
+      "sourceTitle": "Unilateral Plyometric Jump Training Shows Significantly More Effective than Bilateral Training in Improving Both Time to Stabilization and Peak Landing Force in Single-Leg Lend and Hold Test",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Single-leg landing force and time to stabilization are meaningful task outcomes.",
+        "Stop rules use observable contact, alignment, stabilization, symptoms, and output changes without claiming injury prediction."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "High-quality plyometrics should be placed before fatiguing work and given sufficient recovery.",
+        "Use this card for discrete forward power and braking, not conditioning or continuous bounding."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11366841/",
+      "sourceTitle": "Unilateral Plyometric Jump Training Shows Significantly More Effective than Bilateral Training in Improving Both Time to Stabilization and Peak Landing Force in Single-Leg Lend and Hold Test",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Athletes need a visible finish standard and a clear distinction between effort and symptoms.",
+        "Support content must show the exact opposite-leg landing, hold, reset, expected effort, and stop path in text as well as video."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29619806/",
+      "sourceTitle": "The influence of single-leg landing direction on lower limbs biomechanics",
+      "sourcePublisher": "Journal of Sports Medicine and Physical Fitness",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Direction-specific landing mechanics should not be inferred from a generic bound label.",
+        "Record takeoff side, landing side, direction, distance, hold, contacts, rest, surface, quality, symptoms, and stop reason."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8877d8be-01c8-4d52-aa69-7e98c6920706.pdf&urlslug=plyometric-training-and-the-high-jump",
+      "sourceTitle": "Plyometric Training and the High Jump",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Lower-intensity progression should precede complex plyometric exposure.",
+        "Scale distance, intent, contacts, target width, hold, and rest while preserving forward direction and opposite-leg landing."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Forward, diagonal, and lateral tasks have distinct stabilization demands.",
+        "Same-leg landing, continuous cadence, diagonal direction, lateral direction, approach, external load, or reactive response require an explicit variant or separate definition."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=braZR7YUo-g",
+      "title": "Forward Bound with Stick",
+      "channelName": "Mike Boyle Strength & Conditioning",
+      "sourceQuery": "forward bound to stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T23:15:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup. Opposite-leg contact order, complete playback, safety, cues, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3od1hdaUTaY",
+      "title": "Forward Bound and Stick",
+      "channelName": "Dr. Alex St.Pierre DC",
+      "sourceQuery": "forward bound to stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T23:15:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup. Opposite-leg contact order, complete playback, safety, cues, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fHkLmQEPGzg",
+      "title": "Forward Bound and Stick",
+      "channelName": "Steady State Health",
+      "sourceQuery": "forward bound to stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T23:15:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup; indexed description names an opposite-foot landing. Complete playback, exact variant, safety, cues, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SiTWaxZlBR8",
+      "title": "Forward Bound w: Stick",
+      "channelName": "Saint Joseph's College Strength & Conditioning",
+      "sourceQuery": "forward bound to stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T23:15:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup. Opposite-leg contact order, complete playback, safety, cues, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4nUyioG4Isk",
+      "title": "SL Forward Bound and Stick",
+      "channelName": "Theory of Motion Exercise Library",
+      "sourceQuery": "forward bound to stick exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T23:15:00.000Z"
+      },
+      "notes": "oEmbed returned current metadata and iframe markup. The SL label is ambiguous about takeoff-to-landing side; complete playback, exact variant, safety, cues, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Small Opposite-Leg Forward Bound to Stick",
+      "classification": "same_identity",
+      "rationale": "Reduced distance preserves forward direction, opposite-leg landing, terminal hold, and reset.",
+      "distinguishingDimensions": {
+        "projectionDistance": "reduced"
+      }
+    },
+    {
+      "name": "Single-Leg Forward Hop to Same-Leg Stick",
+      "classification": "new_definition",
+      "rationale": "Same-leg landing changes contact sequence and limb loading.",
+      "distinguishingDimensions": {
+        "landingSide": "same_leg"
+      }
+    },
+    {
+      "name": "Opposite-Leg Lateral Bound to Stick",
+      "classification": "new_definition",
+      "rationale": "Frontal projection changes direction-specific landing demand.",
+      "distinguishingDimensions": {
+        "direction": "lateral"
+      }
+    },
+    {
+      "name": "Diagonal Bound to Stick",
+      "classification": "new_definition",
+      "rationale": "Diagonal projection requires its own direction and target contract.",
+      "distinguishingDimensions": {
+        "direction": "diagonal"
+      }
+    },
+    {
+      "name": "Continuous Alternating Bounds",
+      "classification": "new_definition",
+      "rationale": "Immediate reacceleration removes terminal hold and full reset.",
+      "distinguishingDimensions": {
+        "terminalAction": "rebound",
+        "cadence": "continuous"
+      }
+    },
+    {
+      "name": "Approach Forward Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "An approach changes entry speed and loading while preserving the terminal action.",
+      "distinguishingDimensions": {
+        "approach": "run_in"
+      }
+    },
+    {
+      "name": "Loaded Forward Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "External load changes force, arm action, failure consequence, and dose.",
+      "distinguishingDimensions": {
+        "externalLoad": "declared"
+      }
+    },
+    {
+      "name": "Forward Bound to Reactive Second Action",
+      "classification": "new_definition",
+      "rationale": "A planned or reactive continuation changes the terminal contract.",
+      "distinguishingDimensions": {
+        "terminalAction": "second_action"
+      }
+    },
+    {
+      "name": "Distance, Hold, Arm Policy, Target, Rest, or Starting Side",
+      "classification": "modifier_annotation",
+      "rationale": "These parameters preserve identity when forward direction, opposite-leg landing, terminal hold, and reset remain fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "distance",
+          "hold",
+          "arm_policy",
+          "target",
+          "rest",
+          "starting_side"
+        ]
+      }
+    }
+  ]
+}

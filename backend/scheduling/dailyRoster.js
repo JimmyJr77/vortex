@@ -26,6 +26,25 @@ export function validateRosterDate(value) {
   return Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date ? null : date
 }
 
+function athleteIdentity(row) {
+  if (row.memberId != null) return `member:${row.memberId}`
+  const email = String(row.email || '').trim().toLowerCase()
+  if (email) return `email:${email}`
+  return `name:${String(row.name || '').trim().toLowerCase()}`
+}
+
+export function mergeDailyEnrollmentAthletes(schedulingAthletes, dropInAthletes) {
+  const byIdentity = new Map()
+  for (const athlete of schedulingAthletes || []) byIdentity.set(athleteIdentity(athlete), athlete)
+  // A same-day drop-in is the more specific attendance record when the member also
+  // has a recurring enrollment for the class, so it wins the display row.
+  for (const athlete of dropInAthletes || []) byIdentity.set(athleteIdentity(athlete), athlete)
+  return [...byIdentity.values()].sort((a, b) =>
+    String(a.lastName || '').localeCompare(String(b.lastName || '')) ||
+    String(a.firstName || '').localeCompare(String(b.firstName || '')),
+  )
+}
+
 function formatTime(value) {
   if (!value) return ''
   const [hourText, minute = '00'] = String(value).split(':')
@@ -158,8 +177,26 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
             s.member_id,
             COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
             COALESCE(NULLIF(TRIM(m.last_name), ''), NULLIF(TRIM(s.last_name), ''), '') AS last_name
+            ,COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(s.email), ''), '') AS email
+            ,COALESCE(NULLIF(TRIM(m.phone), ''), NULLIF(TRIM(s.phone), ''), '') AS phone
+            ,CASE
+               WHEN one_time.id IS NOT NULL THEN 'one_time'
+               WHEN sg.offering_id IS NOT NULL THEN 'temporary_block'
+               ELSE 'monthly'
+             END AS enrollment_type
+            ,CASE WHEN one_time.id IS NOT NULL THEN 'one_time' ELSE 'recurring' END AS billing_type
+            ,COALESCE(one_time.amount_cents, 0)::int AS amount_cents
           FROM scheduling_signup s
           LEFT JOIN member m ON m.id = s.member_id
+          LEFT JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+          LEFT JOIN LATERAL (
+            SELECT c.id, c.amount_cents
+              FROM billing_charge c
+             WHERE c.source_type = 'scheduling_signup'
+               AND c.source_id = s.id::text
+               AND c.billing_interval = 'one_time'
+             ORDER BY c.id DESC LIMIT 1
+          ) one_time ON TRUE
           WHERE s.slot_group_id = ANY($1::bigint[])
             AND s.status = 'confirmed'
             AND s.orphaned_at IS NULL
@@ -171,8 +208,22 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
       )
     : { rows: [] }
 
+  const dropIns = groupIds.length
+    ? await pool.query(
+        `SELECT d.id, d.form_id, d.slot_group_id, d.member_id,
+                d.first_name, d.last_name, d.email, d.phone, d.status,
+                d.amount_cents, d.benefit_type
+           FROM drop_in_registration d
+          WHERE d.slot_group_id = ANY($1::bigint[])
+            AND d.class_date = $2::date
+            AND d.status IN ('confirmed', 'attended')
+          ORDER BY d.last_name, d.first_name, d.id`,
+        [groupIds, rosterDate],
+      )
+    : { rows: [] }
+
   const classes = events.map((event) => {
-    const athletes = signups.rows
+    const schedulingAthletes = signups.rows
       .filter(
         (signup) =>
           Number(signup.form_id) === event.formId &&
@@ -181,11 +232,40 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
       )
       .map((signup) => ({
         signupId: Number(signup.id),
+        source: 'scheduling',
         memberId: signup.member_id != null ? Number(signup.member_id) : null,
         firstName: signup.first_name || '',
         lastName: signup.last_name || '',
         name: `${signup.first_name || ''} ${signup.last_name || ''}`.trim() || 'Unnamed athlete',
+        email: signup.email || '',
+        phone: signup.phone || '',
+        status: 'confirmed',
+        enrollmentType: signup.enrollment_type,
+        billingType: signup.billing_type,
+        amountCents: Number(signup.amount_cents || 0),
+        benefitType: null,
       }))
+
+    const dropInAthletes = dropIns.rows
+      .filter((dropIn) =>
+        Number(dropIn.form_id) === event.formId && Number(dropIn.slot_group_id) === event.slotGroupId,
+      )
+      .map((dropIn) => ({
+        signupId: Number(dropIn.id),
+        source: 'drop_in',
+        memberId: dropIn.member_id != null ? Number(dropIn.member_id) : null,
+        firstName: dropIn.first_name || '',
+        lastName: dropIn.last_name || '',
+        name: `${dropIn.first_name || ''} ${dropIn.last_name || ''}`.trim() || 'Unnamed athlete',
+        email: dropIn.email || '',
+        phone: dropIn.phone || '',
+        status: dropIn.status,
+        enrollmentType: 'drop_in',
+        billingType: 'one_time',
+        amountCents: Number(dropIn.amount_cents || 0),
+        benefitType: dropIn.benefit_type || null,
+      }))
+    const athletes = mergeDailyEnrollmentAthletes(schedulingAthletes, dropInAthletes)
 
     return {
       eventId: event.id,

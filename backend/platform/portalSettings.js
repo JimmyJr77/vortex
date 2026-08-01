@@ -26,6 +26,7 @@ export const COACH_PORTAL_TAB_KEYS = [
   'regimens',
   'challenges',
   'assess',
+  'gymnastics-evaluations',
   'skills',
   'assign',
   'messages',
@@ -65,6 +66,7 @@ export const COACH_PORTAL_TAB_LABELS = {
   regimens: 'Regimens',
   challenges: 'Challenges',
   assess: 'Assess',
+  'gymnastics-evaluations': 'Evaluation Form',
   skills: 'Skill Tree',
   assign: 'Assign',
   messages: 'Messages',
@@ -138,6 +140,17 @@ function normalizeNavLayout(portal, navLayout, tabOrder) {
   for (const key of fallbackOrder) {
     if (!seen.has(key)) {
       result.push({ type: 'tab', key })
+    }
+  }
+
+  // Keep the dedicated gymnastics form with the facility's Athlete Development
+  // group when that section is present in a customized coach navigation.
+  if (portal === 'coach') {
+    const sectionIndex = result.findIndex((item) => item.type === 'section' && (item.id === 'athlete-dev' || item.label.toLowerCase() === 'athlete development'))
+    const evaluationIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'gymnastics-evaluations')
+    if (sectionIndex >= 0 && evaluationIndex >= 0) {
+      const [evaluation] = result.splice(evaluationIndex, 1)
+      result.splice(sectionIndex + (evaluationIndex < sectionIndex ? 0 : 1), 0, evaluation)
     }
   }
 

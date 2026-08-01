@@ -944,7 +944,7 @@ On 2026-07-26:
   half-kneeling, tall-kneeling, floor, and Z-position one-arm landmine presses.
   It adds seven exact review variants, 12 selectable delivery profiles, 80
   section-evidence rows, 25 oEmbed-healthy media candidates, 30 alternate
-  assessments, eight review-only relationships, 21 review-only calibrations,
+  assessments, eight review-only relationships, 14 review-only calibrations,
   and five quarantined test packets while preserving all six legacy source
   mappings.
 - The underspecified One-Arm Landmine Arc Press remains a seventh,
@@ -955,11 +955,10 @@ On 2026-07-26:
   exercise card. Its scores are exercise complexity and physical difficulty,
   with overall derived as their maximum. It creates no publication, media,
   relationship, calibration, card-review, variant, or delivery approval.
-- A disposable target audit and direct idempotency rerun passed before the
-  final protected-record guard expansion. Focused canonical research and
-  difficulty-invariant tests pass 100/100, and the complete platform suite
-  passes 649/649. A fresh-clone database rerun remains required for the final
-  guard text before migration 398 is promoted.
+- Migration 398 now has final fresh-database and clean re-entry evidence. The
+  complete chain through migration 404 applied from zero in disposable
+  PostgreSQL 14.18, and migrations 398 and 401–404 then executed directly over
+  their completed state without changing their fail-closed invariants.
 - Migration 401 completes the research and migration implementation for
   Landmine Push Press, One-Arm Landmine Split Jerk, and Landmine
   Squat-to-Press. It preserves migration 388's two-hand push-press
@@ -967,19 +966,14 @@ On 2026-07-26:
   retaining the split receive and full-squat action as separate identities.
 - The batch adds seven difficulty-only review variants, 14 delivery profiles,
   48 evidence rows, 11 unverified non-embeddable YouTube candidates, 18 alternate
-  assessments, eight review-only relationships, 21 review-only calibrations,
+  assessments, eight review-only relationships, 14 review-only calibrations,
   and three quarantined packets. It creates no media, graph, calibration,
   card-review, variant, profile, or publication approval and stores no exercise
   skill/proficiency classification.
-- Migration 401's research-packet and static fail-closed invariants pass
-  locally: 102 focused tests, focused ESLint, the 651-test platform suite,
-  management and launch smoke checks, CI syntax checks, and the production
-  build are green. The full backend suite has one unrelated billing assertion
-  mismatch in firstMonthProration.test.js (a four-digit-year expectation versus
-  the current full-date idempotency key), and repository-wide ESLint retains 45
-  errors outside these files. Disposable PostgreSQL application and rerun,
-  normal-runner checksum verification, generated packet export, and the updated
-  full-library audit remain pending.
+- Migration 401's research-packet, static fail-closed, database-application,
+  and direct clean-re-entry invariants are now verified. Current focused tests,
+  platform tests, focused ESLint, CI smoke/syntax checks, and the production
+  build are green; the current aggregate results are recorded below.
 - Migration 402 completes candidate structure for Landmine Front Squat,
   Landmine Hack Squat, Landmine Split Squat, and Landmine Reverse Lunge to
   Press. It preserves migration 369's archived handle-grip source mapping and
@@ -987,7 +981,7 @@ On 2026-07-26:
   landmine split squat and the broader legacy split-squat source.
 - The batch adds eight exact difficulty-only review variants, 16 contextual
   delivery profiles, 64 evidence rows, 14 unverified non-embeddable YouTube
-  candidates, 24 alternate assessments, 14 review-only relationships, 24
+  candidates, 24 alternate assessments, 14 review-only relationships, 16
   review-only calibrations, and four quarantined card-test packets. It creates
   no approval state. The split-squat packet carries an additional
   `CARD-IDENTITY-02` blocker.
@@ -996,23 +990,24 @@ On 2026-07-26:
   overall derived as their maximum. Media discovery is not treated as
   playback, exact-match, embedding, accessibility, reviewer, or approval
   verification.
-- Migration 402's source packet and static invariants pass 104/104 focused
-  tests and focused ESLint. The complete platform suite passes 653/653, the
-  production build passes, and management/launch CI smoke checks pass. The
-  full backend suite passes 900 tests with 20 database-dependent skips and the
-  same unrelated first-month-proration assertion mismatch documented for
-  migration 401. Disposable PostgreSQL application remains unavailable in this
-  environment and is still a release gate.
+- Disposable PostgreSQL exposed and the migration now fixes three contract
+  defects that static SQL review had missed: the handle-grip source is legacy
+  ID 1452 rather than the unrelated rotational-row ID 1453, the controlled
+  phase key is `resilience` rather than `control_resilience`, and a near-zero
+  impact-accumulation score is stored as the contract minimum 1 rather than 0.
+  Migration 402 applies from zero, directly re-enters cleanly, and the complete
+  1,096-card audit now normalizes every card instead of aborting on that score.
 - Migration 403 completes the consolidated Cossack Squat candidate card and
   preserves Cossack Shift to Wall Ball Toss as a distinct, nonselectable
   identity quarantine. All 12 migration-307 duplicate consolidations and all
-  14 legacy source mappings are guarded rather than silently recreated.
+  15 legacy source mappings are guarded rather than silently recreated: 14 on
+  Cossack Squat plus the distinct wall-toss source.
 - The Cossack family adds 13 difficulty-only review variants: ten selectable
   exact Cossack variants, two nonselectable Cossack variants with unresolved
   reach or load identity, and one nonselectable wall-toss protocol. It also
   adds 23 contextual or blocked delivery profiles, 32 evidence rows, ten
   unverified non-embeddable YouTube candidates, 22 alternate assessments, 16
-  review-only relationships, 36 review-only calibrations, and two quarantined
+  review-only relationships, 24 review-only calibrations, and two quarantined
   card-test packets. The unspecified loaded variant deliberately has no
   fabricated difficulty score.
 - Migration 403 stores no athlete skill or proficiency classification.
@@ -1021,23 +1016,402 @@ On 2026-07-26:
   direction, target height, ball path, ball behavior, reception or retrieval,
   side order, reset, and lane are independently authored and reviewed.
 - A schema-contract audit corrected migrations 401–403 to use the candidate
-  media table's allowed `unverified` link state. The 106 focused tests, focused
-  ESLint, complete 655-test platform suite, production build, and
-  management/launch CI smoke checks pass after that correction. PostgreSQL
-  application, direct idempotency rerun, normal-runner checksum verification,
-  packet export, and full-library audit remain release gates.
+  media table's allowed `unverified` link state. PostgreSQL then confirmed the
+  Cossack survivor set has 15, not 14, legacy mappings. Migration 403 applies
+  from zero and directly re-enters cleanly.
+- Migration 404 completes Adductor Rockback without guessing unresolved reach
+  or kicking identities. It retains all four legacy mappings and three prior
+  duplicate consolidations; adds five review variants, five contextual or
+  blocked profiles, 16 evidence rows, five unverified non-embeddable media
+  candidates, 11 alternate assessments, six review-only relationships, six
+  review-only calibrations, and one quarantined test packet. Three variants
+  carry exercise-complexity and physical-difficulty scores; two unresolved
+  variants deliberately remain nonselectable and unscored.
+- A second database created from zero successfully applied the complete
+  migration sequence through 404, every add-on migration, and runtime schema
+  compatibility. Direct execution of migrations 398 and 401–404 over the
+  completed database returned five successful `DO` blocks. A rollback-only
+  sentinel set `last_reviewed_at` on Adductor Rockback; migration 404 refused
+  to overwrite the protected card and the transaction left the card unchanged.
+- Migration 405 closes 18 recent-family similarity warnings whose authored
+  contracts already prove distinct support, stance, action order, release, or
+  fixed-pivot mechanics. It deliberately leaves Arc Press, general Split Squat,
+  and underspecified deadlift comparisons in `needs_human_review`. The
+  migration applies normally, directly re-enters cleanly, and a rollback-only
+  conflicting-decision sentinel proves it will not overwrite later review
+  state. It creates no card, media, graph, calibration, or publication approval.
+- Migration 406 closes the last two unclassified score-72-or-higher pairs. Box
+  Squat and Split Squat are recorded as distinct because bilateral box support
+  and a stationary fore-aft split stance are different identity contracts.
+  Squat-to-Press versus the unresolved Arc Press is stored as
+  `needs_human_review`, not guessed. Normal apply, direct re-entry, and a
+  rollback-only conflicting-decision sentinel pass.
+- Migration 407 completes the Backpedal-to-Sprint Turn and
+  Backpedal-to-Sprint-to-Stick candidate cards while preserving the terminal
+  action boundary between sprint-through and controlled stick. It guards all
+  four legacy mappings and both prior duplicate consolidations; adds nine
+  difficulty-only variants, 17 delivery profiles, 32 evidence rows, ten
+  unverified non-embeddable media candidates, ten alternate assessments, 16
+  review-only relationships, 16 review-only calibrations, and two quarantined
+  test packets. Eight variants are selectable. The underspecified
+  free-deceleration/no-hold form remains nonselectable and unscored.
+- Migration 407 also records the authored boundary between Open Turn and
+  Backpedal Turn to Hop-and-Go: the latter requires an intervening hop contact
+  and controlled landing before reacceleration. It stores no athlete skill or
+  proficiency classification. Difficulty is exercise complexity plus physical
+  difficulty, with overall derived as their maximum. All media and graph,
+  calibration, card, and publication state remains unapproved.
+- PostgreSQL 14.18 applied migration 407 normally with final checksum
+  `1946080963` and directly re-entered it without changes. Rollback-only
+  sentinels prove it refuses both a reviewed card and a conflicting identity
+  decision, leaving the protected state unchanged.
+- Migration 408 completes the research/governance packet for Dead Hang, Active
+  Hang, and Scapular Pull-Up while preserving their passive-position,
+  active-isometric, and repeated-scapular-motion identities. The existing 18
+  exact variants and 19 delivery profiles are retained. The new card versions
+  add 48 section-evidence rows, 15 unverified non-embeddable YouTube candidates
+  (five per card), 33 alternate assessments, 17 inverse regression proposals
+  alongside the 17 existing progression proposals, 36 review-only
+  complexity/physical-difficulty calibrations, and three quarantined packets.
+- All six hang-family legacy mappings remain guarded. The ambiguous historical
+  passive-or-active source is deliberately unscored; exact Active Hang aliases
+  share the same queued baseline score. Migration 408 stores no athlete skill
+  or proficiency classification and creates no media, graph, calibration,
+  reviewer, card, or publication approval.
+- PostgreSQL applied migration 408 normally with checksum `865725329` and
+  directly re-entered it without changes. Rollback-only sentinels prove it
+  refuses a reviewed card or reviewed relationship and leaves the version-4
+  candidate state unchanged.
+- Migration 409 completes the research/governance packet for Seated Compression
+  Lift, V-Sit, and Manna Hold while preserving grounded dynamic compression,
+  above-horizontal straight-arm support, and hips-and-legs-beyond-shoulders
+  Manna as separate identities. It retains all eight exact variants and eight
+  contextual delivery profiles; adds 48 section-evidence rows, 15 unverified
+  non-embeddable YouTube candidates (five per card), 24 alternate assessments,
+  seven inverse graph proposals alongside eight existing proposals, 16
+  review-only complexity/physical-difficulty calibrations, and three
+  quarantined packets.
+- Migration 409 guards all three legacy mappings and four support-compression
+  identity boundaries. Difficulty remains exercise complexity plus physical
+  difficulty with overall derived as their maximum. The cards contain no
+  athlete skill/proficiency classification and create no media, graph,
+  calibration, reviewer, card, or publication approval.
+- PostgreSQL applied the revised migration 409 with checksum `1389319406`.
+  Two direct re-entries produced the same deterministic graph-content hash,
+  proving authored and inverse lateral-substitution edges remain stable.
+  Rollback-only sentinels prove it refuses both a reviewed definition and a
+  conflicting identity decision; the protected candidate state remains
+  unchanged.
+- Migration 410 completes the research/governance packets for Hanging Leg
+  Raise, L-Sit, and Hanging L-Sit without collapsing dynamic overhead-suspended
+  hip flexion, static straight-arm push support, and static overhead suspension.
+  It preserves 11 exact variants and 11 delivery profiles; adds 48 evidence
+  rows, 15 unverified non-embeddable YouTube candidates (five per card), 36
+  alternate assessments, four authored and 11 inverse graph proposals, 22
+  review-only complexity/physical-difficulty calibrations, three deterministic
+  identity boundaries, and three quarantined packets.
+- All seven migration-310/311 legacy mappings remain guarded. Migration 410
+  contains no athlete skill/proficiency classification and creates no media,
+  graph, calibration, reviewer, card, or publication approval. PostgreSQL
+  recorded checksum `952600727`; direct and normal-runner re-entry remained
+  graph-content stable. Rollback-only sentinels prove reviewed definitions and
+  conflicting identity decisions fail closed.
+- Migration 411 audits all 12 A-series source cards and reduces them to seven
+  active canonical definitions without discarding source lineage. Migration
+  394's A-March Linear consolidation remains intact; arm-sweep A-March,
+  A-Skip Rhythm Punch, A-Skip Snap Down, and A-Skip for Approach Rhythm are now
+  archived source identities represented by searchable aliases and four
+  contextual delivery profiles on the A-March or A-Skip baseline.
+- A-March and A-Skip are the only structurally complete selectable identities
+  in this tranche. A-March to Projection, A-Skip Pogo Rhythm, A-Skip Through
+  Cone Gates, A-Skip Through Ladder, and High-Knee A-March Ladder retain active
+  candidate definitions but have `avoid` profiles, suitability 1, explicit
+  selection blocks, `needs_human_review` boundaries, and identity blockers
+  until their exact ordered contacts, equipment rules, and finishes are
+  authored and approved. A-March versus A-Skip is recorded as distinct because
+  the latter adds a step-hop sequence, flight, landings, and impact.
+- The seven version-2 packets add 112 evidence rows, 35 unverified
+  non-embeddable YouTube candidates, 35 alternate assessments, six authored
+  and six inverse graph proposals, 14 review-only complexity/physical-
+  difficulty calibrations, 12 delivery profiles, and seven quarantined test
+  packets. Difficulty overall remains the maximum of exercise complexity and
+  physical difficulty; no exercise skill/proficiency classification or media,
+  graph, calibration, reviewer, card, or publication approval is created.
+- Disposable PostgreSQL applied migration 411 through the production runner
+  with checksum `2200245960`. Direct re-entry retained the 12-edge graph hash
+  `4b23b21573ff4aaa3c77a4fe41e1d9cd`. Rollback-only reviewed-card and
+  identity-conflict sentinels both failed closed, then verified zero review or
+  version drift and the same graph hash.
+- Migration 412 corrects the ankling/low-pogo source lineage rather than
+  preserving earlier overbroad name-based consolidations. Low Pogos now maps to
+  the stationary bilateral Ankle Pogo identity; Wall Ankling Pogo is restored
+  as an active but nonselectable identity quarantine because body angle,
+  support, laterality, ordered contacts, flight, displacement, dose unit, and
+  finish remain undeclared. The redundant exact-name source-1109 baseline is
+  archived. Ankling Walk and Ankling / Dribble March are consolidated into
+  identity-preserving learning-cadence profiles of traveling Ankling Drill.
+  Straight-Leg Bound March is correctly displayed as no-flight Straight-Leg
+  March while every historic alias and all 14 legacy mappings remain traceable.
+- Migration 413 completes nine version-2 candidate packets: Ankle Pogo,
+  Ankling Drill, Straight-Leg March, Straight-Leg Bound, and Straight-Leg
+  Bounds to Sprint are structurally selectable only after approval. Ankling
+  Pogo, Fast Ankling Pogo March, Straight-Leg Ankling Ladder, and Wall Ankling
+  Pogo retain `avoid` profiles, suitability 1, explicit selection blocks, and
+  `needs_human_review` identity contracts.
+- The nine packets add 144 candidate evidence rows, 45 unverified
+  non-embeddable YouTube candidates (five per card), 45 alternate assessments,
+  eight authored and eight inverse graph proposals, 18 review-only
+  complexity/physical-difficulty calibrations, 13 active delivery profiles,
+  queued score evidence for all 14 sources, and nine quarantined test packets.
+  Three new contextual profiles preserve Low Pogos, dribble-march cadence, and
+  walking cadence without manufacturing separate exercise identities.
+- Neither migration stores athlete skill/proficiency on an exercise card.
+  Overall difficulty is always the maximum of exercise complexity and physical
+  difficulty. No external media verification, embed approval, exact-match
+  decision, reviewer assignment, card approval, relationship approval,
+  calibration approval, or publication is fabricated.
+- Disposable PostgreSQL recorded production-runner checksums `789468044` and
+  `2423351331` for migrations 412 and 413. Direct re-entry of each migration,
+  including 412 after 413, preserves the 16-edge graph-content hash
+  `8fd38c857faf64ccdc1ff1b402ca33ae`. Rollback-only human-identity and
+  reviewed-card sentinels fail closed and leave review dates, card versions,
+  identity state, and graph content unchanged.
+- Migration 414 prepares the skipping/fast-leg family without merging unlike
+  exercises. Ordinary step-hop skipping, horizontal Power Skip, and a
+  designated-leg Fast-Leg Cycle are recorded as distinct identity contracts.
+  Cone spacing and ball-toss constraints remain explicit human-review
+  boundaries. The exact duplicate source-1137 Power Skip baseline and profile
+  are archived, while the cadence-change source remains an identity-preserving
+  context of ordinary skipping rather than another exercise card.
+- Migration 415 completes five version-2 candidate packets. Ordinary Skipping
+  Rhythm Drill and Power Skip for Distance are structurally selectable only
+  after approval. Cone Skip Rhythm Build, Skipping Rhythm Change with Ball
+  Toss, and Fast-Leg Cycle retain `avoid` profiles, suitability 1, explicit
+  selection blocks, and unresolved ordered-contract requirements.
+- The five packets add 80 candidate evidence rows, 25 unverified
+  non-embeddable YouTube candidates, 25 alternate assessments, five authored
+  and five inverse graph proposals, ten review-only complexity/physical-
+  difficulty calibrations, six active delivery profiles, queued score evidence
+  for all seven source cards, and five quarantined test packets. The sixth
+  profile preserves cadence-change delivery without creating another identity.
+  No athlete proficiency, external verification, exact-match decision,
+  reviewer, or approval is fabricated.
+- Migration 416 restores Low and High Dribble Run as controlled recovery-height
+  variants of one Dribble Run definition and keeps Dribble Build to Sprint as a
+  distinct compound exercise with a terminal free-sprint segment. Migration
+  417 completes both active cards: 32 candidate evidence rows, ten unverified
+  non-embeddable media candidates, ten alternate assessments, three exact
+  delivery profiles, six review-only relationship edges, six review-only
+  complexity/physical-difficulty calibrations, three queued source-score
+  packets, and two quarantined card tests. No exercise proficiency or approval
+  state is created.
+- Migration 418 closes the two similarity pairs exposed by those lineage
+  corrections. Historic Fast Low Pogos source 135 is consolidated into the
+  stationary bilateral Ankle Pogo definition; fast cadence, low amplitude,
+  contact cap, duration, rest, and phase intent remain delivery/dosage
+  modifiers. Traveling no-flight Ankling Drill and cyclic recovery-height
+  Dribble Run are explicitly distinct ordered movement contracts. The
+  migration preserves aliases and source traceability and creates no review or
+  publication approval.
+- Migration 419 consolidates 20 audited legacy short-acceleration sources into
+  one stable definition with six exact selectable start variants and two
+  identity-blocked provisional variants. Migration 420 adds eight contextual
+  profiles, 24 unique candidate evidence rows spanning all 16 sections, four
+  unverified non-embeddable media candidates, 37 alternate assessments, 14
+  review-only relationship proposals, 16 review-only calibration proposals,
+  20 queued source-score packets, one quarantined version-2 card test, and a
+  candidate-only legacy difficulty compatibility row for source 6.
+- Migration 421 records three newly exposed stable identity boundaries: level
+  versus incline-resisted acceleration, single acceleration versus ordered
+  braking and re-acceleration, and a simple go signal versus a multi-option
+  choice-reaction start. It creates no human decision or approval.
+- A blank disposable PostgreSQL database applied the complete migration history
+  through 421. The production runner recorded checksums `591027751`,
+  `2828558425`, and `1278625798` for migrations 419–421. Direct clean re-entry
+  produced no drift. Rollback-only reviewed-card and human-identity sentinels
+  failed closed and restored clean candidate state.
+- The refreshed whole-library audit covers all 1,676 legacy exercises and all
+  1,081 active canonical definitions. Migration coverage is complete; zero
+  exact collisions remain. Of 627 raw name-similarity pairs, 576 are
+  adjudicated distinct and 51 remain unresolved. All 51 are explicit
+  `needs_human_review` quarantines; zero are unclassified, two are score 85 or
+  higher, and none is score 90 or higher. All 1,081 cards remain correctly
+  quarantined and zero are published because human media, relationship,
+  calibration, card, and pilot approvals have not occurred.
+- Score and operational-profile coverage is now 7.86%; complete research,
+  alternate-assessment, athlete/coach support, and support-operations coverage
+  is 7.68%; anatomy is 7.59%, load profile 5.27%, fatigue profile 5.74%, and
+  complete media-candidate-set coverage 69.20%. The graph contains 372
+  review-only edges and calibration contains 585 review-only proposals.
+  Approved counts remain zero. The separate Needs Engine audit improves to 31
+  failures: 12 missing difficulty and 19 missing dosage.
+- Final automated verification passes 141/141 focused research/difficulty and
+  billing-regression tests, plus the full backend/platform suite with 920
+  passed, 20 intentionally skipped, and zero failed. Focused ESLint, 12
+  management smoke checks, 10 launch smoke checks, CI syntax checks, and the
+  production build also pass.
+- Migration 422 completes the Hill Sprint Acceleration candidate card while
+  preserving the migration-339 consolidation of legacy sources 126 and 332.
+  The stable definition now has exact two-point and controlled falling-start
+  shallow-grade variants; measured uniform positive grade, distance and unit,
+  markers, lead side, timing, intent, effort count, recovery, surface, and
+  footwear remain delivery variables. Steep grinding, long conditioning,
+  stairs, treadmill, external sled or band, downhill overspeed, uphill
+  bounding, and shuttle or sprinted-descent tasks remain separate and are not
+  silently selected through this card.
+- The version-2 card adds two contextual Output profiles, 16 current candidate
+  evidence sections, three unverified non-embeddable media candidates, seven
+  alternate assessments, four review-only progression/regression/substitution
+  relationships, four review-only complexity/physical-difficulty calibrations,
+  two queued source-score packets, and one quarantined automated card packet.
+  Two-point difficulty is 52 complexity / 72 physical / 72 derived overall;
+  falling-start difficulty is 56 / 72 / 72. No exercise-card proficiency
+  field, media verification, exact-match decision, reviewer, or approval is
+  created.
+- Disposable PostgreSQL applied migration 422 directly, re-entered it cleanly,
+  and recorded production-runner checksum `1254677506`. A transaction-scoped
+  `in_review` source-score sentinel made the migration fail closed and rolled
+  back. The refreshed audit remains at 1,676 legacy exercises, 1,081 active
+  canonical definitions, 51 explicit unresolved identity pairs, and zero exact
+  collisions. Coverage is now 7.96% for score and operational profiles, 7.77%
+  for research/support/alternate packets, 7.68% anatomy, 5.37% load, 5.83%
+  fatigue, and 69.20% complete media candidate sets. The graph has 376
+  review-only edges and calibration has 589 review-only proposals; approved
+  counts remain zero. The independent Needs Engine audit remains at 31
+  failures (12 difficulty, 19 dosage).
 
 ## Operational release gates
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 403 in a
-   non-production environment.
-2. Run the full library audit; review anatomy, constraints, scores, media,
+The complete sequence through migration 421 and the full audit have now run in
+disposable PostgreSQL. The remaining gates are:
+
+1. Review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.
-3. Publish a versioned library release only from cards whose stored packet
+2. Publish a versioned library release only from cards whose stored packet
    passes and whose independent review is current.
-4. Run the documented internal-coach pilot and measure the 90% keep/minor-edit,
+3. Run the documented internal-coach pilot and measure the 90% keep/minor-edit,
    sub-10% swap, and sub-15% dose-edit targets.
-5. Enable the feature flag by rollout stage only after its quantitative gates
+4. Enable the feature flag by rollout stage only after its quantitative gates
    pass. Keep the legacy path available for immediate rollback.
+
+## Migration 423 completion record
+
+- Legacy `180-turn-wall-ball-catch-and-throw` remains stable but is explicitly
+  nonselectable: its source does not define a coherent exact exercise contract.
+  It cannot enter a workout, substitution list, station, dose, demonstration,
+  or athlete rendering until a human identity decision maps an exact task.
+- A distinct exact review-only card records the documented through-the-legs
+  wall throw, grounded 180-degree turn, visual reacquisition, and two-hand
+  rebound catch. Its standardized assessment and scaled non-normative rehearsal
+  are difficulty-scored variants; no athlete skill/proficiency classification
+  is stored on either exercise card.
+- Both cards have complete fail-closed generation and support contracts. The
+  exact card's publication-readiness detail contains only missing approved
+  media and exact-match media review. Relationship and calibration failures
+  are explicit human gates; no approval was fabricated.
+- The candidate packet contributes 16 evidence sections, three unverified
+  adjacent media links, six alternate assessments, two graph proposals, six
+  calibration proposals, and two automated quarantine packets. It also records
+  a deterministic distinct-identity boundary that resolves the generated pair
+  without creating a human-review claim.
+- Whole-library audit totals are now 1,676 legacy exercises, 1,082 active
+  definitions, 628 raw pairs, 577 adjudicated-distinct pairs, 51 unresolved
+  pairs, and zero exact collisions. All 1,082 remain quarantined. There are 378
+  review-only graph edges and 595 review-only calibrations, with zero approved.
+- Disposable PostgreSQL passed direct execution, re-entry, production-runner
+  execution, and rollback-only protected-state testing. Migration 423 is
+  registered with checksum `1847350634`.
+
+## Migration 424 completion record
+
+- The false one-arm Landmine Arc identity is retired. Legacy rows 1413 and
+  1414 now retain source-level traceability to standard Landmine Press; the
+  latter records eccentric tempo as a modifier rather than a new exercise.
+- A new review-only two-hand shoulder-to-shoulder Landmine Arc card defines
+  exact tall- and half-kneeling variants, one-way crossing dosage, full
+  planning/support contracts, 16 evidence sections, five automated
+  oEmbed-healthy candidate videos, eight alternate decisions, two relationship
+  proposals, four calibration proposals, four contextual profiles, and a
+  quarantined card test. Athlete proficiency is absent; difficulty contains
+  exercise complexity, physical difficulty, and their derived maximum only.
+- No approval was inferred from research or link health. Exact video matching,
+  complete human media review, graph approval, calibration approval, two-person
+  card review, pilot evidence, and publication remain quarantined gates.
+- Whole-library totals are now 1,676 legacy exercises, 1,082 active canonical
+  definitions, 627 raw similarity pairs, 580 adjudicated-distinct pairs, 47
+  unresolved pairs, one unresolved pair at score 85 or higher, and zero exact
+  collisions or unresolved pairs at score 90 or higher. All definitions remain
+  quarantined and zero are published.
+- Migration 424 passed direct execution, clean re-entry, production-runner
+  execution, and protected published-state rollback testing in disposable
+  PostgreSQL. Its registered checksum is `2520926649`.
+- Final automated verification passes 131/131 focused tests and the full
+  backend suite with 925 passed, 20 intentionally skipped, and zero failed.
+  Focused ESLint, 12 management checks, 10 launch checks, CI syntax checks, and
+  the production build also pass.
+
+## Migration 425 completion record
+
+- Ambiguous `ankling-pogo-hop` and `wall-ankling-pogo` cards are archived and
+  nonselectable. Their legacy sources remain traceable and are not falsely
+  mapped to an exact laterality or contact sequence.
+- `single-leg-pogo` version 3 adds an exact wall-lean stationary variant:
+  intentional two-hand wall pressure, declared forward body line, repeated
+  same-leg contacts, held opposite-leg recovery position, one landing per
+  counted contact, controlled two-foot exit, and a reset before side change.
+- The variant includes exercise complexity 48, physical difficulty 52, derived
+  overall 52, complete planning and support contracts, 16 evidence sections,
+  five oEmbed-healthy candidate demonstrations, nine alternate decisions, two
+  profiles, one relationship proposal, two calibration proposals, and an
+  automated quarantined test packet. It contains no athlete proficiency field.
+- Exact media matching, complete human playback and safety review, calibration,
+  graph approval, two-person card review, pilot evidence, and publication all
+  remain explicit human gates. No approval was inferred from oEmbed metadata,
+  titles, search results, or automated visual observation.
+- Whole-library totals are now 1,676 legacy exercises, 1,080 active canonical
+  definitions, 623 raw similarity pairs, 579 adjudicated-distinct pairs, 44
+  unresolved pairs, and zero exact collisions. No unresolved pair scores 85 or
+  higher; all active cards remain quarantined and zero are published.
+- Migration 425 passed direct execution, clean re-entry, the production runner,
+  and protected published-state rollback testing in disposable PostgreSQL. Its
+  registered checksum is `4272711159`.
+- Final verification passes 133/133 focused tests and the full backend suite
+  with 927 passed, 20 intentionally skipped, and zero failed. Focused ESLint,
+  12 management smoke checks, 10 launch smoke checks, CI syntax checks, and the
+  production build also pass.
+
+## Migration 426 completion record
+
+- `bound-to-stick` now has the exact display identity `Opposite-Leg Forward
+  Bound to Stick`; `lateral-bound` now has `Opposite-Leg Lateral Bound to
+  Stick`. Both stable slugs and legacy-source mappings are preserved.
+- Both definitions require one declared takeoff leg, direction-specific
+  projection, opposite-leg landing, a terminal stable hold, and full reset.
+  Diagonal, rotational, same-leg, continuous, approach, and reactive tasks are
+  kept separate. Four nearby similarity pairs are recorded as mechanically
+  distinct without claiming human review.
+- Each card has complete generation, dosage, cumulative-budget, logistics,
+  athlete-support, coach-support, operations, evidence, provenance, alternate,
+  and test-packet contracts. Exercise difficulty is 56 complexity / 64
+  physical / 64 overall forward and 60 / 66 / 66 lateral. Exercise-card skill
+  or proficiency levels are absent.
+- Each card has 16 current evidence sections, five candidate-only oEmbed-
+  healthy videos, nine alternate assessments, two contextual profiles, a
+  bidirectional review-only substitution proposal, and two review-only
+  calibrations. No exact-match, reviewer, relationship, calibration, card, or
+  publication approval was manufactured.
+- Both card packets fail only the intended human gates for exact media review,
+  an approved relationship, approved calibration, and publication. Whole-
+  library totals are 1,676 legacy exercises, 1,080 active definitions, 624 raw
+  similarity pairs, 583 adjudicated-distinct pairs, 41 unresolved pairs, and
+  zero exact collisions or unresolved score-85-or-higher pairs. Needs Engine
+  failures improve to 30 (11 difficulty, 19 dosage).
+- Disposable PostgreSQL passed direct execution, clean re-entry, production-
+  runner execution, and rollback-only protected-state testing. Migration 426
+  is registered with checksum `1732038496`.
+- Final verification passes 135/135 focused tests and the full backend suite
+  with 932 passed, 20 intentionally skipped, and zero failed. Focused ESLint,
+  12 management smoke checks, 10 launch smoke checks, CI syntax checks, and the
+  production build also pass.

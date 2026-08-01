@@ -1,0 +1,471 @@
+{
+  "facilityId": 1,
+  "slug": "hill-sprint-acceleration",
+  "researchVersion": "2026-08-01.1",
+  "assessmentSummary": {
+    "identity": "A short maximal or near-maximal continuous linear acceleration up a measured, uniform, traction-safe positive grade from an explicitly selected two-point or controlled falling start, followed by a safe summit run-out and non-sprinted walk-back.",
+    "currentCardFindings": [
+      "The current card merges a mild 10–20 m source and a low-incline 5–15 yard source but does not store grade measurement, grade acceptance, runway, summit, descent, start, finish, or walk-back contracts.",
+      "The baseline 40 complexity and 10 physical-demand scores treat no implement as low physical difficulty despite maximal acceleration against gravity.",
+      "Anatomy, load, fatigue, environment, population, athlete support, coach operations, graph, calibration, and current-version research are empty.",
+      "Five legacy video IDs have no title, channel, availability, embedding, exact-match, content-quality, accessibility, or reviewer decision."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "incline_resisted_linear_acceleration",
+        "sprint_start",
+        "continuous_uphill_sprint"
+      ],
+      "jointActions": [
+        "hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_arm_action",
+        "trunk_and_pelvis_stabilization"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal_control",
+        "transverse_control"
+      ],
+      "laterality": "declared_start_lead_then_alternating_sprint_contacts",
+      "intent": "high_quality_short_acceleration_against_uniform_positive_grade"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "gluteus_medius",
+        "adductors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "obliques",
+        "spinal_extensors",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "spine",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 52,
+      "absoluteLoadDemand": 72,
+      "coordinationDemand": 60,
+      "supervisionDemand": 62,
+      "failureConsequence": 66,
+      "impact": 56,
+      "workCapacityDemand": 48,
+      "baseOverallDifficulty": 72
+    },
+    "proposedLoadProfile": {
+      "loadingType": "maximal_bodyweight_acceleration_against_gravity_on_positive_grade",
+      "impactClass": "moderate_to_high_by_speed_grade_surface_and_body_mass",
+      "landingContactsPerRep": "count_all_uphill_and_run_out_contacts_separately_from_walk_back",
+      "primaryStress": [
+        "hip_extensor_work",
+        "knee_extensor_work",
+        "plantar_flexor_and_Achilles_demand",
+        "posterior_chain",
+        "whole_body_coordination"
+      ],
+      "fatigueSensitivity": "grade_speed_stride_rhythm_projection_contact_quality_calf_Achilles_response_and_summit_control"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "measured_uniform_positive_grade",
+        "traction_safe_uphill_lane",
+        "start_and_finish_markers",
+        "safe_summit_run_out",
+        "separate_controlled_walk_back_route"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "grade_meter_or_inclinometer",
+        "timing_gates",
+        "video"
+      ],
+      "environment": [
+        "dry_stable_non_slip_surface",
+        "uniform_grade_without_holes_or_cross_slope",
+        "no_cross_traffic",
+        "adequate_lighting_and_visibility"
+      ],
+      "population": [
+        "pain_free_walking_jogging_and_submaximal_hill_acceleration",
+        "can_control_selected_start",
+        "can_finish_and_walk_down_safely",
+        "current_calf_Achilles_hamstring_and_back_tolerance"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_quality_efforts",
+      "distance": "5-20_metres_or_equivalent_declared_yards",
+      "restSeconds": "90-240_by_distance_grade_timing_and_response",
+      "intensity": "maximal_or_near_maximal_only_after_submaximal_rehearsal",
+      "progressWhen": "grade, split, rhythm, projection, symptoms, finish, and walk-back remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Name the start and grade",
+        "Project with the hill",
+        "Push the hill away",
+        "Fast arms and complete contacts",
+        "Sprint through, run out, then walk down"
+      ],
+      "athleteInstructions": [
+        "Use the assigned start, accelerate up the marked uniform hill through the finish, stay in sprint rhythm, control the summit, and walk back on the assigned route"
+      ],
+      "commonFaults": [
+        "unmeasured_or_changing_grade",
+        "hill_too_steep_for_sprint_gait",
+        "waist_bend_instead_of_whole_body_projection",
+        "slow_grinding_contacts",
+        "looking_down_without_lane_awareness",
+        "stopping_at_finish",
+        "sprinting_downhill",
+        "insufficient_recovery"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "completed_progressive_sprint_warm_up",
+        "pain_free_submaximal_uphill_effort",
+        "inspected_grade_lane_summit_and_descent",
+        "safe_footwear_and_spacing"
+      ],
+      "stopRules": [
+        "pain_or_sharp_discomfort",
+        "calf_or_Achilles_warning",
+        "limp_or_protective_mechanics",
+        "slip_or_stumble",
+        "loss_of_sprint_gait_or_grinding",
+        "repeated_speed_or_rhythm_loss",
+        "unsafe_summit_or_descent",
+        "lane_conflict_or_surface_change"
+      ]
+    },
+    "programmingDecision": "Retain one distinct incline-resisted acceleration definition. Use exact two-point and controlled falling-start variants. Treat declared safe grade, distance, unit, cones, timing, intent, and recovery as delivery variables; keep steep grinding, long conditioning, stairs, treadmills, sleds, downhill, bounding, and shuttle formats outside this card until separately authored.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T09:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Hill Sprint Acceleration is a acceleration & first-step output exercise for speed, sprinting, and quick-release athletes. It emphasizes hip extension, knee drive, ankle stiffness while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Acceleration Starts",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11217013/",
+      "sourceTitle": "Kinematic and postural characteristics of sprint running on sloping surfaces",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Uphill sprinting changes speed, step length, flight distance, and posture compared with level sprinting, so the inclined surface is identity-bearing rather than a cosmetic setting.",
+        "Hill Sprint Acceleration is a short continuous uphill acceleration on a declared uniform positive grade; level acceleration, downhill assisted sprinting, stairs, and repeated hill conditioning are not aliases."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11382779/",
+      "sourceTitle": "The Effect of Resisted Sprint Training on Acceleration: A Systematic Review and Meta-Analysis",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Resisted sprinting is used to overload the force task of acceleration, although pooled evidence does not establish superiority over equal-volume unresisted training.",
+        "Classify Hill Sprint Acceleration as incline-resisted linear acceleration, not as a generic leg-strength drill or a guaranteed superior replacement for level sprinting."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12592170/",
+      "sourceTitle": "A review of uphill and downhill running: biomechanics, physiology and modulating factors",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Positive grade increases lower-limb joint work and power demands, with especially important hip contribution as incline increases.",
+        "Represent gluteal, hamstring, quadriceps, plantar-flexor, hip-flexor, foot, trunk, and reciprocal arm roles across start, uphill contacts, finish, and walk-back recovery."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11217013/",
+      "sourceTitle": "Kinematic and postural characteristics of sprint running on sloping surfaces",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A slope changes stride length and touchdown and take-off posture; steeper is not automatically more specific or better.",
+        "Use a natural whole-body projection relative to the slope, push through complete contacts, coordinate the arms, and preserve sprint rhythm without forcing one universal torso angle, knee height, or step length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39191977/",
+      "sourceTitle": "Energy cost of running uphill as compared to running on the level with impeding horizontal forces",
+      "sourcePublisher": "European Journal of Applied Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Uphill running requires additional work against gravity and has a higher energy cost than level running at the same speed.",
+        "Score exercise complexity and physical difficulty separately; lack of an external implement does not make maximal uphill acceleration low-load or low-difficulty. Athlete experience remains selection context only."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12592170/",
+      "sourceTitle": "A review of uphill and downhill running: biomechanics, physiology and modulating factors",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Incline changes joint work, muscle demand, stride mechanics, and metabolic cost, with effects that depend on grade and speed.",
+        "Track grade, distance, effort count, uphill and walk-back contacts, intensity, calf/Achilles and posterior-chain response, technical fatigue, surface, footwear, recovery, and total sprint exposure."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work requires an appropriate surface, clear lane, marked distance, safe finish, athlete spacing, and recovery.",
+        "Require a measured uniform uphill lane with reliable traction, no holes or cross-traffic, a visible target, a safe summit run-out, and a controlled non-sprint walk-back route."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, efforts, sets, and recovery rather than repetitions alone.",
+        "Use short high-quality efforts and enough recovery to preserve output; a longer effort, steep grind, incomplete-rest shuttle, or sprinted descent requires a different profile or definition."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11217013/",
+      "sourceTitle": "Kinematic and postural characteristics of sprint running on sloping surfaces",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Slope changes the athlete's posture and stride geometry compared with horizontal sprinting.",
+        "Name the exact start, look through the lane, project the whole body with the slope, push the hill away, coordinate fast arms, sprint through the target, run out safely, and walk back under control."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-intent training should use qualified supervision, appropriate progression, correct technique, and manageable demands.",
+        "Stop for pain, calf or Achilles warning, limp, slip, stumble, loss of sprint gait, uncontrolled trunk collapse, unsafe finish or descent, repeated speed loss, lane conflict, or surface deterioration."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11382779/",
+      "sourceTitle": "The Effect of Resisted Sprint Training on Acceleration: A Systematic Review and Meta-Analysis",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Resisted sprint training can improve acceleration, but pooled comparisons do not prove that it is better than equal-volume unresisted sprinting.",
+        "Place Hill Sprint Acceleration while fresh as a specific uphill resistance option; retain level sprint exposure when level acceleration is the target and do not promise automatic transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops through successive projected steps and should retain coordinated relaxation rather than forced shapes.",
+        "Show the measured grade, start, first contacts, side and rear views, finish and summit run-out, walk-back route, successful rhythm, slipping and grinding faults, and the level-sprint alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12592170/",
+      "sourceTitle": "A review of uphill and downhill running: biomechanics, physiology and modulating factors",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The biomechanical and physiological response to uphill running depends on grade, speed, and task duration.",
+        "Provide grade and distance measurement, lane inspection, start selection, observation position, timing method, contact and effort totals, side balance, fatigue and symptom checks, walk-back control, and exact substitution rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed training should be developmentally appropriate and based on current movement competency and readiness.",
+        "Scale with a shallower uniform grade, standing start, submaximal intent, shorter distance, fewer efforts, untimed trials, visual markers, extra demonstration, longer recovery, or level acceleration while keeping exercise-card proficiency labels absent."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11217013/",
+      "sourceTitle": "Kinematic and postural characteristics of sprint running on sloping surfaces",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Level, uphill, and downhill sprint conditions produce different acute kinematics and posture.",
+        "Two-point and falling starts are controlled variants; safe shallow grade and distance are dosage constraints; steep grinding, stairs, treadmill incline, sled towing, downhill overspeed, long conditioning repeats, and uphill bounding require separate assessment."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embed URLs.",
+        "The three visible links for Hill Sprint Acceleration are discovery candidates only. Current availability, embedding, exact grade and distance, complete setup and finish, safety, captions, cue quality, reviewer identity, and approval remain independent human gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=otxUWltMTRE",
+      "title": "Hill Sprints [SPEED TRAINING]",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "hill sprint acceleration technique discovery",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Discovery result describes multiple sprint-start variations on a hill. Exact grade, distance, full setup and finish, safety, captions, availability, embedding, and coaching quality require complete human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ZuKBLCR7TEw",
+      "title": "Hill Sprints for Absolute Speed and Sprint Velocity",
+      "channelName": "Jevon S.",
+      "sourceQuery": "hill sprint acceleration technique discovery",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Discovery result discusses uphill and downhill sprint uses. Exact low-grade acceleration variant, claims, full content, safety, captions, availability, embedding, and coaching quality require complete human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SCI98hvhLqE",
+      "title": "How To Do Hill Sprints - Run Faster & Burn Fat With Hill Sprints",
+      "channelName": "Athlete.X",
+      "sourceQuery": "how to do hill sprints acceleration discovery",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Discovery result spans acceleration and conditioning uses. Exact short-output dose, grade, movement contract, full content, safety, captions, availability, embedding, and coaching quality require complete human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Low-Incline Hill Sprint Acceleration",
+      "classification": "same_identity",
+      "rationale": "Low incline describes the accepted grade range of the same short uphill acceleration identity.",
+      "distinguishingDimensions": {
+        "grade": "declared_safe_shallow_positive_grade"
+      }
+    },
+    {
+      "name": "Falling-Start Hill Sprint",
+      "classification": "new_variant",
+      "rationale": "The controlled loss-of-balance trigger changes initiation while retaining short continuous uphill acceleration.",
+      "distinguishingDimensions": {
+        "startGeometry": "controlled_falling_start"
+      }
+    },
+    {
+      "name": "Steep Hill Power Sprint",
+      "classification": "new_variant",
+      "rationale": "A steeper grade changes contact time, stride, force demand, and possibly gait; it requires a measured grade and explicit sprint-versus-grind boundary before activation.",
+      "distinguishingDimensions": {
+        "grade": "steep_declared",
+        "identityStatus": "requires_human_authorship"
+      }
+    },
+    {
+      "name": "Long Hill Sprint Conditioning",
+      "classification": "new_definition",
+      "rationale": "Long duration and incomplete recovery target glycolytic or aerobic power and create a different fatigue, recovery, and stop-rule contract.",
+      "distinguishingDimensions": {
+        "adaptation": "conditioning",
+        "duration": "long",
+        "recovery": "incomplete"
+      }
+    },
+    {
+      "name": "Incline Treadmill Sprint",
+      "classification": "new_definition",
+      "rationale": "A moving belt, fixed machine grade, speed controls, emergency stop, mounting and dismounting create different equipment and failure conditions.",
+      "distinguishingDimensions": {
+        "equipment": "motorized_treadmill",
+        "surface": "moving_belt"
+      }
+    },
+    {
+      "name": "Uphill Bound",
+      "classification": "new_definition",
+      "rationale": "Bounding uses deliberately exaggerated alternating flight and projection contacts rather than continuous sprint steps.",
+      "distinguishingDimensions": {
+        "movementPattern": "alternating_bound",
+        "contactIntent": "exaggerated_projection"
+      }
+    },
+    {
+      "name": "Downhill Overspeed Sprint",
+      "classification": "new_definition",
+      "rationale": "Negative grade assists rather than resists speed and changes posture, velocity, braking, and fall risk.",
+      "distinguishingDimensions": {
+        "grade": "negative",
+        "resistanceDirection": "assisted"
+      }
+    }
+  ]
+}

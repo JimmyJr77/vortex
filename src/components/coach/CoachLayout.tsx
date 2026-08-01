@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks } from 'lucide-react'
+import { Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks, ListChecks } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
@@ -30,6 +30,7 @@ const InsightsPanel = lazyWithRetry(() => import('./InsightsPanel'))
 const SkillTreePanel = lazyWithRetry(() => import('./SkillTreePanel'))
 const MessagesPanel = lazyWithRetry(() => import('./MessagesPanel'))
 const FormReviewPanel = lazyWithRetry(() => import('./FormReviewPanel'))
+const GymnasticsEvaluationPanel = lazyWithRetry(() => import('./GymnasticsEvaluationPanel'))
 
 export type CoachTab =
   | 'home'
@@ -51,6 +52,7 @@ export type CoachTab =
   | 'faqs'
   | 'reviews'
   | 'preferences'
+  | 'gymnastics-evaluations'
 
 interface CoachAccount {
   fullName?: string
@@ -78,6 +80,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'regimens', label: 'Regimens', icon: Layers },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'assess', label: 'Assess', icon: ClipboardCheck },
+  { tab: 'gymnastics-evaluations', label: 'Evaluation Form', icon: ListChecks },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
   { tab: 'messages', label: 'Messages', icon: MessageSquare },
@@ -192,6 +195,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <ChallengeBuilder />
       case 'assess':
         return <AssessPanel />
+      case 'gymnastics-evaluations':
+        return <GymnasticsEvaluationPanel />
       case 'skills':
         return <SkillTreePanel />
       case 'assign':

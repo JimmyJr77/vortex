@@ -29,7 +29,7 @@ DECLARE
     'landmine-reverse-lunge-to-press'
   ]::TEXT[];
   target_legacy_ids CONSTANT BIGINT[] :=
-    ARRAY[1418,1419,1420,1421,1453]::BIGINT[];
+    ARRAY[1418,1419,1420,1421,1452]::BIGINT[];
   active_count INTEGER;
   already_applied_count INTEGER;
   protected_count INTEGER;
@@ -120,14 +120,14 @@ BEGIN
       migration_key;
   END IF;
 
-  IF already_applied_count = 0 THEN
-    SELECT count(*)
+  SELECT count(*)
     INTO protected_count
     FROM coaching.exercise_definition_v1 definition
     WHERE definition.facility_id = 1
       AND definition.slug = ANY(target_slugs)
       AND (
-        definition.card_version <> 1
+        (already_applied_count = 0 AND definition.card_version <> 1)
+        OR (already_applied_count = 4 AND definition.card_version <> 2)
         OR definition.status IN ('published','deprecated')
         OR definition.reviewed_by IS NOT NULL
         OR definition.approved_by IS NOT NULL
@@ -268,6 +268,7 @@ BEGIN
         protected_count;
     END IF;
 
+    IF already_applied_count = 0 THEN
     UPDATE coaching.exercise_delivery_profile_v1 profile
     SET status = 'archived',
         updated_at = now()
@@ -554,12 +555,12 @@ BEGIN
   ) ON COMMIT DROP;
 
   INSERT INTO squat_lunge_variant_seed VALUES
-    ('landmine-front-squat','bilateral-central-chest-sleeve-front-squat','Landmine Front Squat — Bilateral Central Rack','front_supported_fixed_pivot_squat','central_chest_two_hand_sleeve','bilateral_fixed_squat','bilateral_symmetric',48,58,50,48,52,0,58,44,52,48),
-    ('landmine-front-squat','unilateral-shoulder-rack-front-squat','Landmine Front Squat — Unilateral Shoulder Rack','front_supported_fixed_pivot_squat','declared_unilateral_shoulder','bilateral_fixed_squat','working_side_unilateral',56,56,60,52,54,0,58,46,60,48),
-    ('landmine-hack-squat','shoulder-supported-away-facing-hack-squat','Landmine Hack Squat — Shoulder Supported','away_facing_shoulder_supported_hack_squat','declared_upper_trapezius_or_shoulder','bilateral_feet_forward','loaded_shoulder_side_balanced_across_sets',54,64,56,60,62,0,66,48,58,72),
-    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','Landmine Split Squat — Ipsilateral Shoulder Rack','stationary_split_squat_no_step','declared_unilateral_shoulder','stationary_fore_aft','rack_ipsilateral_to_lead_leg',58,58,62,56,56,0,60,46,62,48),
-    ('landmine-split-squat','contralateral-shoulder-rack-stationary-split-squat','Landmine Split Squat — Contralateral Shoulder Rack','stationary_split_squat_no_step','declared_unilateral_shoulder','stationary_fore_aft','rack_contralateral_to_lead_leg',62,58,66,58,58,0,60,46,66,48),
-    ('landmine-split-squat','two-hand-neutral-handle-stationary-split-squat','Landmine Split Squat — Two-Hand Neutral Handle','stationary_split_squat_no_step','compatible_neutral_handle_two_hand','stationary_fore_aft','central_handle_with_declared_lead_leg',54,62,56,56,58,0,64,52,58,72),
+    ('landmine-front-squat','bilateral-central-chest-sleeve-front-squat','Landmine Front Squat — Bilateral Central Rack','front_supported_fixed_pivot_squat','central_chest_two_hand_sleeve','bilateral_fixed_squat','bilateral_symmetric',48,58,50,48,52,1,58,44,52,48),
+    ('landmine-front-squat','unilateral-shoulder-rack-front-squat','Landmine Front Squat — Unilateral Shoulder Rack','front_supported_fixed_pivot_squat','declared_unilateral_shoulder','bilateral_fixed_squat','working_side_unilateral',56,56,60,52,54,1,58,46,60,48),
+    ('landmine-hack-squat','shoulder-supported-away-facing-hack-squat','Landmine Hack Squat — Shoulder Supported','away_facing_shoulder_supported_hack_squat','declared_upper_trapezius_or_shoulder','bilateral_feet_forward','loaded_shoulder_side_balanced_across_sets',54,64,56,60,62,1,66,48,58,72),
+    ('landmine-split-squat','ipsilateral-shoulder-rack-stationary-split-squat','Landmine Split Squat — Ipsilateral Shoulder Rack','stationary_split_squat_no_step','declared_unilateral_shoulder','stationary_fore_aft','rack_ipsilateral_to_lead_leg',58,58,62,56,56,1,60,46,62,48),
+    ('landmine-split-squat','contralateral-shoulder-rack-stationary-split-squat','Landmine Split Squat — Contralateral Shoulder Rack','stationary_split_squat_no_step','declared_unilateral_shoulder','stationary_fore_aft','rack_contralateral_to_lead_leg',62,58,66,58,58,1,60,46,66,48),
+    ('landmine-split-squat','two-hand-neutral-handle-stationary-split-squat','Landmine Split Squat — Two-Hand Neutral Handle','stationary_split_squat_no_step','compatible_neutral_handle_two_hand','stationary_fore_aft','central_handle_with_declared_lead_leg',54,62,56,56,58,1,64,52,58,72),
     ('landmine-reverse-lunge-to-press','working-arm-ipsilateral-to-step-back-leg-drive-to-press','Landmine Reverse Lunge to Press — Ipsilateral Step-Back Leg','reverse_lunge_return_to_press','declared_unilateral_shoulder','step_back_and_return_to_bilateral','working_arm_ipsilateral_to_step_back_leg',66,58,70,62,60,1,62,46,70,48),
     ('landmine-reverse-lunge-to-press','working-arm-contralateral-to-step-back-leg-drive-to-press','Landmine Reverse Lunge to Press — Contralateral Step-Back Leg','reverse_lunge_return_to_press','declared_unilateral_shoulder','step_back_and_return_to_bilateral','working_arm_contralateral_to_step_back_leg',70,58,74,64,62,1,62,46,74,48);
 
@@ -874,7 +875,7 @@ BEGIN
           AND seed.action_identity = 'reverse_lunge_return_to_press'
           THEN 'output'
         WHEN raw.profile_key = 'control-pattern'
-          THEN 'control_resilience'
+          THEN 'resilience'
         ELSE 'capacity'
       END AS phase_key
     FROM (
@@ -1221,7 +1222,6 @@ BEGIN
         THEN 'Candidate exercise-complexity score reflects exact orientation, rack, support, stance or step, side relationship, action order, path, range, return, and control; human anchor review is pending.'
       WHEN 'absoluteLoadDemand'
         THEN 'Candidate physical-difficulty score reflects external load tolerance, lower-body force, unilateral or pressing demand, trunk transfer, grip, and repeatable quality; human anchor review is pending.'
-      ELSE 'Overall is deterministically derived as the maximum of exercise complexity and physical difficulty; human calibration approval is pending.'
     END,
     'review',
     1,
@@ -1239,8 +1239,7 @@ BEGIN
   CROSS JOIN LATERAL (
     VALUES
       ('technicalComplexity', seed.complexity),
-      ('absoluteLoadDemand', seed.physical),
-      ('baseOverallDifficulty', greatest(seed.complexity, seed.physical))
+      ('absoluteLoadDemand', seed.physical)
   ) AS calibration(dimension, score)
   ON CONFLICT (facility_id, variant_id, dimension, version)
   DO UPDATE SET
@@ -1810,11 +1809,10 @@ BEGIN
      AND calibration.reviewed_at IS NULL
      AND calibration.dimension IN (
        'technicalComplexity',
-       'absoluteLoadDemand',
-       'baseOverallDifficulty'
+       'absoluteLoadDemand'
      )
-  ) <> 24 THEN
-    RAISE EXCEPTION '% did not create all 24 review-only calibration rows', migration_key;
+  ) <> 16 THEN
+    RAISE EXCEPTION '% did not create all 16 review-only calibration rows', migration_key;
   END IF;
 
   IF (
@@ -1906,7 +1904,7 @@ BEGIN
     FROM coaching.exercise_definition_v1 survivor
     JOIN coaching.exercise_definition_source_v1 source
       ON source.definition_id = survivor.id
-     AND source.legacy_exercise_id = 1453
+     AND source.legacy_exercise_id = 1452
     JOIN coaching.exercise_definition_v1 duplicate
       ON duplicate.facility_id = survivor.facility_id
      AND duplicate.slug = 'landmine-handle-grip-split-squat'

@@ -17,6 +17,7 @@ import {
   CircleHelp,
   Layers,
   Blocks,
+  ListChecks,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { CoachTab } from './CoachLayout'
@@ -38,6 +39,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   regimens: Layers,
   challenges: Trophy,
   assess: ClipboardCheck,
+  'gymnastics-evaluations': ListChecks,
   skills: GitBranch,
   assign: Send,
   messages: MessageSquare,

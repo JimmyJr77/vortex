@@ -93,6 +93,10 @@ function rowToCard(definition, variants, profilesByVariant) {
 
 function additionalChecks({ card, definition, relationships, calibrations }) {
   const anatomy = asObject(card.anatomy)
+  const provenance = asObject(definition.provenance_json)
+  const canonicalResearchSource = typeof provenance.primaryIdentitySource === 'string'
+    && /^https:\/\//.test(provenance.primaryIdentitySource)
+    && provenance.canonicalAuthoredFromResearch === true
   const variants = asArray(card.variants)
   const profiles = variants.flatMap((variant) => asArray(variant.profiles))
   const approvedRelationships = relationships.filter((edge) => edge.review_status === 'approved')
@@ -114,9 +118,15 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
       id: 'CARD-MIGRATION-01',
       category: 'migration',
       priority: 'P0',
-      status: definition.legacy_exercise_id == null ? 'failed' : 'passed',
-      evidence: { legacyExerciseId: definition.legacy_exercise_id },
-      message: 'The canonical card retains a stable link to its legacy source.',
+      status: definition.legacy_exercise_id != null || canonicalResearchSource
+        ? 'passed'
+        : 'failed',
+      evidence: {
+        legacyExerciseId: definition.legacy_exercise_id,
+        canonicalAuthoredFromResearch: provenance.canonicalAuthoredFromResearch === true,
+        primaryIdentitySource: provenance.primaryIdentitySource ?? null,
+      },
+      message: 'The canonical card retains a stable legacy link or explicit research-authoring provenance.',
     },
     {
       id: 'CARD-TAXONOMY-02',

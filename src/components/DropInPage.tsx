@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
-import { getLoggedInMemberEmail } from '../utils/portalSession'
+import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 
@@ -14,6 +14,9 @@ const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday:
 const prettyTime = (time: string) => new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
 export default function DropInPage() {
+  const loggedInAccount = getMemberSessionToken() ? getLoggedInMemberAccount() : null
+  const loggedInName = loggedInAccount?.fullName?.trim() ||
+    `${loggedInAccount?.firstName || ''} ${loggedInAccount?.lastName || ''}`.trim()
   const [sessions, setSessions] = useState<DropInSession[]>([])
   const [classes, setClasses] = useState<DropInClass[]>([])
   const [benefits, setBenefits] = useState<DropInBenefits | null>(null)
@@ -27,7 +30,14 @@ export default function DropInPage() {
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [result, setResult] = useState<Awaited<ReturnType<typeof registerDropIn>> | null>(null)
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: getLoggedInMemberEmail() ?? '', phone: '', useFreeTrial: true, promoCode: '' })
+  const [form, setForm] = useState({
+    firstName: loggedInAccount?.firstName?.trim() ?? '',
+    lastName: loggedInAccount?.lastName?.trim() ?? '',
+    email: loggedInAccount?.email?.trim() ?? '',
+    phone: loggedInAccount?.phone?.trim() ?? '',
+    useFreeTrial: true,
+    promoCode: '',
+  })
 
   useEffect(() => {
     Promise.all([fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
@@ -171,7 +181,7 @@ export default function DropInPage() {
     {selected && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={(event) => { if (event.currentTarget === event.target) setSelected(null) }}><div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
       {result ? <div className="text-center"><CheckCircle2 className="mx-auto h-14 w-14 text-green-600" /><h2 className="mt-4 text-2xl font-bold">{result.accountRequired ? 'Finish creating your family account' : 'Drop-in confirmed'}</h2><p className="mt-2 text-gray-600">{result.accountRequired ? 'Your drop-in is pending. Create your family account and add this athlete to confirm the reservation.' : result.benefitType === 'free_trial' ? 'Your one-time free trial is confirmed.' : result.benefitType === 'annual_credit' ? 'One annual member credit was applied.' : result.benefitType === 'admin_credit' || result.benefitType === 'free_pass' || result.benefitType === 'promo_code' ? 'Your free-day pass was applied.' : 'Your spot is reserved and the one-time charge was added to your family account.'}</p>{result.accountRequired && <Link className="mt-5 inline-flex rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white" to={result.signupUrl ?? '/signup/family'}>Create your family account</Link>}<button className="mt-4 block w-full text-sm font-semibold" onClick={() => setSelected(null)}>Close</button></div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}</p><form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3"><label className="text-sm font-semibold">First name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></label></div>
-        <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label><label className="block text-sm font-semibold">Phone<input type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
+        {loggedInAccount ? <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><strong>Signed in{loggedInName ? ` as ${loggedInName}` : ''}</strong>{loggedInAccount.email && <span className="block">{loggedInAccount.email}</span>}<span className="mt-1 block text-green-700">This registration will use your logged-in account.</span></div> : <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>}<label className="block text-sm font-semibold">Phone<input type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
         {benefits?.trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={form.useFreeTrial} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}
         {!form.useFreeTrial && <label className="block text-sm font-semibold">Free-day code (optional)<input className="mt-1 w-full rounded-lg border px-3 py-2 font-normal uppercase" value={form.promoCode} onChange={(event) => setForm({ ...form, promoCode: event.target.value.toUpperCase() })} placeholder="Enter code" /></label>}
         <div className="rounded-xl bg-gray-50 p-4 text-sm"><div className="flex justify-between"><span>Single-day price</span><strong>{form.useFreeTrial || Boolean(form.promoCode.trim()) || (benefits?.annualCreditsRemaining ?? 0) > 0 || (benefits?.adminCreditsRemaining ?? 0) > 0 ? '$0.00' : money(selected.totalCents)}</strong></div></div>{error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}<div className="flex gap-3"><button type="button" onClick={() => setSelected(null)} className="flex-1 rounded-lg border px-4 py-3 font-semibold">Cancel</button><button disabled={submitting} className="flex-1 rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-60">{submitting ? 'Registering…' : 'Reserve class'}</button></div>
