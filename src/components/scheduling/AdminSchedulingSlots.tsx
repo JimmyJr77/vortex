@@ -36,7 +36,6 @@ interface Props {
   offeringStartDate?: string | null
   offeringEndDate?: string | null
   setupContextPrimary?: string | null
-  offeringLabel?: string | null
   canBuild?: boolean
   orphanedSignups: SchedulingOrphanedSignup[]
   signups: SchedulingSignup[]
@@ -226,7 +225,6 @@ const AdminSchedulingSlots = ({
   offeringStartDate,
   offeringEndDate,
   setupContextPrimary,
-  offeringLabel,
   canBuild = true,
   orphanedSignups,
   signups: _signups,

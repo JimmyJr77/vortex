@@ -515,7 +515,6 @@ const AdminScheduling = ({
                           })
                         : null,
                   ])}
-                  offeringLabel={null}
                   canBuild={Boolean(selectedOffering || detail.startDate)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}

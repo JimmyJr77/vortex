@@ -478,7 +478,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           offeringStartDate={selectedOffering.startDate}
           offeringEndDate={selectedOffering.endDate}
           setupContextPrimary={`${row.programName} · ${row.className}`}
-          offeringLabel={null}
           orphanedSignups={scheduleOrphans}
           signups={scheduleSignups}
           forms={[scheduleDetail]}
