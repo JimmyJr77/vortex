@@ -661,6 +661,14 @@ const HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/484_coaching_handstand_snap_down_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/486_coaching_lache_family_canonical_audit_contract_correction.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10936,6 +10944,231 @@ test('Handstand Snap-Down completion isolates the inverted-start feet-together s
   )
 })
 
+test('Lache completion separates retained catch, Tap Swing, and two-foot Precision without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening\.sql'/,
+  )
+
+  for (const token of [
+    'Two-Bar Lache Transfer to Retained Catch',
+    'Bar Hollow–Arch Tap Swing',
+    'Lache Precision to Two-Foot Stick',
+    'abc659bf-ce3c-4b7c-a118-f2b0c761bd07',
+    '9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5',
+    '3018f919-8d85-4870-a1d2-ece8fd2af15e',
+    '656028eb-c7d1-4a2f-a216-45763b201796',
+    '29c4fb69-e9c3-4106-b09d-9a0732946da9',
+    '2b733b32-477c-4987-ba3b-fcd14cb183d6',
+    '53616483-e26c-4e32-90dc-1db96a7db5b0',
+    'a2f5e5c7-dcd1-4ed6-921d-60e8409a57d5',
+    'c0717c68-366c-4039-93e6-be44febe8978',
+    '612fc5a8-a343-4609-9463-b891ebeaf104',
+    'identity-quarantine-source-19',
+    'identity_quarantine',
+    'two_bar_lache_transfer_retained_catch',
+    'bar_hollow_arch_tap_swing_no_release',
+    'lache_precision_bilateral_foot_stick',
+    'no_release_cycle',
+    'terminal_feet',
+    'target_bar',
+    'target_bar_catch',
+    'max_exercise_complexity_physical_difficulty',
+    'valid invalid partial assisted and incident attempts',
+    'coachAndAthleteRenderingRequired',
+    'revalidateAllGenerationInputs',
+  ]) {
+    assert.match(
+      LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+
+  for (const [variantKey, complexity, physical] of [
+    ['same-height-independent-retained-catch', 82, 78],
+    ['higher-target-independent-retained-catch', 88, 84],
+    ['lower-target-independent-retained-catch', 86, 82],
+    ['same-height-coach-secured-catch', 76, 72],
+    ['bilateral-overgrip-full-cycle', 68, 64],
+    ['low-target-bilateral-two-second-stick', 86, 82],
+  ]) {
+    assert.equal(Math.max(complexity, physical), complexity)
+    assert.match(
+      LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`${variantKey}[\\s\\S]{0,300},${complexity},${physical},`),
+    )
+  }
+
+  for (const videoId of [
+    '3o0NrxeRCsk',
+    'FuNZG4yF1jo',
+    'NrC-TbmShKQ',
+    'HMGZNRRTV4s',
+    'PmGur4Nfzfc',
+    'SYdukm1xvEY',
+    '8epKPyb1e4g',
+    'rCe1Z0C9WnI',
+    'lcAyqMk4l7w',
+    'yl2IawdA00o',
+    's0Xbm2An7W4',
+    'FHwls3YJ1_U',
+    'EDnsNRgcggo',
+    'zpVjQTemsJk',
+    '4I5ZJ1-qSH0',
+  ]) {
+    assert.match(
+      LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  for (const assertion of [
+    /exercise_variant_v1[\s\S]*?status='review'[\s\S]*?<>6/,
+    /exercise_delivery_profile_v1[\s\S]*?stop_rules[\s\S]*?<>16/,
+    /exercise_section_evidence_v1[\s\S]*?review_status='candidate'[\s\S]*?<>48/,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+    /exercise_media_candidate_v1[\s\S]*?link_status='healthy'[\s\S]*?<>15/,
+    /media\.link_status='healthy'[\s\S]*?<>5/,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>38/,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>11/,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>12/,
+    /exercise_identity_resolution_v1[\s\S]*?decision='distinct_exercises'[\s\S]*?<>15/,
+    /exercise_card_test_packet_v1[\s\S]*?jsonb_array_length\(blocking_issues_json\)=4\)<>3/,
+  ]) {
+    assert.match(
+      LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+      assertion,
+    )
+  }
+
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL,is_published=FALSE/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /programming_kind='exercise',linked_skill_id=NULL/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,[\s\S]*?minimum_skill_level=NULL/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /captions_available IS NULL[\s\S]*?exact_variant_match IS NULL[\s\S]*?demonstration_quality_score IS NULL[\s\S]*?reviewer_user_id IS NULL AND reviewed_at IS NULL/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(id\) DO UPDATE SET/,
+  )
+  assert.match(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(variant_id,profile_key\) DO UPDATE SET/,
+  )
+
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+
+  assert.doesNotMatch(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Lache canonical-audit correction supplies load and research-lineage contracts without approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'486_coaching_lache_family_canonical_audit_contract_correction\.sql'/,
+  )
+  for (const token of [
+    '485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql',
+    '376239898',
+    'abc659bf-ce3c-4b7c-a118-f2b0c761bd07',
+    '3018f919-8d85-4870-a1d2-ece8fd2af15e',
+    '656028eb-c7d1-4a2f-a216-45763b201796',
+    'canonicalAuditLoadContractCorrection',
+    'canonicalAuditProvenanceContractCorrection',
+    'primaryIdentitySource',
+    'canonicalAuthoredFromResearch',
+    'landingContactsPerRep',
+    'gripDemand',
+    'spinalLoading',
+    'eccentricStress',
+    'externalLoadMethod',
+  ]) {
+    assert.match(
+      LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [variantConstant, landingContacts] of [
+    ['same_height_variant', 0],
+    ['higher_target_variant', 0],
+    ['lower_target_variant', 0],
+    ['assisted_variant', 0],
+    ['tap_variant', 0],
+    ['precision_variant', 2],
+  ]) {
+    assert.match(
+      LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+      new RegExp(`\\(${variantConstant},${landingContacts}\\)`),
+    )
+  }
+  assert.match(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /corrected_count<>6/,
+  )
+  assert.match(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /refuses to overwrite human-reviewed or published state/,
+  )
+  assert.match(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /review_status<>'candidate'[\s\S]*?reviewer_user_id IS NOT NULL/,
+  )
+  assert.match(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /status='approved' OR reviewed_by IS NOT NULL/,
+  )
+  assert.doesNotMatch(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+  assert.doesNotMatch(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /['"](?:athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10990,6 +11223,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
     BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
     HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

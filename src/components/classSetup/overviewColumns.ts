@@ -1,7 +1,5 @@
 import {
-  formatOfferingsCell,
   formatScheduleCell,
-  formatSpacesCell,
   type ClassSetupOverviewRow,
   type ClassSetupOverviewStatus,
 } from '../../utils/classSetupOverviewApi'
@@ -13,13 +11,11 @@ export type OverviewColumnId =
   | 'sportTags'
   | 'program'
   | 'programDescription'
-  | 'excludeFromDropIns'
   | 'className'
   | 'classDescription'
-  | 'offerings'
-  | 'schedule'
   | 'skillLevel'
-  | 'spaces'
+  | 'schedule'
+  | 'excludeFromDropIns'
   | 'status'
   | 'costPerClass'
   | 'fee1x'
@@ -44,13 +40,11 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'sportTags', label: 'Sport Tags', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 150 },
   { id: 'program', label: 'Program', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'programDescription', label: 'Program Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
-  { id: 'excludeFromDropIns', label: 'Exclude from Drop-ins', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 160 },
   { id: 'className', label: 'Class', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
-  { id: 'offerings', label: 'Active dates', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
-  { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 220 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
-  { id: 'spaces', label: 'Spaces', editable: true, filterKind: 'text', minWidth: 90, defaultWidth: 100 },
+  { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 220, defaultWidth: 280 },
+  { id: 'excludeFromDropIns', label: 'Exclude from Drop-ins', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 160 },
   { id: 'costPerClass', label: 'Cost per Class', editable: true, filterKind: 'currency', minWidth: 110, defaultWidth: 120 },
   { id: 'fee1x', label: 'Monthly 1×/Week', editable: true, filterKind: 'currency', minWidth: 120, defaultWidth: 140 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
@@ -105,14 +99,10 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.className || '—'
     case 'classDescription':
       return row.classDescription?.trim() || '—'
-    case 'offerings':
-      return formatOfferingsCell(row.offerings)
     case 'schedule':
-      return formatScheduleCell(row.slotGroups)
+      return formatScheduleCell(row.slotGroups, row.offerings)
     case 'skillLevel':
       return formatSkillLevel(row.skillLevel)
-    case 'spaces':
-      return formatSpacesCell(row.slotGroups)
     case 'status':
       return row.status
     case 'costPerClass':

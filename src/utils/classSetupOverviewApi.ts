@@ -20,6 +20,9 @@ export interface ClassSetupSlotGroup {
   offeringId: number | null
   maxParticipants: number
   signupCount: number
+  activeStart?: string | null
+  activeEnd?: string | null
+  datesTbd?: boolean
   scheduleLabel: string
 }
 
@@ -39,6 +42,7 @@ export interface ClassSetupOverviewRow {
   primarySportId: number | null
   primarySportName: string | null
   sportTags: string
+  sportTagIds: number[]
   formId: number | null
   formActive: boolean | null
   pricingOverridesProgram: boolean
@@ -80,11 +84,45 @@ export function formatOfferingDescriptionsCell(offerings: ClassSetupOffering[]):
   return labels.length > 0 ? labels.join('; ') : '—'
 }
 
-export function formatScheduleCell(slotGroups: ClassSetupSlotGroup[]): string {
+function formatSlotGroupActiveDates(
+  group: ClassSetupSlotGroup,
+  offerings: ClassSetupOffering[] = [],
+): string {
+  if (group.datesTbd) return 'Date TBD'
+  if (group.activeStart || group.activeEnd) {
+    if (!group.activeEnd) return `${group.activeStart || '—'} · Ongoing`
+    return `${group.activeStart || '—'} → ${group.activeEnd}`
+  }
+  const offering =
+    (group.offeringId != null
+      ? offerings.find((item) => item.id === group.offeringId)
+      : null) ??
+    offerings.find((item) => item.isSelected) ??
+    offerings[0] ??
+    null
+  if (offering) return formatOfferingRangeCompact(offering)
+  return '—'
+}
+
+/** Class Master schedule cell: [active dates] · [day/time…] · [spaces] */
+export function formatScheduleCell(
+  slotGroups: ClassSetupSlotGroup[],
+  offerings: ClassSetupOffering[] = [],
+): string {
   if (slotGroups.length === 0) return '—'
   return slotGroups
-    .flatMap((group) => (group.scheduleLabel || '—').split(/\s*;\s*/))
-    .filter(Boolean)
+    .flatMap((group) => {
+      const activeDates = formatSlotGroupActiveDates(group, offerings)
+      const spaces = `${group.signupCount}/${group.maxParticipants}`
+      const segments = (group.scheduleLabel || '—')
+        .split(/\s*;\s*/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+      if (segments.length === 0) {
+        return [`${activeDates} · — · ${spaces}`]
+      }
+      return segments.map((segment) => `${activeDates} · ${segment} · ${spaces}`)
+    })
     .join('\n')
 }
 

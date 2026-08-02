@@ -1,13 +1,22 @@
 import {
   archiveClassEvent,
+  fetchProgramDisciplineTags,
+  linkProgramDisciplineTag,
+  unlinkProgramDisciplineTag,
   updateClassEvent,
   updateTopProgram,
 } from '../../utils/programsApi'
 import { normalizeProgramPricingOptions } from '../../utils/programPricingOptions'
-import { adminUpdateFormActiveDates } from '../../utils/schedulingApi'
 import {
-  formatOfferingsCell,
-  type ClassSetupOffering,
+  adminCreateSlotBatch,
+  adminDeleteSlotGroup,
+  adminEnsureFormActiveDates,
+  adminFetchSchedulingForm,
+  type SchedulingSlotGroup,
+  type SlotBatchPayload,
+} from '../../utils/schedulingApi'
+import {
+  formatScheduleCell,
   type ClassSetupOverviewRow,
 } from '../../utils/classSetupOverviewApi'
 import {
@@ -16,16 +25,17 @@ import {
   type OverviewColumnId,
 } from './overviewColumns'
 
-/** Fields that can be copied as scalar/program values (not embedded editors). */
+/** Fields that can be copied as values across Class Master rows. */
 export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'primarySport',
+  'sportTags',
   'program',
   'programDescription',
   'excludeFromDropIns',
   'className',
   'classDescription',
-  'offerings',
   'skillLevel',
+  'schedule',
   'status',
   'active',
   'costPerClass',
@@ -81,6 +91,7 @@ export interface CopyChangePreview {
 
 const PROGRAM_LEVEL_COLUMNS: ReadonlySet<OverviewColumnId> = new Set([
   'primarySport',
+  'sportTags',
   'programDescription',
   'excludeFromDropIns',
   'costPerClass',
@@ -92,14 +103,8 @@ export function isProgramLevelColumn(columnId: OverviewColumnId): boolean {
   return PROGRAM_LEVEL_COLUMNS.has(columnId)
 }
 
-function primaryOffering(row: ClassSetupOverviewRow): ClassSetupOffering | null {
-  return row.offerings.find((offering) => offering.isSelected) ?? row.offerings[0] ?? null
-}
-
-function activeDatesEqual(a: ClassSetupOffering | null, b: ClassSetupOffering | null): boolean {
-  if (!a && !b) return true
-  if (!a || !b) return false
-  return a.startDate === b.startDate && (a.endDate ?? null) === (b.endDate ?? null)
+function sportTagIds(row: ClassSetupOverviewRow): number[] {
+  return [...(row.sportTagIds ?? [])].map(Number).filter((id) => Number.isFinite(id)).sort((a, b) => a - b)
 }
 
 function valuesEqualForColumn(
@@ -110,6 +115,8 @@ function valuesEqualForColumn(
   switch (columnId) {
     case 'primarySport':
       return source.primarySportId === target.primarySportId
+    case 'sportTags':
+      return JSON.stringify(sportTagIds(source)) === JSON.stringify(sportTagIds(target))
     case 'program':
       return source.programsId === target.programsId
     case 'programDescription':
@@ -120,8 +127,11 @@ function valuesEqualForColumn(
       return source.className === target.className
     case 'classDescription':
       return (source.classDescription ?? '') === (target.classDescription ?? '')
-    case 'offerings':
-      return activeDatesEqual(primaryOffering(source), primaryOffering(target))
+    case 'schedule':
+      return (
+        formatScheduleCell(source.slotGroups, source.offerings) ===
+        formatScheduleCell(target.slotGroups, target.offerings)
+      )
     case 'skillLevel':
       return (source.skillLevel ?? '') === (target.skillLevel ?? '')
     case 'status':
@@ -158,10 +168,6 @@ export function buildCopyChangePreviews(
     if (!target) continue
     if (valuesEqualForColumn(source, target, columnId)) continue
 
-    const toDisplay =
-      columnId === 'offerings'
-        ? formatOfferingsCell(source.offerings)
-        : previewToDisplay(source, columnId)
     previews.push({
       key,
       classId,
@@ -170,7 +176,7 @@ export function buildCopyChangePreviews(
       columnId,
       columnLabel: columnLabel(columnId),
       fromDisplay: getCellDisplayValue(target, columnId),
-      toDisplay,
+      toDisplay: getCellDisplayValue(source, columnId),
       programLevel: isProgramLevelColumn(columnId),
     })
   }
@@ -182,19 +188,129 @@ export function buildCopyChangePreviews(
   })
 }
 
-function previewToDisplay(source: ClassSetupOverviewRow, targetColumnId: OverviewColumnId): string {
-  // Synthesize a temporary row view so display helpers stay consistent.
-  const projected: ClassSetupOverviewRow = {
-    ...source,
-    classId: source.classId,
+function normalizeTime(time: string): string {
+  return time.length >= 5 ? time.slice(0, 5) : time
+}
+
+/** Build a create-slot-batch payload that recreates an existing slot group. */
+export function slotGroupToBatchPayload(
+  group: SchedulingSlotGroup,
+  offeringId: number | null,
+): SlotBatchPayload {
+  const base = {
+    offeringId,
+    activeDatesMode: 'inherit' as const,
+    maxParticipants: group.maxParticipants,
   }
-  if (STATUS_COLUMNS.has(targetColumnId)) {
-    return getCellDisplayValue(projected, targetColumnId)
+
+  if (group.scheduleMode === 'date') {
+    const byDate = new Map<string, { startTime: string; endTime: string }[]>()
+    for (const occ of group.occurrences) {
+      const date = occ.specificDate
+      if (!date) continue
+      if (!byDate.has(date)) byDate.set(date, [])
+      byDate.get(date)!.push({
+        startTime: normalizeTime(occ.startTime),
+        endTime: normalizeTime(occ.endTime),
+      })
+    }
+    return {
+      ...base,
+      scheduleMode: 'date',
+      dateSchedule: {
+        entries: [...byDate.entries()].map(([date, times]) => ({
+          type: 'single' as const,
+          date,
+          times,
+        })),
+      },
+    }
   }
-  if (PRICING_COLUMNS.has(targetColumnId)) {
-    return getCellDisplayValue(projected, targetColumnId)
+
+  const byWeek = new Map<string, Map<number, { startTime: string; endTime: string }[]>>()
+  for (const occ of group.occurrences) {
+    if (occ.dayOfWeek == null) continue
+    const week = (occ.weekLetter || 'A').trim() || 'A'
+    if (!byWeek.has(week)) byWeek.set(week, new Map())
+    const days = byWeek.get(week)!
+    if (!days.has(occ.dayOfWeek)) days.set(occ.dayOfWeek, [])
+    days.get(occ.dayOfWeek)!.push({
+      startTime: normalizeTime(occ.startTime),
+      endTime: normalizeTime(occ.endTime),
+    })
   }
-  return getCellDisplayValue(projected, targetColumnId)
+
+  return {
+    ...base,
+    scheduleMode: 'day',
+    daySchedule: {
+      weeks: [...byWeek.entries()].map(([weekLetter, days]) => ({
+        weekLetter,
+        days: [...days.entries()].map(([dayOfWeek, times]) => ({
+          dayOfWeek,
+          times,
+        })),
+      })),
+    },
+  }
+}
+
+async function applySportTagsCopy(
+  source: ClassSetupOverviewRow,
+  target: ClassSetupOverviewRow,
+): Promise<void> {
+  if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
+  const desired = new Set(sportTagIds(source))
+  // Prefer live target tags so we don't leave stale links when overview is slightly behind.
+  const currentTags = await fetchProgramDisciplineTags(target.programsId)
+  const currentIds = new Set(
+    currentTags
+      .map((tag) => tag.id)
+      .filter((id) => id !== target.primarySportId && id !== source.primarySportId),
+  )
+
+  for (const id of currentIds) {
+    if (!desired.has(id)) await unlinkProgramDisciplineTag(target.programsId, id)
+  }
+  for (const id of desired) {
+    if (id === target.primarySportId) continue
+    if (!currentIds.has(id)) await linkProgramDisciplineTag(target.programsId, id)
+  }
+}
+
+async function applyScheduleCopy(
+  source: ClassSetupOverviewRow,
+  target: ClassSetupOverviewRow,
+): Promise<void> {
+  if (source.formId == null) throw new Error('Source class has no scheduling form')
+  if (target.formId == null) throw new Error(`“${target.className}” has no scheduling form`)
+
+  const sourceDetail = await adminFetchSchedulingForm(source.formId)
+  const sourceGroups = sourceDetail.slotGroups ?? []
+  if (sourceGroups.length === 0) {
+    throw new Error('Source class has no schedule slots to copy')
+  }
+
+  const offering = await adminEnsureFormActiveDates(target.formId, {
+    startDate: sourceDetail.startDate,
+    endDate: sourceDetail.endDate,
+  })
+  const targetDetail = await adminFetchSchedulingForm(target.formId)
+
+  // Replace target schedule with source structure (deletes move enrollments to orphaned).
+  for (const group of targetDetail.slotGroups ?? []) {
+    await adminDeleteSlotGroup(group.id)
+  }
+  for (const group of sourceGroups) {
+    const payload = slotGroupToBatchPayload(group, offering.id)
+    if (
+      (payload.scheduleMode === 'day' && !payload.daySchedule?.weeks?.length) ||
+      (payload.scheduleMode === 'date' && !payload.dateSchedule?.entries?.length)
+    ) {
+      continue
+    }
+    await adminCreateSlotBatch(target.formId, payload)
+  }
 }
 
 export async function applyCopyToTarget(
@@ -206,6 +322,9 @@ export async function applyCopyToTarget(
     case 'primarySport':
       if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
       await updateTopProgram(target.programsId, { primarySportId: source.primarySportId })
+      break
+    case 'sportTags':
+      await applySportTagsCopy(source, target)
       break
     case 'program':
       if (source.programsId == null) throw new Error('Source class has no parent program')
@@ -229,22 +348,9 @@ export async function applyCopyToTarget(
         description: source.classDescription?.trim() || null,
       })
       break
-    case 'offerings': {
-      if (target.formId == null) {
-        throw new Error(`“${target.className}” has no scheduling form for active dates`)
-      }
-      const sourceDates = primaryOffering(source)
-      if (!sourceDates) {
-        throw new Error('Source class has no active dates to copy')
-      }
-      await adminUpdateFormActiveDates(
-        target.formId,
-        sourceDates.evergreen || !sourceDates.endDate
-          ? { startDate: sourceDates.startDate, evergreen: true }
-          : { startDate: sourceDates.startDate, endDate: sourceDates.endDate },
-      )
+    case 'schedule':
+      await applyScheduleCopy(source, target)
       break
-    }
     case 'skillLevel':
       await updateClassEvent(target.classId, {
         skillLevel: (source.skillLevel || null) as ClassSetupOverviewRow['skillLevel'],
@@ -288,7 +394,6 @@ export async function applyCopyChangePreviews(
     if (preview.programLevel && target.programsId != null) {
       const dedupeKey = `${target.programsId}:${preview.columnId}`
       if (appliedProgramKeys.has(dedupeKey)) continue
-      // Pricing columns all write the same payload — coalesce across the pricing group.
       if (PRICING_COLUMNS.has(preview.columnId)) {
         const pricingDedupe = `${target.programsId}:pricing`
         if (appliedProgramKeys.has(pricingDedupe)) continue
@@ -311,9 +416,12 @@ export function canReceiveCopy(
   if (!isCompatibleCopyTarget(sourceColumnId, targetColumnId)) return false
   if (isProgramLevelColumn(targetColumnId) && target.programsId == null) return false
   if (targetColumnId === 'program' && target.classId < 0) return false
-  if (targetColumnId === 'offerings') {
+  if (targetColumnId === 'schedule') {
     if (target.formId == null) return false
-    if (source && source.offerings.length === 0) return false
+    if (source && (source.formId == null || source.slotGroups.length === 0)) return false
+  }
+  if (targetColumnId === 'sportTags') {
+    if (target.programsId == null) return false
   }
   return true
 }

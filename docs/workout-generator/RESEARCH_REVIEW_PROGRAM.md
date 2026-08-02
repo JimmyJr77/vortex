@@ -3090,3 +3090,45 @@ amplitude variants; assistance and body-technique variants; and separation from
 Kips, static supports, circles, undershoots, turns, releases, mounts, and floor
 or wall Handstand work. Separate qualified content review and publication
 approval remain mandatory.
+
+## Handstand Snap-Down source-18 review packet
+
+Review the exact `Handstand Snap-Down to Feet-Together Stick` family, not the
+legacy mixed `Round-Off Snap-Down Shape Drill` name. Confirm whether each
+working variant starts only after either back-to-wall heel-contact or
+independent freestanding two-hand support is established; whether the scored
+action is tall shoulder push plus joined-leg snap; whether the hands release
+before simultaneous feet; and whether the endpoint is an upright hollow feet-
+together no-rebound stick. Record support, wall and assistance contact, hand
+slide/regrasp or collapse, leg shape, turn, release timing, foot synchrony,
+stick, rebound/step/fall/connection, bailout, symptoms, first fault, and every
+valid, invalid, partial, assisted, or incident exposure.
+
+Use USA Gymnastics July-2025 compulsory replacement text for current full
+Round-Off and adjacent snap-down/rebound action boundaries; Masaryk Safe
+Gymnastics for the full Roundoff approach, asymmetric leg/hand sequence, turn,
+push, joined legs, and feet-together landing; CanJump for separately named
+Handstand Snap-Down and rebound sequences; Special Olympics for population-
+specific communication and lead-up coaching; and the registered handstand,
+upper-extremity, tumbling-load, and skill-complexity research only for their
+narrow studied claims. None independently establishes this exact standalone
+working card, universal technique, eligibility, assistance, safe dose, contact
+ceiling, recovery interval, outcome, transfer, or numeric difficulty.
+
+Watch `7r-UOQi8YvE`, `BnnX00Hlqpk`, `D6bbi5bv0TY`, and `dqEZV4DW8aU` in full.
+Current oEmbed metadata establishes only title/channel/thumbnail/embed response
+health. Record exact definition and variant, start support, wall and coach
+contact, hand support and release, snap action, simultaneous feet, endpoint,
+captions, accessibility, demonstration and cue quality, safety concerns,
+conflicts, reviewer identity, rationale, timestamp, current playback, and card-
+version match. Keep all four rows candidate-only until that record exists.
+
+Independently adjudicate all 24 alternate assessments, eight graph proposals,
+four complexity/physical-difficulty anchors, and eight neighbor boundaries.
+Pay special attention to full Round-Off, Round-Off rebound, connected Round-
+Off/back-handspring, back-handspring snap-down, snap-down-to-rebound/back,
+Power Hurdle entry, Cartwheel, static Handstand Holds, Handstand Kick-Up,
+Standing Snap-Down, Donkey Kick, hand pop, unilateral landing, and altered
+terminal states. A Round-Off skill-library link does not import a proficiency
+level onto the exercise. Separate qualified content review and publication
+approval remain mandatory after all candidate decisions.

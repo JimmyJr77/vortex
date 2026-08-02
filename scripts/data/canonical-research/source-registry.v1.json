@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.86",
+  "registryVersion": "2026-08-02.87",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2576,6 +2576,48 @@
       "publisher": "Special Olympics",
       "kind": "governing_body",
       "evidenceQuality": 80
+    },
+    "world_gymnastics_parkour_age_group_bar_elements_2021": {
+      "url": "https://www.gymnastics.sport/site/pages/education/agegroup-pk-manual-e.pdf",
+      "title": "Parkour Age Group Development and Competition Program, First Edition 2021",
+      "publisher": "World Gymnastics / Fédération Internationale de Gymnastique",
+      "kind": "governing_body",
+      "evidenceQuality": 92
+    },
+    "world_gymnastics_parkour_table_of_tricks_2025": {
+      "url": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1.1%20-%20PK%20Code%20of%20Points%202025-2028%20-%20Table%20of%20tricks%202025.pdf",
+      "title": "Parkour Code of Points 2025–2028 — Table of Tricks 2025",
+      "publisher": "World Gymnastics / Fédération Internationale de Gymnastique",
+      "kind": "governing_body",
+      "evidenceQuality": 94
+    },
+    "urbanleap_parkour_lache_handbook": {
+      "url": "https://assets.zyrosite.com/AR0yPVr0V2u089eJ/urban-leap-project---handbook_finalna-verzija-a41oVuj00q1YwJLx.pdf",
+      "title": "UrbanLeap Parkour Trainer Handbook",
+      "publisher": "UrbanLeap Erasmus+ Sport Project",
+      "kind": "professional_standard",
+      "evidenceQuality": 78
+    },
+    "horizontal_bar_release_identification_isbs": {
+      "url": "https://ojs.ub.uni-konstanz.de/cpa/article/view/2969",
+      "title": "The Identification of Release on the Horizontal Bar",
+      "publisher": "International Society of Biomechanics in Sports Conference Proceedings",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 68
+    },
+    "kovacs_release_regrasp_biomechanics": {
+      "url": "https://doi.org/10.1016/j.jbiomech.2016.11.048",
+      "title": "What governs successful performance of a complex whole body movement: The Kovacs release-regrasp on horizontal bar?",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "parkour_injury_risk_survey": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23860830/",
+      "title": "Parkour—Art of Movement and its Injury Risk",
+      "publisher": "Sportverletzung Sportschaden",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
     }
   }
 }

@@ -3192,3 +3192,45 @@ pairs with zero unresolved collision. Graph/calibration queues are 695/917
 review-only rows with zero approvals. Migration checksum is `229324910`,
 registry version/count is `2026-08-02.85`/364, focused verification is
 `218/218`, and the backend suite is 1,017 passes plus 20 intentional skips.
+
+## Handstand Snap-Down to Feet-Together Stick canonical card
+
+Source 18 now maps to one exact dynamic inverted-exit family rather than a
+mixed Round-Off card. Its two selectable variants declare either a
+back-to-wall heel-contact start or an independently established freestanding
+start. Both require two-hand straight-arm support, joined legs, tall shoulder
+push, hand release before simultaneous feet, and an upright hollow feet-
+together stick without rebound or connection. Complexity / physical
+difficulty / derived overall are `70/62/70` and `82/70/82`; no athlete skill or
+age classification is present.
+
+The definition includes controlled movement/body-region/equipment taxonomy;
+primary, secondary, and stabilizing anatomy; joints, actions, planes,
+laterality, support and contact sequence; bodyweight/inertial hand-to-foot load
+transfer without invented load shares; hand, landing, wall, invalid, assisted,
+and incident exposure accounting; local/grip/technical/impact fatigue and
+planning-only recovery estimates; surface, wall, mat, clearance, lane,
+supervision, population, symptom, fear, and bailout constraints; and explicit
+identity uncertainty policy.
+
+Four Prepare & Access / Movement Intelligence delivery profiles provide exact
+attempt-based dose, rest, duration formula and bounds, setup/reset/transition,
+station throughput, quality gates, at least four stop rules, scaling order,
+measurements, substitutions with full revalidation, coach and athlete
+instructions, support and incident prompts, cumulative budgets, rendering, and
+planned/actual persistence. The card has 16 section-specific candidate sources,
+24 alternate dispositions, 8 explicit neighbor boundaries, 8 review-only
+relationships, 4 review-only complexity/physical-difficulty anchors, and four
+privacy-enhanced YouTube candidates (`7r-UOQi8YvE`, `BnnX00Hlqpk`,
+`D6bbi5bv0TY`, `dqEZV4DW8aU`). oEmbed health does not establish full playback,
+exact variant match, captions, accessibility, cue quality, safety, or approval.
+
+The current packet has exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. The global persisted audit is
+1,676/1,676 mapped legacy rows, 1,043 active definitions, 92 machine-complete
+and 951 machine-incomplete cards, 91/1,043 current healthy embeddable
+3–5-candidate sets, and 617/617 adjudicated surfaced identity pairs with no
+unresolved pair or exact collision. Graph/calibration queues contain 702/921
+review-only rows and zero approvals. Migration 484 is immutable at checksum
+`4224855249`; registry `2026-08-02.86` contains 368 sources; focused tests are
+220/220 and the full backend suite is 1,019 passes plus 20 intentional skips.

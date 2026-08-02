@@ -3,7 +3,6 @@ import AdminClassSetupOverviewEditModal from './AdminClassSetupOverviewEditModal
 import PrimarySportPicker from '../programs/PrimarySportPicker'
 import DisciplineTagPicker from '../programs/DisciplineTagPicker'
 import AdminSchedulingSlots from '../scheduling/AdminSchedulingSlots'
-import ClassActiveDatesEditor from '../scheduling/ClassActiveDatesEditor'
 import {
   archiveClassEvent,
   fetchTopPrograms,
@@ -16,7 +15,6 @@ import {
   adminFetchOrphanedSignups,
   adminFetchSchedulingForm,
   adminFetchSignups,
-  adminUpdateSlotGroupMax,
   type SchedulingFormDetail,
   type SchedulingOffering,
   type SchedulingOrphanedSignup,
@@ -30,7 +28,6 @@ import {
 } from '../../utils/programPricingOptions'
 import {
   type ClassSetupOverviewRow,
-  type ClassSetupSlotGroup,
 } from '../../utils/classSetupOverviewApi'
 import { type OverviewColumnId } from './overviewColumns'
 
@@ -104,18 +101,12 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [excludeFromDropIns, setExcludeFromDropIns] = useState(false)
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
-  const [spacesDraft, setSpacesDraft] = useState<ClassSetupSlotGroup[]>([])
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
   const [scheduleLoading, setScheduleLoading] = useState(false)
   const [scheduleDetail, setScheduleDetail] = useState<SchedulingFormDetail | null>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
   const [scheduleSignups, setScheduleSignups] = useState<SchedulingSignup[]>([])
   const [scheduleOrphans, setScheduleOrphans] = useState<SchedulingOrphanedSignup[]>([])
-
-  const primaryOffering = useMemo(() => {
-    if (!row) return null
-    return row.offerings.find((offering) => offering.isSelected) ?? row.offerings[0] ?? null
-  }, [row])
 
   useEffect(() => {
     if (!row || !columnId) return
@@ -126,7 +117,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setExcludeFromDropIns(row.excludeFromDropIns)
     setSkillLevel(row.skillLevel ?? '')
     setStatusValue(row.status)
-    setSpacesDraft(row.slotGroups.map((g) => ({ ...g })))
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
     setPricingDraft(options)
 
@@ -202,10 +192,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       excludeFromDropIns: 'Exclude from Drop-ins',
       className: 'Class',
       classDescription: 'Class Description',
-      offerings: 'Active dates',
       schedule: 'Schedule',
       skillLevel: 'Skill Level',
-      spaces: 'Spaces',
       status: 'Status',
       active: 'Status',
       costPerClass: 'Pricing',
@@ -285,11 +273,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           } else {
             if (row.classArchived) await archiveClassEvent(row.classId, false)
             await updateClassEvent(row.classId, { isActive: statusValue === 'Active' })
-          }
-          break
-        case 'spaces':
-          for (const group of spacesDraft) {
-            await adminUpdateSlotGroupMax(group.slotGroupId, group.maxParticipants)
           }
           break
         case 'costPerClass':
@@ -445,24 +428,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         </div>
       )
       break
-    case 'offerings':
-      body =
-        row.formId == null ? (
-          <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
-        ) : (
-          <ClassActiveDatesEditor
-            formId={row.formId}
-            startDate={primaryOffering?.startDate}
-            endDate={primaryOffering?.endDate}
-            onSaved={async () => {
-              onSaved()
-              onClose()
-            }}
-          />
-        )
-      hideSave = true
-      hideFooter = true
-      break
     case 'schedule':
       body = row.formId == null ? (
         <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
@@ -478,6 +443,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           offeringStartDate={selectedOffering.startDate}
           offeringEndDate={selectedOffering.endDate}
           setupContextPrimary={`${row.programName} · ${row.className}`}
+          existingSlotsPosition="top"
           orphanedSignups={scheduleOrphans}
           signups={scheduleSignups}
           forms={[scheduleDetail]}
@@ -489,39 +455,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       hideSave = true
       hideFooter = true
       wide = true
-      break
-    case 'spaces':
-      body =
-        spacesDraft.length === 0 ? (
-          <p className="text-sm text-gray-500">No schedule groups yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {spacesDraft.map((group, index) => (
-              <div key={group.slotGroupId} className="border border-gray-200 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-2">{group.scheduleLabel || `Group ${index + 1}`}</p>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Max participants ({group.signupCount} enrolled)
-                </label>
-                <input
-                  type="number"
-                  min={group.signupCount}
-                  value={group.maxParticipants}
-                  onChange={(e) =>
-                    setSpacesDraft((prev) =>
-                      prev.map((g) =>
-                        g.slotGroupId === group.slotGroupId
-                          ? { ...g, maxParticipants: Math.max(0, Number(e.target.value) || 0) }
-                          : g,
-                      ),
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-            ))}
-          </div>
-        )
-      saveDisabled = spacesDraft.length === 0
       break
     case 'costPerClass':
     case 'fee1x':

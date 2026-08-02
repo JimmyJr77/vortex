@@ -35,12 +35,17 @@ function mapOfferingRow(row) {
 }
 
 function mapSlotGroupRow(row, scheduleLabel) {
+  const activeStart = row.active_start ? String(row.active_start).slice(0, 10) : null
+  const activeEnd = row.active_end ? String(row.active_end).slice(0, 10) : null
   return {
     slotGroupId: Number(row.id),
     formId: Number(row.form_id),
     offeringId: row.offering_id != null ? Number(row.offering_id) : null,
     maxParticipants: Number(row.max_participants ?? 0),
     signupCount: Number(row.signup_count ?? 0),
+    activeStart,
+    activeEnd,
+    datesTbd: Boolean(row.dates_tbd),
     scheduleLabel,
   }
 }
@@ -132,6 +137,13 @@ export async function buildClassSetupOverview(pool) {
           WHERE pdt.programs_id = p.${programFkColumn}
             AND dt.id IS DISTINCT FROM pr.primary_discipline_tag_id
         ), '') AS sport_tags,
+        COALESCE((
+          SELECT array_agg(dt.id ORDER BY dt.sort_order, dt.name)
+          FROM program_discipline_tag pdt
+          JOIN discipline_tag dt ON dt.id = pdt.tag_id
+          WHERE pdt.programs_id = p.${programFkColumn}
+            AND dt.id IS DISTINCT FROM pr.primary_discipline_tag_id
+        ), ARRAY[]::bigint[]) AS sport_tag_ids,
         sf.id AS form_id,
         sf.is_active AS form_active,
         sf.pricing_overrides_program AS pricing_overrides_program,
@@ -181,6 +193,9 @@ export async function buildClassSetupOverview(pool) {
           sg.form_id,
           sg.offering_id,
           sg.max_participants,
+          sg.active_start,
+          sg.active_end,
+          sg.dates_tbd,
           COALESCE((
             SELECT COUNT(*)::int FROM scheduling_signup s
             WHERE s.slot_group_id = sg.id
@@ -283,6 +298,9 @@ export async function buildClassSetupOverview(pool) {
       primarySportId: row.primary_sport_id != null ? Number(row.primary_sport_id) : null,
       primarySportName: row.primary_sport_name ?? null,
       sportTags: row.sport_tags ?? '',
+      sportTagIds: Array.isArray(row.sport_tag_ids)
+        ? row.sport_tag_ids.map((id) => Number(id)).filter((id) => Number.isFinite(id))
+        : [],
       formId,
       formActive: formId != null ? Boolean(row.form_active) : null,
       pricingOverridesProgram: Boolean(row.pricing_overrides_program) && hasDifferentPrice,

@@ -1800,3 +1800,40 @@ After migration 482 the detector reports 617/617 adjudicated surfaced pairs
 across 1,043 active definitions, zero unresolved score-72-or-higher pair, and
 zero exact collision. The 14 graph rows and all identity evidence remain
 review-only; no human decision or approval is inferred.
+
+## Handstand Snap-Down versus Round-Off and adjacent inversion identities
+
+Migration 484 preserves source 18 lineage but archives its mixed baseline and
+renames the exact working definition to `Handstand Snap-Down to Feet-Together
+Stick` (`60f5b21a-991c-4ce8-9068-3c42b2043021`). The repetition starts only
+after the declared inverted two-hand support is established, then scores the
+tall shoulder push, joined-leg snap, hand release before simultaneous feet, and
+upright hollow feet-together no-rebound stick. Wrong start/support, unexpected
+contact, hand slide or collapse, leg separation or turn, hands remaining at
+foot contact, asynchronous feet, rebound, extra step, fall, connection,
+symptom stop, or rescue invalidates the repetition.
+
+Back-to-wall heel contact and independent freestanding starts are exact
+variants because the scored snap-down and terminal contract are unchanged but
+the support constraint materially affects selection, logistics, difficulty,
+and persistence. Full Round-Off or Round-Off-to-rebound, Power Hurdle entry,
+Cartwheel, static Freestanding or Wall Handstand Hold, Handstand Kick-Up,
+Standing Snap-Down to Stick, and Donkey Kick are eight distinct definitions.
+They add or remove approach/hurdle, side-leading hands, longitudinal turn,
+sequential feet, static time, kick-up entry, non-inverted action, double-foot
+hop, rebound, or a different repetition boundary. Connected Round-Off–Back
+Handspring, back-handspring snap-down, snap-down-to-back, hand pop, unilateral
+landing, and other endpoints are likewise not annotations on this card.
+
+The legacy source description combined handstand, wall-handstand, and
+Cartwheel-like entry language without specifying a single exact start, so its
+source representation remains nonselectable `identity_quarantine`. The
+exercise may retain `linked_skill_id=10` for Round-Off lineage, while the skill
+library alone owns Round-Off proficiency levels. No athlete level or age-
+derived classification is stored on the exercise.
+
+After migration 484 and the persisted audit, the detector remains 617/617
+adjudicated surfaced pairs across 1,043 active definitions, with zero
+unresolved score-72-or-higher pair and zero exact collision. All eight new
+identity boundaries and eight graph proposals remain unreviewed; no qualified
+human identity, relationship, or approval decision is inferred.

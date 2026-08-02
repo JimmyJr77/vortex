@@ -21,6 +21,7 @@ const AdminClassSetupCopyConfirmModal = ({
   if (!open) return null
 
   const hasProgramLevel = changes.some((change) => change.programLevel)
+  const hasScheduleCopy = changes.some((change) => change.columnId === 'schedule')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -46,6 +47,12 @@ const AdminClassSetupCopyConfirmModal = ({
           {hasProgramLevel && (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
               Some changes are program-level and will apply to every class in the affected program.
+            </p>
+          )}
+          {hasScheduleCopy && (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              Schedule copy replaces the target class’s existing timeslots. Enrolled athletes on
+              removed slots move to Orphaned signups.
             </p>
           )}
           {changes.length === 0 ? (

@@ -345,21 +345,21 @@ append-only audit histories above.
 
 ## Live checkpoint: completed work
 
-The last comprehensively verified family is Bar Cast / Cast to Handstand,
-implemented by immutable migration 482.
+The last comprehensively verified family is Handstand Snap-Down to Feet-
+Together Stick, implemented by immutable migration 484.
 
 - 1,676 of 1,676 legacy rows are mapped to 1,043 active definitions.
 - The surfaced identity detector reports 617 of 617 pairs adjudicated, zero
   unresolved score-72-or-higher pair, and zero exact collision.
-- 91 definitions are machine-complete and 952 are machine-incomplete.
-- 90 of 1,043 definitions have exactly three to five current healthy
+- 92 definitions are machine-complete and 951 are machine-incomplete.
+- 91 of 1,043 definitions have exactly three to five current healthy
   embeddable candidates for their current card version.
-- Graph/calibration queues contain 695/917 review-only rows with zero
+- Graph/calibration queues contain 702/921 review-only rows with zero
   approvals.
 - There are zero published definitions, zero approved depth in every required
   phase, and zero of 20 required real coach workout reviews.
-- Registry `2026-08-02.85` contains 364 sources.
-- Focused validation passes 218 tests; the full backend suite passes 1,017
+- Registry `2026-08-02.86` contains 368 sources.
+- Focused validation passes 220 tests; the full backend suite passes 1,019
   tests with 20 intentional skips and zero failures. Focused lint, JSON
   parsing, persisted audit, identity reporting, diff integrity, and the
   production build pass.
@@ -371,13 +371,38 @@ implemented by immutable migration 482.
 
 Latest immutable registered migration:
 
-- 482 `coaching_bar_cast_family_audit_hardening`, checksum `229324910`,
-  registered `2026-08-02 11:36:31.016626-04`.
+- 484 `coaching_handstand_snap_down_family_audit_hardening`, checksum
+  `4224855249`, registered `2026-08-02 12:01:33.321697-04`.
 
 Its exact registered file passes normal-runner re-entry. Do not edit migration
-482; add a later migration if another correction is required. Migrations
-479–481 remain immutable at checksums `4176817151`, `2984990515`, and
-`722794694`.
+484; add a later migration if another correction is required. Migrations
+479–482 remain immutable at checksums `4176817151`, `2984990515`, `722794694`,
+and `229324910`.
+
+Handstand Snap-Down family state:
+
+- canonical definition: `60f5b21a-991c-4ce8-9068-3c42b2043021`, card version
+  2;
+- legacy source: 18;
+- archived source baseline: `064e650c-28e8-4820-b0da-7043bb509c2c`;
+- back-to-wall heel-contact variant:
+  `68c16da0-414f-4932-97f4-1d8b236af8dd`, `70/62/70`;
+- independent freestanding variant:
+  `68a0499b-34b0-4621-b798-b49ffd8ed1a1`, `82/70/82`;
+- 2 selectable variants, 4 profiles, 16 evidence sections, 4 media candidates,
+  24 alternates, 8 graph proposals, 4 calibration proposals, 8 explicit
+  boundaries, and 1 current packet with exactly the four standard human gates;
+- video IDs: `7r-UOQi8YvE`, `BnnX00Hlqpk`, `D6bbi5bv0TY`, and `dqEZV4DW8aU`.
+
+The first draft run rolled back on a forbidden athlete-classification JSON key
+and exposed misaligned difficulty tuples. The next run rolled back on an
+uncontrolled media discovery method. After removing the key, realigning both
+22-field vectors, and using `manual_research`, the final committed migration-
+484 bytes passed two direct executions, production-runner registration,
+normal-runner skip, and exact-file direct re-entry. No candidate media,
+relationship, calibration, content, or publication approval was created.
+
+### Prior verified family: Bar Cast / Cast to Handstand
 
 Bar Cast family state:
 
@@ -585,12 +610,12 @@ data before assuming its identity, variants, or research needs:
    quarantine, graph/calibration proposals, and a complete test packet are
    explicit.
 
-## Immediate next work
+## Historical source-18 draft checkpoint (completed by migration 484)
 
-Legacy source 18 has now been audited and researched. A migration is drafted
-but has **not** passed its first direct database run and has **not** been
-registered. Do not restart the source audit and do not treat the draft as
-complete.
+This section preserves the failure/recovery history that was accurate while
+migration 484 was a draft. Do not follow its pending-work instructions; use
+the current `Live checkpoint`, the new `Immediate next work` section below, and
+the newest return-handoff entry.
 
 Current draft:
 
@@ -680,6 +705,262 @@ YouTube oEmbed metadata checks. The candidate video IDs are `7r-UOQi8YvE`,
 `BnnX00Hlqpk`, `D6bbi5bv0TY`, and `dqEZV4DW8aU`. They have metadata health
 only; playback, exactness, captions, accessibility, cue quality, safety, and
 approval remain unverified and must stay null/quarantined.
+
+## Immediate next work
+
+Source 18 is complete to machine-authored quarantine. Do not edit immutable
+migration 484 or repeat its research unless new mechanics evidence requires a
+later corrective migration.
+
+The active family is legacy source 19. Its research and SQL authorship are now
+complete as an unregistered draft, but migration registration, static contract
+coverage, persisted reporting, full validation, and documentation are not.
+Do not repeat the completed source audit or rewrite the draft from scratch.
+First reconcile the shared worktree, then finish the exact ordered checklist
+under `Exact next execution order`.
+
+Current implementation state:
+
+- unregistered migration:
+  `backend/migrations/485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql`;
+- current exact-file checksum: `376239898` (recompute after every edit);
+- the exact current SQL bytes have passed an `ON_ERROR_STOP=1` direct run and
+  an unchanged second direct run against disposable PostgreSQL; both completed
+  with `DO`, and all earlier failed attempts rolled back transactionally;
+- migration 485 is not in `backend/platform/initTables.js`, is not registered
+  in `schema_migrations`, and does not yet have a static family-contract test;
+- the research registry is already updated to `2026-08-02.87` with 374 parsed
+  sources, and `canonicalResearchBatch.test.js` contains the source-19 registry
+  assertions, but the test has not run;
+- no source-19 global audit, identity report, release gate, focused suite, full
+  backend suite, lint pass, or production build may be reported yet;
+- the five append-only audit/review documents still describe only the last
+  registered family and must be updated only after authoritative post-
+  registration results exist.
+
+The source identity is:
+
+- legacy ID/name/slug: `19 | Lache Swing | lache-swing`;
+- current description: `Swinging release-and-catch on bars.`;
+- legacy state still includes `age_min=8` and `is_published=true`, which are
+  unsupported and must not be preserved automatically;
+- canonical definition: `abc659bf-ce3c-4b7c-a118-f2b0c761bd07`;
+- source baseline variant: `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5`;
+- current definition/variant version and status: card version 1, schema 1.0.0,
+  `review`, with empty taxonomy, anatomy, constraints, support, difficulty,
+  load, fatigue, programming, and variant requirements;
+- before migration 485, the source baseline had two skeletal profiles
+  (`movement_intelligence` and `output`), no difficulty score, no evidence,
+  four unreviewed media rows, no alternates, no relationships, no
+  calibrations, no explicit boundaries, and one packet with 20 blockers;
+- legacy safety is only risk `2`, impact `1`, and recommended supervision; all
+  other safety fields are empty;
+- no direct Lache, tap-swing, or bar-swing card was found in `coaching.skill`;
+  do not create an exercise-card skill level to compensate;
+- adjacent exercise definitions already present include Dead Hang
+  (`0973b1ff-410a-4c97-b85d-84fec7ad0182`), Active Hang
+  (`77602a12-d58b-4d41-b84e-713a4b8c3011`), Scapular Pull-Up
+  (`0c7d9348-f563-4a42-a31a-248d657901c1`), Flexed Arm Hang
+  (`424de579-d93c-462e-b94f-4e849e89e03e`), Front Support Bar Cast
+  (`6915611f-7382-448b-b3eb-d8dd08f10ee7`), and Cast to Handstand
+  (`d8b03d69-0840-40b0-adba-21d855d3db3e`).
+
+The source audit, controlled-taxonomy queries, research, identity decisions,
+and SQL authorship are complete. Recheck `git status`, `HEAD`, migration
+registration, and database state before editing because the repository is
+shared. Never invent a controlled value from prose.
+
+### Source-19 research already completed
+
+Use these sources only for the claims their scope supports, and add them to the
+registry only after checking for an existing key/URL:
+
+1. World Gymnastics/FIG, *Parkour Age Group Development & Competition Program*,
+   first edition 2021:
+   `https://www.gymnastics.sport/site/pages/education/agegroup-pk-manual-e.pdf`.
+   Pages 36–38 distinguish basic swing initiation, swing plus half turn,
+   swing plus Lache Precision, run-up/catch/swing composites, flyaway, front-
+   flip dismount, and back-cast dismount. Use it for identity/taxonomy and
+   neighboring-boundary evidence only. Do not copy its age or acquisition
+   levels into an exercise card.
+2. World Gymnastics/FIG, *Parkour Table of Tricks 2025*:
+   `https://www.gymnastics.sport/publicdir/rules/files/en_1.1.1%20-%20PK%20Code%20of%20Points%202025-2028%20-%20Table%20of%20tricks%202025.pdf`.
+   It separately classifies Swing Moves and basics such as Tap Swing/Dyno. It
+   supports distinct-identity boundaries, not a complete Lache-transfer card.
+3. UrbanLeap, *Parkour Trainer Handbook*:
+   `https://assets.zyrosite.com/AR0yPVr0V2u089eJ/urban-leap-project---handbook_finalna-verzija-a41oVuj00q1YwJLx.pdf`.
+   Pages 151–154 define a Lache as a dynamic transfer from one bar or rail to
+   another from an active hang, using a controlled hollow/arch tap swing,
+   mostly horizontal projection, compact flight, a two-arm target reach, and a
+   controlled catch with active scapular absorption. The handbook supports
+   prerequisites, short-gap/higher/lower-target progressions, common faults,
+   and apparatus/lane/grip/supervision safeguards. Treat it as a professional
+   Erasmus+ project handbook whose disclaimer assigns the views to its
+   authors, not as EU, FIG, or universal medical approval. It does not prove a
+   universal dose, recovery interval, eligibility rule, or numeric difficulty.
+4. Gervais and Baudin, *The Identification of Release on the Horizontal Bar*:
+   `https://ojs.ub.uni-konstanz.de/cpa/article/download/2969/2815`. It supports
+   the narrow adjacent point that flight is largely determined at release. It
+   is a small horizontal-bar gymnastics study, not direct Lache evidence.
+5. The Kovacs release/regrasp biomechanics paper,
+   DOI `10.1016/j.jbiomech.2016.11.048`, is adjacent evidence from two elite
+   male gymnasts. Do not generalize its release window or regrasp findings into
+   a universal Lache rule.
+6. Parkour injury survey PMID `23860830` is a retrospective online survey of
+   266 respondents and reports an upper-extremity injury distribution. It is
+   not Lache-specific, causal, or a basis for thresholds.
+7. Check the existing registry before duplicating useful adjacent sources such
+   as `pullup_scapular_kinematics`, `hangboard_grip_endurance_training`,
+   `gymnastics_upper_extremity_injuries_return_review`, and
+   `crossfit_bar_hanging_positions`.
+
+Fifteen selected YouTube IDs returned current oEmbed metadata on 2026-08-02:
+
+- two-bar transfer: `3o0NrxeRCsk`, `FuNZG4yF1jo`, `NrC-TbmShKQ`,
+  `HMGZNRRTV4s`, and `PmGur4Nfzfc`;
+- Tap Swing: `SYdukm1xvEY`, `8epKPyb1e4g`, `rCe1Z0C9WnI`, `lcAyqMk4l7w`,
+  and `yl2IawdA00o`;
+- Lache Precision: `s0Xbm2An7W4`, `FHwls3YJ1_U`, `EDnsNRgcggo`,
+  `zpVjQTemsJk`, and `4I5ZJ1-qSH0`.
+
+That check proves metadata/embed-response health only. Migration 485 persists
+them as privacy-enhanced `candidate` rows with captions, exactness, quality,
+reviewer, rationale, timestamp, and approval fields null. Do not upgrade their
+state without complete qualified human review of playback, exact identity,
+variant, side, support, action, captions, accessibility, cue quality, safety,
+conflicts, and card-version match.
+
+### Implemented source-19 identity decision
+
+Migration 485 separates three distinct machine-authored working identities:
+
+1. `Two-Bar Lache Transfer to Retained Catch`, existing definition
+   `abc659bf-ce3c-4b7c-a118-f2b0c761bd07`;
+2. `Bar Hollow–Arch Tap Swing`, new definition
+   `3018f919-8d85-4870-a1d2-ece8fd2af15e`;
+3. `Lache Precision to Two-Foot Stick`, new definition
+   `656028eb-c7d1-4a2f-a216-45763b201796`.
+
+All remain machine-authored working specifications pending qualified human
+review. The ambiguous legacy baseline is archived as a nonselectable source-
+identity quarantine. A conservative bilateral closed-overgrip contract and
+finite endpoints are explicit working constraints, not claims of a universal
+standard.
+
+Selectable exact variants and authored complexity/physical/derived-overall
+scores are:
+
+- same-height independent retained catch
+  `29c4fb69-e9c3-4106-b09d-9a0732946da9`: `82 / 78 / 82`;
+- higher-target independent retained catch
+  `2b733b32-477c-4987-ba3b-fcd14cb183d6`: `88 / 84 / 88`;
+- lower-target independent retained catch
+  `53616483-e26c-4e32-90dc-1db96a7db5b0`: `86 / 82 / 86`;
+- same-height coach-secured catch
+  `a2f5e5c7-dcd1-4ed6-921d-60e8409a57d5`: `76 / 72 / 76`;
+- bilateral-overgrip full-cycle Tap Swing
+  `c0717c68-366c-4039-93e6-be44febe8978`: `68 / 64 / 68`;
+- low-target bilateral two-second Lache Precision stick
+  `612fc5a8-a343-4609-9463-b891ebeaf104`: `86 / 82 / 86`.
+
+Migration assertions require 6 selectable variants, 16 delivery profiles, 48
+evidence sections, 15 media candidates, 38 alternate assessments, 11 review-
+only graph proposals, 12 review-only calibration proposals, 15 identity
+boundaries, and 3 current test packets with exactly the four standard human
+blockers each. Treat these as authored/direct-run-asserted counts until normal
+runner registration and separate persisted queries reconfirm them.
+
+Two-bar-transfer repetition contract:
+
+- start in an active bilateral hang on the source horizontal bar with the
+  target horizontal bar declared ahead in the swing plane;
+- generate a controlled hollow/arch tap swing, project forward, fully release
+  both hands from the source, travel without a declared turn or flip, and catch
+  the target with both hands;
+- completion requires retaining the two-hand target catch through a declared
+  first post-catch swing checkpoint without re-release, slip, unintended
+  contact, rescue, or loss of the selected assistance contract;
+- continued transfers or another connected action begin a new repetition or a
+  distinct sequence card.
+
+Do not silently choose grip orientation, target geometry, clearance, bar
+diameter, gap, release direction, catch checkpoint, miss/bailout method, or
+assistance behavior. Declare and persist each identity-bearing constraint,
+and quarantine the variant if professional evidence and controlled taxonomy do
+not support a sufficiently exact value. Gap within an already validated
+station range is a measured delivery scalar; higher/lower target geometry and
+qualified coach-secured assistance are potential exact variants because they
+materially alter trajectory, loading, logistics, and revalidation.
+
+At minimum assess these distinct identities and do not merge them into the
+two-bar transfer:
+
+- bar Tap Swing without release;
+- same-bar release and regrasp;
+- Lache Precision to feet or an obstacle;
+- Lache with half turn;
+- release to wall/cat/arm-jump contact;
+- flyaway or flipping dismount;
+- simple swing dismount to feet;
+- run or hop to catch the source bar before the swing;
+- chained multiple transfers;
+- one-arm or off-axis catch;
+- Dyno, Pole Swing, Underbar, Giant, Bar Cast, and Cast to Handstand.
+
+The user requires a separate exercise card when identity changes. Tap Swing
+and Lache Precision have therefore received complete distinct working cards in
+this batch. The other neighboring identities remain explicit alternate
+assessments and must become distinct definitions in later batches when their
+own full card contracts can be authored; do not silently merge them or treat
+an alternate-assessment row as permanent completion.
+
+### Exact next execution order
+
+1. Run `git status --short`, `git rev-parse HEAD`, and query
+   `schema_migrations` for 485. If another process registered, renumbered, or
+   edited it, reconcile before touching shared files. Preserve the unrelated
+   metrics diff and every concurrent Needs Engine/scheduling/class-setup edit.
+2. Add
+   `'485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql',`
+   to `backend/platform/initTables.js` immediately after migration 484.
+3. In
+   `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`, add
+   a `readFileSync` constant for migration 485 and a comprehensive static test
+   modeled on the source-18 family test. Pin all three definition UUIDs, all
+   six variant UUIDs and score vectors, the exact identity boundaries, 16/48/
+   15/38/11/12/15/3 counts, four blockers per packet, legacy skill/age removal,
+   `linked_skill_id=NULL`, human-review quarantine, null media-human-review
+   fields, protected-row fail-closed behavior, and the absence of athlete
+   proficiency classifications or fabricated approvals.
+4. Parse the registry JSON and run focused tests at minimum:
+
+   ```sh
+   node --test backend/platform/__tests__/canonicalResearchBatch.test.js \
+     backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js \
+     backend/platform/__tests__/canonicalLibraryAudit.test.js
+   ```
+
+   Run focused ESLint for changed JavaScript files and `git diff --check`.
+5. Recompute the migration checksum. Through the normal runner, execute and
+   register exact migration 485 against disposable PostgreSQL at
+   `postgresql://jimmy_mac@127.0.0.1:55434/vortex_skip`. Confirm the stored
+   checksum equals the local checksum. Rerun the normal runner to prove skip/
+   re-entry, then run the exact file directly once more unchanged with
+   `ON_ERROR_STOP=1`.
+6. Use separate authoritative persisted queries for definition states, legacy
+   exercise/safety state, each per-card evidence/media/alternate count,
+   profiles, relationships, calibrations, boundaries, packets/blockers, score
+   vectors, null review/approval fields, and source-baseline quarantine. Do
+   not rely only on migration assertions or expected totals.
+7. Rerun the persisted canonical library audit, identity detector, release
+   gate, full backend suite, and production build. Record exact pass/fail/skip
+   counts and existing warnings; never copy the prior checkpoint as if it were
+   post-485 evidence.
+8. Append the authoritative source-19 results to `COMPLETION_AUDIT.md`,
+   `IDENTITY_RESOLUTION.md`, `LIBRARY_AUDIT.md`, `PRODUCTION_ROLLOUT.md`, and
+   `RESEARCH_REVIEW_PROGRAM.md`. Append a new dated return entry to this file.
+   Then move to the next unmigrated legacy source only if the entire 485
+   checkpoint is clean. Do not report machine completeness as human approval.
 
 ## Concurrent work that must remain preserved
 
@@ -925,3 +1206,224 @@ Use this template:
   the forbidden key and correct the two numeric vectors, recompute checksum,
   run it directly against disposable PostgreSQL with `ON_ERROR_STOP=1`, and
   continue through the ordered completion checklist in `Immediate next work`.
+
+### Return handoff — 2026-08-02 12:07 America/New_York
+
+- Branch / HEAD: `main` /
+  `aca76739fe6f3d9b4a71d00dfa5c56d541690736`. Concurrent commits renumbered
+  the coaching migration to 484, registered the scheduling migration as 483,
+  and fixed the scheduling TypeScript build error without changing the exercise
+  family contract.
+- Worktree: task-owned dirty files are the five append-only workout-generator
+  audit/review documents and this handoff. The full backend test regenerated
+  only `generated_at` in unrelated
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`; preserve it. No migration, test,
+  registry, or init file is currently dirty because concurrent commits captured
+  those exact task changes.
+- Last registered migration / checksum: migration 484 /
+  `4224855249`, registered in disposable PostgreSQL at
+  `2026-08-02 12:01:33.321697-04`; stored and exact-file checksums match.
+- Unregistered migration state: none. Final committed migration-484 bytes
+  passed direct run 1, unchanged direct run 2, production runner, normal-
+  runner skip, and exact-file direct re-entry.
+- Family completed or in progress: source 18 is completed to machine-authored
+  quarantine as `Handstand Snap-Down to Feet-Together Stick`, definition
+  `60f5b21a-991c-4ce8-9068-3c42b2043021`; archived source baseline
+  `064e650c-28e8-4820-b0da-7043bb509c2c`; wall variant
+  `68c16da0-414f-4932-97f4-1d8b236af8dd`; independent variant
+  `68a0499b-34b0-4621-b798-b49ffd8ed1a1`.
+- Persisted family counts: 2 selectable variants, 4 profiles, 16 evidence
+  sections, 4 healthy candidate media rows, 24 alternate assessments, 8
+  review-only graph proposals, 4 review-only calibrations, 8 identity
+  boundaries, and one current packet with exactly 4 human blockers.
+- Registry version / count: `2026-08-02.86` / 368. Four new unique sources are
+  USA Gymnastics compulsory Round-Off/snap-down material, Masaryk Roundoff
+  technique, Masaryk didactic guidelines, and Special Olympics coaching; the
+  existing CanJump source was reused.
+- Global audit snapshot: 1,676/1,676 mappings, 1,043 active definitions, 92
+  machine-complete, 951 machine-incomplete, 91 current healthy 3–5-media sets,
+  702/0 graph review/approved, 921/0 calibration review/approved, and 0
+  published definitions.
+- Identity snapshot: 617/617 surfaced pairs adjudicated, 0 unresolved score-
+  72-or-higher pair, and 0 exact collision.
+- Release gate: expected `blocked`; 0/25 published, zero versus three approved
+  depth in all seven phases, 0/10 approved graph edges, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews.
+- Focused tests: 220/220 pass.
+- Full backend: 1,019 pass, 20 intentional skips, 0 failures.
+- Lint: focused ESLint, registry JSON parsing, and `git diff --check` pass.
+- Build: production build passes after concurrent commit `aca7673` removed its
+  unrelated unused scheduling prop. Existing baseline-browser-mapping,
+  caniuse-lite freshness, and greater-than-500-kB chunk warnings remain.
+- Failures and corrections: draft SQL run 1 rolled back on the prohibited
+  `athleteSkillOrProficiencyClassification` key and exposed misaligned numeric
+  variant tuples; the key was removed and both 22-field vectors corrected.
+  Draft run 2 rolled back on uncontrolled discovery method
+  `legacy_research_revalidated_by_oembed`; it became controlled
+  `manual_research`. An initial focused test run failed when a concurrent
+  commit renamed the untracked migration from 483 to 484; HEAD reconciliation
+  showed the file and test-path correction were safely committed, then exact
+  484 bytes were revalidated. The first production build failed on an
+  unrelated unused scheduling prop; its owner committed the fix, and rerun
+  passed.
+- Human review remaining: watch all four media candidates in full and verify
+  exactness/playback/captions/accessibility/quality/safety; adjudicate 24
+  alternates, 8 graph proposals, 4 calibration anchors, and 8 boundaries;
+  independently review content and approve publication; establish phase depth;
+  run shadow generation and coach pilot; rehearse clean deployment; and prove
+  staged flags, monitoring, rollback, incident, and support operations.
+- Documentation updated: all five append-only audit/review documents and this
+  handoff contain the source-18 completion, authoritative metrics, human gates,
+  and test/build evidence.
+- Exact next action: audit source 19 `Lache Swing`, definition
+  `abc659bf-ce3c-4b7c-a118-f2b0c761bd07`, source baseline
+  `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5`. Start with the exact DB and neighbor
+  queries in `Immediate next work`; do not infer same-bar, bar-to-bar, distance,
+  release, catch, terminal hang, or continued-swing identity from the legacy
+  label.
+
+### Return handoff — 2026-08-02 12:12 America/New_York
+
+- Branch / HEAD: `main` /
+  `aca76739fe6f3d9b4a71d00dfa5c56d541690736`.
+- Worktree: task-owned dirty files remain the five append-only workout-
+  generator audit/review documents and this handoff. Unrelated
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json` remains dirty from generated-time
+  output and must be preserved. No migration, platform test, registry, or init
+  file is dirty at this checkpoint.
+- Last registered migration / checksum: immutable migration 484 /
+  `4224855249`; stored and local checksums matched at the last authoritative
+  check.
+- Unregistered migration state: none. No source-19 SQL has been authored,
+  executed, registered, or represented as complete.
+- Family completed or in progress: source 19 `Lache Swing`, canonical
+  definition `abc659bf-ce3c-4b7c-a118-f2b0c761bd07`, source baseline
+  `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5`, is audited and initially researched.
+  The provisional working identity is a two-bar Lache transfer to a retained
+  bilateral catch; the ambiguous legacy baseline must remain a nonselectable
+  identity quarantine. Exact apparatus/grip/catch/assistance constraints and
+  which adjacent distinct cards are included still require resolution before
+  authoring.
+- Persisted family counts: current pre-migration source-19 state remains one
+  incomplete source baseline, 2 skeletal profiles, 0 difficulty rows, 0
+  evidence rows, 4 unreviewed legacy media rows, 0 alternates, 0 graph rows, 0
+  calibration rows, 0 explicit boundaries, and 1 packet with 20 blockers.
+- Registry version / count: unchanged last authoritative value
+  `2026-08-02.86` / 368. Source-19 research has not yet been added.
+- Global audit snapshot: unchanged last authoritative values are 1,676/1,676
+  mappings, 1,043 active definitions, 92 machine-complete, 951 incomplete, 91
+  current healthy three-to-five-media sets, 702/0 graph review/approved,
+  921/0 calibration review/approved, and 0 published.
+- Identity snapshot: unchanged last authoritative detector is 617/617 surfaced
+  pairs adjudicated, 0 unresolved score-72-or-higher pair, and 0 exact
+  collision.
+- Release gate: unchanged expected block is 0/25 published, zero approved depth
+  versus three required in all seven phases, 0/10 graph approvals, 0/3
+  calibration approvals, and 0/20 real coach reviews.
+- Focused tests: last completed family checkpoint remains 220/220; no
+  source-19 tests exist or have run.
+- Full backend: last completed checkpoint remains 1,019 pass, 20 intentional
+  skips, 0 failures; do not attribute it to source 19.
+- Lint: last completed family checkpoint passed; no source-19 implementation
+  exists to lint.
+- Build: last completed checkpoint passed with existing browser-data freshness
+  and greater-than-500-kB chunk advisories; no source-19 implementation build
+  has run.
+- Failures and corrections: no source-19 migration failure exists because no
+  SQL has been written or run. The controlled-taxonomy query was interrupted
+  by the handoff request and must be rerun narrowly before SQL authorship.
+- Human review remaining: the working identity and every final instruction,
+  evidence application, media candidate, alternate, graph edge, calibration
+  anchor, difficulty score, and publication state need qualified review. The
+  four YouTube IDs have current oEmbed metadata only, not playback, exactness,
+  captions, accessibility, cue quality, safety, or approval.
+- Documentation updated: this handoff now contains the complete zero-context
+  job instructions plus the full source-19 audit/research checkpoint and exact
+  resume order. The other five audit/review documents must receive source-19
+  entries only after authoritative migration/test/audit results exist.
+- Exact next action: run current Git/DB and controlled-taxonomy checks, then
+  resolve the exact grip, apparatus geometry, catch checkpoint, miss/bailout,
+  assistance, measurement, and distinct-neighbor-card decisions described in
+  `Immediate next work`; only then author the next free coaching migration.
+
+### Return handoff — 2026-08-02 12:37 America/New_York
+
+- Branch / HEAD: `main` /
+  `aca76739fe6f3d9b4a71d00dfa5c56d541690736`.
+- Worktree: source-19 task-owned changes are untracked migration 485, the
+  research registry, `canonicalResearchBatch.test.js`, and this handoff. The
+  five append-only workout-generator audit/review documents remain dirty from
+  the prior completed source-18 checkpoint and must later receive authoritative
+  source-19 results. Preserve unrelated generated
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`. Current `initTables.js` and
+  `exerciseProgrammingDifficultyOnly.test.js` are clean because their required
+  source-19 edits have not been made.
+- Last registered migration / checksum: immutable migration 484 /
+  `4224855249`; the last authoritative stored/local check matched.
+- Unregistered migration state:
+  `485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql`
+  / current checksum `376239898`. Exact final bytes passed a direct
+  `ON_ERROR_STOP=1` run and an unchanged second direct run against disposable
+  PostgreSQL. It is not registered, is absent from `initTables.js`, and has no
+  static family-contract test yet.
+- Family completed or in progress: source 19 implementation is authored but
+  not fully validated. It preserves archived baseline
+  `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5` and separates `Two-Bar Lache Transfer
+  to Retained Catch` (`abc659bf-ce3c-4b7c-a118-f2b0c761bd07`), `Bar Hollow–
+  Arch Tap Swing` (`3018f919-8d85-4870-a1d2-ece8fd2af15e`), and `Lache
+  Precision to Two-Foot Stick` (`656028eb-c7d1-4a2f-a216-45763b201796`).
+- Persisted family counts: migration assertions and the successful direct runs
+  prove 6 selectable exact variants, 16 profiles, 48 evidence sections, 15
+  healthy candidate media rows, 38 alternate assessments, 11 review-only
+  graph proposals, 12 review-only calibration proposals, 15 identity
+  boundaries, and 3 packets with exactly 4 blockers. Normal-runner
+  registration and separate persisted reporting are still required before
+  these become the final release checkpoint.
+- Registry version / count: `2026-08-02.87` / 374 parsed sources. Six new
+  entries cover World Gymnastics parkour bar elements, its 2025 trick table,
+  the UrbanLeap trainer handbook, horizontal-bar release identification,
+  Kovacs release/regrasp biomechanics, and a parkour injury survey. The JSON
+  parses; its updated test has not run.
+- Global audit snapshot: do not use pre-485 metrics as post-485 proof. The last
+  registered checkpoint remains 1,676/1,676 mappings, 1,043 active, 92
+  machine-complete, 951 incomplete, 91 current healthy 3–5-media sets, 702/0
+  graph review/approved, 921/0 calibration review/approved, and 0 published.
+- Identity snapshot: last registered checkpoint remains 617/617 surfaced pairs
+  adjudicated, 0 unresolved score-72-or-higher pair, and 0 exact collision.
+  Rerun after normal registration.
+- Release gate: last registered checkpoint remains expected `blocked`: 0/25
+  published, zero approved depth versus three required in every phase, 0/10
+  graph approvals, 0/3 calibration approvals, and 0/20 real coach reviews.
+  Rerun after normal registration.
+- Focused tests: last source-18 checkpoint was 220/220; no focused test has run
+  against the current source-19 registry or migration.
+- Full backend: last source-18 checkpoint was 1,019 pass, 20 intentional skips,
+  0 failures; no post-485 full suite has run.
+- Lint: registry JSON parsing and current `git diff --check` pass. Focused
+  ESLint and source-19 static-contract validation have not run.
+- Build: last source-18 production build passed with existing browser-data
+  freshness and greater-than-500-kB chunk advisories; no post-485 build has
+  run.
+- Failures and corrections: the first SQL draft rolled back because
+  calibration anchor tier 90 is uncontrolled; it became 80. The next attempt
+  rolled back because Tap Swing tier 70 is uncontrolled; it became 60. A later
+  final assertion rolled back despite correct 48/15/38 authored counts because
+  an `unnest` alias was unqualified; it was qualified, temporary diagnostic
+  notices were removed, and the exact current bytes then passed twice.
+- Human review remaining: every working identity, instruction, evidence
+  application, score, alternate, graph edge, calibration anchor, and boundary
+  needs qualified review. All 15 videos have metadata/embed-response health
+  only; playback, exactness, captions, accessibility, cue quality, safety, and
+  approval remain null/quarantined. Content approval, publication, phase
+  depth, clean deployment rehearsal, shadow generation, monitoring/rollback
+  evidence, coach pilot, and support operations remain.
+- Documentation updated: this zero-context handoff contains the current
+  source-19 implementation, research, IDs, counts, failures, exact next edits,
+  validation order, and return protocol. The other five documents must not
+  claim source-19 completion until the post-registration evidence exists.
+- Exact next action: add migration 485 immediately after 484 in
+  `backend/platform/initTables.js`, add the comprehensive static contract test
+  and migration constant to
+  `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`, then
+  follow the numbered `Exact next execution order` above without skipping the
+  normal runner, persisted queries, full suite, build, or docs.

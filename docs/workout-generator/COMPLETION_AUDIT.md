@@ -2986,3 +2986,53 @@ disposable PostgreSQL. The remaining gates are:
   Both cards retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
   `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`; published definitions remain
   zero and no media or human approval was fabricated.
+
+## 2026-08-02 — Handstand Snap-Down source-18 completion
+
+- Migration 484 replaces the mixed legacy `Round-Off Snap-Down Shape Drill`
+  representation with the exact `Handstand Snap-Down to Feet-Together Stick`
+  working family at definition
+  `60f5b21a-991c-4ce8-9068-3c42b2043021`. The ambiguous source variant
+  `064e650c-28e8-4820-b0da-7043bb509c2c` is archived as an identity
+  quarantine; the legacy source remains mapped and traceable.
+- Selectable variants are back-to-wall heel-contact
+  `68c16da0-414f-4932-97f4-1d8b236af8dd` at `70/62/70` and independent
+  freestanding `68a0499b-34b0-4621-b798-b49ffd8ed1a1` at `82/70/82`, where
+  values are exercise complexity, physical difficulty, and their maximum.
+  Legacy exercise/safety age and skill classifications are null. The exercise
+  retains only a lineage link to Round-Off skill card 10; it does not copy the
+  skill card's performance level.
+- Persisted scope is 2 selectable variants, 4 contextual profiles, 16
+  candidate evidence sections, 4 current oEmbed-healthy media candidates, 24
+  alternate assessments, 8 review-only graph proposals, 4 review-only
+  calibration anchors, 8 explicit distinct-identity boundaries, and one
+  canonical audit packet with exactly the four media, graph, calibration, and
+  publication human gates.
+- Final committed bytes passed two unchanged direct PostgreSQL executions,
+  production-runner registration, stored/file checksum comparison, normal-
+  runner skip, and exact-file re-entry. Registered filename/checksum/time are
+  `484_coaching_handstand_snap_down_family_audit_hardening.sql` /
+  `4224855249` / `2026-08-02 12:01:33.321697-04`.
+- Registry `2026-08-02.86` contains 368 sources, including every unique non-
+  media source used by this family. Focused validation passes `220/220`; the
+  full backend suite passes 1,019 tests with 20 intentional skips. Focused
+  ESLint, registry JSON parsing, `git diff --check`, persisted audit, identity
+  reporting, and the production build pass. The build retains only existing
+  stale browser-data and greater-than-500-kB chunk advisories.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,043 active
+  definitions, 92 machine-complete and 951 machine-incomplete cards, and
+  91/1,043 definitions with exactly three to five current healthy embeddable
+  candidates. All 617 surfaced identity pairs are adjudicated with zero
+  unresolved pair and zero exact collision. Graph/calibration queues contain
+  702/921 review-only rows with zero approvals; published definitions remain
+  zero.
+- The release gate is correctly blocked at 0/25 published definitions, zero
+  approved depth in all seven phases versus 3 required, 0/10 approved graph
+  edges, 0/3 approved calibration anchors, and 0/20 real coach reviews. No
+  media, content, relationship, calibration, reviewer, approver, playback,
+  caption, accessibility, exactness, or publication state was fabricated.
+- Transactional draft failures were retained as audit evidence: the first run
+  rejected a forbidden athlete-classification JSON key and exposed misaligned
+  difficulty tuple values; the next run rejected the uncontrolled media
+  discovery method. Both rolled back fully. Removing the key, realigning the
+  two 22-field vectors, and using controlled `manual_research` resolved them.

@@ -1043,3 +1043,37 @@ are additive and should not be rolled back destructively during an incident.
   authorship, qualified review, shadow generation, the coach pilot, clean-
   database rehearsal, staged flags, monitoring, and rollback evidence remain
   production requirements.
+
+## Automated gate snapshot after migration 484
+
+- Handstand Snap-Down source 18 is machine-complete at card version 2 with two
+  exact difficulty-only variants, four operational profiles, full planning and
+  support fields, 16 candidate evidence sections, four current media
+  candidates, 24 alternate assessments, eight explicit identity boundaries,
+  eight graph proposals, four calibration anchors, and one audit packet. It
+  remains quarantined for exactly media, graph, calibration, and publication
+  human gates.
+- Migration `484_coaching_handstand_snap_down_family_audit_hardening.sql`
+  passes repeated direct disposable-PostgreSQL execution, production-runner
+  registration, stored/file checksum comparison, normal-runner skip, and
+  exact-file re-entry at checksum `4224855249`. Registry JSON, focused ESLint,
+  `git diff --check`, focused `220/220`, full backend 1,019-pass/20-skip,
+  persisted audit, identity report, and production build pass. Existing stale
+  browser-data and large-chunk warnings remain advisory.
+- The library now has 1,676/1,676 mappings, 1,043 active definitions, 92
+  machine-complete and 951 machine-incomplete cards, and 91/1,043 exact
+  current-card healthy embeddable 3–5-candidate sets. Identity is closed at
+  617/617 surfaced pairs with zero unresolved pair and zero exact collision.
+  Graph/calibration queues are 702/921 review-only rows with zero approvals.
+- Release status remains correctly `blocked`: 0 of 25 required definitions are
+  published; all seven required phases have zero approved depth versus three;
+  approved relationships are 0/10; approved calibration anchors are 0/3; and
+  real coach reviews are 0/20. Registry `2026-08-02.86` contains 368 sources.
+- Qualified reviewers must still watch every media candidate in full; verify
+  exact starts, supports, wall contact, action, hand release, simultaneous
+  feet, no-rebound stick, captions, accessibility, safety, cues, and conflicts;
+  adjudicate evidence, alternates, relationships, and difficulty anchors;
+  perform independent content review and approval; establish published phase
+  depth; run shadow generation and real coach pilot; rehearse on a clean
+  database; and prove staged flags, monitoring, rollback, incident, and support
+  operations before production authorization.

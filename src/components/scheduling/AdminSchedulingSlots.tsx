@@ -37,6 +37,8 @@ interface Props {
   offeringEndDate?: string | null
   setupContextPrimary?: string | null
   canBuild?: boolean
+  /** Class Master puts the existing-slots card above the builder; Scheduling tab keeps it below. */
+  existingSlotsPosition?: 'top' | 'bottom'
   orphanedSignups: SchedulingOrphanedSignup[]
   signups: SchedulingSignup[]
   forms: SchedulingFormSummary[]
@@ -226,6 +228,7 @@ const AdminSchedulingSlots = ({
   offeringEndDate,
   setupContextPrimary,
   canBuild = true,
+  existingSlotsPosition = 'bottom',
   orphanedSignups,
   signups: _signups,
   forms,
@@ -951,6 +954,140 @@ const AdminSchedulingSlots = ({
     </div>
   )
 
+  const existingSlotsCard = setupContextPrimary ? (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setSlotsContextOpen((open) => !open)}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 bg-gray-50 hover:bg-gray-100 text-left"
+      >
+        <div className="min-w-0">
+          <p className="font-semibold text-black">{setupContextPrimary}</p>
+          <p className="text-sm mt-1">
+            {weekSections.length > 1 ? (
+              <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                <select
+                  value={activeWeekKey ?? weekSections[0]?.key ?? ''}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => setActiveWeekKey(e.target.value)}
+                  className="rounded border border-gray-300 bg-white px-2 py-0.5 text-sm text-gray-800"
+                >
+                  {weekSections.map((section) => (
+                    <option key={section.key} value={section.key}>
+                      {section.setupLabel}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            ) : (
+              <span className="text-gray-800">
+                {activeWeekSection?.setupLabel || 'Timeslots'}
+              </span>
+            )}
+          </p>
+        </div>
+        <span className="flex items-center gap-2 text-sm text-gray-600 shrink-0">
+          {activeWeekSection
+            ? `${activeWeekSection.groups.length} slot${activeWeekSection.groups.length !== 1 ? 's' : ''}`
+            : '0 slots'}
+          {slotsContextOpen ? (
+            <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </span>
+      </button>
+      {slotsContextOpen && (
+        <div className="p-4">
+          {!activeWeekSection || activeWeekSection.groups.length === 0 ? (
+            <p className="text-gray-500 text-sm">No scheduled slots for this class yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm align-top">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b">
+                    <th className="py-2 pr-3 align-top">Schedule</th>
+                    <th className="py-2 pr-3 align-top">Capacity</th>
+                    <th className="py-2 pr-3 align-top">Active dates</th>
+                    <th className="py-2 align-top">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeWeekSection.groups.map((group) => (
+                    <tr
+                      key={group.id}
+                      className={`border-b border-gray-100 align-top ${editingSlotGroupId === group.id ? 'bg-amber-50' : ''}`}
+                    >
+                      <td className="py-2 pr-3 align-top">
+                        <ul className="space-y-1">
+                          {sortOccurrences(group.occurrences).map((occ) => (
+                            <li key={occ.id}>
+                              {occ.scheduleMode === 'date'
+                                ? `${occ.specificDate} · ${occ.startTime} – ${occ.endTime}`
+                                : `${dayAbbrev(occ.dayOfWeek) ?? occ.dayName} · ${occ.startTime} – ${occ.endTime}`}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="py-2 pr-3 align-top">
+                        <span className="inline-flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {group.signupCount}/{group.maxParticipants}
+                          {(group.waitlistCount ?? 0) > 0 && (
+                            <span className="text-amber-700">
+                              {' '}
+                              · {group.waitlistCount} waitlisted
+                            </span>
+                          )}
+                        </span>
+                      </td>
+                      <td className="py-2 pr-3 align-top text-gray-600">
+                        {formatGroupActiveDates(group)}
+                      </td>
+                      <td className="py-2 align-top">
+                        <div className="flex items-start gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleEditGroup(group)}
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                            title="Edit schedule"
+                            aria-label="Edit schedule"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyGroup(group)}
+                            className="text-gray-600 hover:text-gray-900 p-1"
+                            title="Copy schedule"
+                            aria-label="Copy schedule"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteGroup(group)}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Delete signup slot"
+                            aria-label="Delete signup slot"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  ) : weekSections.length === 0 || offeringScopedSlotGroups.length === 0 ? (
+    <p className="text-gray-500 text-sm mb-4">No scheduled slots for this class yet.</p>
+  ) : null
+
   return (
     <div className="space-y-8">
       <ClassActiveDatesEditor
@@ -967,142 +1104,12 @@ const AdminSchedulingSlots = ({
         }}
       />
 
+      {existingSlotsPosition === 'top' && existingSlotsCard}
+
       {canBuild && builderForm}
 
-      <div className="border-t border-gray-200 pt-8">
-        {setupContextPrimary ? (
-          <div className="border border-gray-200 rounded-xl overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setSlotsContextOpen((open) => !open)}
-              className="w-full flex items-center justify-between gap-4 px-5 py-4 bg-gray-50 hover:bg-gray-100 text-left"
-            >
-              <div className="min-w-0">
-                <p className="font-semibold text-black">{setupContextPrimary}</p>
-                <p className="text-sm mt-1">
-                  {weekSections.length > 1 ? (
-                    <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <select
-                        value={activeWeekKey ?? weekSections[0]?.key ?? ''}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => setActiveWeekKey(e.target.value)}
-                        className="rounded border border-gray-300 bg-white px-2 py-0.5 text-sm text-gray-800"
-                      >
-                        {weekSections.map((section) => (
-                          <option key={section.key} value={section.key}>
-                            {section.setupLabel}
-                          </option>
-                        ))}
-                      </select>
-                    </span>
-                  ) : (
-                    <span className="text-gray-800">
-                      {activeWeekSection?.setupLabel || 'Timeslots'}
-                    </span>
-                  )}
-                </p>
-              </div>
-              <span className="flex items-center gap-2 text-sm text-gray-600 shrink-0">
-                {activeWeekSection
-                  ? `${activeWeekSection.groups.length} slot${activeWeekSection.groups.length !== 1 ? 's' : ''}`
-                  : '0 slots'}
-                {slotsContextOpen ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </span>
-            </button>
-            {slotsContextOpen && (
-              <div className="p-4">
-                {!activeWeekSection || activeWeekSection.groups.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No scheduled slots for this class yet.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm align-top">
-                      <thead>
-                        <tr className="text-left text-gray-500 border-b">
-                          <th className="py-2 pr-3 align-top">Schedule</th>
-                          <th className="py-2 pr-3 align-top">Capacity</th>
-                          <th className="py-2 pr-3 align-top">Active dates</th>
-                          <th className="py-2 align-top">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeWeekSection.groups.map((group) => (
-                          <tr
-                            key={group.id}
-                            className={`border-b border-gray-100 align-top ${editingSlotGroupId === group.id ? 'bg-amber-50' : ''}`}
-                          >
-                            <td className="py-2 pr-3 align-top">
-                              <ul className="space-y-1">
-                                {sortOccurrences(group.occurrences).map((occ) => (
-                                  <li key={occ.id}>
-                                    {occ.scheduleMode === 'date'
-                                      ? `${occ.specificDate} · ${occ.startTime} – ${occ.endTime}`
-                                      : `${dayAbbrev(occ.dayOfWeek) ?? occ.dayName} · ${occ.startTime} – ${occ.endTime}`}
-                                  </li>
-                                ))}
-                              </ul>
-                            </td>
-                            <td className="py-2 pr-3 align-top">
-                              <span className="inline-flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                {group.signupCount}/{group.maxParticipants}
-                                {(group.waitlistCount ?? 0) > 0 && (
-                                  <span className="text-amber-700">
-                                    {' '}
-                                    · {group.waitlistCount} waitlisted
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td className="py-2 pr-3 align-top text-gray-600">
-                              {formatGroupActiveDates(group)}
-                            </td>
-                            <td className="py-2 align-top">
-                              <div className="flex items-start gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleEditGroup(group)}
-                                  className="text-blue-600 hover:text-blue-800 p-1"
-                                  title="Edit schedule"
-                                  aria-label="Edit schedule"
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopyGroup(group)}
-                                  className="text-gray-600 hover:text-gray-900 p-1"
-                                  title="Copy schedule"
-                                  aria-label="Copy schedule"
-                                >
-                                  <Copy className="w-4 h-4" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteGroup(group)}
-                                  className="text-red-600 hover:text-red-800 p-1"
-                                  title="Delete signup slot"
-                                  aria-label="Delete signup slot"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ) : weekSections.length === 0 || offeringScopedSlotGroups.length === 0 ? (
-          <p className="text-gray-500 text-sm mb-4">No scheduled slots for this offering yet.</p>
-        ) : null}
+      <div className={`${existingSlotsPosition === 'bottom' ? 'border-t border-gray-200 pt-8' : ''} space-y-6`}>
+        {existingSlotsPosition === 'bottom' && existingSlotsCard}
         <OrphanedSignupsPanel
           orphanedSignups={orphanedSignups}
           forms={forms}
