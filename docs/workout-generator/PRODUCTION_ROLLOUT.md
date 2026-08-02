@@ -820,3 +820,62 @@ are additive and should not be rolled back destructively during an incident.
   the qualified-media, coach-graph, independent-calibration, content-review,
   separate-approval, shadow-generation, pilot, monitoring, and rollback queues
   remain external work.
+
+## Automated gate snapshot after migrations 472 and 474
+
+- Migration 472 creates exact shoulder-height and full-overhead Kettlebell
+  Swing definitions with four difficulty-only working variants and eight
+  Output/Capacity profiles. Migration 474 corrects the initially uncontrolled
+  body-region and optional-equipment keys without changing identity, scores,
+  dose, review state, or approval state. Production-runner checksums are
+  `3340443758` and `1490465970`.
+- Difficulty vectors are `56/58/58`, `64/60/64`, `66/62/66`, and `74/64/74`
+  for exercise complexity, physical difficulty, and derived overall. Exercise
+  and safety proficiency fields are null; readiness remains a deterministic
+  workout-selection concern and skill levels remain in skill-library cards.
+- Eight current healthy, privacy-enhanced media candidates remain unapproved.
+  Qualified humans must verify full playback, exact definition and variant,
+  hand count, side, bell count and mass, terminal height, style, start, return,
+  cadence, park, captions, accessibility, safety, conflicts, cue quality,
+  reviewer identity, and timestamp. Eight graph proposals and eight score
+  anchors remain review-only.
+- Direct and repeated disposable PostgreSQL, the independent persisted audit,
+  production-runner registration, focused `204/204`, backend 1,003-pass/
+  20-skip, focused lint, diff checks, registry `.79`/315 parsing, and the
+  production build pass.
+- The current library maps all 1,676 legacy rows to 1,045 active definitions.
+  Identity is closed at 617/617 surfaced pairs with zero unresolved pair and
+  zero exact collision. Machine-complete cards are 83 and machine-incomplete
+  cards are 962. Exact current-card healthy embeddable 3–5-video coverage is
+  82/1,045. All 1,045 definitions remain quarantined; both swing cards retain
+  only media, graph, calibration, and publication human blockers.
+- Machine completion does not authorize rollout. Global graph/calibration
+  queues remain 610/813 review-only rows with zero approvals. The remaining
+  authored-content backlog, qualified media and relationship review,
+  independent score calibration, content review, two-person publication,
+  approved phase depth, real shadow generation, a 20-workout coach pilot,
+  empty-database bootstrap rehearsal, staged flags, monitoring, and rollback
+  evidence remain production blockers.
+
+## Automated gate snapshot after migration 475
+
+- Pull-Up / Chin-Up now exposes seven exact difficulty-only variants and
+  fourteen complete Capacity profiles. The exercise scores describe complexity
+  and physical difficulty only; athlete readiness remains a deterministic
+  selection input, and skill levels remain exclusive to skill-library cards.
+- Direct and repeated disposable-PostgreSQL execution, production-runner
+  registration, registry validation, focused `206/206`, backend 1,005-pass/
+  20-skip, focused lint, persisted audit, diff checks, and production build are
+  green. Migration checksum is `2352809545`.
+- The current library maps all 1,676 legacy rows to 1,042 active definitions.
+  Identity is closed at 616/616 surfaced pairs with zero unresolved pair and
+  zero exact collision. Machine-complete cards are 84 and machine-incomplete
+  cards are 958. Exact current-card healthy embeddable 3–5-video coverage is
+  83/1,042. All 1,042 definitions remain quarantined; Pull-Up / Chin-Up retains
+  only media, graph, calibration, and publication human blockers.
+- This is not rollout authorization. Global graph/calibration queues are
+  645/871 review-only rows with zero approvals. Qualified media and relationship
+  review, independent score calibration, content review, separate publication
+  approval, approved profile depth, real shadow generation, a 20-workout coach
+  pilot, empty-database bootstrap rehearsal, staged flags, monitoring, and
+  rollback evidence remain required.

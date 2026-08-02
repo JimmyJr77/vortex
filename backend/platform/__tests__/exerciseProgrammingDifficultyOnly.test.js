@@ -625,6 +625,14 @@ const KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/474_coaching_kettlebell_swing_taxonomy_gate_completion.sql', import.meta.url),
   'utf8',
 )
+const PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/475_coaching_pull_up_chin_up_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/476_coaching_hollow_body_hold_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10023,6 +10031,173 @@ test('Kettlebell Swing taxonomy correction uses only controlled planning keys an
   )
 })
 
+test('Pull-Up and Chin-Up completion consolidates strict full-cycle variants without athlete proficiency metadata', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'475_coaching_pull_up_chin_up_identity_and_family_completion\.sql'/,
+  )
+  for (const token of [
+    'strict_full_cycle_vertical_pull',
+    'strict-pronated-bar-bodyweight',
+    'strict-supinated-bar-bodyweight',
+    'strict-neutral-handles-bodyweight',
+    'archer-pronated-bar-side-specific',
+    'band-assisted-pronated-bar',
+    'counterweight-assisted-pronated',
+    'weighted-vest-pronated-bar',
+    'contraction_sequence_and_repetition_boundary',
+    'scapular_only_action_not_full_vertical_pull',
+    'unrelatedCalfRaiseCitationRemoved',
+    'max_exercise_complexity_physical_difficulty',
+  ]) {
+    assert.match(
+      PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [48, 72, 72],
+    [46, 68, 68],
+    [44, 66, 66],
+    [66, 86, 86],
+    [54, 50, 54],
+    [48, 48, 48],
+    [52, 84, 84],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'GBqAZP6jquc',
+    'eGo4IYlbE5g',
+    'e1YSApl-QcM',
+    'ayvVeCtp83Q',
+    'AqCmhR1Bl2Q',
+  ]) {
+    assert.match(PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION, /'landingContactsPerRep',0/)
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Hollow Body Hold completion keeps static lever variants distinct from moving hollow actions and athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'476_coaching_hollow_body_hold_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'static_supine_hollow_body_isometric_anti_extension',
+    'tuck-arms-forward',
+    'one-leg-extended-arms-forward-side-specific',
+    'straight-leg-arms-forward',
+    'straight-leg-arms-overhead',
+    'straight-leg-fixed-overhead-dumbbell',
+    'straight-leg-fixed-overhead-medicine-ball',
+    'static_hold_vs_continuous_rocking_cycle',
+    'fixed_bilateral_leg_position_vs_alternating_flutter_kicks',
+    'static_hold_vs_prescribed_eccentric_leg_lower',
+    'fixedPositionRequiredForLoadedHoldIdentity',
+    'max_exercise_complexity_physical_difficulty',
+    'invalidProneCprAndRowingCitationsRemoved',
+  ]) {
+    assert.match(
+      HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [34, 32, 34],
+    [42, 44, 44],
+    [40, 54, 54],
+    [48, 66, 66],
+    [58, 74, 74],
+    [54, 70, 70],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'QgVOvBM96eE',
+    'qU0r6449do4',
+    'pLt0s2cimdI',
+    'LlDNef_Ztsc',
+    'VyrUmzIHmzw',
+  ]) {
+    assert.match(
+      HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10070,6 +10245,8 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
     FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
     FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
+    PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
+    HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

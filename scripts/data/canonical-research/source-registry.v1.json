@@ -1,6 +1,118 @@
 {
-  "registryVersion": "2026-08-02.79",
+  "registryVersion": "2026-08-02.81",
   "sources": {
+    "crossfit_gymnastics_hollow_body_guide": {
+      "url": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "title": "Gymnastics Training Guide",
+      "publisher": "CrossFit",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "crossfit_hollow_hold_programming": {
+      "url": "https://www.crossfit.com/essentials/crossfit-mastering-gymnastics",
+      "title": "Mastering CrossFit Gymnastics: How to Build Strength, Stability, and Confidence",
+      "publisher": "CrossFit",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "pelvic_tilt_hollowing_unsupported_leg_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/15085209/",
+      "title": "Surface Electromyographic Activity of the Abdominal Muscles During Pelvic-Tilt and Abdominal-Hollowing Exercises",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "straight_leg_raise_pelvic_control_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23127994/",
+      "title": "Effects of the pelvic rotatory control method on abdominal muscle activity and the pelvic rotation during active straight leg raising",
+      "publisher": "Manual Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "bilateral_leg_lift_abdominal_hip_flexor_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "title": "Abdominal and hip flexor muscle activation during various training exercises",
+      "publisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "double_leg_lowering_emg_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26467996/",
+      "title": "Electromyographic and kinetic analysis of two abdominal muscle performance tests",
+      "publisher": "Physiotherapy Theory and Practice",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "dynamic_pullover_pectoralis_lat_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21975179/",
+      "title": "Effects of the pullover exercise on the pectoralis major and latissimus dorsi muscles as evaluated by EMG",
+      "publisher": "Journal of Applied Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "graded_isometric_trunk_force_variability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18443772/",
+      "title": "Trunk antagonist co-activation is associated with impaired neuromuscular performance",
+      "publisher": "Experimental Brain Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "ace_pull_up_instruction": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/",
+      "title": "Pull-ups",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "pull_up_chin_up_emg_elbow_motion": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21068680/",
+      "title": "Surface electromyographic activation patterns and elbow joint motion during a pull-up, chin-up, or perfect-pullup rotational exercise",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "pull_up_grip_variation_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28011412/",
+      "title": "Electromyographic analysis of muscle activation during pull-up variations",
+      "publisher": "Journal of Electromyography and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "pull_up_spine_load_technique": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25066518/",
+      "title": "Muscle activity and spine load during pulling exercises: influence of stable and labile contact surfaces and technique coaching",
+      "publisher": "Journal of Electromyography and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "pull_up_load_force_power_velocity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28253041/",
+      "title": "Load-, Force-, and Power-Velocity Relationships in the Prone Pull-Up Exercise",
+      "publisher": "International Journal of Sports Physiology and Performance",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "pull_up_velocity_loss_training": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32213783/",
+      "title": "Effects of Velocity Loss During Body Mass Prone-Grip Pull-up Training on Strength and Endurance Performance",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "dynamic_isometric_pull_up_fatigue": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4633265/",
+      "title": "Higher Neuromuscular Manifestations of Fatigue in Dynamic than Isometric Pull-Up Tasks in Rock Climbers",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "strict_kipping_pull_up_kinematics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29768093/",
+      "title": "Alterations in kinematics and muscle activation patterns with the addition of a kipping action during a pull-up activity",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
     "ace_two_hand_kettlebell_swing_technique": {
       "url": "https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/",
       "title": "The ACE Do it Better Series: The Two-handed Kettlebell Swing",

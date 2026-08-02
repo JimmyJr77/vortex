@@ -3181,6 +3181,71 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     } catch (error) { bad(res, error.message, 500) }
   })
 
+  app.get('/api/coach/gymnastics-evaluations', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const rows = await pool.query(
+        `SELECT ge.id, ge.member_id, ge.evaluated_at, ge.evaluation_name, ge.recipient_email,
+                ge.coach_note, ge.report, ge.published_at,
+                NULLIF(trim(concat(COALESCE(m.first_name, ''), ' ', COALESCE(m.last_name, ''))), '') AS athlete_name,
+                u.full_name AS coach_name
+         FROM coaching.gymnastics_evaluation ge
+         LEFT JOIN public.member m ON m.id = ge.member_id
+         LEFT JOIN public.app_user u ON u.id = ge.coach_user_id
+         WHERE ge.facility_id = $1
+         ORDER BY ge.evaluated_at DESC, ge.id DESC
+         LIMIT 300`,
+        [req.platformAuth.user.facility_id],
+      )
+      ok(res, rows.rows)
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.get('/api/coach/gymnastics-evaluations/:id', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const evaluationId = num(req.params.id)
+      if (evaluationId == null) return bad(res, 'Evaluation id required.')
+      const evaluation = await pool.query(
+        `SELECT ge.id, ge.member_id, ge.evaluated_at, ge.evaluation_name, ge.recipient_email,
+                ge.coach_note, ge.report, ge.published_at,
+                NULLIF(trim(concat(COALESCE(m.first_name, ''), ' ', COALESCE(m.last_name, ''))), '') AS athlete_name,
+                u.full_name AS coach_name
+         FROM coaching.gymnastics_evaluation ge
+         LEFT JOIN public.member m ON m.id = ge.member_id
+         LEFT JOIN public.app_user u ON u.id = ge.coach_user_id
+         WHERE ge.id = $1 AND ge.facility_id = $2`,
+        [evaluationId, req.platformAuth.user.facility_id],
+      )
+      if (!evaluation.rows[0]) return bad(res, 'Evaluation not found.', 404)
+      const movements = await pool.query(
+        `SELECT gem.id, gem.movement_key, gem.movement_label, gem.variant_label, gem.overall_score,
+                COALESCE(
+                  json_agg(
+                    json_build_object(
+                      'id', gec.id,
+                      'key', gec.component_key,
+                      'label', gec.component_label,
+                      'score', gec.score,
+                      'issues', COALESCE((
+                        SELECT json_agg(gei.issue_label ORDER BY gei.id)
+                        FROM coaching.gymnastics_evaluation_issue gei
+                        WHERE gei.component_evaluation_id = gec.id
+                      ), '[]'::json)
+                    )
+                    ORDER BY gec.id
+                  ) FILTER (WHERE gec.id IS NOT NULL),
+                  '[]'::json
+                ) AS components
+         FROM coaching.gymnastics_evaluation_movement gem
+         LEFT JOIN coaching.gymnastics_evaluation_component gec ON gec.movement_evaluation_id = gem.id
+         WHERE gem.evaluation_id = $1
+         GROUP BY gem.id
+         ORDER BY gem.id`,
+        [evaluationId],
+      )
+      ok(res, { ...evaluation.rows[0], movements: movements.rows })
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
   app.get('/api/coach/athletes/:memberId/gymnastics-evaluations', ...can('coach_insights.view'), async (req, res) => {
     try {
       const memberId = num(req.params.memberId)

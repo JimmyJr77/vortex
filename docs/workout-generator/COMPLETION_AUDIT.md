@@ -2678,3 +2678,85 @@ disposable PostgreSQL. The remaining gates are:
   definitions with all 614 surfaced identity pairs adjudicated and zero exact
   collision unresolved. Machine-complete cards rise to 81, leaving 963; exact
   current 3–5-candidate coverage rises to 80/1,044.
+
+## Kettlebell Swing family audit hardening and taxonomy closure (migrations 472 and 474)
+
+- Migration 472 preserves stable shoulder-height Kettlebell Swing UUID
+  `f0f47f37-e892-4689-99a0-16cba58a3f40` and creates distinct full-overhead
+  swing UUID `5c671a58-1beb-44db-9d5b-a0951630fc6f`. The generic source-11
+  representation is archived because it does not fix hand count, bell count,
+  terminal height, style, start, cadence, load, dose, stop, or park method.
+- Four exact review specifications are selectable: two-hand and one-hand
+  shoulder-height continuous swings (`56/58/58` and `64/60/64`) and two-hand
+  and one-hand overhead continuous swings (`66/62/66` and `74/64/74`) for
+  exercise complexity, physical difficulty, and derived overall. Exercise and
+  safety proficiency fields are null; athlete readiness remains a workout-
+  selection input and skill levels remain exclusive to skill-library cards.
+- Eight contextual Output/Capacity profiles provide exact dosage, cumulative
+  hinge, power, grip, trunk and applicable overhead budgets, duration,
+  clearance, logistics, substitutions, persistence, and separate athlete,
+  coach, and support rendering. Sixteen evidence sections per definition,
+  54 alternate assessments, eight review-only relationship proposals, eight
+  review-only score anchors, and eight current candidate videos are persisted.
+- Registry `2026-08-02.79` contains 315 sources. The direct and adjacent swing
+  evidence is descriptive, acute, biomechanical, or small-sample and does not
+  establish a universal style, load, dose, recovery interval, safety threshold,
+  treatment effect, transfer outcome, or difficulty score. oEmbed metadata
+  establishes neither playback nor exact movement, captions, accessibility,
+  cue quality, safety, reviewer identity, or approval.
+- The independent audit discovered three uncontrolled keys on both cards:
+  `forearm`, `floor_marker`, and `video_capture`. Migration 474 replaces the
+  body-region representation with controlled elbow, wrist, and hand keys and
+  uses controlled `line_tape` and `timer` optional equipment; video capture
+  remains a workflow capability rather than fabricated required equipment.
+- Migrations 472 and 474 pass direct and repeated disposable-PostgreSQL
+  execution and production-runner registration at checksums `3340443758` and
+  `1490465970`. Focused validation passes `204/204`; the full backend suite
+  passes 1,003 tests with 20 intentional skips and zero failures. Focused lint,
+  the persisted audit, diff checks, and the production build pass.
+- The authoritative whole-library snapshot maps all 1,676 legacy records to
+  1,045 active definitions. All 617 surfaced identity pairs are adjudicated,
+  with zero unresolved pair and zero exact collision. Machine-complete cards
+  rise to 83, leaving 962; exact current-card healthy embeddable 3–5-candidate
+  coverage is 82/1,045. Both swing definitions retain exactly
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+
+## Pull-Up / Chin-Up identity and family completion (migration 475)
+
+- Preserves stable UUID `03bb53ca-123a-4f38-864f-bb38f4e22bc1` and
+  consolidates Assisted Pull-Up, Weighted Vest Pull-Up, and the disjunctive
+  Chin-Up or Assisted Chin-Up definition. All eight legacy sources remain
+  traceable; generic and disjunctive source baselines are archived and cannot
+  be selected without an exact working specification.
+- Seven exact review specifications cover pronated, supinated, and neutral
+  strict bodyweight pulls; side-specific archer pulls; elastic-band and
+  counterweight assistance; and weighted-vest pronated pulls. Their
+  complexity/physical/overall vectors are `48/72/72`, `46/68/68`, `44/66/66`,
+  `66/86/86`, `54/50/54`, `48/48/48`, and `52/84/84`. No exercise skill or
+  proficiency classification is stored; overall is the maximum of the two
+  exercise-difficulty dimensions.
+- Eccentric-only, isometric-hold, and scapular-only cards remain distinct by
+  contraction and repetition boundary. Kipping, butterfly, one-arm,
+  muscle-up, L-sit, leg-raise, and flight/regrasp tasks remain separate
+  definitions or research queues. Grip width and tempo are annotations unless
+  an exact support or action contract materially changes the variant.
+- Fourteen Capacity profiles add exact dose, cumulative pull/hang/grip and
+  elbow-flexor budgets, equipment and mount/exit logistics, duration,
+  substitution revalidation, persistence, and athlete/coach/support output.
+  Sixteen evidence sections, 32 alternate assessments, 12 relationship
+  proposals, 14 calibration proposals, and five current privacy-enhanced
+  candidates are persisted without approval. The unrelated calf-raise PMID
+  `38156065` is removed from the current family provenance.
+- Migration 475 passes direct and repeated disposable-PostgreSQL execution and
+  production-runner registration at checksum `2352809545`. Registry
+  `2026-08-02.80` contains 323 sources. Focused validation passes `206/206`;
+  the full backend suite passes 1,005 tests with 20 intentional skips and zero
+  failures. Focused lint, the persisted audit, diff checks, and the production
+  build pass.
+- The authoritative library now maps all 1,676 legacy rows to 1,042 active
+  definitions. All 616 surfaced identity pairs are adjudicated, with zero
+  unresolved pair and zero exact collision. Machine-complete cards rise to 84,
+  leaving 958; exact current-card healthy embeddable 3–5-candidate coverage is
+  83/1,042. Pull-Up / Chin-Up retains exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.

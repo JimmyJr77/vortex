@@ -2824,3 +2824,74 @@ anchors. Difficulty review covers exercise complexity and physical difficulty
 only, with overall derived as their maximum. Athlete readiness belongs to
 workout selection, and proficiency categories remain exclusive to skill-
 library cards. Separate content review and publication approval are mandatory.
+
+## Kettlebell Swing review packet after migrations 472 and 474
+
+Review the shoulder-height definition as a one-bell ballistic hip-hinge cycle:
+declared hand count and side, stance, bell mass, park, close hike, hip-driven
+float to chest-to-shoulder height, non-arm-dominant terminal position, falling
+bell before the next hinge, cadence, breathing, quality stop, and controlled
+final park. Review the overhead definition separately through the full declared
+overhead terminal position, including ceiling, fixture and drop-zone clearance,
+shoulder/elbow and rib-pelvis control, return path, and higher consequence of
+lost bell control. Do not merge either definition with a deadlift, Romanian
+deadlift, overhead carry, or strict press.
+
+The professional ACE technique source supports the common two-hand hinge and
+float contract. PMID 21997449, PMID 26618061, PMID 32131695, PMID 22207261,
+PMCID PMC5455182/PMID 28593086, PMID 37126368, and PMID 36548500 provide
+descriptive or acute information about muscle activity, kinematics, kinetics,
+bell mass, style, fatigue, and overhead load. Preserve their limitations:
+small and population-specific samples, acute laboratory tasks, differing swing
+styles and protocols, and incomplete measurement of all tissues. None proves
+a universal best swing, load, dose, recovery period, safety threshold, injury
+effect, treatment outcome, sport transfer, or difficulty score.
+
+Independently verify all four working variants and eight Output/Capacity
+profiles. Record hand count, side, bell count and mass, terminal height, style,
+start and park, planned/completed/failed repetitions, cadence, rest, first
+quality break, symptoms, duration, substitution, and same-session hinge, power,
+grip, trunk and applicable overhead exposure. Difficulty review is limited to
+exercise complexity and physical difficulty, with overall derived as the
+maximum; athlete readiness is not an exercise skill level.
+
+Watch `IW979LifpGo`, `PAhDt_0PjP4`, `fvQoQsDk40M`, and `yHxcTn1UeAc` for the
+shoulder-height card, and `MjZgWEr7dn8`, `d94xX-AQZ0A`, `dUlk6ZmFtAU`, and
+`mKDIuUbH94Q` for the overhead card. The last candidate has a generic title and
+therefore elevated exact-match uncertainty. Current oEmbed title, channel,
+thumbnail, and privacy-enhanced iframe metadata prove only metadata health.
+Record full playback, exact definition and variant, all identity dimensions,
+captions, accessibility, safety, cue quality, conflicts, reviewer identity,
+rationale, timestamp, and card-version match before any shortlist or approval.
+
+Independently adjudicate all 54 alternate assessments, eight relationship
+proposals, and eight complexity/physical-difficulty anchors. Migration 474's
+controlled-taxonomy correction is not content approval. Separate qualified
+content review and publication approval remain mandatory.
+
+## Pull-Up / Chin-Up human-review packet
+
+Review the seven exact working specifications separately: strict pronated bar,
+strict supinated bar, fixed neutral handles, pronated archer with side-specific
+load shift, elastic-band-assisted pronated bar, counterweight-machine-assisted
+pronated pull, and weighted-vest pronated bar. Verify support, grip orientation
+and width, assistance interface and setting or vest mass, bottom, top, strict
+body path, laterality, tempo, reserve, mount, controlled return, exit, symptoms,
+and cumulative pull/hang/climb/row/carry/grip exposure. Exercise complexity and
+physical difficulty anchors are not athlete proficiency classifications.
+
+Watch `GBqAZP6jquc`, `eGo4IYlbE5g`, `e1YSApl-QcM`, `ayvVeCtp83Q`, and
+`AqCmhR1Bl2Q` in full. Current oEmbed responses establish title, channel,
+thumbnail, and iframe metadata only. Record playback, exact definition and
+variant, all support/grip/range/load facts, captions, accessibility, cue and
+demonstration quality, safety concerns, conflicts, reviewer identity,
+rationale, timestamp, and card-version match. Do not infer exactness from a
+title or channel.
+
+Independently adjudicate all 32 alternate assessments, 12 relationship
+proposals, and 14 complexity/physical-difficulty anchors. The evidence includes
+professional instruction and acute EMG, kinematic, kinetic, modeled-load,
+fatigue, and trained-sample studies. It does not establish universal grip,
+scapular position, readiness, safety, injury risk, load, dose, recovery,
+transfer, or difficulty. Qualified content review and a separate publication
+approver remain mandatory.

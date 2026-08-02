@@ -2953,3 +2953,70 @@ pass. The card has only the four human gates. The library has 81 machine-
 complete and 963 machine-incomplete cards, 80/1,044 exact current 3–5-video
 candidate coverage, 614/614 adjudicated surfaced pairs, and zero unresolved
 exact collision. Runner checksum: `3237436721`; focused validation: `201/201`.
+
+## Kettlebell Swing family audit hardening (migrations 472 and 474)
+
+The shoulder-height Kettlebell Swing retains UUID
+`f0f47f37-e892-4689-99a0-16cba58a3f40`; a full-overhead/American Swing is a
+separate definition at `5c671a58-1beb-44db-9d5b-a0951630fc6f`. The original
+generic source is traceable but nonselectable. Exact one-bell two-hand and
+one-hand specifications are available for each terminal-height definition.
+Hand count and side are variant dimensions; cadence, load, sets, repetitions,
+and rest are delivery dimensions. Release/catch, hand-to-hand switching,
+double-bell, sport style, dead-stop, half-kneeling, staggered-stance, lateral,
+and measurement protocols remain distinct alternates requiring their own exact
+classification and review.
+
+The four difficulty vectors are `56/58/58`, `64/60/64`, `66/62/66`, and
+`74/64/74`, representing exercise complexity, physical difficulty, and their
+maximum. No athlete skill or exercise proficiency classification is stored.
+The cards include controlled multiplanar anatomy, zero landing contacts,
+external load and failure exposure, fatigue/recovery and same-session budgets,
+equipment and clearance constraints, eight profiles, duration and substitution
+revalidation, support escalation, 32 evidence sections, 54 alternate decisions,
+eight graph proposals, eight calibration proposals, and eight privacy-enhanced
+candidate embeds.
+
+The independent audit caught uncontrolled body-region/equipment terms in the
+initial migration. Migration 474 corrects `forearm` to controlled elbow, wrist,
+and hand regions, replaces `floor_marker` with controlled `line_tape`, and
+removes `video_capture` from equipment taxonomy while retaining capture in the
+measurement workflow. This correction is machine-verified, not a human
+approval.
+
+The persisted audit now leaves only the four human gates on both definitions.
+The global snapshot is 1,676/1,676 mapped legacy rows, 1,045 active definitions,
+83 machine-complete and 962 machine-incomplete cards, 82/1,045 definitions with
+exactly three to five current healthy embeddable candidates, and 617/617
+adjudicated surfaced identity pairs with zero unresolved collision. Graph and
+calibration queues contain 610/813 review-only rows with zero approvals.
+Runner checksums are `3340443758` and `1490465970`; focused validation is
+`204/204`, and the backend suite is 1,003 passes plus 20 intentional skips.
+
+## Pull-Up / Chin-Up family completion (migration 475)
+
+The stable card is now an exact strict full-cycle vertical pull rather than a
+generic name. Seven selectable variants declare grip orientation, support,
+assistance or external load, bottom, top, body path, laterality, tempo, mount,
+and exit. Four generic legacy baselines are identity quarantines. Assisted and
+weighted definitions consolidate, and the disjunctive source remains lineage
+only. Eccentric, isometric, and scapular action boundaries are explicit.
+
+The card now has controlled taxonomy, three-plane joint and muscle roles,
+zero landing contacts, load/fatigue/recovery and cumulative-overlap contracts,
+equipment and population constraints, fourteen contextual profiles, duration
+models, substitution revalidation, coach/member/support operations, sixteen
+candidate evidence sections, thirty-two alternate decisions, twelve graph
+proposals, fourteen calibration proposals, and five oEmbed-healthy candidate
+videos. All media review fields, relationship approvals, calibration approvals,
+content review, and publication authority remain null.
+
+The persisted audit leaves only media, graph, calibration, and publication
+human gates on Pull-Up / Chin-Up. The global snapshot is 1,676/1,676 mapped
+legacy rows, 1,042 active definitions, 84 machine-complete and 958 machine-
+incomplete cards, 83/1,042 definitions with exactly three to five current
+healthy embeddable candidates, and 616/616 adjudicated surfaced identity pairs
+with zero unresolved collision. Graph and calibration queues contain 645/871
+review-only rows with zero approvals. Runner checksum is `2352809545`; focused
+validation is `206/206`, and the backend suite is 1,005 passes plus 20
+intentional skips.

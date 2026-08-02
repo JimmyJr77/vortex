@@ -1579,3 +1579,65 @@ logistics, duration, and rendering rather than merely renaming the same card.
 The independent identity queue remains 614/614 adjudicated, with zero
 unresolved pair and zero exact collision across 1,044 active definitions. These
 machine decisions remain human-review quarantined and create no approvals.
+
+## Kettlebell Swing identity resolution (migration 472)
+
+The stable `kettlebell-swing` definition requires a ballistic hip hinge and
+close hike followed by hip-driven float to a declared chest-to-shoulder height.
+Its two-hand and one-hand executions remain variants because they retain the
+same terminal-height definition while changing grip, laterality, anti-rotation,
+coordination, supervision, and side accounting.
+
+`overhead-kettlebell-swing` is a separate definition. It adds a continuous arc
+to a declared full-overhead terminal position, additional shoulder and elbow
+control, overhead and ceiling clearance, a different return path, and a higher
+failure consequence. Treating it as a height annotation would hide material
+selection, environment, fatigue, duration, substitution, and rendering facts.
+Its one-hand and two-hand executions are exact variants within that definition.
+
+Both swing definitions remain distinct from Kettlebell Deadlift and Romanian
+Deadlift because the latter are controlled strength repetitions without a
+continuous ballistic hike/float cycle. The overhead swing remains distinct
+from Overhead Carry because the carry stabilizes a held overhead load during
+locomotion, and from Standing Strict Overhead Press because the press moves
+from rack to overhead without a ballistic backswing. Release/catch, hand-to-
+hand, double-bell, dead-stop, staggered-stance, half-kneeling, lateral, and
+testing protocols remain explicit alternate decisions rather than aliases.
+
+The newly authored overhead name surfaced similarities with Overhead Carry and
+Standing Strict Overhead Press; both are explicitly adjudicated as distinct.
+The independent queue now contains 617/617 adjudicated pairs, zero unresolved
+pair, and zero exact collision across 1,045 active definitions. These identity
+records create no media, graph, calibration, content, or publication approval
+and contain no exercise skill/proficiency classification.
+
+## Pull-Up / Chin-Up full-cycle identity
+
+Migration 475 preserves `pull-up-chin-up` as the stable strict full-cycle
+vertical-pull identity. Pronated Pull-Up, supinated Chin-Up, neutral-grip
+Pull-Up, Archer Pull-Up, Assisted Pull-Up, and Weighted Vest Pull-Up retain the
+same bottom-ascent-top-return repetition only when grip, support, assistance
+interface, external load, side shift, range, tempo, mount, and exit are exact.
+Those facts are variants or delivery dimensions, not athlete skill levels.
+
+Assisted Pull-Up and Weighted Vest Pull-Up definitions consolidate into the
+stable survivor. The disjunctive “Chin-Up or Assisted Chin-Up” source also maps
+to the survivor for lineage, but its generic representation remains archived
+and nonselectable because it does not choose a grip or assistance contract.
+Eight legacy source mappings are retained, and the inherited calf-raise PMID
+`38156065` is removed from current family source and identity provenance.
+
+Eccentric Pull-Up remains distinct because its repetition starts at the top
+and ends after lowering. Isometric Pull-Up Hold remains distinct because it is
+duration-based without a dynamic cycle. Scapular Pull-Up remains distinct
+because it intentionally minimizes elbow motion. Kipping and butterfly pulls,
+One-Arm Pull-Up, Muscle-Up, L-Sit Pull-Up, Pull-Up to Knee Raise, and
+clapping/flight tasks require separate definitions. Mixed grip, towels, rope,
+rings, material width changes, chest-to-bar range, foot or partner assistance,
+and hanging belt load remain exact new-variant queues. Behind-the-neck Pull-Up
+is rejected from automatic selection pending an original exact specification
+and qualified review.
+
+The post-migration detector contains 616/616 adjudicated surfaced pairs across
+1,042 active definitions, zero unresolved pair, and zero exact collision. No
+media, graph, calibration, content, or publication approval is inferred.

@@ -1,5 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ClipboardCheck, Expand, GripVertical, Minimize, Pencil, Plus, Save, Trash2, Search, Archive, X } from 'lucide-react'
+import {
+  Archive,
+  ArrowLeft,
+  ClipboardCheck,
+  Expand,
+  GripVertical,
+  Minimize,
+  Pencil,
+  Plus,
+  Save,
+  Search,
+  Trash2,
+  X,
+  Zap,
+} from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useRosterMembers } from './useRosterMembers'
 
@@ -10,7 +24,49 @@ type Entry = { score: number | ''; issues: string[]; filter: string }
 type MovementState = { overall: number | ''; overridden: boolean; components: Record<string, Entry> }
 type SkillCard = { id: string; movementKey: string; variant: string }
 type SavedTemplate = { id: string; name: string; archived?: boolean; cards: SkillCard[] }
-type PublishedEvaluation = { id: string; athlete: string; date: string; name: string; score: number }
+type EvaluationReportItem = { movement: string; component: string; text: string }
+type EvaluationReport = {
+  focus?: EvaluationReportItem[]
+  strengths?: EvaluationReportItem[]
+  coachNote?: string | null
+}
+type EvaluationListItem = {
+  id: number
+  member_id: number | null
+  evaluated_at: string
+  evaluation_name: string
+  recipient_email?: string | null
+  coach_note?: string | null
+  report: EvaluationReport
+  athlete_name?: string | null
+  coach_name?: string | null
+}
+type EvaluationDetail = EvaluationListItem & {
+  movements: Array<{
+    id: number
+    movement_key: string
+    movement_label: string
+    variant_label?: string | null
+    overall_score?: number | null
+    components: Array<{
+      id: number
+      key: string
+      label: string
+      score?: number | null
+      issues: string[]
+    }>
+  }>
+}
+type ViewMode = 'evaluate' | 'create-form' | 'edit-form' | 'history' | 'saved'
+
+function athleteLabel(item: Pick<EvaluationListItem, 'athlete_name' | 'recipient_email'>) {
+  return item.athlete_name || item.recipient_email || 'Athlete'
+}
+
+function evaluationDateLabel(value: string) {
+  const parsed = new Date(value.includes('T') ? value : `${value}T12:00:00`)
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleDateString()
+}
 
 const scoreOptions = [1, 2, 3, 4, 5]
 const DEFAULT_FORM_ID = '__foundational_floor__'
@@ -52,6 +108,9 @@ function parseRecipientEmails(value: string): string[] {
     ),
   ]
 }
+function cardsSignature(cards: SkillCard[]): string {
+  return cards.map((card) => card.id).join('|')
+}
 function valuesForCards(movements: Movement[], cards: SkillCard[]): Record<string, MovementState> {
   const byKey = new Map(movements.map((movement) => [movement.key, movement]))
   return Object.fromEntries(
@@ -72,25 +131,25 @@ export default function GymnasticsEvaluationPanel() {
   const [athleteQuery, setAthleteQuery] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
   const [selectedFormId, setSelectedFormId] = useState(DEFAULT_FORM_ID)
-  const [activePanel, setActivePanel] = useState<'history' | 'saved' | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('evaluate')
   const [historyQuery, setHistoryQuery] = useState('')
   const [historyFrom, setHistoryFrom] = useState('')
   const [historyTo, setHistoryTo] = useState('')
+  const [historyItems, setHistoryItems] = useState<EvaluationListItem[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(null)
+  const [historyDetail, setHistoryDetail] = useState<EvaluationDetail | null>(null)
+  const [historyDetailLoading, setHistoryDetailLoading] = useState(false)
   const [templates, setTemplates] = useState<SavedTemplate[]>(() =>
     JSON.parse(localStorage.getItem('vortex_eval_templates') || '[]'),
   )
-  const [published, setPublished] = useState<PublishedEvaluation[]>(() =>
-    JSON.parse(localStorage.getItem('vortex_eval_reports') || '[]'),
-  )
   const [showTemplateSave, setShowTemplateSave] = useState(false)
   const [templateName, setTemplateName] = useState('')
+  const [editingFormId, setEditingFormId] = useState<string | null>(null)
+  const [editingFormName, setEditingFormName] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [coachNote, setCoachNote] = useState('')
-  const [history, setHistory] = useState<
-    Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }> } }>
-  >([])
-  const [editing, setEditing] = useState(false)
-  const [creatingForm, setCreatingForm] = useState(false)
+  const [editingSkills, setEditingSkills] = useState(false)
   const [skillQuery, setSkillQuery] = useState('')
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -112,21 +171,65 @@ export default function GymnasticsEvaluationPanel() {
     () => templates.filter((template) => !template.archived),
     [templates],
   )
+  const defaultCards = useMemo(() => initialCards(movements), [movements])
   const selectedFormName = useMemo(() => {
     if (selectedFormId === DEFAULT_FORM_ID) return DEFAULT_FORM_NAME
     return activeTemplates.find((template) => template.id === selectedFormId)?.name || DEFAULT_FORM_NAME
   }, [selectedFormId, activeTemplates])
-  const defaultCards = useMemo(() => initialCards(movements), [movements])
-  const edited =
-    creatingForm ||
-    editing ||
-    cards.map((card) => card.id).join('|') !== defaultCards.map((card) => card.id).join('|')
-  const filteredPublished = published.filter(
-    (item) =>
-      item.athlete.toLowerCase().includes(historyQuery.toLowerCase()) &&
-      (!historyFrom || item.date >= historyFrom) &&
-      (!historyTo || item.date <= historyTo),
-  )
+  const baselineCards = useMemo(() => {
+    if (selectedFormId === DEFAULT_FORM_ID) return defaultCards
+    return activeTemplates.find((template) => template.id === selectedFormId)?.cards || defaultCards
+  }, [selectedFormId, defaultCards, activeTemplates])
+  const formModified =
+    viewMode === 'evaluate' && cardsSignature(cards) !== cardsSignature(baselineCards)
+  const filteredHistory = useMemo(() => {
+    const query = historyQuery.trim().toLowerCase()
+    return historyItems.filter((item) => {
+      const date = String(item.evaluated_at || '').slice(0, 10)
+      const haystack = [
+        athleteLabel(item),
+        item.evaluation_name,
+        item.coach_name || '',
+        item.recipient_email || '',
+      ]
+        .join(' ')
+        .toLowerCase()
+      return (
+        (!query || haystack.includes(query)) &&
+        (!historyFrom || date >= historyFrom) &&
+        (!historyTo || date <= historyTo)
+      )
+    })
+  }, [historyItems, historyQuery, historyFrom, historyTo])
+
+  const loadHistory = async () => {
+    setHistoryLoading(true)
+    setError(null)
+    try {
+      const rows = await coachFetch<EvaluationListItem[]>('/api/coach/gymnastics-evaluations')
+      setHistoryItems(Array.isArray(rows) ? rows : [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load athlete evaluations.')
+      setHistoryItems([])
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  const openHistoryDetail = async (id: number) => {
+    setSelectedHistoryId(id)
+    setHistoryDetailLoading(true)
+    setError(null)
+    try {
+      const detail = await coachFetch<EvaluationDetail>(`/api/coach/gymnastics-evaluations/${id}`)
+      setHistoryDetail(detail)
+    } catch (err) {
+      setHistoryDetail(null)
+      setError(err instanceof Error ? err.message : 'Unable to load evaluation details.')
+    } finally {
+      setHistoryDetailLoading(false)
+    }
+  }
 
   useEffect(() => {
     coachFetch<{ movements: Movement[]; customIssueTags: Tag[] }>(
@@ -147,16 +250,9 @@ export default function GymnasticsEvaluationPanel() {
   }, [])
 
   useEffect(() => {
-    if (!memberId) {
-      setHistory([])
-      return
-    }
-    coachFetch<
-      Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }> } }>
-    >(`/api/coach/athletes/${memberId}/gymnastics-evaluations`)
-      .then(setHistory)
-      .catch(() => setHistory([]))
-  }, [memberId])
+    if (viewMode !== 'history') return
+    void loadHistory()
+  }, [viewMode])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -186,9 +282,10 @@ export default function GymnasticsEvaluationPanel() {
     [movements, skillQuery],
   )
 
-  const applyFormCards = (nextCards: SkillCard[], formId: string) => {
+  const applyFormCards = (nextCards: SkillCard[], formId: string, resetScores = true) => {
     setCards(nextCards)
     setValues((current) => {
+      if (resetScores) return valuesForCards(movements, nextCards)
       const next = { ...current }
       for (const card of nextCards) {
         if (!next[card.id]) {
@@ -199,36 +296,121 @@ export default function GymnasticsEvaluationPanel() {
       return next
     })
     setSelectedFormId(formId)
-    setCreatingForm(false)
-    setEditing(false)
   }
 
-  const loadFormById = (formId: string) => {
-    if (formId === DEFAULT_FORM_ID) {
-      applyFormCards(defaultCards, DEFAULT_FORM_ID)
+  const returnToEvaluationForm = () => {
+    setViewMode('evaluate')
+    setEditingFormId(null)
+    setEditingFormName('')
+    setEditingSkills(false)
+    setSkillQuery('')
+    setSelectedHistoryId(null)
+    setHistoryDetail(null)
+    setMessage(null)
+    setError(null)
+  }
+
+  const leaveFocusedMode = () => {
+    if (viewMode === 'edit-form') {
+      setViewMode('saved')
+      setEditingFormId(null)
+      setEditingFormName('')
+      setSkillQuery('')
       return
     }
-    const template = templates.find((item) => item.id === formId)
-    if (!template) return
-    applyFormCards(template.cards, template.id)
+    if (viewMode === 'history' && selectedHistoryId != null) {
+      setSelectedHistoryId(null)
+      setHistoryDetail(null)
+      return
+    }
+    returnToEvaluationForm()
+  }
+
+  const openAthleteEvaluations = () => {
+    setSelectedHistoryId(null)
+    setHistoryDetail(null)
+    setViewMode('history')
+  }
+
+  const startNewEvaluation = () => {
+    applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
+    setMemberId('')
+    setAthleteQuery('')
+    setRecipientEmail('')
+    setCoachNote('')
+    setDate(new Date().toISOString().slice(0, 10))
+    setViewMode('evaluate')
+    setEditingSkills(false)
+    setEditingFormId(null)
+    setMessage(null)
+    setError(null)
   }
 
   const startCreateForm = () => {
-    setCreatingForm(true)
-    setEditing(true)
-    setActivePanel(null)
+    setViewMode('create-form')
+    setEditingFormId(null)
+    setEditingFormName('')
     setCards([])
     setValues({})
-    setSelectedFormId('')
     setSkillQuery('')
     setMessage(null)
     setError(null)
   }
 
-  const exitCreateForm = () => {
-    setCreatingForm(false)
-    setEditing(false)
-    loadFormById(DEFAULT_FORM_ID)
+  const startEditForm = (formId: string) => {
+    if (formId === DEFAULT_FORM_ID) {
+      setEditingFormId(DEFAULT_FORM_ID)
+      setEditingFormName(DEFAULT_FORM_NAME)
+      setCards(defaultCards.map((card) => ({ ...card })))
+      setValues(valuesForCards(movements, defaultCards))
+    } else {
+      const template = templates.find((item) => item.id === formId)
+      if (!template) return
+      setEditingFormId(template.id)
+      setEditingFormName(template.name)
+      setCards(template.cards.map((card) => ({ ...card })))
+      setValues(valuesForCards(movements, template.cards))
+    }
+    setViewMode('edit-form')
+    setSkillQuery('')
+    setMessage(null)
+    setError(null)
+  }
+
+  const useFormNow = (formId: string) => {
+    if (formId === DEFAULT_FORM_ID) {
+      applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
+    } else {
+      const template = templates.find((item) => item.id === formId)
+      if (!template) return
+      applyFormCards(template.cards, template.id, true)
+    }
+    setViewMode('evaluate')
+    setEditingSkills(false)
+    setEditingFormId(null)
+    setMessage(`Loaded ${formId === DEFAULT_FORM_ID ? DEFAULT_FORM_NAME : activeTemplates.find((t) => t.id === formId)?.name || 'form'} for a new evaluation.`)
+  }
+
+  const loadFormById = (formId: string) => {
+    if (formId === DEFAULT_FORM_ID) {
+      applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
+      return
+    }
+    const template = templates.find((item) => item.id === formId)
+    if (!template) return
+    applyFormCards(template.cards, template.id, true)
+  }
+
+  const archiveForm = (formId: string) => {
+    if (formId === DEFAULT_FORM_ID) return
+    const next = templates.map((item) =>
+      item.id === formId ? { ...item, archived: true } : item,
+    )
+    setTemplates(next)
+    localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
+    if (selectedFormId === formId) applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
+    if (editingFormId === formId) returnToEvaluationForm()
+    setMessage('Evaluation form archived.')
   }
 
   const collectMissingFields = (): string[] => {
@@ -401,32 +583,8 @@ export default function GymnasticsEvaluationPanel() {
           movements: payload,
         }),
       })
-      const scored = payload.filter((item) => typeof item.overall_score === 'number')
-      const score = scored.length
-        ? Math.round(
-            scored.reduce((sum, item) => sum + (item.overall_score || 0), 0) / scored.length,
-          )
-        : 0
-      const report = {
-        id: crypto.randomUUID(),
-        athlete:
-          members.find((m) => String(m.id) === memberId)?.name ||
-          emails[0] ||
-          'Email recipient',
-        date,
-        name: selectedFormName,
-        score,
-      }
-      const nextReports = [report, ...published]
-      setPublished(nextReports)
-      localStorage.setItem('vortex_eval_reports', JSON.stringify(nextReports))
       setMessage('Evaluation published to the athlete’s Progress tab.')
       setCoachNote('')
-      if (memberId) {
-        setHistory(
-          await coachFetch(`/api/coach/athletes/${memberId}/gymnastics-evaluations`),
-        )
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to publish evaluation.')
     } finally {
@@ -445,20 +603,44 @@ export default function GymnasticsEvaluationPanel() {
     setPublishConfirmOpen(true)
   }
 
-  const saveTemplate = () => {
+  const saveTemplateAsNew = () => {
     const name = templateName.trim() || 'Custom evaluation'
-    const next = [
-      { id: crypto.randomUUID(), name, cards },
-      ...templates,
-    ]
+    const next = [{ id: crypto.randomUUID(), name, cards }, ...templates]
     setTemplates(next)
     localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
     setShowTemplateSave(false)
     setSelectedFormId(next[0].id)
-    setCreatingForm(false)
-    setEditing(false)
+    setViewMode('evaluate')
+    setEditingSkills(false)
     setMessage('Evaluation form saved.')
   }
+
+  const saveEditedForm = () => {
+    const name = editingFormName.trim() || 'Custom evaluation'
+    if (editingFormId === DEFAULT_FORM_ID) {
+      // Editing the default creates a new saved form rather than overwriting the built-in.
+      const next = [{ id: crypto.randomUUID(), name, cards }, ...templates]
+      setTemplates(next)
+      localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
+      setSelectedFormId(next[0].id)
+      setMessage('Saved as a new evaluation form.')
+    } else if (editingFormId) {
+      const next = templates.map((item) =>
+        item.id === editingFormId ? { ...item, name, cards } : item,
+      )
+      setTemplates(next)
+      localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
+      setSelectedFormId(editingFormId)
+      setMessage('Evaluation form updated.')
+    }
+    setViewMode('saved')
+    setEditingFormId(null)
+    setEditingFormName('')
+  }
+
+  const inFormBuilder = viewMode === 'create-form' || viewMode === 'edit-form'
+  const showSkillEditor = inFormBuilder || (viewMode === 'evaluate' && editingSkills)
+  const focusedMode = viewMode === 'history' || viewMode === 'saved' || inFormBuilder
 
   if (loading) return <div className="text-sm text-gray-500">Loading evaluation form…</div>
 
@@ -472,41 +654,66 @@ export default function GymnasticsEvaluationPanel() {
             <ClipboardCheck className="h-6 w-6 text-vortex-red" /> Gymnastics Evaluation
           </h2>
           <p className="text-sm text-gray-500">
-            {creatingForm
-              ? 'Build a reusable set of skills for coaches to evaluate.'
-              : 'Quick, component-by-component evaluation with clear coaching focus.'}
+            {viewMode === 'history'
+              ? selectedHistoryId != null
+                ? 'Review the finalized evaluation report and scores.'
+                : 'Browse published athlete evaluations by date.'
+              : viewMode === 'saved'
+                ? 'Manage reusable evaluation forms.'
+                : viewMode === 'create-form'
+                  ? 'Build a reusable set of skills for coaches to evaluate.'
+                  : viewMode === 'edit-form'
+                    ? 'Edit this evaluation form’s name and skill list.'
+                    : 'Quick, component-by-component evaluation with clear coaching focus.'}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {!creatingForm && (
+          {focusedMode ? (
             <button
               type="button"
-              onClick={() => setEditing((value) => !value)}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
+              onClick={leaveFocusedMode}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
             >
-              <Pencil className="h-4 w-4" />
-              {editing ? 'Done editing' : 'Edit skills'}
+              {viewMode === 'edit-form'
+                ? 'Return to saved forms'
+                : viewMode === 'history' && selectedHistoryId != null
+                  ? 'Back to evaluation list'
+                  : 'Return to evaluation form'}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={creatingForm ? exitCreateForm : startCreateForm}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
-          >
-            {creatingForm ? 'Cancel create' : 'Create an evaluation'}
-          </button>
-          {!creatingForm && (
+          ) : (
             <>
               <button
                 type="button"
-                onClick={() => setActivePanel(activePanel === 'history' ? null : 'history')}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
+                onClick={startNewEvaluation}
+                className="rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
               >
-                Athlete evaluations
+                New evaluation
               </button>
               <button
                 type="button"
-                onClick={() => setActivePanel(activePanel === 'saved' ? null : 'saved')}
+                onClick={() => setEditingSkills((value) => !value)}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
+              >
+                <Pencil className="h-4 w-4" />
+                {editingSkills ? 'Done editing' : 'Edit skills'}
+              </button>
+              <button
+                type="button"
+                onClick={startCreateForm}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
+              >
+                Create an evaluation
+              </button>
+              <button
+                type="button"
+                onClick={openAthleteEvaluations}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
+              >
+                View athlete evaluations
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('saved')}
                 className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"
               >
                 Saved evaluation forms
@@ -529,7 +736,7 @@ export default function GymnasticsEvaluationPanel() {
         <div className="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">{message}</div>
       )}
 
-      {!creatingForm && (
+      {viewMode === 'evaluate' && (
         <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="text-sm sm:col-span-2 lg:col-span-1">
             <span className="mb-1 block text-xs font-semibold text-gray-500">Athlete name</span>
@@ -608,17 +815,214 @@ export default function GymnasticsEvaluationPanel() {
         </div>
       )}
 
-      {creatingForm && (
+      {viewMode === 'history' && (
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
+          {selectedHistoryId != null ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedHistoryId(null)
+                  setHistoryDetail(null)
+                }}
+                className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back to evaluation list
+              </button>
+              {historyDetailLoading || !historyDetail ? (
+                <p className="text-sm text-gray-500">Loading evaluation…</p>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {historyDetail.evaluation_name || DEFAULT_FORM_NAME}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {athleteLabel(historyDetail)} · {evaluationDateLabel(historyDetail.evaluated_at)}
+                      {historyDetail.coach_name ? ` · ${historyDetail.coach_name}` : ''}
+                    </p>
+                  </div>
+
+                  {(historyDetail.report?.focus?.length ?? 0) > 0 && (
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-vortex-red">
+                        Focus next
+                      </div>
+                      <ul className="mt-1 space-y-1 text-sm text-gray-700">
+                        {historyDetail.report.focus?.map((item, index) => (
+                          <li key={`focus-${index}`}>{item.text}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {(historyDetail.report?.strengths?.length ?? 0) > 0 && (
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                        Strengths
+                      </div>
+                      <ul className="mt-1 space-y-1 text-sm text-gray-700">
+                        {historyDetail.report.strengths?.map((item, index) => (
+                          <li key={`strength-${index}`}>{item.text}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {(historyDetail.report?.coachNote || historyDetail.coach_note) && (
+                    <p className="text-sm italic text-gray-600">
+                      {historyDetail.report?.coachNote || historyDetail.coach_note}
+                    </p>
+                  )}
+
+                  <div className="space-y-3 border-t pt-4">
+                    <h4 className="text-sm font-semibold text-gray-900">Scored movements</h4>
+                    {historyDetail.movements?.length ? (
+                      historyDetail.movements.map((movement) => (
+                        <div
+                          key={movement.id}
+                          className="rounded-lg border border-gray-100 px-3 py-2"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-gray-900">
+                            <span>
+                              {movement.movement_label}
+                              {movement.variant_label ? ` — ${movement.variant_label}` : ''}
+                            </span>
+                            <span className="text-vortex-red">
+                              {movement.overall_score != null
+                                ? `${movement.overall_score}/5`
+                                : 'Not scored'}
+                            </span>
+                          </div>
+                          <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                            {movement.components.map((component) => (
+                              <li key={component.id} className="flex flex-wrap justify-between gap-2">
+                                <span>
+                                  {component.label}
+                                  {component.issues?.length
+                                    ? ` · Needs practice: ${component.issues.join(', ')}`
+                                    : ''}
+                                </span>
+                                <span className="font-medium text-gray-900">
+                                  {component.score != null ? `${component.score}/5` : '—'}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No scored movements recorded.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <h3 className="mb-3 font-semibold text-gray-900">Athlete evaluations</h3>
+              <div className="mb-3 flex flex-wrap gap-2">
+                <div className="relative min-w-[220px] flex-1">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <input
+                    value={historyQuery}
+                    onChange={(e) => setHistoryQuery(e.target.value)}
+                    placeholder="Search by athlete, form, or coach…"
+                    className="h-9 w-full rounded border border-gray-300 pl-8 pr-2 text-sm"
+                  />
+                </div>
+                <input
+                  type="date"
+                  value={historyFrom}
+                  onChange={(e) => setHistoryFrom(e.target.value)}
+                  className="h-9 rounded border border-gray-300 px-2 text-sm"
+                />
+                <input
+                  type="date"
+                  value={historyTo}
+                  onChange={(e) => setHistoryTo(e.target.value)}
+                  className="h-9 rounded border border-gray-300 px-2 text-sm"
+                />
+              </div>
+              {historyLoading ? (
+                <p className="text-sm text-gray-500">Loading evaluations…</p>
+              ) : filteredHistory.length ? (
+                <div className="divide-y divide-gray-100">
+                  {filteredHistory.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => void openHistoryDetail(item.id)}
+                      className="flex w-full flex-wrap items-center justify-between gap-2 py-3 text-left text-sm hover:bg-gray-50"
+                    >
+                      <span className="font-semibold text-gray-900">{athleteLabel(item)}</span>
+                      <span className="text-gray-600">
+                        {evaluationDateLabel(item.evaluated_at)}
+                      </span>
+                      <span className="text-gray-700">{item.evaluation_name || DEFAULT_FORM_NAME}</span>
+                      <span className="text-xs font-semibold text-vortex-red">View report</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No published evaluations yet.</p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {viewMode === 'saved' && (
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <h3 className="mb-3 font-semibold text-gray-900">Saved evaluation forms</h3>
+          <FormListRow
+            name={DEFAULT_FORM_NAME}
+            onEdit={() => startEditForm(DEFAULT_FORM_ID)}
+            onUse={() => useFormNow(DEFAULT_FORM_ID)}
+            onArchive={null}
+            defaultBadge
+          />
+          {activeTemplates.map((template) => (
+            <FormListRow
+              key={template.id}
+              name={template.name}
+              onEdit={() => startEditForm(template.id)}
+              onUse={() => useFormNow(template.id)}
+              onArchive={() => archiveForm(template.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {viewMode === 'create-form' && (
         <div className="rounded-xl border border-vortex-red/30 bg-white p-4">
           <h3 className="font-semibold text-gray-900">Create evaluation form</h3>
           <p className="mt-1 text-sm text-gray-600">
-            Add and reorder skills below, then save this as a reusable evaluation form. Athlete
-            selection and publishing happen when you use the form later.
+            Add and reorder skills below, then save this as a reusable evaluation form.
           </p>
         </div>
       )}
 
-      {(editing || creatingForm) && (
+      {viewMode === 'edit-form' && (
+        <div className="rounded-xl border border-vortex-red/30 bg-white p-4">
+          <label className="text-sm font-semibold text-gray-800">
+            Form name
+            <input
+              value={editingFormName}
+              onChange={(event) => setEditingFormName(event.target.value)}
+              className="mt-2 h-10 w-full rounded border border-gray-300 px-3 font-normal"
+              placeholder="Evaluation form name"
+            />
+          </label>
+          {editingFormId === DEFAULT_FORM_ID && (
+            <p className="mt-2 text-xs text-gray-500">
+              Editing Foundational Floor will save as a new form (the default stays unchanged).
+            </p>
+          )}
+        </div>
+      )}
+
+      {showSkillEditor && (
         <div className="rounded-xl border border-vortex-red/30 bg-white p-4">
           <label className="text-sm font-semibold text-gray-800">Add a skill</label>
           <input
@@ -655,152 +1059,48 @@ export default function GymnasticsEvaluationPanel() {
         </div>
       )}
 
-      {activePanel === 'history' && !creatingForm && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <div className="mb-3 flex flex-wrap gap-2">
-            <div className="relative min-w-[220px] flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-              <input
-                value={historyQuery}
-                onChange={(e) => setHistoryQuery(e.target.value)}
-                placeholder="Filter evaluations by athlete…"
-                className="h-9 w-full rounded border border-gray-300 pl-8 pr-2 text-sm"
+      {(viewMode === 'evaluate' || inFormBuilder) && (
+        <div className="space-y-4">
+          {cards.map((card) => {
+            const movement = movementByKey.get(card.movementKey)
+            return movement ? (
+              <SkillCard
+                key={card.id}
+                card={card}
+                movement={movement}
+                value={values[card.id]}
+                customTags={customTags}
+                editing={showSkillEditor}
+                compact={draggedId !== null}
+                onDragStart={() => setDraggedId(card.id)}
+                onDragEnd={() => setDraggedId(null)}
+                onDrop={() => reorder(card.id)}
+                onDelete={() =>
+                  setCards((current) => current.filter((item) => item.id !== card.id))
+                }
+                onScore={setComponentScore}
+                onIssue={toggleIssue}
+                onOverall={(score) =>
+                  update(card.id, (current) => ({
+                    ...current,
+                    overall: score,
+                    overridden: true,
+                  }))
+                }
+                onFilter={setFilter}
+                onAddIssue={addCustomIssue}
               />
-            </div>
-            <input
-              type="date"
-              value={historyFrom}
-              onChange={(e) => setHistoryFrom(e.target.value)}
-              className="h-9 rounded border border-gray-300 px-2 text-sm"
-            />
-            <input
-              type="date"
-              value={historyTo}
-              onChange={(e) => setHistoryTo(e.target.value)}
-              className="h-9 rounded border border-gray-300 px-2 text-sm"
-            />
-          </div>
-          {filteredPublished.length ? (
-            filteredPublished.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-wrap items-center justify-between gap-2 border-t py-3 text-sm"
-              >
-                <span className="font-semibold">{item.athlete}</span>
-                <span>{new Date(item.date).toLocaleDateString()}</span>
-                <span>{item.name}</span>
-                <span className="font-bold text-vortex-red">{item.score}/5</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">No evaluations match your filters.</p>
+            ) : null
+          })}
+          {inFormBuilder && cards.length === 0 && (
+            <p className="rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm text-gray-500">
+              Add skills above to build this evaluation form.
+            </p>
           )}
         </div>
       )}
 
-      {activePanel === 'saved' && !creatingForm && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="mb-2 font-semibold">Saved evaluation forms</h3>
-          <div className="flex items-center justify-between border-t py-2 text-sm">
-            <span>{DEFAULT_FORM_NAME}</span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="text-vortex-red"
-                onClick={() => loadFormById(DEFAULT_FORM_ID)}
-              >
-                Use form
-              </button>
-              <span className="text-xs text-gray-400">Default</span>
-            </div>
-          </div>
-          {activeTemplates.map((template) => (
-            <div
-              key={template.id}
-              className="flex items-center justify-between border-t py-2 text-sm"
-            >
-              <span>{template.name}</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="text-vortex-red"
-                  onClick={() => loadFormById(template.id)}
-                >
-                  Use form
-                </button>
-                <button
-                  type="button"
-                  className="text-gray-500"
-                  onClick={() => {
-                    const name = window.prompt('Rename evaluation form', template.name)
-                    if (name) {
-                      const next = templates.map((item) =>
-                        item.id === template.id ? { ...item, name } : item,
-                      )
-                      setTemplates(next)
-                      localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
-                      if (selectedFormId === template.id) setSelectedFormId(template.id)
-                    }
-                  }}
-                >
-                  Rename
-                </button>
-                <button
-                  type="button"
-                  className="text-gray-500"
-                  onClick={() => {
-                    const next = templates.map((item) =>
-                      item.id === template.id ? { ...item, archived: true } : item,
-                    )
-                    setTemplates(next)
-                    localStorage.setItem('vortex_eval_templates', JSON.stringify(next))
-                    if (selectedFormId === template.id) loadFormById(DEFAULT_FORM_ID)
-                  }}
-                >
-                  <Archive className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {cards.map((card) => {
-          const movement = movementByKey.get(card.movementKey)
-          return movement ? (
-            <SkillCard
-              key={card.id}
-              card={card}
-              movement={movement}
-              value={values[card.id]}
-              customTags={customTags}
-              editing={editing || creatingForm}
-              compact={draggedId !== null}
-              onDragStart={() => setDraggedId(card.id)}
-              onDragEnd={() => setDraggedId(null)}
-              onDrop={() => reorder(card.id)}
-              onDelete={() =>
-                setCards((current) => current.filter((item) => item.id !== card.id))
-              }
-              onScore={setComponentScore}
-              onIssue={toggleIssue}
-              onOverall={(score) =>
-                update(card.id, (current) => ({ ...current, overall: score, overridden: true }))
-              }
-              onFilter={setFilter}
-              onAddIssue={addCustomIssue}
-            />
-          ) : null
-        })}
-        {creatingForm && cards.length === 0 && (
-          <p className="rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm text-gray-500">
-            Add skills above to build this evaluation form.
-          </p>
-        )}
-      </div>
-
-      {!creatingForm && (
+      {viewMode === 'evaluate' && (
         <button
           type="button"
           disabled={saving}
@@ -812,22 +1112,39 @@ export default function GymnasticsEvaluationPanel() {
         </button>
       )}
 
-      {(creatingForm || edited) && (
+      {viewMode === 'evaluate' && formModified && (
         <button
           type="button"
           onClick={() => {
-            setTemplateName(
-              creatingForm
-                ? ''
-                : selectedFormId === DEFAULT_FORM_ID
-                  ? `${DEFAULT_FORM_NAME} (custom)`
-                  : selectedFormName,
-            )
+            setTemplateName(`${selectedFormName} (custom)`)
             setShowTemplateSave(true)
           }}
           className="w-full rounded-lg border border-vortex-red px-4 py-3 font-semibold text-vortex-red"
         >
-          {creatingForm ? 'Save evaluation form' : 'Save new evaluation template'}
+          Save new evaluation template
+        </button>
+      )}
+
+      {viewMode === 'create-form' && (
+        <button
+          type="button"
+          onClick={() => {
+            setTemplateName('')
+            setShowTemplateSave(true)
+          }}
+          className="w-full rounded-lg border border-vortex-red px-4 py-3 font-semibold text-vortex-red"
+        >
+          Save evaluation form
+        </button>
+      )}
+
+      {viewMode === 'edit-form' && (
+        <button
+          type="button"
+          onClick={saveEditedForm}
+          className="w-full rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white"
+        >
+          Save form changes
         </button>
       )}
 
@@ -849,7 +1166,7 @@ export default function GymnasticsEvaluationPanel() {
             />
             <button
               type="button"
-              onClick={saveTemplate}
+              onClick={saveTemplateAsNew}
               className="mt-4 w-full rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white"
             >
               Save
@@ -896,27 +1213,66 @@ export default function GymnasticsEvaluationPanel() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
 
-      {!creatingForm && memberId && history.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="mb-3 font-semibold text-gray-900">Published evaluations</h3>
-          {history.map((item) => (
-            <div
-              key={item.id}
-              className="border-t border-gray-100 py-3 text-sm first:border-t-0"
-            >
-              <div className="font-medium">
-                {new Date(item.evaluated_at).toLocaleDateString()}
-              </div>
-              {item.report.focus?.slice(0, 3).map((focus, index) => (
-                <div key={index} className="mt-1 text-gray-600">
-                  {focus.text}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+function FormListRow({
+  name,
+  onEdit,
+  onUse,
+  onArchive,
+  defaultBadge = false,
+}: {
+  name: string
+  onEdit: () => void
+  onUse: () => void
+  onArchive: (() => void) | null
+  defaultBadge?: boolean
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-t py-3 text-sm first:border-t-0">
+      <div className="min-w-0">
+        <span className="font-medium text-gray-900">{name}</span>
+        {defaultBadge && (
+          <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+            Default
+          </span>
+        )}
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={onEdit}
+          aria-label={`Edit ${name}`}
+          title="Edit form"
+          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-vortex-red"
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={onUse}
+          aria-label={`Use ${name}`}
+          title="Use this form for a new evaluation"
+          className="rounded-lg p-2 text-amber-600 hover:bg-amber-50"
+        >
+          <Zap className="h-4 w-4" />
+        </button>
+        {onArchive ? (
+          <button
+            type="button"
+            onClick={onArchive}
+            aria-label={`Archive ${name}`}
+            title="Archive form"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          >
+            <Archive className="h-4 w-4" />
+          </button>
+        ) : (
+          <span className="inline-block w-8" aria-hidden />
+        )}
+      </div>
     </div>
   )
 }
