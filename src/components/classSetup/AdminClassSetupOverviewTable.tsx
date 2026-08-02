@@ -152,7 +152,8 @@ const AdminClassSetupOverviewTable = ({
       return
     }
 
-    if (!canReceiveCopy(copySource.columnId, row, columnId)) return
+    const sourceRow = rowsById.get(copySource.classId)
+    if (!canReceiveCopy(copySource.columnId, row, columnId, sourceRow)) return
 
     setCopyTargets((prev) => {
       const next = new Set(prev)
@@ -246,7 +247,8 @@ const AdminClassSetupOverviewTable = ({
       const key = cellKey(row.classId, columnId)
       if (row.classId === copySource.classId && columnId === copySource.columnId) return 'source'
       if (copyTargets.has(key)) return 'target'
-      if (canReceiveCopy(copySource.columnId, row, columnId)) return 'viable'
+      const sourceRow = rowsById.get(copySource.classId)
+      if (canReceiveCopy(copySource.columnId, row, columnId, sourceRow)) return 'viable'
       return 'disabled'
     }
     return null

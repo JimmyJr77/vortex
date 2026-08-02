@@ -944,6 +944,74 @@ are additive and should not be rolled back destructively during an incident.
   database rehearsal, staged flags, monitoring, and rollback evidence remain
   production requirements.
 
+## Automated gate snapshot after migration 482
+
+- Bar Cast and Cast to Handstand now expose seven exact difficulty-only
+  variants and 14 Prepare & Access/Movement Intelligence profiles. Rail, grip,
+  mount, start support, technique, assistance, peak or terminal state, return
+  or exit, valid repetition, stop behavior, logistics, duration, substitutions,
+  budgets, and coach/athlete rendering are generator inputs. Athlete skill
+  levels remain exclusive to skill-library cards.
+- Final migration bytes pass repeated direct disposable-PostgreSQL execution,
+  production-runner registration, checksum comparison, and exact registered-
+  file re-entry at `229324910`. Registry `.85` contains 364 sources. Focused
+  tests pass `218/218`; the full backend suite passes 1,017 tests with 20
+  intentional skips. Focused lint, JSON parsing, persisted audit, identity
+  reporting, diff integrity, and production build pass with only the existing
+  stale browser-data and >500 kB chunk advisories.
+- Six current healthy privacy-enhanced media candidates remain unapproved.
+  Qualified humans must verify full playback, exact definition/variant, rail,
+  grip, start, peak or vertical tolerance, body technique, assistance, return
+  or exit, captions, accessibility, cue quality, safety, conflicts, reviewer,
+  timestamp, and card version. Fourteen graph and 14 calibration proposals also
+  remain review-only.
+- The library maps all 1,676 legacy rows to 1,043 active definitions. Identity
+  is closed at 617/617 surfaced pairs, with no unresolved pair or exact
+  collision. Machine-complete cards are 91 and incomplete cards are 952;
+  current 3–5 healthy candidate-media coverage is 90/1,043. Graph/calibration
+  queues are 695/917 review-only rows with zero approvals. All definitions
+  remain quarantined.
+- Release remains intentionally blocked at 0/25 published definitions, phase
+  depth 0/3, 0/10 approved graph edges, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. Qualified card review, shadow generation, coach
+  pilot, clean-database rehearsal, staged flags, monitoring, and rollback
+  evidence remain production work.
+
+## Automated gate snapshot after migrations 479–481
+
+- Gymnastics Back Bridge Hold now has three exact difficulty-only static-hold
+  variants and six Prepare & Access/Movement Intelligence profiles. Supine
+  entry, palm and foot support, low-step height, side/free-leg position, head
+  clearance, valid seconds, first fault, and controlled exit are generator and
+  persistence inputs. Dynamic Backbend, Kickover and Walkover performance and
+  skill levels remain separate skill-library content.
+- Migrations 479, 480 and 481 pass repeated direct execution, normal-runner
+  registration, and exact-file re-entry at checksums `4176817151`,
+  `2984990515`, and `722794694`. The two corrective migrations preserve
+  immutable history while fixing a normalized score-shape/zero-impact defect
+  and canonical anatomy-key aliases exposed by the persisted audit.
+- Registry `.84` contains 357 sources. Focused tests pass `216/216`; the full
+  backend suite passes 1,015 tests with 20 intentional skips. Focused lint,
+  registry parsing, persisted audit, identity report, diff integrity, and the
+  production build pass. Existing stale browser-data and >500 kB chunk
+  warnings remain advisory.
+- The library maps all 1,676 legacy rows to 1,042 active definitions. Identity
+  is closed at 617/617 surfaced pairs with zero unresolved pair or exact
+  collision. Machine-complete cards are 89 and machine-incomplete cards are
+  953; exact current-card healthy embeddable 3–5-video coverage is 88/1,042.
+  Graph/calibration queues are 681/903 review-only rows with zero approvals.
+- Back Bridge media remains four candidate rows with only current oEmbed
+  metadata. Qualified humans must verify full playback, exact definition and
+  variant, entry, every support point, height, side, free-leg geometry, head
+  clearance, hold and exit, captions, accessibility, cue quality, safety,
+  conflicts, reviewer identity, timestamp, and card version. Graph,
+  calibration, content, and publication decisions remain unapproved.
+- Release remains intentionally blocked: 0/25 published definitions, depth 0
+  versus 3 required in every phase, 0/10 approved graph edges, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews. Card authorship, qualified
+  review, shadow generation, coach pilot, clean-database rehearsal, staged
+  flags, monitoring, and rollback evidence remain production work.
+
 ## Automated gate snapshot after migration 478
 
 - Cartwheel Hand-Placement Line Drill now exposes three exact difficulty-only

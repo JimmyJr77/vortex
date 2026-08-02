@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.84",
+  "registryVersion": "2026-08-02.86",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2499,6 +2499,83 @@
       "publisher": "Sydney Sports and Exercise Physiology",
       "kind": "expert_instruction",
       "evidenceQuality": 74
+    },
+    "world_gymnastics_wag_cast_code_2025_2028": {
+      "url": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1.%20WAG%20Code%20of%20Points%202025-2028.pdf",
+      "title": "Women’s Artistic Gymnastics Code of Points 2025–2028",
+      "publisher": "World Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 94
+    },
+    "usag_wag_development_optional_cast_rules_2025": {
+      "url": "https://static.usagym.org/PDFs/Women/Rules/dpcop/revisedpages_080425_mini.pdf",
+      "title": "Women’s Development Program Code Replacement Pages, July 2025",
+      "publisher": "USA Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 92
+    },
+    "usag_wag_compulsory_cast_handstand_development_2023": {
+      "url": "https://static.usagym.org/PDFs/Women/development/compulsory/2021/replacement_072323.pdf",
+      "title": "Women’s Development Program Compulsory Replacement Pages 2023",
+      "publisher": "USA Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 90
+    },
+    "british_gymnastics_cast_amplitude_sequences_2026": {
+      "url": "https://mybg.british-gymnastics.org/store/downloadPublic?f=e810bf6f-df1b-4828-957d-6ddafe28f4c6.pdf&t=email",
+      "title": "East Midlands Gymnastics for All Rules 2026",
+      "publisher": "British Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 84
+    },
+    "gymnastics_upper_extremity_injuries_return_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12088353/",
+      "title": "Common upper extremity gymnastics injuries and gymnastic specific return to play protocols",
+      "publisher": "Journal of the Pediatric Orthopaedic Society of North America",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "young_gymnast_injury_pathology_retrospective": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9955164/",
+      "title": "Injury Pathology in Young Gymnasts: A Retrospective Analysis",
+      "publisher": "Children",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "uneven_bar_subject_specific_swing_model": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18930233/",
+      "title": "Evaluation of a subject-specific female gymnast model and simulation of an uneven parallel bar swing",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "usag_wag_compulsory_roundoff_snapdown_2025": {
+      "url": "https://static.usagym.org/PDFs/Women/development/compulsory/replacement_070125_mini.pdf",
+      "title": "Women’s Development Program Compulsory Replacement Pages, July 2025",
+      "publisher": "USA Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 92
+    },
+    "safe_gymnastics_roundoff_technique": {
+      "url": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/floor_17_roundoff.html",
+      "title": "Safe Gymnastics 4all — Floor 17: Roundoff",
+      "publisher": "Masaryk University Faculty of Sports Studies",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "safe_gymnastics_didactic_guidelines": {
+      "url": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "title": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "publisher": "Masaryk University Faculty of Sports Studies",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "special_olympics_handstand_snapdown_coaching": {
+      "url": "https://special-olympics.be/wp-content/uploads/2022/08/specialolympics_artisticgymnastics.pdf",
+      "title": "Special Olympics Artistic Gymnastics Coaching Guide",
+      "publisher": "Special Olympics",
+      "kind": "governing_body",
+      "evidenceQuality": 80
     }
   }
 }

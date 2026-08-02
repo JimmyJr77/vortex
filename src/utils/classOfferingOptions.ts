@@ -33,11 +33,15 @@ export function isActiveOrUpcomingOffering(
 }
 
 export function offeringDisplayLabel(o: ClassOfferingOption): string {
-  return `${o.formTitle} · ${o.label}`
+  const dates = formatOfferingDateRange({
+    startDate: o.startDate,
+    endDate: o.endDate,
+  })
+  return `${o.formTitle} · ${dates}`
 }
 
 export function offeringSearchHaystack(o: ClassOfferingOption): string {
-  return [o.formTitle, o.label, o.startDate, o.endDate].join(' ').toLowerCase()
+  return [o.formTitle, o.startDate, o.endDate].join(' ').toLowerCase()
 }
 
 export function sportSearchHaystack(s: SportScopeOption): string {
@@ -65,7 +69,7 @@ export async function loadClassOfferingOptions(): Promise<ClassOfferingOption[]>
           formTitle: form.title,
           startDate: o.startDate,
           endDate: o.endDate,
-          label: o.label?.trim() || formatOfferingDateRange(o),
+          label: formatOfferingDateRange(o),
         }))
       } catch {
         return []

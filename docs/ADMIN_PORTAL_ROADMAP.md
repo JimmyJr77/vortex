@@ -12,7 +12,7 @@ as the portal evolves (see the project rule
 - ✅ RBAC-gated tabbed shell with ~17 tabs, driven by `/api/admin/access/me`.
 - ✅ Members/families/guardians/athletes CRUD + enrollments + archive (light-theme modals).
 - ✅ Access management (roles + per-user allow/deny overrides), Admins, Coaches assignments.
-- ✅ Scheduling v2 (forms, offerings, slots, signups, waitlist, calendar).
+- ✅ Scheduling v2 (forms, Active dates, slots, signups, waitlist, calendar).
 - ✅ Pricing & discount engine (costs, multi-class pass packages, discounts, free passes, rules, promo codes).
 - ✅ Billing & waivers admin; Inquiries, Events, Highlights, Schools, DB Queries.
 - ✅ Analytics & engagement dashboard.
@@ -53,20 +53,30 @@ renumbering the core chain. Platform/coaching migrations `008`–`022` are auto-
 + low-friction feature patches.
 
 ### Scheduling v2 refactor
-Moved from rigid day-of-week slots to enroll **forms** tied to programs, **offerings** (date
-ranges), flexible slot modes, and JSONB `signup_fields`/`responses`. **Why:** real-world class
-scheduling needed flexibility. Files: `refactor_scheduling_v2.sql`, `unify_programs_scheduling.sql`,
-`add_scheduling_offerings.sql`, `add_scheduling_waitlist.sql`, `add_slot_groups.sql`. UI splits
-across Scheduling (config), Calendar (visualization), Signups (operations), Pricing (rules).
+Moved from rigid day-of-week slots to enroll **forms** tied to programs, date windows
+(originally multi-**offerings**), flexible slot modes, and JSONB `signup_fields`/`responses`.
+**Why:** real-world class scheduling needed flexibility. Files: `refactor_scheduling_v2.sql`,
+`unify_programs_scheduling.sql`, `add_scheduling_offerings.sql`, `add_scheduling_waitlist.sql`,
+`add_slot_groups.sql`. UI splits across Scheduling (config), Calendar (visualization), Signups
+(operations), Pricing (rules).
+
+### Active dates replace offerings UI (2026-08)
+User-facing language is **Active dates** (form `start_date`/`end_date`), not “offerings.”
+Migration `483_class_active_dates_from_offerings.sql` promotes offering windows onto the form,
+clears `scheduling_offering.label`, and keeps offering rows only for internal pricing/FK IDs.
+**Admin Scheduling** panels are Classes + Timeslots only (no Offerings panel); opening timeslots
+calls `adminEnsureFormActiveDates`. **Class Master** should edit Active dates via form APIs /
+`ClassActiveDatesEditor`, not the legacy multi-offering editor or Offering Description labels.
+`AdminSchedulingOfferings` is unused (candidate delete; see DATABASE_ARCHITECTURE §10.3c).
 
 ### Scheduling categories removed (migration `033`)
 The "class category" sub-level under each scheduling form was removed end-to-end (DB tables,
 `category_id` columns, routes, types, UI). **Why:** every class already collapsed to a single
 global "No Category" bucket, so the dimension added complexity without value. **Behavior now:**
 Admin > Classes shows **one row per class** (no per-category fan-out, Category column, category
-filter, or split/variation actions); public/member signup shows a form's offerings/slots directly
-with no category picker step; coach assignment drill-down stops at the **class/form** level; and
-pricing benefit selection no longer supports a `category` scope. The old
+filter, or split/variation actions); public/member signup shows a form's Active dates/slots
+directly with no category picker step; coach assignment drill-down stops at the **class/form**
+level; and pricing benefit selection no longer supports a `category` scope. The old
 `/api/admin/scheduling/categories…` CRUD and the `sync-scheduling-categories` route were removed
 (the latter replaced by `POST /api/admin/programs/consolidate`). See
 [DATABASE_ARCHITECTURE.md](DATABASE_ARCHITECTURE.md) §10.3b for the dropped objects. `program_categories`
@@ -114,9 +124,10 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Members | `AdminMembers.tsx` | Member/family/guardian/athlete CRUD; expandable row panel (Member Details, Account Security, Enrollments, Staff Notes, Billing); Enrollments tab shows selected member + family enrollments grouped by family member; enroll, archive, pricing modal | `members.view` |
 | Messages | `AdminMessagesPanel.tsx` | Mobile-first inbox (tabs, unread, WebSocket), event/scheduling threads, critical alerts, FAQ/reactions, audit export | `members.view` |
 | Inquiries | `AdminInquiries.tsx` | Registrations + newsletter + notes/follow-up | `members.view` |
+| Class Master | `classSetup/AdminClassSetupOverview.tsx` | Spreadsheet of all classes; unlock to edit cells; Copy mode pastes scalar fields (incl. Active dates via `PUT /api/admin/scheduling/forms/:id/active-dates`) across rows with confirm-save; Active dates column uses `ClassActiveDatesEditor`; Schedule embeds Active dates at top of slots (no separate offerings/offering-description columns) | `classes.view` |
 | Classes | `AdminClasses.tsx` | Top programs/categories, class rows, discipline tags | `classes.view` |
 | Coaches | `AdminCoaches.tsx` | Coach roster + program/iteration assignments | `classes.manage` |
-| Scheduling | `AdminScheduling.tsx` | Forms, offerings, slots, signups | `scheduling.view` |
+| Scheduling | `AdminScheduling.tsx` | Forms, Active dates (ensured for slots), timeslots, signups — no Offerings panel | `scheduling.view` |
 | Calendar | `scheduling/AdminCalendar.tsx` | Month/week/day/by-class calendar | `scheduling.view` |
 | Pricing | `AdminPricing.tsx` | Costs, discounts, free passes, rules, promo codes | `pricing.view` |
 | Billing | `AdminFamilyBilling.tsx` | Family billing accounts, charges, statements, payments | `billing.view` |
@@ -172,8 +183,10 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 
 Contact resolution: [backend/email/memberContact.js](../backend/email/memberContact.js). Receipt tokens: `enrollment_receipt_token` (`042`).
 - **Scheduling** ([backend/scheduling/registerRoutes.js](../backend/scheduling/registerRoutes.js);
-  `scheduling.*`): forms, offerings, slot batches/groups, signups (+ orphaned),
-  calendar. (Scheduling-category CRUD routes `/api/admin/scheduling/categories…` were **removed** — see migration `033`.)
+  `scheduling.*`): forms, Active dates (`…/active-dates`), offerings (internal IDs / pricing),
+  slot batches/groups, signups (+ orphaned), calendar. (Scheduling-category CRUD routes
+  `/api/admin/scheduling/categories…` were **removed** — see migration `033`. Offerings UI
+  retired in favor of form Active dates — see migration `483`.)
 - **Pricing/discounts** (scheduling sub-routes; `pricing.*`): `discount-rules`,
   `discount-settings`, `discount-simulate`, `sport-defaults`, `additional-fees`, `free-passes`,
   `promo-codes`, `pricing-*-selections`, member pricing summary.

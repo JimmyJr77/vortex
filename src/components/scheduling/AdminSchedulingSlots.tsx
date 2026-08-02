@@ -20,6 +20,7 @@ import {
   weekBucketLabel,
 } from '../../utils/slotSort'
 import OrphanedSignupsPanel from './OrphanedSignupsPanel'
+import ClassActiveDatesEditor from './ClassActiveDatesEditor'
 import type {
   SchedulingFormSummary,
   SchedulingOrphanedSignup,
@@ -232,15 +233,11 @@ const AdminSchedulingSlots = ({
   forms,
   onRefresh,
 }: Props) => {
-  const offeringScopedSlotGroups = useMemo(() => {
-    if (offeringId == null) return []
-
-    return sortSlotGroups(
-      (detail.slotGroups ?? []).filter(
-        (group) => Number(group.offeringId) === Number(offeringId),
-      ),
-    )
-  }, [detail.slotGroups, offeringId])
+  // Show all class timeslots; Active dates live at the class level (not per-offering UI).
+  const offeringScopedSlotGroups = useMemo(
+    () => sortSlotGroups(detail.slotGroups ?? []),
+    [detail.slotGroups],
+  )
 
   const prevOfferingIdRef = useRef<number | null | undefined>(offeringId)
   const lastTimeRef = useRef<TimeRow>(
@@ -253,11 +250,18 @@ const AdminSchedulingSlots = ({
   const [slotsContextOpen, setSlotsContextOpen] = useState(true)
   const [activeWeekKey, setActiveWeekKey] = useState<string | null>(null)
   const [editingSlotGroupId, setEditingSlotGroupId] = useState<number | null>(null)
-  const [activeDatesMode, setActiveDatesMode] = useState<'inherit' | 'custom' | 'tbd'>('inherit')
+  const [classStartDate, setClassStartDate] = useState(formStartDate)
+  const [classEndDate, setClassEndDate] = useState(formEndDate)
+  const [activeDatesMode] = useState<'inherit' | 'custom' | 'tbd'>('inherit')
   const [activeStart, setActiveStart] = useState('')
   const [activeEnd, setActiveEnd] = useState('')
   const [scheduleMode, setScheduleMode] = useState<'day' | 'date'>('day')
   const [maxParticipants, setMaxParticipants] = useState(10)
+
+  useEffect(() => {
+    setClassStartDate(formStartDate)
+    setClassEndDate(formEndDate)
+  }, [formId, formStartDate, formEndDate])
   const [weeks, setWeeks] = useState<WeekRow[]>(createDefaultWeeks('', ''))
   const [activeWeekIdx, setActiveWeekIdx] = useState(0)
   const [dateEntries, setDateEntries] = useState<DateEntry[]>([
@@ -272,8 +276,8 @@ const AdminSchedulingSlots = ({
   }
 
   const inheritedDates = () => ({
-    start: formatDateForInput(offeringStartDate ?? formStartDate),
-    end: formatDateForInput(offeringEndDate ?? formEndDate),
+    start: formatDateForInput(offeringStartDate ?? classStartDate ?? formStartDate),
+    end: formatDateForInput(offeringEndDate ?? classEndDate ?? formEndDate),
   })
 
   const resetBuilderForm = (preserveTime?: TimeRow) => {
@@ -281,7 +285,6 @@ const AdminSchedulingSlots = ({
     const seedTime = resolveSeedTime(formId, offeringScopedSlotGroups, preserveTime)
     setSaveError(null)
     setEditingSlotGroupId(null)
-    setActiveDatesMode('inherit')
     setActiveStart(start)
     setActiveEnd(end)
     setScheduleMode('day')
@@ -301,19 +304,9 @@ const AdminSchedulingSlots = ({
     setMaxParticipants(group.maxParticipants)
     setScheduleMode(group.scheduleMode)
 
-    if (group.datesTbd) {
-      setActiveDatesMode('tbd')
-      setActiveStart(start)
-      setActiveEnd(end)
-    } else if (group.inheritsFormDates) {
-      setActiveDatesMode('inherit')
-      setActiveStart(start)
-      setActiveEnd(end)
-    } else {
-      setActiveDatesMode('custom')
-      setActiveStart(formatDateForInput(group.activeStart) || start)
-      setActiveEnd(formatDateForInput(group.activeEnd) || end)
-    }
+    // Timeslots always inherit class Active dates going forward.
+    setActiveStart(start)
+    setActiveEnd(end)
 
     const occurrences = group.occurrences
     if (occurrences.length === 0) return
@@ -397,7 +390,6 @@ const AdminSchedulingSlots = ({
   }
 
   const weekSections = useMemo(() => {
-    if (offeringId == null) return []
     const multipleWeeks = schedulingHasMultipleWeeks(offeringScopedSlotGroups)
     const labelOpts = { multipleWeeks }
     return groupSlotGroupsByWeek(offeringScopedSlotGroups).map(([weekKey, groups]) => ({
@@ -406,7 +398,7 @@ const AdminSchedulingSlots = ({
       setupLabel: formatWeekSetupLabel(weekKey, labelOpts),
       groups,
     }))
-  }, [offeringId, offeringScopedSlotGroups])
+  }, [offeringScopedSlotGroups])
 
   const activeWeekSection =
     weekSections.find((section) => section.key === activeWeekKey) ?? weekSections[0] ?? null
@@ -690,29 +682,19 @@ const AdminSchedulingSlots = ({
         {editingSlotGroupId ? 'Edit time slot' : 'Add time slot'}
       </h3>
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 w-full">
-        <div>
-          <label className="block text-sm font-semibold mb-2">Active dates</label>
-          <div className="flex flex-wrap gap-4">
-            {(['inherit', 'custom', 'tbd'] as const).map((mode) => (
-              <label key={mode} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={activeDatesMode === mode}
-                  onChange={() => setActiveDatesMode(mode)}
-                />
-                <span className="text-sm capitalize">
-                  {mode === 'inherit' ? 'Inherit from settings' : mode === 'custom' ? 'Custom' : 'Date TBD'}
-                </span>
-              </label>
-            ))}
-          </div>
-          {activeDatesMode === 'custom' && (
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <input type="date" value={activeStart} onChange={(e) => setActiveStart(e.target.value)} className="rounded-lg border px-3 py-2" />
-              <input type="date" value={activeEnd} onChange={(e) => setActiveEnd(e.target.value)} className="rounded-lg border px-3 py-2" />
-            </div>
+        <p className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
+          Timeslots use the class <strong>Active dates</strong> above
+          {activeStart ? (
+            <>
+              {' '}
+              ({activeStart}
+              {activeEnd ? ` → ${activeEnd}` : ' · Ongoing'})
+            </>
+          ) : (
+            <> — set them before adding timeslots</>
           )}
-        </div>
+          .
+        </p>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -973,6 +955,20 @@ const AdminSchedulingSlots = ({
 
   return (
     <div className="space-y-8">
+      <ClassActiveDatesEditor
+        formId={formId}
+        startDate={classStartDate}
+        endDate={classEndDate}
+        embedded
+        onSaved={async (next) => {
+          setClassStartDate(next.startDate)
+          setClassEndDate(next.endDate)
+          setActiveStart(formatDateForInput(next.startDate))
+          setActiveEnd(formatDateForInput(next.endDate))
+          await onRefresh()
+        }}
+      />
+
       {canBuild && builderForm}
 
       <div className="border-t border-gray-200 pt-8">
@@ -1000,26 +996,10 @@ const AdminSchedulingSlots = ({
                           </option>
                         ))}
                       </select>
-                      <span className="text-gray-500">·</span>
-                      {offeringLabel?.trim() ? (
-                        <span className="text-gray-600">{offeringLabel.trim()}</span>
-                      ) : (
-                        <span className="text-gray-400 italic">No label</span>
-                      )}
                     </span>
                   ) : (
-                    <span>
-                      {activeWeekSection ? (
-                        <>
-                          <span className="text-gray-800">{activeWeekSection.setupLabel}</span>
-                          <span className="text-gray-500"> · </span>
-                        </>
-                      ) : null}
-                      {offeringLabel?.trim() ? (
-                        <span className="text-gray-600">{offeringLabel.trim()}</span>
-                      ) : (
-                        <span className="text-gray-400 italic">No label</span>
-                      )}
+                    <span className="text-gray-800">
+                      {activeWeekSection?.setupLabel || 'Timeslots'}
                     </span>
                   )}
                 </p>
@@ -1038,7 +1018,7 @@ const AdminSchedulingSlots = ({
             {slotsContextOpen && (
               <div className="p-4">
                 {!activeWeekSection || activeWeekSection.groups.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No scheduled slots for this offering yet.</p>
+                  <p className="text-gray-500 text-sm">No scheduled slots for this class yet.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm align-top">

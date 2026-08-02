@@ -347,6 +347,18 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const classActiveDatesMigration = path.join(
+    __dirname,
+    '../migrations/483_class_active_dates_from_offerings.sql',
+  )
+  if (fs.existsSync(classActiveDatesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(classActiveDatesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] class active dates migration:', err.message)
+    }
+  }
+
   const abridgedNamesMigration = path.join(
     __dirname,
     '../migrations/052_scheduling_abridged_names.sql',

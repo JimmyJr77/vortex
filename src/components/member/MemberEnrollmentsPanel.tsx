@@ -80,7 +80,7 @@ const BY_CLASS_COLUMNS: EnrollmentColumn[] = [
   },
   {
     key: 'offerings',
-    header: 'Offerings',
+    header: 'Active dates',
     width: 280,
     minWidth: 170,
     cell: (row) => offeringsCell(row),
@@ -125,7 +125,7 @@ const BY_MEMBER_COLUMNS: EnrollmentColumn[] = [
   },
   {
     key: 'offerings',
-    header: 'Offerings',
+    header: 'Active dates',
     width: 220,
     minWidth: 150,
     cell: (row) => offeringsCell(row),
@@ -164,17 +164,7 @@ function formatCancelEffectiveDate(dateStr: string) {
 }
 
 function offeringsCell(row: MemberEnrollmentRow) {
-  const dates = row.offering_dates?.trim() || '—'
-  const label = row.offering_label?.trim()
-  if (label && label !== dates) {
-    return (
-      <span className="inline-flex flex-col gap-0.5">
-        <span>{label}</span>
-        <span className="text-gray-600">{dates}</span>
-      </span>
-    )
-  }
-  return <span>{dates}</span>
+  return <span>{row.offering_dates?.trim() || '—'}</span>
 }
 
 function timeCell(row: MemberEnrollmentRow) {
@@ -611,7 +601,7 @@ export default function MemberEnrollmentsPanel({
         ) : enrollments.length === 0 ? (
           <p className="text-gray-600 flex items-center gap-2 py-4">
             <Calendar className="w-4 h-4 shrink-0" />
-            No enrollments yet. Sign up for a class from the offerings below.
+            No enrollments yet. Sign up for a class from the schedule below.
           </p>
         ) : embedded ? (
           <EnrollmentTable

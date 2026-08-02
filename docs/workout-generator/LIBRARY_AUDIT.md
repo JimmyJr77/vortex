@@ -3122,3 +3122,73 @@ and 616/616 adjudicated surfaced identity pairs with zero unresolved collision.
 Graph and calibration queues contain 673/897 review-only rows with zero
 approvals. Runner checksum is `1161560817`; focused validation is `212/212`, and
 the backend suite is 1,011 passes plus 20 intentional skips.
+
+## Gymnastics Back Bridge Hold canonical card
+
+The stable card now describes one exact static hands-and-feet support family,
+not every movement commonly called a bridge or backbend. Three selectable
+variants declare supine entry, floor or exact low-step foot support, bilateral
+or side-specific one-leg support, fixed palms and assigned feet, head-clear and
+elbow contracts, timer start, first-fault termination, and controlled supine
+lowering. The legacy source baseline remains an identity quarantine.
+
+Difficulty is `68/72/72` for floor bilateral, `64/70/70` for feet-elevated
+bilateral, and `76/78/78` for one-leg straight-up, representing exercise
+complexity, physical difficulty, and their maximum. The normalized minimum
+impact score is `1` while planned flight and landing contacts remain zero.
+Migrations 480 and 481 separately corrected normalized top-level score and
+canonical anatomy keys discovered by the persisted audit; registered migration
+479 was not rewritten.
+
+The card includes controlled taxonomy; muscles, joints, actions, planes and
+laterality; load, fatigue and recovery profiles; cumulative hand-support,
+bridge, backbend, overhead, tumbling and spine-extension budgets; environment,
+population and symptom constraints; six contextual profiles; duration,
+logistics and substitution revalidation; athlete, coach and support operations;
+16 evidence sections; 32 alternate assessments; eight graph proposals; six
+calibration proposals; and four current healthy embeddable candidates.
+
+The persisted packet has exactly the four media, graph, calibration and
+publication human gates. The global snapshot is 1,676/1,676 mapped legacy rows,
+1,042 active definitions, 89 machine-complete and 953 machine-incomplete cards,
+88/1,042 current healthy embeddable 3–5-candidate sets, and 617/617 adjudicated
+surfaced pairs with zero unresolved collision. Graph and calibration queues are
+681/903 review-only rows with zero approvals. Checksums are `4176817151`,
+`2984990515`, and `722794694`; focused verification is `216/216`, and the
+backend suite is 1,015 passes plus 20 intentional skips.
+
+## Bar Cast and Cast-to-Handstand canonical cards
+
+The Bar Cast card now describes an overgrip single-rail front-support cast to a
+declared sub-handstand peak and controlled return to the same support. Its three
+variants declare below-horizontal, horizontal, or above-horizontal peak. The
+separate Cast-to-Handstand card ends in declared vertical rail support and has
+four assisted/independent plus straddle/straight-body variants. Source 17 stays
+mapped for provenance but its ambiguous baseline is quarantined.
+
+The seven difficulty vectors are `56/54/56`, `64/62/64`, `72/70/72`,
+`82/74/82`, `86/80/86`, `86/82/86`, and `90/88/90`, representing exercise
+complexity, physical difficulty, and their maximum. No athlete proficiency or
+age classification is stored. Both cards include controlled taxonomy; anatomy,
+joints, actions, planes, and laterality; dynamic bodyweight support load;
+grip/shoulder/wrist/trunk fatigue and recovery; zero planned landing contacts;
+apparatus, mat, clearance, population, symptom and supervision constraints;
+and cumulative bar-support/inversion/upper-extremity budgets.
+
+Fourteen contextual delivery profiles declare exact dose, rest, valid
+repetitions, attempts, setup/reset/transition time, station throughput,
+assistance and exit policy, substitutions with complete revalidation,
+measurements, coach and athlete instructions, rendering, persistence, incident
+routing, and at least four stop rules. The cards persist 32 candidate evidence
+sections, six healthy embeddable candidate videos, 28 alternates, 14 review-only
+relationships, 14 review-only difficulty anchors, and five explicit identity
+boundaries.
+
+Both packets have exactly the four media, graph, calibration, and publication
+human gates. The global snapshot is 1,676/1,676 mappings, 1,043 active
+definitions, 91 machine-complete and 952 machine-incomplete cards, 90/1,043
+current healthy embeddable 3–5-candidate sets, and 617/617 adjudicated surfaced
+pairs with zero unresolved collision. Graph/calibration queues are 695/917
+review-only rows with zero approvals. Migration checksum is `229324910`,
+registry version/count is `2026-08-02.85`/364, focused verification is
+`218/218`, and the backend suite is 1,017 passes plus 20 intentional skips.

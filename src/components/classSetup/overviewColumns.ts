@@ -1,6 +1,5 @@
 import {
   formatOfferingsCell,
-  formatOfferingDescriptionsCell,
   formatScheduleCell,
   formatSpacesCell,
   type ClassSetupOverviewRow,
@@ -18,7 +17,6 @@ export type OverviewColumnId =
   | 'className'
   | 'classDescription'
   | 'offerings'
-  | 'offeringDescription'
   | 'schedule'
   | 'skillLevel'
   | 'spaces'
@@ -49,8 +47,7 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'excludeFromDropIns', label: 'Exclude from Drop-ins', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 160 },
   { id: 'className', label: 'Class', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
-  { id: 'offerings', label: 'Offerings', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
-  { id: 'offeringDescription', label: 'Offering Description', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
+  { id: 'offerings', label: 'Active dates', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
   { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 220 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
   { id: 'spaces', label: 'Spaces', editable: true, filterKind: 'text', minWidth: 90, defaultWidth: 100 },
@@ -110,8 +107,6 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.classDescription?.trim() || '—'
     case 'offerings':
       return formatOfferingsCell(row.offerings)
-    case 'offeringDescription':
-      return formatOfferingDescriptionsCell(row.offerings)
     case 'schedule':
       return formatScheduleCell(row.slotGroups)
     case 'skillLevel':

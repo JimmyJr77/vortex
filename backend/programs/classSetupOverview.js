@@ -28,7 +28,8 @@ function mapOfferingRow(row) {
     startDate: row.start_date ? String(row.start_date).slice(0, 10) : '',
     endDate,
     evergreen: endDate == null,
-    label: row.label ?? null,
+    // Offering descriptions/labels retired — Active dates are date ranges only.
+    label: null,
     isSelected: Boolean(row.is_selected),
   }
 }

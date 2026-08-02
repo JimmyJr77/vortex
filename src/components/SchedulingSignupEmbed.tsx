@@ -1146,7 +1146,7 @@ const SchedulingSignupEmbed = ({
     if (offeringId == null) return null
     const offering = formOfferings.find((item) => item.id === offeringId)
     if (!offering) return null
-    return offering.label?.trim() || formatOfferingDateRange(offering)
+    return formatOfferingDateRange(offering)
   }, [formOfferings, offeringId])
 
   const selectedGroup = useMemo(
@@ -1580,18 +1580,17 @@ const SchedulingSignupEmbed = ({
         {offeringsLoading && (
           <div className={`${sectionClass} flex items-center gap-2 text-sm text-gray-500`}>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Loading offerings…
+            Loading Active dates…
           </div>
         )}
 
         {showOfferingPick && (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-3 ${compact ? 'text-base' : 'text-xl'}`}>
-              Offering
+              Active dates
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {formOfferings.map((offering) => {
-                const label = offering.label?.trim() || formatOfferingDateRange(offering)
                 const datesLine = formatOfferingDateRange(offering)
                 return (
                   <button
@@ -1600,10 +1599,7 @@ const SchedulingSignupEmbed = ({
                     onClick={() => handleOfferingSelect(offering.id)}
                     className="text-left rounded-xl border-2 p-3 border-gray-200 hover:border-vortex-red transition-all"
                   >
-                    <span className="font-bold text-black block text-sm">{label}</span>
-                    {offering.label && datesLine && (
-                      <span className="text-xs text-gray-600 mt-1 block">{datesLine}</span>
-                    )}
+                    <span className="font-bold text-black block text-sm">{datesLine}</span>
                   </button>
                 )
               })}
@@ -1616,7 +1612,7 @@ const SchedulingSignupEmbed = ({
             {requiresOfferingSelection && selectedOfferingLabel && (
               <div className="text-sm text-gray-600 mb-3">
                 <div>
-                  Offering:{' '}
+                  Active dates:{' '}
                   <span className="font-semibold text-black">{selectedOfferingLabel}</span>
                 </div>
                 <button
@@ -1629,7 +1625,7 @@ const SchedulingSignupEmbed = ({
                   }}
                   className="block mt-2 text-vortex-red font-semibold hover:underline"
                 >
-                  Change offering
+                  Change Active dates
                 </button>
               </div>
             )}
@@ -1683,7 +1679,7 @@ const SchedulingSignupEmbed = ({
 
         {requiresOfferingSelection && offeringId != null && !offeringsLoading && !showOfferingPick && slotOptions.length === 0 && (
           <div className={`${sectionClass} text-sm text-gray-600`}>
-            No available times for this offering.
+            No available times for these Active dates.
             <button
               type="button"
               onClick={() => {
@@ -1694,7 +1690,7 @@ const SchedulingSignupEmbed = ({
               }}
               className="ml-2 text-vortex-red font-semibold hover:underline"
             >
-              Choose another offering
+              Choose other Active dates
             </button>
           </div>
         )}

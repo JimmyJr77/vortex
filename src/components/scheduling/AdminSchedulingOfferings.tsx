@@ -1,3 +1,11 @@
+/**
+ * Legacy multi-offering editor — unused by Admin Scheduling and Class Master.
+ *
+ * Active dates live on the form (`ClassActiveDatesEditor` /
+ * `adminUpdateFormActiveDates`). Timeslots go straight to
+ * `AdminSchedulingSlots` with `adminEnsureFormActiveDates` for pricing FKs.
+ * Candidate for deletion once no imports remain (see DATABASE_ARCHITECTURE §10.3c).
+ */
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronRight, Loader2, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -38,7 +46,7 @@ const AdminSchedulingOfferings = ({
   const [validationError, setValidationError] = useState<string | null>(null)
   const [editId, setEditId] = useState<number | null>(null)
   const [durationMode, setDurationMode] = useState<DurationMode>('session')
-  const [draft, setDraft] = useState({ startDate: '', endDate: '', label: '' })
+  const [draft, setDraft] = useState({ startDate: '', endDate: '' })
 
   const loadOfferings = useCallback(async () => {
     const data = await adminFetchOfferings(formId)
@@ -48,7 +56,7 @@ const AdminSchedulingOfferings = ({
   useEffect(() => {
     setLoading(true)
     loadOfferings()
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load offerings'))
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load Active dates'))
       .finally(() => setLoading(false))
   }, [loadOfferings])
 
@@ -64,7 +72,7 @@ const AdminSchedulingOfferings = ({
     'p-1.5 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40'
 
   const resetDraft = () => {
-    setDraft({ startDate: '', endDate: '', label: '' })
+    setDraft({ startDate: '', endDate: '' })
     setDurationMode('session')
     setEditId(null)
     setValidationError(null)
@@ -73,7 +81,7 @@ const AdminSchedulingOfferings = ({
   const getDraftValidation = (): string | null => {
     if (!draft.startDate) return 'Start date is required.'
     if (durationMode === 'session') {
-      if (!draft.endDate) return 'End date is required for session offerings.'
+      if (!draft.endDate) return 'End date is required for session Active dates.'
       if (draft.endDate < draft.startDate) {
         return 'End date must be on or after the start date.'
       }
@@ -98,7 +106,7 @@ const AdminSchedulingOfferings = ({
     }
     if (endInPast) {
       const ok = window.confirm(
-        'This offering ends in the past. Associated timeslots may appear expired. Save anyway?',
+        'These Active dates end in the past. Associated timeslots may appear expired. Save anyway?',
       )
       if (!ok) return
     }
@@ -113,7 +121,7 @@ const AdminSchedulingOfferings = ({
         endDate?: string
       } = {
         startDate: draft.startDate,
-        label: draft.label || null,
+        label: null,
       }
       if (durationMode === 'evergreen') {
         payload.evergreen = true
@@ -137,7 +145,7 @@ const AdminSchedulingOfferings = ({
         onContinueToSlots?.()
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save offering')
+      setError(e instanceof Error ? e.message : 'Failed to save Active dates')
     } finally {
       setSaving(false)
     }
@@ -151,7 +159,7 @@ const AdminSchedulingOfferings = ({
       await loadOfferings()
       onContinueToSlots?.()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to select offering')
+      setError(e instanceof Error ? e.message : 'Failed to select Active dates')
     } finally {
       setSaving(false)
     }
@@ -159,7 +167,7 @@ const AdminSchedulingOfferings = ({
 
   const handleDelete = async (offering: SchedulingOffering) => {
     const datesLabel = formatOfferingDateRange(offering)
-    if (!confirm(`Delete offering "${offering.label || datesLabel}"?`)) {
+    if (!confirm(`Delete Active dates "${datesLabel}"?`)) {
       return
     }
     setSaving(true)
@@ -181,7 +189,6 @@ const AdminSchedulingOfferings = ({
     setDraft({
       startDate: dateInputValue(offering.startDate) || offering.startDate,
       endDate: evergreen ? '' : dateInputValue(offering.endDate ?? '') || offering.endDate || '',
-      label: offering.label || '',
     })
   }
 
@@ -210,10 +217,10 @@ const AdminSchedulingOfferings = ({
 
       <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">
         {editId != null && (
-          <p className="text-sm font-semibold text-gray-800">Editing offering</p>
+          <p className="text-sm font-semibold text-gray-800">Editing Active dates</p>
         )}
         <div>
-          <label className="block text-xs font-semibold mb-2">Offering type</label>
+          <label className="block text-xs font-semibold mb-2">Active dates type</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {durationBtn('session', 'Session dates', 'Fixed start and end dates')}
             {durationBtn('evergreen', 'Evergreen class', 'No end date — runs ongoing')}
@@ -257,16 +264,6 @@ const AdminSchedulingOfferings = ({
             </div>
           )}
         </div>
-        <div>
-          <label className="block text-xs font-semibold mb-1">Label (optional)</label>
-          <input
-            type="text"
-            value={draft.label}
-            onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
-            placeholder={durationMode === 'evergreen' ? 'e.g. Year-round enrollment' : 'e.g. Summer 2026'}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
         <div className="flex gap-2 justify-end">
           {editId != null && (
             <button type="button" onClick={resetDraft} className="px-3 py-1.5 text-sm text-gray-600">
@@ -290,10 +287,10 @@ const AdminSchedulingOfferings = ({
           <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
         </div>
       ) : offerings.length === 0 ? (
-        <p className="text-sm text-gray-500">No offerings yet for this class.</p>
+        <p className="text-sm text-gray-500">No Active dates yet for this class.</p>
       ) : (
         <div className="space-y-2">
-          <p className="text-sm text-gray-600">Click an offering to manage its timeslots.</p>
+          <p className="text-sm text-gray-600">Click Active dates to manage timeslots.</p>
           <ul className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
             {offerings.map((o) => {
               const isSelected = selectedOfferingId === o.id
@@ -315,11 +312,6 @@ const AdminSchedulingOfferings = ({
                           formatOfferingDateRange(o),
                         ])}
                       </p>
-                      {o.label ? (
-                        <p className="text-sm text-gray-600 mt-0.5">{o.label}</p>
-                      ) : (
-                        <p className="text-sm text-gray-400 mt-0.5 italic">No label</p>
-                      )}
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>

@@ -204,7 +204,7 @@ export default function SignupEnrollmentPicker({
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Offerings &amp; schedule (select all that apply)
+                    Active dates &amp; schedule (select all that apply)
                   </label>
                   {catalog?.priceLabel && (
                     <p className="text-xs text-gray-500 mb-2">Typical price: {catalog.priceLabel}</p>

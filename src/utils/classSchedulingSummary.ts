@@ -61,8 +61,7 @@ export function schedulingSignupUrl(formId: number): string {
 }
 
 export function formatOfferingDates(offering: SchedulingOffering): string {
-  const label = offering.label ? `${offering.label}: ` : ''
-  return `${label}${formatOfferingDateRange(offering)}`
+  return formatOfferingDateRange(offering)
 }
 
 export function formatSlotOccurrence(group: SchedulingSlotGroup): string {

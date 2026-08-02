@@ -938,7 +938,7 @@ export default function AdminClasses({
     onOpenScheduling?.({
       programsId: program.categoryId,
       classEventId: program.id,
-      targetPanel: 'offerings',
+      targetPanel: 'slots',
     })
   }
 
@@ -1225,8 +1225,8 @@ export default function AdminClasses({
             </h2>
             <p className="text-gray-600 text-sm mt-1">
               {viewMode === 'spreadsheet'
-                ? 'All classes and events with offerings. Expand a row for offering dates, time slots, and signup.'
-                : 'Top-level programs and their classes/events. Expand a row for offerings, slots, and signup.'}
+                ? 'All classes and events with Active dates. Expand a row for dates, time slots, and signup.'
+                : 'Top-level programs and their classes/events. Expand a row for Active dates, slots, and signup.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1714,7 +1714,7 @@ export default function AdminClasses({
                           />
                         </th>
                         <th className={thClass}>
-                          <SortableColumnHeader label="Offerings" field="offerings" sortConfig={classSortConfig} onSort={handleClassSort} />
+                          <SortableColumnHeader label="Active dates" field="offerings" sortConfig={classSortConfig} onSort={handleClassSort} />
                         </th>
                         <th className={thClass}>
                           <SortableColumnHeader label="Slots" field="slots" sortConfig={classSortConfig} onSort={handleClassSort} />

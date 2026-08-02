@@ -136,7 +136,7 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
             {showWeekLetter && (
               <DetailRow label="Week" value={`${event.weekLetter}-Week`} />
             )}
-            {offeringSummary && <DetailRow label="Offering" value={offeringSummary} />}
+            {offeringSummary && <DetailRow label="Active dates" value={offeringSummary} />}
           </dl>
 
           {event.classDescription && (
@@ -166,7 +166,7 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
 
               {detail.offerings.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Offerings</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Active dates</h4>
                   <ul className="text-sm text-gray-700 space-y-1">
                     {detail.offerings.map((o) => (
                       <li key={o.id}>{formatOfferingDates(o)}</li>

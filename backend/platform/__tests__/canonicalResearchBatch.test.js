@@ -2593,7 +2593,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2781,7 +2781,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2901,7 +2901,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3022,7 +3022,7 @@ test('landmine explosive press packets consolidate hand count while preserving a
     ['landmine-squat-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3153,7 +3153,7 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
     ['landmine-reverse-lunge-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'landmine_squat_muscle_activity_kinetics',
     'acsm_landmine_squat_exercise',
@@ -3290,7 +3290,7 @@ test('hill sprint acceleration packet separates grade identity, start variants, 
     mediaCandidates: [],
   })
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
   for (const sourceKey of [
     'uphill_sprint_slope_kinematics',
     'resisted_sprint_acceleration_meta_analysis',
@@ -4617,7 +4617,7 @@ test('Cossack audit sources distinguish direct technique from adjacent biomechan
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const wideStance = registryDocument.sources.wide_stance_foot_angle_squat_biomechanics
   assert.equal(wideStance.url, 'https://pubmed.ncbi.nlm.nih.gov/30026952/')
@@ -4642,7 +4642,7 @@ test('Floor Press sources separate direct technique, floor-specific testing, and
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const floorTest = registryDocument.sources.isometric_floor_press_validity
   assert.equal(floorTest.url, 'https://pubmed.ncbi.nlm.nih.gov/42367017/')
@@ -4670,7 +4670,7 @@ test('Rotational Ball Slam sources separate direct technique from adjacent power
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const ace = registryDocument.sources.ace_rotational_slam
   assert.equal(
@@ -4698,7 +4698,7 @@ test('One-Arm Row sources separate exact variant technique from adjacent row bio
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const ace = registryDocument.sources.ace_single_arm_row_technique
   assert.equal(
@@ -4731,7 +4731,7 @@ test('Push-Up sources replace the unrelated calf-raise PMID with direct variant 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const technique = registryDocument.sources.nasm_push_up_technique
   assert.equal(
@@ -4769,7 +4769,7 @@ test('Reverse Lunge evidence separates direct reverse-step kinetics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const direct = registryDocument.sources.reverse_lunge_joint_kinetics
   assert.equal(direct.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4641539/')
@@ -4795,7 +4795,7 @@ test('Lateral Lunge evidence separates direct step-out biomechanics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const olderAdults = registryDocument.sources.lateral_lunge_older_adult_biomechanics
   const healthy = registryDocument.sources.lateral_lunge_healthy_biomechanics
@@ -4829,7 +4829,7 @@ test('Suitcase Carry evidence distinguishes unilateral locomotion, static holds,
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const activation = registryDocument.sources.loaded_carry_muscle_activation
   assert.equal(activation.url, 'https://pubmed.ncbi.nlm.nih.gov/38665162/')
@@ -4856,7 +4856,7 @@ test('Bent-Knee Soleus Raise evidence separates knee-position adaptation, tendon
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const hypertrophy = registryDocument.sources.bent_knee_calf_raise_hypertrophy_knee_position
   assert.equal(
@@ -4892,7 +4892,7 @@ test('Back Squat evidence separates bar position, stance, depth, loading, adapta
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const barPosition = registryDocument.sources.back_squat_high_low_3rm_biomechanics
   assert.equal(barPosition.url, 'https://pubmed.ncbi.nlm.nih.gov/38900172/')
@@ -4923,7 +4923,7 @@ test('Box Jump evidence distinguishes propulsion, elevated landing, height, arm 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const comparison = registryDocument.sources.countermovement_hurdle_box_jump_comparison
   assert.equal(comparison.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10204452/')
@@ -4955,7 +4955,7 @@ test('Depth Jump evidence separates countermovement height strategy from bounce 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const technique = registryDocument.sources.drop_jump_technique_rsi_study
   assert.equal(technique.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/')
@@ -4986,7 +4986,7 @@ test('Nordic Hamstring evidence separates variation mechanics, angle-specific is
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const variation = registryDocument.sources.nordic_hamstring_variation_kinematics_emg
   assert.equal(variation.url, 'https://pubmed.ncbi.nlm.nih.gov/31644582/')
@@ -5019,7 +5019,7 @@ test('Front Plank evidence separates exact lever and tension variants from tests
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const lever = registryDocument.sources.front_plank_long_lever_posterior_tilt_emg
   assert.equal(lever.url, 'https://pubmed.ncbi.nlm.nih.gov/25325773/')
@@ -5053,7 +5053,7 @@ test('Kettlebell Swing evidence separates exact technique, hand count, load, fat
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const technique = registryDocument.sources.ace_two_hand_kettlebell_swing_technique
   assert.equal(
@@ -5098,7 +5098,7 @@ test('Pull-Up evidence separates grip variants, strict identity, loading, fatigu
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const instruction = registryDocument.sources.ace_pull_up_instruction
   assert.equal(
@@ -5146,7 +5146,7 @@ test('Hollow Body Hold evidence separates the exact static shape from abdominal 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const instruction = registryDocument.sources.crossfit_gymnastics_hollow_body_guide
   assert.equal(
@@ -5194,7 +5194,7 @@ test('Handstand Hold evidence separates unsupported balance, wall support, entry
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
 
   const professional = registryDocument.sources.crossfit_handstand_coaching_guide
   assert.equal(
@@ -5249,8 +5249,8 @@ test('Cartwheel hand-placement line-drill evidence separates direct instruction,
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
-  assert.equal(Object.keys(registryDocument.sources).length, 357)
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
+  assert.equal(Object.keys(registryDocument.sources).length, 368)
 
   const expectedSources = new Map([
     ['safe_gymnastics_cartwheel_markers', {
@@ -5334,8 +5334,8 @@ test('Back Bridge evidence separates static support identity from dynamic entrie
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.84')
-  assert.equal(Object.keys(registryDocument.sources).length, 357)
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
+  assert.equal(Object.keys(registryDocument.sources).length, 368)
 
   const expectedSources = new Map([
     ['bridge_spine_hyperextension_review', {
@@ -5414,5 +5414,145 @@ test('Back Bridge evidence separates static support identity from dynamic entrie
   assert.match(
     registryDocument.sources.british_gymnastics_bridge_action_boundaries.title,
     /Rules 2026/i,
+  )
+})
+
+test('Bar Cast evidence separates amplitude-return casts from terminal handstands, circles, releases, and universal loading claims', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
+  assert.equal(Object.keys(registryDocument.sources).length, 368)
+
+  const expectedSources = new Map([
+    ['world_gymnastics_wag_cast_code_2025_2028', {
+      url: 'https://www.gymnastics.sport/publicdir/rules/files/en_1.1.%20WAG%20Code%20of%20Points%202025-2028.pdf',
+      kind: 'governing_body',
+      publisher: 'World Gymnastics',
+      minimumQuality: 94,
+    }],
+    ['usag_wag_development_optional_cast_rules_2025', {
+      url: 'https://static.usagym.org/PDFs/Women/Rules/dpcop/revisedpages_080425_mini.pdf',
+      kind: 'governing_body',
+      publisher: 'USA Gymnastics',
+      minimumQuality: 92,
+    }],
+    ['usag_wag_compulsory_cast_handstand_development_2023', {
+      url: 'https://static.usagym.org/PDFs/Women/development/compulsory/2021/replacement_072323.pdf',
+      kind: 'governing_body',
+      publisher: 'USA Gymnastics',
+      minimumQuality: 90,
+    }],
+    ['british_gymnastics_cast_amplitude_sequences_2026', {
+      url: 'https://mybg.british-gymnastics.org/store/downloadPublic?f=e810bf6f-df1b-4828-957d-6ddafe28f4c6.pdf&t=email',
+      kind: 'governing_body',
+      publisher: 'British Gymnastics',
+      minimumQuality: 84,
+    }],
+    ['gymnastics_upper_extremity_injuries_return_review', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12088353/',
+      kind: 'peer_reviewed_research',
+      publisher: 'Journal of the Pediatric Orthopaedic Society of North America',
+      minimumQuality: 90,
+    }],
+    ['young_gymnast_injury_pathology_retrospective', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9955164/',
+      kind: 'peer_reviewed_research',
+      publisher: 'Children',
+      minimumQuality: 82,
+    }],
+    ['uneven_bar_subject_specific_swing_model', {
+      url: 'https://pubmed.ncbi.nlm.nih.gov/18930233/',
+      kind: 'peer_reviewed_research',
+      publisher: 'Journal of Biomechanics',
+      minimumQuality: 86,
+    }],
+  ])
+
+  for (const [sourceKey, expected] of expectedSources) {
+    const source = registryDocument.sources[sourceKey]
+    assert.ok(source, `missing Bar Cast source ${sourceKey}`)
+    assert.equal(source.url, expected.url)
+    assert.equal(source.kind, expected.kind)
+    assert.equal(source.publisher, expected.publisher)
+    assert.ok(source.evidenceQuality >= expected.minimumQuality)
+  }
+
+  assert.match(
+    registryDocument.sources.world_gymnastics_wag_cast_code_2025_2028.title,
+    /Code of Points 2025–2028/i,
+  )
+  assert.match(
+    registryDocument.sources.usag_wag_compulsory_cast_handstand_development_2023.title,
+    /Compulsory Replacement Pages 2023/i,
+  )
+  assert.match(
+    registryDocument.sources.uneven_bar_subject_specific_swing_model.title,
+    /subject-specific female gymnast model/i,
+  )
+})
+
+test('Handstand Snap-Down evidence separates the inverted-start stick from a full Round-Off and registers every non-media source', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.86')
+  assert.equal(Object.keys(registryDocument.sources).length, 368)
+
+  const expectedSources = new Map([
+    ['usag_wag_compulsory_roundoff_snapdown_2025', {
+      url: 'https://static.usagym.org/PDFs/Women/development/compulsory/replacement_070125_mini.pdf',
+      kind: 'governing_body',
+      publisher: 'USA Gymnastics',
+      minimumQuality: 92,
+    }],
+    ['safe_gymnastics_roundoff_technique', {
+      url: 'https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/floor_17_roundoff.html',
+      kind: 'professional_standard',
+      publisher: 'Masaryk University Faculty of Sports Studies',
+      minimumQuality: 84,
+    }],
+    ['safe_gymnastics_didactic_guidelines', {
+      url: 'https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html',
+      kind: 'professional_standard',
+      publisher: 'Masaryk University Faculty of Sports Studies',
+      minimumQuality: 82,
+    }],
+    ['special_olympics_handstand_snapdown_coaching', {
+      url: 'https://special-olympics.be/wp-content/uploads/2022/08/specialolympics_artisticgymnastics.pdf',
+      kind: 'governing_body',
+      publisher: 'Special Olympics',
+      minimumQuality: 80,
+    }],
+    ['canjump_back_bridge_foundations_manual', {
+      url: 'https://www.gymbc.org/media/o4opcs3u/gbc-canjump-manual-1.pdf',
+      kind: 'governing_body',
+      publisher: 'Gymnastics Canada / Gymnastics BC',
+      minimumQuality: 82,
+    }],
+  ])
+
+  for (const [sourceKey, expected] of expectedSources) {
+    const source = registryDocument.sources[sourceKey]
+    assert.ok(source, `missing Handstand Snap-Down source ${sourceKey}`)
+    assert.equal(source.url, expected.url)
+    assert.equal(source.kind, expected.kind)
+    assert.equal(source.publisher, expected.publisher)
+    assert.ok(source.evidenceQuality >= expected.minimumQuality)
+  }
+
+  assert.match(
+    registryDocument.sources.usag_wag_compulsory_roundoff_snapdown_2025.title,
+    /Compulsory Replacement Pages, July 2025/i,
+  )
+  assert.match(
+    registryDocument.sources.safe_gymnastics_roundoff_technique.title,
+    /Roundoff/i,
+  )
+  assert.match(
+    registryDocument.sources.special_olympics_handstand_snapdown_coaching.title,
+    /Artistic Gymnastics Coaching Guide/i,
   )
 })

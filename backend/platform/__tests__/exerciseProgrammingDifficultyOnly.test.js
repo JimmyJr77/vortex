@@ -645,6 +645,18 @@ const BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/479_coaching_back_bridge_hold_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/480_coaching_back_bridge_score_contract_correction.sql', import.meta.url),
+  'utf8',
+)
+const BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/481_coaching_back_bridge_anatomy_contract_correction.sql', import.meta.url),
+  'utf8',
+)
+const BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/482_coaching_bar_cast_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10548,6 +10560,244 @@ test('Back Bridge completion isolates the static hands-and-feet hold from dynami
   )
 })
 
+test('Back Bridge score correction restores normalized top-level dimensions while retaining zero planned contacts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'480_coaching_back_bridge_score_contract_correction\.sql'/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /prerequisite_checksum CONSTANT TEXT := '4176817151'/,
+  )
+  for (const scoreKey of [
+    'technicalComplexity',
+    'absoluteLoadDemand',
+    'physicalDifficulty',
+    'workCapacityDemand',
+    'impact',
+    'supervisionDemand',
+    'failureConsequence',
+    'baseOverallDifficulty',
+  ]) {
+    assert.match(
+      BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+      new RegExp(`'${scoreKey}'`),
+    )
+  }
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /'impact',1/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /\(fatigue_profile_json->>'impactAccumulation'\)::INTEGER=1/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /\(load_profile_json->>'landingContactsPerRep'\)::INTEGER=0/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /\(load_profile_json->>'plannedImpactContacts'\)::INTEGER=0/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /greatest\(score\.complexity,score\.physical\)/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /INSERT INTO coaching\.exercise_score_v1/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /ON CONFLICT\(exercise_id\) DO UPDATE SET/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /corrected_count<>3/,
+  )
+  assert.match(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /refuses to overwrite human-reviewed or published state/,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Back Bridge anatomy correction maps rich source aliases onto canonical audit keys', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'481_coaching_back_bridge_anatomy_contract_correction\.sql'/,
+  )
+  assert.match(
+    BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+    /prerequisite_checksum CONSTANT TEXT := '2984990515'/,
+  )
+  assert.match(
+    BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+    /'primaryMuscles',anatomy_json->'primeMovers'/,
+  )
+  assert.match(
+    BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+    /'jointActions',anatomy_json->'actions'/,
+  )
+  for (const anatomyKey of [
+    'primaryMuscles',
+    'secondaryMuscles',
+    'stabilizers',
+    'joints',
+    'jointActions',
+    'planes',
+    'laterality',
+  ]) {
+    assert.match(
+      BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+      new RegExp(`anatomy_json->(?:>|)'${anatomyKey}'`),
+    )
+  }
+  assert.match(
+    BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+    /refuses to overwrite human-reviewed or published state/,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_ANATOMY_CONTRACT_CORRECTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('Bar Cast completion separates sub-handstand returns from terminal handstands without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'482_coaching_bar_cast_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'Front-Support Bar Cast and Return',
+    'Bar Cast to Handstand',
+    'front-support-cast-below-horizontal-return',
+    'front-support-cast-to-horizontal-return',
+    'front-support-cast-above-horizontal-return',
+    'assisted-straddle-cast-to-handstand',
+    'assisted-straight-body-cast-to-handstand',
+    'independent-straddle-cast-to-handstand',
+    'independent-straight-body-cast-to-handstand',
+    'cast_return_vs_terminal_handstand',
+    'dynamic_cast_vs_static_front_support',
+    'front_support_start_vs_kip_entry',
+    'cast_return_vs_back_hip_circle',
+    'cast_return_vs_undershoot',
+    'no_turn_no_release_vs_turn_or_hop',
+    'max_exercise_complexity_physical_difficulty',
+    'identity_quarantine',
+    'gymnastics_single_rail',
+  ]) {
+    assert.match(
+      BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [56, 54, 56],
+    [64, 62, 64],
+    [72, 70, 72],
+    [82, 74, 82],
+    [86, 80, 86],
+    [86, 82, 86],
+    [90, 88, 90],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+    assert.match(
+      BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`,${complexity},${physical},`),
+    )
+  }
+  for (const videoId of [
+    '0e0CAHk57IY',
+    'H9HXXXTGXuI',
+    'RGdJYHGA_n0',
+    'NBqHxIRKJZI',
+    'NrVhnMiYg7w',
+    'jiHZCy1lLvY',
+  ]) {
+    assert.match(
+      BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>28/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>14/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>14/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_identity_resolution_v1[\s\S]*?decision='distinct_exercises'[\s\S]*?<>5/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,[\s\S]*?minimum_skill_level=NULL/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(id\) DO UPDATE SET/,
+  )
+  assert.match(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(variant_id,profile_key\) DO UPDATE SET/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10600,6 +10850,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
     CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
     BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

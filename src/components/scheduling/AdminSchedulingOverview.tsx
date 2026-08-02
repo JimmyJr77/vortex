@@ -11,7 +11,7 @@ interface Props {
   program: TopProgram
   onSaved: (program: TopProgram) => void
   onSelectClassEvent: (classEvent: ClassEvent) => void | Promise<void>
-  onOpenOfferings: () => void
+  onOpenSlots: () => void
 }
 
 type SetupStatus = 'none' | 'partial' | 'ready'
@@ -30,7 +30,7 @@ async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
 const AdminSchedulingOverview = ({
   program,
   onSelectClassEvent,
-  onOpenOfferings,
+  onOpenSlots,
 }: Props) => {
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
   const [setupByClassId, setSetupByClassId] = useState<Record<number, SetupStatus>>({})
@@ -67,7 +67,7 @@ const AdminSchedulingOverview = ({
 
   const handleClassClick = async (classEvent: ClassEvent) => {
     await onSelectClassEvent(classEvent)
-    onOpenOfferings()
+    onOpenSlots()
   }
 
   if (loading) {
@@ -100,7 +100,7 @@ const AdminSchedulingOverview = ({
 
       <section>
         <h4 className="text-base font-bold text-black mb-3">Classes &amp; Events</h4>
-        <p className="text-sm text-gray-600 mb-3">Select a class to configure offerings and timeslots.</p>
+        <p className="text-sm text-gray-600 mb-3">Select a class to configure Active dates and timeslots.</p>
         {classEvents.length === 0 ? (
           <p className="text-sm text-gray-600">No classes yet. Add classes in Admin → Classes.</p>
         ) : (
@@ -118,9 +118,9 @@ const AdminSchedulingOverview = ({
                       <p className="font-semibold text-black">{classEvent.displayName}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {setup === 'ready'
-                          ? 'Offerings configured'
+                          ? 'Active dates configured'
                           : setup === 'partial'
-                            ? 'Form exists — add offerings'
+                            ? 'Form exists — add Active dates'
                             : 'Not set up for scheduling'}
                       </p>
                     </div>

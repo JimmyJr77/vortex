@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, ClipboardList, Loader2, Printer, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
-import AdminSchedulingOfferings from './scheduling/AdminSchedulingOfferings'
 import { formatSetupContextLine } from './scheduling/SchedulingSetupContextCard'
 import {
   adminFetchSchedulingForm,
@@ -10,7 +9,7 @@ import {
   adminFetchSignups,
   adminFetchOrphanedSignups,
   adminFetchOfferings,
-  adminSelectOffering,
+  adminEnsureFormActiveDates,
   adminFetchDailyRoster,
   type DailyRoster,
   type SchedulingFormDetail,
@@ -33,7 +32,7 @@ import {
   type SchedulingNavigationIntent,
 } from '../utils/schedulingNavigation'
 
-type Panel = 'overview' | 'offerings' | 'slots'
+type Panel = 'overview' | 'slots'
 
 interface AdminSchedulingProps {
   navigationIntent?: SchedulingNavigationIntent | null
@@ -42,7 +41,6 @@ interface AdminSchedulingProps {
 
 const PANELS: { id: Panel; label: string }[] = [
   { id: 'overview', label: 'Classes' },
-  { id: 'offerings', label: 'Offerings' },
   { id: 'slots', label: 'Timeslots' },
 ]
 
@@ -75,7 +73,6 @@ const AdminScheduling = ({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
-  const [offerings, setOfferings] = useState<SchedulingOffering[]>([])
   const programsLoaded = useRef(false)
   const [rosterDate, setRosterDate] = useState(easternDate)
   const [dailyRoster, setDailyRoster] = useState<DailyRoster | null>(null)
@@ -89,12 +86,23 @@ const AdminScheduling = ({
     })
   }, [])
 
+  /** Keep selected offering for slots offeringId prop (auto-select selected/first). */
   const loadOfferingsForForm = useCallback(
     async (formId: number) => {
       const data = await adminFetchOfferings(formId)
-      setOfferings(data)
       syncSelectedOffering(data)
       return data
+    },
+    [syncSelectedOffering],
+  )
+
+  /** Ensure Active dates exist, then sync offeringId for slots. */
+  const ensureActiveDatesForForm = useCallback(
+    async (formId: number, seed?: { startDate?: string | null; endDate?: string | null }) => {
+      const offering = await adminEnsureFormActiveDates(formId, seed)
+      const data = await adminFetchOfferings(formId)
+      syncSelectedOffering(data.length > 0 ? data : [offering])
+      return offering
     },
     [syncSelectedOffering],
   )
@@ -133,31 +141,33 @@ const AdminScheduling = ({
   }, [])
 
   const loadSchedulingForClassEvent = useCallback(
-    async (classEvent: ClassEvent | null) => {
+    async (classEvent: ClassEvent | null, opts?: { ensureActiveDates?: boolean }) => {
       if (!classEvent) {
         setSelectedId(null)
         setDetail(null)
         setSignups([])
         setOrphanedSignups([])
         setSelectedOffering(null)
-        setOfferings([])
         return
       }
       try {
         const formId =
           classEvent.schedulingFormId ?? (await fetchClassEventSchedulingFormId(classEvent.id))
         setSelectedId(formId)
+        const offeringLoad = opts?.ensureActiveDates
+          ? ensureActiveDatesForForm(formId)
+          : loadOfferingsForForm(formId)
         await Promise.allSettled([
           loadDetail(formId),
           loadSignups(formId),
           loadOrphanedSignups(formId),
-          loadOfferingsForForm(formId),
+          offeringLoad,
         ])
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load scheduling form')
       }
     },
-    [loadDetail, loadSignups, loadOrphanedSignups, loadOfferingsForForm],
+    [loadDetail, loadSignups, loadOrphanedSignups, loadOfferingsForForm, ensureActiveDatesForForm],
   )
 
   const handleSelectClassEvent = useCallback(
@@ -167,7 +177,7 @@ const AdminScheduling = ({
       setLoading(true)
       setError(null)
       try {
-        await loadSchedulingForClassEvent(event)
+        await loadSchedulingForClassEvent(event, { ensureActiveDates: true })
       } finally {
         setLoading(false)
       }
@@ -184,7 +194,6 @@ const AdminScheduling = ({
       setSignups([])
       setOrphanedSignups([])
       setSelectedOffering(null)
-      setOfferings([])
       setPanel('overview')
     },
     [],
@@ -218,10 +227,10 @@ const AdminScheduling = ({
         loadDetail(formId),
         loadSignups(formId),
         loadOrphanedSignups(formId),
-        loadOfferingsForForm(formId),
+        ensureActiveDatesForForm(formId),
       ])
     },
-    [loadDetail, loadSignups, loadOrphanedSignups, loadOfferingsForForm],
+    [loadDetail, loadSignups, loadOrphanedSignups, ensureActiveDatesForForm],
   )
 
   useEffect(() => {
@@ -263,55 +272,36 @@ const AdminScheduling = ({
     }
   }, [navigationIntent, loadTopPrograms, applyNavigationIntent, onNavigationIntentConsumed])
 
+  const openTimeslots = useCallback(async () => {
+    setPanel('slots')
+    if (!selectedId) return
+    setError(null)
+    try {
+      await ensureActiveDatesForForm(selectedId)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to ensure Active dates')
+    }
+  }, [selectedId, ensureActiveDatesForForm])
+
   const refresh = async () => {
     if (!selectedId) return
     await Promise.all([
       loadDetail(selectedId),
       loadSignups(selectedId),
       loadOrphanedSignups(selectedId),
-      loadOfferingsForForm(selectedId),
+      ensureActiveDatesForForm(selectedId),
     ])
     await loadForms()
   }
 
   const selectedProgram = topPrograms.find((p) => p.id === selectedProgramId) ?? null
 
-  const needsClassEvent = ['offerings', 'slots'].includes(panel)
+  const needsClassEvent = panel === 'slots'
   const showClassEventPrompt = needsClassEvent && !selectedClassEvent
-
-  const handleOfferingContinueToSlots = useCallback(() => {
-    setPanel('slots')
-  }, [])
 
   const handleProgramSaved = (updated: TopProgram) => {
     setTopPrograms((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
   }
-
-  const handleOfferingSelect = useCallback((offering: SchedulingOffering | null) => {
-    setSelectedOffering(offering)
-    if (offering) {
-      setOfferings((prev) =>
-        prev.map((o) => ({ ...o, isSelected: o.id === offering.id })),
-      )
-    }
-  }, [])
-
-  const handleOfferingSaved = useCallback(async () => {
-    if (!selectedId) return
-    await Promise.all([loadDetail(selectedId), loadOfferingsForForm(selectedId)])
-  }, [selectedId, loadDetail, loadOfferingsForForm])
-
-  const handleOfferingSelectForSlots = useCallback(
-    async (offering: SchedulingOffering) => {
-      try {
-        const updated = await adminSelectOffering(offering.id)
-        handleOfferingSelect(updated)
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to select offering')
-      }
-    },
-    [handleOfferingSelect],
-  )
 
   const generateDailyRoster = async () => {
     setRosterLoading(true)
@@ -334,7 +324,7 @@ const AdminScheduling = ({
             Class &amp; Event Scheduling &amp; Signup Forms
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            Configure offerings, slots, and signup forms for each class and event.
+            Configure Active dates, timeslots, and signup forms for each class and event.
           </p>
         </div>
         <div className="flex justify-center py-12">
@@ -352,7 +342,7 @@ const AdminScheduling = ({
           Class &amp; Event Scheduling
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Configure class offerings and timeslots. New athletes complete the official account signup form before enrolling.
+          Configure Active dates and timeslots. New athletes complete the official account signup form before enrolling.
         </p>
       </div>
 
@@ -464,7 +454,13 @@ const AdminScheduling = ({
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => setPanel(p.id)}
+                    onClick={() => {
+                      if (p.id === 'slots') {
+                        void openTimeslots()
+                      } else {
+                        setPanel(p.id)
+                      }
+                    }}
                     className={`px-4 py-2 rounded-lg font-semibold ${
                       panel === p.id
                         ? 'bg-vortex-red text-white'
@@ -485,7 +481,7 @@ const AdminScheduling = ({
 
               {showClassEventPrompt && (
                 <p className="text-gray-600 py-8">
-                  Select a class in <strong>Classes</strong> to manage {panel === 'slots' ? 'timeslots' : panel}.
+                  Select a class in <strong>Classes</strong> to manage timeslots.
                 </p>
               )}
 
@@ -494,75 +490,38 @@ const AdminScheduling = ({
                   program={selectedProgram}
                   onSaved={handleProgramSaved}
                   onSelectClassEvent={handleSelectClassEvent}
-                  onOpenOfferings={() => setPanel('offerings')}
+                  onOpenSlots={() => setPanel('slots')}
                 />
               )}
 
-              {panel === 'offerings' && selectedClassEvent && selectedId && (
-                <AdminSchedulingOfferings
-                  formId={selectedId}
-                  classDisplayName={selectedClassEvent.displayName}
-                  selectedOfferingId={selectedOffering?.id ?? null}
-                  onOfferingSelect={handleOfferingSelect}
-                  onContinueToSlots={handleOfferingContinueToSlots}
-                  onOfferingSaved={handleOfferingSaved}
-                />
-              )}
-
-              {panel === 'slots' && selectedClassEvent && selectedId && detail && !selectedOffering && (
-                <p className="text-gray-600 py-8">
-                  Select an offering in <strong>Offerings</strong> to view and manage its time slots.
-                </p>
-              )}
-
-              {panel === 'slots' && selectedClassEvent && selectedId && detail && selectedOffering && (
-                <>
-                  {offerings.length > 1 && (
-                    <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
-                      <label className="block text-xs font-semibold text-gray-600 mb-1">
-                        Offering for timeslots
-                      </label>
-                      <select
-                        value={selectedOffering.id}
-                        onChange={(e) => {
-                          const next = offerings.find((o) => o.id === Number(e.target.value))
-                          if (next) void handleOfferingSelectForSlots(next)
-                        }}
-                        className="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
-                      >
-                        {offerings.map((o) => (
-                          <option key={o.id} value={o.id}>
-                            {formatSetupContextLine([
-                              selectedClassEvent.displayName,
-                              formatOfferingDateRange(o),
-                            ])}
-                            {o.label?.trim() ? ` — ${o.label.trim()}` : ''}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+              {panel === 'slots' && selectedClassEvent && selectedId && detail && (
                 <AdminSchedulingSlots
                   formId={selectedId}
                   detail={detail}
                   formStartDate={detail.startDate ?? null}
                   formEndDate={detail.endDate ?? null}
                   offeringId={selectedOffering?.id ?? null}
-                  offeringStartDate={selectedOffering?.startDate ?? null}
-                  offeringEndDate={selectedOffering?.endDate ?? null}
+                  offeringStartDate={selectedOffering?.startDate ?? detail.startDate ?? null}
+                  offeringEndDate={selectedOffering?.endDate ?? detail.endDate ?? null}
                   setupContextPrimary={formatSetupContextLine([
                     selectedProgram?.displayName,
                     selectedClassEvent.displayName,
-                    formatOfferingDateRange(selectedOffering),
+                    selectedOffering
+                      ? formatOfferingDateRange(selectedOffering)
+                      : detail.startDate
+                        ? formatOfferingDateRange({
+                            startDate: detail.startDate,
+                            endDate: detail.endDate,
+                          })
+                        : null,
                   ])}
-                  offeringLabel={selectedOffering.label}
-                  canBuild={Boolean(selectedOffering)}
+                  offeringLabel={null}
+                  canBuild={Boolean(selectedOffering || detail.startDate)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}
                   forms={forms}
                   onRefresh={refresh}
                 />
-                </>
               )}
             </>
           )}

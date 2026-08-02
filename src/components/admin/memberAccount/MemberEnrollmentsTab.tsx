@@ -55,7 +55,7 @@ function EnrollmentTable({
             <th className="px-3 py-2 font-semibold">Sport</th>
             <th className="px-3 py-2 font-semibold">Program</th>
             <th className="px-3 py-2 font-semibold">Class</th>
-            <th className="px-3 py-2 font-semibold">Offering</th>
+            <th className="px-3 py-2 font-semibold">Active dates</th>
             <th className="px-3 py-2 font-semibold">Schedule</th>
             <th className="px-3 py-2 font-semibold text-right">Class Cost</th>
             <th className="px-3 py-2 font-semibold text-right">Adjusted Cost</th>
@@ -77,7 +77,7 @@ function EnrollmentTable({
                   <div className="font-medium text-gray-900">{row.class_name || '—'}</div>
                 </td>
                 <td className="px-3 py-2 text-gray-600">
-                  {row.offering_label || row.offering_dates || '—'}
+                  {row.offering_dates || '—'}
                 </td>
                 <td className="px-3 py-2 text-gray-600">{row.schedule || '—'}</td>
                 <td className="px-3 py-2 text-right text-gray-700">{money(row.class_cost_cents)}</td>

@@ -1738,3 +1738,65 @@ skill levels are not copied to the exercise. The post-migration detector stays
 closed at 616/616 surfaced pairs across 1,042 active definitions, with zero
 unresolved score-72-or-higher pair and zero exact collision. The seven recorded
 boundaries add provenance without fabricating reviewer approval.
+
+## Back Bridge static support identity
+
+Migrations 479–481 preserve `gymnastics-back-bridge-hold` UUID
+`154614aa-67be-4b1c-8e9f-cb9a30620239` as a supine-entry static support
+exercise. Valid time requires the selected palms and feet to remain fixed, the
+head and neck to remain clear of load, the declared elbow and leg contract to
+hold, breathing and stop response to continue, and the athlete to lower under
+control at the first invalidating event. The ambiguous legacy baseline remains
+traceable but nonselectable.
+
+Floor bilateral, fixed low-step feet-elevated bilateral, and floor one-leg-
+straight-up side-specific executions are exact variants because they retain
+the same entry/static-hold/exit boundary while changing support height,
+leverage, laterality, balance, load, and logistics. Hold time, sets, rest,
+marks, and qualified observation inside an exact variant are delivery facts;
+raising the hands, changing free-leg shape, adding passive assistance, or
+moving onto a narrow elevated surface requires a separately reviewed variant
+or definition.
+
+Standing Backbend, Handstand-to-Bridge, Kickover, Back/Forward Walkover, rock-
+to-stand, Bridge Push-Up, Bridge Walk, head/neck support, forearm support, Crab
+Reach, Glute Bridge, prone Arch Hold, and Back Extension change entry, contact,
+action, direction, repetition boundary, or loading and remain distinct. Nine
+persisted neighbor boundaries protect the Glute Bridge, Crab Reach, Arch Hold,
+and Back Extension families. Skill-library Bridge/Kickover/Walkover cards keep
+their own levels; this exercise stores only complexity and physical difficulty.
+
+The post-migration detector reports 617/617 adjudicated surfaced pairs across
+1,042 active definitions, zero unresolved score-72-or-higher pair, and zero
+exact collision. The new boundary and graph rows remain review-only; no human
+decision, media approval, calibration approval, content approval, or
+publication authority is inferred.
+
+## Bar Cast peak-and-return versus Cast-to-Handstand identity
+
+Migration 482 keeps the stable Bar Cast lineage at UUID
+`6915611f-7382-448b-b3eb-d8dd08f10ee7` and adds Cast to Handstand UUID
+`d8b03d69-0840-40b0-adba-21d855d3db3e`. The source-17 representation remains
+traceable but nonselectable because “Support-position strength on bar” does not
+fix rail, grip, mount, start, hip clearance, peak, body shape, return, assistance,
+terminal state, or exit.
+
+Below-horizontal, horizontal, and above-horizontal/sub-handstand peaks are
+exact variants of the same cast-and-return identity. Assisted/independent and
+straddle/straight-body executions are exact variants of the separate terminal-
+handstand identity. The defining boundary is the repetition endpoint: returning
+to the original front support is not the same task as establishing declared
+vertical bar support and then performing a separately declared exit.
+
+Static Front Support Hold, glide or long-hang Kip Cast, Back Hip Circle,
+undershoot, clear pullover/baby giant, grip-change hop, turn, release, bar
+change, and mount add or remove scored actions, contacts, rotation, flight,
+entry, or terminal state and therefore require distinct definitions. Five
+persisted neighbor decisions protect Cast to Handstand from Freestanding and
+Wall-Supported Handstand Holds and Handstand Kick-Up, and protect Basic Cast
+from static front support.
+
+After migration 482 the detector reports 617/617 adjudicated surfaced pairs
+across 1,043 active definitions, zero unresolved score-72-or-higher pair, and
+zero exact collision. The 14 graph rows and all identity evidence remain
+review-only; no human decision or approval is inferred.

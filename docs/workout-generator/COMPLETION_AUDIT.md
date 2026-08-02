@@ -2901,3 +2901,88 @@ disposable PostgreSQL. The remaining gates are:
   87/1,042. Graph/calibration queues are 673/897 review-only rows with zero
   approvals. Cartwheel retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
   `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+
+## Gymnastics Back Bridge Hold audit and contract corrections (migrations 479–481)
+
+- Preserves canonical UUID `154614aa-67be-4b1c-8e9f-cb9a30620239` and legacy
+  source 16 while archiving source baseline
+  `e84078d2-0fda-41a0-be73-355d84f2c985` as a nonselectable identity
+  quarantine. The source label does not define entry, support geometry, head
+  contact, unilateral side, valid hold, first fault, or exit.
+- Three review-selectable specifications cover floor bilateral, feet-elevated
+  bilateral, and floor one-leg-straight-up static holds. Their complexity /
+  physical difficulty / derived-overall vectors are `68/72/72`, `64/70/70`,
+  and `76/78/78`. Overall remains the maximum; exercise and safety skill/age
+  fields are null, while Kickover, Handstand-to-Bridge, and Walkover levels
+  remain on skill-library cards.
+- Nine identity boundaries and 32 alternate assessments keep Glute Bridge,
+  unilateral Glute Bridge, prone Arch Hold, Back Extension, Crab Reach,
+  standing Backbend, Handstand entry, Kickover, Walkover, rock-to-stand,
+  Bridge Push-Up, Bridge Walk, head/forearm support, and other changed actions
+  from becoming silent annotations.
+- Six Prepare & Access/Movement Intelligence profiles persist exact setup,
+  dosage, valid seconds, rest, timing, fatigue and spine-extension budgets,
+  equipment, station logistics, substitutions, measurements, stop rules,
+  coach/athlete rendering, persistence, and incident routing. The family has
+  16 candidate evidence sections, four current oEmbed-healthy candidate media,
+  32 alternates, eight graph proposals, six calibration proposals, and exactly
+  four human blockers.
+- Migration 479 registered at checksum `4176817151`. The first persisted audit
+  exposed a normalized-score defect: impact accumulation was `0` and required
+  top-level score fields were nested. Migration 480 corrected the score shape,
+  used the 1–100 contract minimum of `1` for impact while retaining zero
+  planned flight/landing contacts, and backfilled the missing legacy score row;
+  it registered at checksum `2984990515`. The next audit exposed anatomy aliases
+  `primeMovers`/`actions`; migration 481 preserved them and added canonical
+  `primaryMuscles`/`jointActions`, registering at checksum `722794694`.
+- All three registered files pass exact-file re-entry. Registry
+  `2026-08-02.84` contains 357 sources. Focused validation passes `216/216`;
+  the full backend suite passes 1,015 tests with 20 intentional skips and zero
+  failures. Focused lint, JSON parsing, persisted audit, identity reporting,
+  diff integrity, and the production build pass; only existing dependency-
+  freshness and chunk-size advisories remain.
+- The authoritative snapshot is 1,676/1,676 mapped legacy rows, 1,042 active
+  definitions, 89 machine-complete and 953 machine-incomplete cards, and
+  88/1,042 definitions with exactly three to five current healthy embeddable
+  candidates. All 617 surfaced identity pairs are adjudicated with zero
+  unresolved pair and zero exact collision. Graph/calibration queues are
+  681/903 review-only rows with zero approvals. Back Bridge retains exactly
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`; no approval or playback verification was fabricated.
+
+## Bar Cast family audit hardening (migration 482)
+
+- Preserves source-17 lineage under Bar Cast UUID
+  `6915611f-7382-448b-b3eb-d8dd08f10ee7`, archives ambiguous source variant
+  `aa63fb72-5cab-413a-89d3-4eb865424c21`, and creates distinct Cast to
+  Handstand UUID `d8b03d69-0840-40b0-adba-21d855d3db3e`. Basic Bar Cast starts
+  in exact overgrip front support, reaches a declared sub-handstand peak, and
+  returns to the same front support. Cast to Handstand instead terminates in
+  declared bar-supported vertical before a separate exit.
+- Three Bar Cast variants cover below-horizontal, horizontal, and above-
+  horizontal/sub-handstand peaks. Four Cast-to-Handstand variants declare
+  assisted or independent execution and straddle or straight-body technique.
+  Complexity / physical difficulty / derived overall are `56/54/56`,
+  `64/62/64`, `72/70/72`, `82/74/82`, `86/80/86`, `86/82/86`, and
+  `90/88/90`. Exercise and safety age/skill fields are null; skill-library
+  performance levels remain separate.
+- The two cards persist 14 delivery profiles, 32 evidence sections, six
+  current oEmbed-healthy candidate media rows, 28 alternate assessments, 14
+  review-only graph proposals, 14 review-only calibrations, five explicit
+  identity boundaries, and two test packets. Kips, circles, undershoots,
+  turns, releases, mounts, and static supports are not silent annotations.
+- Migration 482 passed two direct executions of its final bytes, production-
+  runner registration, stored/file checksum comparison, and normal-runner
+  re-entry at checksum `229324910`. Registry `2026-08-02.85` contains 364
+  sources. Focused validation passes `218/218`; the full backend suite passes
+  1,017 tests with 20 intentional skips and zero failures. Focused lint, JSON
+  parsing, persisted audit, identity reporting, diff integrity, and the
+  production build pass.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,043 active definitions,
+  91 machine-complete and 952 machine-incomplete cards, and 90/1,043 current
+  healthy embeddable 3–5-candidate sets. All 617 surfaced identity pairs are
+  adjudicated with zero unresolved pair and zero exact collision. Graph and
+  calibration queues contain 695/917 review-only rows with zero approvals.
+  Both cards retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`; published definitions remain
+  zero and no media or human approval was fabricated.

@@ -2061,6 +2061,45 @@ export async function adminFetchOfferings(
   return parseJson(res)
 }
 
+export interface FormActiveDatesResult {
+  form: SchedulingFormSummary
+  offering: SchedulingOffering
+}
+
+/** Set class Active dates (session / evergreen). Syncs form + selected offering. */
+export async function adminUpdateFormActiveDates(
+  formId: number,
+  payload: { startDate: string; endDate?: string | null; evergreen?: boolean },
+): Promise<FormActiveDatesResult> {
+  const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/active-dates`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      startDate: payload.startDate,
+      ...(payload.evergreen ? { evergreen: true } : { endDate: payload.endDate ?? null }),
+    }),
+  })
+  return parseJson(res)
+}
+
+/** Ensure a class has Active dates backing (selected offering). Creates one if missing. */
+export async function adminEnsureFormActiveDates(
+  formId: number,
+  seed?: { startDate?: string | null; endDate?: string | null },
+): Promise<SchedulingOffering> {
+  const existing = await adminFetchOfferings(formId)
+  const selected = existing.find((o) => o.isSelected) ?? existing[0]
+  if (selected) return selected
+  const startDate = seed?.startDate || new Date().toISOString().slice(0, 10)
+  const endDate = seed?.endDate ?? null
+  const result = await adminUpdateFormActiveDates(
+    formId,
+    endDate
+      ? { startDate, endDate }
+      : { startDate, evergreen: true },
+  )
+  return result.offering
+}
+
 export async function adminCreateOffering(
   formId: number,
   payload: { startDate: string; endDate?: string | null; evergreen?: boolean; label?: string | null },

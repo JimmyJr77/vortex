@@ -345,6 +345,81 @@ append-only audit histories above.
 
 ## Live checkpoint: completed work
 
+The last comprehensively verified family is Bar Cast / Cast to Handstand,
+implemented by immutable migration 482.
+
+- 1,676 of 1,676 legacy rows are mapped to 1,043 active definitions.
+- The surfaced identity detector reports 617 of 617 pairs adjudicated, zero
+  unresolved score-72-or-higher pair, and zero exact collision.
+- 91 definitions are machine-complete and 952 are machine-incomplete.
+- 90 of 1,043 definitions have exactly three to five current healthy
+  embeddable candidates for their current card version.
+- Graph/calibration queues contain 695/917 review-only rows with zero
+  approvals.
+- There are zero published definitions, zero approved depth in every required
+  phase, and zero of 20 required real coach workout reviews.
+- Registry `2026-08-02.85` contains 364 sources.
+- Focused validation passes 218 tests; the full backend suite passes 1,017
+  tests with 20 intentional skips and zero failures. Focused lint, JSON
+  parsing, persisted audit, identity reporting, diff integrity, and the
+  production build pass.
+- The production build retains only existing stale browser-data and >500 kB
+  chunk advisories.
+- The release gate is correctly blocked at 0/25 published definitions, phase
+  depth 0/3, 0/10 approved graph edges, 0/3 approved calibration anchors, and
+  0/20 coach reviews.
+
+Latest immutable registered migration:
+
+- 482 `coaching_bar_cast_family_audit_hardening`, checksum `229324910`,
+  registered `2026-08-02 11:36:31.016626-04`.
+
+Its exact registered file passes normal-runner re-entry. Do not edit migration
+482; add a later migration if another correction is required. Migrations
+479–481 remain immutable at checksums `4176817151`, `2984990515`, and
+`722794694`.
+
+Bar Cast family state:
+
+- Bar Cast definition: `6915611f-7382-448b-b3eb-d8dd08f10ee7`, card version 2;
+- Cast to Handstand definition: `d8b03d69-0840-40b0-adba-21d855d3db3e`, card
+  version 1;
+- legacy source: 17;
+- archived source baseline: `aa63fb72-5cab-413a-89d3-4eb865424c21`;
+- below-horizontal return: `6d6f938d-d399-4c4a-92f7-e56b72b6eeaf`;
+- horizontal return: `2a92d86f-3006-4da7-a809-d4bdce39cbd4`;
+- above-horizontal return: `8c27e24d-7d1f-4739-93ff-4225bbe22b8d`;
+- assisted straddle handstand: `750a945c-9407-4bd2-b47b-9478b3d6bfff`;
+- assisted straight handstand: `d7a94de1-52a9-4b17-8d8c-072d3b0ed317`;
+- independent straddle handstand: `3ffdbc7b-cc31-44ae-9840-4840ca58cf51`;
+- independent straight handstand: `be865d38-135a-4a42-9d3f-d2ecd4f34d3b`;
+- 7 selectable variants, 14 profiles, 32 evidence sections, 6 media
+  candidates, 28 alternate assessments, 14 graph proposals, 14 calibration
+  proposals, 5 explicit boundaries, and 2 current packets;
+- difficulty vectors are `56/54/56`, `64/62/64`, `72/70/72`, `82/74/82`,
+  `86/80/86`, `86/82/86`, and `90/88/90` for exercise complexity / physical
+  difficulty / their maximum;
+- each current packet contains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+
+The first direct migration-482 run failed transactionally only because its
+final assertion used an ambiguous per-definition alias; no data persisted.
+The assertion was qualified, the corrected bytes passed direct execution and
+idempotent re-entry, the temporary diagnostic notice was removed, and the
+final diagnostic-free bytes passed two direct runs before registration. The
+normal runner then registered checksum `229324910`; stored and local checksums
+match exactly, and subsequent normal-runner re-entry skips cleanly.
+
+Six Bar Cast-family media candidates have current YouTube oEmbed metadata only:
+
+- Bar Cast: `0e0CAHk57IY`, `H9HXXXTGXuI`, `RGdJYHGA_n0`;
+- Cast to Handstand: `NBqHxIRKJZI`, `NrVhnMiYg7w`, `jiHZCy1lLvY`.
+
+Do not claim full playback, exactness, captions, accessibility, safety,
+quality, reviewer identity, or approval for these candidates.
+
+## Prior checkpoint: migration 478 (superseded)
+
 The last fully registered and comprehensively verified family is migration 478,
 Cartwheel Hand-Placement Line Drill.
 
@@ -379,7 +454,7 @@ current detector threshold. Do not reopen adjudicated pairs without new
 mechanics evidence, but rerun the detector after every family because new exact
 variants or boundaries can surface new pairs.
 
-## Current worktree and migration 478 state
+## Prior migration 478 worktree state (historical; do not use as current)
 
 Branch and repository at the time of this handoff:
 
@@ -486,7 +561,7 @@ Current YouTube candidates, checked only through current oEmbed metadata on
 
 Do not claim full playback or approval for these videos.
 
-## Immediate next work
+## Prior next-work note (completed by migrations 479–481)
 
 The next planned source is legacy source 16, Back Bridge. Audit it from current
 data before assuming its identity, variants, or research needs:
@@ -510,6 +585,102 @@ data before assuming its identity, variants, or research needs:
    quarantine, graph/calibration proposals, and a complete test packet are
    explicit.
 
+## Immediate next work
+
+Legacy source 18 has now been audited and researched. A migration is drafted
+but has **not** passed its first direct database run and has **not** been
+registered. Do not restart the source audit and do not treat the draft as
+complete.
+
+Current draft:
+
+- file:
+  `backend/migrations/484_coaching_handstand_snap_down_family_audit_hardening.sql`;
+- current unregistered checksum: `1789278012` (this changes after any repair);
+- legacy row: `18 | Round-Off Snap-Down Shape Drill | round-off`;
+- canonical definition: `60f5b21a-991c-4ce8-9068-3c42b2043021`;
+- archived source baseline: `064e650c-28e8-4820-b0da-7043bb509c2c`;
+- exact wall-start variant: `68c16da0-414f-4932-97f4-1d8b236af8dd`;
+- exact independent-start variant: `68a0499b-34b0-4621-b798-b49ffd8ed1a1`;
+- intended family identity: `Handstand Snap-Down to Feet-Together Stick`, not
+  a full Round-Off;
+- intended authored counts: 2 variants, 4 profiles, 16 evidence sections, 4
+  media candidates, 24 alternate assessments, 8 graph proposals, 4
+  calibration proposals, 8 identity boundaries, and 1 packet with the four
+  standard human blockers;
+- intended difficulty vectors are `70/62/70` for the back-to-wall exact
+  variant and `82/70/82` for the independent exact variant.
+
+The exact repetition begins only after the selected inverted two-hand start is
+established. The athlete pushes tall, keeps the legs joined, snaps the legs
+down, releases the hands before simultaneous two-foot contact, and finishes an
+upright hollow feet-together stick with arms by the ears. A rebound, extra
+step, fall, turn, connection, wrong start, unexpected contact, asynchronous
+feet, or loss of the selected support contract invalidates the repetition.
+Full Round-Off, Round-Off rebound, connected Round-Off/back-handspring,
+back-handspring snap-down, snap-down to rebound or back landing, standing
+snap-down, Donkey Kick, hand pop, static Handstand, Handstand Kick-Up,
+Cartwheel, hurdle entry, and unilateral landing remain distinct identities.
+
+The first direct SQL execution failed transactionally, so no migration-483
+changes persisted. PostgreSQL rejected the variant rows under
+`exercise_variant_no_level_classification_check` because `difficulty_json`
+contains the prohibited key
+`athleteSkillOrProficiencyClassification`, even though its value is null. The
+failure detail also exposed a numeric `VALUES` alignment error: `wallContact`
+received a number. Repair both issues before rerunning:
+
+1. Remove the entire
+   `'athleteSkillOrProficiencyClassification', NULL` key/value pair.
+2. Replace the 22 numeric fields from complexity through recovery hours with
+   exactly these sequences:
+   - wall variant:
+     `70,62,68,72,70,72,78,48,42,46,36,50,54,24,82,78,76,38,68,24,84,24`;
+   - independent variant:
+     `82,70,76,80,84,84,88,58,50,52,42,58,62,30,88,86,80,58,78,30,92,30`.
+3. Recompute the draft checksum and run the exact repaired file directly with
+   `ON_ERROR_STOP=1`.
+4. Fix any further schema/assertion errors transactionally, then run the final
+   unchanged bytes directly a second time to prove idempotency.
+5. Query authoritative family/global counts before updating tests or docs.
+
+After the SQL passes twice, complete the following in order:
+
+1. Advance the research registry from `2026-08-02.85` / 364 sources to the
+   actual new version/count, expected `2026-08-02.86` / 367 if exactly these
+   three sources are added: USA Gymnastics current compulsory Round-Off and
+   snap-down material, Masaryk Safe Gymnastics Roundoff technique, and Special
+   Olympics handstand/snap-down coaching. Reuse the already-registered CanJump
+   manual instead of duplicating it.
+2. Update `canonicalResearchBatch.test.js` for the exact new registry version,
+   count, source keys, URLs, publishers, kinds, and quality floors.
+3. Register the coaching migration after 482 in
+   `backend/platform/initTables.js`. A concurrent, unrelated file named
+   `backend/migrations/483_class_active_dates_from_offerings.sql` is scheduling
+   work. Preserve it and its registration; the filenames are distinct, but
+   inspect both init paths and `schema_migrations` before assuming numbering
+   behavior.
+4. Add the complete migration-483 static contract to
+   `exerciseProgrammingDifficultyOnly.test.js`, including exact UUIDs,
+   boundaries, counts, vectors, no age/skill classification, candidate-only
+   media, no fabricated approvals, protected-record fail-closed behavior, and
+   the four packet blockers.
+5. Run focused tests, focused lint, JSON validation, and `git diff --check`.
+6. Run the normal migration runner, verify stored versus local checksum, prove
+   exact-file re-entry, then run persisted audit, identity report, expected-
+   blocked release check, full backend suite, and production build.
+7. Append actual post-run evidence to all five audit/review documents and this
+   file. Only then query and select source 19.
+
+Research already completed for this draft includes the current USA Gymnastics
+compulsory replacement material, Masaryk Safe Gymnastics Roundoff technique,
+the existing CanJump manual, the Special Olympics artistic-gymnastics guide,
+handstand and upper-extremity research already in the registry, and four
+YouTube oEmbed metadata checks. The candidate video IDs are `7r-UOQi8YvE`,
+`BnnX00Hlqpk`, `D6bbi5bv0TY`, and `dqEZV4DW8aU`. They have metadata health
+only; playback, exactness, captions, accessibility, cue quality, safety, and
+approval remain unverified and must stay null/quarantined.
+
 ## Concurrent work that must remain preserved
 
 Do not regress these previously shared fixes:
@@ -520,6 +691,20 @@ Do not regress these previously shared fixes:
   behavior.
 - Prescription-error route responses include `{ code, ...details }`.
 - `NeedsEnginePanel` displays blocking requirements and suggested relaxations.
+- Preserve unrelated concurrent edits currently visible in
+  `docs/ADMIN_PORTAL_ROADMAP.md`, `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`,
+  `src/components/classSetup/AdminClassSetupOverviewCellEditor.tsx`,
+  `src/components/classSetup/AdminClassSetupOverviewTable.tsx`, and
+  `src/components/classSetup/classSetupCopyPaste.ts`.
+- Also preserve all current scheduling/class-active-date work in
+  `backend/scheduling/handlers.js`, `backend/scheduling/initTables.js`,
+  `backend/scheduling/registerRoutes.js`,
+  `backend/migrations/483_class_active_dates_from_offerings.sql`,
+  `src/components/scheduling/AdminSchedulingSlots.tsx`,
+  `src/components/scheduling/ClassActiveDatesEditor.tsx`,
+  `src/components/classSetup/overviewColumns.tsx`, and
+  `src/utils/schedulingApi.ts`. This work appeared concurrently after the
+  prior checkpoint and is not part of the exercise-library task.
 
 Inspect current files before touching them because shared commits may land at
 any time.
@@ -574,5 +759,169 @@ Use this template:
 
 ## Return-handoff ledger
 
-No replacement-LLM return entry has been added yet. The live checkpoint above is
-the authoritative handoff from the current LLM.
+### Return handoff — 2026-08-02 11:04 America/New_York
+
+- Branch / HEAD: `main` / `87b798df27a9cbaeb5854360ecc093acbab9d07f`.
+- Worktree: task-owned edits are platform migration registration/tests, five
+  audit documents, this handoff, and untracked migrations 480–481. Preserve
+  unrelated `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`.
+- Last registered migration / checksum: migration 481 / `722794694`.
+- Unregistered migration state: none.
+- Family completed or in progress: Gymnastics Back Bridge Hold completed to
+  machine-authored quarantine; human review remains.
+- Persisted family counts: 3 variants, 6 profiles, 16 evidence, 4 media, 32
+  alternates, 8 graph, 6 calibration, 9 boundaries, 4 human blockers.
+- Registry version / count: `2026-08-02.84` / 357.
+- Global audit snapshot: 1,676/1,676 mappings, 1,042 active, 89 machine-
+  complete, 953 incomplete, 88 current healthy 3–5-media sets, 681/0 graph
+  review/approved, 903/0 calibration review/approved, 0 published.
+- Identity snapshot: 617/617 surfaced pairs adjudicated, 0 unresolved, 0 exact
+  collision.
+- Release gate: expected blocked status; 0/25 published, 0/3 phase depth,
+  0/10 graph approvals, 0/3 calibration approvals, 0/20 coach reviews.
+- Focused tests: 216/216 pass.
+- Full backend: 1,015 pass, 20 intentional skips, 0 failures.
+- Lint: focused lint passes.
+- Build: production build passes; stale baseline-browser-mapping/caniuse-lite
+  data and >500 kB chunk warnings remain.
+- Failures and corrections: calibration tier 70 rolled back and became 80;
+  audit crash on score 0 led to migration 480; anatomy audit failure led to
+  migration 481. Each failed SQL transaction rolled back fully.
+- Human review remaining: media playback/exactness/captions/accessibility/
+  quality/safety, graph decisions, calibration, content review, separate
+  approval, publication, phase-depth rollout, and coach pilot.
+- Documentation updated: all five append-only audit/review documents and this
+  handoff.
+- Exact next action: audit legacy source 17, Bar Cast, then research and author
+  migration 482 only after resolving its action and skill-library boundaries.
+
+### Return handoff — 2026-08-02 11:42 America/New_York
+
+- Branch / HEAD: `main` / `87b798df27a9cbaeb5854360ecc093acbab9d07f`.
+- Worktree: task-owned edits are migration registration/tests, research
+  registry, five append-only audit/review documents, this handoff, and
+  untracked-but-DB-registered migrations 480–482. Preserve unrelated concurrent
+  edits in `docs/ADMIN_PORTAL_ROADMAP.md`,
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`,
+  `AdminClassSetupOverviewCellEditor.tsx`,
+  `AdminClassSetupOverviewTable.tsx`, and `classSetupCopyPaste.ts` plus the
+  shared Needs Engine fixes listed above.
+- Last registered migration / checksum: migration 482 / `229324910`, registered
+  `2026-08-02 11:36:31.016626-04`; stored and exact-file checksums match.
+- Unregistered migration state: none. Migration 482 final diagnostic-free bytes
+  passed direct run 1, unchanged direct run 2, production runner, and normal-
+  runner exact-file re-entry; re-entry skipped the registered file.
+- Family completed or in progress: Bar Cast / Cast to Handstand completed to
+  machine-authored quarantine; human review remains. Definition UUIDs are
+  `6915611f-7382-448b-b3eb-d8dd08f10ee7` and
+  `d8b03d69-0840-40b0-adba-21d855d3db3e`; source 17 and archived baseline
+  `aa63fb72-5cab-413a-89d3-4eb865424c21` remain traceable.
+- Persisted family counts: 7 selectable variants (`6d6f938d-d399-4c4a-92f7-e56b72b6eeaf`,
+  `2a92d86f-3006-4da7-a809-d4bdce39cbd4`,
+  `8c27e24d-7d1f-4739-93ff-4225bbe22b8d`,
+  `750a945c-9407-4bd2-b47b-9478b3d6bfff`,
+  `d7a94de1-52a9-4b17-8d8c-072d3b0ed317`,
+  `3ffdbc7b-cc31-44ae-9840-4840ca58cf51`,
+  `be865d38-135a-4a42-9d3f-d2ecd4f34d3b`), 14 profiles, 32 evidence
+  sections, 6 media, 28 alternates, 14 graph, 14 calibration, 5 boundaries, 2
+  packets, and exactly 4 human blockers per card.
+- Registry version / count: `2026-08-02.85` / 364.
+- Global audit snapshot: 1,676/1,676 mappings, 1,043 active, 91 machine-
+  complete, 952 incomplete, 90 current healthy 3–5-media sets, 695/0 graph
+  review/approved, 917/0 calibration review/approved, 0 published.
+- Identity snapshot: 617/617 surfaced pairs adjudicated, 0 unresolved, 0 exact
+  collision; identity report separately confirms 0 score-72+ unresolved pairs.
+- Release gate: expected blocked status; 0/25 published, 0/3 phase depth in all
+  seven phases, 0/10 graph approvals, 0/3 calibration approvals, 0/20 coach
+  reviews.
+- Focused tests: 218/218 pass.
+- Full backend: 1,017 pass, 20 intentional skips, 0 failures.
+- Lint: focused ESLint passes; JSON parsing and `git diff --check` pass.
+- Build: production build passes; stale baseline-browser-mapping/caniuse-lite
+  data and >500 kB chunk warnings remain advisory.
+- Failures and corrections: the first unregistered direct SQL run rolled back
+  because a final assertion used an ambiguous per-definition alias. The alias
+  was qualified; authored counts were confirmed; a temporary diagnostic notice
+  was removed; final bytes then passed twice before registration. An excluded
+  media ID (`wQppaX1KONQ`) returned YouTube oEmbed 401 and was never persisted.
+- Human review remaining: full media playback/exactness/captions/accessibility/
+  quality/safety, all 14 graph decisions, all 14 calibrations, content review,
+  separate approval, publication, phase-depth rollout, shadow generation,
+  clean-database rehearsal, monitoring/rollback evidence, and coach pilot.
+- Documentation updated: all five append-only audit/review documents and this
+  handoff now contain the Bar Cast batch and current metrics.
+- Exact next action: audit legacy source 18, Round-Off Snap-Down Shape Drill,
+  beginning with current source/mapping/variant/profile/evidence/media/graph/
+  calibration/packet and related Round-Off/snap-down/Cartwheel/Handstand/skill-
+  library queries; author migration 483 only after resolving the exact ordered
+  action and repetition boundary.
+
+### Return handoff — 2026-08-02 11:56 America/New_York
+
+- Branch / HEAD: `main` /
+  `87b798df27a9cbaeb5854360ecc093acbab9d07f`.
+- Worktree: task-owned tracked edits remain the two platform tests,
+  `backend/platform/initTables.js`, the research registry, all five workout-
+  generator audit/review documents, and this handoff. Task-owned untracked but
+  database-registered immutable files are migrations 480–482. Task-owned
+  untracked draft migration 483 is the Handstand Snap-Down family. All admin,
+  class-setup, scheduling, class-active-date, metrics, and Needs Engine changes
+  identified under `Concurrent work that must remain preserved` are unrelated
+  concurrent work and must not be reset, overwritten, renamed, or included in
+  exercise-library edits.
+- Last registered migration / checksum: migration 482 / `229324910`.
+- Unregistered migration state:
+  `484_coaching_handstand_snap_down_family_audit_hardening.sql`, current draft
+  checksum `1789278012`. Direct run 1 failed transactionally; direct run 2,
+  normal runner, and exact-file re-entry have not run. The draft is not in
+  `backend/platform/initTables.js`, its research sources are not in the
+  registry, and its static tests have not been added.
+- Family completed or in progress: source 18 is researched and identity-
+  resolved in the draft as `Handstand Snap-Down to Feet-Together Stick`.
+  Canonical definition `60f5b21a-991c-4ce8-9068-3c42b2043021`; source
+  baseline `064e650c-28e8-4820-b0da-7043bb509c2c`; variants
+  `68c16da0-414f-4932-97f4-1d8b236af8dd` and
+  `68a0499b-34b0-4621-b798-b49ffd8ed1a1`.
+- Persisted family counts: no migration-483 counts are persisted because the
+  failed PostgreSQL `DO` block rolled back. Intended draft counts are 2
+  variants, 4 profiles, 16 evidence, 4 media, 24 alternates, 8 graph, 4
+  calibration, 8 boundaries, and 1 quarantined packet with 4 blockers; prove
+  rather than assume them after repair.
+- Registry version / count: still `2026-08-02.85` / 364. Expected after the
+  planned three source additions is `2026-08-02.86` / 367, but use the actual
+  parsed count.
+- Global audit snapshot: unchanged last authoritative values are 1,676/1,676
+  mappings, 1,043 active, 91 machine-complete, 952 incomplete, 90 current
+  healthy 3–5-media sets, 695/0 graph review/approved, 917/0 calibration
+  review/approved, and 0 published. Rerun after migration 483.
+- Identity snapshot: last authoritative detector is 617/617 adjudicated, 0
+  unresolved, 0 exact collision. Rerun after migration 483.
+- Release gate: last expected block remains 0/25 published, 0/3 phase depth,
+  0/10 graph approvals, 0/3 calibration approvals, and 0/20 coach reviews.
+- Focused tests: last completed checkpoint is 218/218; no source-18 tests have
+  run.
+- Full backend: last completed checkpoint is 1,017 pass, 20 intentional skips,
+  0 failures; do not attribute this to the current draft.
+- Lint: last completed checkpoint passed; the current draft has not been
+  linted or statically validated.
+- Build: last completed checkpoint passed with existing dependency-freshness
+  and >500 kB chunk advisories; no post-draft build has run.
+- Failures and corrections: direct migration-483 run 1 rolled back under
+  `exercise_variant_no_level_classification_check` because the prohibited
+  `athleteSkillOrProficiencyClassification` key exists even with a null value.
+  The failure detail also exposed misaligned numeric variant tuples. Neither
+  repair has been applied yet; use the exact repair vectors in `Immediate next
+  work`.
+- Human review remaining: all four candidate videos need full playback and
+  exactness/captions/accessibility/quality/safety review; every evidence claim,
+  alternate, graph edge, calibration anchor, instruction set, and working
+  identity needs qualified review; content approval, publication, phase depth,
+  rollout rehearsal, monitoring/rollback evidence, and coach pilot remain.
+- Documentation updated: this zero-context handoff now reflects source-18
+  research and the failed draft run. The five append-only audit/review files
+  have not received a completed migration-483 entry and must not be updated as
+  if the family passed.
+- Exact next action: edit only the unregistered coaching migration to remove
+  the forbidden key and correct the two numeric vectors, recompute checksum,
+  run it directly against disposable PostgreSQL with `ON_ERROR_STOP=1`, and
+  continue through the ordered completion checklist in `Immediate next work`.

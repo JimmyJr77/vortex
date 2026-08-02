@@ -185,6 +185,15 @@ per form with no category sub-level. **`scheduling_slot_group.inherits_offering_
 active dates follow the linked `scheduling_offering`; offering date edits cascade to matching
 slot groups and time slots via `updateOffering` in [handlers.js](../backend/scheduling/handlers.js).
 
+**Active dates source of truth (2026-08):** class date windows live on
+`scheduling_form.start_date` / `end_date` (user-facing “Active dates”). Migration
+[483_class_active_dates_from_offerings.sql](../backend/migrations/483_class_active_dates_from_offerings.sql)
+copies selected/latest offering windows onto the form, materializes them onto slot groups,
+and clears `scheduling_offering.label` (labels retired from UI). Admin APIs
+`PUT …/forms/:id/active-dates` and `adminEnsureFormActiveDates` keep a selected offering row
+in sync for pricing/FK scopes; UI no longer presents multi-offering pickers or offering
+labels. See §10 for the `scheduling_offering` entity as an Active (legacy) removal candidate.
+
 ### 4.5 Coaching graph (see [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md) Part 5)
 Strong cross-schema FKs to `public.facility`, `public.app_user`, `public.member`. **`023`**
 adds `coaching.notification` (`recipient_member_id` / `recipient_user_id` FKs).
@@ -549,6 +558,19 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 | `coaching.plan_assignment.target_type = 'category'` | Removed | other target types | CHECK rewritten in [033](../backend/migrations/033_remove_scheduling_categories.sql) / [029](../backend/migrations/029_coaching_video_submission_assign.sql) lineage. |
 | Addon SQL `global_scheduling_categories.sql`, `add_program_scheduling_category.sql`, `add_no_category_default.sql` | Removed (unreferenced) | — | Dropped from `ADDON_MIGRATION_ORDER` in [run-migration.js](../backend/run-migration.js); files stubbed to `SELECT 1;`. |
 | `backend/programs/noCategory.js`, `backend/scripts/split-merged-classes.mjs` | Removed | — | Files deleted; callers removed. |
+
+### 10.3c Scheduling offerings → form Active dates ([483](../backend/migrations/483_class_active_dates_from_offerings.sql))
+
+Form Active dates (`scheduling_form.start_date` / `end_date`) are the user-facing source of truth.
+`scheduling_offering` rows remain for FK/pricing scopes (`offering_id` on slots, discount rules,
+free passes) but labels and multi-offering UI are retired.
+
+| Object | Status | Replacement | Evidence / Notes |
+|--------|--------|-------------|------------------|
+| `scheduling_offering.label` | Retired (nulled) | Date range display only | Cleared in [483](../backend/migrations/483_class_active_dates_from_offerings.sql); UI no longer prefers labels (`classOfferingOptions`, enrollments, signup embed). |
+| Admin Scheduling “Offerings” panel | Removed (UI) | Timeslots + form Active dates (`ClassActiveDatesEditor` / `adminUpdateFormActiveDates`) | [AdminScheduling.tsx](../src/components/AdminScheduling.tsx) panels are `overview` \| `slots` only; ensures backing offering via `adminEnsureFormActiveDates`. |
+| `AdminSchedulingOfferings` | Candidate | Class Master Active dates cell / `ClassActiveDatesEditor` | No remaining UI imports (Admin Scheduling + Class Master use Active dates APIs). Safe to delete the component file once confirmed. |
+| `scheduling_offering` entity (multi-window model) | Active (legacy) / Candidate | Single form Active dates window + internal selected offering for pricing FKs | Do **not** drop while discount/free-pass/slot FKs reference `offering_id`. Pre-drop: audit `pricing_benefit_selection`, free-pass scopes, `scheduling_slot_group.offering_id`, signup `offering_id`. |
 
 ### 10.4 Application / API surfaces to retire (no DDL until callers gone)
 

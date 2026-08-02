@@ -3011,3 +3011,82 @@ partial returns, panel-mat step-overs, finish-only work, hurdle entries,
 Round-Off snap-down, static Handstands, Donkey Kicks, and unmarked Cartwheel
 skill performance. Separate qualified content review and publication approval
 remain mandatory.
+
+## Gymnastics Back Bridge Hold human-review packet
+
+Review floor bilateral, fixed low-step feet-elevated bilateral, and floor one-
+leg-straight-up side-specific variants separately. Verify supine entry, exact
+hand/foot marks and orientation, support height, free-leg side and shape, head
+and neck clearance, elbow/leg contract, surface and friction, timer start,
+breathing, first invalidating event, controlled lowering, assistance policy,
+dose, rest, recovery, symptoms, and cumulative bridge/backbend/walkover,
+hand-support, overhead, tumbling and loaded-spine-extension exposure. Difficulty
+review covers exercise complexity and physical difficulty only; it must not
+classify athlete proficiency or modify skill-library levels.
+
+Use “Stretching the Spines of Gymnasts: A Review” for bridge terminology and
+multiregion extension context. Treat the dynamic spinal-ROM/back-pain and
+three-gymnast Back Walkover kinematic studies as adjacent evidence only. The
+young-gymnast flexibility study, CanJump manual, Gymnastics Ontario rules,
+British Gymnastics action list, and Sydney Sports and Exercise Physiology
+instruction provide limited test, position, action-boundary, curriculum, and
+professional context. None establishes one universal geometry, eligibility or
+safety threshold, tissue load, workout dose, recovery interval, progression
+order, injury effect, transfer outcome, or numeric difficulty score.
+
+Watch `TrxZLshL0Ec`, `aozR72_L16g`, `tSvmWU-0Zo0`, and `usyrUMFhLUc` in full.
+Current oEmbed responses establish only title, channel, thumbnail, iframe, and
+link health. Record exact static card and variant, entry, supports, height,
+side/free-leg geometry, head contact, valid hold, exit, captions,
+accessibility, demonstration/cue quality, safety concerns, conflicts, reviewer
+identity, rationale, timestamp, and card-version match. Do not infer playback,
+exactness, accessibility, captions, quality, or approval from oEmbed health.
+
+Independently adjudicate all 32 alternate assessments, eight relationship
+proposals, and six complexity/physical-difficulty anchors. Give particular
+scrutiny to hands-elevated or assisted variants, unilateral free-leg geometry,
+standing entry, Handstand entry, Kickover, Walkover, dynamic pressing or
+walking, head/forearm support, and the separation from Glute Bridge, Crab
+Reach, Arch Hold, and Back Extension. Separate qualified content review and
+publication approval remain mandatory.
+
+## Bar Cast and Cast-to-Handstand human-review packet
+
+Review all seven working specifications separately: Bar Cast below horizontal,
+to horizontal, and above horizontal/sub-handstand; then assisted straddle,
+assisted straight-body, independent straddle, and independent straight-body
+Cast to Handstand. Verify the exact single rail, closed overgrip, mount and
+front-support start, hip clearance, shoulder and hip timing, body shape, peak
+reference or vertical tolerance, assistance, return or declared exit, valid
+repetition, first fault, apparatus/mat/clearance inspection, dose, rest,
+recovery, symptoms, and cumulative bar-support, grip, upper-extremity and
+inversion exposure. Difficulty review covers exercise complexity and physical
+difficulty only and must not classify an athlete or modify skill-card levels.
+
+Use the World Gymnastics WAG Code 2025–2028 to review straddle/bent-hip versus
+legs-together extended cast distinctions and terminal-handstand form. Use the
+July 2025 USA Gymnastics optional replacement pages for current amplitude
+rules, the 2023 compulsory replacement pages for assisted cast-to-handstand
+action detail, and British Gymnastics East Midlands 2026 rules for amplitude
+and adjacent-action boundaries. Treat the upper-extremity injury review, youth
+gymnast injury retrospective, and subject-specific uneven-bar model as limited
+population or adjacent biomechanics evidence. None establishes universal
+eligibility, assistance, dose, recovery, safety, injury, transfer, or numeric
+difficulty values.
+
+Watch the Bar Cast candidates `0e0CAHk57IY`, `H9HXXXTGXuI`, and
+`RGdJYHGA_n0`, and the Cast-to-Handstand candidates `NBqHxIRKJZI`,
+`NrVhnMiYg7w`, and `jiHZCy1lLvY`, in full. Current YouTube oEmbed responses
+establish only title, channel, thumbnail, iframe metadata, and link health.
+Record exact definition/variant, action sequence, assistance, captions,
+accessibility, demonstration and cue quality, safety concerns, conflicts,
+reviewer identity, rationale, timestamp, and card-version match. Do not infer
+playback, exactness, quality, accessibility, captions, or approval from oEmbed.
+
+Independently adjudicate all 28 alternate assessments, 14 relationships, 14
+complexity/physical-difficulty anchors, and five neighbor boundaries. Give
+particular scrutiny to the return-versus-terminal-handstand boundary; basic
+amplitude variants; assistance and body-technique variants; and separation from
+Kips, static supports, circles, undershoots, turns, releases, mounts, and floor
+or wall Handstand work. Separate qualified content review and publication
+approval remain mandatory.

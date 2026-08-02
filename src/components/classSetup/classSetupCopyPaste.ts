@@ -4,7 +4,12 @@ import {
   updateTopProgram,
 } from '../../utils/programsApi'
 import { normalizeProgramPricingOptions } from '../../utils/programPricingOptions'
-import { type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
+import { adminUpdateFormActiveDates } from '../../utils/schedulingApi'
+import {
+  formatOfferingsCell,
+  type ClassSetupOffering,
+  type ClassSetupOverviewRow,
+} from '../../utils/classSetupOverviewApi'
 import {
   OVERVIEW_COLUMNS,
   getCellDisplayValue,
@@ -19,6 +24,7 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'excludeFromDropIns',
   'className',
   'classDescription',
+  'offerings',
   'skillLevel',
   'status',
   'active',
@@ -86,6 +92,16 @@ export function isProgramLevelColumn(columnId: OverviewColumnId): boolean {
   return PROGRAM_LEVEL_COLUMNS.has(columnId)
 }
 
+function primaryOffering(row: ClassSetupOverviewRow): ClassSetupOffering | null {
+  return row.offerings.find((offering) => offering.isSelected) ?? row.offerings[0] ?? null
+}
+
+function activeDatesEqual(a: ClassSetupOffering | null, b: ClassSetupOffering | null): boolean {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  return a.startDate === b.startDate && (a.endDate ?? null) === (b.endDate ?? null)
+}
+
 function valuesEqualForColumn(
   source: ClassSetupOverviewRow,
   target: ClassSetupOverviewRow,
@@ -104,6 +120,8 @@ function valuesEqualForColumn(
       return source.className === target.className
     case 'classDescription':
       return (source.classDescription ?? '') === (target.classDescription ?? '')
+    case 'offerings':
+      return activeDatesEqual(primaryOffering(source), primaryOffering(target))
     case 'skillLevel':
       return (source.skillLevel ?? '') === (target.skillLevel ?? '')
     case 'status':
@@ -140,9 +158,10 @@ export function buildCopyChangePreviews(
     if (!target) continue
     if (valuesEqualForColumn(source, target, columnId)) continue
 
-    // Preview display: for status/active and pricing groups, show the target column's display
-    // with the source value rendered through the same column formatter when possible.
-    const toDisplay = previewToDisplay(source, columnId)
+    const toDisplay =
+      columnId === 'offerings'
+        ? formatOfferingsCell(source.offerings)
+        : previewToDisplay(source, columnId)
     previews.push({
       key,
       classId,
@@ -210,6 +229,22 @@ export async function applyCopyToTarget(
         description: source.classDescription?.trim() || null,
       })
       break
+    case 'offerings': {
+      if (target.formId == null) {
+        throw new Error(`“${target.className}” has no scheduling form for active dates`)
+      }
+      const sourceDates = primaryOffering(source)
+      if (!sourceDates) {
+        throw new Error('Source class has no active dates to copy')
+      }
+      await adminUpdateFormActiveDates(
+        target.formId,
+        sourceDates.evergreen || !sourceDates.endDate
+          ? { startDate: sourceDates.startDate, evergreen: true }
+          : { startDate: sourceDates.startDate, endDate: sourceDates.endDate },
+      )
+      break
+    }
     case 'skillLevel':
       await updateClassEvent(target.classId, {
         skillLevel: (source.skillLevel || null) as ClassSetupOverviewRow['skillLevel'],
@@ -270,10 +305,15 @@ export function canReceiveCopy(
   sourceColumnId: OverviewColumnId,
   target: ClassSetupOverviewRow,
   targetColumnId: OverviewColumnId,
+  source?: ClassSetupOverviewRow | null,
 ): boolean {
   if (!isCopyableColumn(targetColumnId)) return false
   if (!isCompatibleCopyTarget(sourceColumnId, targetColumnId)) return false
   if (isProgramLevelColumn(targetColumnId) && target.programsId == null) return false
   if (targetColumnId === 'program' && target.classId < 0) return false
+  if (targetColumnId === 'offerings') {
+    if (target.formId == null) return false
+    if (source && source.offerings.length === 0) return false
+  }
   return true
 }

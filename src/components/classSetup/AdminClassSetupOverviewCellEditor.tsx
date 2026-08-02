@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import AdminClassSetupOverviewEditModal from './AdminClassSetupOverviewEditModal'
 import PrimarySportPicker from '../programs/PrimarySportPicker'
 import DisciplineTagPicker from '../programs/DisciplineTagPicker'
-import AdminSchedulingOfferings from '../scheduling/AdminSchedulingOfferings'
 import AdminSchedulingSlots from '../scheduling/AdminSchedulingSlots'
+import ClassActiveDatesEditor from '../scheduling/ClassActiveDatesEditor'
 import {
   archiveClassEvent,
   fetchTopPrograms,
@@ -12,7 +12,7 @@ import {
   type TopProgram,
 } from '../../utils/programsApi'
 import {
-  adminFetchOfferings,
+  adminEnsureFormActiveDates,
   adminFetchOrphanedSignups,
   adminFetchSchedulingForm,
   adminFetchSignups,
@@ -108,10 +108,14 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
   const [scheduleLoading, setScheduleLoading] = useState(false)
   const [scheduleDetail, setScheduleDetail] = useState<SchedulingFormDetail | null>(null)
-  const [scheduleOfferings, setScheduleOfferings] = useState<SchedulingOffering[]>([])
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
   const [scheduleSignups, setScheduleSignups] = useState<SchedulingSignup[]>([])
   const [scheduleOrphans, setScheduleOrphans] = useState<SchedulingOrphanedSignup[]>([])
+
+  const primaryOffering = useMemo(() => {
+    if (!row) return null
+    return row.offerings.find((offering) => offering.isSelected) ?? row.offerings[0] ?? null
+  }, [row])
 
   useEffect(() => {
     if (!row || !columnId) return
@@ -146,22 +150,16 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setScheduleLoading(true)
     setError(null)
     try {
-      const [detail, offerings, signups, orphans] = await Promise.all([
+      const offering = await adminEnsureFormActiveDates(row.formId)
+      const [detail, signups, orphans] = await Promise.all([
         adminFetchSchedulingForm(row.formId),
-        adminFetchOfferings(row.formId),
         adminFetchSignups(row.formId),
         adminFetchOrphanedSignups(row.formId),
       ])
       setScheduleDetail(detail)
-      setScheduleOfferings(offerings)
+      setSelectedOffering(offering)
       setScheduleSignups(signups)
       setScheduleOrphans(orphans)
-      setSelectedOffering((current) =>
-        offerings.find((offering) => offering.id === current?.id) ??
-        offerings.find((offering) => offering.isSelected) ??
-        offerings[0] ??
-        null,
-      )
       if (refreshOverview) onSaved()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load schedule')
@@ -204,8 +202,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       excludeFromDropIns: 'Exclude from Drop-ins',
       className: 'Class',
       classDescription: 'Class Description',
-      offerings: 'Offerings',
-      offeringDescription: 'Offering Description',
+      offerings: 'Active dates',
       schedule: 'Schedule',
       skillLevel: 'Skill Level',
       spaces: 'Spaces',
@@ -449,22 +446,22 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       )
       break
     case 'offerings':
-    case 'offeringDescription':
       body =
         row.formId == null ? (
           <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
         ) : (
-          <AdminSchedulingOfferings
+          <ClassActiveDatesEditor
             formId={row.formId}
-            classDisplayName={row.className}
-            selectedOfferingId={selectedOffering?.id ?? null}
-            onOfferingSelect={setSelectedOffering}
-            onOfferingSaved={onSaved}
+            startDate={primaryOffering?.startDate}
+            endDate={primaryOffering?.endDate}
+            onSaved={async () => {
+              onSaved()
+              onClose()
+            }}
           />
         )
       hideSave = true
       hideFooter = true
-      wide = true
       break
     case 'schedule':
       body = row.formId == null ? (
@@ -472,55 +469,23 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       ) : scheduleLoading && !scheduleDetail ? (
         <p className="py-8 text-center text-sm text-gray-500">Loading schedule editor…</p>
       ) : scheduleDetail && selectedOffering ? (
-        <div className="space-y-4">
-          {scheduleOfferings.length > 1 && (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-600">Offering</label>
-              <select
-                value={selectedOffering.id}
-                onChange={(event) => setSelectedOffering(
-                  scheduleOfferings.find((offering) => offering.id === Number(event.target.value)) ?? null,
-                )}
-                className="h-10 w-full max-w-lg rounded-lg border border-gray-300 bg-white px-3 text-sm"
-              >
-                {scheduleOfferings.map((offering) => (
-                  <option key={offering.id} value={offering.id}>
-                    {offering.label || `${offering.startDate} – ${offering.endDate || 'Ongoing'}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <AdminSchedulingSlots
-            formId={row.formId}
-            detail={scheduleDetail}
-            formStartDate={scheduleDetail.startDate ?? null}
-            formEndDate={scheduleDetail.endDate ?? null}
-            offeringId={selectedOffering.id}
-            offeringStartDate={selectedOffering.startDate}
-            offeringEndDate={selectedOffering.endDate}
-            setupContextPrimary={`${row.programName} · ${row.className}`}
-            offeringLabel={selectedOffering.label}
-            orphanedSignups={scheduleOrphans}
-            signups={scheduleSignups}
-            forms={[scheduleDetail]}
-            onRefresh={() => loadSchedule(true)}
-          />
-        </div>
+        <AdminSchedulingSlots
+          formId={row.formId}
+          detail={scheduleDetail}
+          formStartDate={scheduleDetail.startDate ?? null}
+          formEndDate={scheduleDetail.endDate ?? null}
+          offeringId={selectedOffering.id}
+          offeringStartDate={selectedOffering.startDate}
+          offeringEndDate={selectedOffering.endDate}
+          setupContextPrimary={`${row.programName} · ${row.className}`}
+          offeringLabel={null}
+          orphanedSignups={scheduleOrphans}
+          signups={scheduleSignups}
+          forms={[scheduleDetail]}
+          onRefresh={() => loadSchedule(true)}
+        />
       ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">Create an offering before adding schedule days and times.</p>
-          <AdminSchedulingOfferings
-            formId={row.formId}
-            classDisplayName={row.className}
-            selectedOfferingId={null}
-            onOfferingSelect={(offering) => {
-              setSelectedOffering(offering)
-              void loadSchedule(true)
-            }}
-            onOfferingSaved={() => loadSchedule(true)}
-          />
-        </div>
+        <p className="text-sm text-gray-500">Unable to load schedule.</p>
       )
       hideSave = true
       hideFooter = true

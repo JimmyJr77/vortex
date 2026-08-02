@@ -607,7 +607,8 @@ function mapOfferingRow(row) {
     startDate: formatDateOnly(row.start_date),
     endDate,
     evergreen: endDate == null,
-    label: row.label,
+    // Offering descriptions/labels are retired product-wide.
+    label: null,
     isSelected: Boolean(row.is_selected),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -1091,6 +1092,13 @@ const offeringUpdateSchema = Joi.object({
   evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
+})
+
+/** Class-level Active dates (session / evergreen). Dual-writes form + selected offering. */
+const formActiveDatesSchema = Joi.object({
+  startDate: Joi.string().required(),
+  evergreen: Joi.boolean().valid(true).optional(),
+  endDate: Joi.string().allow('', null).optional(),
 })
 
 const signupFieldsSchema = Joi.object({
@@ -3278,6 +3286,115 @@ export function createSchedulingHandlers(pool) {
       }
     },
 
+    /**
+     * Set class Active dates on the scheduling form and keep the selected
+     * (or sole) offering in sync for legacy FK/pricing scopes. Labels are cleared.
+     */
+    async updateFormActiveDates(req, res) {
+      const client = await pool.connect()
+      try {
+        const { error, value } = formActiveDatesSchema.validate(sanitizeOfferingBody(req.body))
+        if (error) {
+          return res.status(400).json({ success: false, message: error.details[0].message })
+        }
+        const formId = Number(req.params.id)
+        const evergreen = Boolean(value.evergreen)
+        const validated = validateOfferingDateRange(value.startDate, value.endDate, evergreen)
+        if (!validated.ok) {
+          return res.status(400).json({ success: false, message: validated.message })
+        }
+        const { startDate, endDate } = validated
+
+        await client.query('BEGIN')
+        const formRes = await client.query(
+          `SELECT * FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`,
+          [formId],
+        )
+        if (formRes.rows.length === 0) {
+          await client.query('ROLLBACK')
+          return res.status(404).json({ success: false, message: 'Form not found' })
+        }
+
+        const formUpdate = await client.query(
+          `
+          UPDATE scheduling_form
+          SET start_date = $2, end_date = $3, updated_at = now()
+          WHERE id = $1 AND deleted_at IS NULL
+          RETURNING *
+          `,
+          [formId, startDate, endDate],
+        )
+
+        const offeringRes = await client.query(
+          `
+          SELECT * FROM scheduling_offering
+          WHERE form_id = $1
+          ORDER BY is_selected DESC NULLS LAST, start_date DESC NULLS LAST, id DESC
+          FOR UPDATE
+          `,
+          [formId],
+        )
+
+        let offeringRow = offeringRes.rows[0] ?? null
+        let oldStart = null
+        let oldEnd = null
+
+        if (!offeringRow) {
+          const inserted = await client.query(
+            `
+            INSERT INTO scheduling_offering (form_id, start_date, end_date, label, is_selected)
+            VALUES ($1, $2, $3, NULL, TRUE)
+            RETURNING *
+            `,
+            [formId, startDate, endDate],
+          )
+          offeringRow = inserted.rows[0]
+        } else {
+          oldStart = formatDateOnly(offeringRow.start_date)
+          oldEnd = formatDateOnly(offeringRow.end_date)
+          if (!offeringRow.is_selected) {
+            await client.query(
+              `UPDATE scheduling_offering SET is_selected = FALSE, updated_at = now() WHERE form_id = $1`,
+              [formId],
+            )
+          }
+          const updated = await client.query(
+            `
+            UPDATE scheduling_offering
+            SET start_date = $2, end_date = $3, label = NULL, is_selected = TRUE, updated_at = now()
+            WHERE id = $1
+            RETURNING *
+            `,
+            [offeringRow.id, startDate, endDate],
+          )
+          offeringRow = updated.rows[0]
+          if (oldStart !== startDate || oldEnd !== endDate) {
+            await syncOfferingDatesToSlotGroups(client, Number(offeringRow.id), {
+              newStart: startDate,
+              newEnd: endDate,
+              oldStart,
+              oldEnd,
+            })
+          }
+        }
+
+        await client.query('COMMIT')
+        res.json({
+          success: true,
+          data: {
+            form: await mapFormRowWithPricing(pool, formUpdate.rows[0]),
+            offering: mapOfferingRow(offeringRow),
+          },
+        })
+      } catch (err) {
+        await client.query('ROLLBACK').catch(() => {})
+        console.error('[scheduling] updateFormActiveDates:', err)
+        res.status(500).json({ success: false, message: 'Failed to update active dates' })
+      } finally {
+        client.release()
+      }
+    },
+
     async listOfferings(req, res) {
       try {
         const formId = Number(req.params.formId)
@@ -3285,10 +3402,14 @@ export function createSchedulingHandlers(pool) {
           'SELECT * FROM scheduling_offering WHERE form_id = $1 ORDER BY start_date DESC, id DESC',
           [formId],
         )
-        res.json({ success: true, data: result.rows.map(mapOfferingRow) })
+        // Labels are retired — never surface offering descriptions to clients.
+        res.json({
+          success: true,
+          data: result.rows.map((row) => mapOfferingRow({ ...row, label: null })),
+        })
       } catch (err) {
         console.error('[scheduling] listOfferings:', err)
-        res.status(500).json({ success: false, message: 'Failed to load offerings' })
+        res.status(500).json({ success: false, message: 'Failed to load active dates' })
       }
     },
 
@@ -3313,15 +3434,15 @@ export function createSchedulingHandlers(pool) {
         const result = await pool.query(
           `
           INSERT INTO scheduling_offering (form_id, start_date, end_date, label, is_selected)
-          VALUES ($1, $2, $3, $4, $5)
+          VALUES ($1, $2, $3, NULL, $4)
           RETURNING *
           `,
-          [formId, startDate, endDate, value.label || null, isFirst],
+          [formId, startDate, endDate, isFirst],
         )
-        res.json({ success: true, data: mapOfferingRow(result.rows[0]) })
+        res.json({ success: true, data: mapOfferingRow({ ...result.rows[0], label: null }) })
       } catch (err) {
         console.error('[scheduling] createOffering:', err)
-        res.status(500).json({ success: false, message: 'Failed to create offering' })
+        res.status(500).json({ success: false, message: 'Failed to create active dates' })
       }
     },
 
@@ -3356,10 +3477,9 @@ export function createSchedulingHandlers(pool) {
           updates.push(`end_date = $${n++}`)
           vals.push(formatDateOnly(value.endDate))
         }
-        if (value.label !== undefined) {
-          updates.push(`label = $${n++}`)
-          vals.push(value.label || null)
-        }
+        // Offering labels/descriptions are retired — always clear on update.
+        updates.push(`label = $${n++}`)
+        vals.push(null)
         if (updates.length === 0) {
           await client.query('ROLLBACK')
           return res.status(400).json({ success: false, message: 'No fields to update' })
