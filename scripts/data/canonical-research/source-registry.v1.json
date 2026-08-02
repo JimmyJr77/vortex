@@ -1,6 +1,125 @@
 {
-  "registryVersion": "2026-08-01.59",
+  "registryVersion": "2026-08-02.79",
   "sources": {
+    "ace_two_hand_kettlebell_swing_technique": {
+      "url": "https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/",
+      "title": "The ACE Do it Better Series: The Two-handed Kettlebell Swing",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "kettlebell_swing_back_hip_spine_loads": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21997449/",
+      "title": "Kettlebell swing, snatch, and bottoms-up carry: back and hip muscle activation, motion, and low back loads",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "two_single_hand_kettlebell_swing_emg_kinematics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26618061/",
+      "title": "EMG Analysis and Sagittal Plane Kinematics of the Two-Handed and Single-Handed Kettlebell Swing: A Descriptive Study",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "kettlebell_mass_lower_body_joint_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32131695/",
+      "title": "Effects of kettlebell mass on lower-body joint kinetics during a kettlebell swing exercise",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "kettlebell_swing_mechanical_demands": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22207261/",
+      "title": "Mechanical demands of kettlebell swing exercise",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "kettlebell_swing_style_kinematics_kinetics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5455182/",
+      "title": "Kinematic and kinetic variables differ between kettlebell swing styles",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "kettlebell_swing_fatigue_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37126368/",
+      "title": "Biomechanical effects of fatigue on lower-body extremities during a maximum effort kettlebell swing protocol",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "overhead_kettlebell_swing_load_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36548500/",
+      "title": "Effects of Kettlebell Load on Joint Kinetics and Global Characteristics during Overhead Swings in Women",
+      "publisher": "Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "worlds_greatest_stretch_prehab_sequence": {
+      "url": "https://library.theprehabguys.com/vimeo-video/worlds-greatest-stretch-2/",
+      "title": "World's Greatest Stretch",
+      "publisher": "[P]rehab",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "dynamic_stretching_flexibility_performance_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "title": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "publisher": "Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "dynamic_static_activity_specific_warmup_study": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "title": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "front_plank_long_lever_posterior_tilt_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25325773/",
+      "title": "An electromyographic comparison of a modified version of the plank with a long lever and posterior tilt versus the traditional plank exercise",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "prone_bridge_performance_validity_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29861239/",
+      "title": "The prone bridge test: Performance, validity, and reliability among older and younger adults",
+      "publisher": "Journal of Bodywork and Movement Therapies",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "prone_reverse_static_plank_core_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35370773/",
+      "title": "Core Muscle Activation With Foam Rolling and Static Planks",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 76
+    },
+    "core_muscle_activity_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32560185/",
+      "title": "Core Muscle Activity During Physical Fitness Exercises: A Systematic Review",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "stable_unstable_surface_emg_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38668579/",
+      "title": "Comparison of the Electromyography Activity during Exercises with Stable and Unstable Surfaces: A Systematic Review and Meta-Analysis",
+      "publisher": "Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "plank_isometric_hip_adduction_abduction_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27630435/",
+      "title": "Effects of isometric hip movements on electromyographic activities of the trunk muscles during plank exercises",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 74
+    },
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
       "title": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
@@ -84,6 +203,34 @@
       "publisher": "Journal of Strength and Conditioning Research",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 82
+    },
+    "loaded_carry_muscle_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38665162/",
+      "title": "The Quantification of Muscle Activation During the Loaded Carry Movement Pattern",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "unilateral_weight_walking_hip_trunk": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34051700/",
+      "title": "Hip and Trunk Muscle Activity and Mechanics During Walking With and Without Unilateral Weight",
+      "publisher": "Journal of Applied Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "unilateral_weight_postural_gait": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36557001/",
+      "title": "Changes in Trunk Muscle Activity during Unilateral Weight Bearing and Abnormal Postural Gait in Healthy Individuals",
+      "publisher": "Medicina",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "strongman_biomechanics_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31820223/",
+      "title": "The Biomechanics and Applications of Strongman Exercises: a Systematic Review",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
     },
     "nsca_developing_linear_speed": {
       "url": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
@@ -204,6 +351,13 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 84
     },
+    "countermovement_hurdle_box_jump_comparison": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10204452/",
+      "title": "Countermovement, Hurdle, and Box Jumps: Data-Driven Exercise Selection",
+      "publisher": "Journal of Functional Morphology and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
     "arm_swing_countermovement_jump_study": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260575/",
       "title": "Effect of an Arm Swing on Countermovement Vertical Jump Performance in Elite Volleyball Players",
@@ -217,6 +371,34 @@
       "publisher": "Journal of Strength and Conditioning Research",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 87
+    },
+    "squat_countermovement_jump_dynamics_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10170540/",
+      "title": "Squat and Countermovement Vertical Jump Dynamics Using Knee Dominant or Hip Dominant Strategies",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "countermovement_jump_arm_swing_dof_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11368957/",
+      "title": "An arm swing enhances the proximal-to-distal delay in joint extension during a countermovement jump",
+      "publisher": "Scientific Reports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "vald_countermovement_rebound_protocol": {
+      "url": "https://support.vald.com/hc/en-au/articles/25032197024409-ForceDecks-Test-Countermovement-Rebound-Jump-Protocol",
+      "title": "ForceDecks Test Protocol – Countermovement Rebound Jump",
+      "publisher": "VALD Performance",
+      "kind": "manufacturer_instruction",
+      "evidenceQuality": 84
+    },
+    "hawkin_countermovement_rebound_guide": {
+      "url": "https://learning.hawkindynamics.com/knowledge/countermovement-rebound-test-setup-guide",
+      "title": "Countermovement Rebound Test Setup Guide",
+      "publisher": "Hawkin Dynamics",
+      "kind": "manufacturer_instruction",
+      "evidenceQuality": 82
     },
     "drop_jump_technique_rsi_study": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
@@ -540,12 +722,47 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 80
     },
+    "side_lunge_patellofemoral_loading": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8805090/",
+      "title": "Patellofemoral Joint Loading During the Performance of the Forward and Side Lunge with Step Height Variations",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "nsca_lunge_technique_and_modifications": {
+      "url": "https://www.nsca.com/contentassets/24dd7222ed1b4caeb8a0a46b81bd11f3/ptq-4.4.9-the-undervalued-lunge.pdf",
+      "title": "The Undervalued Lunge",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "ace_double_dumbbell_lateral_lunge_instruction": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/",
+      "title": "Total-body Dumbbell Workout",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
     "side_lunge_adductor_mobility": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4725067/",
       "title": "The Back Squat Part 2: Targeted Training Techniques to Correct Functional Deficits and Technical Factors that Limit Performance",
       "publisher": "Strength and Conditioning Journal",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 84
+    },
+    "wide_stance_foot_angle_squat_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30026952/",
+      "title": "How to squat? Effects of various stance widths, foot placement angles and level of experience on knee, hip and trunk motion and loading",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "monash_cossack_squat_technique": {
+      "url": "https://www.monash.edu/__data/assets/pdf_file/0020/2534141/Cossack-Squat.pdf",
+      "title": "Cossack Squat",
+      "publisher": "Monash University",
+      "kind": "professional_standard",
+      "evidenceQuality": 72
     },
     "acute_stretching_warmup_review": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
@@ -792,12 +1009,33 @@
       "kind": "expert_instruction",
       "evidenceQuality": 76
     },
+    "nasm_box_jump_instruction": {
+      "url": "https://www.nasm.org/resource-center/exercise-library/box-jumps",
+      "title": "Box Jumps",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
     "unilateral_bilateral_landing_biomechanics": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
       "title": "Biomechanical differences between unilateral and bilateral landings from a jump",
       "publisher": "Clinical Journal of Sport Medicine",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 83
+    },
+    "hurdle_jump_training_specificity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21873903/",
+      "title": "Training specificity of hurdle vs. countermovement jump training",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "hurdle_height_kinematics_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "title": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
     },
     "whole_body_rotation_landing_mechanics": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
@@ -812,6 +1050,20 @@
       "publisher": "Sports Biomechanics",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 88
+    },
+    "standing_broad_jump_target_control": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32636436/",
+      "title": "Inverse optimal control with time-varying objectives: application to human jumping movement analysis",
+      "publisher": "Scientific Reports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "rotational_vs_straight_landing_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41766813/",
+      "title": "Rotational vs. Straight Landings: Exploring Task-Specific Responses to Inform ACL-Injury Risk Screening",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
     },
     "unilateral_bilateral_plyometric_meta_analysis": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/40281589/",
@@ -854,6 +1106,41 @@
       "publisher": "International Journal of Sports Physical Therapy",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 84
+    },
+    "vertical_horizontal_single_leg_hop_joint_work": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33560920/",
+      "title": "Vertical and Horizontal Hop Performance: Contributions of the Hip, Knee, and Ankle",
+      "publisher": "The American Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "vertical_horizontal_single_leg_jump_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40981494/",
+      "title": "Biomechanical differences between horizontal and vertical single-leg jumps: what could each one reveal about functional impairments?",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "single_leg_hopping_direction_muscle_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41586017/",
+      "title": "Lower limb muscle activation and biomechanics during single-leg hopping in different directions",
+      "publisher": "Frontiers in Bioengineering and Biotechnology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "single_leg_hop_landing_fatigue_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17293621/",
+      "title": "Effect of fatigue on single-leg hop landing biomechanics",
+      "publisher": "Medicine and Science in Sports and Exercise",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "single_leg_hop_arm_swing_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40058019/",
+      "title": "The effect of arm swings on lower limb kinetics during single-leg forward, vertical, and backward hopping",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
     },
     "side_hop_test_quality_reliability": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/37300972/",
@@ -1071,6 +1358,48 @@
       "publisher": "Frontiers in Physiology",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "isometric_floor_press_validity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42367017/",
+      "title": "Isometric Floor Press: A Valid, Reliable, and Practical Field-Based Assessment of Upper-Body Strength",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "bench_press_range_sticking_region": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31827348/",
+      "title": "Range of Motion and Sticking Region Effects on the Bench Press Load-Velocity Relationship",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "bench_press_range_muscle_excitation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12019332/",
+      "title": "Acute muscle excitation response across various bench press ranges of motion",
+      "publisher": "Scientific Reports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "bench_press_grip_width_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34198674/",
+      "title": "The Effect of Grip Width on Muscle Strength and Electromyographic Activity in Bench Press among Novice- and Resistance-Trained Men",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "nasm_kettlebell_floor_press_technique": {
+      "url": "https://blog.nasm.org/how-kettlebell-workouts-can-take-your-fitness-to-the-next-level",
+      "title": "How Kettlebell Workouts Can Take Your Fitness to the Next Level",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "barbend_floor_press_technique": {
+      "url": "https://barbend.com/floor-press/",
+      "title": "How to Do the Floor Press — Benefits, Variations, and More",
+      "publisher": "BarBend",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
     },
     "eccentric_resistance_training_practical_recommendations": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739265/",
@@ -1449,6 +1778,433 @@
       "publisher": "International Journal of Sports Medicine",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "standing_long_jump_arm_motion_study": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12445616/",
+      "title": "Role of arm motion in the standing long jump",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "standing_long_jump_planar_validity_study": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26949101/",
+      "title": "Exploration of the validity of the two-dimensional sagittal plane assumption in modeling the standing long jump",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "uksca_plyometric_technical_models": {
+      "url": "https://cdn.uksca.org.uk/assets/pdfs/UkscaIqPdfs/plyometric-technical-models-biomechanical-principles-636806567189424439.pdf",
+      "title": "Plyometric technical models: biomechanical principles",
+      "publisher": "UK Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "triple_broad_jump_volleyball_training_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10882090/",
+      "title": "The effect of plyometric training and moderating variables on stretch-shortening cycle function and physical qualities in female post peak height velocity volleyball players",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "broad_jump_rugby_sprint_kinematics_study": {
+      "url": "https://doi.org/10.1519/JSC.0000000000000423",
+      "title": "Transfer effect of strength and power training to the sprinting kinematics of international rugby players",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "bilateral_drop_landing_peak_force_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4160626/",
+      "title": "Peak Vertical Ground Reaction Force during Two-Leg Landing: A Systematic Review and Mathematical Modeling",
+      "publisher": "The Scientific World Journal",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "unilateral_bilateral_drop_landing_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "title": "Biomechanical differences between unilateral and bilateral landings from a jump: gender differences",
+      "publisher": "Clinical Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "vertical_drop_landing_lead_leg_study": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35441730/",
+      "title": "Effects of lead leg selection on bilateral landing force-time characteristics: Return to sport testing implications",
+      "publisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "front_back_squat_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19002072/",
+      "title": "A biomechanical comparison of back and front squats in healthy trained individuals",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "anterior_load_position_squat_biomechanics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8106690/",
+      "title": "Biomechanical comparisons of back and front squats with a straight bar and four squats with a transformer bar",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "squat_kinematics_kinetics_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20182386/",
+      "title": "Squatting kinematics and kinetics and their application to exercise performance",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "goblet_anterior_loaded_squat_framework": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3812831/",
+      "title": "A phased rehabilitation protocol for athletes with lumbar intervertebral disc herniation",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "heel_elevation_squat_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41612762/",
+      "title": "Heel elevation increases ankle and knee range of motion during squatting in healthy adults: a systematic review with meta-analysis",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "eccentric_tempo_fatigue_recovery_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42401924/",
+      "title": "The effect of eccentric phase tempo on acute neuromechanical responses and short-term post-exercise recovery in healthy trained and recreationally active adults: a systematic review",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "catalyst_front_squat_technique": {
+      "url": "https://www.catalystathletics.com/exercise/78/Front-Squat/",
+      "title": "Front Squat",
+      "publisher": "Catalyst Athletics",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "supine_bridge_narrative_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11981018/",
+      "title": "Supine Bridge Exercise: A Narrative Review of the Literature (Part I)",
+      "publisher": "Cureus",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "modified_single_leg_bridge_emg": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5534144/",
+      "title": "Building a Better Gluteal Bridge: Electromyographic Analysis of Hip Muscle Activity During Modified Single-Leg Bridges",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "modified_bridge_trunk_activation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5883971/",
+      "title": "Effect of Modified Bridge Exercise on Trunk Muscle Activity in Healthy Adults: A Cross Sectional Study",
+      "publisher": "Brazilian Journal of Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "bridge_ankle_position_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38671779/",
+      "title": "Effects of Ankle Position While Performing One- and Two-Leg Floor Bridging Exercises on Core and Lower Extremity Muscle Recruitment",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "single_leg_bridge_hamstring_fmri": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29161747/",
+      "title": "A Functional MRI Exploration of Hamstring Activation During the Supine Bridge Exercise",
+      "publisher": "International Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "single_leg_long_lever_bridge_force_rigor": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41291921/",
+      "title": "The Impact of Testing-Parameter Variability on Force Production in the Isometric Single-Leg Long-Lever Bridge: Implications for Training and Testing Rigor in Sporting Environments",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "ace_single_leg_glute_bridge_technique": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/",
+      "title": "Glute Bridge: Single-Leg Progression",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "nasm_floor_bridge_technique": {
+      "url": "https://www.nasm.org/resource-center/exercise-library/floor-bridge",
+      "title": "Floor Bridge",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "single_leg_rdl_loading_position_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38093908/",
+      "title": "Effects of loading positions on the activation of trunk and hip muscles during flywheel and dumbbell single-leg Romanian deadlift exercises",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "single_leg_rdl_flywheel_training": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35162219/",
+      "title": "Effects of Six Weeks of Flywheel Single-Leg Romanian Deadlift Training on Speed, Jumping and Change of Direction Performance",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "single_leg_rdl_hamstring_cohort": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40322523/",
+      "title": "The Effect of Single Leg Romanian Deadlift on the Risk of Hamstring Strain Injuries in Track and Field Athletes: A Cohort Study",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "ace_single_arm_single_leg_rdl_technique": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/127/single-arm-single-leg-romanian-dead-lift/",
+      "title": "Single-Arm Single-Leg Romanian Deadlift",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "nsca_dumbbell_single_leg_rdl_technique": {
+      "url": "https://www.nsca.com/contentassets/9dab08fc28274f3ba1d76af31bbbe40b/coach3.1-screening_and_preventing_common_injuries_in_division_i_basketball_players.pdf",
+      "title": "Methods for Screening and Preventing Common Injuries in Division I Basketball Players",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "army_h2f_rainbow_slam_technique": {
+      "url": "https://co.ng.mil/Portals/25/H2F/ATP%207-22.02%20AT%20Training.pdf",
+      "title": "ATP 7-22.02 Holistic Health and Fitness Drills and Exercises",
+      "publisher": "United States Army",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "ace_single_arm_row_technique": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/",
+      "title": "Single-arm Row",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "nsca_single_arm_bent_over_row_technique": {
+      "url": "https://www.nsca.com/education/videos/exercise-technique-bent-over-rowsingle-arm/",
+      "title": "Exercise Technique: Bent-Over Row—Single-Arm",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "nsca_landmine_row_technique": {
+      "url": "https://doi.org/10.1519/SSC.0000000000000751",
+      "title": "Exercise Technique: The Landmine Row",
+      "publisher": "Strength and Conditioning Journal",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "ace_bent_over_kettlebell_row": {
+      "url": "https://www.acefitness.org/continuing-education/certified/february-2020/7457/nt-loop-an-ace-integrated-fitness-training-model-reg-workout/",
+      "title": "NT Loop: An ACE Integrated Fitness Training Model Workout",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "onnit_landmine_suitcase_row": {
+      "url": "https://www.onnit.com/blogs/the-edge/3-killer-chest-back-workouts-for-building-muscle",
+      "title": "3 Killer Chest and Back Workouts for Building Muscle",
+      "publisher": "Onnit Academy",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "row_variation_trunk_spine_load": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19620925/",
+      "title": "Comparison of different rowing exercises: trunk muscle activation and lumbar spine motion, load, and stiffness",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "nasm_push_up_technique": {
+      "url": "https://www.nasm.org/resource-center/exercise-library/push-up",
+      "title": "Push-Up: How to Do It, Form & Muscles",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "pushup_kinetics_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30284496/",
+      "title": "Kinetic analysis of push-up exercises: a systematic review with practical recommendations",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "pushup_elevation_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21873902/",
+      "title": "Kinetic analysis of several variations of push-ups",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "pushup_suspension_torso_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31910394/",
+      "title": "Recruitment of Shoulder Prime Movers and Torso Stabilizers During Push-Up Exercises Using a Suspension Training System",
+      "publisher": "Journal of Sport Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "pushup_stable_unstable_activation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5812863/",
+      "title": "Muscle activation during push-ups performed under stable and unstable conditions",
+      "publisher": "Journal of Exercise Science and Fitness",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "pushup_hand_position_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16095413/",
+      "title": "Comparison of muscle activation using various hand positions during the push-up exercise",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "reverse_lunge_joint_kinetics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4641539/",
+      "title": "Joint Kinetics and Kinematics During Common Lower Limb Rehabilitation Exercises",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "lunge_loading_device_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30676181/",
+      "title": "Effect of Loading Devices on Muscle Activation in Squat and Lunge",
+      "publisher": "Journal of Sport Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "lunge_load_distribution_trunk_activation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36981573/",
+      "title": "Effect of Load Distribution on Trunk Muscle Activity with Lunge Exercises in Amateur Athletes: Cross-Sectional Study",
+      "publisher": "Healthcare",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "lunge_trunk_position_activation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8136561/",
+      "title": "Influence of Trunk Position during Three Lunge Exercises on Muscular Activation in Trained Women",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 81
+    },
+    "ace_dumbbell_reverse_lunge_instruction": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/",
+      "title": "Total-body Dumbbell Workout",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "bent_knee_calf_raise_hypertrophy_knee_position": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10753835/",
+      "title": "Triceps surae muscle hypertrophy is greater after standing versus seated calf-raise training",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "heel_raise_achilles_loading_hierarchy": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5343533/",
+      "title": "Achilles Tendon Loading During Heel-Raising and -Lowering Exercises",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "bent_leg_calf_raise_acute_swelling": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37015022/",
+      "title": "Muscle Swelling of the Triceps Surae in Response to Straight-Leg and Bent-Leg Calf Raise Exercises in Young Women",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "heel_raise_knee_flexion_activity_selectivity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22190157/",
+      "title": "Influence of knee flexion angle and age on triceps surae muscle activity during heel raises",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "back_squat_high_low_3rm_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38900172/",
+      "title": "A Biomechanical Comparison Between a High and Low Barbell Placement on Net Joint Moments, Kinematics, Muscle Forces, and Muscle-Specific Moments in 3 Repetition Maximum Back Squats",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "back_squat_bar_position_stance_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34541522/",
+      "title": "Effects of Stance Width and Barbell Placement on Kinematics, Kinetics, and Myoelectric Activity in Back Squats",
+      "publisher": "Frontiers in Sports and Active Living",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "back_squat_depth_load_support_moments": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38036316/",
+      "title": "Support moment distribution during the back squat at different depths and loads in recreationally trained females",
+      "publisher": "Journal of Science and Medicine in Sport",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "back_squat_knee_kinetics_depth_load": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/",
+      "title": "Knee joint kinetics in relation to commonly prescribed squat loads and depths",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "squat_training_depth_muscle_volume": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31230110/",
+      "title": "Effects of squat training with different depths on lower limb muscle volumes",
+      "publisher": "European Journal of Applied Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "nsca_bent_knee_calf_raise_technique": {
+      "url": "https://www.nsca.com/contentassets/811e78926c9747f48402ed95d28f26cf/ptq-8.4.3-how-to-improve-ankle-dorsiflexion-and-calf-strength-for-better-performance.pdf",
+      "title": "How to Improve Ankle Dorsiflexion and Calf Strength for Better Performance",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "nordic_hamstring_intervention_volume_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31502142/",
+      "title": "The Effect of Nordic Hamstring Exercise Intervention Volume on Eccentric Strength and Muscle Architecture Adaptations: A Systematic Review and Meta-analyses",
+      "publisher": "Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "nordic_hamstring_variation_kinematics_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31644582/",
+      "title": "Kinematic and electromyographic analysis of variations in Nordic hamstring exercise",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "nordic_hamstring_injury_program_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30808663/",
+      "title": "Including the Nordic hamstring exercise in injury prevention programmes halves the rate of hamstring injuries: a systematic review and meta-analysis of 8459 athletes",
+      "publisher": "British Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "nordic_hamstring_isometric_angle_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38439779/",
+      "title": "The Effect of Variations in Knee and Hip Angles on Electromyographic Activity of the Hamstrings and Related Muscles During the Nordic Hamstring Exercise",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "nordic_hamstring_strength_dose_response_meta_regression": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40991853/",
+      "title": "Dose-Response Relationship for Strength Gains From Nordic Hamstring Exercise: A Systematic Review, Meta-Analysis, and Meta-Regression",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
     }
   }
 }

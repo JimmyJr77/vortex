@@ -51,6 +51,103 @@ test('family evidence compiles registered provenance and card-specific section o
   )
 })
 
+test('single-leg hop and pogo packets preserve direction-specific cards, exact terminal contacts, and human media gates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/single-leg-hop-pogo-identity.v1.json'),
+    'utf8',
+  ))
+  const cardNames = new Map([
+    ['single-leg-vertical-hop-to-stick', 'Single-Leg Vertical Hop to Stick'],
+    ['single-leg-forward-hop-to-stick', 'Single-Leg Forward Hop to Stick'],
+    ['single-leg-pogo', 'Single-Leg Pogo'],
+    ['single-leg-hop-to-stick', 'Single-Leg Hop to Stick (Unresolved Legacy)'],
+    ['single-leg-pogo-hold-stick', 'Single-Leg Pogo Hold-Stick (Unresolved Legacy)'],
+  ])
+
+  const packets = new Map()
+  for (const cardSpec of batch.cards) {
+    const archived = cardSpec.slug === 'single-leg-hop-to-stick'
+      || cardSpec.slug === 'single-leg-pogo-hold-stick'
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardNames.get(cardSpec.slug),
+        familyKey: archived ? 'unresolved_identity' : 'single_leg_hop_or_pogo',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: archived ? 2 : (cardSpec.slug === 'single-leg-pogo' ? 4 : 1),
+          status: archived ? 'archived' : 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.ok(result.packet.mediaCandidates.length >= 3)
+    assert.ok(result.packet.mediaCandidates.length <= 5)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      (candidate.reviewStatus ?? 'candidate') === 'candidate'
+        && candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && (candidate.exactVariantMatch ?? null) === null
+        && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(result.packet),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    packets.set(cardSpec.slug, result.packet)
+  }
+
+  const vertical = packets.get('single-leg-vertical-hop-to-stick')
+  assert.deepEqual(vertical.assessmentSummary.proposedDifficulty, {
+    technicalComplexity: 42,
+    absoluteLoadDemand: 40,
+    baseOverallDifficulty: 42,
+    formula: 'max(technicalComplexity, absoluteLoadDemand)',
+  })
+  assert.match(vertical.assessmentSummary.identity, /primarily upward/i)
+
+  const forward = packets.get('single-leg-forward-hop-to-stick')
+  assert.equal(forward.assessmentSummary.proposedDifficulty.baseOverallDifficulty, 44)
+  assert.deepEqual(
+    forward.assessmentSummary.variantDifficultyCandidates.map((variant) => (
+      [variant.variantKey, variant.exerciseComplexity, variant.physicalDifficulty]
+    )),
+    [
+      ['stationary-low-amplitude-forward-same-leg-stick', 44, 42],
+      ['stationary-moderate-distance-forward-same-leg-stick', 50, 50],
+    ],
+  )
+
+  const pogo = packets.get('single-leg-pogo')
+  assert.match(pogo.assessmentSummary.identity, /two or more same-leg/i)
+  assert.deepEqual(pogo.assessmentSummary.variantDifficultyCandidates, [{
+    variantKey: 'stationary-low-amplitude-to-terminal-stick',
+    exerciseComplexity: 50,
+    physicalDifficulty: 56,
+    overallDifficulty: 56,
+  }])
+
+  for (const slug of ['single-leg-hop-to-stick', 'single-leg-pogo-hold-stick']) {
+    const source = packets.get(slug)
+    assert.equal(Object.hasOwn(source.assessmentSummary, 'proposedDifficulty'), false)
+    assert.match(source.assessmentSummary.difficultyDecision, /Do not score/)
+    assert.equal(source.assessmentSummary.identityDecision.humanReviewRequired, true)
+  }
+})
+
 test('family packet remains candidate-only and must satisfy full packet validation', () => {
   const sharedEvidence = REQUIRED_RESEARCH_SECTIONS.map((sectionKey) => ({
     sectionKey,
@@ -2496,7 +2593,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2684,7 +2781,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2804,7 +2901,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2925,7 +3022,7 @@ test('landmine explosive press packets consolidate hand count while preserving a
     ['landmine-squat-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3056,7 +3153,7 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
     ['landmine-reverse-lunge-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'landmine_squat_muscle_activity_kinetics',
     'acsm_landmine_squat_exercise',
@@ -3193,7 +3290,7 @@ test('hill sprint acceleration packet separates grade identity, start variants, 
     mediaCandidates: [],
   })
 
-  assert.equal(registryDocument.registryVersion, '2026-08-01.59')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
   for (const sourceKey of [
     'uphill_sprint_slope_kinematics',
     'resisted_sprint_acceleration_meta_analysis',
@@ -4133,4 +4230,865 @@ test('quarter-turn packets separate exact foot contracts and retire ambiguous so
       )
     }
   }
+})
+
+test('scoop-toss packets preserve forward and rotational identities and quarantine the vague source', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/scoop-toss-forward-rotational-identity.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.11')
+  assert.equal(batch.includeArchived, true)
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/scoop-toss-forward-rotational-identity',
+  )
+  assert.equal(batch.cards.length, 3)
+
+  const expectedCards = new Map([
+    ['medicine-ball-scoop-toss', {
+      canonicalName: 'Forward Medicine Ball Scoop Toss',
+      familyKey: 'forward_medicine_ball_scoop_projection',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'standing-two-hand-forward-free-flight-scoop-toss',
+      complexity: 50,
+      physical: 32,
+      overall: 50,
+      resolution: 'retain_and_complete_exact_forward_scoop_definition',
+    }],
+    ['medicine-ball-rotational-throw', {
+      canonicalName: 'Medicine Ball Rotational Throw',
+      familyKey: 'standing_medicine_ball_rotational_wall_projection',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'static-side-on-two-hand-rotational-scoop-throw-only',
+      complexity: 58,
+      physical: 34,
+      overall: 58,
+      resolution: 'add_controlled_scoop_release_variant_to_existing_rotational_throw',
+    }],
+    ['countermovement-medicine-ball-scoop-toss', {
+      canonicalName: 'Countermovement Medicine Ball Scoop Toss',
+      familyKey: 'unresolved_scoop_toss_direction_and_release',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+      resolution: 'retire_ambiguous_source_without_direct_consolidation',
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 2,
+          status: expected.active ? 'review' : 'archived',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.resolution,
+      expected.resolution,
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(proposed.technicalComplexity, expected.complexity)
+      assert.equal(proposed.absoluteLoadDemand, expected.physical)
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: expected.variantKey,
+          exerciseComplexity: expected.complexity,
+          physicalDifficulty: expected.physical,
+          overallDifficulty: expected.overall,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(cardSpec.assessmentSummary.difficultyDecision, /Do not score/)
+      assert.equal(cardSpec.assessmentSummary.identityDecision.humanReviewRequired, true)
+    }
+  }
+})
+
+test('lateral low-hurdle packets separate bilateral and same-leg cards and quarantine the vague source', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/lateral-low-hurdle-stick-identity.v1.json'),
+    'utf8',
+  ))
+  const expectedCards = new Map([
+    ['bilateral-lateral-low-hurdle-jump-to-stick', {
+      canonicalName: 'Bilateral Lateral Low-Hurdle Jump to Stick',
+      familyKey: 'bilateral_lateral_low_hurdle_clearance_to_terminal_stick',
+      cardVersion: 1,
+      mediaCount: 5,
+      alternateCount: 9,
+      active: true,
+      variantKey: 'stationary-two-foot-single-lateral-low-hurdle-clearance-to-two-foot-stick',
+      complexity: 48,
+      physical: 44,
+      overall: 48,
+      resolution: 'author_exact_bilateral_low_hurdle_definition_without_source_mapping',
+    }],
+    ['single-leg-lateral-low-hurdle-hop-to-stick', {
+      canonicalName: 'Single-Leg Lateral Low-Hurdle Hop to Stick',
+      familyKey: 'ipsilateral_single_leg_lateral_low_hurdle_clearance_to_terminal_stick',
+      cardVersion: 1,
+      mediaCount: 5,
+      alternateCount: 9,
+      active: true,
+      variantKey: 'stationary-same-leg-single-lateral-low-hurdle-clearance-to-same-leg-stick',
+      complexity: 60,
+      physical: 52,
+      overall: 60,
+      resolution: 'author_exact_same_leg_low_hurdle_definition_without_source_mapping',
+    }],
+    ['low-hurdle-lateral-hop-to-stick', {
+      canonicalName: 'Low-Hurdle Lateral Hop to Stick (Unresolved Legacy)',
+      familyKey: 'unresolved_lateral_low_hurdle_support_and_landing_identity',
+      cardVersion: 2,
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+      resolution: 'retire_ambiguous_source_without_direct_consolidation',
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: expected.cardVersion,
+          status: expected.active ? 'review' : 'archived',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.resolution,
+      expected.resolution,
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(proposed.technicalComplexity, expected.complexity)
+      assert.equal(proposed.absoluteLoadDemand, expected.physical)
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: expected.variantKey,
+          exerciseComplexity: expected.complexity,
+          physicalDifficulty: expected.physical,
+          overallDifficulty: expected.overall,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(cardSpec.assessmentSummary.difficultyDecision, /Do not score/)
+      assert.equal(cardSpec.assessmentSummary.identityDecision.humanReviewRequired, true)
+    }
+  }
+})
+
+test('rotational bound and broad-jump packets preserve exact support contracts and quarantine both vague sources', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/rotational-bound-broad-identity.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-02.13')
+  assert.equal(batch.includeArchived, true)
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/rotational-bound-broad-identity',
+  )
+  assert.equal(batch.cards.length, 4)
+
+  const expectedCards = new Map([
+    ['opposite-leg-90-degree-rotational-bound-to-stick', {
+      canonicalName: 'Opposite-Leg 90-Degree Rotational Bound to Stick',
+      familyKey: 'opposite_leg_forward_diagonal_quarter_turn_bound_to_terminal_stick',
+      cardVersion: 1,
+      mediaCount: 5,
+      alternateCount: 9,
+      active: true,
+      variantKey: 'stationary-opposite-leg-forward-diagonal-bound-90-degree-whole-body-turn-to-stick',
+      complexity: 68,
+      physical: 66,
+      overall: 68,
+      resolution: 'author_exact_opposite_leg_rotational_bound_without_source_mapping',
+    }],
+    ['bilateral-90-degree-rotational-broad-jump-to-stick', {
+      canonicalName: 'Bilateral 90-Degree Rotational Broad Jump to Stick',
+      familyKey: 'bilateral_forward_diagonal_quarter_turn_broad_jump_to_terminal_stick',
+      cardVersion: 1,
+      mediaCount: 5,
+      alternateCount: 9,
+      active: true,
+      variantKey: 'stationary-bilateral-forward-diagonal-broad-jump-90-degree-whole-body-turn-to-bilateral-stick',
+      complexity: 64,
+      physical: 60,
+      overall: 64,
+      resolution: 'author_exact_bilateral_rotational_broad_jump_without_source_mapping',
+    }],
+    ['rotational-bound-to-stick', {
+      canonicalName: 'Rotational Bound to Stick (Unresolved Legacy)',
+      familyKey: 'unresolved_rotational_bound_support_angle_contact_identity',
+      cardVersion: 2,
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+      resolution: 'retire_ambiguous_source_without_direct_consolidation',
+    }],
+    ['rotational-broad-jump-to-stick', {
+      canonicalName: 'Rotational Broad Jump to Stick (Unresolved Legacy)',
+      familyKey: 'unresolved_rotational_broad_jump_support_angle_contact_identity',
+      cardVersion: 2,
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+      resolution: 'retire_ambiguous_source_without_direct_consolidation',
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: expected.cardVersion,
+          status: expected.active ? 'review' : 'archived',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.resolution,
+      expected.resolution,
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(proposed.technicalComplexity, expected.complexity)
+      assert.equal(proposed.absoluteLoadDemand, expected.physical)
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: expected.variantKey,
+          exerciseComplexity: expected.complexity,
+          physicalDifficulty: expected.physical,
+          overallDifficulty: expected.overall,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(cardSpec.assessmentSummary.difficultyDecision, /Do not score/)
+      assert.equal(cardSpec.assessmentSummary.identityDecision.humanReviewRequired, true)
+    }
+  }
+})
+
+test('Cossack audit sources distinguish direct technique from adjacent biomechanics', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const wideStance = registryDocument.sources.wide_stance_foot_angle_squat_biomechanics
+  assert.equal(wideStance.url, 'https://pubmed.ncbi.nlm.nih.gov/30026952/')
+  assert.equal(wideStance.kind, 'peer_reviewed_research')
+  assert.match(wideStance.title, /stance widths, foot placement angles/i)
+
+  const directTechnique = registryDocument.sources.monash_cossack_squat_technique
+  assert.equal(
+    directTechnique.url,
+    'https://www.monash.edu/__data/assets/pdf_file/0020/2534141/Cossack-Squat.pdf',
+  )
+  assert.equal(directTechnique.publisher, 'Monash University')
+  assert.equal(directTechnique.kind, 'professional_standard')
+
+  for (const source of [wideStance, directTechnique]) {
+    assert.ok(source.evidenceQuality >= 1 && source.evidenceQuality <= 100)
+  }
+})
+
+test('Floor Press sources separate direct technique, floor-specific testing, and adjacent bench evidence', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const floorTest = registryDocument.sources.isometric_floor_press_validity
+  assert.equal(floorTest.url, 'https://pubmed.ncbi.nlm.nih.gov/42367017/')
+  assert.match(floorTest.title, /Isometric Floor Press/i)
+  assert.equal(floorTest.kind, 'peer_reviewed_research')
+
+  const range = registryDocument.sources.bench_press_range_sticking_region
+  const excitation = registryDocument.sources.bench_press_range_muscle_excitation
+  const grip = registryDocument.sources.bench_press_grip_width_emg
+  for (const source of [range, excitation, grip]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+
+  const nasm = registryDocument.sources.nasm_kettlebell_floor_press_technique
+  const barbend = registryDocument.sources.barbend_floor_press_technique
+  assert.equal(nasm.publisher, 'National Academy of Sports Medicine')
+  assert.equal(nasm.kind, 'expert_instruction')
+  assert.equal(barbend.url, 'https://barbend.com/floor-press/')
+  assert.equal(barbend.kind, 'expert_instruction')
+})
+
+test('Rotational Ball Slam sources separate direct technique from adjacent power evidence', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const ace = registryDocument.sources.ace_rotational_slam
+  assert.equal(
+    ace.url,
+    'https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/',
+  )
+  assert.equal(ace.kind, 'expert_instruction')
+
+  const army = registryDocument.sources.army_h2f_rainbow_slam_technique
+  assert.match(army.url, /ATP%207-22\.02%20AT%20Training\.pdf$/)
+  assert.equal(army.publisher, 'United States Army')
+  assert.equal(army.kind, 'professional_standard')
+
+  const validity = registryDocument.sources.medicine_ball_rotational_power_validity
+  const trunk = registryDocument.sources.trunk_rotator_strength_rotational_throw
+  const meta = registryDocument.sources.upper_body_plyometric_meta_analysis
+  for (const source of [validity, trunk, meta]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+})
+
+test('One-Arm Row sources separate exact variant technique from adjacent row biomechanics', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const ace = registryDocument.sources.ace_single_arm_row_technique
+  assert.equal(
+    ace.url,
+    'https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/',
+  )
+  assert.equal(ace.kind, 'expert_instruction')
+
+  const nsca = registryDocument.sources.nsca_single_arm_bent_over_row_technique
+  assert.equal(nsca.publisher, 'National Strength and Conditioning Association')
+  assert.equal(nsca.kind, 'professional_standard')
+
+  const landmine = registryDocument.sources.nsca_landmine_row_technique
+  assert.equal(landmine.url, 'https://doi.org/10.1519/SSC.0000000000000751')
+  assert.equal(landmine.kind, 'peer_reviewed_research')
+
+  const kettlebell = registryDocument.sources.ace_bent_over_kettlebell_row
+  const suitcase = registryDocument.sources.onnit_landmine_suitcase_row
+  assert.equal(kettlebell.kind, 'expert_instruction')
+  assert.equal(suitcase.kind, 'expert_instruction')
+
+  const adjacent = registryDocument.sources.row_variation_trunk_spine_load
+  assert.equal(adjacent.url, 'https://pubmed.ncbi.nlm.nih.gov/19620925/')
+  assert.equal(adjacent.kind, 'peer_reviewed_research')
+  assert.ok(adjacent.evidenceQuality >= 80)
+})
+
+test('Push-Up sources replace the unrelated calf-raise PMID with direct variant evidence', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const technique = registryDocument.sources.nasm_push_up_technique
+  assert.equal(
+    technique.url,
+    'https://www.nasm.org/resource-center/exercise-library/push-up',
+  )
+  assert.equal(technique.kind, 'expert_instruction')
+
+  const systematic = registryDocument.sources.pushup_kinetics_systematic_review
+  assert.equal(systematic.url, 'https://pubmed.ncbi.nlm.nih.gov/30284496/')
+  assert.match(systematic.title, /systematic review/i)
+  assert.equal(systematic.kind, 'peer_reviewed_research')
+
+  const elevation = registryDocument.sources.pushup_elevation_kinetics
+  assert.equal(elevation.url, 'https://pubmed.ncbi.nlm.nih.gov/21873902/')
+  assert.match(elevation.title, /variations of push-ups/i)
+
+  const suspension = registryDocument.sources.pushup_suspension_torso_activation
+  const instability = registryDocument.sources.pushup_stable_unstable_activation
+  const handPosition = registryDocument.sources.pushup_hand_position_activation
+  for (const source of [systematic, elevation, suspension, instability, handPosition]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+
+  assert.notEqual(
+    elevation.url,
+    'https://pubmed.ncbi.nlm.nih.gov/38156065/',
+    'PMID 38156065 is calf-raise evidence, not Push-Up evidence',
+  )
+})
+
+test('Reverse Lunge evidence separates direct reverse-step kinetics from adjacent lunge loading studies', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const direct = registryDocument.sources.reverse_lunge_joint_kinetics
+  assert.equal(direct.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4641539/')
+  assert.match(direct.title, /Joint Kinetics and Kinematics/i)
+  assert.equal(direct.kind, 'peer_reviewed_research')
+  assert.ok(direct.evidenceQuality >= 85)
+
+  const loading = registryDocument.sources.lunge_loading_device_activation
+  const distribution = registryDocument.sources.lunge_load_distribution_trunk_activation
+  const trunk = registryDocument.sources.lunge_trunk_position_activation
+  for (const source of [loading, distribution, trunk]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+
+  const instruction = registryDocument.sources.ace_dumbbell_reverse_lunge_instruction
+  assert.equal(instruction.publisher, 'American Council on Exercise')
+  assert.equal(instruction.kind, 'expert_instruction')
+})
+
+test('Lateral Lunge evidence separates direct step-out biomechanics from adjacent technique and compound instruction', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const olderAdults = registryDocument.sources.lateral_lunge_older_adult_biomechanics
+  const healthy = registryDocument.sources.lateral_lunge_healthy_biomechanics
+  const patellofemoral = registryDocument.sources.side_lunge_patellofemoral_loading
+  for (const source of [olderAdults, healthy, patellofemoral]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+  assert.equal(
+    patellofemoral.url,
+    'https://pmc.ncbi.nlm.nih.gov/articles/PMC8805090/',
+  )
+  assert.match(patellofemoral.title, /Forward and Side Lunge/i)
+
+  const technique = registryDocument.sources.nsca_lunge_technique_and_modifications
+  assert.equal(technique.publisher, 'National Strength and Conditioning Association')
+  assert.equal(technique.kind, 'professional_standard')
+
+  const compound = registryDocument.sources.ace_double_dumbbell_lateral_lunge_instruction
+  assert.equal(compound.publisher, 'American Council on Exercise')
+  assert.equal(compound.kind, 'expert_instruction')
+  assert.equal(
+    registryDocument.sources.monash_cossack_squat_technique.publisher,
+    'Monash University',
+    'Cossack evidence remains adjacent and must not be treated as a step-out Lateral Lunge source',
+  )
+})
+
+test('Suitcase Carry evidence distinguishes unilateral locomotion, static holds, gait mechanics, and adjacent strongman tasks', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const activation = registryDocument.sources.loaded_carry_muscle_activation
+  assert.equal(activation.url, 'https://pubmed.ncbi.nlm.nih.gov/38665162/')
+  assert.equal(activation.kind, 'peer_reviewed_research')
+  assert.ok(activation.evidenceQuality >= 85)
+  assert.match(activation.title, /Loaded Carry Movement Pattern/i)
+
+  const gait = registryDocument.sources.unilateral_weight_walking_hip_trunk
+  const posture = registryDocument.sources.unilateral_weight_postural_gait
+  for (const source of [gait, posture]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 75)
+  }
+  assert.match(gait.title, /Walking With and Without Unilateral Weight/i)
+
+  const strongman = registryDocument.sources.strongman_biomechanics_systematic_review
+  assert.equal(strongman.kind, 'peer_reviewed_research')
+  assert.ok(strongman.evidenceQuality >= 90)
+  assert.match(strongman.title, /Systematic Review/i)
+})
+
+test('Bent-Knee Soleus Raise evidence separates knee-position adaptation, tendon loading, acute response, selectivity limits, and exact technique', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const hypertrophy = registryDocument.sources.bent_knee_calf_raise_hypertrophy_knee_position
+  assert.equal(
+    hypertrophy.url,
+    'https://pmc.ncbi.nlm.nih.gov/articles/PMC10753835/',
+  )
+  assert.equal(hypertrophy.kind, 'peer_reviewed_research')
+  assert.ok(hypertrophy.evidenceQuality >= 85)
+  assert.match(hypertrophy.title, /standing versus seated calf-raise/i)
+
+  const tendon = registryDocument.sources.heel_raise_achilles_loading_hierarchy
+  assert.equal(tendon.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5343533/')
+  assert.equal(tendon.kind, 'peer_reviewed_research')
+  assert.ok(tendon.evidenceQuality >= 85)
+
+  const swelling = registryDocument.sources.bent_leg_calf_raise_acute_swelling
+  const selectivity = registryDocument.sources.heel_raise_knee_flexion_activity_selectivity
+  for (const source of [swelling, selectivity]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+  assert.equal(swelling.url, 'https://pubmed.ncbi.nlm.nih.gov/37015022/')
+  assert.equal(selectivity.url, 'https://pubmed.ncbi.nlm.nih.gov/22190157/')
+
+  const technique = registryDocument.sources.nsca_bent_knee_calf_raise_technique
+  assert.equal(technique.publisher, 'National Strength and Conditioning Association')
+  assert.equal(technique.kind, 'professional_standard')
+  assert.match(technique.url, /ptq-8\.4\.3-how-to-improve-ankle-dorsiflexion/)
+})
+
+test('Back Squat evidence separates bar position, stance, depth, loading, adaptation, and rack safety limits', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const barPosition = registryDocument.sources.back_squat_high_low_3rm_biomechanics
+  assert.equal(barPosition.url, 'https://pubmed.ncbi.nlm.nih.gov/38900172/')
+  assert.equal(barPosition.kind, 'peer_reviewed_research')
+  assert.ok(barPosition.evidenceQuality >= 88)
+
+  const stance = registryDocument.sources.back_squat_bar_position_stance_biomechanics
+  const moments = registryDocument.sources.back_squat_depth_load_support_moments
+  const knee = registryDocument.sources.back_squat_knee_kinetics_depth_load
+  const adaptation = registryDocument.sources.squat_training_depth_muscle_volume
+  for (const source of [stance, moments, knee, adaptation]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 85)
+  }
+  assert.equal(stance.url, 'https://pubmed.ncbi.nlm.nih.gov/34541522/')
+  assert.equal(moments.url, 'https://pubmed.ncbi.nlm.nih.gov/38036316/')
+  assert.equal(knee.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4064719/')
+  assert.equal(adaptation.url, 'https://pubmed.ncbi.nlm.nih.gov/31230110/')
+
+  const safety = registryDocument.sources.nsca_basics_strength_conditioning
+  assert.equal(safety.publisher, 'National Strength and Conditioning Association')
+  assert.equal(safety.kind, 'professional_standard')
+  assert.match(safety.url, /basics_of_strength_and_conditioning_manual\.pdf/)
+})
+
+test('Box Jump evidence distinguishes propulsion, elevated landing, height, arm policy, and source limitations', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const comparison = registryDocument.sources.countermovement_hurdle_box_jump_comparison
+  assert.equal(comparison.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10204452/')
+  assert.equal(comparison.kind, 'peer_reviewed_research')
+  assert.ok(comparison.evidenceQuality >= 85)
+  assert.match(comparison.title, /Countermovement, Hurdle, and Box Jumps/i)
+
+  const height = registryDocument.sources.box_jump_height_performance_study
+  const arms = registryDocument.sources.arm_swing_countermovement_jump_study
+  for (const source of [height, arms]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 80)
+  }
+  assert.equal(height.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/')
+  assert.equal(arms.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5260575/')
+
+  const nasm = registryDocument.sources.nasm_box_jump_instruction
+  assert.equal(nasm.url, 'https://www.nasm.org/resource-center/exercise-library/box-jumps')
+  assert.equal(nasm.kind, 'expert_instruction')
+  assert.equal(nasm.publisher, 'National Academy of Sports Medicine')
+
+  const instruction = registryDocument.sources.nsca_basics_strength_conditioning
+  assert.equal(instruction.kind, 'professional_standard')
+  assert.equal(instruction.publisher, 'National Strength and Conditioning Association')
+})
+
+test('Depth Jump evidence separates countermovement height strategy from bounce contact strategy and height-only dosing', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const technique = registryDocument.sources.drop_jump_technique_rsi_study
+  assert.equal(technique.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/')
+  assert.equal(technique.kind, 'peer_reviewed_research')
+  assert.ok(technique.evidenceQuality >= 85)
+  assert.match(technique.title, /drop jump technique/i)
+
+  const methodology = registryDocument.sources.drop_jump_training_methodology_review
+  assert.equal(methodology.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/')
+  assert.equal(methodology.kind, 'peer_reviewed_research')
+  assert.ok(methodology.evidenceQuality >= 89)
+  assert.match(methodology.title, /volume and intensity of drop jump training/i)
+
+  const metaAnalysis = registryDocument.sources.reactive_strength_plyometric_meta_analysis
+  assert.equal(metaAnalysis.kind, 'peer_reviewed_research')
+  assert.ok(metaAnalysis.evidenceQuality >= 90)
+
+  const landing = registryDocument.sources.landing_intervention_systematic_review
+  const feedback = registryDocument.sources.landing_feedback_systematic_review
+  for (const source of [landing, feedback]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 85)
+  }
+})
+
+test('Nordic Hamstring evidence separates variation mechanics, angle-specific isometrics, programme outcomes, and uncertain dose response', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const variation = registryDocument.sources.nordic_hamstring_variation_kinematics_emg
+  assert.equal(variation.url, 'https://pubmed.ncbi.nlm.nih.gov/31644582/')
+  assert.equal(variation.kind, 'peer_reviewed_research')
+  assert.ok(variation.evidenceQuality >= 80)
+  assert.match(variation.title, /variations in Nordic hamstring exercise/i)
+
+  const angles = registryDocument.sources.nordic_hamstring_isometric_angle_emg
+  assert.equal(angles.url, 'https://pubmed.ncbi.nlm.nih.gov/38439779/')
+  assert.equal(angles.kind, 'peer_reviewed_research')
+  assert.ok(angles.evidenceQuality >= 80)
+  assert.match(angles.title, /Knee and Hip Angles/i)
+
+  const volume = registryDocument.sources.nordic_hamstring_intervention_volume_meta_analysis
+  const injury = registryDocument.sources.nordic_hamstring_injury_program_meta_analysis
+  const dose = registryDocument.sources.nordic_hamstring_strength_dose_response_meta_regression
+  for (const source of [volume, injury, dose]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 90)
+  }
+  assert.equal(volume.url, 'https://pubmed.ncbi.nlm.nih.gov/31502142/')
+  assert.equal(injury.url, 'https://pubmed.ncbi.nlm.nih.gov/30808663/')
+  assert.equal(dose.url, 'https://pubmed.ncbi.nlm.nih.gov/40991853/')
+  assert.match(injury.title, /programmes/i)
+  assert.match(dose.title, /Meta-Regression/i)
+})
+
+test('Front Plank evidence separates exact lever and tension variants from tests, surface changes, and unsupported transfer claims', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const lever = registryDocument.sources.front_plank_long_lever_posterior_tilt_emg
+  assert.equal(lever.url, 'https://pubmed.ncbi.nlm.nih.gov/25325773/')
+  assert.equal(lever.kind, 'peer_reviewed_research')
+  assert.ok(lever.evidenceQuality >= 80)
+  assert.match(lever.title, /long lever and posterior tilt/i)
+
+  const test = registryDocument.sources.prone_bridge_performance_validity_reliability
+  assert.equal(test.url, 'https://pubmed.ncbi.nlm.nih.gov/29861239/')
+  assert.equal(test.kind, 'peer_reviewed_research')
+  assert.ok(test.evidenceQuality >= 80)
+  assert.match(test.title, /validity, and reliability/i)
+
+  const systematic = registryDocument.sources.core_muscle_activity_systematic_review
+  const surfaces = registryDocument.sources.stable_unstable_surface_emg_meta_analysis
+  for (const source of [systematic, surfaces]) {
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 90)
+  }
+
+  const prone = registryDocument.sources.prone_reverse_static_plank_core_emg
+  const hip = registryDocument.sources.plank_isometric_hip_adduction_abduction_emg
+  assert.equal(prone.url, 'https://pubmed.ncbi.nlm.nih.gov/35370773/')
+  assert.equal(hip.url, 'https://pubmed.ncbi.nlm.nih.gov/27630435/')
+  assert.equal(prone.kind, 'peer_reviewed_research')
+  assert.equal(hip.kind, 'peer_reviewed_research')
+})
+
+test('Kettlebell Swing evidence separates exact technique, hand count, load, fatigue, and overhead style boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.79')
+
+  const technique = registryDocument.sources.ace_two_hand_kettlebell_swing_technique
+  assert.equal(
+    technique.url,
+    'https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/',
+  )
+  assert.equal(technique.kind, 'professional_standard')
+  assert.ok(technique.evidenceQuality >= 80)
+  assert.match(technique.title, /Two-handed Kettlebell Swing/i)
+
+  const expectedResearch = new Map([
+    ['kettlebell_swing_back_hip_spine_loads', 'https://pubmed.ncbi.nlm.nih.gov/21997449/'],
+    ['two_single_hand_kettlebell_swing_emg_kinematics', 'https://pubmed.ncbi.nlm.nih.gov/26618061/'],
+    ['kettlebell_mass_lower_body_joint_kinetics', 'https://pubmed.ncbi.nlm.nih.gov/32131695/'],
+    ['kettlebell_swing_mechanical_demands', 'https://pubmed.ncbi.nlm.nih.gov/22207261/'],
+    ['kettlebell_swing_style_kinematics_kinetics', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5455182/'],
+    ['kettlebell_swing_fatigue_biomechanics', 'https://pubmed.ncbi.nlm.nih.gov/37126368/'],
+    ['overhead_kettlebell_swing_load_kinetics', 'https://pubmed.ncbi.nlm.nih.gov/36548500/'],
+  ])
+  for (const [sourceKey, url] of expectedResearch) {
+    const source = registryDocument.sources[sourceKey]
+    assert.equal(source.url, url)
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 82)
+  }
+  assert.match(
+    registryDocument.sources.kettlebell_swing_style_kinematics_kinetics.title,
+    /differ between kettlebell swing styles/i,
+  )
+  assert.match(
+    registryDocument.sources.kettlebell_swing_fatigue_biomechanics.title,
+    /effects of fatigue/i,
+  )
+  assert.match(
+    registryDocument.sources.overhead_kettlebell_swing_load_kinetics.title,
+    /Overhead Swings/i,
+  )
 })
