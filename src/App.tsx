@@ -21,9 +21,6 @@ import {
 import CookieConsent from './components/CookieConsent'
 import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
-import useSpecialPages from './hooks/useSpecialPages'
-import { isSpecialPageEnabled } from './types/specialPages'
-
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
@@ -73,7 +70,6 @@ function App() {
     close: closeHighlights,
     hasHighlights,
   } = useSiteHighlights()
-  const { pages: specialPages, loading: specialPagesLoading } = useSpecialPages()
 
   // Scroll to top when navigating to a new page
   useEffect(() => {
@@ -277,18 +273,7 @@ function App() {
             element={<Navigate to="/vortex-athletics" replace />}
           />
           <Route path="/copy" element={<CopyPage />} />
-          <Route
-            path="/summer-athletic-training"
-            element={
-              specialPagesLoading ? (
-                <PageLoader />
-              ) : isSpecialPageEnabled(specialPages, 'summer-athletic-program') ? (
-                <SummerAthleticTraining />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
+          <Route path="/summer-athletic-training" element={<SummerAthleticTraining />} />
           <Route
             path="/fit-and-flip"
             element={<StrengthFitness onSignUpClick={handleContactClick} />}

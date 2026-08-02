@@ -12,8 +12,6 @@ import CookieConsent from '../../components/CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../../components/HighlightsModal'
-import useSpecialPages from '../../hooks/useSpecialPages'
-import { isSpecialPageEnabled } from '../../types/specialPages'
 import {
   bestPortalForAccount,
   clearPortalSession,
@@ -102,7 +100,6 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     close: closeHighlights,
     hasHighlights,
   } = useSiteHighlights()
-  const { pages: specialPages, loading: specialPagesLoading } = useSpecialPages()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -313,13 +310,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route
             path="/summer-camp-26"
             element={
-              specialPagesLoading ? (
-                <PageLoader />
-              ) : isSpecialPageEnabled(specialPages, 'summer-gymnastics-program') ? (
-                <SummerCamp2026LandingPage onInquireClick={() => navigate('/camp_interest')} />
-              ) : (
-                <Navigate to="/" replace />
-              )
+              <SummerCamp2026LandingPage onInquireClick={() => navigate('/camp_interest')} />
             }
           />
           <Route path="/camp_interest" element={<CampInterestPage />} />
