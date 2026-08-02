@@ -657,6 +657,10 @@ const BAR_CAST_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/482_coaching_bar_cast_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/484_coaching_handstand_snap_down_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10798,6 +10802,140 @@ test('Bar Cast completion separates sub-handstand returns from terminal handstan
   )
 })
 
+test('Handstand Snap-Down completion isolates the inverted-start feet-together stick without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'484_coaching_handstand_snap_down_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'Handstand Snap-Down to Feet-Together Stick',
+    '60f5b21a-991c-4ce8-9068-3c42b2043021',
+    '064e650c-28e8-4820-b0da-7043bb509c2c',
+    '68c16da0-414f-4932-97f4-1d8b236af8dd',
+    '68a0499b-34b0-4621-b798-b49ffd8ed1a1',
+    'back-to-wall-heel-contact-handstand-snap-down-stick',
+    'independent-freestanding-handstand-snap-down-stick',
+    'identity-quarantine-source-18',
+    'identity_quarantine',
+    'inverted_snap_down_vs_full_roundoff_rebound_or_stick',
+    'inverted_start_vs_power_hurdle_entry',
+    'simultaneous_feet_snapdown_vs_sequential_cartwheel_finish',
+    'dynamic_snap_down_vs_static_freestanding_handstand',
+    'dynamic_wall_release_vs_static_wall_handstand',
+    'established_inverted_start_vs_kickup_entry',
+    'inverted_hand_support_snapdown_vs_standing_athletic_snapdown',
+    'handstand_snap_down_vs_donkey_kick',
+    'max_exercise_complexity_physical_difficulty',
+    'valid invalid partial assisted and incident attempts',
+    'coachAndAthleteRenderingRequired',
+    'revalidateAllGenerationInputs',
+  ]) {
+    assert.match(
+      HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+
+  for (const [complexity, physical, overall, leadingDimension] of [
+    [70, 62, 70, 68],
+    [82, 70, 82, 76],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+    assert.match(
+      HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`,${complexity},${physical},${leadingDimension},`),
+    )
+  }
+
+  for (const videoId of [
+    '7r-UOQi8YvE',
+    'BnnX00Hlqpk',
+    'D6bbi5bv0TY',
+    'dqEZV4DW8aU',
+  ]) {
+    assert.match(
+      HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?link_status='healthy'[\s\S]*?<>4/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>24/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>8/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>4/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_identity_resolution_v1[\s\S]*?decision='distinct_exercises'[\s\S]*?<>8/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL,is_published=FALSE/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /programming_kind='exercise',linked_skill_id=10/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,[\s\S]*?minimum_skill_level=NULL/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(id\) DO UPDATE SET/,
+  )
+  assert.match(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(variant_id,profile_key\) DO UPDATE SET/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10851,6 +10989,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
     BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
     BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
+    HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,
