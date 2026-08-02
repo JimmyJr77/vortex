@@ -4,12 +4,16 @@ import { GYMNASTICS_EVALUATION_DEFINITION, buildGymnasticsFocusReport } from '..
 
 test('gymnastics evaluation definition includes required movements, variants, and supplied issues', () => {
   const byKey = new Map(GYMNASTICS_EVALUATION_DEFINITION.map((movement) => [movement.key, movement]))
-  for (const key of ['forward_roll', 'back_roll', 'cartwheel', 'handstand', 'bridge', 'back_walkover', 'splits', 'backbend']) assert.ok(byKey.has(key))
+  for (const key of ['forward_roll', 'back_roll', 'cartwheel', 'handstand', 'bridge', 'back_walkover', 'splits', 'middle_split', 'backbend']) assert.ok(byKey.has(key))
   assert.deepEqual(byKey.get('cartwheel').variants, ['Left', 'Right'])
-  assert.deepEqual(byKey.get('splits').variants, ['Left', 'Right', 'Sideways'])
+  assert.equal(byKey.get('splits').label, 'Front Split')
+  assert.deepEqual(byKey.get('splits').variants, ['Left', 'Right'])
+  assert.equal(byKey.get('middle_split').label, 'Middle Split')
+  assert.equal(byKey.get('middle_split').variants, undefined)
   assert.ok(byKey.get('forward_roll').components.flatMap((component) => component.defaultIssues).includes('Hard landing'))
-  assert.ok(byKey.get('back_roll').components.flatMap((component) => component.defaultIssues).includes('Hands not by shoulders/ears'))
+  assert.ok(byKey.get('back_roll').components.flatMap((component) => component.defaultIssues).includes('Hands not beside ears'))
   assert.ok(byKey.get('handstand').components.flatMap((component) => component.defaultIssues).includes('Does not squeeze butt'))
+  assert.notDeepEqual(byKey.get('splits').components.map((component) => component.key), byKey.get('middle_split').components.map((component) => component.key))
 })
 
 test('focus report converts low scores and selected issues into constructive focus language', () => {

@@ -1,29 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ClipboardCheck, ChevronDown, Plus, Save } from 'lucide-react'
+import { ClipboardCheck, Expand, GripVertical, Minimize, Pencil, Plus, Save, Trash2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useRosterMembers } from './useRosterMembers'
 
-type Component = { key: string; label: string; defaultIssues: string[] }
+type Component = { key: string; label: string; defaultIssues: string[]; variants?: string[] }
 type Movement = { key: string; label: string; variants?: string[]; components: Component[] }
 type Tag = { id: number; movement_key: string; component_key: string; label: string }
-type Entry = { score: number | ''; issues: string[]; note: string }
+type Entry = { score: number | ''; issues: string[]; filter: string }
 type MovementState = { overall: number | ''; overridden: boolean; components: Record<string, Entry> }
+type SkillCard = { id: string; movementKey: string; variant: string }
 const scoreOptions = [1, 2, 3, 4, 5]
 
 function stateFor(movement: Movement): MovementState {
-  return { overall: '', overridden: false, components: Object.fromEntries(movement.components.map((component) => [component.key, { score: '', issues: [], note: '' }])) }
+  return { overall: '', overridden: false, components: Object.fromEntries(movement.components.map((component) => [component.key, { score: '', issues: [], filter: '' }])) }
 }
-function stateKey(movement: Movement, variant = '') { return `${movement.key}:${variant}` }
+function stateKey(movementKey: string, variant = '') { return `${movementKey}:${variant}` }
+function initialCards(movements: Movement[]): SkillCard[] { return movements.flatMap((movement) => (movement.variants?.length ? movement.variants : ['']).map((variant) => ({ id: stateKey(movement.key, variant), movementKey: movement.key, variant }))) }
+function componentsFor(movement: Movement, variant: string) { return movement.components.filter((component) => !component.variants?.length || component.variants.includes(variant)) }
 
 export default function GymnasticsEvaluationPanel() {
   const { members } = useRosterMembers()
   const [movements, setMovements] = useState<Movement[]>([])
   const [customTags, setCustomTags] = useState<Tag[]>([])
   const [values, setValues] = useState<Record<string, MovementState>>({})
+  const [cards, setCards] = useState<SkillCard[]>([])
   const [memberId, setMemberId] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [coachNote, setCoachNote] = useState('')
-  const [history, setHistory] = useState<Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }>; strengths?: Array<{ text: string }> } }>>([])
+  const [history, setHistory] = useState<Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }> } }>>([])
+  const [editing, setEditing] = useState(false)
+  const [skillQuery, setSkillQuery] = useState('')
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -32,77 +40,71 @@ export default function GymnasticsEvaluationPanel() {
   useEffect(() => {
     coachFetch<{ movements: Movement[]; customIssueTags: Tag[] }>('/api/coach/gymnastics-evaluations/definition')
       .then((data) => {
-        setMovements(data.movements)
-        setCustomTags(data.customIssueTags)
-        const initial: Record<string, MovementState> = {}
-        data.movements.forEach((movement) => (movement.variants?.length ? movement.variants : ['']).forEach((variant) => { initial[stateKey(movement, variant)] = stateFor(movement) }))
-        setValues(initial)
+        setMovements(data.movements); setCustomTags(data.customIssueTags); setCards(initialCards(data.movements))
+        setValues(Object.fromEntries(data.movements.flatMap((movement) => (movement.variants?.length ? movement.variants : ['']).map((variant) => [stateKey(movement.key, variant), stateFor(movement)]))))
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Unable to load the evaluation form.'))
       .finally(() => setLoading(false))
   }, [])
-
   useEffect(() => {
     if (!memberId) { setHistory([]); return }
-    coachFetch<Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }>; strengths?: Array<{ text: string }> } }>>(`/api/coach/athletes/${memberId}/gymnastics-evaluations`)
-      .then(setHistory).catch(() => setHistory([]))
+    coachFetch<Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }> } }>>(`/api/coach/athletes/${memberId}/gymnastics-evaluations`).then(setHistory).catch(() => setHistory([]))
   }, [memberId])
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setIsFullscreen(false) }
+    window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
-  const complete = useMemo(() => movements.every((movement) => (movement.variants?.length ? movement.variants : ['']).every((variant) => movement.components.every((component) => values[stateKey(movement, variant)]?.components[component.key]?.score !== ''))), [movements, values])
-  const update = (key: string, updater: (current: MovementState) => MovementState) => setValues((current) => ({ ...current, [key]: updater(current[key]) }))
-  const setComponentScore = (movement: Movement, variant: string, component: Component, score: number) => {
-    const key = stateKey(movement, variant)
-    update(key, (current) => {
-      const components = { ...current.components, [component.key]: { ...current.components[component.key], score } }
-      const numeric = Object.values(components).map((entry) => entry.score).filter((value): value is number => typeof value === 'number')
-      return { ...current, components, overall: current.overridden ? current.overall : (numeric.length ? Math.round(numeric.reduce((sum, value) => sum + value, 0) / numeric.length) : '') }
-    })
-  }
-  const toggleIssue = (movement: Movement, variant: string, component: Component, issue: string) => {
-    const key = stateKey(movement, variant)
-    update(key, (current) => {
-      const entry = current.components[component.key]
-      const issues = entry.issues.includes(issue) ? entry.issues.filter((item) => item !== issue) : [...entry.issues, issue]
-      return { ...current, components: { ...current.components, [component.key]: { ...entry, issues } } }
-    })
-  }
-  const addIssue = async (movement: Movement, variant: string, component: Component) => {
-    const key = stateKey(movement, variant); const entry = values[key].components[component.key]; const label = entry.note.trim()
-    if (!label) return
+  const movementByKey = useMemo(() => new Map(movements.map((movement) => [movement.key, movement])), [movements])
+  const selectedIds = new Set(cards.map((card) => card.id))
+  const skillOptions = useMemo(() => movements.flatMap((movement) => (movement.variants?.length ? movement.variants : ['']).map((variant) => ({ id: stateKey(movement.key, variant), movement, variant, label: `${movement.label}${variant ? ` — ${variant}` : ''}` }))).filter((option) => option.label.toLowerCase().includes(skillQuery.toLowerCase())), [movements, skillQuery])
+  const complete = cards.length > 0 && cards.every((card) => { const movement = movementByKey.get(card.movementKey); return movement && componentsFor(movement, card.variant).every((component) => values[card.id]?.components[component.key]?.score !== '') })
+  const update = (id: string, updater: (current: MovementState) => MovementState) => setValues((current) => ({ ...current, [id]: updater(current[id]) }))
+  const setComponentScore = (card: SkillCard, _movement: Movement, component: Component, score: number) => update(card.id, (current) => {
+    const components = { ...current.components, [component.key]: { ...current.components[component.key], score } }
+    const scores = Object.values(components).map((entry) => entry.score).filter((value): value is number => typeof value === 'number')
+    return { ...current, components, overall: current.overridden ? current.overall : Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) }
+  })
+  const toggleIssue = (card: SkillCard, component: Component, issue: string) => update(card.id, (current) => {
+    const entry = current.components[component.key]
+    return { ...current, components: { ...current.components, [component.key]: { ...entry, issues: entry.issues.includes(issue) ? entry.issues.filter((item) => item !== issue) : [...entry.issues, issue] } } }
+  })
+  const setFilter = (card: SkillCard, component: Component, filter: string) => update(card.id, (current) => ({ ...current, components: { ...current.components, [component.key]: { ...current.components[component.key], filter } } }))
+  const addCustomIssue = async (card: SkillCard, movement: Movement, component: Component) => {
+    const label = values[card.id].components[component.key].filter.trim(); if (!label) return
     try {
       const tag = await coachFetch<Tag>('/api/coach/gymnastics-evaluations/issue-tags', { method: 'POST', body: JSON.stringify({ movement_key: movement.key, component_key: component.key, label }) })
       setCustomTags((current) => current.some((item) => item.id === tag.id) ? current : [...current, tag])
-      update(key, (current) => ({ ...current, components: { ...current.components, [component.key]: { ...current.components[component.key], note: '', issues: [...current.components[component.key].issues, tag.label] } } }))
+      update(card.id, (current) => ({ ...current, components: { ...current.components, [component.key]: { ...current.components[component.key], filter: '', issues: [...current.components[component.key].issues, tag.label] } } }))
     } catch (err) { setError(err instanceof Error ? err.message : 'Unable to save issue.') }
   }
+  const addSkill = (id: string) => { const option = skillOptions.find((item) => item.id === id); if (!option || selectedIds.has(id)) return; setCards((current) => [...current, { id, movementKey: option.movement.key, variant: option.variant }]); setValues((current) => ({ ...current, [id]: current[id] ?? stateFor(option.movement) })); setSkillQuery('') }
+  const reorder = (targetId: string) => { if (!draggedId || draggedId === targetId) return; setCards((current) => { const source = current.findIndex((card) => card.id === draggedId); const target = current.findIndex((card) => card.id === targetId); const next = [...current]; next.splice(target, 0, next.splice(source, 1)[0]); return next }); setDraggedId(null) }
   const save = async () => {
     if (!memberId || !complete) return
     setSaving(true); setError(null); setMessage(null)
-    const payload = movements.flatMap((movement) => (movement.variants?.length ? movement.variants : ['']).map((variant) => {
-      const current = values[stateKey(movement, variant)]
-      return { key: movement.key, label: movement.label, variant: variant || null, overall_score: current.overall || null, components: movement.components.map((component) => ({ key: component.key, label: component.label, score: current.components[component.key].score || null, issues: current.components[component.key].issues })) }
-    }))
+    const payload = cards.map((card) => { const movement = movementByKey.get(card.movementKey)!; const value = values[card.id]; return { key: movement.key, label: movement.label, variant: card.variant || null, overall_score: value.overall || null, components: componentsFor(movement, card.variant).map((component) => ({ key: component.key, label: component.label, score: value.components[component.key].score || null, issues: value.components[component.key].issues })) } })
     try {
       await coachFetch('/api/coach/gymnastics-evaluations', { method: 'POST', body: JSON.stringify({ member_id: Number(memberId), evaluated_at: date, coach_note: coachNote || null, movements: payload }) })
-      setMessage('Evaluation published to the athlete’s Progress tab.')
-      setCoachNote('')
-      const refreshed = await coachFetch<Array<{ id: number; evaluated_at: string; report: { focus?: Array<{ text: string }>; strengths?: Array<{ text: string }> } }>>(`/api/coach/athletes/${memberId}/gymnastics-evaluations`)
-      setHistory(refreshed)
+      setMessage('Evaluation published to the athlete’s Progress tab.'); setCoachNote('')
+      setHistory(await coachFetch(`/api/coach/athletes/${memberId}/gymnastics-evaluations`))
     } catch (err) { setError(err instanceof Error ? err.message : 'Unable to publish evaluation.') } finally { setSaving(false) }
   }
 
   if (loading) return <div className="text-sm text-gray-500">Loading evaluation form…</div>
-  return <div className="space-y-5">
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2"><ClipboardCheck className="w-6 h-6 text-vortex-red" /> Gymnastics Evaluation</h2><p className="text-sm text-gray-500">Score each movement, capture coaching observations, and publish a constructive focus report.</p></div></div>
+  return <div className={`${isFullscreen ? 'fixed inset-0 z-[100] overflow-y-auto bg-gray-50 p-4 md:p-8' : ''} space-y-5`}>
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><ClipboardCheck className="h-6 w-6 text-vortex-red" /> Gymnastics Evaluation</h2><p className="text-sm text-gray-500">Quick, component-by-component evaluation with clear coaching focus.</p></div><div className="flex gap-2"><button type="button" onClick={() => setEditing((value) => !value)} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold"><Pencil className="h-4 w-4" />{editing ? 'Done editing' : 'Edit skills'}</button><button type="button" onClick={() => setIsFullscreen((value) => !value)} aria-label={isFullscreen ? 'Exit fullscreen evaluation' : 'Open fullscreen evaluation'} className="rounded-lg border border-gray-300 p-2">{isFullscreen ? <Minimize className="h-5 w-5" /> : <Expand className="h-5 w-5" />}</button></div></div>
     {error && <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">{error}</div>}{message && <div className="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">{message}</div>}
-    <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 md:grid-cols-3"><label className="text-sm"><span className="mb-1 block text-xs font-semibold text-gray-500">Athlete</span><select value={memberId} onChange={(event) => setMemberId(event.target.value)} className="w-full rounded border border-gray-300 px-2 py-2"><option value="">Select athlete…</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label><label className="text-sm"><span className="mb-1 block text-xs font-semibold text-gray-500">Evaluation date</span><input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="w-full rounded border border-gray-300 px-2 py-2" /></label><label className="text-sm md:col-span-1"><span className="mb-1 block text-xs font-semibold text-gray-500">Coach note</span><input value={coachNote} onChange={(event) => setCoachNote(event.target.value)} placeholder="Optional encouragement or context" className="w-full rounded border border-gray-300 px-2 py-2" /></label></div>
-    <div className="space-y-4">{movements.map((movement) => (movement.variants?.length ? movement.variants : ['']).map((variant) => <MovementCard key={stateKey(movement, variant)} movement={movement} variant={variant} value={values[stateKey(movement, variant)]} customTags={customTags} onScore={setComponentScore} onIssue={toggleIssue} onOverall={(score) => update(stateKey(movement, variant), (current) => ({ ...current, overall: score, overridden: true }))} onNote={(component, note) => update(stateKey(movement, variant), (current) => ({ ...current, components: { ...current.components, [component.key]: { ...current.components[component.key], note } } }))} onAddIssue={addIssue} />))}</div>
+    <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 md:grid-cols-3"><label className="text-sm"><span className="mb-1 block text-xs font-semibold text-gray-500">Athlete</span><select value={memberId} onChange={(event) => setMemberId(event.target.value)} className="h-10 w-full rounded border border-gray-300 px-2"><option value="">Select athlete…</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label><label className="text-sm"><span className="mb-1 block text-xs font-semibold text-gray-500">Evaluation date</span><input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="h-10 w-full rounded border border-gray-300 px-2" /></label><label className="text-sm"><span className="mb-1 block text-xs font-semibold text-gray-500">Coach note</span><input value={coachNote} onChange={(event) => setCoachNote(event.target.value)} placeholder="Optional encouragement or context" className="h-10 w-full rounded border border-gray-300 px-2" /></label></div>
+    {editing && <div className="rounded-xl border border-vortex-red/30 bg-white p-4"><label className="text-sm font-semibold text-gray-800">Add a skill</label><input list="gymnastics-evaluation-skills" value={skillQuery} onChange={(event) => { const next = event.target.value; setSkillQuery(next); const selected = skillOptions.find((option) => option.label === next); if (selected) addSkill(selected.id) }} placeholder="Type to find a skill…" className="mt-2 h-10 w-full rounded border border-gray-300 px-3" /><datalist id="gymnastics-evaluation-skills">{skillOptions.map((option) => <option key={option.id} value={option.label} />)}</datalist><div className="mt-3 flex flex-wrap gap-2">{skillOptions.filter((option) => !selectedIds.has(option.id)).map((option) => <button key={option.id} type="button" onClick={() => addSkill(option.id)} className="rounded-full border border-gray-300 px-3 py-1 text-sm hover:border-vortex-red hover:text-vortex-red">+ {option.label}</button>)}</div></div>}
+    <div className="space-y-4">{cards.map((card) => { const movement = movementByKey.get(card.movementKey); return movement ? <SkillCard key={card.id} card={card} movement={movement} value={values[card.id]} customTags={customTags} editing={editing} compact={draggedId !== null} onDragStart={() => setDraggedId(card.id)} onDragEnd={() => setDraggedId(null)} onDrop={() => reorder(card.id)} onDelete={() => setCards((current) => current.filter((item) => item.id !== card.id))} onScore={setComponentScore} onIssue={toggleIssue} onOverall={(score) => update(card.id, (current) => ({ ...current, overall: score, overridden: true }))} onFilter={setFilter} onAddIssue={addCustomIssue} /> : null })}</div>
     <button type="button" disabled={!memberId || !complete || saving} onClick={() => void save()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-50"><Save className="h-4 w-4" />{saving ? 'Publishing…' : 'Save & publish evaluation report'}</button>
-    {memberId && history.length > 0 && <div className="rounded-xl border border-gray-200 bg-white p-4"><h3 className="mb-3 font-semibold text-gray-900">Published evaluations</h3><div className="space-y-3">{history.map((item) => <div key={item.id} className="rounded-lg border border-gray-100 p-3 text-sm"><div className="font-medium">{new Date(item.evaluated_at).toLocaleDateString()}</div>{item.report.focus?.slice(0, 3).map((focus, index) => <div key={index} className="mt-1 text-gray-600">{focus.text}</div>)}</div>)}</div></div>}
+    {memberId && history.length > 0 && <div className="rounded-xl border border-gray-200 bg-white p-4"><h3 className="mb-3 font-semibold text-gray-900">Published evaluations</h3>{history.map((item) => <div key={item.id} className="border-t border-gray-100 py-3 text-sm first:border-t-0"><div className="font-medium">{new Date(item.evaluated_at).toLocaleDateString()}</div>{item.report.focus?.slice(0, 3).map((focus, index) => <div key={index} className="mt-1 text-gray-600">{focus.text}</div>)}</div>)}</div>}
   </div>
 }
 
-function MovementCard({ movement, variant, value, customTags, onScore, onIssue, onOverall, onNote, onAddIssue }: { movement: Movement; variant: string; value: MovementState; customTags: Tag[]; onScore: (movement: Movement, variant: string, component: Component, score: number) => void; onIssue: (movement: Movement, variant: string, component: Component, issue: string) => void; onOverall: (score: number) => void; onNote: (component: Component, note: string) => void; onAddIssue: (movement: Movement, variant: string, component: Component) => void }) {
-  return <details open className="rounded-xl border border-gray-200 bg-white"><summary className="flex cursor-pointer list-none items-center justify-between p-4 font-bold text-gray-900">{movement.label}{variant ? ` — ${variant}` : ''}<ChevronDown className="h-4 w-4" /></summary><div className="space-y-4 border-t border-gray-100 p-4">{movement.components.map((component) => { const entry = value.components[component.key]; const issues = [...component.defaultIssues, ...customTags.filter((tag) => tag.movement_key === movement.key && tag.component_key === component.key).map((tag) => tag.label)].filter((item, index, list) => list.indexOf(item) === index); return <div key={component.key} className="rounded-lg bg-gray-50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="font-semibold text-sm text-gray-800">{component.label}</div><ScoreSelect value={entry.score} label={`${component.label} score`} onChange={(score) => onScore(movement, variant, component, score)} /></div><div className="mt-3 flex flex-wrap gap-2">{issues.map((issue) => <label key={issue} className={`cursor-pointer rounded-full border px-2.5 py-1 text-xs ${entry.issues.includes(issue) ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`}><input type="checkbox" checked={entry.issues.includes(issue)} onChange={() => onIssue(movement, variant, component, issue)} className="sr-only" />{issue}</label>)}</div><select aria-label={`Add issue for ${component.label}`} defaultValue="" onChange={(event) => { if (event.target.value) { onIssue(movement, variant, component, event.target.value); event.currentTarget.value = '' } }} className="mt-3 w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-sm"><option value="">Add an issue from the list…</option>{issues.filter((issue) => !entry.issues.includes(issue)).map((issue) => <option key={issue} value={issue}>{issue}</option>)}</select><div className="mt-3 flex gap-2"><input value={entry.note} onChange={(event) => onNote(component, event.target.value)} placeholder="Add a new issue for this component" className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm" /><button type="button" onClick={() => void onAddIssue(movement, variant, component)} className="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs font-medium"><Plus className="h-3 w-3" />Save issue</button></div></div> })}<div className="flex justify-end border-t border-gray-200 pt-3"><ScoreSelect value={value.overall} label="Overall movement score" onChange={onOverall} /></div></div></details>
+function SkillCard({ card, movement, value, customTags, editing, compact, onDragStart, onDragEnd, onDrop, onDelete, onScore, onIssue, onOverall, onFilter, onAddIssue }: { card: SkillCard; movement: Movement; value: MovementState; customTags: Tag[]; editing: boolean; compact: boolean; onDragStart: () => void; onDragEnd: () => void; onDrop: () => void; onDelete: () => void; onScore: (card: SkillCard, movement: Movement, component: Component, score: number) => void; onIssue: (card: SkillCard, component: Component, issue: string) => void; onOverall: (score: number) => void; onFilter: (card: SkillCard, component: Component, filter: string) => void; onAddIssue: (card: SkillCard, movement: Movement, component: Component) => void }) {
+  const title = `${movement.label}${card.variant ? ` — ${card.variant}` : ''}`
+  return <article onDragOver={(event) => event.preventDefault()} onDrop={onDrop} className="rounded-xl border border-gray-200 bg-white"><div className="flex items-center gap-2 p-4">{editing && <button type="button" draggable onDragStart={onDragStart} onDragEnd={onDragEnd} aria-label={`Reorder ${title}`} className="cursor-grab rounded p-1 text-gray-400 active:cursor-grabbing"><GripVertical className="h-5 w-5" /></button>}<h3 className="flex-1 font-bold text-gray-900">{title}</h3>{editing && <button type="button" onClick={onDelete} aria-label={`Delete ${title}`} className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}</div>{!compact && <div className="space-y-4 border-t border-gray-100 p-4">{componentsFor(movement, card.variant).map((component) => { const entry = value.components[component.key]; const allTags = [...component.defaultIssues, ...customTags.filter((tag) => tag.movement_key === movement.key && tag.component_key === component.key).map((tag) => tag.label)].filter((tag, index, list) => list.indexOf(tag) === index); const filtered = allTags.filter((tag) => tag.toLowerCase().includes(entry.filter.toLowerCase())); return <section key={component.key} className="rounded-lg bg-gray-50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><h4 className="text-sm font-semibold text-gray-800">{component.label}</h4><ScoreSelect value={entry.score} label={`${component.label} score`} onChange={(score) => onScore(card, movement, component, score)} /></div><div className="mt-3 flex gap-2"><input value={entry.filter} onChange={(event) => onFilter(card, component, event.target.value)} placeholder="Search tags or add a new issue…" className="h-9 min-w-0 flex-1 rounded border border-gray-300 bg-white px-2 text-sm" /><button type="button" disabled={!entry.filter.trim()} onClick={() => void onAddIssue(card, movement, component)} className="inline-flex items-center gap-1 rounded border border-gray-300 px-2 text-xs font-medium disabled:opacity-50"><Plus className="h-3 w-3" />Add</button></div><div className="mt-3 flex flex-wrap gap-2">{filtered.map((tag) => <button key={tag} type="button" onClick={() => onIssue(card, component, tag)} className={`rounded-full border px-2.5 py-1 text-xs ${entry.issues.includes(tag) ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`}>{tag}</button>)}{filtered.length === 0 && <span className="text-xs text-gray-400">No matching fail tags yet.</span>}</div></section> })}<div className="flex justify-end border-t border-gray-200 pt-3"><ScoreSelect value={value.overall} label="Overall movement score" onChange={onOverall} /></div></div>}</article>
 }
 function ScoreSelect({ value, label, onChange }: { value: number | ''; label: string; onChange: (score: number) => void }) { return <label className="flex items-center gap-2 text-xs font-semibold text-gray-500">{label}<select value={value} onChange={(event) => { if (event.target.value) onChange(Number(event.target.value)) }} className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900"><option value="">Score</option>{scoreOptions.map((score) => <option key={score} value={score}>{score}/5</option>)}</select></label> }
