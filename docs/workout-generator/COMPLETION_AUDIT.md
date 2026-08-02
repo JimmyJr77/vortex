@@ -1415,3 +1415,81 @@ disposable PostgreSQL. The remaining gates are:
   with 932 passed, 20 intentionally skipped, and zero failed. Focused ESLint,
   12 management smoke checks, 10 launch smoke checks, CI syntax checks, and the
   production build also pass.
+
+## Migrations 428–430 completion record
+
+- Migration 428 retires the undefined single-leg line-hop source rather than
+  inferring direction, foot sequence, contacts, or terminal outcome. It remains
+  source-traceable, nonselectable, unscored, and human-review quarantined.
+- Migration 429 retires the mixed standing/seated eccentric dumbbell press and
+  completes explicit standing and seated strict-press variants, including
+  normal and 4–6-second eccentric options. Full-cycle action and equipment
+  operations are required; eccentric wording alone never creates an
+  eccentric-only exercise.
+- Migration 430 retires the mixed standing-or-kneeling kettlebell source family
+  while preserving legacy mappings 490 and 491. The standing strict press gains
+  an exact bilateral two-kettlebell front-rack variant with complete generation,
+  fatigue, impact, recovery, logistics, dosage, instruction, support, and stop
+  contracts.
+- All difficulty records assess exercise complexity and physical difficulty,
+  with overall difficulty derived as their maximum. Exercise-card skill and
+  proficiency fields are absent; no migration changes skill-library levels.
+- Media link health and titles are candidate evidence only. Exact-match,
+  demonstration quality, captions/accessibility, reviewer identity, graph,
+  calibration, card, pilot, and publication approval all remain human gates.
+- The current disposable-database audit has 1,676 legacy exercises, 1,077
+  active definitions, complete migration coverage, 616 raw similarity pairs,
+  583 adjudicated-distinct pairs, 33 unresolved pairs, zero exact collisions,
+  and no unresolved pair scoring 85 or higher. All active cards remain
+  quarantined and zero are published.
+- Needs Engine readiness is 1,581/1,611 published legacy cards; the remaining
+  30 blockers are 11 missing difficulty profiles and 19 missing dosage
+  profiles.
+- The production runner recorded checksums `4051154404`, `989893497`, and
+  `3711801288` for migrations 428, 429, and 430. Migration 430 passed direct
+  execution, clean re-entry, runner execution, and rollback-only protected-
+  state testing. Focused lint, 141 focused tests, the full suite (940 passed,
+  20 skipped), management/launch smoke checks, CI syntax checks, and the
+  production build pass.
+
+## Migration 431 completion record
+
+- `lateral-line-pogo` and `line-pogo-forward-back` are now exact bilateral,
+  simultaneous-foot, low-amplitude, direction-specific line-crossing exercises.
+  Every bilateral landing is one contact and every set has a controlled
+  two-foot finish. Their direction and plane are a hard identity boundary.
+- Generic sources `line-pogo-hops`, `line-hops`, and
+  `forward-back-line-hops` are archived and unscored because their executable
+  contact contracts are incomplete. They retain aliases, source mappings,
+  evidence, media candidates, alternates, and human-review decisions. No
+  direct mapping or approval was invented.
+- Seven ambiguous or redundant published legacy rows are archived; exact
+  primary rows 975 and 1083 remain published with complete dose, duration,
+  logistics, cumulative-impact, instruction, quality, stop, support, and
+  difficulty profiles.
+- Lateral difficulty is 44 complexity / 48 physical / 48 overall and forward-
+  back is 46 / 48 / 48. Overall is derived by `max`. Exercise and safety cards
+  contain no athlete skill or proficiency classification; skill levels remain
+  exclusive to skill-library cards.
+- The batch contributes 80 current candidate evidence sections, 19 automated
+  oEmbed-healthy and embeddable candidate links, 37 alternate assessments,
+  four delivery profiles, two review-only substitution proposals, four review-
+  only calibration proposals, and five quarantined test packets. Exact media
+  match, quality, reviewer, graph, calibration, card, pilot, and publication
+  approval remain unset and human-gated.
+- The current whole-library audit reports 1,676 legacy exercises, 1,074 active
+  canonical definitions, 613 raw pairs, 583 adjudicated-distinct pairs, 30
+  unresolved pairs, zero exact collisions, and no unresolved score-85-or-
+  higher pair. The remaining 30-pair queue is not permission to infer missing
+  facts.
+- Canonical release readiness remains deliberately blocked: zero canonical
+  cards, graph edges, or calibration anchors are approved or published, every
+  phase has zero published pool depth, and no coach pilot has occurred. The
+  independent legacy Needs Engine surface is 1,574/1,604 passing; its 30
+  remaining failures are 11 missing difficulty and 19 missing dosage profiles.
+- Disposable PostgreSQL passed direct execution, deterministic repeated re-
+  entry, production-runner execution, exact rationale-idempotency inspection,
+  and rollback-only protected-approval testing. The final checksum is
+  `3118654911`. Focused lint, 143 focused tests, the full suite with 942 passed
+  and 20 intentionally skipped, management and launch checks, CI syntax checks,
+  and the production build pass.

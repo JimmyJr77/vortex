@@ -1,0 +1,347 @@
+{
+  "batchKey": "quarter-turn-jump-hop-identity-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-08-01.10",
+  "snapshotAt": "2026-08-01T20:00:00.000Z",
+  "includeArchived": true,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/quarter-turn-jump-hop-identity",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral and bilateral landings are mechanically distinct, so takeoff foot count and landing foot count are identity fields rather than synonyms.",
+        "An exact quarter-turn card must also declare rotation magnitude and direction, displacement, terminal hold, side accounting, and reset."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "unilateral_bilateral_plyometric_meta_analysis",
+      "claims": [
+        "Quarter-turn jump and hop tasks belong to plyometric jump-and-landing work, but unilateral and bilateral modes remain separate controlled identities.",
+        "The canonical family records aerial reorientation and terminal stabilization without using athlete proficiency labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "A 90-degree whole-body reorientation and landing uses coordinated lower-limb deceleration plus pelvis and trunk control; the two legs may not share landing load equally.",
+        "Cards declare foot, ankle, knee, hip, pelvis, trunk, and visual-orientation demands without claiming isolated muscle activation or injury prediction."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "Mid-flight whole-body rotation changes landing mechanics compared with a nonrotational landing and requires control of angular momentum and reorientation before stabilization.",
+        "The authored bilateral task uses two-foot takeoff and two-foot landing; the authored unilateral task uses one declared leg for takeoff and same-leg landing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral landing changes knee motion and muscle demand compared with bilateral landing and therefore receives a higher physical-difficulty and stabilization score.",
+        "Complexity also accounts for exactly 90 degrees of aerial orientation, foot-count contract, landing alignment, hold, side completion, and reset; overall difficulty is the maximum of complexity and physical difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "adolescent_plyometric_contact_meta_analysis",
+      "claims": [
+        "Every takeoff and landing is counted in the session impact budget, with unilateral contacts tracked by side.",
+        "Contact volume, prior jumping and running exposure, surface, amplitude, landing strategy, symptoms, and recovery state must be considered before selection or progression."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "The task requires a level high-traction resilient surface, clear takeoff and landing zone, visible orientation target, safe footwear, and enough space for an uncontrolled step without collision.",
+        "Pain, instability, lower-limb restrictions, dizziness, inability to follow the stop command, or an exhausted impact budget block selection."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "adolescent_plyometric_contact_meta_analysis",
+      "claims": [
+        "Dose is stored as fully reset attempts and total landing contacts rather than a fatigue circuit or vague work interval.",
+        "The card starts with small sets, long enough rest for repeatable orientation and landing quality, and lower volume on the unilateral task."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Instruction declares start orientation, takeoff and landing foot contract, exact quarter turn, target, quiet aligned landing, hold duration, and reset before the next attempt.",
+        "Feedback is concise and externally observable; it does not promise injury prevention or prescribe a universal joint angle."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "jump_entry_angle_landing_biomechanics",
+      "claims": [
+        "Landing direction changes lower-limb biomechanics, so each direction and side is screened and coached rather than assumed equivalent.",
+        "Stop for symptoms, under- or over-rotation, wrong-foot contact, audible or stiff impact, knee-foot or trunk-control loss, balance step before the hold, fatigue drift, unsafe surface, or traffic."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "reactive_strength_plyometric_meta_analysis",
+      "claims": [
+        "Quarter-turn stick landings are low-volume output or landing-control exposures performed while fresh, not sustained conditioning.",
+        "Workout generation must validate phase, impact budget, side balance, rest, surface, space, exact foot contract, and substitutions after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athlete support explains the exact foot contract, what a controlled stick looks like, expected effort, unexpected symptoms, self-checks, and how to request a lower-impact alternative.",
+        "Pain or instability is a stop signal, not a difficulty target."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "Coaches observe turn magnitude, takeoff and landing feet, asymmetrical loading, trunk orientation, knee-foot alignment, landing noise, hold, symptoms, side completion, and reset.",
+        "Group delivery requires one athlete per marked zone, a shared start and stop signal, clear turn direction, and a maintained sightline."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "unilateral_plyometric_landing_stabilization_rct",
+      "claims": [
+        "Unilateral and bilateral options are not interchangeable accessibility labels; an easier option changes the exact exercise and requires a reviewed substitution.",
+        "Accessible delivery can reduce jump height and attempts, increase rest, use larger visual targets, and provide text, still-image, audio, or live instruction while preserving the chosen identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "single_leg_jump_direction_load_biomechanics",
+      "claims": [
+        "Landing support, direction, displacement, external load, approach, obstacle or drop, rotation magnitude, terminal action, and reactive cue are evaluated separately.",
+        "Clockwise versus counterclockwise direction and starting side are modifiers only after takeoff, landing, displacement, rotation, and finish are fixed."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube oEmbed health and embedding metadata establish current candidate availability only.",
+        "A human must watch the complete video and verify exact foot contract, 90-degree rotation, displacement, terminal hold, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "two-foot-quarter-turn-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary two-foot stance, take off from both feet together, turn exactly 90 degrees in the air in the declared direction with minimal horizontal displacement, land on both feet together facing the target orientation, hold under control, and reset before the next attempt.",
+        "currentCardFindings": [
+          "This is a new research-authored exact definition; it is not a consolidation of either ambiguous legacy source.",
+          "Two-foot takeoff, two-foot landing, exactly 90 degrees of whole-body rotation, minimal displacement, terminal hold, and full reset are identity-bearing.",
+          "Clockwise or counterclockwise direction, starting orientation, jump height, attempt count, hold duration, and rest are delivery modifiers after identity is fixed.",
+          "Five oEmbed-healthy title candidates are retained without exact-match or quality approval."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 56,
+          "baseOverallDifficulty": 58,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "stationary-two-foot-quarter-turn-two-foot-stick",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 56,
+            "overallDifficulty": 58
+          }
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_bilateral_quarter_turn_definition",
+          "legacySourcesNotMapped": [
+            "90-degree-hop-to-stick",
+            "90-degree-jump-turn-to-stick"
+          ]
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ahWJBrYwLZQ",
+          "title": "2 Leg 90 degree jump turn w/ stick",
+          "channelName": "Juddson Smith",
+          "sourceQuery": "double leg 90 degree jump turn stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"},
+          "notes": "Title-level two-leg quarter-turn stick candidate; exact displacement, landing contract, cue quality, safety, accessibility, reviewer, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3m_MLGVU7QI",
+          "title": "Rotational Jump to Stick - 90 Degrees",
+          "channelName": "Trainer Stone",
+          "sourceQuery": "90 degree rotational jump to stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"},
+          "notes": "Title-level quarter-turn stick candidate; exact foot contract and all human gates remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jWkcwNFR1Ys",
+          "title": "Rotational Vertical Jump to Stick",
+          "channelName": "Performance Unlimited",
+          "sourceQuery": "rotational vertical jump to stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"},
+          "notes": "Title-level vertical rotational stick candidate; exact rotation and foot contract require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=i3xHgNclSsc",
+          "title": "90 deg Rotational CM Vertical Jump + Stick (Landing)",
+          "channelName": "Depth Training and Physiotherapy Waterloo",
+          "sourceQuery": "90 degree countermovement vertical jump stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"},
+          "notes": "Title-level countermovement quarter-turn landing candidate; exact feet and complete quality review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Lclpj8Y_utg",
+          "title": "Vertical Jump w/90 Degree Turn Landing",
+          "channelName": "Queens College Knight Strength",
+          "sourceQuery": "vertical jump 90 degree turn landing",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"},
+          "notes": "Title-level quarter-turn landing candidate; terminal hold and all human review fields remain unresolved."
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Single-Leg Same-Leg Quarter-Turn Hop to Stick", "classification": "new_definition", "rationale": "One-leg takeoff and same-leg landing change laterality, loading, balance, and side dosage.", "distinguishingDimensions": {"takeoffFeet": 1, "landingFeet": 1, "landingLeg": "same"}},
+        {"name": "Two-Foot Quarter-Turn Jump to Single-Leg Stick", "classification": "new_definition", "rationale": "A unilateral terminal landing changes the landing support and failure state.", "distinguishingDimensions": {"takeoffFeet": 2, "landingFeet": 1}},
+        {"name": "Two-Foot Half-Turn Jump to Stick", "classification": "new_definition", "rationale": "A 180-degree reorientation changes aerial orientation and landing demand.", "distinguishingDimensions": {"rotationDegrees": 180}},
+        {"name": "Quarter-Turn Broad Jump to Stick", "classification": "new_variant", "rationale": "Declared horizontal displacement changes projection and braking demand.", "distinguishingDimensions": {"displacement": "horizontal_declared"}},
+        {"name": "Drop to Quarter-Turn Landing", "classification": "new_definition", "rationale": "A box or step-off creates an ordered drop-then-turn sequence and new equipment and impact constraints.", "distinguishingDimensions": {"entry": "drop_or_step_off"}},
+        {"name": "Continuous Quarter-Turn Jumps", "classification": "new_definition", "rationale": "Repeated contacts without a terminal hold change contact strategy and repetition boundary.", "distinguishingDimensions": {"terminalAction": "continuous"}},
+        {"name": "Reactive-Cue Quarter-Turn Jump to Stick", "classification": "new_variant", "rationale": "An external cue adds perception and response demand after the exact physical contract is fixed.", "distinguishingDimensions": {"cue": "live_external"}},
+        {"name": "Turn Direction, Start Orientation, Height, Attempts, Hold, or Rest", "classification": "modifier_annotation", "rationale": "These scale delivery while preserving bilateral takeoff, bilateral landing, quarter turn, minimal displacement, stick, and reset.", "distinguishingDimensions": {"modifiers": ["turn_direction", "start_orientation", "height", "attempts", "hold_seconds", "rest_seconds"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-quarter-turn-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary stance on one declared leg, take off from that leg, turn exactly 90 degrees in the air in the declared direction with minimal horizontal displacement, land on the same leg facing the target orientation, hold under control, then reset before changing side or attempting again.",
+        "currentCardFindings": [
+          "This is a new research-authored exact definition rather than a reinterpretation of the ambiguous Hop to Stick source.",
+          "Declared takeoff leg, same-leg landing, exactly 90 degrees of rotation, minimal displacement, terminal hold, side completion, and reset are identity-bearing.",
+          "Turn direction, starting side, height, attempts per side, hold duration, and rest are delivery modifiers after identity is fixed.",
+          "Five oEmbed-healthy single-leg title candidates remain candidate-only."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 68,
+          "absoluteLoadDemand": 64,
+          "baseOverallDifficulty": 68,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "stationary-same-leg-quarter-turn-stick",
+            "exerciseComplexity": 68,
+            "physicalDifficulty": 64,
+            "overallDifficulty": 68
+          }
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_unilateral_same_leg_quarter_turn_definition",
+          "legacySourcesNotMapped": ["90-degree-hop-to-stick"]
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=jsSDIET2dOI", "title": "Hop Rotations | Single Leg Hop & Stick with 90 Degree Turn", "channelName": "Simple Speed Coach", "sourceQuery": "single leg 90 degree hop stick landing", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Title-level single-leg quarter-turn stick candidate; same-leg landing, displacement, quality, safety, accessibility, reviewer, and approval require human review."},
+        {"url": "https://www.youtube.com/watch?v=Q4JOjWp2dLk", "title": "Single Leg 90 Hop and Stick.MP4", "channelName": "YUStrength", "sourceQuery": "single leg 90 hop and stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Title-level single-leg candidate; exact same-leg contract and all human gates remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=Jd2jKgmVJPc", "title": "Single Leg Hops (90 Degree Turn)", "channelName": "Limitless Performance Training", "sourceQuery": "single leg hops 90 degree turn", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Title-level single-leg turn candidate; terminal hold and complete review remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=Zo888b5Kcy8", "title": "Single Leg 90 Degree Hop", "channelName": "17th STS Resiliency & Human Performance", "sourceQuery": "single leg 90 degree hop", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Title-level single-leg quarter-turn candidate; landing leg and terminal hold require human review."},
+        {"url": "https://www.youtube.com/watch?v=1qUTJfTEU-A", "title": "Single Leg 90*Rotational Jump - Single Leg Landing (Same Leg - Same Turn)", "channelName": "Coach Miguez Sports Performance Training", "sourceQuery": "single leg 90 rotational same leg landing", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Title-level same-leg candidate; complete playback, quality, accessibility, reviewer, and approval remain unresolved."}
+      ],
+      "alternateAssessments": [
+        {"name": "Two-Foot Quarter-Turn Jump to Stick", "classification": "new_definition", "rationale": "Bilateral takeoff and landing change support and impact distribution.", "distinguishingDimensions": {"takeoffFeet": 2, "landingFeet": 2}},
+        {"name": "Single-Leg Quarter-Turn Hop to Opposite-Leg Stick", "classification": "new_definition", "rationale": "Landing on the opposite leg changes the contact sequence and side accounting.", "distinguishingDimensions": {"landingLeg": "opposite"}},
+        {"name": "Single-Leg Half-Turn Hop to Stick", "classification": "new_definition", "rationale": "A 180-degree turn changes aerial orientation and failure consequence.", "distinguishingDimensions": {"rotationDegrees": 180}},
+        {"name": "Single-Leg Quarter-Turn Broad Hop to Stick", "classification": "new_variant", "rationale": "Declared horizontal displacement changes projection and braking demand.", "distinguishingDimensions": {"displacement": "horizontal_declared"}},
+        {"name": "Single-Leg Drop to Quarter-Turn Stick", "classification": "new_definition", "rationale": "A drop entry creates a different ordered sequence, impact, and equipment contract.", "distinguishingDimensions": {"entry": "drop_or_step_off"}},
+        {"name": "Continuous Single-Leg Quarter-Turn Hops", "classification": "new_definition", "rationale": "Repeated contacts without stabilization change terminal action and repetition boundary.", "distinguishingDimensions": {"terminalAction": "continuous"}},
+        {"name": "Reactive-Cue Single-Leg Quarter-Turn Hop", "classification": "new_variant", "rationale": "A live cue adds perception and decision demand after the physical task is fixed.", "distinguishingDimensions": {"cue": "live_external"}},
+        {"name": "Turn Direction, Starting Leg, Height, Attempts per Side, Hold, or Rest", "classification": "modifier_annotation", "rationale": "These scale delivery while preserving same-leg takeoff and landing, quarter turn, minimal displacement, stick, and reset.", "distinguishingDimensions": {"modifiers": ["turn_direction", "starting_leg", "height", "attempts_per_side", "hold_seconds", "rest_seconds"]}}
+      ]
+    },
+    {
+      "slug": "90-degree-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "Unresolved legacy quarter-turn source. Its description says jump or bound and does not declare takeoff foot count, landing foot count or leg, displacement, turn direction, hold criterion, side accounting, or reset.",
+        "currentCardFindings": [
+          "The label cannot distinguish a same-leg hop, opposite-leg bound, bilateral jump, or two-foot-to-one-foot landing.",
+          "Existing wording is not executable and cannot support its current low physical-difficulty score.",
+          "Candidate videos intentionally span bilateral and unilateral interpretations rather than resolve the source."
+        ],
+        "difficultyDecision": "Do not score exercise complexity or physical difficulty until foot contracts, displacement, direction, hold, side accounting, and reset define one exercise. Athlete proficiency is excluded.",
+        "programmingDecision": "Archive as nonprescribable while preserving the source mapping and human-review decision.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleDefinitions": ["two-foot-quarter-turn-jump-to-stick", "single-leg-quarter-turn-hop-to-stick"],
+          "missingIdentityDimensions": ["takeoff_foot_count", "landing_foot_count", "landing_leg", "displacement", "turn_direction", "hold_criterion", "side_accounting", "reset"]
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=ahWJBrYwLZQ", "title": "2 Leg 90 degree jump turn w/ stick", "channelName": "Juddson Smith", "sourceQuery": "90 degree hop to stick interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Bilateral interpretation candidate; it cannot establish the ambiguous source contract."},
+        {"url": "https://www.youtube.com/watch?v=jsSDIET2dOI", "title": "Hop Rotations | Single Leg Hop & Stick with 90 Degree Turn", "channelName": "Simple Speed Coach", "sourceQuery": "90 degree hop to stick interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Unilateral interpretation candidate; it cannot establish the ambiguous source contract."},
+        {"url": "https://www.youtube.com/watch?v=3m_MLGVU7QI", "title": "Rotational Jump to Stick - 90 Degrees", "channelName": "Trainer Stone", "sourceQuery": "90 degree rotational jump stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Foot-count-unspecified title candidate; no exact-match decision or approval."}
+      ],
+      "alternateAssessments": [
+        {"name": "Two-Foot Quarter-Turn Jump to Stick", "classification": "same_identity", "rationale": "Possible only if authoritative source evidence establishes bilateral takeoff and landing plus the complete stick contract.", "distinguishingDimensions": {"possibleMapping": "two-foot-quarter-turn-jump-to-stick"}},
+        {"name": "Single-Leg Same-Leg Quarter-Turn Hop to Stick", "classification": "same_identity", "rationale": "Possible only if authoritative source evidence establishes one-leg takeoff and same-leg landing plus the complete stick contract.", "distinguishingDimensions": {"possibleMapping": "single-leg-quarter-turn-hop-to-stick"}},
+        {"name": "Single-Leg Opposite-Leg Quarter-Turn Bound to Stick", "classification": "new_definition", "rationale": "Opposite-leg landing changes the ordered contact contract.", "distinguishingDimensions": {"landingLeg": "opposite"}},
+        {"name": "Two-Foot to Single-Leg Quarter-Turn Landing", "classification": "new_definition", "rationale": "Bilateral takeoff and unilateral landing require an exact separate definition.", "distinguishingDimensions": {"takeoffFeet": 2, "landingFeet": 1}},
+        {"name": "Quarter-Turn Broad Jump or Hop to Stick", "classification": "new_variant", "rationale": "Declared horizontal displacement changes the projection and braking task.", "distinguishingDimensions": {"displacement": "horizontal_declared"}},
+        {"name": "Continuous Quarter-Turn Contacts", "classification": "new_definition", "rationale": "No terminal hold creates a different repetition boundary.", "distinguishingDimensions": {"terminalAction": "continuous"}},
+        {"name": "Turn Direction, Height, Attempts, Hold, or Rest", "classification": "modifier_annotation", "rationale": "These are modifiers only after takeoff, landing, displacement, and reset are fixed.", "distinguishingDimensions": {"modifiers": ["turn_direction", "height", "attempts", "hold_seconds", "rest_seconds"]}}
+      ]
+    },
+    {
+      "slug": "90-degree-jump-turn-to-stick",
+      "assessmentSummary": {
+        "identity": "Unresolved legacy quarter-turn jump source. It does not declare takeoff foot count, landing foot count, landing leg, vertical versus horizontal displacement, turn direction, terminal hold criterion, or reset.",
+        "currentCardFindings": [
+          "The conventional word jump is insufficient to prove a two-foot-to-two-foot contract in this source.",
+          "All three stored legacy videos are agility cuts or shuttle content rather than quarter-turn jump landings and cannot resolve identity.",
+          "Candidate videos span bilateral and unilateral quarter-turn interpretations."
+        ],
+        "difficultyDecision": "Do not retain or revise a difficulty score for an undefined foot and landing contract.",
+        "programmingDecision": "Archive without mapping; use a separately authored exact bilateral or unilateral card.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleDefinitions": ["two-foot-quarter-turn-jump-to-stick", "single-leg-quarter-turn-hop-to-stick"],
+          "missingIdentityDimensions": ["takeoff_foot_count", "landing_foot_count", "landing_leg", "displacement", "turn_direction", "hold_criterion", "reset"]
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=ahWJBrYwLZQ", "title": "2 Leg 90 degree jump turn w/ stick", "channelName": "Juddson Smith", "sourceQuery": "90 degree jump turn stick interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Bilateral interpretation candidate; it does not prove the source foot contract."},
+        {"url": "https://www.youtube.com/watch?v=p4voRryQIMw", "title": "90 deg Rotational Single leg Vertical Jump + Stick (Landing)", "channelName": "Depth Training and Physiotherapy Waterloo", "sourceQuery": "90 degree jump turn stick interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Unilateral interpretation candidate; no exact source mapping or approval."},
+        {"url": "https://www.youtube.com/watch?v=P-O5EB9672I", "title": "Double Leg 90* Rotational Jump - Single Leg Landing (Turn Opposite)", "channelName": "Coach Miguez Sports Performance Training", "sourceQuery": "double leg 90 jump single leg landing", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-01T20:00:00.000Z"}, "notes": "Two-foot-to-one-foot interpretation candidate; no exact source mapping or approval."}
+      ],
+      "alternateAssessments": [
+        {"name": "Two-Foot Quarter-Turn Jump to Stick", "classification": "same_identity", "rationale": "Possible only if authoritative evidence establishes bilateral takeoff and landing, minimal displacement, hold, and reset.", "distinguishingDimensions": {"possibleMapping": "two-foot-quarter-turn-jump-to-stick"}},
+        {"name": "Single-Leg Quarter-Turn Hop to Stick", "classification": "new_definition", "rationale": "Unilateral takeoff and landing change laterality and loading.", "distinguishingDimensions": {"takeoffFeet": 1, "landingFeet": 1}},
+        {"name": "Two-Foot Quarter-Turn Jump to Single-Leg Stick", "classification": "new_definition", "rationale": "Unilateral landing changes the terminal support contract.", "distinguishingDimensions": {"takeoffFeet": 2, "landingFeet": 1}},
+        {"name": "Quarter-Turn Broad Jump to Stick", "classification": "new_variant", "rationale": "Horizontal displacement changes projection and braking demand.", "distinguishingDimensions": {"displacement": "horizontal_declared"}},
+        {"name": "Drop to Quarter-Turn Landing", "classification": "new_definition", "rationale": "A drop entry changes sequence, equipment, and impact.", "distinguishingDimensions": {"entry": "drop_or_step_off"}},
+        {"name": "Continuous Quarter-Turn Jumps", "classification": "new_definition", "rationale": "No terminal hold changes repetition boundary and fatigue behavior.", "distinguishingDimensions": {"terminalAction": "continuous"}},
+        {"name": "Turn Direction, Height, Attempts, Hold, or Rest", "classification": "modifier_annotation", "rationale": "These are modifiers only after takeoff and landing support, displacement, and reset are fixed.", "distinguishingDimensions": {"modifiers": ["turn_direction", "height", "attempts", "hold_seconds", "rest_seconds"]}}
+      ]
+    }
+  ]
+}

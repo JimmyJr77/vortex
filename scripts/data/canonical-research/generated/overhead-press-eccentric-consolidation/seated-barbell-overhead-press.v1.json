@@ -1,0 +1,506 @@
+{
+  "facilityId": 1,
+  "slug": "seated-barbell-overhead-press",
+  "researchVersion": "2026-08-01.7",
+  "assessmentSummary": {
+    "identity": "A bilateral strict overhead press from a declared stable seated bench, with declared support, implement, grip, rack, owned overhead finish, controlled return, and no deliberate leg drive.",
+    "currentCardFindings": [
+      "The version-2 card already has four complete selectable barbell and dumbbell variants, support contracts, evidence, media, alternate assessments, graph proposals, calibration proposals, and quarantined test state.",
+      "The legacy eccentric source cannot be directly consolidated because it permits standing or sitting and does not define grip, support, return assistance, or a complete repetition cycle.",
+      "Neutral- and pronated-grip back-supported dumbbell variants with an active press and 4–6-second controlled lower preserve the seated strict-press identity while making the tempo contract executable.",
+      "Five retained title-level candidates, including a seated eccentric press candidate, are healthy and embeddable; all exact-match and approval fields remain unresolved."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 46,
+      "absoluteLoadDemand": 60,
+      "baseOverallDifficulty": 60,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "barbell-unsupported-pronated",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 58,
+        "overallDifficulty": 58
+      },
+      {
+        "variantKey": "barbell-back-supported-pronated",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 60,
+        "overallDifficulty": 60
+      },
+      {
+        "variantKey": "dumbbell-back-supported-neutral",
+        "exerciseComplexity": 46,
+        "physicalDifficulty": 50,
+        "overallDifficulty": 50
+      },
+      {
+        "variantKey": "dumbbell-back-supported-pronated",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 52,
+        "overallDifficulty": 52
+      },
+      {
+        "variantKey": "dumbbell-back-supported-neutral-eccentric-4-6",
+        "exerciseComplexity": 58,
+        "physicalDifficulty": 54,
+        "overallDifficulty": 58
+      },
+      {
+        "variantKey": "dumbbell-back-supported-pronated-eccentric-4-6",
+        "exerciseComplexity": 60,
+        "physicalDifficulty": 56,
+        "overallDifficulty": 60
+      }
+    ],
+    "changeBoundary": {
+      "newVariantsOnly": true,
+      "identityChange": false,
+      "approvalCreated": false,
+      "difficultyModel": "exercise_complexity_physical_difficulty_only"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T16:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Sit on the declared stable bench with feet, seat, ribs, pelvis, back support, implement, grip, rack, load, range, tempo, and spotter plan established. Press one barbell or two dumbbells overhead without deliberate leg drive or backward lean, finish in the owned overhead position, lower symmetrically to the same start, and secure the implement before relaxing.",
+      "familyKey": "seated_strict_bilateral_overhead_press",
+      "movementPatterns": [
+        "push",
+        "brace"
+      ],
+      "bodyRegions": [
+        "shoulder",
+        "scapula",
+        "elbow",
+        "wrist",
+        "hand",
+        "core",
+        "spine",
+        "rib_cage",
+        "pelvis"
+      ],
+      "requiredEquipment": [
+        "bench"
+      ],
+      "optionalEquipment": [
+        "barbell",
+        "dumbbells",
+        "rack",
+        "squat_rack",
+        "plates"
+      ],
+      "environment": {
+        "bench": {
+          "angle": "declared_per_variant",
+          "stable": true,
+          "athleteFitRequired": true,
+          "seatAndBackLocksInspected": true
+        },
+        "space": {
+          "clearPickupAndSetDownZone": true,
+          "overheadClearanceRequired": true,
+          "noTrafficThroughLiftingZone": true
+        },
+        "surface": {
+          "avoid": [
+            "wet",
+            "uneven",
+            "unstable_platform"
+          ],
+          "required": "level_nonslip"
+        },
+        "observation": {
+          "coachCanSeeRibPelvisElbowWristAndPath": true
+        },
+        "sharedStation": {
+          "oneActiveLifterPerBench": true,
+          "loadingChangesVerballyConfirmed": true
+        },
+        "barbellStation": {
+          "hooksAligned": true,
+          "rackHeightDeclared": true,
+          "spotterAccessClear": true,
+          "barAndPlatesInspected": true,
+          "collarsRequiredWhenPlatesUsed": true
+        },
+        "dumbbellStation": {
+          "matchedPair": true,
+          "handlesAndHeadsInspected": true,
+          "safePickupAndSetDownPlan": true
+        }
+      },
+      "population": {
+        "useCaution": [
+          "current_shoulder_elbow_wrist_neck_or_back_symptoms",
+          "recent_upper_body_procedure",
+          "limited_overhead_range",
+          "history_of_pressure_or_dizziness_symptoms",
+          "fatigue_from_prior_press_throw_or_contact_work"
+        ],
+        "doNotUseWhen": [
+          "pain_or_neurologic_symptoms",
+          "unsafe_or_unfitted_bench",
+          "damaged_or_unsecured_equipment",
+          "overhead_clearance_or_spotting_inadequate",
+          "cannot_control_pickup_start_or_set_down"
+        ],
+        "prerequisites": [
+          "pain_free_owned_overhead_range",
+          "stable_seated_base",
+          "can_control_selected_implement_to_start_and_finish",
+          "understands_spotter_and_abort_signals"
+        ],
+        "regressionOrder": [
+          "reduce_load",
+          "increase_back_support",
+          "neutral_grip_dumbbells",
+          "shorter_owned_range",
+          "fewer_repetitions",
+          "non_overhead_substitution_after_review"
+        ],
+        "medicalClearancePolicy": "Follow the athlete care plan and local scope; this card does not diagnose symptoms or prescribe through pain.",
+        "individualizationRequired": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A strict overhead press is defined by its base, implement, grip, rack, no-leg-drive policy, press path, owned overhead finish, controlled return, and reset.",
+        "Standing and seated presses are different definitions because the base, balance, trunk demand, setup, failure response, and equipment operations differ; implement and tempo remain exact variant dimensions within each definition."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead press taxonomy must declare whether the path is in front of or behind the head and whether the resistance is free weight or machine constrained.",
+        "The canonical family additionally declares base, back support, implement quantity, grip, rack, leg drive, range, tempo, spotting, pickup, set-down, and repetition boundary."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead pressing involves deltoid, triceps, upper trapezius, pectoral, scapular, rotator-cuff, grip, and trunk contributions that vary with configuration.",
+        "Cards declare shoulder, scapulothoracic, elbow, wrist, thoracic, lumbar, pelvic, hip, knee, and foot roles without claiming isolated activation or one universally superior variation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Body position and loading modality alter stability demand, muscle activity, and maximum strength while preserving the vertical-press family.",
+        "A complete repetition declares the start rack, press to an owned overhead position without deliberate leg drive, controlled return to the same rack, and safe rerack or set-down."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Body position, implement stability, independent-arm demand, grip, support, load, range, and tempo change exercise complexity and physical difficulty.",
+        "Score only exercise complexity and physical difficulty, derive overall as their maximum, and keep athlete experience, proficiency, and skill level out of exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/42401924/",
+      "sourceTitle": "The effect of eccentric phase tempo on acute neuromechanical responses and short-term post-exercise recovery in healthy trained and recreationally active adults: a systematic review",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Controlled eccentric tempo changes internal load, acute neuromuscular fatigue, muscle-damage markers, and short-term recovery, with effects dependent on protocol and population.",
+        "Track external load, repetition count, eccentric seconds, range, proximity to failure, grip, shoulder and triceps work, trunk compensation, local symptoms, next-day response, and total weekly pressing exposure."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance exercise requires inspected equipment, stable setup, adequate clearance, controlled progression, and supervision appropriate to the load and failure consequence.",
+        "Require level footing or a stable bench, overhead clearance, intact rack or matched dumbbells, collars where applicable, a clear pickup and set-down path, and spotter access when the load or environment requires it."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance-training dose is defined by sets, repetitions, load or effort, rest, frequency, exercise order, and progression rather than by an exercise name alone.",
+        "Tempo variants also declare eccentric seconds; prescribed load and repetition targets must allow every repetition to retain the required range, path, posture, and equipment control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction establishes the equipment, base, rack, grip, brace, action, breathing, return, and safe finish before load increases.",
+        "Cue a fixed base, ribs over pelvis, strict press without leg drive or excessive lean, owned overhead finish, controlled same-path lower, and secure rerack or set-down before relaxing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, and gradual progression are central safeguards for resistance training.",
+        "Stop for pain, numbness, dizziness, pressure symptoms, loss of base or bench contact, uncontrolled spinal extension, asymmetric path, wrist or elbow collapse, range loss, grinding, failed repetition, unsafe spot, rack error, or dropped implement."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739265/",
+      "sourceTitle": "Implementing Eccentric Resistance Training-Part 2: Practical Recommendations",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Longer eccentric tempo can reduce achievable repetitions and increase time under tension and perceived effort, so load and volume require adjustment.",
+        "Tempo work is a submaximal programming method rather than a separate movement identity; place it where slower work will not compromise a power objective and account for added local fatigue and recovery."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athletes need a plain-language start, action, finish, breathing, equipment-control sequence, expected sensations, self-checks, and symptom escalation rule.",
+        "Expose base, support, implement, grip, load, range, tempo, repetitions, rest, expected effort, spotter signal, and safe pickup or rerack before the set."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Standing versus seated and barbell versus dumbbell conditions are mechanically different even when all are strict overhead presses.",
+        "Coach support observes base, rack, grip, scapular motion, wrist and elbow stack, rib-pelvis position, path, symmetry, range, eccentric timing, breathing, rep speed, effort, spotter readiness, and secure finish."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance training should be individualized to readiness, body size, equipment fit, technical control, symptoms, and available supervision.",
+        "Options include lighter load, neutral grip, greater support, shorter owned range, fewer repetitions, longer rest, a non-overhead substitution after review, and text, still-image, audio, tactile, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Implement, grip, support, range, and tempo can remain exact variants when the base and strict vertical-press action are preserved.",
+        "Changing standing to seated, adding deliberate leg drive, moving behind the neck, using a fixed machine or landmine arc, changing to one arm, or omitting the concentric return crosses a material identity or protocol boundary."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube currently supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Retained candidates returned current oEmbed metadata and iframe markup on 2026-08-01, but title metadata cannot establish exact grip, base, support, range, tempo, spotter, safety, captions, accessibility, demonstration quality, or human approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ECWxumBMLVQ",
+      "title": "How To: Seated Barbell Shoulder Press",
+      "channelName": "ScottHermanFitness",
+      "sourceQuery": "seated barbell overhead press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:00:00.000Z"
+      },
+      "notes": "Current oEmbed title-level seated barbell candidate. Full exact-variant and safety review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PhCNJy_Td7U",
+      "title": "How To: SEATED PRESS - The Press Accessory You NEED To Try!",
+      "channelName": "Barbell Logic",
+      "sourceQuery": "seated barbell press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:00:00.000Z"
+      },
+      "notes": "Current oEmbed seated-press candidate; implement and all exact dimensions require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=C0We_bEyxlM",
+      "title": "How To Do: Seated Dumbbell Overhead Press",
+      "channelName": "MuscleWiki",
+      "sourceQuery": "seated dumbbell overhead press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:00:00.000Z"
+      },
+      "notes": "Current oEmbed title-level seated dumbbell candidate. Full exact-variant and safety review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xg-7dS8ZGKE",
+      "title": "Seated Dumbbell Overhead Press",
+      "channelName": "Women's Strength Nation by Holly Perkins",
+      "sourceQuery": "seated dumbbell overhead press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:00:00.000Z"
+      },
+      "notes": "Current oEmbed title-level seated dumbbell candidate. Full exact-variant and safety review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=en2Kbfvx4eA",
+      "title": "Seated Dumbbell Eccentric Press | Shoulder | Strength and Conditioning Exercises",
+      "channelName": "Rehab My Patient",
+      "sourceQuery": "seated dumbbell eccentric overhead press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:00:00.000Z"
+      },
+      "notes": "Current oEmbed title-level seated eccentric candidate; exact grip, support, range, return cycle, tempo, and safety require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Back-Supported Seated Dumbbell Press with 4–6-Second Lower",
+      "classification": "new_variant",
+      "rationale": "A prolonged eccentric phase changes tempo, dose, fatigue, and recovery while preserving the complete seated press.",
+      "distinguishingDimensions": {
+        "tempo": "4_to_6_second_eccentric",
+        "support": "upright_back_support"
+      }
+    },
+    {
+      "name": "Neutral-Grip Seated Dumbbell Press",
+      "classification": "new_variant",
+      "rationale": "Grip changes wrist, elbow, and shoulder orientation within the bilateral seated press.",
+      "distinguishingDimensions": {
+        "grip": "neutral"
+      }
+    },
+    {
+      "name": "Pronated-Grip Seated Dumbbell Press",
+      "classification": "new_variant",
+      "rationale": "Grip changes wrist, elbow, and shoulder orientation within the bilateral seated press.",
+      "distinguishingDimensions": {
+        "grip": "pronated"
+      }
+    },
+    {
+      "name": "Unsupported Seated Overhead Press",
+      "classification": "new_variant",
+      "rationale": "Removing back support raises trunk-position demand while preserving the seated base.",
+      "distinguishingDimensions": {
+        "backSupport": "none"
+      }
+    },
+    {
+      "name": "Standing Overhead Press",
+      "classification": "new_definition",
+      "rationale": "Standing changes base, balance, trunk demand, setup, and failure response.",
+      "distinguishingDimensions": {
+        "base": "standing"
+      }
+    },
+    {
+      "name": "Seated Push Press",
+      "classification": "new_definition",
+      "rationale": "Deliberate drive changes the strict action and intent.",
+      "distinguishingDimensions": {
+        "legDrive": "deliberate"
+      }
+    },
+    {
+      "name": "Seated Single-Arm Overhead Press",
+      "classification": "new_definition",
+      "rationale": "Unilateral loading changes laterality and frontal/transverse trunk demand.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Load, Repetitions, Rest, Range, Bench Angle, or Eccentric Seconds",
+      "classification": "modifier_annotation",
+      "rationale": "These are declared dose or setup modifiers after the exact seated variant is selected.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "load",
+          "repetitions",
+          "rest",
+          "range",
+          "bench_angle",
+          "eccentric_seconds"
+        ]
+      }
+    }
+  ]
+}

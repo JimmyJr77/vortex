@@ -13,6 +13,10 @@ import { REQUIRED_RESEARCH_SECTIONS } from '../canonicalResearchReview.js'
 const RESEARCH_ROOT = fileURLToPath(
   new URL('../../../scripts/data/canonical-research/', import.meta.url),
 )
+const RESEARCH_BATCH_BUILDER_SOURCE = readFileSync(
+  new URL('../../scripts/build-canonical-research-batch.mjs', import.meta.url),
+  'utf8',
+)
 
 const sources = {
   standard: {
@@ -3563,5 +3567,570 @@ test('opposite-leg bound packets preserve direction as a hard identity boundary'
       JSON.stringify(cardSpec),
       /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
     )
+  }
+})
+
+test('single-leg line-hop packet quarantines the undefined identity and preserves adjacent media only', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/single-leg-line-hop-identity-quarantine.v1.json',
+    ),
+    'utf8',
+  ))
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Single-Leg Line Hop and Stick',
+      familyKey: 'Single-Leg Elastic Control',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(batch.researchVersion, '2026-08-01.6')
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 3)
+  assert.equal(result.packet.alternateAssessments.length, 7)
+  assert.equal(
+    Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+    false,
+  )
+  assert.match(
+    cardSpec.assessmentSummary.difficultyDecision,
+    /Do not score exercise complexity or physical difficulty/,
+  )
+  assert.match(
+    cardSpec.assessmentSummary.programmingDecision,
+    /Archive the canonical and legacy card as nonprescribable/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Same-Leg Lateral Line Hop to Stick'
+      && alternate.distinguishingDimensions.possibleMapping
+        === 'single-leg-lateral-hop-to-stick'
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Single-Leg Line Hop to Reacceleration'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+})
+
+test('overhead-press eccentric packets retire the mixed-base source and add explicit full-cycle tempo variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/overhead-press-eccentric-consolidation.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.7')
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/overhead-press-eccentric-consolidation',
+  )
+  assert.equal(batch.cards.length, 3)
+
+  const currentCards = new Map([
+    ['strict-overhead-press', {
+      canonicalName: 'Strict Overhead Press',
+      familyKey: 'Vertical push strength',
+      cardVersion: 1,
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+    }],
+    ['seated-barbell-overhead-press', {
+      canonicalName: 'Seated Overhead Press',
+      familyKey: 'seated_bilateral_strict_overhead_press',
+      cardVersion: 2,
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+    }],
+    ['dumbbell-overhead-press-eccentric', {
+      canonicalName: 'Dumbbell Overhead Press Eccentric',
+      familyKey: 'Loaded vertical press negative',
+      cardVersion: 1,
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = currentCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: expected.cardVersion,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+        variant.overallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )))
+      assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.some((variant) => (
+        variant.variantKey.endsWith('eccentric-4-6')
+      )))
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(
+        cardSpec.assessmentSummary.difficultyDecision,
+        /Do not score exercise complexity or physical difficulty/,
+      )
+      assert.equal(
+        cardSpec.assessmentSummary.identityDecision.resolution,
+        'retire_ambiguous_source_without_direct_consolidation',
+      )
+    }
+  }
+})
+
+test('standing kettlebell strict-press packets separate the exact standing variant from mixed-base legacy lineage', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/standing-kettlebell-strict-press-identity.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.8')
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/standing-kettlebell-strict-press-identity',
+  )
+  assert.equal(batch.cards.length, 2)
+
+  const expectedCards = new Map([
+    ['strict-overhead-press', {
+      canonicalName: 'Standing Strict Overhead Press',
+      familyKey: 'standing_bilateral_strict_free_weight_overhead_press',
+      cardVersion: 2,
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+    }],
+    ['kettlebell-strict-press', {
+      canonicalName: 'Kettlebell Strict Press',
+      familyKey: 'Vertical push strength',
+      cardVersion: 1,
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: expected.cardVersion,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: 'double-kettlebell-standing-neutral-rack',
+          exerciseComplexity: 62,
+          physicalDifficulty: 60,
+          overallDifficulty: 62,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(
+        cardSpec.assessmentSummary.difficultyDecision,
+        /Do not score exercise complexity or physical difficulty/,
+      )
+      assert.equal(
+        cardSpec.assessmentSummary.identityDecision.resolution,
+        'retire_ambiguous_source_without_direct_consolidation',
+      )
+    }
+  }
+})
+
+test('line-pogo packets complete exact directions and quarantine ambiguous source labels', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/line-pogo-identity-completion.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.9')
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/line-pogo-identity-completion',
+  )
+  assert.equal(batch.cards.length, 5)
+
+  const expectedCards = new Map([
+    ['lateral-line-pogo', {
+      canonicalName: 'Lateral Line Pogo',
+      familyKey: 'bilateral_directional_line_pogo',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'two-foot-side-to-side-low-amplitude',
+      complexity: 44,
+    }],
+    ['line-pogo-forward-back', {
+      canonicalName: 'Forward-Backward Line Pogo',
+      familyKey: 'bilateral_directional_line_pogo',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'two-foot-forward-back-low-amplitude',
+      complexity: 46,
+    }],
+    ['line-pogo-hops', {
+      canonicalName: 'Line Pogo Hops',
+      familyKey: 'unresolved_line_hop_identity_quarantine',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+    ['line-hops', {
+      canonicalName: 'Line Hops',
+      familyKey: 'unresolved_line_hop_identity_quarantine',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+    ['forward-back-line-hops', {
+      canonicalName: 'Forward-Back Line Hops',
+      familyKey: 'unresolved_line_hop_identity_quarantine',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(proposed.absoluteLoadDemand, 48)
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: expected.variantKey,
+          exerciseComplexity: expected.complexity,
+          physicalDifficulty: 48,
+          overallDifficulty: 48,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(
+        cardSpec.assessmentSummary.difficultyDecision,
+        /Do not score/,
+      )
+      assert.equal(
+        cardSpec.assessmentSummary.identityDecision.resolution,
+        'retire_ambiguous_source_without_direct_consolidation',
+      )
+    }
+  }
+})
+
+test('quarter-turn packets separate exact foot contracts and retire ambiguous source labels', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/quarter-turn-jump-hop-identity.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(batch.researchVersion, '2026-08-01.10')
+  assert.equal(batch.includeArchived, true)
+  assert.match(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /definition\.status!='archived' OR \$3::boolean/,
+  )
+  assert.equal(
+    batch.outputDirectory,
+    '../generated/quarter-turn-jump-hop-identity',
+  )
+  assert.equal(batch.cards.length, 4)
+
+  const expectedCards = new Map([
+    ['two-foot-quarter-turn-jump-to-stick', {
+      canonicalName: 'Two-Foot Quarter-Turn Jump to Stick',
+      familyKey: 'quarter_turn_jump_landing_control',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'stationary-two-foot-quarter-turn-two-foot-stick',
+      complexity: 58,
+      physical: 56,
+      overall: 58,
+    }],
+    ['single-leg-quarter-turn-hop-to-stick', {
+      canonicalName: 'Single-Leg Quarter-Turn Hop to Stick',
+      familyKey: 'quarter_turn_hop_landing_control',
+      mediaCount: 5,
+      alternateCount: 8,
+      active: true,
+      variantKey: 'stationary-same-leg-quarter-turn-stick',
+      complexity: 68,
+      physical: 64,
+      overall: 68,
+    }],
+    ['90-degree-hop-to-stick', {
+      canonicalName: '90-Degree Hop to Stick',
+      familyKey: 'unresolved_quarter_turn_jump_hop_identity',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+    ['90-degree-jump-turn-to-stick', {
+      canonicalName: '90-Degree Jump Turn to Stick',
+      familyKey: 'unresolved_quarter_turn_jump_hop_identity',
+      mediaCount: 3,
+      alternateCount: 7,
+      active: false,
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expected = expectedCards.get(cardSpec.slug)
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expected.canonicalName,
+        familyKey: expected.familyKey,
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, expected.mediaCount)
+    assert.equal(result.packet.alternateAssessments.length, expected.alternateCount)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+
+    if (expected.active) {
+      const proposed = cardSpec.assessmentSummary.proposedDifficulty
+      assert.equal(
+        proposed.baseOverallDifficulty,
+        Math.max(proposed.technicalComplexity, proposed.absoluteLoadDemand),
+      )
+      assert.deepEqual(
+        cardSpec.assessmentSummary.proposedVariantPlan,
+        [{
+          variantKey: expected.variantKey,
+          exerciseComplexity: expected.complexity,
+          physicalDifficulty: expected.physical,
+          overallDifficulty: expected.overall,
+        }],
+      )
+    } else {
+      assert.equal(
+        Object.hasOwn(cardSpec.assessmentSummary, 'proposedDifficulty'),
+        false,
+      )
+      assert.match(
+        cardSpec.assessmentSummary.difficultyDecision,
+        /Do not/,
+      )
+      assert.equal(
+        cardSpec.assessmentSummary.identityDecision.resolution,
+        'retire_ambiguous_source_without_direct_consolidation',
+      )
+    }
   }
 })

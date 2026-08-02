@@ -799,6 +799,20 @@
       "kind": "peer_reviewed_research",
       "evidenceQuality": 83
     },
+    "whole_body_rotation_landing_mechanics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "title": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "jump_entry_angle_landing_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35714032/",
+      "title": "Entry angle during jump landing changes biomechanical risk factors for ACL injury",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
     "unilateral_bilateral_plyometric_meta_analysis": {
       "url": "https://pubmed.ncbi.nlm.nih.gov/40281589/",
       "title": "Effect of unilateral and bilateral plyometric training on jumping, sprinting, and change of direction abilities",
@@ -1057,6 +1071,27 @@
       "publisher": "Frontiers in Physiology",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "eccentric_resistance_training_practical_recommendations": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739265/",
+      "title": "Implementing Eccentric Resistance Training-Part 2: Practical Recommendations",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "eccentric_phase_duration_meta_analysis_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40692176/",
+      "title": "The effect of eccentric phase duration on maximal strength, muscle hypertrophy and countermovement jump height: A systematic review and meta-analysis",
+      "publisher": "Journal of Sports Sciences",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "eccentric_phase_tempo_recovery_review_2026": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42401924/",
+      "title": "The effect of eccentric phase tempo on acute neuromechanical responses and short-term post-exercise recovery in healthy trained and recreationally active adults: a systematic review",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
     },
     "ace_forward_overhead_medicine_ball_throw": {
       "url": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
@@ -1400,6 +1435,20 @@
       "publisher": "Breaking Muscle",
       "kind": "expert_instruction",
       "evidenceQuality": 72
+    },
+    "bilateral_hopping_contact_time_stiffness": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17367931/",
+      "title": "Changes in muscle activity with increase in leg stiffness during hopping",
+      "publisher": "Neuroscience Letters",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "field_measurement_hopping_stiffness": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/15088239/",
+      "title": "A simple method for field measurements of leg stiffness in hopping",
+      "publisher": "International Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
     }
   }
 }

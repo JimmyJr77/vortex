@@ -1,0 +1,363 @@
+{
+  "facilityId": 1,
+  "slug": "kettlebell-strict-press",
+  "researchVersion": "2026-08-01.8",
+  "assessmentSummary": {
+    "identity": "Unresolved legacy family label. The source permits a stance or kneeling base, while the merged aliases and lineage cover both generic Kettlebell Strict Press and explicit Double Kettlebell Strict Press; exact base, laterality, quantity, rack, and repetition contract are not jointly declared.",
+    "currentCardFindings": [
+      "The setup explicitly says to use a stance or kneeling base, crossing standing, tall-kneeling, and half-kneeling definition boundaries.",
+      "The stable name is singular-generic while aliases and a consolidated source explicitly say Double Kettlebell, so implement quantity and laterality are not stable.",
+      "No exact rack, handle orientation, clean or handoff, base, set-down, or failed-repetition plan is shared across the source family.",
+      "Three retained title-level candidates expose generic and double-kettlebell interpretations but cannot resolve base and laterality."
+    ],
+    "difficultyDecision": "Do not score exercise complexity or physical difficulty because the source family does not define one exact exercise. Athlete skill or proficiency is excluded as well.",
+    "programmingDecision": "Archive the combined source card as nonprescribable while preserving both source mappings, aliases, evidence, media, and the new needs-human-review identity record.",
+    "identityDecision": {
+      "resolution": "retire_ambiguous_source_without_direct_consolidation",
+      "possibleDefinitions": [
+        "strict-overhead-press",
+        "half-kneeling-single-arm-dumbbell-press",
+        "tall-kneeling-sandbag-overhead-press-strength"
+      ],
+      "missingIdentityDimensions": [
+        "base",
+        "laterality",
+        "implement_quantity",
+        "rack",
+        "handle_orientation",
+        "clean_or_handoff",
+        "set_down",
+        "repetition_boundary"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T16:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Kettlebell Strict Press as a controlled, progressively loaded kettlebell strength pattern. Load, range, tempo, and rest should support force production rather than fatigue chasing or ballistic work.",
+      "familyKey": "Vertical press strength",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23096062/",
+      "sourceTitle": "Effects of body position and loading modality on muscle activity and strength in shoulder presses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A strict overhead press must declare base, laterality, implement quantity, rack, grip, no-leg-drive policy, full repetition cycle, range, tempo, and equipment operations.",
+        "Standing, seated, tall-kneeling, and half-kneeling bases materially change balance, trunk demand, setup, and failure response; they cannot share one selectable source contract."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "sourceTitle": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Implement stability changes overhead-press demand and must be represented explicitly.",
+        "The controlled contract declares standing base, two kettlebells, bilateral press, rack, handle orientation, free-bell path, no deliberate leg drive, owned range, controlled return, and reset."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "sourceTitle": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Overhead pressing involves deltoid, triceps, trapezius, scapular, rotator-cuff, grip, and trunk contributions that depend on configuration.",
+        "Exact cards declare shoulder, scapulothoracic, elbow, wrist, thoracic, lumbar, pelvic, hip, knee, ankle, and foot roles without claiming isolated activation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "sourceTitle": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "A less stable implement changes muscle activity during overhead pressing.",
+        "Two independently moving kettlebells require a declared rack, handle and bell position, bilateral path, owned finish, controlled return, and safe clean or assisted setup."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "sourceTitle": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Implement stability and independent paths contribute to exercise demand.",
+        "Score exercise complexity and physical difficulty only, derive overall as their maximum, and keep athlete skill or proficiency out of exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/42401924/",
+      "sourceTitle": "The effect of eccentric phase tempo on acute neuromechanical responses and short-term post-exercise recovery in healthy trained and recreationally active adults: a systematic review",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Controlled eccentric tempo influences internal load and short-term recovery.",
+        "Track load per kettlebell, combined load, repetitions, range, tempo, effort, set duration, grip and rack fatigue, local symptoms, and next-day response."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance training requires inspected equipment, stable setup, adequate clearance, controlled progression, and appropriate supervision.",
+        "Require two matched intact kettlebells, level non-slip footing, overhead clearance, a clear clean and set-down zone, and a declared spot or failed-repetition plan."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance dose depends on sets, repetitions, load, effort, rest, order, and progression.",
+        "Use quality repetitions with enough rest to preserve standing base, rack, independent paths, owned range, and secure set-down."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction establishes equipment, setup, start, action, breathing, return, and safe finish.",
+        "Cue a safe clean or assisted rack, stable feet, stacked ribs and pelvis, strict press without a dip, controlled independent paths, owned finish, return to rack, and secure set-down."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, and gradual progression are central resistance-training safeguards.",
+        "Stop for pain, instability, numbness, dizziness, pressure symptoms, grip loss, bell collision, unsafe clean or set-down, balance loss, rib flare, asymmetric path, range loss, or grinding."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Exercise order, load, volume, frequency, and progression should match the intended adaptation.",
+        "Place demanding bilateral kettlebell pressing before fatigue-sensitive overhead skills or dense pressing and count it toward shoulder, triceps, grip, trunk, and recovery budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athletes need a plain-language setup, action, finish, self-check, and symptom escalation rule.",
+        "Expose kettlebell count and mass, rack, base, range, tempo, repetitions, rest, expected effort, safe clean or handoff, and set-down before the set."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "sourceTitle": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Implement stability changes the overhead-press task.",
+        "Observe footing, clean or handoff, rack, handle and bell position, grip, wrist-elbow stack, scapular motion, rib-pelvis position, independent paths, symmetry, range, tempo, effort, and secure finish."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance training should be individualized to readiness, body size, equipment fit, technical control, and supervision.",
+        "Options include lighter matched kettlebells, fewer repetitions, shorter owned range, longer rest, dumbbell or seated substitution after review, and text, still-image, audio, tactile, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "sourceTitle": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Two-kettlebell standing execution is an implement variant of the bilateral standing strict press.",
+        "Changing to one arm, kneeling, seated, push press, bottom-up, alternating, or assisted eccentric-only execution changes laterality, base, stability, ordered action, or primary constraint and requires separate review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Retained candidates returned current oEmbed metadata and iframe markup on 2026-08-01, but title metadata cannot establish exact base, rack, handle orientation, range, tempo, safety, captions, accessibility, quality, reviewer, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Ay9W-movDuE",
+      "title": "Kettlebell Exercise: Strict Press",
+      "channelName": "Onnit",
+      "sourceQuery": "kettlebell strict press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:30:00.000Z"
+      },
+      "notes": "Current oEmbed generic title does not declare base, laterality, quantity, rack, or complete equipment operations; adjacent evidence only."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3y0XIgFyIgE",
+      "title": "Double Kettlebell Strict Press by Kettlebell Athletes",
+      "channelName": "Bij & Gab - Kettlebell Athletes",
+      "sourceQuery": "double kettlebell strict press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:30:00.000Z"
+      },
+      "notes": "Current oEmbed title establishes two kettlebells but does not resolve the combined source family's base; adjacent evidence only."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=He8TyCcK0sc",
+      "title": "Primal Methods | Kettlebell Strict Press | Eric Leija",
+      "channelName": "Eric Leija",
+      "sourceQuery": "kettlebell strict press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T16:30:00.000Z"
+      },
+      "notes": "Current oEmbed generic title does not declare base, laterality, quantity, rack, or complete equipment operations; adjacent evidence only."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Double-Kettlebell Strict Press",
+      "classification": "same_identity",
+      "rationale": "If authoritative evidence establishes standing base, two kettlebells, bilateral action, and full equipment operations, use the exact standing variant.",
+      "distinguishingDimensions": {
+        "possibleMapping": "strict-overhead-press",
+        "requiredFacts": [
+          "standing",
+          "two_kettlebells",
+          "bilateral",
+          "full_cycle"
+        ]
+      }
+    },
+    {
+      "name": "Standing Single-Arm Kettlebell Strict Press",
+      "classification": "new_definition",
+      "rationale": "One-arm standing pressing changes laterality and trunk demand.",
+      "distinguishingDimensions": {
+        "base": "standing",
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Half-Kneeling Single-Arm Kettlebell Press",
+      "classification": "new_definition",
+      "rationale": "Half-kneeling and one-arm loading change base, laterality, hip position, and trunk demand.",
+      "distinguishingDimensions": {
+        "base": "half_kneeling",
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Tall-Kneeling Double-Kettlebell Press",
+      "classification": "new_definition",
+      "rationale": "Tall-kneeling changes base and removes foot support.",
+      "distinguishingDimensions": {
+        "base": "tall_kneeling",
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Kettlebell Push Press",
+      "classification": "new_definition",
+      "rationale": "Deliberate leg drive changes action and power intent.",
+      "distinguishingDimensions": {
+        "legDrive": "deliberate"
+      }
+    },
+    {
+      "name": "Bottom-Up Kettlebell Press",
+      "classification": "new_variant",
+      "rationale": "Bottom-up orientation creates a distinct stability constraint after base and laterality are fixed.",
+      "distinguishingDimensions": {
+        "bellOrientation": "bottom_up"
+      }
+    },
+    {
+      "name": "Load, Repetitions, Rest, Range, or Tempo",
+      "classification": "modifier_annotation",
+      "rationale": "These become modifiers only after base, laterality, quantity, rack, and equipment operations are fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "load",
+          "repetitions",
+          "rest",
+          "range",
+          "tempo"
+        ]
+      }
+    }
+  ]
+}

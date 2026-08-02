@@ -93,11 +93,11 @@ try {
        ON media.definition_id=definition.id
       AND media.reviewed_card_version=definition.card_version
      WHERE definition.facility_id=$1
-       AND definition.status!='archived'
+       AND (definition.status!='archived' OR $3::boolean)
        AND definition.slug=ANY($2::text[])
      GROUP BY definition.id, variant.id
      ORDER BY definition.canonical_name`,
-    [facilityId, slugs],
+    [facilityId, slugs, batch.includeArchived === true],
   )
   const currentBySlug = new Map(result.rows.map((row) => [row.slug, row]))
   const built = []

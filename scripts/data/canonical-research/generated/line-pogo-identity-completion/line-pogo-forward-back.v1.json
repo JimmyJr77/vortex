@@ -1,0 +1,390 @@
+{
+  "facilityId": 1,
+  "slug": "line-pogo-forward-back",
+  "researchVersion": "2026-08-01.9",
+  "assessmentSummary": {
+    "identity": "A bilateral repeated low-amplitude pogo in which both feet take off and land together while moving forward and backward across a visible floor line; every bilateral landing is one contact and the set ends in a controlled two-foot stop.",
+    "currentCardFindings": [
+      "Three consolidated sources support the forward-back survivor, but existing variants do not fully declare contact accounting and finish.",
+      "The card will retain one exact two-foot sagittal line-crossing variant and archive underspecified baselines.",
+      "Five oEmbed-healthy candidates include three exact-title candidates and two adjacent examples; no exact-match approval is inferred.",
+      "The ambiguous Forward-Back Line Hops source uses low-hip brake-and-pop language and omits foot count and contact strategy, so it cannot be mapped automatically."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 46,
+      "absoluteLoadDemand": 48,
+      "baseOverallDifficulty": 48,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "two-foot-forward-back-low-amplitude",
+        "exerciseComplexity": 46,
+        "physicalDifficulty": 48,
+        "overallDifficulty": 48
+      }
+    ],
+    "identityDecision": {
+      "resolution": "complete_exact_forward_back_survivor",
+      "retireWithoutMapping": [
+        "forward-back-line-hops"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T19:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete performs Line Pogo Forward-Back as a quality-first jump-height drill, emphasizing adds small forward-backward displacement so the ankle and trunk stay organized as contact position changes.",
+      "familyKey": "Linear ankle stiffness",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 20,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Direction changes the movement and stability contract and must be declared rather than inferred from a generic line-hop name.",
+        "Exact survivor cards require two-foot takeoff and landing, a visible line, one declared crossing direction, repeated low-amplitude contacts, contact accounting, and a controlled finish."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Repeated hopping belongs to stretch-shortening-cycle plyometric work, but a family label does not establish direction, foot count, line crossing, cadence, or terminal action.",
+        "The controlled identities separate lateral side-to-side and sagittal forward-back travel; generic sources missing those fields remain nonselectable."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17367931/",
+      "sourceTitle": "Changes in muscle activity with increase in leg stiffness during hopping",
+      "sourcePublisher": "Neuroscience Letters",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Two-foot hopping uses lower-limb spring behavior with substantial plantar-flexor activity and task-dependent contributions from the foot, ankle, knee, hip, and trunk.",
+        "Exact cards declare bilateral lower-limb contacts, sagittal ankle-knee actions, direction-specific frontal or sagittal stabilization, and whole-body postural control without claiming isolated activation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17367931/",
+      "sourceTitle": "Changes in muscle activity with increase in leg stiffness during hopping",
+      "sourcePublisher": "Neuroscience Letters",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shorter hopping contact conditions were associated with greater leg stiffness and higher gastrocnemius and soleus activity in the studied task.",
+        "Contact-time intent, amplitude, landing alignment, line clearance, direction, and surface are observable execution variables; exact thresholds are not inferred for these cards."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Direction affects postural-stability demand and therefore contributes to exercise complexity.",
+        "Score exercise complexity and physical difficulty only, derive overall as their maximum, and never store athlete skill or proficiency on exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric exposure is meaningfully described by ground-contact volume and intervention time, but broad meta-analytic totals are not a per-session prescription for one athlete.",
+        "Track bilateral landing contacts, direction, surface, amplitude, contact quality, set duration, symptoms, output loss, prior impact, and recovery response."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Plyometric work requires appropriate progression, surface, space, preparation, and movement control.",
+        "Require a visible floor line, level high-traction resilient surface, clear landing area on both sides, safe footwear, no traffic, and enough coach visibility for the group."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Ground contacts are the primary exposure unit for repeated hopping and cumulative volume must be controlled.",
+        "Use small quality sets with declared contacts, full enough rest to preserve contact rhythm and alignment, and a conservative session contact ceiling that includes other jumps and landings."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17367931/",
+      "sourceTitle": "Changes in muscle activity with increase in leg stiffness during hopping",
+      "sourcePublisher": "Neuroscience Letters",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Executable hopping instruction declares start, posture, direction, line crossing, bilateral contact, amplitude, rhythm, contact accounting, finish, and reset.",
+        "Cue tall posture, quiet low-amplitude contacts, feet landing together, line clearance, direction-specific control, and an immediate stop when quality changes."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Plyometric exercise should be progressed to readiness and performed with suitable surface, technique, volume, and recovery.",
+        "Stop for pain, instability, numbness, dizziness, Achilles or plantar symptoms, repeated line contact, asymmetric landing, foot separation, excessive knee or hip collapse, rising contact time, lost rhythm, unsafe surface, or traffic."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Plyometric jump training can improve reactive-strength outcomes, but exercise selection and dose must match context and accumulated exposure.",
+        "Place crisp line pogos while fresh, before heavy lower-body fatigue or dense conditioning, and count every landing toward session and weekly impact budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Athletes need visible setup, a simple contact-count rule, expected effort and sensations, and clear stop guidance.",
+        "Render direction, foot count, line crossing, contacts per set, sets, rest, amplitude, surface, finish, and symptom escalation before starting."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/15088239/",
+      "sourceTitle": "A simple method for field measurements of leg stiffness in hopping",
+      "sourcePublisher": "International Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Contact and flight timing can characterize hopping behavior, but measurement method and task must be declared.",
+        "Observe line clearance, simultaneous feet, contact count, amplitude, rhythm, posture, direction drift, alignment, symptoms, output drop, finish, and cumulative impact exposure."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Plyometric tasks should be individualized and progressed from controlled lower-demand options.",
+        "Options include fewer contacts, lower amplitude, slower declared rhythm, longer rest, a wider visual target, an in-place bilateral pogo, calf-raise rhythm work, text or still-image instruction, and coach demonstration after review."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17544325/",
+      "sourceTitle": "Jump-landing direction influences dynamic postural stability scores",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Lateral and forward-back directions are not interchangeable delivery labels because direction changes the task.",
+        "Single-leg, alternating, in-place, diagonal, rotational, continuous-travel, hurdle, weighted, reactive-cue, and terminal-stick versions require exact variants or separate definitions; line width, contact count, set duration, amplitude, rest, and starting side are modifiers after identity is fixed."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Retained links returned current oEmbed metadata on 2026-08-01, but availability and title do not establish exact foot count, direction, crossing, amplitude, safety, accessibility, quality, reviewer, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=EUwK9NIz2Bw",
+      "title": "Forward / backward pogos",
+      "channelName": "Functional Empowered Fitness, LLC",
+      "sourceQuery": "forward backward pogos",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T19:00:00.000Z"
+      },
+      "notes": "Exact-title candidate; full movement and all human gates remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G01Ng_RbFIQ",
+      "title": "Forward/ Backward Pogos",
+      "channelName": "Dr. Tyler Centner",
+      "sourceQuery": "forward backward pogos",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T19:00:00.000Z"
+      },
+      "notes": "Exact-title candidate; full movement and all human gates remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=S_gK1MLb9BQ",
+      "title": "Line Hops Front To Back",
+      "channelName": "Elite Performance Institute",
+      "sourceQuery": "line hops front to back",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T19:00:00.000Z"
+      },
+      "notes": "Direction-specific title candidate; exact pogo strategy and human gates remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=MFmanwtYKiw",
+      "title": "Forward Pogo Hops (Exercise Library)",
+      "channelName": "Horton Barbell",
+      "sourceQuery": "forward pogo hops",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T19:00:00.000Z"
+      },
+      "notes": "Forward-only adjacent candidate; it does not establish backward crossings or the full set contract."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=j0nl5dWuqN4",
+      "title": "Pogo Jumps Tutorial - Proper Form and Technique",
+      "channelName": "Runna",
+      "sourceQuery": "pogo jumps tutorial",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T19:00:00.000Z"
+      },
+      "notes": "Generic pogo candidate without line or direction; adjacent evidence only."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Two-Foot Lateral Line Pogo",
+      "classification": "new_definition",
+      "rationale": "Frontal-plane travel changes direction-specific stabilization.",
+      "distinguishingDimensions": {
+        "direction": "lateral"
+      }
+    },
+    {
+      "name": "Single-Leg Forward-Backward Line Pogo",
+      "classification": "new_definition",
+      "rationale": "One-leg contacts change laterality, balance, impact distribution, and side dosage.",
+      "distinguishingDimensions": {
+        "footCount": 1
+      }
+    },
+    {
+      "name": "Forward-Only Traveling Pogos",
+      "classification": "new_definition",
+      "rationale": "Continuous forward travel has no alternating line-crossing cycle.",
+      "distinguishingDimensions": {
+        "direction": "forward_only",
+        "travel": "continuous"
+      }
+    },
+    {
+      "name": "Forward-Back Line Hop to Stick",
+      "classification": "new_definition",
+      "rationale": "A discrete hop and terminal hold differ from repeated elastic crossings.",
+      "distinguishingDimensions": {
+        "terminalAction": "stick"
+      }
+    },
+    {
+      "name": "Reactive-Cue Forward-Back Line Pogo",
+      "classification": "new_variant",
+      "rationale": "Live cue timing adds response demand after the exact bilateral identity is fixed.",
+      "distinguishingDimensions": {
+        "cue": "live_external"
+      }
+    },
+    {
+      "name": "Weighted Forward-Back Line Pogo",
+      "classification": "new_variant",
+      "rationale": "External load changes impact, fatigue, and failure consequence.",
+      "distinguishingDimensions": {
+        "externalLoad": "declared"
+      }
+    },
+    {
+      "name": "Forward-Back Hurdle Pogo",
+      "classification": "new_definition",
+      "rationale": "A raised obstacle changes clearance, amplitude, equipment, and failure consequence.",
+      "distinguishingDimensions": {
+        "obstacle": "raised_hurdle"
+      }
+    },
+    {
+      "name": "Line Width, Starting Side, Contacts, Amplitude, Duration, or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "These scale delivery after the exact bilateral forward-back identity is selected.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "line_width",
+          "starting_side",
+          "contacts",
+          "amplitude",
+          "duration",
+          "rest"
+        ]
+      }
+    }
+  ]
+}

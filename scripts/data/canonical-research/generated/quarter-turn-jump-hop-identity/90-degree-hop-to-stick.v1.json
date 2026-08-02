@@ -1,0 +1,385 @@
+{
+  "facilityId": 1,
+  "slug": "90-degree-hop-to-stick",
+  "researchVersion": "2026-08-01.10",
+  "assessmentSummary": {
+    "identity": "Unresolved legacy quarter-turn source. Its description says jump or bound and does not declare takeoff foot count, landing foot count or leg, displacement, turn direction, hold criterion, side accounting, or reset.",
+    "currentCardFindings": [
+      "The label cannot distinguish a same-leg hop, opposite-leg bound, bilateral jump, or two-foot-to-one-foot landing.",
+      "Existing wording is not executable and cannot support its current low physical-difficulty score.",
+      "Candidate videos intentionally span bilateral and unilateral interpretations rather than resolve the source."
+    ],
+    "difficultyDecision": "Do not score exercise complexity or physical difficulty until foot contracts, displacement, direction, hold, side accounting, and reset define one exercise. Athlete proficiency is excluded.",
+    "programmingDecision": "Archive as nonprescribable while preserving the source mapping and human-review decision.",
+    "identityDecision": {
+      "resolution": "retire_ambiguous_source_without_direct_consolidation",
+      "possibleDefinitions": [
+        "two-foot-quarter-turn-jump-to-stick",
+        "single-leg-quarter-turn-hop-to-stick"
+      ],
+      "missingIdentityDimensions": [
+        "takeoff_foot_count",
+        "landing_foot_count",
+        "landing_leg",
+        "displacement",
+        "turn_direction",
+        "hold_criterion",
+        "side_accounting",
+        "reset"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-01T20:00:00.000Z",
+      "cardVersion": 2,
+      "status": "archived",
+      "description": "Archived nonprescribable source. The source says jump or bound and does not declare takeoff foot count, landing foot count or leg, displacement, turn direction, hold criterion, side accounting, or reset.",
+      "familyKey": "unresolved_quarter_turn_jump_hop_identity",
+      "movementPatterns": [
+        "jump",
+        "rotate",
+        "land"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "lower_leg",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {
+        "known": [
+          "quarter_turn_wording",
+          "terminal_stick_wording"
+        ],
+        "unresolved": [
+          "takeoff_foot_count",
+          "landing_foot_count",
+          "landing_leg",
+          "displacement",
+          "turn_direction",
+          "hold_criterion",
+          "side_accounting",
+          "reset"
+        ],
+        "selectionBlocked": true
+      },
+      "population": {
+        "reason": "readiness and impact exposure cannot be matched to an undefined takeoff and landing contract",
+        "supportPath": "choose_an_exact_reviewed_quarter_turn_card",
+        "selectionBlocked": true
+      },
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Unilateral and bilateral landings are mechanically distinct, so takeoff foot count and landing foot count are identity fields rather than synonyms.",
+        "An exact quarter-turn card must also declare rotation magnitude and direction, displacement, terminal hold, side accounting, and reset."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40281589/",
+      "sourceTitle": "Effect of unilateral and bilateral plyometric training on jumping, sprinting, and change of direction abilities",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Quarter-turn jump and hop tasks belong to plyometric jump-and-landing work, but unilateral and bilateral modes remain separate controlled identities.",
+        "The canonical family records aerial reorientation and terminal stabilization without using athlete proficiency labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "A 90-degree whole-body reorientation and landing uses coordinated lower-limb deceleration plus pelvis and trunk control; the two legs may not share landing load equally.",
+        "Cards declare foot, ankle, knee, hip, pelvis, trunk, and visual-orientation demands without claiming isolated muscle activation or injury prediction."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Mid-flight whole-body rotation changes landing mechanics compared with a nonrotational landing and requires control of angular momentum and reorientation before stabilization.",
+        "The authored bilateral task uses two-foot takeoff and two-foot landing; the authored unilateral task uses one declared leg for takeoff and same-leg landing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Unilateral landing changes knee motion and muscle demand compared with bilateral landing and therefore receives a higher physical-difficulty and stabilization score.",
+        "Complexity also accounts for exactly 90 degrees of aerial orientation, foot-count contract, landing alignment, hold, side completion, and reset; overall difficulty is the maximum of complexity and physical difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Every takeoff and landing is counted in the session impact budget, with unilateral contacts tracked by side.",
+        "Contact volume, prior jumping and running exposure, surface, amplitude, landing strategy, symptoms, and recovery state must be considered before selection or progression."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The task requires a level high-traction resilient surface, clear takeoff and landing zone, visible orientation target, safe footwear, and enough space for an uncontrolled step without collision.",
+        "Pain, instability, lower-limb restrictions, dizziness, inability to follow the stop command, or an exhausted impact budget block selection."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dose is stored as fully reset attempts and total landing contacts rather than a fatigue circuit or vague work interval.",
+        "The card starts with small sets, long enough rest for repeatable orientation and landing quality, and lower volume on the unilateral task."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Instruction declares start orientation, takeoff and landing foot contract, exact quarter turn, target, quiet aligned landing, hold duration, and reset before the next attempt.",
+        "Feedback is concise and externally observable; it does not promise injury prevention or prescribe a universal joint angle."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35714032/",
+      "sourceTitle": "Entry angle during jump landing changes biomechanical risk factors for ACL injury",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Landing direction changes lower-limb biomechanics, so each direction and side is screened and coached rather than assumed equivalent.",
+        "Stop for symptoms, under- or over-rotation, wrong-foot contact, audible or stiff impact, knee-foot or trunk-control loss, balance step before the hold, fatigue drift, unsafe surface, or traffic."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Quarter-turn stick landings are low-volume output or landing-control exposures performed while fresh, not sustained conditioning.",
+        "Workout generation must validate phase, impact budget, side balance, rest, surface, space, exact foot contract, and substitutions after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support explains the exact foot contract, what a controlled stick looks like, expected effort, unexpected symptoms, self-checks, and how to request a lower-impact alternative.",
+        "Pain or instability is a stop signal, not a difficulty target."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Coaches observe turn magnitude, takeoff and landing feet, asymmetrical loading, trunk orientation, knee-foot alignment, landing noise, hold, symptoms, side completion, and reset.",
+        "Group delivery requires one athlete per marked zone, a shared start and stop signal, clear turn direction, and a maintained sightline."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11366841/",
+      "sourceTitle": "Unilateral Plyometric Jump Training Shows Significantly More Effective than Bilateral Training in Improving Both Time to Stabilization and Peak Landing Force in Single-Leg Lend and Hold Test",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Unilateral and bilateral options are not interchangeable accessibility labels; an easier option changes the exact exercise and requires a reviewed substitution.",
+        "Accessible delivery can reduce jump height and attempts, increase rest, use larger visual targets, and provide text, still-image, audio, or live instruction while preserving the chosen identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing support, direction, displacement, external load, approach, obstacle or drop, rotation magnitude, terminal action, and reactive cue are evaluated separately.",
+        "Clockwise versus counterclockwise direction and starting side are modifiers only after takeoff, landing, displacement, rotation, and finish are fixed."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed health and embedding metadata establish current candidate availability only.",
+        "A human must watch the complete video and verify exact foot contract, 90-degree rotation, displacement, terminal hold, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ahWJBrYwLZQ",
+      "title": "2 Leg 90 degree jump turn w/ stick",
+      "channelName": "Juddson Smith",
+      "sourceQuery": "90 degree hop to stick interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T20:00:00.000Z"
+      },
+      "notes": "Bilateral interpretation candidate; it cannot establish the ambiguous source contract."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=jsSDIET2dOI",
+      "title": "Hop Rotations | Single Leg Hop & Stick with 90 Degree Turn",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "90 degree hop to stick interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T20:00:00.000Z"
+      },
+      "notes": "Unilateral interpretation candidate; it cannot establish the ambiguous source contract."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3m_MLGVU7QI",
+      "title": "Rotational Jump to Stick - 90 Degrees",
+      "channelName": "Trainer Stone",
+      "sourceQuery": "90 degree rotational jump stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-01T20:00:00.000Z"
+      },
+      "notes": "Foot-count-unspecified title candidate; no exact-match decision or approval."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Two-Foot Quarter-Turn Jump to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative source evidence establishes bilateral takeoff and landing plus the complete stick contract.",
+      "distinguishingDimensions": {
+        "possibleMapping": "two-foot-quarter-turn-jump-to-stick"
+      }
+    },
+    {
+      "name": "Single-Leg Same-Leg Quarter-Turn Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative source evidence establishes one-leg takeoff and same-leg landing plus the complete stick contract.",
+      "distinguishingDimensions": {
+        "possibleMapping": "single-leg-quarter-turn-hop-to-stick"
+      }
+    },
+    {
+      "name": "Single-Leg Opposite-Leg Quarter-Turn Bound to Stick",
+      "classification": "new_definition",
+      "rationale": "Opposite-leg landing changes the ordered contact contract.",
+      "distinguishingDimensions": {
+        "landingLeg": "opposite"
+      }
+    },
+    {
+      "name": "Two-Foot to Single-Leg Quarter-Turn Landing",
+      "classification": "new_definition",
+      "rationale": "Bilateral takeoff and unilateral landing require an exact separate definition.",
+      "distinguishingDimensions": {
+        "takeoffFeet": 2,
+        "landingFeet": 1
+      }
+    },
+    {
+      "name": "Quarter-Turn Broad Jump or Hop to Stick",
+      "classification": "new_variant",
+      "rationale": "Declared horizontal displacement changes the projection and braking task.",
+      "distinguishingDimensions": {
+        "displacement": "horizontal_declared"
+      }
+    },
+    {
+      "name": "Continuous Quarter-Turn Contacts",
+      "classification": "new_definition",
+      "rationale": "No terminal hold creates a different repetition boundary.",
+      "distinguishingDimensions": {
+        "terminalAction": "continuous"
+      }
+    },
+    {
+      "name": "Turn Direction, Height, Attempts, Hold, or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "These are modifiers only after takeoff, landing, displacement, and reset are fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "turn_direction",
+          "height",
+          "attempts",
+          "hold_seconds",
+          "rest_seconds"
+        ]
+      }
+    }
+  ]
+}

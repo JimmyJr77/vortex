@@ -1,0 +1,31 @@
+{
+  "batchKey": "quarter-turn-jump-hop-identity-v1",
+  "researchVersion": "2026-08-01.10",
+  "generatedAt": "2026-08-01T20:00:00.000Z",
+  "cards": [
+    {
+      "slug": "two-foot-quarter-turn-jump-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "single-leg-quarter-turn-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "90-degree-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7
+    },
+    {
+      "slug": "90-degree-jump-turn-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7
+    }
+  ]
+}

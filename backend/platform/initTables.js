@@ -425,6 +425,11 @@ export async function initPlatformTables(pool) {
     '425_coaching_ankling_pogo_identity_resolution.sql',
     '426_coaching_opposite_leg_bound_direction_identity_resolution.sql',
     '427_coaching_gymnastics_evaluations.sql',
+    '428_coaching_single_leg_line_hop_identity_quarantine.sql',
+    '429_coaching_overhead_press_eccentric_consolidation.sql',
+    '430_coaching_kettlebell_strict_press_identity_resolution.sql',
+    '431_coaching_line_pogo_identity_completion.sql',
+    '432_coaching_quarter_turn_jump_hop_identity_resolution.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

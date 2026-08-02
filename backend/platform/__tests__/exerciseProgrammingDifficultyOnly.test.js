@@ -441,6 +441,26 @@ const OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
   new URL('../../migrations/426_coaching_opposite_leg_bound_direction_identity_resolution.sql', import.meta.url),
   'utf8',
 )
+const SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION = readFileSync(
+  new URL('../../migrations/428_coaching_single_leg_line_hop_identity_quarantine.sql', import.meta.url),
+  'utf8',
+)
+const OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION = readFileSync(
+  new URL('../../migrations/429_coaching_overhead_press_eccentric_consolidation.sql', import.meta.url),
+  'utf8',
+)
+const KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/430_coaching_kettlebell_strict_press_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const LINE_POGO_IDENTITY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/431_coaching_line_pogo_identity_completion.sql', import.meta.url),
+  'utf8',
+)
+const QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
+  new URL('../../migrations/432_coaching_quarter_turn_jump_hop_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -6586,6 +6606,299 @@ test('opposite-leg bound direction resolution preserves stable slugs while separ
   )
   assert.doesNotMatch(
     OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('single-leg line-hop retirement blocks an undefined exercise without inventing difficulty or identity', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'428_coaching_single_leg_line_hop_identity_quarantine\.sql'/,
+  )
+  for (const token of [
+    'single-leg-line-hop-and-stick',
+    'Unresolved Legacy',
+    'projection_direction',
+    'line_crossing',
+    'takeoff_leg',
+    'landing_leg',
+    'contact_count',
+    'terminal_action',
+    'repetition_boundary',
+    'blocked_pending_exact_identity',
+    'blocked_pending_identity_contract',
+    'ambiguousSourceRetired',
+    'failed six identity-quarantine provenance invariants',
+    'failed candidate-only media invariant',
+    'CARD-IDENTITY-01',
+    'CARD-DIFFICULTY-01',
+    'CARD-DELIVERY-01',
+  ]) {
+    assert.match(
+      SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+    /SET is_published=FALSE,archived=TRUE,skill_level=NULL/,
+  )
+  assert.match(
+    SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+    /'candidateMediaCount',3/,
+  )
+  assert.match(
+    SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_LINE_HOP_IDENTITY_QUARANTINE_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('overhead-press eccentric consolidation archives the mixed-base source and uses exercise-only difficulty', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'429_coaching_overhead_press_eccentric_consolidation\.sql'/,
+  )
+  for (const token of [
+    'dumbbell-overhead-press-eccentric',
+    'strict-overhead-press',
+    'seated-barbell-overhead-press',
+    'retire_ambiguous_source_without_direct_consolidation',
+    'standing_bilateral_strict_free_weight_overhead_press',
+    'dumbbell-standing-neutral-eccentric-4-6',
+    'dumbbell-standing-pronated-eccentric-4-6',
+    'dumbbell-back-supported-neutral-eccentric-4-6',
+    'dumbbell-back-supported-pronated-eccentric-4-6',
+    'max_exercise_complexity_physical_difficulty',
+    'blocked_pending_exact_identity',
+    'candidateMediaCount',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(
+      OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /'baseOverallDifficulty',greatest\(/,
+  )
+  assert.match(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /skill_level=NULL,is_published=FALSE,archived=TRUE/,
+  )
+  assert.match(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    OVERHEAD_PRESS_ECCENTRIC_CONSOLIDATION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('kettlebell strict-press resolution retires mixed lineage and keeps one exact review-only standing variant', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'430_coaching_kettlebell_strict_press_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    'kettlebell-strict-press',
+    'strict-overhead-press',
+    'double-kettlebell-standing-neutral-rack',
+    'retire_ambiguous_source_without_direct_consolidation',
+    'blocked_pending_exact_identity',
+    'max_exercise_complexity_physical_difficulty',
+    'floor_long_sit_press_vs_standing_strict_press',
+    'supine_horizontal_bench_press_vs_standing_vertical_overhead_press',
+    'supine_horizontal_bench_press_vs_upright_seated_vertical_overhead_press',
+    'candidateMediaCount',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(
+      KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /'baseOverallDifficulty',62/,
+  )
+  assert.match(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_STRICT_PRESS_IDENTITY_RESOLUTION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('line-pogo completion preserves direction identity and retires ambiguous source cards', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'431_coaching_line_pogo_identity_completion\.sql'/,
+  )
+  for (const token of [
+    'lateral-line-pogo',
+    'line-pogo-forward-back',
+    'line-pogo-hops',
+    'line-hops',
+    'forward-back-line-hops',
+    'two-foot-side-to-side-low-amplitude',
+    'two-foot-forward-back-low-amplitude',
+    'retire_ambiguous_source_without_direct_consolidation',
+    'bilateral_lateral_line_pogo_vs_bilateral_forward_backward_line_pogo',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeImpactBudgetComplete',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(LINE_POGO_IDENTITY_COMPLETION_MIGRATION, new RegExp(token))
+  }
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',greatest\(/,
+  )
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /safety\.minimum_skill_level IS NOT NULL/,
+  )
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LINE_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('quarter-turn resolution retires vague sources and authors exact bilateral and same-leg cards', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'432_coaching_quarter_turn_jump_hop_identity_resolution\.sql'/,
+  )
+  for (const token of [
+    '90-degree-hop-to-stick',
+    '90-degree-jump-turn-to-stick',
+    'two-foot-quarter-turn-jump-to-stick',
+    'single-leg-quarter-turn-hop-to-stick',
+    'stationary-two-foot-quarter-turn-two-foot-stick',
+    'stationary-same-leg-quarter-turn-stick',
+    'retire_ambiguous_sources_without_direct_consolidation',
+    'two_foot_quarter_turn_vs_same_leg_quarter_turn',
+    'two_foot_180_degree_vs_two_foot_90_degree_turn',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeImpactBudgetComplete',
+    'sideAccountingComplete',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(
+      QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /'baseOverallDifficulty',greatest\(/,
+  )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })

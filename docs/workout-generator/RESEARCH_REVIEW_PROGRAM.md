@@ -1738,3 +1738,88 @@ leg-lateral-versus-same-leg-lateral boundaries as distinct exercises. It
 refuses to overwrite published or human-reviewed state. Disposable PostgreSQL
 recorded checksum `1732038496`; direct execution, clean re-entry, the
 production runner, and rollback-only protected-state testing passed.
+
+## Line-hop and overhead-press identity work (migrations 428–430)
+
+The single-leg line-hop research packet does not convert a vague label into an
+exercise. Direction, line relationship, takeoff and landing legs, contact
+count, terminal action, and repetition boundary are absent from the source, so
+the card is archived without a difficulty score or delivery profile. Its media
+links remain adjacent candidates and cannot establish the missing contract.
+
+The overhead-press eccentric packet distinguishes a tempo modifier from an
+exercise identity. The retired source permits standing or seated execution and
+does not declare grip, support, how the overhead position is regained, pickup,
+set-down, or a complete repetition. Separate standing and seated survivors
+therefore receive exact active-press-and-controlled-return variants; no direct
+source mapping is claimed. Research on eccentric resistance training supports
+tempo and recovery considerations but does not approve a particular card,
+score, or video.
+
+The kettlebell packet likewise preserves uncertainty. The source family says a
+stance or kneeling base and mixes generic and explicit double-kettlebell
+lineage. It is archived without direct consolidation. The standing survivor
+receives a newly authored review-only variant requiring two matched
+kettlebells, a bilateral front rack, no deliberate leg drive, independent
+paths, an owned overhead finish, controlled return, and declared clean or
+handoff and set-down operations.
+
+Each current packet contains all 16 evidence sections and candidate alternate
+assessments. Media health was checked through YouTube oEmbed where stated, but
+exact exercise matching, full-playback cue and safety review, captions,
+accessibility, quality scoring, reviewer identity, and approval remain unset.
+Graph and calibration rows are review proposals only. Difficulty comprises
+exercise complexity and physical difficulty with derived maximum overall;
+athlete proficiency is not an exercise-card field.
+
+Disposable PostgreSQL records checksums `4051154404`, `989893497`, and
+`3711801288`. The current audit reports 33 unresolved similarity pairs and no
+exact collision. That count is a triage queue, not permission to guess missing
+identity facts; unresolved sources must be quarantined or resolved from
+authoritative evidence before consolidation.
+
+## Direction-specific line-pogo completion (migration 431)
+
+The research batch distinguishes two executable bilateral pogo tasks. The
+lateral card requires simultaneous two-foot contacts crossing a visible line
+side to side; the forward-back card crosses the line in the sagittal direction.
+Both keep amplitude low, count every bilateral landing as one contact, maintain
+repeatable rhythm and alignment, and finish under two-foot control. Direction,
+plane-specific control, foot count, contact strategy, contact unit, and finish
+cannot be silently converted into dosage modifiers.
+
+The batch uses research on reactive-strength-index plyometric outcomes,
+direction-dependent landing stability, hopping contact-time and stiffness
+relationships, field contact/flight-time stiffness measurement, and age- and
+volume-sensitive plyometric programming. These sources support mechanics,
+measurement, dosage caution, and score rationale; they do not validate the
+exact authored exercise, prove injury prevention, approve a difficulty score,
+or approve media.
+
+The generic `line-pogo-hops`, `line-hops`, and `forward-back-line-hops` labels
+remain incomplete source identities. The first does not choose a direction or
+complete contact contract, the second also omits foot count and strategy, and
+the third declares direction but not bilateral versus unilateral contacts,
+mandatory crossing, pogo versus brake-and-pop strategy, dose unit, cadence, or
+finish. Each is archived without mapping and retains a human-review path.
+
+The five packets contain all 16 evidence sections per card, 19 oEmbed-healthy
+candidate videos, and 37 alternate assessments. The two exact cards have five
+candidate links and eight alternates each; each archived source has three links
+and seven alternates. Automated availability and title checks are not exact-
+match review. Full playback, movement contract, cues, safety, captions,
+accessibility, reviewer identity, and approval remain outstanding.
+
+The exact cards add two contextual profiles each, bidirectional review-only
+direction-changing substitution proposals, and four review-only score anchors.
+Lateral scoring is 44 exercise complexity / 48 physical difficulty / 48
+derived overall; forward-back is 46 / 48 / 48. Undefined sources are not
+scored. No exercise-card skill or proficiency level is stored.
+
+Disposable PostgreSQL passed direct application, repeated deterministic re-
+entry, production-runner registration, rationale-idempotency inspection, and a
+rollback-only simulated-approval sentinel. Migration 431 is registered with
+checksum `3118654911`. The active queue now contains 30 unresolved pairs and no
+exact collision or score-85-or-higher pair. Canonical publication, media,
+relationships, calibration, and pilot readiness remain quarantined for human
+review.
