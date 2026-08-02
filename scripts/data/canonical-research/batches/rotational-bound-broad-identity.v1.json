@@ -1,0 +1,251 @@
+{
+  "batchKey": "rotational-bound-broad-identity-v1",
+  "researchVersion": "2026-08-02.13",
+  "snapshotAt": "2026-08-02T01:37:44.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/rotational-bound-broad-identity",
+  "includeArchived": true,
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "A forward jump with a 90-degree whole-body rotation creates a declared reorientation and a lateral component at landing rather than a generic forward or lateral landing.",
+        "Canonical identity therefore fixes takeoff support, horizontal or diagonal projection, exactly 90 degrees of whole-body reorientation, landing support, one flight, terminal hold, exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "standing_broad_jump_target_control",
+      "claims": [
+        "Standing broad-jump execution includes takeoff, flight, landing, and finish phases, and target success depends on the takeoff vector and landing-foot placement.",
+        "The controlled taxonomy distinguishes an opposite-leg single-leg bound from a bilateral broad jump and records horizontal projection, transverse reorientation, landing support, and stabilization explicitly."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral and bilateral landings have different knee kinematics and muscle-activation demands.",
+        "Cards describe foot, ankle, knee, hip, pelvis, trunk, and thoracic control across sagittal, frontal, and transverse planes without claiming isolated-muscle causation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "Whole-body rotation changes the landing geometry and can load the two legs differently while decelerating horizontal velocity.",
+        "Direction, rotation angle, landing support, body orientation, and terminal stabilization are material mechanical variables and cannot be inferred from a generic rotational label."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "rotational_vs_straight_landing_biomechanics",
+      "claims": [
+        "Rotational and straight landings, and unilateral and bilateral landing tasks, show task-specific kinematic and kinetic responses.",
+        "Difficulty scores exercise complexity and physical difficulty only; overall is their maximum, and athlete skill or proficiency is excluded from exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "single_leg_jump_direction_load_biomechanics",
+      "claims": [
+        "Single-leg jump-landing biomechanics vary with direction and external load.",
+        "Track declared support, direction, angle, horizontal distance, bodyweight contacts, valid attempts, other jump and running load, symptoms, technique change, rest, and recovery without asserting a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "standing_broad_jump_target_control",
+      "claims": [
+        "Landing-foot placement is part of target success in a standing broad jump.",
+        "Require marked takeoff orientation, exact rotated landing orientation and zone, level high-traction surface, clear diagonal flight and fall space, no cross-traffic, stable footwear policy, and full coach sightlines."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing-feedback interventions use observable task-specific criteria, but the evidence does not establish one universal safe repetition count.",
+        "Dose fully reset single efforts, count every landing and failed attempt, preserve the declared hold, balance direction and side exposure, and stop before angle, distance, support, or landing quality changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "whole_body_rotation_landing_mechanics",
+      "claims": [
+        "Whole-body and trunk rotation are not interchangeable landing instructions.",
+        "Instructions specify start support, projection target, whole-body 90-degree turn, exact landing support and orientation, controlled absorption, hold, safe exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "rotational_vs_straight_landing_biomechanics",
+      "claims": [
+        "Rotational landing is a task-specific exposure and should not be treated as an unlabeled straight-landing substitute.",
+        "Stop for pain, guarding, giving way, dizziness, wrong support, under- or over-rotation, target miss, foot slide, alignment loss, free-foot or hand touch, extra hop or step, unsafe space, or two changed repetitions."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "standing_broad_jump_target_control",
+      "claims": [
+        "Broad-jump strategy changes with target demands, so distance and landing-foot placement must remain visible to programming logic.",
+        "Workout generation validates exact card and variant, lane and target geometry, side and direction balance, contacts, cumulative impact and fatigue, duration, rest, substitutions, rendering, and persisted output after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Observable landing feedback can support movement practice, but card text cannot promise injury prevention.",
+        "Athlete support explains the foot contract, turn direction and angle, landing target, valid hold, symptoms, self-checks, stop rule, and how to request a straight, bilateral, lower-distance, or non-impact alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "jump_entry_angle_landing_biomechanics",
+      "claims": [
+        "Landing entry angle changes biomechanical measures and must be controlled when comparing attempts.",
+        "Coaches record start and finish orientation, support, turn direction, target angle and distance, valid attempts, contacts, hold, rest, side order, faults, symptoms, and substitutions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Changing between unilateral and bilateral landing changes the exercise rather than merely reducing difficulty.",
+        "Accessible delivery may reduce distance, intent, attempts, precision, or measurement pressure and increase rest or multimodal instruction while preserving the exact support, angle, contact, hold, and reset contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "rotational_vs_straight_landing_biomechanics",
+      "claims": [
+        "Rotation and support materially change the landing task.",
+        "Takeoff support, landing support, turn angle family, projection direction, contact count, rebound, approach, external cue, and terminal action require explicit variant or definition review; target distance, hold, attempts, rest, and side order can be bounded delivery modifiers."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify start and landing support, exact angle, projection, body orientation, contact count, hold, reset, cue quality, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "opposite-leg-90-degree-rotational-bound-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary single-leg stance facing the start heading, take off from the declared leg, project forward-diagonally in one flight while reorienting the whole body exactly 90 degrees toward the declared side, land on the opposite leg inside the rotated target, absorb under control, hold without a free-foot touch, hand touch, extra hop, or step, exit safely, and reset fully.",
+        "currentCardFindings": [
+          "The exact authored contract combines a one-leg to opposite-leg bound, horizontal-diagonal projection, a 90-degree whole-body turn, one landing, and terminal stabilization.",
+          "It is not mapped from the ambiguous rotational-bound source, which never declared support, exact angle, or contact sequence.",
+          "Five links passed current oEmbed health checks but remain unreviewed candidate demonstrations."
+        ],
+        "proposedDifficulty": {"technicalComplexity": 68, "absoluteLoadDemand": 66, "baseOverallDifficulty": 68, "formula": "max(technicalComplexity, absoluteLoadDemand)"},
+        "proposedVariantPlan": [{"variantKey": "stationary-opposite-leg-forward-diagonal-bound-90-degree-whole-body-turn-to-stick", "exerciseComplexity": 68, "physicalDifficulty": 66, "overallDifficulty": 68}],
+        "identityDecision": {"resolution": "author_exact_opposite_leg_rotational_bound_without_source_mapping", "groundParent": "lateral-bound", "legacySourceMapped": false}
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=PDezjzuC3Kc","title":"Rotational Bound to Stick","channelName":"Waterloo Warriors Varsity Strength and Conditioning","sourceQuery":"rotational bound to stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Title-level candidate only; opposite-leg support, exact 90-degree turn, one flight, hold, quality, safety, captions, and accessibility require review."},
+        {"url":"https://www.youtube.com/watch?v=k6fqQi52I4g","title":"90* Rotational Bound and Stick","channelName":"Repattern Co (Formerly Swell Wellness)","sourceQuery":"90 degree rotational bound stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Angle and stick appear in the title; every other exact-contract and quality gate remains unapproved."},
+        {"url":"https://www.youtube.com/watch?v=D5YeB42KzMo","title":"Rotational Bound (Stick)","channelName":"Orthopedic Institute Performance","sourceQuery":"rotational bound stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Candidate only; title does not prove support, angle, projection, or quality."},
+        {"url":"https://www.youtube.com/watch?v=Wzk8mQ1j6Yg","title":"SL 90 degree rotational \"bound\" to stick","channelName":"Sustain Physical Therapy and Performance","sourceQuery":"single leg 90 degree rotational bound stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Strong title-level candidate; opposite-leg landing and all playback quality gates remain unresolved."},
+        {"url":"https://www.youtube.com/watch?v=JQ3zy2vBlFg","title":"Rotational Bound to 1-Leg Stick","channelName":"Hockey Training Exercise Demonstrations","sourceQuery":"rotational bound one leg stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"One-leg landing title candidate only; no exact-match or approval is inferred."}
+      ],
+      "alternateAssessments": [
+        {"name":"Opposite-Leg 90-Degree Rotational Bound to Stick","classification":"same_identity","rationale":"This concise name preserves support, angle, rotation, one flight, and terminal stick.","distinguishingDimensions":{"takeoffLandingRelationship":"opposite_leg","turnAngleDegrees":90}},
+        {"name":"Same-Leg 90-Degree Rotational Hop to Stick","classification":"new_definition","rationale":"Landing on the takeoff leg changes the contact relationship and unilateral braking strategy.","distinguishingDimensions":{"takeoffLandingRelationship":"same_leg"}},
+        {"name":"Bilateral 90-Degree Rotational Broad Jump to Stick","classification":"new_definition","rationale":"Two-foot takeoff and landing change propulsion, force attenuation, dose, and readiness.","distinguishingDimensions":{"support":"bilateral"}},
+        {"name":"Opposite-Leg Lateral Bound to Stick","classification":"new_definition","rationale":"Removing whole-body rotation preserves a frontal-plane landing heading rather than the rotated target.","distinguishingDimensions":{"turnAngleDegrees":0,"existingDefinition":"lateral-bound"}},
+        {"name":"45-Degree Opposite-Leg Rotational Bound to Stick","classification":"new_variant","rationale":"A smaller declared angle preserves the base contact sequence but changes target geometry and rotational demand.","distinguishingDimensions":{"turnAngleDegrees":45}},
+        {"name":"Assisted Opposite-Leg Rotational Bound to Stick","classification":"new_variant","rationale":"External assistance preserves the task while reducing projection and landing demand within reviewed bounds.","distinguishingDimensions":{"assistance":"external"}},
+        {"name":"Lateral Bound to Rotational Bound and Stick","classification":"new_definition","rationale":"Two ordered flights and landings create a separate multi-contact sequence.","distinguishingDimensions":{"contactSequence":"lateral_bound_then_rotational_bound"}},
+        {"name":"Continuous Rotational Bounds","classification":"new_definition","rationale":"Repeated rebound contacts remove the terminal hold and full reset.","distinguishingDimensions":{"terminalAction":"rebound","contacts":"repeated"}},
+        {"name":"Distance, Hold, Attempts, Rest, Turn Side, or Side Order","classification":"modifier_annotation","rationale":"These scale delivery inside the reviewed support, angle, projection, contact, and terminal-state contract.","distinguishingDimensions":{"modifiers":["distance","hold","attempts","rest","turn_side","side_order"]}}
+      ]
+    },
+    {
+      "slug": "bilateral-90-degree-rotational-broad-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary two-foot stance facing the start heading, use a countermovement and take off from both feet together, project forward-diagonally in one broad-jump flight while reorienting the whole body exactly 90 degrees toward the declared side, land on both feet together inside the rotated target, absorb under control, hold without a hand touch, extra hop, or step, exit safely, and reset fully.",
+        "currentCardFindings": [
+          "The exact authored contract combines bilateral horizontal projection, a 90-degree whole-body turn, bilateral landing, one terminal hold, and full reset.",
+          "It is not mapped from the ambiguous rotational-broad-jump source, which never declared exact angle, foot support, landing orientation, or hold.",
+          "Five links passed current oEmbed health checks but remain candidate-only."
+        ],
+        "proposedDifficulty": {"technicalComplexity": 64, "absoluteLoadDemand": 60, "baseOverallDifficulty": 64, "formula": "max(technicalComplexity, absoluteLoadDemand)"},
+        "proposedVariantPlan": [{"variantKey": "stationary-bilateral-forward-diagonal-broad-jump-90-degree-whole-body-turn-to-bilateral-stick", "exerciseComplexity": 64, "physicalDifficulty": 60, "overallDifficulty": 64}],
+        "identityDecision": {"resolution": "author_exact_bilateral_rotational_broad_jump_without_source_mapping", "groundParent": "broad-jump-to-stick", "legacySourceMapped": false}
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=zGGOXMLYqX4","title":"Rotational Broad Jump - Do these to increase rotational power and athleticism 🔥🚀","channelName":"Plyomorph","sourceQuery":"rotational broad jump","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Rotational broad-jump title candidate; support, exact angle, terminal hold, quality, safety, captions, and accessibility require review."},
+        {"url":"https://www.youtube.com/watch?v=imxxbQeKQss","title":"Lateral Rotational Broad Jump","channelName":"Bullett Performance Training","sourceQuery":"lateral rotational broad jump","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Title-level candidate only; exact bilateral 90-degree stick contract is not approved."},
+        {"url":"https://www.youtube.com/watch?v=UXTNc73zsOQ","title":"Lateral Rotational Broad Jump","channelName":"Josh Raies","sourceQuery":"lateral rotational broad jump","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Title-level adjacent candidate only; full playback review is required."},
+        {"url":"https://www.youtube.com/watch?v=d6hpdhRWyus","title":"Rotational Broad Jump","channelName":"Jack Brown","sourceQuery":"rotational broad jump","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Candidate only; no support, angle, hold, or approval claim is inferred."},
+        {"url":"https://www.youtube.com/watch?v=tE-cioALo6o","title":"Rotational Broad Jump w/ Stick","channelName":"Belmont Hill School Strength and Conditioning","sourceQuery":"rotational broad jump stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Title names a stick; exact support, 90-degree geometry, and quality remain human-gated."}
+      ],
+      "alternateAssessments": [
+        {"name":"Bilateral 90-Degree Rotational Broad Jump to Stick","classification":"same_identity","rationale":"This concise name preserves bilateral support, exact turn, horizontal projection, and terminal stick.","distinguishingDimensions":{"support":"bilateral","turnAngleDegrees":90}},
+        {"name":"Bilateral 45-Degree Rotational Broad Jump to Stick","classification":"new_variant","rationale":"A smaller declared angle changes target geometry and rotational demand while preserving support and contact sequence.","distinguishingDimensions":{"turnAngleDegrees":45}},
+        {"name":"Opposite-Leg 90-Degree Rotational Bound to Stick","classification":"new_definition","rationale":"Single-leg takeoff and opposite-leg landing change propulsion, braking, dose, and readiness.","distinguishingDimensions":{"support":"unilateral_opposite_leg"}},
+        {"name":"Broad Jump to Stick","classification":"new_definition","rationale":"Removing whole-body rotation retains a straight landing heading and is an existing identity.","distinguishingDimensions":{"turnAngleDegrees":0,"existingDefinition":"broad-jump-to-stick"}},
+        {"name":"Bilateral 180-Degree Broad Jump to Stick","classification":"new_definition","rationale":"A half turn creates a different landing heading, aerial reorientation demand, and failure boundary.","distinguishingDimensions":{"turnAngleDegrees":180}},
+        {"name":"Approach Rotational Broad Jump to Stick","classification":"new_definition","rationale":"An approach adds locomotor contacts and approach velocity before takeoff.","distinguishingDimensions":{"approach":"declared"}},
+        {"name":"Repeated Rotational Broad Jumps","classification":"new_definition","rationale":"Repeated rebound contacts remove the terminal hold and full reset.","distinguishingDimensions":{"terminalAction":"rebound","contacts":"repeated"}},
+        {"name":"Reactive-Cue Rotational Broad Jump to Stick","classification":"new_variant","rationale":"A late direction cue adds perception and decision demand while preserving the physical contract.","distinguishingDimensions":{"cueing":"reactive"}},
+        {"name":"Distance, Hold, Attempts, Rest, Turn Side, or Direction Order","classification":"modifier_annotation","rationale":"These scale delivery inside the reviewed bilateral 90-degree one-flight contract.","distinguishingDimensions":{"modifiers":["distance","hold","attempts","rest","turn_side","direction_order"]}}
+      ]
+    },
+    {
+      "slug": "rotational-bound-to-stick",
+      "assessmentSummary": {
+        "identity": "Undefined legacy source: rotational or diagonal projection and terminal-stick wording are present, but takeoff support, landing support and leg relationship, exact angle, projection heading, contact count, approach, landing target and orientation, hold, exit, and reset are not declared.",
+        "currentCardFindings": ["The record combines generic output copy with an identity label that permits several incompatible single- and multi-contact tasks.","A previously consolidated lateral-bound source also lacks enough exact contact facts to select one interpretation.","The source remains traceable but becomes archived, unscored, unpublished, and human-review quarantined."],
+        "difficultyDecision": "Do not score an undefined exercise; complexity and physical difficulty require fixed support, angle, projection, contact, landing, hold, and reset contracts.",
+        "identityDecision": {"resolution":"retire_ambiguous_source_without_direct_consolidation","possibleMappings":["opposite-leg-90-degree-rotational-bound-to-stick","same-leg-90-degree-rotational-hop-to-stick","lateral-bound-to-rotational-stick-multi-contact"],"humanReviewRequired":true}
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=PDezjzuC3Kc","title":"Rotational Bound to Stick","channelName":"Waterloo Warriors Varsity Strength and Conditioning","sourceQuery":"ambiguous rotational bound wording","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Adjacent interpretation only; media cannot establish the legacy support, angle, or contact contract."},
+        {"url":"https://www.youtube.com/watch?v=Wzk8mQ1j6Yg","title":"SL 90 degree rotational \"bound\" to stick","channelName":"Sustain Physical Therapy and Performance","sourceQuery":"adjacent single leg 90 degree interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Specific adjacent interpretation only; it cannot supply missing source facts."},
+        {"url":"https://www.youtube.com/watch?v=JQ3zy2vBlFg","title":"Rotational Bound to 1-Leg Stick","channelName":"Hockey Training Exercise Demonstrations","sourceQuery":"adjacent one leg landing interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"One-leg landing candidate only; no source mapping or approval is inferred."}
+      ],
+      "alternateAssessments": [
+        {"name":"Opposite-Leg 90-Degree Rotational Bound to Stick","classification":"same_identity","rationale":"Possible only if authoritative evidence establishes one-leg takeoff, opposite-leg landing, exact 90-degree whole-body turn, one flight, and terminal hold.","distinguishingDimensions":{"possibleMapping":"opposite-leg-90-degree-rotational-bound-to-stick"}},
+        {"name":"Same-Leg 90-Degree Rotational Hop to Stick","classification":"same_identity","rationale":"Possible only if authoritative evidence establishes same-leg takeoff and landing plus exact angle and hold.","distinguishingDimensions":{"possibleMapping":"same-leg-90-degree-rotational-hop-to-stick"}},
+        {"name":"Bilateral Rotational Broad Jump to Stick","classification":"new_definition","rationale":"Bilateral support is a separate contact identity.","distinguishingDimensions":{"support":"bilateral"}},
+        {"name":"Lateral Bound to Rotational Bound and Stick","classification":"same_identity","rationale":"Possible only if authoritative evidence establishes two ordered flights rather than one rotational flight.","distinguishingDimensions":{"possibleContactSequence":"two_flights"}},
+        {"name":"Continuous Rotational Bounds","classification":"new_definition","rationale":"Repeated rebounds remove terminal stabilization and reset.","distinguishingDimensions":{"terminalAction":"rebound"}},
+        {"name":"Straight or Diagonal Bound without Reorientation","classification":"new_definition","rationale":"Removing rotation changes the landing heading and identity.","distinguishingDimensions":{"turnAngleDegrees":0}},
+        {"name":"Distance, Angle, Hold, Attempts, Rest, or Side Order","classification":"modifier_annotation","rationale":"These can become modifiers only after exact support, contact, projection, angle family, hold, and reset identity is resolved.","distinguishingDimensions":{"modifiers":["distance","angle","hold","attempts","rest","side_order"]}}
+      ]
+    },
+    {
+      "slug": "rotational-broad-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "Undefined legacy source: horizontal projection and rotation are named, but takeoff support, landing support, exact angle, projection heading, contact count, approach, landing target and orientation, terminal hold, exit, and reset are not declared.",
+        "currentCardFindings": ["The title suggests a combined broad jump and rotation but does not establish a bilateral or unilateral contact contract.","The old generic score and sport-transfer copy cannot supply missing movement facts.","The source remains traceable but becomes archived, unscored, unpublished, and human-review quarantined."],
+        "difficultyDecision": "Do not score an undefined exercise; complexity and physical difficulty require fixed support, angle, projection, contact, landing, hold, and reset contracts.",
+        "identityDecision": {"resolution":"retire_ambiguous_source_without_direct_consolidation","possibleMappings":["bilateral-90-degree-rotational-broad-jump-to-stick","opposite-leg-90-degree-rotational-bound-to-stick"],"humanReviewRequired":true}
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=zGGOXMLYqX4","title":"Rotational Broad Jump - Do these to increase rotational power and athleticism 🔥🚀","channelName":"Plyomorph","sourceQuery":"ambiguous rotational broad jump wording","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Adjacent broad-jump interpretation only; it cannot establish missing legacy support, angle, or hold facts."},
+        {"url":"https://www.youtube.com/watch?v=imxxbQeKQss","title":"Lateral Rotational Broad Jump","channelName":"Bullett Performance Training","sourceQuery":"adjacent lateral rotational broad jump interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Adjacent interpretation only; no mapping or quality approval is inferred."},
+        {"url":"https://www.youtube.com/watch?v=tE-cioALo6o","title":"Rotational Broad Jump w/ Stick","channelName":"Belmont Hill School Strength and Conditioning","sourceQuery":"adjacent rotational broad jump stick interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T01:37:44.000Z"},"notes":"Stick wording does not resolve support, exact angle, target, or reset."}
+      ],
+      "alternateAssessments": [
+        {"name":"Bilateral 90-Degree Rotational Broad Jump to Stick","classification":"same_identity","rationale":"Possible only if authoritative evidence establishes two-foot takeoff and landing, exact 90-degree whole-body turn, one flight, and terminal hold.","distinguishingDimensions":{"possibleMapping":"bilateral-90-degree-rotational-broad-jump-to-stick"}},
+        {"name":"Opposite-Leg 90-Degree Rotational Bound to Stick","classification":"same_identity","rationale":"Possible only if authoritative evidence establishes a unilateral opposite-leg contact contract rather than bilateral support.","distinguishingDimensions":{"possibleMapping":"opposite-leg-90-degree-rotational-bound-to-stick"}},
+        {"name":"45-Degree Rotational Broad Jump","classification":"new_variant","rationale":"A smaller angle becomes a reviewed variant only after base support and terminal state are known.","distinguishingDimensions":{"turnAngleDegrees":45}},
+        {"name":"Broad Jump to Stick without Rotation","classification":"new_definition","rationale":"Removing reorientation creates the existing straight-horizontal identity.","distinguishingDimensions":{"turnAngleDegrees":0,"existingDefinition":"broad-jump-to-stick"}},
+        {"name":"Approach Rotational Broad Jump","classification":"new_definition","rationale":"An approach adds locomotor contacts and approach velocity.","distinguishingDimensions":{"approach":"declared"}},
+        {"name":"Repeated Rotational Broad Jumps","classification":"new_definition","rationale":"Repeated rebounds remove terminal stabilization and reset.","distinguishingDimensions":{"terminalAction":"rebound"}},
+        {"name":"Distance, Angle, Hold, Attempts, Rest, or Direction Order","classification":"modifier_annotation","rationale":"These can become modifiers only after support, projection, exact angle family, contact, hold, and reset are resolved.","distinguishingDimensions":{"modifiers":["distance","angle","hold","attempts","rest","direction_order"]}}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-rotational-throw",
+  "researchVersion": "2026-08-01.11",
+  "assessmentSummary": {
+    "identity": "Within the existing two-hand standing rotational-throw definition, the static scoop variant starts side-on with the ball held in two hands low near the back hip, permits a controlled ground-up pivot, and projects to a declared horizontal or slightly rising wall target before a throw-only finish and full reset on each side.",
+    "currentCardFindings": [
+      "Migration 382 already consolidated rotational scoop wording as a release-style variant of the two-hand rotational throw; this batch preserves that stable identity.",
+      "The existing canonical card is structurally complete but lacks a selectable exact scoop-release variant with low start position, two-hand sweep, throw-only return policy, and side dosage.",
+      "Five oEmbed-healthy rotational-scoop title candidates remain candidate-only and unapproved."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 34,
+      "baseOverallDifficulty": 58,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "static-side-on-two-hand-rotational-scoop-throw-only",
+        "exerciseComplexity": 58,
+        "physicalDifficulty": 34,
+        "overallDifficulty": 58
+      }
+    ],
+    "identityDecision": {
+      "resolution": "add_controlled_scoop_release_variant_to_existing_rotational_throw",
+      "newDefinition": false,
+      "countermovementSourceMapped": false
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T01:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Project a declared medicine ball with two hands from a standing athletic base into an inspected wall using sequenced whole-body rotation. The exact variant states whether the athlete throws and retrieves or tracks, catches, and absorbs a predictable rebound.",
+      "familyKey": "standing_medicine_ball_rotational_wall_projection",
+      "movementPatterns": [
+        "rotate",
+        "push",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine",
+        "rib_cage",
+        "scapula",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand",
+        "eye_hand"
+      ],
+      "requiredEquipment": [
+        "medicine_ball",
+        "wall"
+      ],
+      "optionalEquipment": [
+        "line_tape",
+        "timer",
+        "mirror"
+      ],
+      "environment": {
+        "target": "structurally_suitable_inspected_wall",
+        "surface": "level_non_slip_surface_with_clear_pivot_space",
+        "traffic": "one_active_thrower_per_lane_no_cross_traffic_or_ball_collection_during_throw",
+        "distance": "declared_and_repeatable",
+        "lighting": "ball_target_feet_and_return_path_clearly_visible",
+        "wallRule": "surface_is_structurally_suitable_and_return_behavior_is_tested_before_output",
+        "flightLane": "clear_from_release_to_wall",
+        "returnPath": "clear_and_predictable_when_rebound_catch_is_prescribed",
+        "targetHeight": "declared_relative_to_thrower_and_ball_path",
+        "coachSightline": "base_pivot_hip_and_trunk_sequence_release_target_and_return_visible",
+        "ballSpecification": "declared_mass_material_diameter_and_rebound_behavior"
+      },
+      "population": {
+        "readiness": [
+          "pain_free_standing_rotation_and_pivot",
+          "pain_free_two_hand_rotational_throw_with_light_ball",
+          "stable_athletic_base_and_deceleration",
+          "can_hit_declared_wall_target_without_uncontrolled_spine_motion",
+          "can_track_and_absorb_return_when_catch_is_prescribed",
+          "can_follow_stop_lane_clear_and_ball_collection_instructions"
+        ],
+        "supervision": "direct_observation_until_base_sequence_target_and_return_contract_are_repeatable",
+        "clinicalBoundary": "Symptoms, instability, recent surgery, neurologic signs, or rehabilitation restrictions require individualized clinician guidance; this card is not rehabilitation instruction.",
+        "selectionBoundary": "Select return contract, throw side, ball, target, distance, and dose from current readiness and intended stimulus; exercise cards do not carry proficiency levels.",
+        "contraindicationFlags": [
+          "current_foot_ankle_knee_hip_back_shoulder_elbow_wrist_or_hand_pain",
+          "numbness_dizziness_instability_or_neurologic_symptoms",
+          "uncontrolled_lumbar_extension_rotation_or_balance_loss",
+          "unsafe_ball_wall_lane_surface_pivot_space_or_return_path",
+          "unassessed_recent_injury_surgery_or_rehabilitation_restriction"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "Scoop-toss identity must declare forward versus rotational projection, stance and orientation, two-hand release path, ball start position, entry, target, return contract, finish, and side accounting."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball throws are ballistic power exercises whose position, direction, release, and outcome must remain controlled taxonomy dimensions.",
+        "The forward task is a bilateral sagittal hinge-and-throw; the rotational scoop is a two-hand transverse release variant of the standing rotational-throw definition."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing medicine-ball performance includes lower-body contribution and whole-body coordination rather than an isolated arm action.",
+        "Cards represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands used by the exact stance and release."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A side medicine-ball throw recruits trunk musculature differently from a front-facing throw and requires a side-specific rotational contract.",
+        "The forward scoop preserves a front-facing underhand projection; the rotational scoop preserves a side-on hip-to-trunk-to-ball sequence and controlled pivot."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Throw technique and ball mass affect performance variability and task demands.",
+        "Difficulty scores exercise complexity and physical difficulty only, with overall derived as their maximum; athlete proficiency is not an exercise-card field."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Medicine-ball mass and throw technique affect measured velocity and performance variability.",
+        "Standardize ball and technique when comparing output; operationally track visible output change, volume, rest, symptoms, and recovery without claiming a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://dxpprod.nsca.com/contentassets/574ab3a9e81e4063a759c38f29a717f8/land-based_strength_and_conditioning_-for_swimming.pdf",
+      "sourceTitle": "Land-Based Strength and Conditioning for Swimming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Standing medicine-ball projection requires an intact appropriate ball, stable non-slip surface, inspected target or open lane, and a cleared flight, rebound, and retrieval zone.",
+        "Pain, unsafe grip, uncontrolled pivot or finish, uncertain wall or ball behavior, insufficient space, or inability to follow the stop command blocks selection."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "NSCA Coach 5.4",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "High-intent medicine-ball throws use low repetition counts and enough rest to preserve ballistic intent rather than becoming conditioning.",
+        "Dose is fully reset throws, counted by side when rotational, with a declared mass, target, return policy, speed-loss rule, and weekly exposure budget."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://dxpprod.nsca.com/contentassets/574ab3a9e81e4063a759c38f29a717f8/land-based_strength_and_conditioning_-for_swimming.pdf",
+      "sourceTitle": "Land-Based Strength and Conditioning for Swimming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Instructions must state stance, ball position, load direction, ground-up sequence, release target, finish, retrieval or return policy, and reset.",
+        "Coach observable outcomes such as foot pressure, hip and trunk sequence, release vector, target, balance, and speed rather than promising transfer or injury prevention."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Rotational throwing creates rapid trunk activity and must stop when the athlete substitutes uncontrolled lumbar motion, loses the pivot, or develops symptoms.",
+        "Both tasks stop for pain, grip loss, lane entry, ball or target failure, unsafe flight or rebound, balance loss, target drift, or two consecutive slow or technically changed throws."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "A standardized rotational throw can support power assessment only when protocol and outcome measurement remain stable.",
+        "Workout generation must validate exact variant, phase, ball, target, lane, return contract, side balance, duration, rest, cumulative throwing budget, substitutions, and persistence after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "NSCA Coach 5.4",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete support explains the intended vector, ball and target, what a fast controlled rep looks like, why full rest matters, unexpected symptoms, self-checks, and how to request an alternative.",
+        "The athlete never catches, retrieves, steps, jumps, or changes sides unless the selected profile explicitly requires it."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coaches standardize ball mass, stance, side, target, distance, release vector, measurement method, rest, and valid-attempt rules before comparing outputs.",
+        "Group delivery requires a closed flight and retrieval lane, one thrower per zone, shared start and stop signals, side tracking, equipment inspection, and a maintained sightline."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Changing seated versus standing support or forward versus rotational technique changes the task rather than merely changing difficulty.",
+        "Accessible delivery may reduce ball mass, effort, repetitions, target precision, or measurement pressure and increase rest or multimodal instruction while preserving the selected identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Forward, vertical, reverse-overhead, rotational, chest-pass, and single-arm shot-put releases are separate identities or release families.",
+        "Ball mass, target, measured outcome, rest, and modest load depth are modifiers; support position, dynamic entry, jump, catch, and compound follow-up actions require explicit variant or identity review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify stance, direction, ball path, entry, release, target, finish, return policy, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=3TSv1SaUpOA",
+      "title": "SimoneBaseballPerformance.org - Medicine Ball Rotational Scoop Toss",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "static rotational medicine ball scoop toss",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:00:00.000Z"
+      },
+      "notes": "Title-level rotational-scoop candidate; exact entry, pivot, return contract, cues, captions, quality, reviewer, and approval remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LIQVEVwjAqU",
+      "title": "Rotational Medicine Ball Scoop Toss",
+      "channelName": "Synchronicity Health",
+      "sourceQuery": "rotational medicine ball scoop toss",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:00:00.000Z"
+      },
+      "notes": "Title-level candidate only; exact variant match and approval are unset."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xmQfXggU2mU",
+      "title": "Med Ball Rotational Scoop",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "medicine ball rotational scoop",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:00:00.000Z"
+      },
+      "notes": "Rotational-scoop title candidate; full human review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=V2MTAlOxXVU",
+      "title": "Alan teaches the rotational scoop toss. Get more throwing power from your hips",
+      "channelName": "Melissa Witmer",
+      "sourceQuery": "rotational scoop toss hips",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:00:00.000Z"
+      },
+      "notes": "Title-level rotational candidate; exact movement and demonstration quality are not approved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mxf1D3NtxMo",
+      "title": "CresseyMedBall.com: Rotational Medicine Ball Scoop Toss",
+      "channelName": "Eric Cressey",
+      "sourceQuery": "rotational medicine ball scoop toss",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:00:00.000Z"
+      },
+      "notes": "Candidate reassigned from an ambiguous generic source; full exact-match and quality review remain human work."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Forward Medicine Ball Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "Front-facing sagittal projection is distinct from side-on rotational projection.",
+      "distinguishingDimensions": {
+        "projection": "forward"
+      }
+    },
+    {
+      "name": "Rotational Medicine Ball Shot-Put",
+      "classification": "new_definition",
+      "rationale": "A unilateral shoulder-level push is not the same release as a bilateral low scoop.",
+      "distinguishingDimensions": {
+        "release": "single_arm_shot_put"
+      }
+    },
+    {
+      "name": "Step-Behind Rotational Scoop Toss",
+      "classification": "new_variant",
+      "rationale": "A step-behind adds approach momentum and footwork before the same scoop release.",
+      "distinguishingDimensions": {
+        "entry": "step_behind"
+      }
+    },
+    {
+      "name": "Drop-Step Rotational Scoop Toss",
+      "classification": "new_variant",
+      "rationale": "A drop step adds reorientation and momentum before release.",
+      "distinguishingDimensions": {
+        "entry": "drop_step"
+      }
+    },
+    {
+      "name": "Shuffle Rotational Scoop Toss",
+      "classification": "new_variant",
+      "rationale": "A shuffle adds multiple approach contacts and timing demand.",
+      "distinguishingDimensions": {
+        "entry": "shuffle"
+      }
+    },
+    {
+      "name": "Half-Kneeling Rotational Scoop Toss",
+      "classification": "new_variant",
+      "rationale": "Kneeling removes standing pivot and lower-body contribution.",
+      "distinguishingDimensions": {
+        "support": "half_kneeling"
+      }
+    },
+    {
+      "name": "Rotational Scoop Toss with Rebound Catch",
+      "classification": "new_variant",
+      "rationale": "A required catch adds tracking, return absorption, ball and wall constraints, and catch exposure.",
+      "distinguishingDimensions": {
+        "returnContract": "rebound_and_catch"
+      }
+    },
+    {
+      "name": "Ball Mass, Target Height, Wall Distance, Repetitions, or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "These scale the static scoop-release delivery while its side-on start, low two-hand path, pivot, target vector, throw-only finish, side dose, and reset remain fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "ball_mass",
+          "target_height",
+          "wall_distance",
+          "repetitions",
+          "rest"
+        ]
+      }
+    }
+  ]
+}

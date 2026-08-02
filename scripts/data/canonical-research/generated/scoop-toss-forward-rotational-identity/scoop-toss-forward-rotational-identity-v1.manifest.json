@@ -1,0 +1,25 @@
+{
+  "batchKey": "scoop-toss-forward-rotational-identity-v1",
+  "researchVersion": "2026-08-01.11",
+  "generatedAt": "2026-08-02T01:00:00.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-scoop-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "medicine-ball-rotational-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "countermovement-medicine-ball-scoop-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7
+    }
+  ]
+}

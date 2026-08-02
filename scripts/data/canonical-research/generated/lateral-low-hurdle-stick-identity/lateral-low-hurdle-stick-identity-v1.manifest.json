@@ -1,0 +1,25 @@
+{
+  "batchKey": "lateral-low-hurdle-stick-identity-v1",
+  "researchVersion": "2026-08-01.12",
+  "generatedAt": "2026-08-02T01:05:00.000Z",
+  "cards": [
+    {
+      "slug": "bilateral-lateral-low-hurdle-jump-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 9
+    },
+    {
+      "slug": "single-leg-lateral-low-hurdle-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 9
+    },
+    {
+      "slug": "low-hurdle-lateral-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7
+    }
+  ]
+}

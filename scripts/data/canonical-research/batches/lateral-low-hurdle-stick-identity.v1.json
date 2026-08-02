@@ -1,0 +1,268 @@
+{
+  "batchKey": "lateral-low-hurdle-stick-identity-v1",
+  "researchVersion": "2026-08-01.12",
+  "snapshotAt": "2026-08-02T01:05:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/lateral-low-hurdle-stick-identity",
+  "includeArchived": true,
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral and bilateral landings have materially different knee kinematics and muscle-activation demands.",
+        "A lateral hurdle task must declare takeoff foot count, landing foot count and leg, obstacle, direction, contact count, terminal hold, and reset; hop or jump wording alone cannot supply those facts."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "hurdle_jump_training_specificity",
+      "claims": [
+        "Bilateral and unilateral hurdle jumps showed different force and contact-time characteristics in a standardized protocol.",
+        "Raised-hurdle clearance is represented separately from a floor-line or open-floor target because it adds required equipment, minimum clearance, visual demand, trip exposure, and altered failure consequences."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Jump landing uses foot, ankle, knee, hip, pelvis, and trunk control, with different demands when landing on one leg versus two.",
+        "Cards declare plantar flexors, quadriceps, hamstrings, gluteals, hip adductors and rotators, foot and ankle stabilizers, and trunk stabilizers without implying isolated-muscle causation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "hurdle_height_kinematics_kinetics",
+      "claims": [
+        "Changing hurdle height altered jump height and flight-phase hip and knee positions in the studied hurdle-jump protocol.",
+        "The exact card fixes one lateral clearance, declared low obstacle dimensions, declared takeoff and landing support, controlled absorption, terminal hold, and full reset."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "hurdle_jump_training_specificity",
+      "claims": [
+        "Hurdle and support conditions change mechanical and coordination demands and therefore must remain fixed when comparing tasks.",
+        "Difficulty scores exercise complexity and physical difficulty only, with overall derived as their maximum; athlete proficiency is not an exercise-card field."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "hurdle_height_kinematics_kinetics",
+      "claims": [
+        "Hurdle height can alter clearance strategy even when some lower-limb work measures do not differ between tested heights.",
+        "Track obstacle dimensions, bodyweight contacts, takeoff and landing support, direction, landing quality, attempts, other jump and running load, symptoms, rest, and recovery without asserting a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "hurdle_height_kinematics_kinetics",
+      "claims": [
+        "Obstacle dimensions are part of the task and cannot be treated as invisible equipment metadata.",
+        "Require a collapsible low hurdle, level high-traction surface, marked takeoff and landing zones, clear fall space, no cross-traffic, stable footwear policy, and a complete coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing-feedback interventions use observable movement targets, but the evidence does not establish one universal safe repetition count.",
+        "Dose fully reset single clearances, count every landing contact and side, preserve the declared hold, and stop before technique or output changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "Lateral line drills distinguish one-foot and two-foot execution and demonstrate why support must be named explicitly.",
+        "Instructions state foot support, direction, obstacle, takeoff zone, clearance, landing zone, whole-foot absorption, hold, exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "hurdle_height_kinematics_kinetics",
+      "claims": [
+        "Hurdle height changes flight posture and must be selected deliberately rather than progressed by assumption.",
+        "Stop for pain, guarding, obstacle contact, toe catch, uncontrolled landing, split or wrong-foot contact, free-foot touch, extra hop or step, target miss, alignment loss, dizziness, unsafe equipment, or two changed reps."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "hurdle_jump_training_specificity",
+      "claims": [
+        "Bilateral and unilateral hurdle protocols have different mechanical characteristics and should not be pooled silently.",
+        "Workout generation validates exact card and variant, obstacle inventory and dimensions, lane, side balance, contact and fatigue budgets, duration, rest, substitutions, and persisted output after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Clear observable landing feedback can support movement practice, but card text cannot promise injury prevention.",
+        "Athlete support explains the foot contract, obstacle, target, expected landing, symptoms, self-checks, stop rule, and how to request a ground-only or non-impact alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "hurdle_jump_training_specificity",
+      "claims": [
+        "Standardized hurdle protocols require the support condition and obstacle setup to remain consistent.",
+        "Coaches document hurdle dimensions, takeoff and landing marks, foot contract, direction, valid attempts, contacts, hold, rest, side order, faults, symptoms, and substitutions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Changing from unilateral to bilateral landing changes the task rather than merely reducing difficulty.",
+        "Accessible delivery may reduce obstacle height, lateral distance, intent, attempts, precision, or measurement pressure and increase rest or multimodal instruction while preserving the exact support and obstacle contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "hurdle_height_kinematics_kinetics",
+      "claims": [
+        "Obstacle height is a meaningful mechanical dimension and must be bounded within the reviewed variant.",
+        "Support, landing leg, obstacle versus floor target, contact count, rebound, approach, rotation, and terminal action require explicit variant or definition review; measured distance, hold duration, attempts, and rest can be delivery modifiers within bounds."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify foot support, obstacle, direction, contact count, clearance, landing, hold, reset, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "bilateral-lateral-low-hurdle-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary two-foot stance beside one declared collapsible low hurdle, take off from both feet together, clear the hurdle laterally once, land on both feet together in the marked zone, absorb under control, hold without an extra step or hop, exit safely, and reset fully.",
+        "currentCardFindings": [
+          "The ground-only bilateral parent is already complete, but a raised obstacle adds equipment, minimum clearance, trip exposure, landing-location demand, and failure consequences that require a separate canonical definition.",
+          "The legacy low-hurdle source does not declare foot count and is not mapped to this authored card.",
+          "Five oEmbed-healthy title-level candidates remain unreviewed for exact movement, quality, safety, captions, accessibility, reviewer identity, and approval."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 44,
+          "baseOverallDifficulty": 48,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "stationary-two-foot-single-lateral-low-hurdle-clearance-to-two-foot-stick",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 44,
+            "overallDifficulty": 48
+          }
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_bilateral_low_hurdle_definition_without_source_mapping",
+          "groundParent": "lateral-hop-to-stick",
+          "legacySourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=lymbF-brPvQ", "title": "Double Leg Lateral Hurdle Hop Stick", "channelName": "Levelup Jared Hatz", "sourceQuery": "double leg lateral hurdle hop stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Title explicitly names double-leg lateral hurdle hop and stick; full exact-contract and quality review remain human-gated."},
+        {"url": "https://www.youtube.com/watch?v=ear4XAser10", "title": "Bilateral Lateral Hurdle Hops (stick landing)", "channelName": "Flight Performance & Fitness", "sourceQuery": "bilateral lateral hurdle hops stick landing", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Title names bilateral support and stick landing; one-clearance contact count and all quality gates require playback review."},
+        {"url": "https://www.youtube.com/watch?v=362qbIZF1jE", "title": "2-Leg Lateral Hurdle Jumps", "channelName": "BSC Strength WI", "sourceQuery": "two leg lateral hurdle jumps", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Two-leg lateral-hurdle title candidate; terminal stick and single-clearance contract are not approved."},
+        {"url": "https://www.youtube.com/watch?v=0I0oWEnrEVc", "title": "Lateral Hurdle Jump+Stick (short demo) \"stick and hold the landing\"", "channelName": "ADAM REES", "sourceQuery": "lateral hurdle jump stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Jump-and-stick title candidate; foot count, obstacle dimensions, exact contact plan, and demonstration quality remain unresolved."},
+        {"url": "https://www.youtube.com/watch?v=Bw5ytVM3U_8", "title": "Lateral Hurdle Hop Stick", "channelName": "Performance Unlimited", "sourceQuery": "bilateral lateral hurdle hop stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Adjacent title candidate only; hop wording does not establish foot count and no approval is inferred."}
+      ],
+      "alternateAssessments": [
+        {"name": "Bilateral Lateral Jump to Stick", "classification": "new_definition", "rationale": "The ground-only task has no raised obstacle, minimum clearance, or trip exposure.", "distinguishingDimensions": {"obstacle": "none", "existingDefinition": "lateral-hop-to-stick"}},
+        {"name": "Single-Leg Lateral Low-Hurdle Hop to Stick", "classification": "new_definition", "rationale": "Same-leg support changes impulse distribution, landing mechanics, side dose, and readiness.", "distinguishingDimensions": {"support": "ipsilateral_single_leg"}},
+        {"name": "Continuous Bilateral Lateral Hurdle Hops", "classification": "new_definition", "rationale": "Repeated rebounds remove the terminal hold and full reset.", "distinguishingDimensions": {"terminalAction": "rebound", "contacts": "repeated"}},
+        {"name": "Bilateral Multi-Hurdle Lateral Jump-and-Stick Series", "classification": "new_definition", "rationale": "Multiple ordered clearances and landings change contact count, fatigue, spacing, and dose.", "distinguishingDimensions": {"obstacles": "multiple", "contacts": "multiple"}},
+        {"name": "Bilateral Lateral Hurdle Jump to Sprint", "classification": "new_definition", "rationale": "A sprint exit replaces the terminal stick and adds acceleration contacts.", "distinguishingDimensions": {"terminalAction": "sprint"}},
+        {"name": "Bilateral Lateral Hurdle Jump with Rotation", "classification": "new_definition", "rationale": "Aerial reorientation adds a different landing orientation and failure mode.", "distinguishingDimensions": {"rotation": "declared_nonzero"}},
+        {"name": "Reactive-Cue Bilateral Lateral Hurdle Jump to Stick", "classification": "new_variant", "rationale": "A late direction cue materially increases decision and lane-management demand.", "distinguishingDimensions": {"cueing": "reactive"}},
+        {"name": "Weighted-Vest Bilateral Lateral Hurdle Jump to Stick", "classification": "new_variant", "rationale": "External torso load changes physical difficulty and landing load.", "distinguishingDimensions": {"externalLoad": "weighted_vest"}},
+        {"name": "Hurdle Height, Lateral Distance, Hold, Attempts, Rest, or Side Order", "classification": "modifier_annotation", "rationale": "These scale delivery only inside reviewed low-hurdle and support bounds.", "distinguishingDimensions": {"modifiers": ["hurdle_height", "lateral_distance", "hold", "attempts", "rest", "side_order"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-lateral-low-hurdle-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary stance on one declared leg beside one declared collapsible low hurdle, take off from that leg, clear the hurdle laterally once, land on the same leg in the marked zone, absorb under control, hold without a free-foot touch, extra hop, or step, exit safely, and reset before changing direction or side.",
+        "currentCardFindings": [
+          "The ground-only single-leg parent is complete, but a raised obstacle creates an equipment, clearance, trip, landing-location, and failure-consequence boundary already identified by its alternate assessment.",
+          "The legacy low-hurdle source does not declare same-leg support and is not mapped to this authored card.",
+          "Five oEmbed-healthy title-level candidates remain candidate-only until qualified full playback review."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 60,
+          "absoluteLoadDemand": 52,
+          "baseOverallDifficulty": 60,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "stationary-same-leg-single-lateral-low-hurdle-clearance-to-same-leg-stick",
+            "exerciseComplexity": 60,
+            "physicalDifficulty": 52,
+            "overallDifficulty": 60
+          }
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_same_leg_low_hurdle_definition_without_source_mapping",
+          "groundParent": "single-leg-lateral-hop-to-stick",
+          "legacySourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=iPNiem2uJA8", "title": "Single Leg Lateral Hurdle Hops With Sticks", "channelName": "SHIFT Movement Science and Gymnastics Education", "sourceQuery": "single leg lateral hurdle hops with sticks", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Title-level same-leg candidate; number of hurdles, each landing contract, full cues, captions, and quality require review."},
+        {"url": "https://www.youtube.com/watch?v=7aMbZAmd2qY", "title": "1 Leg Lateral Hurdle Hop with Stick", "channelName": "Champion Physical Therapy and Performance", "sourceQuery": "one leg lateral hurdle hop with stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Exact-title candidate; same-leg landing, single clearance, cue quality, safety, captions, and accessibility remain unapproved."},
+        {"url": "https://www.youtube.com/watch?v=pIb9NJyRKMk", "title": "Single-leg hurdle hop with lateral stick", "channelName": "LEGACY HEALTH AND PERFORMANCE", "sourceQuery": "single leg hurdle hop lateral stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Single-leg and lateral-stick title candidate; projection sequence and exact movement require full review."},
+        {"url": "https://www.youtube.com/watch?v=a9clGYbxAjw", "title": "Single Leg Lateral Hurdle Hop Stick", "channelName": "Levelup Jared Hatz", "sourceQuery": "single leg lateral hurdle hop stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Exact-title candidate only; playback and qualified review remain required."},
+        {"url": "https://www.youtube.com/watch?v=e1AQ_ZT4B10", "title": "Single Leg Lateral Hurdle Hop and stick", "channelName": "Prepare For Performance", "sourceQuery": "single leg lateral hurdle hop and stick", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Exact-title candidate only; no exact-match, demonstration-quality, reviewer, caption, accessibility, or approval claim is created."}
+      ],
+      "alternateAssessments": [
+        {"name": "Single-Leg Lateral Hop to Stick", "classification": "new_definition", "rationale": "The ground-only task has no raised obstacle, minimum clearance, or trip exposure.", "distinguishingDimensions": {"obstacle": "none", "existingDefinition": "single-leg-lateral-hop-to-stick"}},
+        {"name": "Bilateral Lateral Low-Hurdle Jump to Stick", "classification": "new_definition", "rationale": "Two-foot support changes impulse distribution, landing mechanics, dose, and readiness.", "distinguishingDimensions": {"support": "bilateral"}},
+        {"name": "Opposite-Leg Lateral Bound over Low Hurdle to Stick", "classification": "new_definition", "rationale": "Contralateral landing changes the takeoff-to-landing relationship.", "distinguishingDimensions": {"landingLeg": "opposite"}},
+        {"name": "Continuous Single-Leg Lateral Hurdle Hops", "classification": "new_definition", "rationale": "Repeated rebound contacts remove the terminal hold and full reset.", "distinguishingDimensions": {"terminalAction": "rebound", "contacts": "repeated"}},
+        {"name": "Single-Leg Multi-Hurdle Lateral Hop-and-Stick Series", "classification": "new_definition", "rationale": "Multiple clearances and landings change contact count, fatigue, spacing, and side dose.", "distinguishingDimensions": {"obstacles": "multiple", "contacts": "multiple"}},
+        {"name": "Same-Leg Medial Crossover Low-Hurdle Hop to Stick", "classification": "new_variant", "rationale": "Crossing toward and over the stance leg changes hip strategy while preserving same-leg support.", "distinguishingDimensions": {"directionRelativeToStanceLeg": "medial_crossover"}},
+        {"name": "Reactive-Cue Single-Leg Lateral Low-Hurdle Hop to Stick", "classification": "new_variant", "rationale": "A late side or distance cue increases decision and lane-management demand.", "distinguishingDimensions": {"cueing": "reactive"}},
+        {"name": "Weighted-Vest Single-Leg Lateral Low-Hurdle Hop to Stick", "classification": "new_variant", "rationale": "External torso load changes unilateral propulsion and landing demand.", "distinguishingDimensions": {"externalLoad": "weighted_vest"}},
+        {"name": "Hurdle Height, Lateral Distance, Hold, Attempts, Rest, Direction, or Side Order", "classification": "modifier_annotation", "rationale": "These scale delivery only inside reviewed low-hurdle and same-leg bounds.", "distinguishingDimensions": {"modifiers": ["hurdle_height", "lateral_distance", "hold", "attempts", "rest", "direction", "side_order"]}}
+      ]
+    },
+    {
+      "slug": "low-hurdle-lateral-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "Undefined legacy source: lateral low-hurdle clearance and terminal-stick wording are present, but takeoff foot count, landing foot count and leg, obstacle dimensions, contact count, direction relative to stance, landing zone, hold, exit, and reset are not declared.",
+        "currentCardFindings": [
+          "The record mixes generic high-impact boilerplate with a title that can describe bilateral or ipsilateral single-leg execution.",
+          "Neither hop terminology nor the old difficulty and dosage rows prove support or landing-leg identity.",
+          "The source remains traceable but becomes archived, unscored, unpublished, and human-review quarantined."
+        ],
+        "difficultyDecision": "Do not score an undefined task; exercise complexity and physical difficulty require fixed takeoff, landing, obstacle, contact, hold, and reset contracts.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleMappings": ["bilateral-lateral-low-hurdle-jump-to-stick", "single-leg-lateral-low-hurdle-hop-to-stick"],
+          "humanReviewRequired": true
+        }
+      },
+      "mediaCandidates": [
+        {"url": "https://www.youtube.com/watch?v=lymbF-brPvQ", "title": "Double Leg Lateral Hurdle Hop Stick", "channelName": "Levelup Jared Hatz", "sourceQuery": "adjacent bilateral interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Adjacent bilateral interpretation only; media cannot establish the legacy source foot contract."},
+        {"url": "https://www.youtube.com/watch?v=7aMbZAmd2qY", "title": "1 Leg Lateral Hurdle Hop with Stick", "channelName": "Champion Physical Therapy and Performance", "sourceQuery": "adjacent single leg interpretation", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Adjacent single-leg interpretation only; it does not prove the source support contract."},
+        {"url": "https://www.youtube.com/watch?v=Bw5ytVM3U_8", "title": "Lateral Hurdle Hop Stick", "channelName": "Performance Unlimited", "sourceQuery": "ambiguous lateral hurdle hop stick wording", "linkStatus": "healthy", "embeddingAllowed": true, "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:05:00.000Z"}, "notes": "Title repeats the ambiguity and remains candidate evidence only; no mapping or approval is inferred."}
+      ],
+      "alternateAssessments": [
+        {"name": "Bilateral Lateral Low-Hurdle Jump to Stick", "classification": "same_identity", "rationale": "Possible only if authoritative evidence establishes simultaneous two-foot takeoff and landing, one clearance, and a terminal hold.", "distinguishingDimensions": {"possibleMapping": "bilateral-lateral-low-hurdle-jump-to-stick"}},
+        {"name": "Single-Leg Lateral Low-Hurdle Hop to Stick", "classification": "same_identity", "rationale": "Possible only if authoritative evidence establishes same-leg takeoff and landing, one clearance, side accounting, and terminal hold.", "distinguishingDimensions": {"possibleMapping": "single-leg-lateral-low-hurdle-hop-to-stick"}},
+        {"name": "Opposite-Leg Lateral Bound over Low Hurdle to Stick", "classification": "new_definition", "rationale": "A contralateral landing is a third support identity.", "distinguishingDimensions": {"takeoffLandingRelationship": "contralateral"}},
+        {"name": "Continuous Lateral Hurdle Hops", "classification": "new_definition", "rationale": "Repeated rebounds remove the terminal hold and full reset.", "distinguishingDimensions": {"terminalAction": "rebound"}},
+        {"name": "Multi-Hurdle Lateral Hop-and-Stick Series", "classification": "new_definition", "rationale": "Multiple obstacles and contacts change sequence, fatigue, spacing, and dosage.", "distinguishingDimensions": {"obstacles": "multiple"}},
+        {"name": "Ground-Only Lateral Jump or Hop to Stick", "classification": "new_definition", "rationale": "Removing the obstacle removes clearance, trip, and equipment constraints but still requires foot-count identity.", "distinguishingDimensions": {"obstacle": "none"}},
+        {"name": "Hurdle Height, Distance, Hold, Attempts, Rest, or Side Order", "classification": "modifier_annotation", "rationale": "These become delivery modifiers only after exact support, contact, obstacle, hold, and reset identity is resolved.", "distinguishingDimensions": {"modifiers": ["hurdle_height", "distance", "hold", "attempts", "rest", "side_order"]}}
+      ]
+    }
+  ]
+}

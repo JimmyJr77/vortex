@@ -469,9 +469,9 @@ BEGIN
       'exposureMetric',CASE WHEN seed.laterality='bilateral'
         THEN 'total_bilateral_landing_events_and_foot_contacts'
         ELSE 'total_unilateral_landing_contacts_by_leg_and_turn_direction' END,
-      'gripDemand','none','spinalLoading','low_dynamic',
-      'eccentricStress',CASE WHEN seed.laterality='bilateral'
-        THEN 'moderate_to_high_landing' ELSE 'high_unilateral_landing' END,
+      'gripDemand',1,
+      'spinalLoading',CASE WHEN seed.laterality='bilateral' THEN 28 ELSE 34 END,
+      'eccentricStress',CASE WHEN seed.laterality='bilateral' THEN 72 ELSE 82 END,
       'loadTracking',jsonb_build_array(
         'attempts','landing_contacts','takeoff_and_landing_support','turn_direction',
         'jump_height','hold_seconds','rest','surface','quality','symptoms'),
@@ -479,7 +479,7 @@ BEGIN
         'force_threshold','safe_joint_angle','injury_risk_prediction')),
     jsonb_build_object(
       'localMuscleFatigue',CASE WHEN seed.laterality='bilateral' THEN 52 ELSE 62 END,
-      'gripFatigue',0,
+      'gripFatigue',1,
       'technicalFatigueSensitivity',CASE WHEN seed.laterality='bilateral' THEN 72 ELSE 80 END,
       'impactAccumulation',CASE WHEN seed.laterality='bilateral' THEN 64 ELSE 74 END,
       'recoveryHours',CASE WHEN seed.laterality='bilateral' THEN 24 ELSE 36 END,
@@ -947,6 +947,55 @@ BEGIN
   WHERE coaching.exercise_identity_resolution_v1.resolution_source<>'human_review'
     AND coaching.exercise_identity_resolution_v1.reviewed_by IS NULL;
 
+  INSERT INTO coaching.exercise_identity_resolution_v1(
+    facility_id,survivor_definition_id,resolved_definition_id,decision,
+    rationale,evidence_json,resolution_source,reviewed_by,resolved_at)
+  SELECT 1,neighbor.id,boundary.exact_id,'distinct_exercises',
+    boundary.rationale,
+    jsonb_build_object(
+      'identityBoundary',boundary.identity_boundary,
+      'differingDimensions',boundary.differing_dimensions,
+      'decisionScope','identity_only_not_card_media_graph_calibration_or_publication_approval',
+      'exerciseDifficultyModel','exercise_complexity_and_physical_difficulty_only',
+      'cardHumanReviewRequired',TRUE,'approvalCreated',FALSE,
+      'migration',migration_key),
+    'deterministic_identity_equivalence',NULL,now()
+  FROM(VALUES
+    ('single-leg-hop-to-stick',unilateral_id,
+      'The existing hop-to-stick card is a vertical jump-height task without a declared aerial turn. The exact quarter-turn card requires 90 degrees of reorientation, declared turn direction, target reacquisition, minimal horizontal displacement, same-leg landing, hold, and reset.',
+      'vertical_single_leg_hop_vs_same_leg_90_degree_turn',
+      jsonb_build_array('rotation_degrees','turn_direction','target_reacquisition')),
+    ('lateral-hop-to-stick',bilateral_id,
+      'The bilateral lateral jump projects to a declared lateral line or zone without a turn. The exact quarter-turn jump minimizes horizontal displacement while rotating 90 degrees and landing in a new orientation.',
+      'bilateral_lateral_projection_vs_bilateral_90_degree_turn',
+      jsonb_build_array('projection','rotation_degrees','landing_orientation')),
+    ('single-leg-lateral-hop-to-stick',unilateral_id,
+      'The lateral hop projects from and to the same leg at a declared lateral target without a turn. The exact quarter-turn hop minimizes horizontal displacement while rotating 90 degrees and reacquiring a new landing orientation.',
+      'same_leg_lateral_projection_vs_same_leg_90_degree_turn',
+      jsonb_build_array('projection','rotation_degrees','landing_orientation')),
+    ('90-degree-speed-cut',unilateral_id,
+      'The speed cut uses an approach, planted braking action, right-angle ground redirection, and an exit or context-specific stick. The exact quarter-turn hop is stationary, turns in flight, lands on the takeoff leg, sticks, and fully resets.',
+      'ground_based_90_degree_cut_vs_aerial_same_leg_90_degree_turn',
+      jsonb_build_array('approach','ground_contact_sequence','aerial_rotation','exit_action','landing_leg')),
+    ('single-leg-triple-hop-to-stick',unilateral_id,
+      'The triple-hop card requires three repeated unilateral horizontal projections before the final stick. The exact quarter-turn card requires one stationary same-leg takeoff, a 90-degree aerial turn, minimal horizontal displacement, one landing, and reset.',
+      'three_horizontal_hops_vs_one_same_leg_90_degree_turn',
+      jsonb_build_array('contact_count','projection','rotation_degrees','repetition_boundary')),
+    ('tuck-jump-to-lateral-stick',bilateral_id,
+      'The tuck-jump card combines vertical tuck action with a lateral terminal landing. The exact quarter-turn card requires a stationary bilateral takeoff, 90-degree aerial reorientation, minimal horizontal displacement, bilateral landing, stick, and reset.',
+      'vertical_tuck_plus_lateral_landing_vs_bilateral_90_degree_turn',
+      jsonb_build_array('flight_action','projection','rotation_degrees','landing_contract'))
+  ) boundary(neighbor_slug,exact_id,rationale,identity_boundary,differing_dimensions)
+  JOIN coaching.exercise_definition_v1 neighbor
+    ON neighbor.facility_id=1 AND neighbor.slug=boundary.neighbor_slug
+  ON CONFLICT(survivor_definition_id,resolved_definition_id)
+  DO UPDATE SET decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
+    evidence_json=EXCLUDED.evidence_json,
+    resolution_source=EXCLUDED.resolution_source,reviewed_by=NULL,
+    resolved_at=now()
+  WHERE coaching.exercise_identity_resolution_v1.resolution_source<>'human_review'
+    AND coaching.exercise_identity_resolution_v1.reviewed_by IS NULL;
+
   UPDATE coaching.exercise exercise
   SET name=CASE exercise.id WHEN 1489
       THEN '90-Degree Hop to Stick (Unresolved Legacy)'
@@ -1146,7 +1195,7 @@ BEGIN
        WHERE resolution.decision='distinct_exercises'
          AND resolution.resolution_source='deterministic_identity_equivalence'
          AND resolution.reviewed_by IS NULL
-         AND resolution.evidence_json->>'migration'=migration_key)<>3 THEN
+         AND resolution.evidence_json->>'migration'=migration_key)<>9 THEN
     RAISE EXCEPTION '% failed to preserve source review and exact boundaries',
       migration_key;
   END IF;

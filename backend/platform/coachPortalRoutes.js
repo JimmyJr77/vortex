@@ -3195,20 +3195,62 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     } catch (error) { bad(res, error.message, 500) }
   })
 
+  app.get('/api/coach/gymnastics-evaluation-templates', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const rows = await pool.query(
+        `SELECT id, name, definition, archived, created_at, updated_at
+         FROM coaching.gymnastics_evaluation_template
+         WHERE facility_id = $1 ORDER BY archived, name`,
+        [req.platformAuth.user.facility_id],
+      )
+      ok(res, rows.rows)
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.post('/api/coach/gymnastics-evaluation-templates', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const name = String(req.body?.name || '').trim() || 'Foundational Floor'
+      const definition = req.body?.definition && typeof req.body.definition === 'object' ? req.body.definition : {}
+      const row = await pool.query(
+        `INSERT INTO coaching.gymnastics_evaluation_template (facility_id, created_by, name, definition)
+         VALUES ($1, $2, $3, $4::jsonb)
+         ON CONFLICT (facility_id, name) DO UPDATE SET definition = EXCLUDED.definition, archived = FALSE, updated_at = now()
+         RETURNING id, name, definition, archived, created_at, updated_at`,
+        [req.platformAuth.user.facility_id, Number(req.platformAuth.user.id), name, JSON.stringify(definition)],
+      )
+      ok(res, row.rows[0])
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
+  app.patch('/api/coach/gymnastics-evaluation-templates/:id', ...can('athlete_grading.manage'), async (req, res) => {
+    try {
+      const row = await pool.query(
+        `UPDATE coaching.gymnastics_evaluation_template
+         SET name = COALESCE(NULLIF(trim($3), ''), name), archived = COALESCE($4, archived), updated_at = now()
+         WHERE id = $1 AND facility_id = $2 RETURNING id, name, definition, archived, created_at, updated_at`,
+        [num(req.params.id), req.platformAuth.user.facility_id, req.body?.name, typeof req.body?.archived === 'boolean' ? req.body.archived : null],
+      )
+      if (!row.rows[0]) return bad(res, 'Evaluation template not found.', 404)
+      ok(res, row.rows[0])
+    } catch (error) { bad(res, error.message, 500) }
+  })
+
   app.post('/api/coach/gymnastics-evaluations', ...can('athlete_grading.manage'), async (req, res) => {
     const facilityId = Number(req.platformAuth.user.facility_id)
     const memberId = num(req.body?.member_id)
     const movements = Array.isArray(req.body?.movements) ? req.body.movements : []
-    if (memberId == null || movements.length === 0) return bad(res, 'Select an athlete and complete at least one movement.')
-    const member = await pool.query(`SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`, [memberId, facilityId])
+    const recipientEmail = String(req.body?.recipient_email || '').trim() || null
+    if (memberId == null && !recipientEmail) return bad(res, 'Select an athlete or provide a recipient email.')
+    if (movements.length === 0) return bad(res, 'Complete at least one movement.')
+    const member = memberId == null ? { rows: [{ id: null }] } : await pool.query(`SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`, [memberId, facilityId])
     if (member.rows.length === 0) return bad(res, 'Athlete not found.', 404)
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
       const created = await client.query(
-        `INSERT INTO coaching.gymnastics_evaluation (facility_id, member_id, coach_user_id, evaluated_at, coach_note, report)
-         VALUES ($1, $2, $3, COALESCE($4::date, CURRENT_DATE), $5, '{}'::jsonb) RETURNING *`,
-        [facilityId, memberId, Number(req.platformAuth.user.id), req.body?.evaluated_at || null, req.body?.coach_note || null],
+        `INSERT INTO coaching.gymnastics_evaluation (facility_id, member_id, coach_user_id, evaluated_at, evaluation_name, recipient_email, coach_note, report)
+         VALUES ($1, $2, $3, COALESCE($4::date, CURRENT_DATE), $5, $6, $7, '{}'::jsonb) RETURNING *`,
+        [facilityId, memberId, Number(req.platformAuth.user.id), req.body?.evaluated_at || null, String(req.body?.evaluation_name || 'Foundational Floor').trim() || 'Foundational Floor', recipientEmail, req.body?.coach_note || null],
       )
       const reportInput = { movements: [], coachNote: req.body?.coach_note || null }
       for (const movement of movements) {
@@ -3238,6 +3280,21 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const report = buildGymnasticsFocusReport(reportInput)
       await client.query(`UPDATE coaching.gymnastics_evaluation SET report = $2::jsonb WHERE id = $1`, [created.rows[0].id, JSON.stringify(report)])
       await client.query('COMMIT')
+      const athleteName = memberId == null ? 'Athlete' : (await pool.query(`SELECT trim(concat(first_name, ' ', last_name)) AS name, email, parent_guardian_ids FROM public.member WHERE id = $1`, [memberId])).rows[0]
+      const guardianRows = memberId == null || !athleteName?.parent_guardian_ids?.length ? { rows: [] } : await pool.query(`SELECT email FROM public.member WHERE id = ANY($1::bigint[]) AND email IS NOT NULL`, [athleteName.parent_guardian_ids])
+      const recipients = [...new Set([recipientEmail, ...(guardianRows.rows || []).map((row) => row.email), athleteName?.email].filter(Boolean))]
+      if (recipients.length > 0 && isEmailConfigured()) {
+        const lines = reportInput.movements.flatMap((movement) => movement.components.map((component) => `${movement.label}${movement.variant ? ` — ${movement.variant}` : ''}: ${component.label} — ${component.score}/5${component.issues.length ? `; Needs practice: ${component.issues.join(', ')}` : ''}`))
+        const overall = Math.round(reportInput.movements.reduce((sum, movement) => sum + movement.components.reduce((inner, component) => inner + (component.score || 0), 0) / Math.max(movement.components.length, 1), 0) / Math.max(reportInput.movements.length, 1))
+        await Promise.all(recipients.map((to) => sendEmail({
+          to,
+          subject: `${req.body?.evaluation_name || 'Foundational Floor'} evaluation report${athleteName?.name ? ` — ${athleteName.name}` : ''}`,
+          text: [`Evaluation date: ${req.body?.evaluated_at || new Date().toISOString().slice(0, 10)}`, ...lines, `Overall score: ${overall}/5`].join('\n'),
+          html: `<h2>${String(req.body?.evaluation_name || 'Foundational Floor')}</h2><p>Evaluation date: ${String(req.body?.evaluated_at || new Date().toISOString().slice(0, 10))}</p><ul>${lines.map((line) => `<li>${line.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</li>`).join('')}</ul><p><strong>Overall score: ${overall}/5</strong></p>`,
+          category: 'gymnastics_evaluation',
+          idempotencyKey: `gymnastics-evaluation-${created.rows[0].id}-${to}`,
+        })))
+      }
       ok(res, { ...created.rows[0], report })
     } catch (error) {
       await client.query('ROLLBACK')
@@ -6123,7 +6180,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           [memberId],
         ),
         pool.query(
-          `SELECT ge.id, ge.evaluated_at, ge.report, ge.coach_note, m.first_name, m.last_name, u.full_name AS coach_name
+          `SELECT ge.id, ge.evaluated_at, ge.evaluation_name, ge.report, ge.coach_note, m.first_name, m.last_name, u.full_name AS coach_name
            FROM coaching.gymnastics_evaluation ge
            JOIN public.member m ON m.id = ge.member_id
            LEFT JOIN public.app_user u ON u.id = ge.coach_user_id

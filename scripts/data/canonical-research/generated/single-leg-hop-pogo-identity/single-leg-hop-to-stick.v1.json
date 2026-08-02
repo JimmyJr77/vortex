@@ -1,0 +1,354 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-hop-to-stick",
+  "researchVersion": "2026-08-02.14",
+  "assessmentSummary": {
+    "identity": "Undefined legacy family: same-leg landing and terminal-hold language are present, but three sources conflict or omit vertical versus horizontal direction, approach, amplitude, arm policy, target, hold, exit, and reset.",
+    "currentCardFindings": [
+      "One source emphasizes jump height, one distance jumping, and one only a very small unspecified displacement.",
+      "A prior consolidation preserved these sources under one generic family without creating an exact selectable direction variant.",
+      "The family is now archived, unscored, unpublished, and retained only for traceability and human adjudication."
+    ],
+    "difficultyDecision": "Do not score an undefined exercise; complexity and physical difficulty require an exact direction and contact contract.",
+    "identityDecision": {
+      "resolution": "retire_ambiguous_source_without_direct_consolidation",
+      "possibleMappings": [
+        "single-leg-vertical-hop-to-stick",
+        "single-leg-forward-hop-to-stick",
+        "single-leg-lateral-hop-to-stick"
+      ],
+      "humanReviewRequired": true
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T03:00:00.000Z",
+      "cardVersion": 2,
+      "status": "archived",
+      "description": "Archived nonprescribable source. Same-leg landing and a terminal hold are suggested, but vertical versus forward, backward, lateral, or rotational direction; approach; amplitude; arm policy; target; hold; exit; and reset are not consistently declared across its three legacy sources.",
+      "familyKey": "unresolved_single_leg_hop_direction_identity",
+      "movementPatterns": [
+        "hop",
+        "land",
+        "stabilize"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "lower_leg",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "floor_markers",
+        "video_capture"
+      ],
+      "environment": {
+        "known": {
+          "clearLandingSpaceRequired": true,
+          "levelDryHighTractionSurfaceRequired": true
+        },
+        "unresolved": [
+          "direction",
+          "target",
+          "contact_count",
+          "approach",
+          "terminal_action",
+          "exit",
+          "reset"
+        ]
+      },
+      "population": {
+        "reason": "movement_identity_unresolved",
+        "selection": "blocked_before_exposure",
+        "humanReviewRequired": true
+      },
+      "difficulty": {
+        "absoluteLoadDemand": 30,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/33560920/",
+      "sourceTitle": "Vertical and Horizontal Hop Performance: Contributions of the Hip, Knee, and Ankle",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Single-leg vertical and horizontal hops have different joint-work contributions during propulsion and landing.",
+        "Direction, takeoff and landing leg, contact sequence, terminal action, target, approach, hold, exit, and reset must be declared rather than inferred from hop wording."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41586017/",
+      "sourceTitle": "Lower limb muscle activation and biomechanics during single-leg hopping in different directions",
+      "sourcePublisher": "Frontiers in Bioengineering and Biotechnology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Forward, vertical, and backward single-leg hopping produced direction-specific movement and loading patterns.",
+        "Vertical, forward, lateral, backward, rotational, repeated-rebound, and terminal-stick tasks remain visible taxonomy dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/33560920/",
+      "sourceTitle": "Vertical and Horizontal Hop Performance: Contributions of the Hip, Knee, and Ankle",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Hip, knee, and ankle contributions differ between single-leg vertical and horizontal hop propulsion and landing.",
+        "Cards describe foot, ankle, knee, hip, pelvis, and trunk roles without reducing a coordinated landing to one muscle or joint."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40981494/",
+      "sourceTitle": "Biomechanical differences between horizontal and vertical single-leg jumps: what could each one reveal about functional impairments?",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Maximum-height and maximum-distance single-leg jumps showed different propulsion, landing, joint, and muscle-synergy demands.",
+        "This evidence supports separate direction-specific definitions but does not validate Vortex dose, score, safety, or transfer claims."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Jump direction and external load change single-leg jump-landing mechanics.",
+        "Difficulty scores exercise complexity and physical difficulty only, overall equals their maximum, and athlete proficiency is excluded from exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17293621/",
+      "sourceTitle": "Effect of fatigue on single-leg hop landing biomechanics",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Thigh-muscle fatigue changed ankle, knee, and hip behavior during single-leg hop landings.",
+        "Count valid and failed landings, all pogo contacts, same-session running and jumping, side exposure, symptoms, quality drift, rest, and individualized recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Direction and load are material task constraints in a single-leg jump landing.",
+        "Require a declared direction and target, level dry high-traction surface, clear flight, landing, fall, exit, and reset space, stable footwear, and coach sightlines."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Landing feedback can use observable movement criteria, but evidence does not establish one universal safe repetition count.",
+        "Dose fully reset hops or explicitly counted pogo contacts, record failed attempts, preserve terminal holds, and stop before direction, amplitude, contact, or alignment changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40058019/",
+      "sourceTitle": "The effect of arm swings on lower limb kinetics during single-leg forward, vertical, and backward hopping",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Arm use changed performance and knee work across direction-specific single-leg hopping tasks.",
+        "Instructions therefore declare arm policy together with direction, amplitude, takeoff, landing, contact count, terminal hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17293621/",
+      "sourceTitle": "Effect of fatigue on single-leg hop landing biomechanics",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Fatigue altered single-leg landing strategy and joint contribution.",
+        "Stop for symptoms, giving way, fear, wrong leg or direction, target miss, loud or slow contact, heel slam, alignment loss, touch, extra contact, failed terminal hold, unsafe space, or two changed repetitions."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/33560920/",
+      "sourceTitle": "Vertical and Horizontal Hop Performance: Contributions of the Hip, Knee, and Ankle",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Vertical and horizontal hop performance represent different lower-limb contributions and should not be treated as interchangeable measures.",
+        "Generation validates exact definition and variant, side, direction, contacts, impact and fatigue budgets, logistics, duration, substitutions, rendered instructions, and persisted output after changes."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Observable landing feedback can support practice but does not justify an injury-prevention promise for one exercise.",
+        "Athlete support explains the exact direction, foot contract, target, valid hold, expected effort, symptoms, self-checks, stop rule, and how to request an alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Direction and load must be controlled when comparing single-leg jump-landing attempts.",
+        "Coaches record side, direction, target, arm policy, valid and failed attempts, contacts, hold, rest, faults, symptoms, substitutions, and cumulative exposure."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11366841/",
+      "sourceTitle": "Unilateral Plyometric Jump Training Shows Significantly More Effective than Bilateral Training in Improving Both Time to Stabilization and Peak Landing Force in Single-Leg Lend and Hold Test",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Unilateral and bilateral jump training are different exposures rather than interchangeable labels.",
+        "Accessible delivery can reduce amplitude, contacts, attempts, precision pressure, or intent and increase rest or multimodal instruction while preserving the exact task; otherwise select a different reviewed definition."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41586017/",
+      "sourceTitle": "Lower limb muscle activation and biomechanics during single-leg hopping in different directions",
+      "sourcePublisher": "Frontiers in Bioengineering and Biotechnology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Forward, vertical, and backward single-leg hopping differ biomechanically.",
+        "Direction, approach, takeoff and landing relationship, contact sequence, rebound, rotation, external load, cueing, and terminal action require explicit definition or variant review; bounded target, hold, rest, and side order may be delivery modifiers."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed health establishes current link and iframe availability only.",
+        "A human must verify exact direction, support, contacts, amplitude, terminal hold, reset, cue quality, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ekhRg3mslTM",
+      "title": "Single Leg Vertical Jump & Stick",
+      "channelName": "Fitness Pain Free",
+      "sourceQuery": "adjacent vertical interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T03:00:00.000Z"
+      },
+      "notes": "Adjacent interpretation only; media cannot establish missing legacy direction."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fR4ShpYhR74",
+      "title": "Single-leg Forward Hop and Stick",
+      "channelName": "RYPT",
+      "sourceQuery": "adjacent forward interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T03:00:00.000Z"
+      },
+      "notes": "Adjacent interpretation only; no mapping or approval is inferred."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CYb0YKAKtIA",
+      "title": "Single-Leg Forward Hop & Stick",
+      "channelName": "Alex Bunt",
+      "sourceQuery": "adjacent forward interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T03:00:00.000Z"
+      },
+      "notes": "Adjacent interpretation only; source uncertainty remains."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Leg Vertical Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative lineage establishes stationary vertical direction.",
+      "distinguishingDimensions": {
+        "possibleMapping": "single-leg-vertical-hop-to-stick"
+      }
+    },
+    {
+      "name": "Single-Leg Forward Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative lineage establishes forward horizontal direction.",
+      "distinguishingDimensions": {
+        "possibleMapping": "single-leg-forward-hop-to-stick"
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative lineage establishes lateral direction.",
+      "distinguishingDimensions": {
+        "possibleMapping": "single-leg-lateral-hop-to-stick"
+      }
+    },
+    {
+      "name": "Direction, Target, Hold, Arm Policy, Rest, or Side Order",
+      "classification": "modifier_annotation",
+      "rationale": "These become modifiers only after one exact identity is established.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "direction",
+          "target",
+          "hold",
+          "arm_policy",
+          "rest",
+          "side_order"
+        ]
+      }
+    }
+  ]
+}

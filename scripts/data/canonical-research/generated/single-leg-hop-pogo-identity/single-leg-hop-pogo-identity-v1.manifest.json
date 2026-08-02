@@ -1,0 +1,37 @@
+{
+  "batchKey": "single-leg-hop-pogo-identity-v1",
+  "researchVersion": "2026-08-02.14",
+  "generatedAt": "2026-08-02T03:00:00.000Z",
+  "cards": [
+    {
+      "slug": "single-leg-vertical-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "single-leg-forward-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "single-leg-pogo",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "single-leg-hop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "single-leg-pogo-hold-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 4
+    }
+  ]
+}

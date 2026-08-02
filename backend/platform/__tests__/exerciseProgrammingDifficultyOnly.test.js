@@ -421,6 +421,10 @@ const SHORT_ACCELERATION_IDENTITY_QUEUE_CLOSURE_MIGRATION = readFileSync(
   new URL('../../migrations/421_coaching_short_acceleration_identity_queue_closure.sql', import.meta.url),
   'utf8',
 )
+const SHORT_ACCELERATION_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/454_coaching_short_acceleration_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const HILL_SPRINT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/422_coaching_hill_sprint_acceleration_research_completion.sql', import.meta.url),
   'utf8',
@@ -459,6 +463,166 @@ const LINE_POGO_IDENTITY_COMPLETION_MIGRATION = readFileSync(
 )
 const QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION = readFileSync(
   new URL('../../migrations/432_coaching_quarter_turn_jump_hop_identity_resolution.sql', import.meta.url),
+  'utf8',
+)
+const SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/433_coaching_scoop_toss_forward_rotational_identity_completion.sql', import.meta.url),
+  'utf8',
+)
+const LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/434_coaching_lateral_low_hurdle_stick_identity_completion.sql', import.meta.url),
+  'utf8',
+)
+const ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/435_coaching_rotational_bound_broad_identity_completion.sql', import.meta.url),
+  'utf8',
+)
+const ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/436_coaching_rotational_bound_broad_similarity_closure.sql', import.meta.url),
+  'utf8',
+)
+const SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/437_coaching_single_leg_hop_pogo_identity_completion.sql', import.meta.url),
+  'utf8',
+)
+const SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION = readFileSync(
+  new URL('../../migrations/438_coaching_single_leg_hop_similarity_and_rebound_quarantine.sql', import.meta.url),
+  'utf8',
+)
+const REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION = readFileSync(
+  new URL('../../migrations/439_coaching_remaining_identity_queue_quarantine.sql', import.meta.url),
+  'utf8',
+)
+const NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION = readFileSync(
+  new URL('../../migrations/440_coaching_needs_engine_generation_profile_backfill.sql', import.meta.url),
+  'utf8',
+)
+const BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/441_coaching_box_drop_depth_jump_completion.sql', import.meta.url),
+  'utf8',
+)
+const BOX_DROP_DEPTH_SIMILARITY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/442_coaching_box_drop_depth_similarity_closure.sql', import.meta.url),
+  'utf8',
+)
+const VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/443_coaching_vertical_jump_foundations_completion.sql', import.meta.url),
+  'utf8',
+)
+const VERTICAL_JUMP_FOUNDATIONS_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/444_coaching_vertical_jump_foundations_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/445_coaching_bilateral_horizontal_jump_foundations_completion.sql', import.meta.url),
+  'utf8',
+)
+const DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/446_coaching_drop_landing_stick_foundations_completion.sql', import.meta.url),
+  'utf8',
+)
+const FRONT_LOADED_SQUAT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const FLOOR_BRIDGE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/448_coaching_floor_bridge_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const SINGLE_LEG_RDL_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/449_coaching_single_leg_romanian_deadlift_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const COSSACK_AUDIT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/450_coaching_cossack_squat_audit_completion.sql', import.meta.url),
+  'utf8',
+)
+const FLOOR_PRESS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/451_coaching_floor_press_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/452_coaching_rotational_ball_slam_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const ONE_ARM_ROW_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/453_coaching_one_arm_row_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const PUSH_UP_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/455_coaching_push_up_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const REVERSE_LUNGE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/456_coaching_reverse_lunge_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const LATERAL_LUNGE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/457_coaching_lateral_lunge_identity_and_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/458_coaching_medicine_ball_shot_put_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const SUITCASE_CARRY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/459_coaching_suitcase_carry_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/460_coaching_bent_knee_soleus_raise_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const BACK_SQUAT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/461_coaching_back_squat_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const BOX_JUMP_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/462_coaching_box_jump_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const DEPTH_JUMP_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/463_coaching_depth_jump_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/464_coaching_nordic_hamstring_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/465_coaching_nordic_reverse_nordic_identity_closure.sql', import.meta.url),
+  'utf8',
+)
+const NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/466_coaching_nordic_hamstring_machine_gate_completion.sql', import.meta.url),
+  'utf8',
+)
+const FRONT_PLANK_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/467_coaching_front_plank_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/468_coaching_front_plank_similarity_closure.sql', import.meta.url),
+  'utf8',
+)
+const LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/469_coaching_lateral_bound_graph_taxonomy_closure.sql', import.meta.url),
+  'utf8',
+)
+const DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/470_coaching_dead_bug_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/471_coaching_worlds_greatest_stretch_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/472_coaching_kettlebell_swing_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/474_coaching_kettlebell_swing_taxonomy_gate_completion.sql', import.meta.url),
   'utf8',
 )
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
@@ -6167,6 +6331,10 @@ test('short acceleration completion consolidates start cards into exact variants
     PLATFORM_INIT_TABLES_SOURCE,
     /'421_coaching_short_acceleration_identity_queue_closure\.sql'/,
   )
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'454_coaching_short_acceleration_audit_hardening\.sql'/,
+  )
   for (const token of [
     'short_linear_acceleration_with_controlled_start_variant',
     'standing-static',
@@ -6249,6 +6417,7 @@ test('short acceleration completion consolidates start cards into exact variants
     SHORT_ACCELERATION_IDENTITY_CONSOLIDATION_MIGRATION,
     SHORT_ACCELERATION_RESEARCH_COMPLETION_MIGRATION,
     SHORT_ACCELERATION_IDENTITY_QUEUE_CLOSURE_MIGRATION,
+    SHORT_ACCELERATION_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,
@@ -6260,6 +6429,45 @@ test('short acceleration completion consolidates start cards into exact variants
     )
     assert.doesNotMatch(migration, /approved_video_url\s*=\s*'https:\/\//)
   }
+  for (const token of [
+    "movement_patterns=ARRAY['locomote','project','brace']",
+    '"laterality":"alternating"',
+    'whyItMatters',
+    'mediaAlternatives',
+    'observationChecklist',
+    'faultCorrections',
+    'demonstrationPlan',
+    'modificationDecisionTree',
+    'doNotUseWhen',
+    'issueCategories',
+    'supportEscalation',
+    'retentionPolicy',
+    'changeImpactPolicy',
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    "ARRAY['decision_demand','complexity']",
+    "ARRAY['stability','complexity']",
+    'refuses to overwrite human-reviewed or approved state',
+  ]) {
+    assert.match(SHORT_ACCELERATION_AUDIT_HARDENING_MIGRATION, new RegExp(
+      token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    ))
+  }
+  assert.match(
+    SHORT_ACCELERATION_AUDIT_HARDENING_MIGRATION,
+    /provisionalVariantsRemainNonselectable',TRUE/,
+  )
+  assert.match(
+    SHORT_ACCELERATION_AUDIT_HARDENING_MIGRATION,
+    /'approvalsCreated',FALSE/,
+  )
   for (const token of [
     'level_unresisted_acceleration_vs_measured_incline_resisted_acceleration',
     'single_start_acceleration_vs_ordered_brake_and_reacceleration',
@@ -6857,6 +7065,12 @@ test('quarter-turn resolution retires vague sources and authors exact bilateral 
     'retire_ambiguous_sources_without_direct_consolidation',
     'two_foot_quarter_turn_vs_same_leg_quarter_turn',
     'two_foot_180_degree_vs_two_foot_90_degree_turn',
+    'vertical_single_leg_hop_vs_same_leg_90_degree_turn',
+    'bilateral_lateral_projection_vs_bilateral_90_degree_turn',
+    'same_leg_lateral_projection_vs_same_leg_90_degree_turn',
+    'ground_based_90_degree_cut_vs_aerial_same_leg_90_degree_turn',
+    'three_horizontal_hops_vs_one_same_leg_90_degree_turn',
+    'vertical_tuck_plus_lateral_landing_vs_bilateral_90_degree_turn',
     'max_exercise_complexity_physical_difficulty',
     'cumulativeImpactBudgetComplete',
     'sideAccountingComplete',
@@ -6889,6 +7103,18 @@ test('quarter-turn resolution retires vague sources and authors exact bilateral 
     QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
     /media\.exact_variant_match IS NULL/,
   )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /'gripDemand',1/,
+  )
+  assert.match(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /'gripFatigue',1/,
+  )
+  assert.doesNotMatch(
+    QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
+    /'(?:gripDemand|spinalLoading|eccentricStress)','/,
+  )
   assert.doesNotMatch(
     QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
     /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
@@ -6900,6 +7126,2900 @@ test('quarter-turn resolution retires vague sources and authors exact bilateral 
   assert.doesNotMatch(
     QUARTER_TURN_JUMP_HOP_IDENTITY_RESOLUTION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('scoop-toss completion separates forward and rotational contracts and quarantines the vague source', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'433_coaching_scoop_toss_forward_rotational_identity_completion\.sql'/,
+  )
+  for (const token of [
+    'medicine-ball-scoop-toss',
+    'medicine-ball-rotational-throw',
+    'countermovement-medicine-ball-scoop-toss',
+    'standing-two-hand-forward-free-flight-scoop-toss',
+    'static-side-on-two-hand-rotational-scoop-throw-only',
+    'retain_and_complete_exact_forward_scoop_definition',
+    'retire_ambiguous_source_without_direct_consolidation',
+    'front_facing_forward_scoop_vs_side_on_rotational_throw',
+    'ambiguous_countermovement_source_vs_exact_rotational_scoop_variant',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(
+      SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',50/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',58/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /'gripDemand',38/,
+  )
+  assert.match(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /'gripFatigue',34/,
+  )
+  assert.doesNotMatch(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SCOOP_TOSS_FORWARD_ROTATIONAL_IDENTITY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('lateral low-hurdle completion separates bilateral and same-leg contracts and quarantines the vague source', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'434_coaching_lateral_low_hurdle_stick_identity_completion\.sql'/,
+  )
+  for (const token of [
+    'low-hurdle-lateral-hop-to-stick',
+    'bilateral-lateral-low-hurdle-jump-to-stick',
+    'single-leg-lateral-low-hurdle-hop-to-stick',
+    'stationary-two-foot-single-lateral-low-hurdle-clearance-to-two-foot-stick',
+    'stationary-same-leg-single-lateral-low-hurdle-clearance-to-same-leg-stick',
+    'author_exact_bilateral_low_hurdle_definition_without_source_mapping',
+    'author_exact_same_leg_low_hurdle_definition_without_source_mapping',
+    'required_low_hurdle_vs_ground_only_same_leg_hop',
+    'bilateral_vs_same_leg_low_hurdle_support',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'exerciseSkillLevelAbsent',
+    'mediaApprovalCreated',
+    'graphApprovalCreated',
+    'calibrationApprovalCreated',
+  ]) {
+    assert.match(
+      LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',48/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /'baseOverallDifficulty',60/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LATERAL_LOW_HURDLE_STICK_IDENTITY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('rotational bound completion authors exact opposite-leg and bilateral contracts and quarantines both vague sources', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'435_coaching_rotational_bound_broad_identity_completion\.sql'/,
+  )
+  for (const token of [
+    'rotational-bound-to-stick',
+    'rotational-broad-jump-to-stick',
+    'opposite-leg-90-degree-rotational-bound-to-stick',
+    'bilateral-90-degree-rotational-broad-jump-to-stick',
+    'stationary-opposite-leg-forward-diagonal-bound-90-degree-whole-body-turn-to-stick',
+    'stationary-bilateral-forward-diagonal-broad-jump-90-degree-whole-body-turn-to-bilateral-stick',
+    'undefined_rotational_bound_vs_exact_opposite_leg_quarter_turn_bound',
+    'undefined_rotational_broad_jump_vs_exact_bilateral_quarter_turn_broad_jump',
+    'bilateral_quarter_turn_broad_jump_vs_opposite_leg_quarter_turn_bound',
+    'straight_lateral_opposite_leg_bound_vs_quarter_turn_opposite_leg_bound',
+    'straight_bilateral_broad_jump_vs_quarter_turn_bilateral_broad_jump',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'exerciseSkillLevelAbsent',
+    'retire_ambiguous_source_without_direct_consolidation',
+  ]) {
+    assert.match(
+      ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /"baseOverallDifficulty":68/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /"baseOverallDifficulty":64/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('rotational broad-jump similarity closure separates horizontal displacement and turn-angle neighbors', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'436_coaching_rotational_bound_broad_similarity_closure\.sql'/,
+  )
+  for (const token of [
+    'bilateral-90-degree-rotational-broad-jump-to-stick',
+    'horizontal_displaced_quarter_turn_broad_jump_vs_minimal_displacement_quarter_turn_jump',
+    'quarter_turn_horizontal_rotational_broad_jump_vs_half_turn_jump',
+    'purposeful_horizontal_projection',
+    'leftTurnAngleDegrees',
+    'rightTurnAngleDegrees',
+    'exercise_complexity_and_physical_difficulty_only',
+    'identity_only_not_card_media_graph_calibration_or_publication_approval',
+    'approvalsCreated',
+  ]) {
+    assert.match(
+      ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION,
+    /decision='distinct_exercises'/,
+  )
+  assert.match(
+    ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION,
+    /reviewed_by IS NULL/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BOUND_BROAD_SIMILARITY_CLOSURE_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('single-leg hop and pogo completion separates direction, exact contacts, and terminal finish without proficiency metadata', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'437_coaching_single_leg_hop_pogo_identity_completion\.sql'/,
+  )
+  for (const token of [
+    'single-leg-hop-to-stick',
+    'single-leg-pogo-hold-stick',
+    'single-leg-vertical-hop-to-stick',
+    'single-leg-forward-hop-to-stick',
+    'stationary-low-to-moderate-vertical-same-leg-stick',
+    'stationary-low-amplitude-forward-same-leg-stick',
+    'stationary-moderate-distance-forward-same-leg-stick',
+    'stationary-low-amplitude-to-terminal-stick',
+    'undefined_single_leg_hop_direction_vs_exact_vertical_same_leg_hop',
+    'undefined_single_leg_hop_direction_vs_exact_forward_same_leg_hop',
+    'undefined_pogo_hold_contact_sequence_vs_exact_repeated_pogo_terminal_stick_variant',
+    'vertical_same_leg_hop_vs_forward_same_leg_hop',
+    'discrete_vertical_hop_terminal_stick_vs_repeated_stationary_pogo',
+    'max_exercise_complexity_physical_difficulty',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'exerciseSkillLevelAbsent',
+    'retire_ambiguous_source_without_direct_consolidation',
+  ]) {
+    assert.match(
+      SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /"technicalComplexity":42,"absoluteLoadDemand":40,"baseOverallDifficulty":42/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /"technicalComplexity":44,"absoluteLoadDemand":42,"baseOverallDifficulty":44/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /"technicalComplexity":50,"absoluteLoadDemand":56,"baseOverallDifficulty":56/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /relationship\.review_status='review'/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /calibration\.status='review'/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /media\.exact_variant_match IS NULL/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('single-leg hop similarity closure separates exact mechanics and quarantines ambiguous rebound identity', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'438_coaching_single_leg_hop_similarity_and_rebound_quarantine\.sql'/,
+  )
+  for (const token of [
+    'one_vertical_flight_vs_three_horizontal_hops',
+    'one_forward_flight_vs_three_forward_hops',
+    'vertical_no_obstacle_vs_lateral_hurdle_clearance',
+    'no_rotation_vertical_hop_vs_90_degree_turn',
+    'same_leg_forward_hop_vs_opposite_leg_forward_bound',
+    'forward_displacement_no_rotation_vs_minimal_displacement_quarter_turn',
+    'retire_ambiguous_source_without_direct_consolidation',
+    'missingIdentityFacts',
+    'directMappingCreated',
+    'exercise_complexity_and_physical_difficulty_only',
+    'identity_only_not_card_media_graph_calibration_or_publication_approval',
+    'exerciseSkillLevelAbsent',
+  ]) {
+    assert.match(
+      SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /decision='distinct_exercises'/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /decision='needs_human_review'/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_HOP_SIMILARITY_REBOUND_QUARANTINE_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('remaining identity queue retirement quarantines missing contracts and preserves exact split-squat mechanics', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'439_coaching_remaining_identity_queue_quarantine\.sql'/,
+  )
+  for (const token of [
+    'retire_ambiguous_source_without_direct_consolidation',
+    'fixed_pivot_landmine_split_squat_vs_general_split_squat',
+    'added_pogo_contact_or_cue',
+    'standing_or_supine_base',
+    'takeoff_foot_count',
+    'landing_foot_count',
+    'stimulus_source',
+    'same_leg_or_alternating_sequence',
+    'knee_contact_or_hover',
+    'band_anchor',
+    'rotation_plane',
+    'identity_only_not_card_media_graph_calibration_or_publication_approval',
+    'exercise_complexity_and_physical_difficulty_only',
+    'exerciseSkillLevelAbsent',
+  ]) {
+    assert.match(
+      REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /decision='needs_human_review'/,
+  )
+  assert.match(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /decision='distinct_exercises'/,
+  )
+  assert.match(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /exercise\.skill_level IS NULL/,
+  )
+  assert.match(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.doesNotMatch(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    REMAINING_IDENTITY_QUEUE_QUARANTINE_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('Needs Engine generation backfill uses exercise complexity and physical difficulty plus exact dosage units', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'440_coaching_needs_engine_generation_profile_backfill\.sql'/,
+  )
+  for (const token of [
+    'exercise_complexity_and_physical_difficulty_only',
+    'technicalMeaning',
+    'exercise_complexity',
+    'loadMeaning',
+    'physical_difficulty',
+    'overallFormula',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'GREATEST\\(difficulty\\.technical,difficulty\\.load\\)',
+    'provisional_requires_calibration_review',
+    'generation_ready_requires_program_review',
+    'needs-engine-default-v1',
+    'three_jumps_then_full_reset',
+    'humanReviewRequired',
+    'approvalCreated',
+  ]) {
+    assert.match(
+      NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION,
+    /exercise\.skill_level IS NOT NULL/,
+  )
+  assert.match(
+    NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION,
+    /SET minimum_skill_level=NULL/,
+  )
+  assert.doesNotMatch(
+    NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    NEEDS_ENGINE_GENERATION_PROFILE_BACKFILL_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('box, drop, and depth jump completion preserves exact strategy identities and review quarantine', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'441_coaching_box_drop_depth_jump_completion\.sql'/,
+  )
+  for (const token of [
+    'bilateral_floor_to_box_jump',
+    'bilateral_bounce_drop_jump',
+    'bilateral_countermovement_depth_jump',
+    'shallow_bounce_shortest_useful_contact',
+    'one_continuous_countermovement_without_pause',
+    'exercise_complexity_and_physical_difficulty_only',
+    'overallDifficultyFormula',
+    'loadMeaning',
+    'physical_difficulty',
+    'countEveryLandingContact',
+    'revalidateDoseBudgetsLogisticsDurationAndRendering',
+    'youtube_oembed',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(
+      BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /count\(DISTINCT evidence\.section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /max\(exercise_complexity,physical_difficulty\)/,
+  )
+  assert.match(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.doesNotMatch(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('box, drop, and depth similarity closure adjudicates all surfaced neighbors without approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'442_coaching_box_drop_depth_similarity_closure\.sql'/,
+  )
+  for (const boundary of [
+    'stationary_bilateral_vertical_floor_to_box_vs_lateral_projection_to_box',
+    'floor_countermovement_takeoff_vs_platform_step_off_countermovement_rebound',
+    'single_platform_step_off_rebound_vs_repeated_rope_rotation_contacts',
+    'land_and_stabilize_on_box_vs_traverse_over_box',
+    'floor_to_elevated_landing_vs_elevated_step_off_to_floor_rebound',
+    'floor_jump_to_rebound_sequence_vs_platform_step_off_to_maximal_rebound',
+    'bilateral_vertical_takeoff_and_landing_vs_unilateral_lateral_projection',
+  ]) {
+    assert.match(
+      BOX_DROP_DEPTH_SIMILARITY_CLOSURE_MIGRATION,
+      new RegExp(boundary),
+    )
+  }
+  assert.match(
+    BOX_DROP_DEPTH_SIMILARITY_CLOSURE_MIGRATION,
+    /<>7/,
+  )
+  assert.match(
+    BOX_DROP_DEPTH_SIMILARITY_CLOSURE_MIGRATION,
+    /'approvalsCreated',FALSE/,
+  )
+  assert.doesNotMatch(
+    BOX_DROP_DEPTH_SIMILARITY_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('vertical jump foundations preserve exact static, countermovement, and two-flight rebound identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'443_coaching_vertical_jump_foundations_completion\.sql'/,
+  )
+  for (const token of [
+    'bilateral_static_squat_jump',
+    'bilateral_countermovement_jump',
+    'bilateral_countermovement_rebound_jump',
+    'preparatoryDip',
+    'forbidden',
+    'linkedRebounds',
+    'flightCount',
+    'landingCount',
+    'exactly_two_flights',
+    'active_floor_cmj_entry_to_platform_step_off',
+    'exercise_complexity_and_physical_difficulty_only',
+    'overallDifficultyFormula',
+    'loadMeaning',
+    'physical_difficulty',
+    'countEveryLandingContact',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'youtube_oembed',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(
+      VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /"technicalComplexity":40,"absoluteLoadDemand":44,"physicalDifficulty":44,"baseOverallDifficulty":44/,
+  )
+  assert.match(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /"technicalComplexity":42,"absoluteLoadDemand":46,"physicalDifficulty":46,"baseOverallDifficulty":46/,
+  )
+  assert.match(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /"technicalComplexity":54,"absoluteLoadDemand":58,"physicalDifficulty":58,"baseOverallDifficulty":58/,
+  )
+  assert.match(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /count\(DISTINCT evidence\.section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('vertical jump audit hardening satisfies normalized machine gates without fabricating review', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'444_coaching_vertical_jump_foundations_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'canonical-card-audit-v1',
+    'jointActions',
+    'laterality',
+    'whyItMatters',
+    'observationChecklist',
+    'issueCategories',
+    'gripDemand',
+    'spinalLoading',
+    'eccentricStress',
+    'landingContactsPerRep',
+    'externalLoadMethod',
+    'gripFatigue',
+    'recoveryHours',
+    'weeklyExposure',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    "ARRAY['none']",
+    "ARRAY['complexity','speed','impact']",
+    'approvalsCreated',
+    'FALSE',
+  ]) {
+    assert.match(
+      VERTICAL_JUMP_FOUNDATIONS_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token.replaceAll('[', '\\[').replaceAll(']', '\\]')),
+    )
+  }
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    VERTICAL_JUMP_FOUNDATIONS_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('bilateral horizontal jump foundations preserve measured, stick, repeated, and exact-three contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'445_coaching_bilateral_horizontal_jump_foundations_completion\.sql'/,
+  )
+  for (const token of [
+    'bilateral_standing_horizontal_jump_test',
+    'bilateral_horizontal_jump_terminal_stick',
+    'bilateral_repeated_horizontal_jump',
+    'bilateral_three_jump_horizontal_test',
+    'controlled_terminal_stick_vs_maximal_measured_single_jump',
+    'flexible_linked_training_vs_exact_three_jump_measured_test',
+    'bilateral_horizontal_jump_vs_ipsilateral_single_leg_forward_hop',
+    'one_measured_flight_vs_exact_three_linked_measured_flights',
+    'exercise_complexity_and_physical_difficulty_only',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'measurementAndValidityComplete',
+    'youtube_oembed_link_and_embed_health_only',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(
+      BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const score of [
+    /"technicalComplexity":44,"absoluteLoadDemand":48,"physicalDifficulty":48[^\n]+"baseOverallDifficulty":48/,
+    /"technicalComplexity":46,"absoluteLoadDemand":52,"physicalDifficulty":52[^\n]+"baseOverallDifficulty":52/,
+    /"technicalComplexity":54,"absoluteLoadDemand":62,"physicalDifficulty":62[^\n]+"baseOverallDifficulty":62/,
+    /"technicalComplexity":58,"absoluteLoadDemand":66,"physicalDifficulty":66[^\n]+"baseOverallDifficulty":66/,
+  ]) {
+    assert.match(BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION, score)
+  }
+  assert.match(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /count\(DISTINCT evidence\.section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.match(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /exactly eight active contextual profiles/,
+  )
+  assert.match(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /INSERT INTO coaching\.equipment\(key,name,sort_order\)[\s\S]*?'tape_measure'/,
+  )
+  assert.doesNotMatch(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('drop-landing completion restores unilateral identity and preserves exact terminal-stick contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'446_coaching_drop_landing_stick_foundations_completion\.sql'/,
+  )
+  for (const token of [
+    'bilateral_elevated_drop_landing_terminal_stick',
+    'unilateral_elevated_drop_landing_terminal_stick',
+    'bilateral_vs_unilateral_terminal_drop_landing',
+    'elevated_one_flight_vs_no_flight_position_acquisition',
+    'first_contact_stick_vs_immediate_rebound',
+    'unilateral_elevated_flight_vs_unilateral_no_flight',
+    'vertical_elevated_drop_vs_lateral_displacement_landing',
+    'elevated_passive_drop_vs_self_propelled_lateral_jump',
+    'elevated_drop_vs_kick_recovery_landing',
+    'elevated_passive_drop_vs_active_floor_hop',
+    'unilateral_terminal_support_restored_as_distinct_definition',
+    'requires the protected definition, variant, and legacy-source identities',
+    'exercise_complexity_and_physical_difficulty_only',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'measurementAndValidityComplete',
+    'youtube_oembed_link_and_embed_health_only',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(
+      DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const score of [
+    /"technicalComplexity":46,"absoluteLoadDemand":52,"physicalDifficulty":52[^\n]+"baseOverallDifficulty":52/,
+    /"technicalComplexity":58,"absoluteLoadDemand":62,"physicalDifficulty":62[^\n]+"baseOverallDifficulty":62/,
+  ]) {
+    assert.match(DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION, score)
+  }
+  assert.match(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.match(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /count\(\*\) FROM coaching\.exercise_delivery_profile_v1[\s\S]*?<>4/,
+  )
+  assert.match(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /UPDATE coaching\.exercise_definition_source_v1[\s\S]*?ARRAY\[1494,1542\]/,
+  )
+  assert.doesNotMatch(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('front-loaded squat completion restores support-interface identities without exercise proficiency levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'447_coaching_front_loaded_squat_identity_and_family_completion\.sql'/,
+  )
+  for (const token of [
+    'barbell_anterior_shoulders_bilateral_squat',
+    'single_center_chest_implement_bilateral_squat',
+    'double_independent_front_rack_bilateral_squat',
+    'single_unilateral_front_rack_bilateral_squat',
+    'barbell_anterior_shoulders_vs_one_center_chest_implement',
+    'single_barbell_vs_two_independent_front_racks',
+    'bilateral_barbell_vs_unilateral_kettlebell_rack',
+    'required_sumo_stance_vs_declared_bilateral_goblet_stance',
+    'exercise_complexity_and_physical_difficulty_only',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'measurementAndValidityComplete',
+    'youtube_oembed_link_and_embed_health_only',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(FRONT_LOADED_SQUAT_COMPLETION_MIGRATION, new RegExp(token))
+  }
+  for (const score of [
+    /"technicalComplexity":60,"absoluteLoadDemand":68,"physicalDifficulty":68[^\n]+"baseOverallDifficulty":68/,
+    /"technicalComplexity":36,"absoluteLoadDemand":44,"physicalDifficulty":44[^\n]+"baseOverallDifficulty":44/,
+    /"technicalComplexity":54,"absoluteLoadDemand":60,"physicalDifficulty":60[^\n]+"baseOverallDifficulty":60/,
+    /"technicalComplexity":52,"absoluteLoadDemand":54,"physicalDifficulty":54[^\n]+"baseOverallDifficulty":54/,
+  ]) {
+    assert.match(FRONT_LOADED_SQUAT_COMPLETION_MIGRATION, score)
+  }
+  assert.match(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.match(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /profile_key='capacity-strength'[\s\S]*?<>11/,
+  )
+  assert.match(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /definition_id=front_id\)<>5[\s\S]*?definition_id=goblet_id\)<>8[\s\S]*?definition_id=double_id\)<>2[\s\S]*?definition_id=single_id\)<>1/,
+  )
+  assert.doesNotMatch(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('floor-bridge completion restores contraction and support identities without exercise proficiency levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'448_coaching_floor_bridge_identity_and_family_completion\.sql'/,
+  )
+  for (const token of [
+    'bilateral_floor_supine_hip_extension_dynamic',
+    'bilateral_floor_supine_hip_extension_isometric',
+    'unilateral_floor_supine_hip_extension_dynamic',
+    'unilateral_floor_supine_hip_extension_isometric',
+    'bilateral_dynamic_repetitions_vs_bilateral_isometric_hold',
+    'bilateral_dynamic_vs_unilateral_dynamic_support',
+    'unilateral_dynamic_repetitions_vs_unilateral_isometric_hold',
+    'floor_upper_trunk_support_vs_elevated_hip_thrust_support',
+    'long_lever_bilateral_isometric_variant',
+    'exercise_complexity_and_physical_difficulty_only',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'measurementAndValidityComplete',
+    'youtube_oembed_link_and_embed_health_only',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(FLOOR_BRIDGE_COMPLETION_MIGRATION, new RegExp(token))
+  }
+  for (const score of [
+    /"technicalComplexity":32,"absoluteLoadDemand":32,"physicalDifficulty":32[^\n]+"baseOverallDifficulty":32/,
+    /"technicalComplexity":42,"absoluteLoadDemand":54,"physicalDifficulty":54[^\n]+"baseOverallDifficulty":54/,
+    /"technicalComplexity":42,"absoluteLoadDemand":48,"physicalDifficulty":48[^\n]+"baseOverallDifficulty":48/,
+    /"technicalComplexity":48,"absoluteLoadDemand":46,"physicalDifficulty":46[^\n]+"baseOverallDifficulty":48/,
+    /"technicalComplexity":50,"absoluteLoadDemand":46,"physicalDifficulty":46[^\n]+"baseOverallDifficulty":50/,
+  ]) {
+    assert.match(FLOOR_BRIDGE_COMPLETION_MIGRATION, score)
+  }
+  assert.match(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.match(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /exercise_delivery_profile_v1[\s\S]*?status='review'\)<>9/,
+  )
+  assert.match(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /definition_id=bridge_id\)<>6[\s\S]*?definition_id=bridge_iso_id\)<>3[\s\S]*?definition_id=single_bridge_id\)<>1[\s\S]*?definition_id=single_iso_id\)<>2/,
+  )
+  assert.doesNotMatch(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Single-Leg Romanian Deadlift completion preserves exact variants and context profiles without exercise proficiency levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'449_coaching_single_leg_romanian_deadlift_family_completion\.sql'/,
+  )
+  for (const token of [
+    'single_leg_hip_hinge_strength',
+    'dumbbell-contralateral',
+    'dumbbell-ipsilateral',
+    'two-dumbbell-bilateral-load',
+    'kettlebell-contralateral',
+    'kettlebell-ipsilateral',
+    'barbell-bilateral-load',
+    'bodyweight-slow-eccentric-assisted-return',
+    'distance-jump-support',
+    'throwing-support',
+    'kicking-support',
+    'stiff_leg_deadlift_vs_leg_curl_not_single_leg_romanian_deadlift',
+    'exercise_complexity_and_physical_difficulty_only',
+    'max\\(exercise_complexity,physical_difficulty\\)',
+    'cumulativeFatigueAndImpactBudgetComplete',
+    'measurementAndValidityComplete',
+    'youtube_oembed_link_and_embed_health_only',
+    'exact_variant_match IS NULL',
+    'human_review_required IS TRUE',
+    "'quarantined'",
+    "'candidate'",
+  ]) {
+    assert.match(SINGLE_LEG_RDL_COMPLETION_MIGRATION, new RegExp(token))
+  }
+  for (const score of [
+    /bodyweight_variant,'bodyweight-standard'[\s\S]{0,250},62,46,66/,
+    /supported_variant,'bodyweight-supported'[\s\S]{0,250},50,42,52/,
+    /db_contralateral_variant,'dumbbell-contralateral'[\s\S]{0,250},68,58,72/,
+    /barbell_variant,'barbell-bilateral-load'[\s\S]{0,250},72,72,76/,
+    /eccentric_variant,'bodyweight-slow-eccentric-assisted-return'[\s\S]{0,300},70,56,72/,
+  ]) {
+    assert.match(SINGLE_LEG_RDL_COMPLETION_MIGRATION, score)
+  }
+  assert.match(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /exercise_media_candidate_v1[\s\S]*?<>5/,
+  )
+  assert.match(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /exercise_delivery_profile_v1[\s\S]*?status='review'\)<>13/,
+  )
+  assert.match(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /legacy_exercise_id=ANY\(source_ids\) AND definition_id=canonical_id\)<>12/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Cossack audit completion archives unresolved placeholders and adds a supported difficulty-only variant', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'450_coaching_cossack_squat_audit_completion\.sql'/,
+  )
+  for (const sourceId of [
+    60, 175, 259, 467, 529, 751, 812, 835, 885, 1012, 1362, 1386, 1422, 1460,
+  ]) {
+    assert.match(COSSACK_AUDIT_COMPLETION_MIGRATION, new RegExp(`(?:^|[,\\s])${sourceId}(?:[,\\s])`))
+  }
+  for (const variantKey of [
+    'stable-hand-supported',
+    'loaded-unspecified-implement',
+    'reach-overlay',
+  ]) {
+    assert.match(COSSACK_AUDIT_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const sourceKey of [
+    'https://pubmed.ncbi.nlm.nih.gov/30026952/',
+    'https://www.monash.edu/__data/assets/pdf_file/0020/2534141/Cossack-Squat.pdf',
+  ]) {
+    assert.match(COSSACK_AUDIT_COMPLETION_MIGRATION, new RegExp(sourceKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  }
+  assert.match(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /WHERE definition_id=canonical_id AND status<>'archived'\)<>11/,
+  )
+  assert.match(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /profile\.status='review'\)<>22/,
+  )
+  assert.match(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?link_status='healthy'[\s\S]*?<>5/,
+  )
+  assert.match(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /difficulty_json->>'baseOverallDifficulty'[\s\S]*?GREATEST\([\s\S]*?technicalComplexity[\s\S]*?absoluteLoadDemand/,
+  )
+  assert.match(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /'exerciseDifficultyModel','exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.doesNotMatch(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Floor Press completion preserves nine identities and uses exercise difficulty only', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'451_coaching_floor_press_family_completion\.sql'/,
+  )
+  for (const sourceId of [188, 402, 433, 435, 487, 488, 489, 495, 1021]) {
+    assert.match(
+      FLOOR_PRESS_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'dumbbell-pair-simultaneous',
+    'dumbbell-single-arm',
+    'dumbbell-pair-close-neutral',
+    'kettlebell-single-arm',
+    'kettlebell-pair-simultaneous',
+    'kettlebell-pair-alternating',
+    'kettlebell-crush-grip',
+    'barbell-standard',
+    'sandbag-bilateral',
+  ]) {
+    assert.match(FLOOR_PRESS_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const sourceUrl of [
+    'https://pubmed.ncbi.nlm.nih.gov/42367017/',
+    'https://pubmed.ncbi.nlm.nih.gov/31827348/',
+    'https://pmc.ncbi.nlm.nih.gov/articles/PMC12019332/',
+    'https://pubmed.ncbi.nlm.nih.gov/34198674/',
+    'https://barbend.com/floor-press/',
+  ]) {
+    assert.match(
+      FLOOR_PRESS_COMPLETION_MIGRATION,
+      new RegExp(sourceUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    )
+  }
+  for (const videoId of [
+    '9vcKpv45aeE',
+    '77gWg_ZA8Kg',
+    'T0Y3OBF1bNI',
+    'uUGDRwge4F8',
+    'i1yoygDuZlA',
+  ]) {
+    assert.match(FLOOR_PRESS_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /definition_id=canonical_id AND status='review'[\s\S]*?<>9/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /exercise_delivery_profile_v1[\s\S]*?status='review'\)<>18/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?link_status='healthy'[\s\S]*?<>5/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'\)<>12/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>18/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /'difficultyModel','exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /'overallFormula','max\(exercise_complexity,physical_difficulty\)'/,
+  )
+  assert.match(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /'supersededSourceReason','study_is_overhead_shoulder_press_not_floor_press'/,
+  )
+  assert.doesNotMatch(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Rotational Ball Slam completion preserves five sources and models side alternation as delivery', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'452_coaching_rotational_ball_slam_family_completion\.sql'/,
+  )
+  for (const sourceId of [1162, 1163, 1165, 1168, 1483]) {
+    assert.match(
+      ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'stationary-diagonal',
+    'stationary-rainbow',
+    'step-behind-diagonal',
+  ]) {
+    assert.match(
+      ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+      new RegExp(`'${variantKey}'`),
+    )
+  }
+  for (const profileKey of [
+    'output-single-side',
+    'output-alternating',
+    'capacity-quality-volume',
+  ]) {
+    assert.match(
+      ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+      new RegExp(`'${profileKey}'`),
+    )
+  }
+  for (const videoId of [
+    'xYANsh80ErM',
+    'wK9DwFTt1YQ',
+    'vf61IsovxKo',
+    'eZ0I7FmJ1A0',
+    '9CKf3Yc2FMk',
+  ]) {
+    assert.match(ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /side_to_side_alternation_is_a_delivery_laterality_annotation_not_an_exact_variant/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /'overallFormula','max\(exercise_complexity,physical_difficulty\)'/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /'difficultyModel','exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /requires nine complete contextual delivery profiles/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>12/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>6/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /'athleteLandingImpact',0/,
+  )
+  assert.match(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /'ballFloorImpactsPerRep',1/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('One-Arm Row completion corrects inherited identities and quarantines underspecified rows', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'453_coaching_one_arm_row_family_completion\.sql'/,
+  )
+  for (const sourceId of [195, 496, 1434, 1435, 1436, 1438, 1441, 1448, 1450]) {
+    assert.match(
+      ONE_ARM_ROW_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'bench-supported-dumbbell',
+    'hinged-kettlebell',
+    'one-arm-landmine',
+    'landmine-suitcase',
+  ]) {
+    assert.match(ONE_ARM_ROW_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const videoId of [
+    'KRN38chlkds',
+    'k2kVniB5eQI',
+    'zvATS076NVA',
+    'TKmtHtY7yNo',
+    '2bjH8LMo6DM',
+  ]) {
+    assert.match(ONE_ARM_ROW_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /source_claims_alternating_row_but_declares_one_fixed_landmine_and_double_handle_without_executable_hand_or_load_sequence/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /source_does_not_declare_hand_count_support_orientation_or_attachment_geometry/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'overallDifficultyFormula','max\(exercise_complexity,physical_difficulty\)'/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['pull','brace','hinge'\]/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'planes',jsonb_build_array\('sagittal','transverse','frontal'\)[\s\S]*?'laterality','unilateral'/,
+  )
+  for (const supportField of [
+    'whyItMatters',
+    'primaryCue',
+    'expectedSensations',
+    'unexpectedSensations',
+    'painGuidance',
+    'mediaAlternatives',
+    'observationChecklist',
+    'faultCorrections',
+    'demonstrationPlan',
+    'modificationDecisionTree',
+    'doNotUseWhen',
+  ]) {
+    assert.match(ONE_ARM_ROW_COMPLETION_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  for (const programmingField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'prerequisites',
+    'completionCriteria',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(ONE_ARM_ROW_COMPLETION_MIGRATION, new RegExp(`'${programmingField}'`))
+  }
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'impact',1,'athleteLandingImpact',0/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'externalLoadMethod','fixed_external','implement',spec\.implement/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'progression',80,ARRAY\['stability','complexity'\]/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /'regression',80,ARRAY\['stability','complexity'\]/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /requires eight complete contextual delivery profiles/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>12/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>8/,
+  )
+  assert.match(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /ARRAY\['CARD-CALIBRATION-01','CARD-GRAPH-03','CARD-MEDIA-01','CARD-PUBLISH-01'\]/,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Push-Up completion resolves direct variants, tempo annotations, and the false calf-raise citation', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'455_coaching_push_up_identity_and_family_completion\.sql'/,
+  )
+  for (const sourceId of [
+    185, 186, 187, 579, 580, 581, 582, 583, 584, 585, 769, 770, 815, 816, 1048,
+  ]) {
+    assert.match(
+      PUSH_UP_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'standard-floor',
+    'hands-elevated-stable',
+    'feet-elevated-stable',
+    'deficit-stable-hand-support',
+    'close-grip-floor',
+    'ring-suspension',
+    'archer-lateral-shift',
+    'pseudo-planche-forward-lean',
+    'weighted-vest-floor',
+    'floor-eccentric-only',
+    'ring-eccentric-only',
+  ]) {
+    assert.match(PUSH_UP_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const videoId of [
+    'WDIpL0pjun0',
+    '0JUrOH--Kdk',
+    'DBz85WuXqMk',
+    '6KfBJQcRpYw',
+    'A0r8ploEnZY',
+  ]) {
+    assert.match(PUSH_UP_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /PMID 38156065 concerns standing versus seated calf-raise hypertrophy and is not Push-Up evidence/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /full_cycle_tempo_is_modifier_annotation/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /generic_one_arm_progression_lacks_working_hand_assistance_foot_base_hand_position_range_and_return_contract/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /vertical_closed_chain_pull_vs_prone_horizontal_closed_chain_press/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /supine_open_chain_external_load_bench_press_vs_prone_closed_chain_bodyweight_press/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['push','brace'\]/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /'overallDifficultyFormula','max\(exercise_complexity,physical_difficulty\)'/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /'impact',1,'athleteLandingImpact',0/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /'laterality','bilateral'/,
+  )
+  for (const supportField of [
+    'whyItMatters',
+    'primaryCue',
+    'expectedSensations',
+    'unexpectedSensations',
+    'painGuidance',
+    'mediaAlternatives',
+    'observationChecklist',
+    'faultCorrections',
+    'demonstrationPlan',
+    'modificationDecisionTree',
+    'doNotUseWhen',
+    'issueCategories',
+    'supportEscalation',
+    'retentionPolicy',
+    'changeImpactPolicy',
+  ]) {
+    assert.match(PUSH_UP_COMPLETION_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  for (const programmingField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(PUSH_UP_COMPLETION_MIGRATION, new RegExp(`'${programmingField}'`))
+  }
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /requires twenty-two complete contextual delivery profiles/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>18/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>22/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>22/,
+  )
+  assert.match(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /ARRAY\['CARD-CALIBRATION-01','CARD-GRAPH-03','CARD-MEDIA-01','CARD-PUBLISH-01'\]/,
+  )
+  assert.doesNotMatch(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    PUSH_UP_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Reverse Lunge completion preserves exact load positions and quarantines ambiguous source labels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'456_coaching_reverse_lunge_identity_and_family_completion\.sql'/,
+  )
+  for (const sourceId of [172, 380, 381, 421, 473, 565, 753, 1009, 1301]) {
+    assert.match(
+      REVERSE_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'bodyweight-full-cycle',
+    'barbell-front-rack',
+    'medicine-ball-chest-hold',
+  ]) {
+    assert.match(REVERSE_LUNGE_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const quarantineReason of [
+    'barbell_reverse_lunge_omits_rack_or_carry_position',
+    'dumbbell_reverse_lunge_omits_implement_count_and_carry_position',
+    'kettlebell_reverse_lunge_omits_implement_count_and_carry_position',
+    'sandbag_reverse_lunge_omits_exact_hold_position',
+  ]) {
+    assert.match(REVERSE_LUNGE_COMPLETION_MIGRATION, new RegExp(quarantineReason))
+  }
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /source_753_returns_to_standing_and_changes_tempo_not_repetition_identity/,
+  )
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /PMC4641539 directly includes reverse lunge; the other lunge studies are adjacent evidence only/,
+  )
+  for (const videoId of [
+    'v791YUqiE-o',
+    'xrPteyQLGAo',
+    '1cXnW986vqU',
+    'Vlgh0ImT5oU',
+    'RZKXLMxPF_I',
+  ]) {
+    assert.match(REVERSE_LUNGE_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['squat','brace'\]/,
+  )
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /'overallFormula','max\(exercise_complexity,physical_difficulty\)'/,
+  )
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /'impact',8,'athleteLandingImpact',0/,
+  )
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /requires exactly the four protected human gates/,
+  )
+  assert.match(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /ARRAY\['CARD-CALIBRATION-01','CARD-GRAPH-03','CARD-MEDIA-01','CARD-PUBLISH-01'\]/,
+  )
+  for (const field of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    'whyItMatters',
+    'primaryCue',
+    'expectedSensations',
+    'unexpectedSensations',
+    'painGuidance',
+    'mediaAlternatives',
+    'observationChecklist',
+    'faultCorrections',
+    'demonstrationPlan',
+    'modificationDecisionTree',
+    'doNotUseWhen',
+    'issueCategories',
+    'supportEscalation',
+    'retentionPolicy',
+    'changeImpactPolicy',
+  ]) {
+    assert.match(REVERSE_LUNGE_COMPLETION_MIGRATION, new RegExp(`'${field}'`))
+  }
+  assert.doesNotMatch(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Lateral Lunge completion enforces step-out identity and corrects the mislabeled fixed-stance source', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'457_coaching_lateral_lunge_identity_and_family_completion\.sql'/,
+  )
+  for (const sourceId of [63, 174, 385, 475, 752, 1010, 1055, 1328]) {
+    assert.match(
+      LATERAL_LUNGE_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /'bodyweight-step-out-full-cycle'/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /source_1055_executes_a_fixed_wide_stance_shift_already_represented_by_cossack_low_amplitude_shift/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /fixed_wide_stance_side_shift_is_cossack_squat_not_step_out_lateral_lunge/,
+  )
+  for (const quarantineReason of [
+    'source_permits_fixed_wide_shift_or_step_out_lunge',
+    'source_permits_dumbbell_chest_or_sides_and_omits_implement_count',
+    'source_omits_barbell_rack_or_carry_position',
+    'source_omits_kettlebell_count_carry_position_and_load_side',
+    'source_omits_sandbag_hold_and_contains_unresolved_carry_drag_steps',
+    'source_1328_permits_optional_dumbbell_or_kettlebell_and_omits_exact_step_and_load_protocol',
+  ]) {
+    assert.match(LATERAL_LUNGE_COMPLETION_MIGRATION, new RegExp(quarantineReason))
+  }
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /source_752_steps_out_then_returns_with_the_loaded_leg_and_changes_tempo_not_identity/,
+  )
+  for (const videoId of [
+    'tmhESsZcpDY',
+    '14JjPgcZAdI',
+    'ppcfjd9WVj0',
+    'vwOrd9umMOc',
+    '4m9R6PijpWI',
+  ]) {
+    assert.match(LATERAL_LUNGE_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['squat','brace'\]/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /'technicalMeaning','exercise_complexity','loadMeaning','physical_difficulty'/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /'athleteLandingImpact',0/,
+  )
+  for (const supportField of [
+    'selectionInputs',
+    'persistence',
+    'memberSupport',
+    'coachSupport',
+    'incidentPath',
+    'changeImpact',
+    'cumulativeBudget',
+    'weeklyExposureGuidance',
+    'sequencing',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(LATERAL_LUNGE_COMPLETION_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>18/,
+  )
+  assert.match(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /ARRAY\['CARD-CALIBRATION-01','CARD-GRAPH-03','CARD-MEDIA-01','CARD-PUBLISH-01'\]/,
+  )
+  assert.doesNotMatch(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Medicine Ball Shot-Put completion quarantines underspecified sources and authors one exact review-only specification', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'458_coaching_medicine_ball_shot_put_family_completion\.sql'/,
+  )
+  for (const sourceId of [154, 357, 1002, 1197, 1270, 1318, 1478]) {
+    assert.match(
+      MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /'static-side-on-wall-throw-only'/,
+  )
+  for (const missingContract of [
+    'generic_record_omits_orientation_ball_position_pivot_target_return_and_catch',
+    'side_on_record_permits_back_hip_or_chest_ball_start_and_omits_pivot_and_return',
+    'side_on_record_omits_ball_start_foot_pivot_and_rebound_or_retrieval_contract',
+    'partner_record_omits_ball_start_lead_leg_to_arm_mapping_partner_return_and_catch_contract',
+    'wall_record_permits_catch_or_no_catch_and_omits_exact_stance_and_pivot',
+    'split_stance_record_does_not_define_full_release_receiver_lead_leg_or_return',
+    'rotational_record_omits_stance_entry_ball_position_pivot_target_and_catch_or_retrieval',
+  ]) {
+    assert.match(
+      MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+      new RegExp(missingContract),
+    )
+  }
+  for (const videoId of [
+    'KtzuEYn0DmY',
+    'WBUDq_5DGG0',
+    'EXV9UhUMTiY',
+    'wX4tcyR-61w',
+    'GTK8P0IOCTI',
+  ]) {
+    assert.match(MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['push','rotate','brace','throw'\]/,
+  )
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /'technicalMeaning','exercise_complexity','loadMeaning','physical_difficulty'/,
+  )
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /'athleteLandingImpact',0/,
+  )
+  for (const supportField of [
+    'selectionInputs',
+    'persistence',
+    'memberSupport',
+    'coachSupport',
+    'incidentPath',
+    'changeImpact',
+    'cumulativeBudget',
+    'weeklyExposureGuidance',
+    'sequencing',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(
+      MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+      new RegExp(`'${supportField}'`),
+    )
+  }
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>18/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Suitcase Carry completion separates implement, route, hold, bilateral, and underspecified march identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'459_coaching_suitcase_carry_family_completion\.sql'/,
+  )
+  for (const sourceId of [204, 452, 504, 559, 1028, 1340, 1470]) {
+    assert.match(
+      SUITCASE_CARRY_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'straight-lane-dumbbell',
+    'straight-lane-kettlebell',
+    'single-line-dumbbell',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const missingContract of [
+    'generic_db_or_kb_record_omits_exact_implement_route_turn_distance_pace_pickup_and_setdown_contract',
+    'dumbbell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract',
+    'kettlebell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract',
+    'line_walk_record_omits_exact_foot_on_line_rule_turn_finish_and_setdown_contract',
+    'sandbag_record_omits_exact_grip_handle_position_clearance_pickup_and_setdown_contract',
+    'throwing_record_has_no_executable_carry_route_position_pace_pickup_or_setdown_contract',
+    'march_record_omits_in_place_or_traveling_identity_step_height_cadence_route_and_terminal_contract',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(missingContract))
+  }
+  for (const videoId of [
+    'zFje79PZsxQ',
+    'IZ0aGhu24c8',
+    'z4WJXcx19WQ',
+    'LJaq4BS7KpE',
+    'Fko5Hp537us',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  for (const researchSource of [
+    '38665162',
+    '34051700',
+    '36557001',
+    '31820223',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(researchSource))
+  }
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['carry','locomote','brace'\]/,
+  )
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /'technicalMeaning','exercise_complexity','loadMeaning','physical_difficulty'/,
+  )
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /'walkingContactsTrackedSeparately',TRUE/,
+  )
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /'athleteLandingImpactContacts',0/,
+  )
+  for (const supportField of [
+    'selectionInputs',
+    'persistence',
+    'memberSupport',
+    'coachSupport',
+    'incidentPath',
+    'changeImpact',
+    'cumulativeBudget',
+    'weeklyExposureGuidance',
+    'sequencing',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>21/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(SUITCASE_CARRY_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Bent-Knee Soleus Raise completion resolves the dumbbell collision and separates exact load, surface, contraction, and knee-position identities', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'460_coaching_bent_knee_soleus_raise_family_completion\.sql'/,
+  )
+  for (const sourceId of [215, 365, 432, 578, 763, 1151, 1400]) {
+    assert.match(
+      BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'bilateral-seated-bodyweight-floor',
+    'unilateral-seated-machine',
+    'single-leg-seated-dumbbell-floor',
+  ]) {
+    assert.match(
+      BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+      new RegExp(`'${variantKey}'`),
+    )
+  }
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /'558d4e17-5254-484f-b866-80ce30c44f7f'/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /source_names_dumbbell_but_omits_count_contact_point_working_side_foot_surface_range_and_exact_repetition_contract/,
+  )
+  for (const videoId of [
+    'RZ1Iv9sIYHM',
+    'fFWpWJy8ybU',
+    'wtBKmESLI98',
+    'DHMOfk7DEyk',
+    '7qzlklmu3Pw',
+  ]) {
+    assert.match(BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  for (const researchSource of [
+    'PMC10753835',
+    'PMC5343533',
+    '37015022',
+    '22190157',
+    '811e78926c9747f48402ed95d28f26cf',
+  ]) {
+    assert.match(
+      BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+      new RegExp(researchSource),
+    )
+  }
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /VALUES\('plantar_flex','Plantar Flex \/ Heel Raise',18\)/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /movement_patterns=ARRAY\['plantar_flex'\]/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /'muscleClaim','soleus_biased_not_isolated'/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /'technicalMeaning','exercise_complexity','loadMeaning','physical_difficulty'/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /'athleteLandingImpactContacts',0/,
+  )
+  for (const supportField of [
+    'selectionInputs',
+    'persistence',
+    'memberSupport',
+    'coachSupport',
+    'incidentPath',
+    'changeImpact',
+    'cumulativeBudget',
+    'weeklyExposureGuidance',
+    'sequencing',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(
+      BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+      new RegExp(`'${supportField}'`),
+    )
+  }
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>24/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Back Squat completion quarantines contaminated templates and preserves exact high- and low-bar working specifications', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'461_coaching_back_squat_family_completion\.sql'/,
+  )
+  for (const sourceId of [1, 367, 368, 370, 371]) {
+    assert.match(
+      BACK_SQUAT_COMPLETION_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const variantKey of [
+    'high-bar-free-bar-parallel',
+    'low-bar-free-bar-parallel',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(`'${variantKey}'`))
+  }
+  for (const archiveReason of [
+    'generic_source_contains_jump_landing_contamination',
+    'high_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack',
+    'low_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack',
+    'pause_source_omits_bar_position_pause_depth_duration_rebound_policy_and_safety_contract',
+    'tempo_source_omits_bar_position_and_all_phase_durations_plus_exact_safety_contract',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(archiveReason))
+  }
+  for (const videoId of [
+    '8Kls95w2jFA',
+    'Akd5xmZlsvg',
+    'Po9CDtfcLJI',
+    '1le_LVZmmUU',
+    '7fmrKmJMQnw',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(videoId))
+  }
+  for (const researchSource of [
+    '38900172',
+    '34541522',
+    '38036316',
+    'PMC4064719',
+    '31230110',
+    '116c55d64e1343d2b264e05aaf158a91',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(researchSource))
+  }
+  assert.match(
+    BACK_SQUAT_COMPLETION_MIGRATION,
+    /'technicalMeaning','exercise_complexity','loadMeaning','physical_difficulty'/,
+  )
+  assert.match(BACK_SQUAT_COMPLETION_MIGRATION, /'athleteLandingImpactContacts',0/)
+  for (const supportField of [
+    'selectionInputs',
+    'persistence',
+    'memberSupport',
+    'coachSupport',
+    'incidentPath',
+    'changeImpact',
+    'cumulativeBudget',
+    'weeklyExposureGuidance',
+    'sequencing',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(BACK_SQUAT_COMPLETION_MIGRATION, /count\(DISTINCT section_key\)[\s\S]*?<>16/)
+  assert.match(
+    BACK_SQUAT_COMPLETION_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>24/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(BACK_SQUAT_COMPLETION_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    BACK_SQUAT_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BACK_SQUAT_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(BACK_SQUAT_COMPLETION_MIGRATION, /approved_video_url\s*=\s*'https:\/\//)
+  assert.doesNotMatch(BACK_SQUAT_COMPLETION_MIGRATION, /review_status\s*=\s*'approved'/)
+})
+
+test('Box Jump hardening quarantines every source and exposes only exact complexity/physical-difficulty variants', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'462_coaching_box_jump_family_audit_hardening\.sql'/,
+  )
+  for (const sourceId of [2, 1543, 1546, 1547, 1549, 1552, 1556, 1557, 1558]) {
+    assert.match(
+      BOX_JUMP_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const [variantKey, complexity, physical, overall] of [
+    ['stationary-countermovement-natural-arms', 48, 46, 48],
+    ['paused-static-hands-on-hips', 54, 46, 54],
+    ['stationary-countermovement-hands-on-hips', 50, 46, 50],
+    ['one-step-bilateral-gather', 58, 50, 58],
+  ]) {
+    assert.match(BOX_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(`'${variantKey}'`))
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    '52r_Ul5k03g',
+    'd2z2_rRkpAo',
+    'v9cZQqGX1Xk',
+    'kNIInK_Le8I',
+    'Bc_ycZFCEvQ',
+  ]) {
+    assert.match(BOX_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+  for (const supportField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    'selectionInputs',
+    'persistence',
+    'incidentPath',
+    'changeImpact',
+  ]) {
+    assert.match(BOX_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(BOX_JUMP_AUDIT_HARDENING_MIGRATION, /count\(DISTINCT section_key\)[\s\S]*?<>16/)
+  assert.match(
+    BOX_JUMP_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>30/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(BOX_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    BOX_JUMP_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BOX_JUMP_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(BOX_JUMP_AUDIT_HARDENING_MIGRATION, /approved_video_url\s*=\s*'https:\/\//)
+  assert.doesNotMatch(BOX_JUMP_AUDIT_HARDENING_MIGRATION, /review_status\s*=\s*'approved'/)
+})
+
+test('Depth Jump hardening quarantines ambiguous sources and separates exact arm policies', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'463_coaching_depth_jump_family_audit_hardening\.sql'/,
+  )
+  for (const sourceId of [3, 725, 1092]) {
+    assert.match(
+      DEPTH_JUMP_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const [variantKey, complexity, physical, overall] of [
+    ['countermovement-vertical-rebound-hands-on-hips', 64, 72, 72],
+    ['countermovement-vertical-rebound-free-arms', 68, 72, 72],
+  ]) {
+    assert.match(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(`'${variantKey}'`))
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'AzPJZHOmGEg',
+    'GeN0S3XCZnM',
+    'DxzbXy0lC6Y',
+    'Phf_HO1w9BA',
+    'dGQRsuI_-ag',
+  ]) {
+    assert.match(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+  for (const supportField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    'selectionInputs',
+    'persistence',
+    'incidentPath',
+    'changeImpact',
+  ]) {
+    assert.match(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, /count\(DISTINCT section_key\)[\s\S]*?<>16/)
+  assert.match(
+    DEPTH_JUMP_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>24/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    DEPTH_JUMP_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    DEPTH_JUMP_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, /approved_video_url\s*=\s*'https:\/\//)
+  assert.doesNotMatch(DEPTH_JUMP_AUDIT_HARDENING_MIGRATION, /review_status\s*=\s*'approved'/)
+})
+
+test('Nordic Hamstring hardening removes unrelated evidence and fixes contraction, assistance, and angle identity', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'464_coaching_nordic_hamstring_family_audit_hardening\.sql'/,
+  )
+  for (const sourceId of [4, 574, 839]) {
+    assert.match(
+      NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const [variantKey, complexity, physical, overall] of [
+    ['eccentric-five-second-catch-reset', 46, 72, 72],
+    ['band-assisted-declared-range-full-cycle', 58, 64, 64],
+    ['unassisted-declared-range-full-cycle', 58, 88, 88],
+    ['incline-30-k30-h0-five-second-hold-catch-reset', 62, 76, 76],
+  ]) {
+    assert.match(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, new RegExp(`'${variantKey}'`))
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    '_e9vFU9-tkc',
+    '6NCN6kOagfY',
+    'IiofP9cn_nc',
+    '6_WWA3cQF-w',
+    'kLE6k4DYgzQ',
+  ]) {
+    assert.match(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+  for (const supportField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    'selectionInputs',
+    'persistence',
+    'incidentPath',
+    'changeImpact',
+  ]) {
+    assert.match(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, /count\(DISTINCT section_key\)[\s\S]*?<>16/)
+  assert.match(
+    NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>31/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, new RegExp(blocker))
+  }
+  assert.match(
+    NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+    /invalidPriorCitationReason','calf_raise_hypertrophy_study_not_nordic_hamstring_evidence'/,
+  )
+  assert.doesNotMatch(
+    NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, /approved_video_url\s*=\s*'https:\/\//)
+  assert.doesNotMatch(NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION, /review_status\s*=\s*'approved'/)
+})
+
+test('Nordic and Reverse Nordic identity closure preserves opposing loaded-tissue and joint-motion contracts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'465_coaching_nordic_reverse_nordic_identity_closure\.sql'/,
+  )
+  assert.match(
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    /forward_ankle_anchored_knee_flexor_nordic_vs_backward_kneeling_knee_extensor_reverse_nordic/,
+  )
+  assert.match(
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    /'decision_scope'|decisionScope/,
+  )
+  assert.match(
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    /'reverseNordicCanonicalAuditStillRequired',TRUE/,
+  )
+  assert.match(
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    /'humanReviewRequired',TRUE,'approvalsCreated',FALSE/,
+  )
+  assert.doesNotMatch(
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('Nordic machine-gate completion records zero lower-body landings without erasing hand-catch exposure', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'466_coaching_nordic_hamstring_machine_gate_completion\.sql'/,
+  )
+  assert.match(
+    NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  assert.match(
+    NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
+    /planned_two_hand_catch_is_recorded_as_upper_extremity_contact_and_incident_exposure_not_lower_body_landing/,
+  )
+  assert.match(
+    NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)<>4/,
+  )
+  assert.doesNotMatch(
+    NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('Front Plank hardening consolidates generic and high-tension duplicates into exact difficulty-only variants', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'467_coaching_front_plank_family_audit_hardening\.sql'/,
+  )
+  for (const sourceId of [5, 240, 602, 827]) {
+    assert.match(
+      FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`(?:ARRAY\\[|[,\\s])${sourceId}(?:[,\\s\\]])`),
+    )
+  }
+  for (const [variantKey, complexity, physical, overall] of [
+    ['stable-floor-forearm-toes-standard', 30, 36, 36],
+    ['stable-floor-long-lever-posterior-tilt', 44, 58, 58],
+    ['stable-floor-rkc-high-tension', 40, 68, 68],
+  ]) {
+    assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, new RegExp(`'${variantKey}'`))
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    '0nqvl7ybiYQ',
+    'K2UZq6uq_mY',
+    'abv03ZRw9bM',
+    'lismOShjHnA',
+    'tx8wfSu1C4k',
+  ]) {
+    assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+  for (const supportField of [
+    'trainingStimuli',
+    'stimulusDose',
+    'weeklyExposure',
+    'prerequisites',
+    'completionCriteria',
+    'sequenceRules',
+    'pairingCompatibility',
+    'interferenceRules',
+    'uncertaintyPolicy',
+    'selectionInputs',
+    'persistence',
+    'incidentPath',
+    'changeImpact',
+  ]) {
+    assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, new RegExp(`'${supportField}'`))
+  }
+  assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, /count\(DISTINCT section_key\)[\s\S]*?<>16/)
+  assert.match(
+    FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, new RegExp(blocker))
+  }
+  assert.match(
+    FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+    /invalidPriorCitationReason','prone_cardiopulmonary_resuscitation_review_not_front_plank_exercise_evidence'/,
+  )
+  assert.match(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, /'landingContactsPerRep',0/)
+  assert.doesNotMatch(
+    FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, /approved_video_url\s*=\s*'https:\/\//)
+  assert.doesNotMatch(FRONT_PLANK_AUDIT_HARDENING_MIGRATION, /review_status\s*=\s*'approved'/)
+})
+
+test('Front Plank similarity closure separates bear support, hip extension bridge, and side support mechanics', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'468_coaching_front_plank_similarity_closure\.sql'/,
+  )
+  for (const boundary of [
+    'quadruped_flexed_knee_hand_foot_bear_support_vs_prone_extended_body_forearm_toe_front_support',
+    'supine_dynamic_hip_extension_bridge_vs_prone_static_forearm_toe_anti_extension',
+    'unilateral_lateral_anti_flexion_support_vs_bilateral_prone_anti_extension_support',
+  ]) {
+    assert.match(FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION, new RegExp(boundary))
+  }
+  assert.match(
+    FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
+    /neighborCanonicalAuditStillRequired',TRUE/,
+  )
+  assert.match(
+    FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
+    /'humanReviewRequired',TRUE,'approvalsCreated',FALSE/,
+  )
+  assert.doesNotMatch(
+    FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('lateral-bound graph closure maps rotational concepts to controlled dimensions without approval', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'469_coaching_lateral_bound_graph_taxonomy_closure\.sql'/,
+  )
+  assert.match(
+    LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION,
+    /dimensions=ARRAY\['complexity','stability'\]/,
+  )
+  for (const mapping of [
+    /'whole_body_rotation','complexity'/,
+    /'landing_heading','stability'/,
+    /'spatial_orientation','complexity'/,
+  ]) {
+    assert.match(LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION, mapping)
+  }
+  assert.match(
+    LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION,
+    /mappingScope','machine_taxonomy_correction_not_coach_approval'/,
+  )
+  assert.match(
+    LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION,
+    /jsonb_array_length\(packet\.blocking_issues_json\)<>4/,
+  )
+  assert.doesNotMatch(
+    LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+  assert.doesNotMatch(
+    LATERAL_BOUND_GRAPH_TAXONOMY_CLOSURE_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+})
+
+test('Dead Bug hardening consolidates Cross-Crawl and exposes exact difficulty-only variants', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'470_coaching_dead_bug_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'supine_contralateral_dead_bug_same_identity',
+    'Alternating Contralateral Dead Bug',
+    'bent-knee-contralateral-arm-heel-tap',
+    'long-lever-contralateral-arm-leg-hover',
+    'contralateral_arm_leg_reach_vs_legs_only_heel_tap',
+    'unloaded_alternating_contralateral_reach_vs_loaded_bilateral_pullover',
+    'researchProtocolNotTrainingPrescription',
+    'source917ExactPathIncomplete',
+  ]) {
+    assert.match(DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION, new RegExp(token))
+  }
+  for (const [complexity, physical, overall] of [
+    [34, 24, 34],
+    [42, 38, 42],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    '0XVbn86Btj0',
+    'BZYaCzbP09M',
+    'UBa7wBucN-4',
+    'zechBkcIMf0',
+  ]) {
+    assert.match(DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+  assert.match(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION, new RegExp(blocker))
+  }
+  assert.doesNotMatch(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    DEAD_BUG_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Worlds Greatest Stretch hardening fixes the sequence and exposes exact difficulty-only variants', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'471_coaching_worlds_greatest_stretch_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'same_lunge_rotation_hamstring_rockback_sequence',
+    'Lunge Instep Reach to Ipsilateral Rotation and Hamstring Rockback',
+    'rear-knee-down-floor-flow',
+    'rear-knee-up-long-lunge-flow',
+    'required_thoracic_rotation_vs_rotation_free_lunge_hamstring_sweep',
+    'noExactSequenceTrialClaimed',
+    'generalDynamicStretchingLimitsExplicit',
+  ]) {
+    assert.match(
+      WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [42, 26, 42],
+    [50, 34, 50],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    '-CiWQ2IvY34',
+    'FIZMUyAPPWY',
+    'CXnge363CH8',
+    'VQqabRnOR1E',
+  ]) {
+    assert.match(
+      WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>28/,
+  )
+  assert.match(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    WORLDS_GREATEST_STRETCH_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Kettlebell Swing hardening separates shoulder-height and overhead cards with exact difficulty-only variants', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'472_coaching_kettlebell_swing_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'ballistic_hip_hinge_to_chest_or_shoulder_height_float',
+    'ballistic_hip_hinge_to_full_overhead_terminal_position',
+    'two-hand-shoulder-height-continuous',
+    'one-hand-shoulder-height-continuous',
+    'two-hand-overhead-continuous',
+    'one-hand-overhead-continuous',
+    'shoulder_height_float_vs_full_overhead_terminal_position',
+    'ballistic_overhead_swing_cycle_vs_stabilized_overhead_carry',
+    'ballistic_hip_driven_overhead_arc_vs_strict_rack_to_overhead_press',
+    'acuteBiomechanicsLimitsExplicit',
+    'noUniversalDoseSafetyTransferOrDifficultyClaimed',
+  ]) {
+    assert.match(
+      KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [56, 58, 58],
+    [64, 60, 64],
+    [66, 62, 66],
+    [74, 64, 74],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'IW979LifpGo',
+    'PAhDt_0PjP4',
+    'fvQoQsDk40M',
+    'yHxcTn1UeAc',
+    'MjZgWEr7dn8',
+    'd94xX-AQZ0A',
+    'dUlk6ZmFtAU',
+    'mKDIuUbH94Q',
+  ]) {
+    assert.match(
+      KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)=16/,
+  )
+  assert.match(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /definition_id=swing_definition[\s\S]*?review_status='candidate'[\s\S]*?<>30/,
+  )
+  assert.match(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /definition_id=overhead_definition[\s\S]*?review_status='candidate'[\s\S]*?<>24/,
+  )
+  assert.match(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'/,
+  )
+})
+
+test('Kettlebell Swing taxonomy correction uses only controlled planning keys and preserves human gates', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'474_coaching_kettlebell_swing_taxonomy_gate_completion\.sql'/,
+  )
+  for (const token of [
+    "'elbow','wrist','hand'",
+    "ARRAY['line_tape','timer']",
+    'controlledBodyRegions',
+    'controlledEquipment',
+    'videoCaptureRemainsAWorkflowCapabilityNotControlledRequiredEquipment',
+    'max_exercise_complexity_physical_difficulty',
+    'independentCanonicalAuditRequiredAfterMigration',
+  ]) {
+    assert.match(
+      KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+      new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    )
+  }
+  for (const invalidKey of ['floor_marker', 'video_capture']) {
+    assert.match(
+      KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+      new RegExp(`'${invalidKey}'`),
+    )
+  }
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+    /review_status\s*=\s*'approved'|approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'|"(?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel)"\s*:/i,
+  )
+  assert.match(
+    KETTLEBELL_SWING_TAXONOMY_GATE_COMPLETION_MIGRATION,
+    /difficulty_json \?\| ARRAY\[/,
   )
 })
 
@@ -6923,6 +10043,33 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     LANDMINE_ARC_IDENTITY_RESOLUTION_MIGRATION,
     ANKLING_POGO_IDENTITY_RESOLUTION_MIGRATION,
     OPPOSITE_LEG_BOUND_DIRECTION_IDENTITY_RESOLUTION_MIGRATION,
+    ROTATIONAL_BOUND_BROAD_IDENTITY_COMPLETION_MIGRATION,
+    SINGLE_LEG_HOP_POGO_IDENTITY_COMPLETION_MIGRATION,
+    BOX_DROP_DEPTH_JUMP_COMPLETION_MIGRATION,
+    VERTICAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    BILATERAL_HORIZONTAL_JUMP_FOUNDATIONS_COMPLETION_MIGRATION,
+    DROP_LANDING_STICK_FOUNDATIONS_COMPLETION_MIGRATION,
+    FRONT_LOADED_SQUAT_COMPLETION_MIGRATION,
+    FLOOR_BRIDGE_COMPLETION_MIGRATION,
+    SINGLE_LEG_RDL_COMPLETION_MIGRATION,
+    COSSACK_AUDIT_COMPLETION_MIGRATION,
+    FLOOR_PRESS_COMPLETION_MIGRATION,
+    ROTATIONAL_BALL_SLAM_COMPLETION_MIGRATION,
+    ONE_ARM_ROW_COMPLETION_MIGRATION,
+    PUSH_UP_COMPLETION_MIGRATION,
+    REVERSE_LUNGE_COMPLETION_MIGRATION,
+    LATERAL_LUNGE_COMPLETION_MIGRATION,
+    MEDICINE_BALL_SHOT_PUT_COMPLETION_MIGRATION,
+    SUITCASE_CARRY_COMPLETION_MIGRATION,
+    BENT_KNEE_SOLEUS_RAISE_COMPLETION_MIGRATION,
+    BACK_SQUAT_COMPLETION_MIGRATION,
+    BOX_JUMP_AUDIT_HARDENING_MIGRATION,
+    DEPTH_JUMP_AUDIT_HARDENING_MIGRATION,
+    NORDIC_HAMSTRING_AUDIT_HARDENING_MIGRATION,
+    NORDIC_REVERSE_NORDIC_IDENTITY_CLOSURE_MIGRATION,
+    NORDIC_HAMSTRING_MACHINE_GATE_COMPLETION_MIGRATION,
+    FRONT_PLANK_AUDIT_HARDENING_MIGRATION,
+    FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

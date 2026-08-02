@@ -1,0 +1,316 @@
+{
+  "batchKey": "single-leg-hop-pogo-identity-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-08-02.14",
+  "snapshotAt": "2026-08-02T03:00:00.000Z",
+  "includeArchived": true,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/single-leg-hop-pogo-identity",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "vertical_horizontal_single_leg_hop_joint_work",
+      "claims": [
+        "Single-leg vertical and horizontal hops have different joint-work contributions during propulsion and landing.",
+        "Direction, takeoff and landing leg, contact sequence, terminal action, target, approach, hold, exit, and reset must be declared rather than inferred from hop wording."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "single_leg_hopping_direction_muscle_biomechanics",
+      "claims": [
+        "Forward, vertical, and backward single-leg hopping produced direction-specific movement and loading patterns.",
+        "Vertical, forward, lateral, backward, rotational, repeated-rebound, and terminal-stick tasks remain visible taxonomy dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "vertical_horizontal_single_leg_hop_joint_work",
+      "claims": [
+        "Hip, knee, and ankle contributions differ between single-leg vertical and horizontal hop propulsion and landing.",
+        "Cards describe foot, ankle, knee, hip, pelvis, and trunk roles without reducing a coordinated landing to one muscle or joint."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "vertical_horizontal_single_leg_jump_biomechanics",
+      "claims": [
+        "Maximum-height and maximum-distance single-leg jumps showed different propulsion, landing, joint, and muscle-synergy demands.",
+        "This evidence supports separate direction-specific definitions but does not validate Vortex dose, score, safety, or transfer claims."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "single_leg_jump_direction_load_biomechanics",
+      "claims": [
+        "Jump direction and external load change single-leg jump-landing mechanics.",
+        "Difficulty scores exercise complexity and physical difficulty only, overall equals their maximum, and athlete proficiency is excluded from exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "single_leg_hop_landing_fatigue_biomechanics",
+      "claims": [
+        "Thigh-muscle fatigue changed ankle, knee, and hip behavior during single-leg hop landings.",
+        "Count valid and failed landings, all pogo contacts, same-session running and jumping, side exposure, symptoms, quality drift, rest, and individualized recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "single_leg_jump_direction_load_biomechanics",
+      "claims": [
+        "Direction and load are material task constraints in a single-leg jump landing.",
+        "Require a declared direction and target, level dry high-traction surface, clear flight, landing, fall, exit, and reset space, stable footwear, and coach sightlines."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing feedback can use observable movement criteria, but evidence does not establish one universal safe repetition count.",
+        "Dose fully reset hops or explicitly counted pogo contacts, record failed attempts, preserve terminal holds, and stop before direction, amplitude, contact, or alignment changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "single_leg_hop_arm_swing_kinetics",
+      "claims": [
+        "Arm use changed performance and knee work across direction-specific single-leg hopping tasks.",
+        "Instructions therefore declare arm policy together with direction, amplitude, takeoff, landing, contact count, terminal hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "single_leg_hop_landing_fatigue_biomechanics",
+      "claims": [
+        "Fatigue altered single-leg landing strategy and joint contribution.",
+        "Stop for symptoms, giving way, fear, wrong leg or direction, target miss, loud or slow contact, heel slam, alignment loss, touch, extra contact, failed terminal hold, unsafe space, or two changed repetitions."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "vertical_horizontal_single_leg_hop_joint_work",
+      "claims": [
+        "Vertical and horizontal hop performance represent different lower-limb contributions and should not be treated as interchangeable measures.",
+        "Generation validates exact definition and variant, side, direction, contacts, impact and fatigue budgets, logistics, duration, substitutions, rendered instructions, and persisted output after changes."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Observable landing feedback can support practice but does not justify an injury-prevention promise for one exercise.",
+        "Athlete support explains the exact direction, foot contract, target, valid hold, expected effort, symptoms, self-checks, stop rule, and how to request an alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "single_leg_jump_direction_load_biomechanics",
+      "claims": [
+        "Direction and load must be controlled when comparing single-leg jump-landing attempts.",
+        "Coaches record side, direction, target, arm policy, valid and failed attempts, contacts, hold, rest, faults, symptoms, substitutions, and cumulative exposure."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "unilateral_plyometric_landing_stabilization_rct",
+      "claims": [
+        "Unilateral and bilateral jump training are different exposures rather than interchangeable labels.",
+        "Accessible delivery can reduce amplitude, contacts, attempts, precision pressure, or intent and increase rest or multimodal instruction while preserving the exact task; otherwise select a different reviewed definition."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "single_leg_hopping_direction_muscle_biomechanics",
+      "claims": [
+        "Forward, vertical, and backward single-leg hopping differ biomechanically.",
+        "Direction, approach, takeoff and landing relationship, contact sequence, rebound, rotation, external load, cueing, and terminal action require explicit definition or variant review; bounded target, hold, rest, and side order may be delivery modifiers."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube oEmbed health establishes current link and iframe availability only.",
+        "A human must verify exact direction, support, contacts, amplitude, terminal hold, reset, cue quality, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "single-leg-vertical-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary stance on one declared leg, project primarily upward with minimal horizontal displacement in one flight, land on the same leg inside the marked start zone, absorb under control, hold without another contact, exit safely, and reset fully.",
+        "currentCardFindings": [
+          "The exact card separates vertical projection from forward and lateral hop-to-stick definitions.",
+          "Its active variant is bounded to low-to-moderate nonmaximal height and a declared arm policy.",
+          "Five direct-title links have healthy oEmbed metadata but no human content or accessibility approval."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 40,
+          "baseOverallDifficulty": 42,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "stationary-low-to-moderate-vertical-same-leg-stick",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 40,
+            "overallDifficulty": 42
+          }
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_vertical_card_without_legacy_source_mapping",
+          "legacySourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=ekhRg3mslTM","title":"Single Leg Vertical Jump & Stick","channelName":"Fitness Pain Free","sourceQuery":"single leg vertical jump stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Title-level candidate only; exact support, amplitude, arm policy, terminal hold, full sequence, safety, captions, accessibility, and quality require human review."},
+        {"url":"https://www.youtube.com/watch?v=L6aY4slufm4","title":"Single Leg Vertical Jump & Stick","channelName":"Garrett McLaughlin","sourceQuery":"single leg vertical jump stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Title-level candidate only; no exact-match or approval claim is made."},
+        {"url":"https://www.youtube.com/watch?v=GRwhkDDb71g","title":"Single leg Vertical Jump + Stick (landing)","channelName":"Depth Training and Physiotherapy Waterloo","sourceQuery":"single leg vertical jump stick landing","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Title names direction and stick; every playback quality gate remains unresolved."},
+        {"url":"https://www.youtube.com/watch?v=SzVzhzB4BsY","title":"47. Single Leg Vertical Jump (Stick)","channelName":"Peerless Athletics","sourceQuery":"single leg vertical jump stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Candidate metadata only; human review is mandatory."},
+        {"url":"https://www.youtube.com/watch?v=63Tg-Fcjozk","title":"Single Leg Vertical Jump - Stick Landing","channelName":"Lexi Beeson","sourceQuery":"single leg vertical jump stick landing","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Candidate metadata only; exact movement and demonstration quality remain unset."}
+      ],
+      "alternateAssessments": [
+        {"name":"Single-Leg Forward Hop to Stick","classification":"new_definition","rationale":"Horizontal projection changes joint contribution, target geometry, and braking.","distinguishingDimensions":{"direction":"forward_horizontal"}},
+        {"name":"Single-Leg Lateral Hop to Stick","classification":"new_definition","rationale":"Frontal-plane projection and edge control are represented by a separate exact card.","distinguishingDimensions":{"direction":"lateral"}},
+        {"name":"Repeated Single-Leg Vertical Pogo","classification":"new_definition","rationale":"Repeated contacts remove the terminal hold between contacts and change dose and fatigue.","distinguishingDimensions":{"contacts":"repeated"}},
+        {"name":"Height Target, Arm Policy, Hold, Attempts, Rest, or Side Order","classification":"modifier_annotation","rationale":"These scale one exact vertical same-leg flight and terminal landing.","distinguishingDimensions":{"modifiers":["height_target","arm_policy","hold","attempts","rest","side_order"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-forward-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "From a stationary stance on one declared leg behind a marked line, project forward in one flight to a declared target, land on the same leg without reaching the foot, absorb horizontal momentum, hold without another contact, exit safely, and reset fully.",
+        "currentCardFindings": [
+          "The exact card separates forward projection from vertical, lateral, backward, and rotational identities.",
+          "Low-amplitude control and moderate-distance submaximal output are separate exact variants.",
+          "Five direct-title links have healthy oEmbed metadata but remain human-review candidates."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 42,
+          "baseOverallDifficulty": 44,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {"variantKey":"stationary-low-amplitude-forward-same-leg-stick","exerciseComplexity":44,"physicalDifficulty":42,"overallDifficulty":44},
+          {"variantKey":"stationary-moderate-distance-forward-same-leg-stick","exerciseComplexity":50,"physicalDifficulty":50,"overallDifficulty":50}
+        ],
+        "identityDecision": {
+          "resolution": "author_exact_forward_card_without_legacy_source_mapping",
+          "legacySourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=fR4ShpYhR74","title":"Single-leg Forward Hop and Stick","channelName":"RYPT","sourceQuery":"single leg forward hop stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Direct-title candidate only; exact amplitude, support, hold, reset, safety, captions, accessibility, and quality require human review."},
+        {"url":"https://www.youtube.com/watch?v=CYb0YKAKtIA","title":"Single-Leg Forward Hop & Stick","channelName":"Alex Bunt","sourceQuery":"single leg forward hop stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Direct-title candidate only; no exact-match or approval claim is made."},
+        {"url":"https://www.youtube.com/watch?v=3TCxCldZUuU","title":"1 leg forward hop to stick","channelName":"GPC Performance","sourceQuery":"single leg forward hop stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Direct-title candidate only; playback quality gates remain unresolved."},
+        {"url":"https://www.youtube.com/watch?v=qfXmAW44548","title":"Single Leg Forward Hop And Stick","channelName":"UMassSportsPerformance","sourceQuery":"single leg forward hop stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Direct-title candidate only; human review is mandatory."},
+        {"url":"https://www.youtube.com/watch?v=fep9dKsqzOI","title":"Single Leg Forward Hop and Stick","channelName":"Thrive Physio and Performance","sourceQuery":"single leg forward hop stick","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Direct-title candidate only; exact movement and quality remain unset."}
+      ],
+      "alternateAssessments": [
+        {"name":"Single-Leg Vertical Hop to Stick","classification":"new_definition","rationale":"Primarily vertical projection changes joint contribution, target, and landing strategy.","distinguishingDimensions":{"direction":"vertical"}},
+        {"name":"Single-Leg Lateral Hop to Stick","classification":"new_definition","rationale":"Lateral projection changes plane, target geometry, and edge control.","distinguishingDimensions":{"direction":"lateral"}},
+        {"name":"Single-Leg Hop for Distance Test","classification":"new_definition","rationale":"A maximal standardized assessment has separate protocol, interpretation, and governance.","distinguishingDimensions":{"purpose":"assessment","intent":"maximal"}},
+        {"name":"Target Distance, Arm Policy, Hold, Attempts, Rest, or Side Order","classification":"modifier_annotation","rationale":"These scale the stationary forward one-flight contract inside reviewed bounds.","distinguishingDimensions":{"modifiers":["target_distance","arm_policy","hold","attempts","rest","side_order"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-pogo",
+      "assessmentSummary": {
+        "identity": "A family of exact variants using two or more same-leg ankle-dominant contacts with support, direction, amplitude, cadence, count, and finish declared; the new stationary terminal-stick variant holds only the final contact.",
+        "currentCardFindings": [
+          "The family already contained exact stationary, supported, traveling, lateral-line, and wall-lean variants.",
+          "The prior stationary variant did not explicitly state its controlled two-foot finish; that contract is now explicit.",
+          "The new terminal-stick variant requires at least two counted contacts, no intermediate stick, one final same-leg hold, and a two-foot reset."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 54,
+          "baseOverallDifficulty": 54,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {"variantKey":"stationary-low-amplitude-to-terminal-stick","exerciseComplexity":50,"physicalDifficulty":56,"overallDifficulty":56}
+        ],
+        "identityDecision": {
+          "resolution": "add_exact_finish_rule_variant_without_mapping_vague_hold_stick_source",
+          "legacySourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=eDNJvmRgqqY","title":"Pogo To Single Leg Stick-hold","channelName":"Coach Hos","sourceQuery":"pogo to single leg stick hold","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Strong title-level terminal-stick candidate; exact contact sequence and all playback quality gates require human review."},
+        {"url":"https://www.youtube.com/watch?v=346nxpp5ZtU","title":"Single Leg Stationary Pogo Hop","channelName":"N2AthleteX Performance Training","sourceQuery":"stationary single leg pogo","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Stationary pogo candidate only; final hold is not established by title."},
+        {"url":"https://www.youtube.com/watch?v=6Dd3MqY7zCc","title":"How to Perform Stationary Single-leg Pogo-hops","channelName":"Fit4.function","sourceQuery":"stationary single leg pogo","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Stationary pogo candidate only; human exact-match review is mandatory."},
+        {"url":"https://www.youtube.com/watch?v=ggn5Iep046o","title":"Single Leg Pogo Stick Jumps","channelName":"Gaia Health","sourceQuery":"single leg pogo jumps","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent single-leg pogo candidate; finish rule is unknown."},
+        {"url":"https://www.youtube.com/watch?v=U12iOibPX98","title":"Single Leg Pogo Jumps","channelName":"RADCENTRE","sourceQuery":"single leg pogo jumps","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent candidate only; exact variant, quality, and approval remain unset."}
+      ],
+      "alternateAssessments": [
+        {"name":"Stationary Single-Leg Pogo to Terminal Stick","classification":"new_variant","rationale":"A declared final-contact hold changes the finish rule after repeated same-leg contacts.","distinguishingDimensions":{"finish":"terminal_stick"}},
+        {"name":"Stationary Single-Leg Pogo without Terminal Stick","classification":"same_identity","rationale":"The existing stationary variant exits under control without an intentional stick between contacts.","distinguishingDimensions":{"finish":"controlled_two_foot_exit"}},
+        {"name":"Forward-Traveling Single-Leg Pogo","classification":"new_variant","rationale":"Forward travel changes landing location, lane, fatigue, and measurement.","distinguishingDimensions":{"direction":"forward_traveling"}},
+        {"name":"Bilateral Pogo","classification":"new_definition","rationale":"Synchronous two-foot contacts change laterality, loading, and side accounting.","distinguishingDimensions":{"support":"bilateral_synchronous"}},
+        {"name":"Contacts, Cadence, Amplitude, Final Hold, Rest, or Starting Side","classification":"modifier_annotation","rationale":"These scale an exact pogo variant while support, direction, contact order, and finish remain fixed.","distinguishingDimensions":{"modifiers":["contacts","cadence","amplitude","final_hold","rest","starting_side"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "Undefined legacy family: same-leg landing and terminal-hold language are present, but three sources conflict or omit vertical versus horizontal direction, approach, amplitude, arm policy, target, hold, exit, and reset.",
+        "currentCardFindings": [
+          "One source emphasizes jump height, one distance jumping, and one only a very small unspecified displacement.",
+          "A prior consolidation preserved these sources under one generic family without creating an exact selectable direction variant.",
+          "The family is now archived, unscored, unpublished, and retained only for traceability and human adjudication."
+        ],
+        "difficultyDecision": "Do not score an undefined exercise; complexity and physical difficulty require an exact direction and contact contract.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleMappings": ["single-leg-vertical-hop-to-stick","single-leg-forward-hop-to-stick","single-leg-lateral-hop-to-stick"],
+          "humanReviewRequired": true
+        }
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=ekhRg3mslTM","title":"Single Leg Vertical Jump & Stick","channelName":"Fitness Pain Free","sourceQuery":"adjacent vertical interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent interpretation only; media cannot establish missing legacy direction."},
+        {"url":"https://www.youtube.com/watch?v=fR4ShpYhR74","title":"Single-leg Forward Hop and Stick","channelName":"RYPT","sourceQuery":"adjacent forward interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent interpretation only; no mapping or approval is inferred."},
+        {"url":"https://www.youtube.com/watch?v=CYb0YKAKtIA","title":"Single-Leg Forward Hop & Stick","channelName":"Alex Bunt","sourceQuery":"adjacent forward interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent interpretation only; source uncertainty remains."
+        }
+      ],
+      "alternateAssessments": [
+        {"name":"Single-Leg Vertical Hop to Stick","classification":"same_identity","rationale":"Possible only if authoritative lineage establishes stationary vertical direction.","distinguishingDimensions":{"possibleMapping":"single-leg-vertical-hop-to-stick"}},
+        {"name":"Single-Leg Forward Hop to Stick","classification":"same_identity","rationale":"Possible only if authoritative lineage establishes forward horizontal direction.","distinguishingDimensions":{"possibleMapping":"single-leg-forward-hop-to-stick"}},
+        {"name":"Single-Leg Lateral Hop to Stick","classification":"same_identity","rationale":"Possible only if authoritative lineage establishes lateral direction.","distinguishingDimensions":{"possibleMapping":"single-leg-lateral-hop-to-stick"}},
+        {"name":"Direction, Target, Hold, Arm Policy, Rest, or Side Order","classification":"modifier_annotation","rationale":"These become modifiers only after one exact identity is established.","distinguishingDimensions":{"modifiers":["direction","target","hold","arm_policy","rest","side_order"]}}
+      ]
+    },
+    {
+      "slug": "single-leg-pogo-hold-stick",
+      "assessmentSummary": {
+        "identity": "Undefined legacy source: the label does not establish one hop versus repeated pogo contacts, direction, amplitude, count, cadence, support, intermediate rebound policy, exact final-contact hold, exit, or reset.",
+        "currentCardFindings": [
+          "Generic neural-quality copy permits multiple incompatible contact sequences.",
+          "Default repetitions and work time do not prove repeated pogo contacts or define the final hold.",
+          "The source is archived and is not mapped to the exact terminal-stick pogo variant."
+        ],
+        "difficultyDecision": "Do not score an undefined contact sequence; complexity and physical difficulty require exact contacts and finish.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleMappings": ["single-leg-pogo:stationary-low-amplitude-to-terminal-stick","single-leg-pogo:stationary-low-amplitude","single-leg-forward-hop-to-stick"],
+          "humanReviewRequired": true
+        }
+      },
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=eDNJvmRgqqY","title":"Pogo To Single Leg Stick-hold","channelName":"Coach Hos","sourceQuery":"adjacent terminal-stick interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent interpretation only; title cannot repair missing legacy contact facts."},
+        {"url":"https://www.youtube.com/watch?v=346nxpp5ZtU","title":"Single Leg Stationary Pogo Hop","channelName":"N2AthleteX Performance Training","sourceQuery":"adjacent repeated-pogo interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent repeated-pogo candidate; final action remains unknown."},
+        {"url":"https://www.youtube.com/watch?v=ggn5Iep046o","title":"Single Leg Pogo Stick Jumps","channelName":"Gaia Health","sourceQuery":"adjacent repeated-pogo interpretation","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T03:00:00.000Z"},"notes":"Adjacent candidate only; no source mapping or approval is inferred."}
+      ],
+      "alternateAssessments": [
+        {"name":"Stationary Single-Leg Pogo to Terminal Stick","classification":"same_identity","rationale":"Possible only if authoritative lineage establishes repeated contacts and a final same-leg hold.","distinguishingDimensions":{"possibleMapping":"single-leg-pogo:stationary-low-amplitude-to-terminal-stick"}},
+        {"name":"Single-Leg Hop to Stick","classification":"same_identity","rationale":"Possible only if authoritative lineage establishes one flight instead of a pogo series.","distinguishingDimensions":{"possibleMapping":"one_hop_then_stick"}},
+        {"name":"Stationary Single-Leg Pogo without Terminal Stick","classification":"same_identity","rationale":"Possible only if hold-stick was imprecise wording and no final hold was intended.","distinguishingDimensions":{"possibleMapping":"single-leg-pogo:stationary-low-amplitude"}},
+        {"name":"Contacts, Cadence, Amplitude, Hold, Rest, or Side Order","classification":"modifier_annotation","rationale":"These become modifiers only after contact sequence and final action are resolved.","distinguishingDimensions":{"modifiers":["contacts","cadence","amplitude","hold","rest","side_order"]}}
+      ]
+    }
+  ]
+}

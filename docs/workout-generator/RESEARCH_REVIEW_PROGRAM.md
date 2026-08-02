@@ -1823,3 +1823,1004 @@ checksum `3118654911`. The active queue now contains 30 unresolved pairs and no
 exact collision or score-85-or-higher pair. Canonical publication, media,
 relationships, calibration, and pilot readiness remain quarantined for human
 review.
+
+## Quarter-turn jump/hop identity resolution (migration 432)
+
+The old 90-degree hop and jump-turn sources do not contain enough information
+to distinguish bilateral from unilateral takeoff and landing, same-leg from
+opposite-leg landing, minimal from horizontal displacement, or a terminal
+stick from another exit. They are research evidence about ambiguous labels,
+not executable exercise identities, and remain archived without direct mapping.
+
+The authored bilateral card fixes two-foot takeoff and landing, a stationary
+start, exactly 90 degrees of aerial turn, minimal horizontal displacement,
+declared turn direction, controlled stick, and full reset. The authored
+unilateral card fixes one declared takeoff leg, same-leg landing, the same
+quarter-turn and terminal contract, and side accounting by leg and direction.
+Changing foot support, landing leg, rotation magnitude, approach, displacement,
+obstacle, contact count, or terminal action requires identity review; changing
+height, attempts, hold, rest, start orientation, or turn direction can be a
+delivery modifier only while the exact identity contract remains intact.
+
+The research rationale uses primary literature on unilateral versus bilateral
+landing biomechanics, whole-body mid-flight rotation and landing, entry-angle
+effects on landing mechanics, unilateral plyometric training, landing feedback,
+reactive-strength measurement, and direction-specific single-leg tasks. Those
+sources support the mechanics, dosage caution, fatigue/impact accounting, and
+difficulty rationale. They do not validate Vortex's exact authored cards,
+establish a universal safe dose, approve a score, prove injury prevention, or
+approve any video.
+
+Each exact card has five YouTube candidates and eight alternate assessments;
+each archived source has three candidates and seven alternates. All 16 links
+were availability- and embed-checked through oEmbed when the packet was built.
+That automation does not establish exact movement match or demonstration
+quality. Full playback, foot sequence, rotation, displacement, landing, cues,
+safety, captions, accessibility, reviewer identity, and approval remain human
+work. The two exact cards also have four review-only delivery profiles in
+total, bidirectional review-only progression/regression proposals, four
+review-only score anchors, and quarantined automated test packets.
+
+The resulting whole-library queue has 29 unresolved similarity pairs, zero
+exact collision, and no unresolved score at 85 or higher. Migration 432's nine
+deterministic boundary decisions are identity-only. Canonical publication,
+media approval, graph approval, independent difficulty calibration, coach
+pilot evidence, and rollout remain blocked until qualified reviewers complete
+their gates. Exercise difficulty is complexity plus physical difficulty with
+overall derived as their maximum; athlete skill/proficiency remains a separate
+skill-library concept.
+
+## Forward and rotational scoop-toss identity completion (migration 433)
+
+The focused batch preserves two exact movement contracts. The forward card is
+a stationary front-facing parallel-stance, two-hand underhand free-flight toss
+from a low start with no prescribed step, intentional jump, catch, or rebound.
+The rotational scoop is a release variant under the existing two-hand standing
+rotational-throw definition: it starts side-on with the ball low near the back
+hip, uses a controlled ground-up pivot, targets an inspected wall, finishes
+without a required catch, resets, and records dose by side. Forward complexity
+/ physical / overall difficulty is 50 / 32 / 50; rotational is 58 / 34 / 58.
+Overall is the maximum of exercise complexity and physical difficulty. Athlete
+skill or proficiency is not exercise-card metadata.
+
+The old countermovement source is not executable evidence. Its wording omits
+the facts needed to choose forward versus rotational projection and therefore
+remains archived, unscored, and explicitly unresolved. Migration 433 records a
+forward-versus-rotational distinct boundary, preserves the old source review
+queue, and adds a second review-required source-versus-rotational boundary. It
+does not resurrect the rotational scoop as a duplicate definition.
+
+The primary literature and professional sources support standardized throw
+protocols, position- and direction-specific mechanics, measured-output
+reliability, trunk demand, low-repetition explosive intent, and controlled
+space and equipment. They do not validate the exact Vortex-authored contracts,
+approve the proposed scores, establish universal load or fatigue thresholds,
+prove injury prevention, or approve media.
+
+The generated batch contains 16 candidate evidence sections per card, five
+candidate videos and eight alternate assessments per exact card, and three
+adjacent videos plus seven alternates for the archived source. All 13 links
+were oEmbed-healthy and embeddable when checked. Full playback, exact movement,
+instruction quality, safety, captions, accessibility, reviewer identity, and
+approval remain human work. Four contextual profiles, two lateral-substitution
+proposals, four score anchors, and three automated card packets also remain in
+review or quarantine.
+
+The resulting whole-library queue has 28 unresolved similarity pairs, zero
+exact collisions, and no unresolved score at 85 or higher. Publication, exact-
+match media review, graph approval, independent score calibration, accessible
+member comprehension testing, coach pilot evidence, and staged rollout remain
+blocked until qualified reviewers complete their gates.
+
+## Lateral low-hurdle clearance research completion (migration 434)
+
+The research batch separates obstacle identity from support identity. A raised
+low hurdle is not a cosmetic annotation on a ground-only jump or hop: it adds a
+minimum clearance path, trip exposure, equipment inspection, landing-location
+requirements, lane control, and different failure consequences. Bilateral and
+same-leg support are also not difficulty labels; they change takeoff and
+landing mechanics, load distribution, laterality, side accounting, and
+readiness. They therefore receive separate exact definitions.
+
+The evidence set uses primary research on unilateral versus bilateral landing
+biomechanics, hurdle-jump training specificity, hurdle-height effects, and
+standardized landing assessment, plus professional instruction for lateral
+jumping and YouTube's own embedding documentation. These sources support the
+identity boundaries, anatomy, constraints, load and fatigue tracking, dosage
+caution, observable quality gates, and score rationale. They do not approve
+Vortex's authored cards, scores, doses, universal hurdle heights, injury-
+prevention claims, or media.
+
+The ambiguous source remains archived and unscored. It may map to the exact
+bilateral or same-leg card only if authoritative source evidence supplies the
+missing takeoff and landing support, obstacle dimensions, contact count,
+landing zone, hold, exit, and reset. The older generic
+`low-hurdle-hop-to-stick` likewise remains in human review against both exact
+lateral cards because its projection direction and foot contract are absent.
+This quarantine is intentional and is not a backlog permission to guess.
+
+The generated three-card packet contains all 16 candidate evidence sections
+per card, five oEmbed-healthy title-level candidates per exact card, three
+adjacent candidates for the source, and 25 alternate assessments. Automated
+availability establishes only link and embed health. Full playback, exact
+movement contract, instruction quality, safety, captions, accessibility,
+reviewer identity, and media approval remain required. Four calibration rows
+and six progression/regression rows remain review-only.
+
+Difficulty is 48 complexity / 44 physical / 48 overall for the bilateral task
+and 60 / 52 / 60 for the same-leg task; overall is the maximum of the two
+exercise dimensions. Athlete skill or proficiency is not exercise metadata.
+Disposable PostgreSQL verifies zero non-null legacy exercise skill levels and
+zero non-null exercise-safety minimum-skill levels. Skill levels remain solely
+in the skill-card library.
+
+The final queue has 29 unresolved similarity pairs, zero exact collision, and
+no score-85-or-higher unresolved pair. Canonical publication, human media
+review, approved relationship depth, independent difficulty calibration,
+accessible member comprehension testing, coach pilot evidence, and staged
+rollout remain blocked until qualified reviewers complete those gates.
+
+## Rotational bound and broad-jump identity completion (migrations 435–436)
+
+The focused research distinguishes support, displacement, turn angle, and
+terminal state as identity-bearing facts. An opposite-leg rotational bound is
+one declared-leg takeoff followed by an opposite-leg landing. A bilateral
+rotational broad jump uses simultaneous two-foot takeoff and landing plus
+purposeful horizontal displacement. A bilateral quarter-turn jump in place
+shares a 90-degree finish but requires minimal displacement. A half-turn card
+names 180 degrees and therefore cannot be treated as a quarter-turn alternate.
+These changes are movement definitions, not athlete-level classifications.
+
+The exact opposite-leg card fixes one stationary forward-diagonal flight, a
+90-degree whole-body turn, rotated landing target, terminal single-leg hold,
+safe exit, and full reset. The exact bilateral card fixes the same angle and
+terminal state with a two-foot broad-jump support contract. Their proposed
+complexity / physical / overall scores are 68 / 66 / 68 and 64 / 60 / 64.
+Overall is derived as the maximum. The two vague legacy sources remain
+archived, unscored, and unresolved against all plausible exact mappings.
+
+The evidence set uses primary research on mid-flight whole-body rotation,
+rotational versus straight landings, unilateral versus bilateral landings,
+direction- and load-dependent single-leg jump landings, jump-entry angle, and
+standing broad-jump target control. These sources support the mechanical
+boundaries, anatomy, measurement, dosage caution, impact and fatigue tracking,
+and score rationale. They do not validate Vortex's exact authored exercises,
+approve a score or dose, establish universal safety thresholds, prove injury
+prevention, or approve media.
+
+The generated four-card packet has all 16 candidate evidence sections per
+card. Each exact card has five current oEmbed-healthy title-level candidates
+and nine alternate assessments; each archived source has three adjacent
+candidates and seven alternates. Automated oEmbed checks establish link and
+iframe availability only. Full playback must verify support, 90-degree angle,
+projection, body orientation, contacts, landing, hold, reset, instruction
+quality, safety, captions, accessibility, reviewer identity, and demonstration
+quality before any candidate can be approved.
+
+Four contextual profiles cover high-quality Output and submaximal Movement
+Intelligence delivery. Six progression/regression proposals and four score
+anchors remain review-only. Generation support requires exact variant/profile
+selection, marked start and finish headings, clear flight/fall/exit space,
+side and direction balance, complete attempt/contact accounting, cumulative
+impact and technical-fatigue budgets, duration recalculation after every
+substitution, validation of replacement identity and logistics, persisted
+substitution rationale, and separate coach/athlete rendering.
+
+The final queue has 28 unresolved pairs, zero exact collisions, and no
+unresolved score at 85 or higher. The remaining work is deliberately human-
+gated: full media review, independent score calibration, graph review,
+accessible-member comprehension testing, card approval, a real coach pilot,
+published phase depth, and staged rollout. Exercise cards remain free of skill
+or proficiency levels; those classifications remain solely in the skill-card
+library.
+
+## Single-leg hop and pogo review packet and final queue closure (migrations 437–440)
+
+The focused hop research treats projection direction, support leg, flight and
+contact count, intermediate rebound policy, terminal contact, exit, and reset as
+identity-bearing facts. Vertical and horizontal single-leg hops are not aliases:
+their projection and landing demands differ. A one-flight hop-to-stick is also
+not a repeated pogo, and a repeated pogo with a declared final same-leg hold is
+not the same delivery as one that exits under control without a terminal stick.
+
+Migration 437 therefore authors exact review candidates for stationary
+same-leg vertical and forward hop-to-stick work and an exact terminal-stick
+pogo variant. Its five-card batch has all 16 evidence sections per card, 21
+candidate links, 35 alternate assessments, eight contextual profiles, ten
+relationship proposals, eight score proposals, and five automated quarantine
+packets. Current links passed YouTube oEmbed availability when checked; that
+does not establish full playback, exact movement match, cue accuracy, safety,
+captions, accessibility, or demonstration quality. Every such field and every
+reviewer/approval field remains unset.
+
+Migrations 438 and 439 use the accumulated source audits to close the remaining
+similarity queue. Exact mechanics are recorded as distinct only when both
+contracts supply the differing fact. When a source omits support, direction,
+contacts, ordered actions, target, stimulus, terminal action, or reset, the
+source is archived and its earlier `needs_human_review` evidence is retained.
+No adjacent video, common interpretation, or similar name is used to invent a
+mapping. The final score-72+ queue is zero with zero exact collision.
+
+Migration 440 is an operational backfill, not research approval. It supplies
+provisional exercise-complexity and physical-difficulty records for 11 legacy
+Needs Engine cards and exact default dosage profiles for 19 other published
+legacy cards, taking that audit to 1,567/1,567 passing. The records explicitly
+require calibration/program review and create no canonical release, media,
+graph, or score approval.
+
+Human work remains the limiting factor. All 1,050 active canonical definitions
+are quarantined; research-section review, exact media review, alternate review,
+independent score calibration, progression/substitution review, accessible
+member comprehension, coach approval, a real coach pilot, and published phase
+depth are still required before production release.
+
+## Box / Drop / Depth review cohort (migrations 441–442)
+
+Review the three baselines as separate contracts. Box Jump must show a
+stationary bilateral floor takeoff, whole-foot box landing, stabilization,
+stand, and step-down. Drop Jump must show a true step-off and shallow
+short-contact bounce strategy. Depth Jump must show a true step-off and one
+continuous countermovement without a pause, with maximal vertical rebound as
+the primary outcome. A title containing “drop” or “depth” is not sufficient.
+
+For every one of the five candidates per card, a qualified reviewer must watch
+the full item and record exact sequence and strategy, arm policy, platform
+relationship, first and final contacts, rebound direction, reset, cue accuracy,
+unsafe advice, captions, accessibility, and demonstration quality. The current
+healthy oEmbed state is only a discovery and embed-availability check.
+
+Independently calibrate the proposed 42/44, 58/64, and 60/68 complexity/physical
+scores against approved anchors. Then review the six graph proposals with
+their objective-specific conditions. In particular, Drop Jump and Depth Jump
+are not interchangeable for strategy-specific objectives even though a
+review-only lateral substitution may be appropriate for a broader vertical-
+rebound objective after complete dose, impact, logistics, duration, and
+rendering revalidation.
+
+Migration 442's seven identity decisions are identity-only. If later card
+review finds that a neighboring source lacks the mechanical fact asserted by
+its current contract, quarantine that source for re-authoring; do not convert
+the identity decision into media, score, graph, or publication approval.
+
+## Floor vertical-jump review cohort (migrations 443–444)
+
+Review Squat Jump, Countermovement Jump, and Countermovement Jump Rebound as
+three exact start/contact contracts. For Squat Jump, confirm lower-body
+stillness for the declared pause, fixed hands, no new dip, one flight, and a
+controlled bilateral finish. For Countermovement Jump, confirm stationary
+entry, one natural-arm countermovement, one flight, minimal travel, and a
+controlled bilateral finish. For CMRJ, confirm a high active first CMJ,
+simultaneous first landing, one immediate vertical rebound, exactly two
+flights, controlled final landing, and reset.
+
+Each card has five current oEmbed-healthy candidates. Reviewers must watch the
+entire item and record start strategy, arm policy, takeoff/landing laterality,
+flight/contact count, rebound strategy, terminal state, reset, cue accuracy,
+unsafe advice, captions, accessibility, demonstration quality, and exact
+baseline match. oEmbed health and title similarity are never approval.
+
+Independently calibrate the proposed 40/44, 42/46, and 54/58
+complexity/physical scores. Review the six new graph proposals and the
+normalized Countermovement-Jump-to-Box-Jump edge. A static-start jump is not a
+less-skilled label; it is a different exercise start. CMRJ and Drop Jump may be
+reviewed as objective-dependent substitutions only after entry, metrics,
+equipment, dose, impact, duration, logistics, and rendering are revalidated.
+
+The independent card auditor confirms that all machine-actionable fields pass.
+The remaining four blockers per card are human media, graph, calibration, and
+publication gates. Do not change those statuses without real qualified review.
+
+## Bilateral horizontal-jump review cohort (migration 445)
+
+Review the four cards against exact purpose and contact contracts:
+
+- Standing Broad Jump: stationary behind a line, one natural-arm
+  countermovement, one maximal bilateral horizontal flight, valid bilateral
+  landing, no backward touch, and consistent nearest-mark measurement.
+- Broad Jump to Stick: stationary start, one natural-arm countermovement, one
+  horizontal flight, bilateral landing, 2–3 second hold without another
+  contact, and full reset.
+- Repeated Broad Jump: a declared flexible count of at least two bilateral
+  jumps, no pause at intermediate contacts, stable forward lane, and a held
+  final landing.
+- Triple Broad Jump: exactly three maximal linked bilateral jumps, no pause,
+  valid final landing, and standardized total-distance measurement.
+
+Each card has five currently healthy embed candidates. Review the full video
+for start, arm policy, projection, laterality, jump and landing count,
+intermediate contact behavior, terminal state, measurement, cue accuracy,
+unsafe advice, captions, accessibility, and demonstration quality. Title and
+oEmbed health are discovery evidence only.
+
+Independently calibrate 46/52, 44/48, 54/62, and 58/66 complexity/physical
+scores. Review the six new relationship proposals and four explicit identity
+boundaries. Sequence count can be dosage for Repeated Broad Jump, but the exact
+three-jump measured test remains a separate contract. Never convert any score
+or card into an athlete proficiency classification.
+
+## Drop-landing terminal-stick review cohort (migration 446)
+
+Review bilateral and unilateral drop landings as separate first-contact stick
+contracts. Both require a secured elevated platform, a deliberate step-off
+without upward or outward jump, one flight, the prescribed terminal support,
+controlled absorption, a declared hold, and full reset. For unilateral work,
+also verify landing side, lead foot, free-foot clearance, and balanced side
+dose. Platform height is recorded for every attempt.
+
+Each card has five current oEmbed-healthy candidates. Review the entire item
+for platform security, departure, flight and landing count, direction,
+laterality, free-foot behavior, rebound or hop, terminal hold, reset, cue
+accuracy, unsafe advice, captions, accessibility, and demonstration quality.
+The title and embed response do not prove an exact or approved demonstration.
+
+Independently calibrate the proposed 46/52 and 58/62 complexity/physical
+scores. Review the six graph proposals and all eight identity boundaries.
+Lead-foot effects and bilateral-versus-unilateral biomechanics support explicit
+recording and separate terminal-support identities, but research evidence does
+not supply reviewer approval. Do not turn platform height, laterality, or any
+exercise difficulty score into an athlete skill classification.
+
+The automated audit leaves only media, graph, calibration, and publication
+human gates. Record qualified reviewer identity, full-video findings, reasons,
+and timestamps; otherwise keep both cards quarantined.
+
+## Floor-bridge cohort review packet
+
+Source-registry version `2026-08-02.62` adds the supine-bridge narrative
+review, modified single-leg and trunk-activation studies, ankle-position EMG,
+single-leg hamstring fMRI, long-lever force/testing rigor, and ACE/NASM
+instruction sources used by migration 448. These sources support candidate
+mechanics, anatomy, setup, dosage, and safety claims; they do not supply Vortex
+reviewer approval.
+
+Review the four identities separately: bilateral dynamic, bilateral
+isometric, unilateral dynamic, and unilateral isometric. For every variant,
+verify contraction mode, support count and side, upper-trunk support, foot
+distance, knee and ankle position, free-leg position, external-load contact,
+range, tempo or hold time, side dose, breathing, exit, and stop rules. Do not
+convert any exercise-difficulty score into an athlete skill classification.
+
+Each card has five current oEmbed-healthy candidates. Watch every candidate in
+full and record identity/variant exactness, title and channel accuracy,
+implement and load contact, cue safety, unsafe advice, captions, accessibility,
+demonstration quality, reviewer identity, reason, and timestamp. A title and
+oEmbed response prove only current link/embed health.
+
+Independently calibrate all 18 complexity/physical score proposals and review
+the 11 progression, regression, substitution, and equipment-equivalence
+proposals. The automated audit leaves only media, graph, calibration, and
+publication gates; keep every card quarantined until qualified reviewers
+complete those gates.
+
+## Single-Leg Romanian Deadlift cohort review packet
+
+Source-registry version `2026-08-02.63` adds direct Single-Leg Romanian
+Deadlift loading-position EMG, flywheel-training, hamstring-cohort, ACE
+technique, and NSCA technique sources. It also records that PMID 24978835 is
+superseded for this family because that paper compares stiff-leg deadlift with
+leg curl. Research supports candidate mechanics, anatomy, loading, and coaching
+claims; it does not provide Vortex approval.
+
+Review the stable identity across all active variants. Verify stance side,
+free-leg trajectory, trunk/pelvis control, hip-hinge action, knee strategy,
+reach target, external support, implement, load contact, contralateral or
+ipsilateral loading, bilateral handheld or barbell loading, range, tempo,
+assisted return, repetitions, side dose, rest, pickup/set-down, exit, and stop
+rules. Distance Jump, Throwing, and Kicking are programming contexts, not new
+exercise identities. Never convert an exercise-difficulty score into an
+athlete skill classification.
+
+Watch each of the five candidate videos in full. Record identity and exact-
+variant match, title/channel accuracy, stance and loading side, setup and exit,
+cue safety, unsafe advice, captions, accessibility, demonstration quality,
+reviewer identity, reason, and timestamp. A successful oEmbed request proves
+only that the URL currently returns embeddable metadata.
+
+Independently calibrate the 20 complexity/physical anchors and review all 18
+progression, regression, substitution, and equipment-equivalence proposals.
+The automated packet has exactly four unresolved human gates: media, graph,
+calibration, and publication. Keep the card quarantined until qualified
+reviewers complete each gate.
+
+## Cossack Squat current-contract review packet
+
+Source-registry version `2026-08-02.64` adds PMID 30026952 and the Monash
+University Cossack Squat guide. The first is adjacent evidence showing that
+stance width and foot angle affect bilateral-squat mechanics; it is not direct
+Cossack validation. The second directly describes candidate Cossack technique.
+Neither establishes one universal stance, foot angle, depth, cue, dose, score,
+or Vortex approval.
+
+Review all eleven active variants separately. Confirm stance, working side,
+contralateral long-leg action, foot-contact rule, pain-free owned range,
+support type/height/pressure, hold or pry, terminal stick, tempo, reach
+direction, exact implement/load position, pickup/set-down, repetitions or hold
+seconds, balanced side dose, rest, fatigue budget, exit, and stop rules. Do not
+restore the two archived unresolved placeholders unless a qualified reviewer
+can identify the missing reach or loading contract from authoritative source
+material.
+
+Watch the five current YouTube candidates in full. Record identity and exact-
+variant match, title/channel accuracy, range, support/load, cue safety, unsafe
+advice, captions, accessibility, demonstration quality, reviewer identity,
+reason, and timestamp. Current oEmbed title/channel/embed metadata is not a
+playback or content review.
+
+Independently calibrate all 22 active complexity/physical anchors and review
+the 17 outgoing relationship proposals. The packet has exactly four human
+gates—media, graph, calibration, and publication—and remains quarantined until
+qualified reviewers complete them.
+
+## Floor Press current-contract review packet
+
+Source-registry version `2026-08-02.65` adds six Floor Press sources: direct
+isometric Floor Press validity, adjacent bench-press range/sticking-region and
+grip/EMG studies, and direct NASM and BarBend technique guidance. PMID 23096062
+is explicitly removed from the family because it studies shoulder presses,
+not Floor Press. Direct dynamic Floor Press outcome evidence remains sparse;
+adjacent bench evidence must not be presented as direct validation.
+
+Watch candidate videos `9vcKpv45aeE`, `77gWg_ZA8Kg`, `T0Y3OBF1bNI`,
+`uUGDRwge4F8`, and `i1yoygDuZlA` in full. Record identity and exact-variant
+match, title/channel accuracy, implement and arm pattern, grip, range boundary,
+floor transfer and setup, cue safety, unsafe advice, captions, accessibility,
+demonstration quality, reviewer identity, reason, and timestamp. Current
+oEmbed results prove link/embed metadata health only.
+
+Review the nine active variants independently, including safe pickup/set-down
+or rack/safety/spotting requirements, floor clearance, dosage, rest, fatigue
+budget, substitutions, exit conditions, and stop rules. Separately adjudicate
+the 12 alternate-definition assessments, especially the pin, isometric,
+bridge, dead-bug, and fly boundaries; do not silently promote them to variants.
+
+Independently calibrate all 18 complexity/physical anchors and review the 16
+progression, regression, substitution, and equipment-equivalence proposals.
+The packet has exactly four unresolved human gates—media, graph, calibration,
+and publication—and remains quarantined until qualified reviewers complete
+each gate.
+
+## Rotational Ball Slam current-contract review packet
+
+Source-registry version `2026-08-02.66` adds the Army H2F Rainbow Slam source
+and records direct ACE technique, ACE ball-type guidance, adjacent rotational-
+throw test evidence, and adjacent upper-body plyometric evidence. Direct
+dynamic floor-slam outcome research remains sparse. Reviewers must preserve
+the direct/adjacent distinction and must not turn ACE's consumer experience
+label into an athlete skill level on an exercise card.
+
+Review the stationary diagonal, stationary rainbow arc, and step-behind
+diagonal variants independently. Confirm ball construction, slam rating, mass,
+and rebound; entry and trajectory; overhead range; side pattern and balanced
+dose; foot/hip/trunk sequence; release mark; controlled finish; catch or
+retrieval; rest; lane and traffic; cumulative fatigue; ball impacts; duration;
+substitution handling; and all stop rules. Athlete landing impact is zero while
+ball-to-floor impact is one per attempt and must be budgeted separately.
+
+Watch candidates `xYANsh80ErM`, `wK9DwFTt1YQ`, `vf61IsovxKo`, `eZ0I7FmJ1A0`,
+and `9CKf3Yc2FMk` in full. Record identity and exact-variant match, title and
+channel, ball and rebound behavior, entry, trajectory, side pattern, release
+zone, finish, catch/retrieval, cue safety, unsafe advice, captions,
+accessibility, demonstration quality, reviewer identity, reason, and
+timestamp. Current oEmbed results prove metadata and embed health only.
+
+Adjudicate the 12 alternate assessments and six relationship proposals, then
+independently calibrate the six complexity/physical score anchors. Side-to-side
+alternation remains a delivery annotation unless authoritative evidence shows
+a new identity contract. The packet has exactly four unresolved human gates—
+media, graph, calibration, and publication—and remains quarantined until
+qualified reviewers complete each gate.
+
+## One-Arm Row current-contract review packet
+
+Source-registry version `2026-08-02.67` adds direct ACE bench-supported row,
+NSCA single-arm bent-over row, Strength and Conditioning Journal landmine-row,
+ACE kettlebell-row, and Onnit landmine-suitcase technique sources. PMID
+19620925 is adjacent biomechanics: it compares inverted, standing bent-over,
+and one-arm cable rows, not these dumbbell or landmine variants. Preserve that
+boundary in all review notes and claims.
+
+Review the four active variants independently. Confirm implement, hand and
+working side, support contacts, stance and orientation, landmine anchor and
+attachment where applicable, grip, load, pull target, owned range, trunk and
+pelvis policy, shoulder/scapula and elbow path, controlled eccentric, pickup
+and set-down, repetitions per side, reserve, rest, duration, cumulative pull/
+grip/trunk/hinge fatigue, recovery, lane/traffic, substitution behavior, and
+all quality and stop rules.
+
+Watch candidates `KRN38chlkds`, `k2kVniB5eQI`, `zvATS076NVA`, `TKmtHtY7yNo`,
+and `2bjH8LMo6DM` in full. Record identity and exact-variant match, support,
+stance, implement, handle, side, target, range, trunk policy, shoulder/elbow
+path, eccentric, pickup/set-down, cue safety, unsafe advice, captions,
+accessibility, demonstration quality, conflicts, reviewer identity, reason,
+and timestamp. Current oEmbed responses establish link/title/channel/embed
+health only.
+
+Do not restore Landmine Gorilla Row source 1441 or Landmine Ball-Grip Row source
+1448 until qualified reviewers obtain authoritative specifications for their
+missing sequence, hand count, support/orientation, handle geometry, and
+repetition contract. Adjudicate the 12 alternates and eight relationship
+proposals, then independently calibrate all eight complexity/physical anchors.
+The packet has exactly four unresolved human gates—media, graph, calibration,
+and publication—and remains quarantined until qualified reviewers complete
+every gate.
+
+## Short Acceleration Sprint current-contract review note
+
+Migration 454 adds no source, candidate media, relationship proposal,
+calibration anchor, or approval. It normalizes machine-audited fields on the
+existing 20-source research packet and preserves all review boundaries from
+migrations 419 through 421. Registry version `2026-08-02.67` and its 263
+sources are therefore unchanged.
+
+Reviewers must continue to assess all eight variants independently. Confirm
+the exact start and lead side, stillness or cue contract, surface and weather,
+lane clearance, marked distance, effort, first projection and early steps,
+arm-leg coordination, finish and run-out, rest, cumulative exposure, symptoms,
+duration, and substituted identity. The walk-in two-point and build-up three-
+point variants must remain nonselectable unless direct evidence resolves their
+identity and delivery boundaries.
+
+Difficulty review concerns exercise complexity and physical difficulty only;
+it must not add an athlete skill level to an exercise or safety card. Candidate
+media require complete human playback and exact-variant, caption,
+accessibility, safety, demonstration-quality, reviewer, reason, and timestamp
+records. Graph proposals and score anchors require their independent reviews,
+followed by two-person publication review. Until then, the packet retains
+exactly the media, graph, calibration, and publication gates.
+
+## Push-Up family review packet
+
+Registry version `2026-08-02.68` adds the NASM Push-Up technique page and direct
+research on Push-Up kinetics, elevation effects, suspension/torso activation,
+stable-versus-unstable activation, and hand-position activation. Review claims
+against their actual scope. PMID 38156065 must not be restored: it studies
+standing versus seated calf raises and is unrelated to Push-Up execution.
+
+Review all 11 active variants independently. Confirm hand and lower support,
+support height/body angle, hand base/orientation, side pattern and balanced
+dose, range and bottom target, full-cycle or eccentric-only contraction,
+assisted reset, external vest mass/retention, ring anchor/strap behavior,
+body-line and scapular policy, shoulder/elbow/wrist path, repetition validity,
+reserve, rest, cumulative local/wrist/shoulder/trunk/eccentric fatigue,
+recovery, station/traffic, duration, substitutions, and controlled exit.
+
+Watch candidates `WDIpL0pjun0`, `0JUrOH--Kdk`, `DBz85WuXqMk`, `6KfBJQcRpYw`,
+and `A0r8ploEnZY` in full. Record exact identity/variant, support, body angle,
+hand base, side, range, contraction and return, external load, body line,
+scapular/shoulder/elbow/wrist behavior, cue safety, unsafe or conflicting
+advice, captions, accessibility, demonstration quality, reviewer identity,
+reason, and timestamp. Current oEmbed responses prove metadata/embed health
+only.
+
+Do not restore generic One-Arm Push-Up Progression source 585 until original
+authoritative evidence supplies the working hand, assistance/counterbalance,
+foot base, hand position, range, repetition sequence, and return strategy.
+Adjudicate all 18 alternate assessments and 22 graph proposals, then have an
+independent reviewer calibrate all 22 complexity/physical-difficulty anchors.
+The packet remains quarantined by exactly media, graph, calibration, and
+publication review; no candidate or machine decision is an approval.
+
+## Reverse Lunge review packet after migration 456
+
+Registry `2026-08-02.69` adds direct reverse-lunge kinetics from PMCID
+PMC4641539. It also registers PMID 30676181 on lunge loading devices, PMID
+36981573 on lunge load distribution and trunk activity, PMCID PMC8136561 on
+trunk position in static/forward/walking lunges, and an ACE dumbbell-workout
+instruction. Only PMC4641539 directly compares reverse lunges. Preserve the
+adjacent-evidence boundary in every claim and review note.
+
+Migration 456 deliberately keeps source 380 archived until original evidence
+specifies its barbell rack position; source 421 until implement count and
+dumbbell carry are known; source 473 until implement count and kettlebell carry
+are known; and source 1009 until the sandbag hold is known. Do not restore
+those sources from generic labels or video titles. Source 753 is retained as a
+slow-eccentric full-cycle modifier, not an eccentric-only repetition, because
+its authored instructions include the return to standing.
+
+Candidates `RZKXLMxPF_I`, `v791YUqiE-o`, `xrPteyQLGAo`, `1cXnW986vqU`,
+`Vlgh0ImT5oU`, `MpfeGnBFEo8`, `2D4xApe-UFU`, and `43WpRP4pWaM` returned HTTP
+200 oEmbed metadata with title, channel, and embed HTML on 2026-08-02. The
+first five are persisted as candidates only; review all eight before replacing
+or approving the three-to-five final links. Record exact variant, working/front leg,
+step-back and return contract, implement count and position, bar rack or ball
+hold, range and rear-knee behavior, trunk policy, foot/knee/hip alignment,
+side-dose balance, cue safety, conflicts, captions, accessibility,
+demonstration quality, reviewer identity, reason, and timestamp.
+
+The three active variants use exercise complexity and physical difficulty only,
+with overall equal to their maximum. Athlete readiness belongs in workout
+selection and delivery context; no exercise or safety skill level exists.
+Independently review the six proposed substitution/progression relationships
+and six score anchors. The family remains quarantined by media, graph,
+calibration, and publication review only; machine completion and oEmbed health
+do not make it rollout-ready.
+
+## Lateral Lunge review packet after migration 457
+
+Registry `2026-08-02.70` adds PMCID PMC8805090 as direct laboratory evidence
+for side-lunge patellofemoral loading. The NSCA lunge-technique source is
+adjacent technique context, and the ACE dumbbell-workout source is compound
+instruction because its lateral lunge is followed by a shoulder raise. Do not
+present either adjacent source as direct validation of the exact canonical
+bodyweight step-out contract.
+
+Review candidate videos `tmhESsZcpDY`, `14JjPgcZAdI`, `ppcfjd9WVj0`,
+`vwOrd9umMOc`, and `4m9R6PijpWI` in full. Confirm bodyweight step-out identity,
+both-side delivery, start stance, lateral step, foot and knee path, hip shift,
+depth/range, trunk behavior, push-off and complete return, repetition validity,
+symptom and stop guidance, captions, accessibility, cue safety, conflicting
+advice, demonstration quality, reviewer identity, reason, and timestamp. The
+current records prove only that title, channel, and embeddable oEmbed metadata
+responded during discovery.
+
+Do not restore six ambiguous sources from their labels or candidate media.
+Source 63 mixes a fixed wide-stance shift with a step-out; source 174 omits
+dumbbell count and hold; source 385 omits barbell rack position; source 475
+omits kettlebell count, carry, and load side; source 1010 omits sandbag hold and
+contains extraneous carry/drag instructions; source 1328 leaves both optional
+implement and step/load protocol unresolved. Obtain and cite original
+authoritative specifications before authoring any exact loaded variant.
+
+Source 752 is a slow-eccentric full-cycle dosage modifier because its authored
+repetition includes the return. Source 1055 must remain mapped to the Cossack
+Squat family: despite its `Bodyweight Lateral Lunge` label, the executable
+instructions prescribe a fixed wide stance and lateral shift with no step-out.
+Review identity from the movement contract, not name similarity.
+
+The active variant uses exercise complexity and physical difficulty only,
+with overall equal to their maximum; neither exercise nor safety cards receive
+athlete skill/proficiency. Independently adjudicate the 18 alternate
+assessments, six proposed relationships, and two score anchors, then complete
+the two-person publication review. Until then the packet remains quarantined
+by exactly media, graph, calibration, and publication gates.
+
+## Medicine Ball Shot-Put review packet after migration 458
+
+Migration 458 supersedes the older candidate assumption that a generic
+`Medicine Ball Shot-Put Throw` label or a forward-facing video title was enough
+to establish an executable forward-facing baseline. It also refines the family
+model: forward-facing, static side-on, stepping, kneeling, partner, wall-catch,
+and open-lane executions share a unilateral shoulder-level shot-put release but
+remain separate exact variants when orientation, stance, entry, pivot, target,
+receiver, return, or catch changes. Bilateral chest, scoop, rotational throw,
+overhead, and slam releases remain distinct definitions.
+
+All seven legacy sources remain identity-quarantined. Obtain original
+authoritative specifications for orientation, throwing side, stance and lead
+leg, ball start and hand placement, permitted foot/pivot action, entry, target
+or receiver, wall/rebound behavior, catch or no-catch return, finish, reset,
+side order, ball mass/type, dose, and rest before restoring any source-derived
+variant. Do not reconstruct these facts from names, aliases, thumbnails, video
+titles, or oEmbed responses.
+
+Review the authored static side-on, wall, no-catch working specification as a
+new content decision. Confirm whether the declared rear-shoulder ball start,
+static stance, natural pivot inside marked foot positions, ground-up sequence,
+wall target, balanced finish, protected rebound zone, wait/retrieve/full-reset
+contract, and equal side dose are coherent and safe. This working specification
+is not represented as source approval or universal best practice.
+
+Watch candidates `KtzuEYn0DmY`, `WBUDq_5DGG0`, `EXV9UhUMTiY`,
+`wX4tcyR-61w`, and `GTK8P0IOCTI` in full. Their titles, channels, and embed HTML
+returned current HTTP-200 oEmbed metadata on 2026-08-02. Record exact stance,
+orientation, entry, ball position, hand placement, foot/pivot action, target,
+release, catch/retrieval, finish, reset, side demonstration, ball type, unsafe
+or conflicting advice, captions, accessibility, demonstration quality,
+reviewer identity, reason, and timestamp. Metadata health is not playback or
+content verification.
+
+Review PMIDs 39589937, 37833510, 22744301, 41460695, and 21572350 only within
+their actual protocols and populations. PMID 39589937 directly supports a
+standardized rotational medicine-ball power test; seated and supine tests and
+the upper-body plyometric meta-analysis are adjacent. Track-and-field shot-put
+biomechanics must not be presented as direct validation of this medicine-ball
+variant. The NSCA youth position statement supports qualified supervision and
+progression, not exact adult shot-put technique.
+
+Difficulty review concerns exercise complexity and physical difficulty only;
+it must not add athlete skill/proficiency to exercise or safety cards.
+Independently adjudicate all 18 alternates, four graph proposals, and two score
+anchors, then complete separate content review and publication approval. The
+packet retains exactly media, graph, calibration, and publication blockers.
+
+## Suitcase Carry review packet after migration 459
+
+Registry `2026-08-02.71` adds four research sources. PMID 38665162 directly
+distinguishes farmer carry, suitcase carry, farmer hold, and suitcase hold and
+reports trunk activation under the tested conditions. PMID 34051700 directly
+examines hip/trunk activity and mechanics while walking with unilateral weight.
+PMID 36557001 is adjacent postural-gait context, not a loading threshold or
+clinical prescription. PMID 31820223 is an adjacent strongman systematic
+review and explicitly describes gaps in unilateral-carriage biomechanics.
+Review claims within those populations and protocols; do not turn surface-EMG
+findings into universal muscle rankings, injury-prevention claims, clinical
+indications, or safe-load rules.
+
+Review the three authored working specifications separately: dumbbell straight
+lane, kettlebell straight lane, and dumbbell single-line walk. Confirm one
+implement, loaded hand, handle and mass, side-of-thigh position, pickup and
+still start, natural-width or exact single-line foot rule, straight no-turn
+route, pace, distance and time ceiling, trunk/pelvis allowance, free-arm rule,
+finish, set-down, early exit, side order, rest, valid-distance rule, and
+recovery. These are research-authored candidate contracts, not approved legacy
+source restorations.
+
+Do not restore any of the seven legacy variants from their names. Sources 204,
+452, 504, and 559 inform the family or alternate assessment but omit at least
+one exact route, foot, turn, pace, hand-order, pickup, finish, or set-down fact.
+Source 1028 needs an authoritative sandbag handle/grip/position contract.
+Source 1340 needs a complete executable carry specification. Source 1470 needs
+an authoritative decision between in-place and traveling march plus knee
+height, cadence, route, and terminal action.
+
+Watch candidates `zFje79PZsxQ`, `IZ0aGhu24c8`, `z4WJXcx19WQ`,
+`LJaq4BS7KpE`, and `Fko5Hp537us` in full. Their link, title, channel, and embed
+HTML returned HTTP-200 oEmbed metadata on 2026-08-02. Record exact implement,
+hand, pickup, route, turn, pace, foot path, trunk/pelvis behavior, finish,
+set-down, both-side demonstration, unsafe or conflicting advice, captions,
+accessibility, demonstration quality, reviewer identity, reason, and timestamp.
+Metadata health is not playback or content verification.
+
+Difficulty review concerns exercise complexity and physical difficulty only;
+it must not add athlete skill/proficiency to exercise or safety cards.
+Independently adjudicate all 21 alternates, eight graph proposals, and six score
+anchors, then complete separate content review and publication approval. The
+packet retains exactly media, graph, calibration, and publication blockers.
+
+## Bent-Knee Soleus Raise review packet after migration 460
+
+Registry `2026-08-02.72` adds five sources. PMID 38156065 is direct 12-week
+within-person evidence comparing standing knee-extended and unilateral seated
+knee-flexed machine training in 14 untrained adults; it supports a knee-
+position distinction and similar soleus hypertrophy under that protocol, not
+pure muscle isolation or universal programming. PMID 28145739 directly
+compares estimated Achilles loading across seated and standing heel-raise
+conditions in 21 healthy men; it is not a clinical load prescription. PMID
+37015022 reports acute swelling after high-repetition work in 17 young women,
+so it is an acute proxy rather than longitudinal adaptation evidence. PMID
+22190157 found only a modest soleus-activity increase with knee flexion in 48
+healthy adults. The NSCA technique article provides adjacent professional
+instruction for a single-leg seated dumbbell/kettlebell version. Preserve
+those population, protocol, and measurement limits.
+
+Review the bilateral bodyweight-floor, unilateral-machine, and single-leg
+dumbbell-floor working specifications independently. Confirm seat and support,
+knee angle, side contract, one-foot or two-foot contact, implement and count,
+load position, foot surface, heel clearance, start, full controlled range,
+tempo, pause or bounce rule, repetition validity, finish, unloading, side
+switch, dose, rest, symptom response, and cumulative calf/Achilles/running/
+sprint/jump exposure. Confirm that `soleus-biased, not isolated` remains the
+appropriate claim. These are research-authored candidate contracts, not
+approved legacy restorations.
+
+Watch candidates `RZ1Iv9sIYHM`, `fFWpWJy8ybU`, `wtBKmESLI98`,
+`DHMOfk7DEyk`, and `7qzlklmu3Pw` in full. Their title, channel, link, and embed
+HTML returned current HTTP-200 oEmbed metadata on 2026-08-02. Record exact
+variant, knee position, laterality, implement/count/contact, foot surface,
+range, tempo, bounce or assistance, repetition and reset, side dose, unsafe or
+conflicting advice, captions, accessibility, demonstration quality, reviewer
+identity, reason, and timestamp. Metadata health is not playback or content
+verification.
+
+Do not restore any of the seven source rows from names or media. Obtain exact
+authoritative mechanics first. Independently adjudicate all 24 alternate
+assessments, ten graph proposals, and six score anchors. Difficulty review is
+limited to exercise complexity and physical difficulty, with overall derived
+as their maximum; it must not add athlete skill/proficiency to exercise or
+safety cards. Separate content review and publication approval remain
+required, leaving exactly media, graph, calibration, and publication blockers.
+
+## Back Squat review packet after migration 461
+
+Review PMIDs 38900172 and 34541522 as small direct high-/low-bar biomechanics
+studies whose results depend on stance, load, cohort, and method; they do not
+establish universal superiority or muscle rankings. PMIDs 38036316 and
+23085977 show that depth and load change joint moments in their tested cohorts,
+not a universal safe depth or load. PMID 31230110 supplies limited longitudinal
+depth-specific adaptation evidence. The NSCA manual supplies professional rack
+and spotting context, and ACSM supplies general prescription—not approval of
+these exact cards.
+
+Independently verify bar shelf, grip, hooks, safeties, bar/plates, walkout,
+stance, foot angle, depth, tempo, brace, load, repetitions, reserve, rest,
+failed-rep response, two-hook rerack, cumulative load, and recovery for both
+working specifications. Watch `8Kls95w2jFA`, `Akd5xmZlsvg`, `Po9CDtfcLJI`,
+`1le_LVZmmUU`, and `7fmrKmJMQnw` in full. Their current oEmbed metadata is not
+playback, exactness, caption, accessibility, safety, quality, or approval
+evidence.
+
+Do not restore any source row without authoritative missing mechanics.
+Independently adjudicate 24 alternates, eight graph proposals, and four score
+anchors. Difficulty review covers exercise complexity and physical difficulty
+only; skill level remains exclusive to skill-library cards. Separate content
+review and publication approval remain mandatory.
+
+## Box Jump review packet after migration 462
+
+Review the direct box/hurdle/countermovement comparison (PMC10204452) as a
+small study of 20 recreationally trained men, not proof of universal task
+superiority or transfer. Review the relative box-height study (PMC11166134) as
+a 31-participant maximal-intent protocol whose mostly unchanged propulsion
+variables do not make height a universal intensity or safety scale. The arm-
+swing study (PMC5260575) supports standardizing arm policy in its tested cohort,
+not a universal performance increment. NASM, NSCA, World Athletics, and landing-
+feedback sources provide adjacent instruction and programming context, not
+approval of these exact cards.
+
+Independently verify all four working specifications: approach and lead step,
+preload depth and stillness, arm position and timing, stance and takeoff line,
+box type/height/top/edge, bilateral takeoff, flight and edge clearance,
+simultaneous whole-foot landing, landing depth/symmetry/sound, hold, stand,
+step-down route, reset, attempts, rest, every valid/failed/incident contact,
+same-session exposure, duration, output loss, symptoms, and recovery.
+
+Watch `52r_Ul5k03g`, `d2z2_rRkpAo`, `v9cZQqGX1Xk`, `kNIInK_Le8I`, and
+`Bc_ycZFCEvQ` in full. Their prior card-v2 oEmbed metadata was carried forward;
+the fresh fetch attempt failed and proves nothing. Record current playback,
+exact variant, conflicting or unsafe advice, captions, accessibility,
+demonstration quality, reviewer identity, reason, and timestamp. Do not restore
+any of the nine sources from names or video.
+
+Independently adjudicate all 30 alternates, ten graph proposals, and eight score
+anchors. Difficulty review is limited to exercise complexity and physical
+difficulty, with overall derived as their maximum; athlete readiness remains a
+workout-selection input and proficiency categories remain confined to the skill
+library. Separate content review and publication approval remain mandatory.
+
+## Depth Jump review packet after migration 463
+
+Review PMC5260527 as a direct comparison of countermovement and bounce drop-
+jump techniques in eight male youth basketball players. It supports separating
+contact strategies but does not establish universal thresholds or transfer.
+Review PMC10160442 as a systematic review of 22 heterogeneous randomized
+training studies that explicitly found inconsistent intensity, volume, surface,
+height, and individualization reporting. Platform height alone is not an
+intensity, readiness, or safety rule. The remaining NSCA, landing-feedback,
+landing-intervention, plyometric, and YouTube-embed sources provide adjacent
+context, not approval of these exact variants.
+
+Independently verify both working specifications: rated platform and actual
+height, declared step-off lead, hands-on-hips or free-arm policy, no upward jump
+from the platform, simultaneous bilateral first contact, one continuous
+countermovement without pause or bounce drift, immediate maximal vertical
+rebound, contact time and height method when measured, simultaneous final
+landing, two-second hold, full reset, attempts, rest, all valid/failed/incident
+contacts, same-session exposure, duration, output loss, symptoms, and recovery.
+
+Watch `AzPJZHOmGEg`, `GeN0S3XCZnM`, `DxzbXy0lC6Y`, `Phf_HO1w9BA`, and
+`dGQRsuI_-ag` in full. Prior card-v2 oEmbed health was carried forward; fresh
+fetches returned cache misses and verify nothing. Record current playback,
+exact arm-policy and sequence match, conflicting or unsafe advice, captions,
+accessibility, demonstration quality, reviewer identity, rationale, and time.
+Do not restore any of the three source variants from a title or video.
+
+Independently adjudicate 24 alternates, eight graph proposals, and four score
+anchors. Difficulty review covers exercise complexity and physical difficulty
+only, with overall derived as their maximum. Athlete readiness is evaluated by
+workout selection, while proficiency categories remain exclusive to skill-
+library cards. Separate content review and publication approval are mandatory.
+
+## World's Greatest Stretch review packet after migration 471
+
+Review the exact five-phase contract: assigned long-lunge and rear-knee
+support; lead-side elbow toward the instep through owned range; the same arm
+and thorax rotate upward without uncontrolled pelvic or lumbar substitution;
+the hand returns; the hips rock back while the lead knee extends; then the
+athlete uses the declared reset or switch. Verify entry, exit, starting side,
+all ranges, tempo, breathing, dose, rest, lane, support, symptoms, duration,
+failed attempts, and same-session lunge/hamstring/rotation/hand-support load.
+
+The [P]rehab professional specification supports the movement identity and
+sequence. PMID 29063454 supports only general dynamic-stretching context and
+warns that duration, amplitude, and velocity affect results; PMID 24149201
+shows that warm-up context can affect some outcomes while leaving others
+unchanged. No exact-sequence trial was found or claimed. Proposed doses,
+recovery windows, complexity scores, physical-difficulty scores, and transfer
+claims require independent review.
+
+Watch `-CiWQ2IvY34`, `FIZMUyAPPWY`, `CXnge363CH8`, and `VQqabRnOR1E` in full.
+oEmbed currently establishes metadata and iframe response only. Record exact
+variant match, playback, phase order, side mapping, ranges, captions,
+accessibility, cue quality, safety, conflicts, reviewer identity, rationale,
+timestamp, and card-version match. Independently adjudicate all 28 alternates,
+four relationship proposals, and four score anchors before content review and
+separate publication approval.
+
+## Dead Bug review packet after migration 470
+
+Primary research support includes the 12-participant Dying Bug trunk-EMG study
+(PMID 11689975) and the 30-participant comparison of upper-only, lower-only, and
+combined-limb methods at three metronome speeds (DOI
+10.14474/ptrs.2017.6.1.1). NASM instruction supplies the common opposite-arm/
+opposite-leg execution reference. The packet explicitly limits these sources:
+acute surface EMG in small healthy samples does not validate a universal dose,
+posture, safety rule, treatment effect, training outcome, or difficulty score.
+
+Human reviewers must independently review all 16 evidence sections, 32
+alternate classifications, four graph proposals, and four complexity/physical-
+difficulty anchors. Four current YouTube oEmbed responses verify metadata only;
+a qualified reviewer must still watch full playback and assess exact variant,
+start, opposite pair, lever, range, terminal target, quiet trunk, breathing,
+return, alternation, dose, captions, accessibility, safety, cue quality,
+conflicts, reviewer identity, timestamp, and card-version match. Separate
+content review and publication approval remain mandatory.
+
+## Nordic Hamstring review packet after migrations 464–466
+
+Review PMID 31644582 as an acute six-variation study of 18 adults with resistance
+training experience but little or no Nordic experience. It supports preserving
+lower-leg support slope and hip position as identity dimensions; it does not
+establish a universal best setup. Review PMID 38439779 as a crossover study of
+13 male volunteers performing five-second isometrics at specified knee and hip
+angles on a 30-degree lower-leg support. It supports the exact K30/H0 working
+protocol only as a review candidate, not as a universal angle, dose, or clinical
+recommendation.
+
+Review PMID 31502142 for heterogeneous intervention-volume evidence and PMID
+40991853 for the 2025 42-study strength dose-response synthesis. The latter
+reports low-to-very-low certainty and no simple volume-response relation after
+meta-regression; its programme ranges are not card prescriptions. Review PMID
+30808663 only as evidence about programmes that included Nordics, not proof that
+one exercise, dose, or individual is “injury proof.” Do not restore PMID
+38156065: it studies standing versus seated calf raises and is unrelated to
+Nordic identity, dosage, or outcomes.
+
+Independently verify all four working specifications: bilateral rated ankle
+anchor, knee and hand padding, support slope, hip and knee angles, body line,
+assistance interface and recoil path, range target or break point, five-second
+eccentric or hold timing, concentric versus unloaded return, catch, reset, sets,
+repetitions or seconds, rest, every valid/failed/incident exposure, same-session
+sprint/run/kick/hinge/slider/Nordic load, symptoms, soreness, duration, and
+recovery. Treat the unassisted full cycle as high relative strength, not an
+athlete skill level.
+
+Watch `_e9vFU9-tkc`, `6NCN6kOagfY`, `IiofP9cn_nc`, `6_WWA3cQF-w`, and
+`kLE6k4DYgzQ` in full. Current oEmbed metadata and privacy-enhanced iframe URLs
+prove only link health. Record exact contraction, assistance, angle, range,
+tempo, catch and return match; current playback; conflicting or unsafe advice;
+captions; accessibility; demonstration quality; reviewer identity; rationale;
+and timestamp. Do not map a title to a variant automatically.
+
+Independently adjudicate 31 alternates, ten graph proposals, and eight score
+anchors. Difficulty review covers exercise complexity and physical difficulty
+only, with overall derived as their maximum. Athlete readiness belongs to
+workout selection and proficiency categories remain exclusive to skill-library
+cards. Separate content review and publication approval are mandatory.
+
+## Front Plank review packet after migrations 467–468
+
+Review PMID 25325773 as a randomized acute comparison of traditional, long-
+lever, posterior-tilt, and combined long-lever/posterior-tilt planks in 19
+participants. It supports retaining lever and pelvic intent as variant facts;
+surface EMG does not establish force, adaptation, a universal elbow offset,
+dose, safety threshold, or transfer. Review PMID 29861239 as a 120-participant
+prone-bridge time-to-exhaustion reliability study. Its repeated-technique-
+failure termination supports explicit result validity, but test time is not a
+training prescription.
+
+Review PMID 35370773 for a nine-participant acute prone/reverse plank EMG
+comparison, PMID 32560185 for inconsistent methods and missing evidence in the
+core-activity literature, PMID 38668579 for the stable-versus-unstable support
+boundary, and PMID 27630435 for deliberate hip-adduction/abduction variants.
+None validates an “optimal” plank or direct RKC score. Do not restore PMID
+32707142: it concerns prone CPR, not Front Plank exercise identity or outcomes.
+
+Independently verify all three working specifications: stable dry mat, exact
+elbow and toe marks, bilateral forearm/toe support, stance, lever, rib-pelvis
+and tension intent, one-leg-at-a-time entry, continuous breathing, hold, first-
+break termination, controlled knee exit, sets, rest, every valid/failed/early-
+terminated second, same-session push/carry/crawl/gymnastics/trunk/support load,
+symptoms, duration, and recovery. The RKC variant needs particular content and
+calibration scrutiny because no direct RKC research source was found.
+
+Watch `0nqvl7ybiYQ`, `K2UZq6uq_mY`, `abv03ZRw9bM`, `lismOShjHnA`, and
+`tx8wfSu1C4k` in full. Current oEmbed metadata proves only link and iframe
+health. Record exact support, lever, pelvic and tension intent, entry, hold,
+breathing, stop, exit, playback, conflicts, captions, accessibility,
+demonstration quality, reviewer identity, rationale, and timestamp.
+
+Independently adjudicate 32 alternates, eight graph proposals, and six score
+anchors. Difficulty review covers exercise complexity and physical difficulty
+only, with overall derived as their maximum. Athlete readiness belongs to
+workout selection, and proficiency categories remain exclusive to skill-
+library cards. Separate content review and publication approval are mandatory.

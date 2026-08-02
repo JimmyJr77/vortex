@@ -1,0 +1,383 @@
+{
+  "batchKey": "scoop-toss-forward-rotational-identity-v1",
+  "researchVersion": "2026-08-01.11",
+  "snapshotAt": "2026-08-02T01:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/scoop-toss-forward-rotational-identity",
+  "includeArchived": true,
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "Scoop-toss identity must declare forward versus rotational projection, stance and orientation, two-hand release path, ball start position, entry, target, return contract, finish, and side accounting."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Medicine-ball throws are ballistic power exercises whose position, direction, release, and outcome must remain controlled taxonomy dimensions.",
+        "The forward task is a bilateral sagittal hinge-and-throw; the rotational scoop is a two-hand transverse release variant of the standing rotational-throw definition."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Standing medicine-ball performance includes lower-body contribution and whole-body coordination rather than an isolated arm action.",
+        "Cards represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands used by the exact stance and release."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "side_medicine_ball_throw_emg",
+      "claims": [
+        "A side medicine-ball throw recruits trunk musculature differently from a front-facing throw and requires a side-specific rotational contract.",
+        "The forward scoop preserves a front-facing underhand projection; the rotational scoop preserves a side-on hip-to-trunk-to-ball sequence and controlled pivot."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Throw technique and ball mass affect performance variability and task demands.",
+        "Difficulty scores exercise complexity and physical difficulty only, with overall derived as their maximum; athlete proficiency is not an exercise-card field."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Medicine-ball mass and throw technique affect measured velocity and performance variability.",
+        "Standardize ball and technique when comparing output; operationally track visible output change, volume, rest, symptoms, and recovery without claiming a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "Standing medicine-ball projection requires an intact appropriate ball, stable non-slip surface, inspected target or open lane, and a cleared flight, rebound, and retrieval zone.",
+        "Pain, unsafe grip, uncontrolled pivot or finish, uncertain wall or ball behavior, insufficient space, or inability to follow the stop command blocks selection."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_alactic_explosive_medicine_ball",
+      "claims": [
+        "High-intent medicine-ball throws use low repetition counts and enough rest to preserve ballistic intent rather than becoming conditioning.",
+        "Dose is fully reset throws, counted by side when rotational, with a declared mass, target, return policy, speed-loss rule, and weekly exposure budget."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "Instructions must state stance, ball position, load direction, ground-up sequence, release target, finish, retrieval or return policy, and reset.",
+        "Coach observable outcomes such as foot pressure, hip and trunk sequence, release vector, target, balance, and speed rather than promising transfer or injury prevention."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "side_medicine_ball_throw_emg",
+      "claims": [
+        "Rotational throwing creates rapid trunk activity and must stop when the athlete substitutes uncontrolled lumbar motion, loses the pivot, or develops symptoms.",
+        "Both tasks stop for pain, grip loss, lane entry, ball or target failure, unsafe flight or rebound, balance loss, target drift, or two consecutive slow or technically changed throws."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "A standardized rotational throw can support power assessment only when protocol and outcome measurement remain stable.",
+        "Workout generation must validate exact variant, phase, ball, target, lane, return contract, side balance, duration, rest, cumulative throwing budget, substitutions, and persistence after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_alactic_explosive_medicine_ball",
+      "claims": [
+        "Athlete support explains the intended vector, ball and target, what a fast controlled rep looks like, why full rest matters, unexpected symptoms, self-checks, and how to request an alternative.",
+        "The athlete never catches, retrieves, steps, jumps, or changes sides unless the selected profile explicitly requires it."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Coaches standardize ball mass, stance, side, target, distance, release vector, measurement method, rest, and valid-attempt rules before comparing outputs.",
+        "Group delivery requires a closed flight and retrieval lane, one thrower per zone, shared start and stop signals, side tracking, equipment inspection, and a maintained sightline."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Changing seated versus standing support or forward versus rotational technique changes the task rather than merely changing difficulty.",
+        "Accessible delivery may reduce ball mass, effort, repetitions, target precision, or measurement pressure and increase rest or multimodal instruction while preserving the selected identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "side_medicine_ball_throw_emg",
+      "claims": [
+        "Forward, vertical, reverse-overhead, rotational, chest-pass, and single-arm shot-put releases are separate identities or release families.",
+        "Ball mass, target, measured outcome, rest, and modest load depth are modifiers; support position, dynamic entry, jump, catch, and compound follow-up actions require explicit variant or identity review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify stance, direction, ball path, entry, release, target, finish, return policy, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "medicine-ball-scoop-toss",
+      "assessmentSummary": {
+        "identity": "From a stationary front-facing parallel stance, hold one medicine ball with two hands below hip level, use a controlled hip hinge and knee bend, extend through the lower body, and release the ball underhand forward into a clear open lane without a prescribed catch, step, or jump; finish behind the line and reset after lane closure.",
+        "currentCardFindings": [
+          "The three mapped sources consistently support bilateral forward hip-led projection but the current canonical card does not lock stance, hand count, underhand path, no-jump rule, open-lane outcome, retrieval, or finish.",
+          "Existing baseline variants duplicate source labels rather than controlled mechanics and are replaced by one exact forward free-flight variant.",
+          "Five title-level oEmbed-healthy candidates are retained without exact-match, content-quality, caption, accessibility, reviewer, or approval claims."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 50,
+          "absoluteLoadDemand": 32,
+          "baseOverallDifficulty": 50,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "standing-two-hand-forward-free-flight-scoop-toss",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 32,
+            "overallDifficulty": 50
+          }
+        ],
+        "identityDecision": {
+          "resolution": "retain_and_complete_exact_forward_scoop_definition",
+          "displayName": "Forward Medicine Ball Scoop Toss",
+          "countermovementSourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=wPEYsRVChNE",
+          "title": "Medicine Ball Forward Scoop Toss for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "standing forward medicine ball scoop toss distance",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Title-level forward-distance candidate; exact stance, hand path, jump rule, finish, instruction quality, captions, reviewer, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UmLEPjElr4s",
+          "title": "How To: Med Ball Forward Scoop Toss",
+          "channelName": "RAWR Strength",
+          "sourceQuery": "standing forward medicine ball scoop toss",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Title-level candidate only; full movement and quality review remain human work."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=npqgpBmI0ys",
+          "title": "Medicine Ball Scoop Toss for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "medicine ball forward scoop toss for distance",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Distance-title candidate; exact contract and demonstration quality are not approved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GaUjwlJYWtw",
+          "title": "Forward Facing MB Scoop Toss",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "forward facing medicine ball scoop toss",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Forward-facing title candidate; exact movement and accessibility review remain unset."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aAeQkR2uDmo",
+          "title": "Med Ball Forward Scoop Throw",
+          "channelName": "Jordan Foley",
+          "sourceQuery": "medicine ball forward scoop throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Forward-title candidate; full playback and approval remain human-gated."
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Static Rotational Medicine Ball Scoop Toss", "classification": "new_variant", "rationale": "Side-on transverse projection is a scoop-release variant of the canonical two-hand rotational throw, not the forward card.", "distinguishingDimensions": {"projection": "rotational", "parentDefinition": "medicine-ball-rotational-throw"}},
+        {"name": "Vertical Medicine Ball Scoop Toss", "classification": "new_definition", "rationale": "An upward free-flight release changes trajectory, ceiling needs, visibility, and outcome.", "distinguishingDimensions": {"projection": "vertical"}},
+        {"name": "Reverse Overhead Medicine Ball Toss", "classification": "new_definition", "rationale": "Backward overhead projection changes direction, release path, visibility, and space.", "distinguishingDimensions": {"projection": "backward_overhead"}},
+        {"name": "Half-Kneeling Forward Scoop Toss", "classification": "new_variant", "rationale": "Half-kneeling removes the standing bilateral extension contract and requires a reviewed support-position variant.", "distinguishingDimensions": {"support": "half_kneeling"}},
+        {"name": "Jumping Forward Scoop Toss", "classification": "new_variant", "rationale": "Intentional flight adds takeoff, landing, impact, and foul rules.", "distinguishingDimensions": {"jump": true}},
+        {"name": "Forward Scoop Toss with Step", "classification": "new_variant", "rationale": "A step adds approach momentum and a different footwork contract.", "distinguishingDimensions": {"entry": "step"}},
+        {"name": "Forward Scoop Toss to Broad Rebound", "classification": "new_definition", "rationale": "A throw followed by a broad rebound is an ordered compound task with impact exposure.", "distinguishingDimensions": {"orderedActions": ["throw", "broad_rebound"]}},
+        {"name": "Ball Mass, Distance, Velocity, Target, Repetitions, or Rest", "classification": "modifier_annotation", "rationale": "These scale delivery only while stance, two-hand forward underhand projection, no-jump rule, throw-only outcome, finish, and reset remain fixed.", "distinguishingDimensions": {"modifiers": ["ball_mass", "distance", "velocity", "target", "repetitions", "rest"]}}
+      ]
+    },
+    {
+      "slug": "medicine-ball-rotational-throw",
+      "assessmentSummary": {
+        "identity": "Within the existing two-hand standing rotational-throw definition, the static scoop variant starts side-on with the ball held in two hands low near the back hip, permits a controlled ground-up pivot, and projects to a declared horizontal or slightly rising wall target before a throw-only finish and full reset on each side.",
+        "currentCardFindings": [
+          "Migration 382 already consolidated rotational scoop wording as a release-style variant of the two-hand rotational throw; this batch preserves that stable identity.",
+          "The existing canonical card is structurally complete but lacks a selectable exact scoop-release variant with low start position, two-hand sweep, throw-only return policy, and side dosage.",
+          "Five oEmbed-healthy rotational-scoop title candidates remain candidate-only and unapproved."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 34,
+          "baseOverallDifficulty": 58,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "static-side-on-two-hand-rotational-scoop-throw-only",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 34,
+            "overallDifficulty": 58
+          }
+        ],
+        "identityDecision": {
+          "resolution": "add_controlled_scoop_release_variant_to_existing_rotational_throw",
+          "newDefinition": false,
+          "countermovementSourceMapped": false
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3TSv1SaUpOA",
+          "title": "SimoneBaseballPerformance.org - Medicine Ball Rotational Scoop Toss",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "static rotational medicine ball scoop toss",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Title-level rotational-scoop candidate; exact entry, pivot, return contract, cues, captions, quality, reviewer, and approval remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LIQVEVwjAqU",
+          "title": "Rotational Medicine Ball Scoop Toss",
+          "channelName": "Synchronicity Health",
+          "sourceQuery": "rotational medicine ball scoop toss",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Title-level candidate only; exact variant match and approval are unset."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=xmQfXggU2mU",
+          "title": "Med Ball Rotational Scoop",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "medicine ball rotational scoop",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Rotational-scoop title candidate; full human review remains required."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=V2MTAlOxXVU",
+          "title": "Alan teaches the rotational scoop toss. Get more throwing power from your hips",
+          "channelName": "Melissa Witmer",
+          "sourceQuery": "rotational scoop toss hips",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Title-level rotational candidate; exact movement and demonstration quality are not approved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mxf1D3NtxMo",
+          "title": "CresseyMedBall.com: Rotational Medicine Ball Scoop Toss",
+          "channelName": "Eric Cressey",
+          "sourceQuery": "rotational medicine ball scoop toss",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Candidate reassigned from an ambiguous generic source; full exact-match and quality review remain human work."
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Forward Medicine Ball Scoop Toss", "classification": "new_definition", "rationale": "Front-facing sagittal projection is distinct from side-on rotational projection.", "distinguishingDimensions": {"projection": "forward"}},
+        {"name": "Rotational Medicine Ball Shot-Put", "classification": "new_definition", "rationale": "A unilateral shoulder-level push is not the same release as a bilateral low scoop.", "distinguishingDimensions": {"release": "single_arm_shot_put"}},
+        {"name": "Step-Behind Rotational Scoop Toss", "classification": "new_variant", "rationale": "A step-behind adds approach momentum and footwork before the same scoop release.", "distinguishingDimensions": {"entry": "step_behind"}},
+        {"name": "Drop-Step Rotational Scoop Toss", "classification": "new_variant", "rationale": "A drop step adds reorientation and momentum before release.", "distinguishingDimensions": {"entry": "drop_step"}},
+        {"name": "Shuffle Rotational Scoop Toss", "classification": "new_variant", "rationale": "A shuffle adds multiple approach contacts and timing demand.", "distinguishingDimensions": {"entry": "shuffle"}},
+        {"name": "Half-Kneeling Rotational Scoop Toss", "classification": "new_variant", "rationale": "Kneeling removes standing pivot and lower-body contribution.", "distinguishingDimensions": {"support": "half_kneeling"}},
+        {"name": "Rotational Scoop Toss with Rebound Catch", "classification": "new_variant", "rationale": "A required catch adds tracking, return absorption, ball and wall constraints, and catch exposure.", "distinguishingDimensions": {"returnContract": "rebound_and_catch"}},
+        {"name": "Ball Mass, Target Height, Wall Distance, Repetitions, or Rest", "classification": "modifier_annotation", "rationale": "These scale the static scoop-release delivery while its side-on start, low two-hand path, pivot, target vector, throw-only finish, side dose, and reset remain fixed.", "distinguishingDimensions": {"modifiers": ["ball_mass", "target_height", "wall_distance", "repetitions", "rest"]}}
+      ]
+    },
+    {
+      "slug": "countermovement-medicine-ball-scoop-toss",
+      "assessmentSummary": {
+        "identity": "Undefined source label: the text says countermovement scoop toss and rotational release but does not declare stance, orientation, hand count, ball start, projection, target, entry, pivot, return contract, finish, or side accounting.",
+        "currentCardFindings": [
+          "Countermovement describes loading behavior that can occur in both forward and rotational medicine-ball tasks and cannot identify the exercise by itself.",
+          "The source cannot be mapped safely to the forward definition or the rotational scoop variant because its required identity facts are absent.",
+          "The source remains traceable but becomes nonselectable, unscored, unpublished, and human-review quarantined."
+        ],
+        "difficultyDecision": "Do not score an undefined task; difficulty requires a fixed stance, direction, release, target, return, finish, and side contract.",
+        "identityDecision": {
+          "resolution": "retire_ambiguous_source_without_direct_consolidation",
+          "possibleMappings": ["medicine-ball-scoop-toss", "medicine-ball-rotational-throw:static-side-on-two-hand-rotational-scoop-throw-only"],
+          "humanReviewRequired": true
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=wPEYsRVChNE",
+          "title": "Medicine Ball Forward Scoop Toss for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "adjacent forward scoop interpretation",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Adjacent forward interpretation only; media cannot establish missing source identity."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LIQVEVwjAqU",
+          "title": "Rotational Medicine Ball Scoop Toss",
+          "channelName": "Synchronicity Health",
+          "sourceQuery": "adjacent rotational scoop interpretation",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Adjacent rotational interpretation only; it does not prove the source contract."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mxf1D3NtxMo",
+          "title": "CresseyMedBall.com: Rotational Medicine Ball Scoop Toss",
+          "channelName": "Eric Cressey",
+          "sourceQuery": "adjacent rotational scoop interpretation",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-02T01:00:00.000Z"},
+          "notes": "Adjacent title candidate only; no source mapping or approval is inferred."
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Forward Medicine Ball Scoop Toss", "classification": "same_identity", "rationale": "Possible only if authoritative evidence establishes front-facing stationary bilateral underhand forward projection and a throw-only finish.", "distinguishingDimensions": {"possibleMapping": "medicine-ball-scoop-toss"}},
+        {"name": "Static Rotational Medicine Ball Scoop Toss", "classification": "same_identity", "rationale": "Possible only if authoritative evidence establishes side-on two-hand rotational scoop projection, pivot, target, side dose, and throw-only finish.", "distinguishingDimensions": {"possibleMapping": "medicine-ball-rotational-throw:static-side-on-two-hand-rotational-scoop-throw-only"}},
+        {"name": "Vertical Medicine Ball Scoop Toss", "classification": "new_definition", "rationale": "Vertical free-flight projection is a separate task if later evidence establishes that intent.", "distinguishingDimensions": {"projection": "vertical"}},
+        {"name": "Rotational Medicine Ball Shot-Put", "classification": "new_definition", "rationale": "A single-arm shoulder push is a different release identity.", "distinguishingDimensions": {"release": "single_arm_shot_put"}},
+        {"name": "Dynamic-Entry Scoop Toss", "classification": "new_variant", "rationale": "Step, shuffle, or drop-step entries require explicit ordered footwork and contact accounting.", "distinguishingDimensions": {"entry": "dynamic_unspecified"}},
+        {"name": "Scoop Toss with Jump or Rebound", "classification": "new_definition", "rationale": "A jump, landing, or rebound adds ordered actions and impact that cannot be inferred.", "distinguishingDimensions": {"compoundAction": "jump_or_rebound"}},
+        {"name": "Ball Mass, Target, Attempts, Velocity, or Rest", "classification": "modifier_annotation", "rationale": "These can be modifiers only after the missing stance, direction, release, target, return, finish, and side identity are resolved.", "distinguishingDimensions": {"modifiers": ["ball_mass", "target", "attempts", "velocity", "rest"]}}
+      ]
+    }
+  ]
+}

@@ -992,3 +992,590 @@ card remains in review and retains its media, content, relationship, calibration
 and two-person approval gates. A future coach may decide to model one of the
 remaining similar pairs as variants of one definition, but that is a card-content
 revision—not an unresolved identity collision.
+
+## Front-loaded squat correction
+
+Migration 447 supersedes the earlier decision to consolidate every anteriorly
+loaded squat beneath Front Squat. Implement wording alone is not the boundary;
+the load-support interface, implement count, symmetry, entry, exit, and failure
+contract are. The active identities are therefore:
+
+- Barbell Front Squat: one bar across both anterior shoulders;
+- Goblet Squat: one free object supported at center chest by both hands;
+- Double Front-Rack Squat: two independently racked implements; and
+- Single-Kettlebell Front-Rack Squat: one unilateral upper rack with bilateral
+  lower-body support and explicit side dose.
+
+Heel elevation, rack/grip option, exact free implement, tempo, pause, range,
+load, and side order are variants or delivery modifiers when the ordered squat
+action remains unchanged. Clean-to-squat compounds, carries, presses, rows,
+Landmine arcs, Zercher support, bottom isometrics, sumo or split stances, and
+unilateral lower-body support remain separate identities.
+
+The new explicit names surfaced nine score-73–77 neighbors. Each is closed as
+`distinct_exercises`: One-Arm Row, Landmine Front Squat, Medicine Ball Squat to
+Press, Barbell Hack Squat, Cossack Squat, Front-Rack Carry, Medicine Ball Clean
+to Squat, and Single-Leg Squat differ in ordered action, anchored/free load
+path, support, stance, travel, terminal state, or lower-body laterality. The
+post-migration queue contains 588 classified pairs, no unresolved pair, and no
+exact collision. These deterministic records carry no reviewer or approval.
+
+## Floor-bridge contraction and support correction
+
+Migration 448 supersedes the earlier decision to consolidate dynamic,
+isometric, bilateral, and unilateral floor bridges beneath one `Bridge` card.
+The four active identities are:
+
+- Glute Bridge: bilateral support and repeated lift-lower cycles;
+- Glute Bridge Iso Hold: bilateral support and one timed terminal hold;
+- Single-Leg Glute Bridge: named unilateral support and repeated lift-lower
+  cycles; and
+- Single-Leg Glute Bridge Iso Hold: named unilateral support and one timed
+  terminal hold.
+
+These boundaries change contraction, repetition termination, duration,
+laterality, side accounting, load symmetry, pelvic-control demand, fatigue,
+validity, and stop rules. Long-lever and standard-lever holds remain variants
+of the bilateral isometric card. Barbell, dumbbell, kettlebell, and sandbag
+loading remain variants of the bilateral dynamic card. Foot distance, knee
+angle, ankle position, free-leg position, load, tempo, repetitions, hold time,
+side order, and rest are explicit variant or delivery data.
+
+The combined Hamstring Bridge ISO / Long-Lever definition and its exact-title
+duplicate consolidate beneath Glute Bridge Iso Hold. The second Single-Leg
+Glute Bridge Iso Hold title consolidates beneath the stable unilateral hold
+definition. Glute Bridge March, Glute Bridge Walkout, Adductor Squeeze Bridge
+Hold, Back Bridge, and elevated-support Hip Thrust remain distinct based on
+added actions, spinal-extension support, required adduction, or upper-trunk
+support geometry.
+
+After source remapping and explicit boundary decisions, the queue contains 594
+classified score-72+ pairs across 1,054 active definitions, with zero
+unresolved pair and zero exact collision. All decisions remain deterministic,
+unreviewed records; they grant no content, graph, media, calibration, or
+publication approval.
+
+## Single-Leg Romanian Deadlift exact-variant closure
+
+Migration 449 resolves twelve legacy titles beneath one stable Single-Leg
+Romanian Deadlift identity. Bodyweight, target reach, external hand support,
+loading implement, load side relative to the stance leg, bilateral handheld
+load, barbell load, and the slow-eccentric assisted-return prescription are
+explicit variants. Distance Jump, Throwing, and Kicking describe delivery
+context and therefore remain profiles rather than identities or variants.
+
+The identity requires unilateral stance, a controlled hip hinge with the free
+leg extending behind, and return to the declared finish. Bilateral Romanian
+Deadlift, staggered-stance Romanian Deadlift, Airplane, Reach and Catch,
+Single-Leg Squat to Box, Single-Leg Cone Reach and Stick, and Kettlebell Swing
+remain separate because their support count, ordered actions, knee strategy,
+terminal contract, implement trajectory, or ballistic intent differs.
+
+Difficulty belongs to exact variants and consists only of exercise complexity
+and physical difficulty. It is not athlete proficiency. The post-migration
+queue remains closed at 594 classified score-72+ pairs, zero unresolved pair,
+and zero exact collision across 1,054 active definitions. These deterministic
+identity decisions confer no content, graph, calibration, media, or publication
+approval.
+
+## Cossack unresolved-placeholder closure
+
+Migration 450 preserves Cossack Squat as the fixed-wide-stance lateral squat
+identity. Range, a bottom hold or pry, terminal stick, tempo, declared thoracic
+reach, stable hand support, exact implement, load position, and side dose are
+variant/delivery dimensions while the same working-side squat, contralateral
+long-leg action, and controlled return or transfer remain required.
+
+The previously active `reach-overlay` and `loaded-unspecified-implement`
+records are archived rather than guessed: one lacks reach direction, and the
+other lacks both implement and load position. The explicit stable-hand-
+supported variant fills the genuine accessibility gap. Cossack Shift to Wall
+Ball Toss, stepping Lateral Lunge, and other release/reception or start-position
+changes remain separate definitions.
+
+All consolidated legacy aliases are retained, so the independent score-72+
+queue remains 594/594 adjudicated pairs with zero unresolved pair and zero
+exact collision. These are deterministic identity/variant decisions only and
+do not create media, graph, calibration, content, or publication approval.
+
+## Floor Press identity closure
+
+Migration 451 consolidates Floor Press source records 188, 402, 433, 435, 487,
+488, 489, 495, and 1021 under canonical UUID
+`243e3f71-47ec-4b6a-ac52-3cc68b120f36`. The identity is a supine floor-based
+horizontal press whose floor contact supplies the lower range boundary. All
+legacy aliases and source maps remain intact.
+
+Implement, implement count, unilateral/bilateral/alternating arm pattern, and
+close-neutral or crush grip are exact-variant dimensions. Knee position,
+leg-extension preference, pause, tempo, pain-free range ceiling, and optional
+bands or chains are modifiers or delivery annotations. Concentric dead-start
+pin press, isometric Floor Press testing, glute-bridge Floor Press, dead-bug
+Floor Press, and floor fly require new-definition review because their start
+contract, measurement intent, concurrent lower-body/trunk task, or joint
+action differs.
+
+Bench Press, Close-Grip Bench Press, Push-Up, Half-Kneeling Single-Arm Press,
+Z Press, One-Arm Landmine Floor Press, One-Arm Row, and kettlebell crush curl
+remain distinct based on support surface, body orientation, force direction,
+ordered action, implement path, or terminal contract. The independent audit
+also resolved three newly surfaced fuzzy pairs—Floor Press versus Close-Grip
+Bench Press, Half-Kneeling Single-Arm Press, and One-Arm Row—as mechanically
+distinct.
+
+The queue now contains 598/598 adjudicated score-72+ pairs, zero unresolved
+pair, and zero exact collision across 1,054 active definitions. These identity
+decisions confer no media, graph, calibration, content, or publication
+approval.
+
+## Rotational Ball Slam identity closure
+
+Migration 452 consolidates legacy source records 1162, 1163, 1165, 1168, and
+1483 under canonical UUID `1af84588-3b81-4008-be73-e2995280769f`. The identity
+is a standing, two-hand ballistic movement that coordinates foot and hip pivot,
+trunk rotation, and an overhead or large-arc ball path before a side-directed
+release into a marked floor zone.
+
+Stationary diagonal, stationary rainbow arc, and step-behind diagonal remain
+exact variants because trajectory and entry materially alter coordination,
+range, space, momentum, and deceleration. Alternating sides is a delivery and
+laterality prescription, not another movement variant. Dead-ball retrieval
+versus an assigned rebound catch is declared ball/recovery behavior. The old
+side-to-side variant and duplicate overhead-to-side variant remain stable and
+traceable but archived rather than selectable.
+
+Straight overhead slams, wall or free-flight rotational throws, rebound-slam
+catch tests, interval-reset slams, scoop slams, tall-kneeling slams, combined
+slam-to-throw, slam-to-sprint, and sprawl-to-slam sequences remain distinct.
+Six newly surfaced fuzzy comparisons—shot-put throw, forward overhead throw,
+rotational catch-and-stick, shuffle-to-rotational throw, rotational toss to
+lateral bound, and side toss with step—were also classified as distinct by
+release target, received versus projected load, approach, added athlete flight,
+or terminal sequence.
+
+The independent queue now contains 605/605 adjudicated score-72+ pairs, zero
+unresolved pair, and zero exact collision across 1,054 active definitions.
+These deterministic identity decisions create no media, graph, calibration,
+content, or publication approval.
+
+## One-Arm Row identity correction
+
+Migration 453 separates a legacy cluster that had been over-consolidated into
+One-Arm Row. Canonical UUID `e768f302-a920-4aeb-8627-957fd7a96f00` now owns only
+the actual unilateral dumbbell, kettlebell, standard landmine, and landmine
+suitcase sources: 195, 496, 1436, and 1438. Implement, declared support,
+stance/orientation, handle, pull target, and trunk policy are exact-variant
+dimensions beneath this identity; pause, tempo, range, load, and straps remain
+modifiers or delivery annotations.
+
+Landmine Meadows Row source 1434 maps to existing Meadows Row UUID
+`d3ca1c93-ae41-4eb0-bf44-caa5fab6d0b7`. Bilateral V-handle and neutral-handle
+T-bar sources 1435 and 1450 map to existing Two-Hand Landmine Bent-Over Row UUID
+`cd973ec2-00ed-4f69-baf1-b4a152d359b5`. Those identities differ by named
+perpendicular sleeve setup or bilateral hand count and one shared repetition;
+they are not generic unilateral-row variants.
+
+The legacy Landmine Gorilla Row source 1441 contradicts its alternating-row
+claim by declaring one fixed landmine and a double handle without an executable
+hand/load sequence. Landmine Ball-Grip Row source 1448 omits hand count, support
+orientation, and attachment geometry. Both keep their stable archived records
+and remain nonselectable until original authoritative specifications resolve
+the missing facts. No inferred variant was created.
+
+The corrected aliases surfaced two additional fuzzy comparisons. Landmine
+Press versus Two-Hand Landmine Bent-Over Row is a fixed-diagonal press versus a
+bilateral fixed-arc pull. Landmine Romanian Deadlift to Row versus Meadows Row
+is a dynamic hinge-then-row sequence versus a held staggered perpendicular
+unilateral pull. Both are explicitly distinct. The independent queue remains
+605/605 adjudicated score-72+ pairs with zero unresolved pair and zero exact
+collision; these deterministic resolutions confer no human approval.
+
+## Short Acceleration Sprint identity preservation
+
+Migration 454 does not reopen or alter the 20-source identity decisions made
+by migrations 419 through 421. The six exact start variants remain selectable,
+while the walk-in two-point and build-up three-point variants remain stable,
+traceable, and nonselectable until direct evidence resolves their boundaries.
+
+The migration only normalizes current-auditor fields. Start geometry, signal
+mode, lead side, distance, effort, and finish/run-out remain declared variant
+or delivery facts; they are not athlete proficiency levels. No source mapping,
+alias, similarity adjudication, exact collision, graph approval, calibration
+approval, media approval, or publication decision is created. The independent
+queue therefore remains 605/605 adjudicated score-72+ pairs with zero
+unresolved pair and zero exact collision.
+
+## Push-Up identity completion
+
+Migration 455 makes Push-Up the stable family identity for legacy sources 185,
+186, 187, 579, 580, 581, 582, 583, 584, 769, 770, 815, 816, and 1048. Sources
+580 and 816 are the same feet-elevated closed-chain press and collapse to one
+exact variant. Stable support height, body angle, hand base, range, tempo,
+load, repetitions, and rest remain declared delivery facts.
+
+The family owns 11 executable exact variants: standard floor, hands-elevated,
+feet-elevated, stable deficit, close-grip, ring suspension, archer lateral
+shift, pseudo-planche forward lean, weighted vest, floor eccentric-only, and
+ring eccentric-only. Full-cycle tempo does not alter the task identity, so
+sources 187 and 579 are archived modifier annotations. Eccentric-only delivery
+does alter the repetition and assisted-return contract and therefore remains
+an exact variant.
+
+`One-Arm Push-Up Progression` source 585 is not consolidated. The label does
+not specify the working hand, assistance/counterbalance, foot base, hand
+position, range, repetition sequence, or return strategy. Its definition and
+variant stay stable, archived, traceable, and nonselectable pending original
+authoritative evidence.
+
+Two similarity artifacts surfaced after consolidation and are explicitly
+distinct. Weighted Vest Pull-Up is an overhead vertical closed-chain pull with
+elbow flexion; Push-Up is a prone horizontal closed-chain press with elbow
+extension. Close-Grip Bench Press is a supine, open-chain, externally loaded
+bench press; Push-Up is a prone bodyweight press against fixed hand support.
+Shared words or a close-grip/vest modifier do not erase those biomechanical and
+operational boundaries.
+
+The independent queue now contains 604/604 adjudicated score-72+ pairs, zero
+unresolved pair, and zero exact collision across 1,048 active definitions.
+These machine resolutions remain reviewable and confer no media, graph,
+calibration, content, or publication approval.
+
+## Reverse Lunge identity completion
+
+Migration 456 assigns legacy Reverse Lunge sources 172, 380, 381, 421, 473,
+565, 753, 1009, and 1301 to stable family UUID
+`f5640b99-b702-4747-80bb-b603236bbbc6`. Sources 172 and 565 describe the same
+bodyweight full-cycle task and collapse to one exact variant. Source 381 is an
+explicit barbell front-rack variant, source 1301 is an explicit medicine-ball
+chest-hold variant, and source 753 is a slow-eccentric dosage annotation because
+the authored repetition still returns to standing.
+
+The generic barbell source 380 omits rack position; dumbbell source 421 and
+kettlebell source 473 omit implement count and carry position; sandbag source
+1009 permits an undeclared grip or hug. Each retains a stable archived,
+traceable, nonselectable definition and `needs_human_review` disposition. A
+label or video title cannot safely supply the missing executable facts.
+
+Walking, forward, lateral, and crossover lunges; stationary split squats; and
+lunge-to-press, throw, jump, or sprint sequences remain distinct identities
+because they change direction/travel, support or terminal position, plane,
+ordered action, or flight. Supported, slider, deficit, front-foot-elevated,
+goblet, ipsilateral, and contralateral reverse-lunge versions remain assessed
+alternates until their exact contracts and evidence are reviewed.
+
+The independent queue remains fully adjudicated at 604/604 score-72+ pairs,
+zero unresolved pair, and zero exact collision across 1,048 active definitions.
+These deterministic dispositions confer no media, relationship, calibration,
+content, or publication approval.
+
+## Lateral Lunge identity completion
+
+Migration 457 audits sources 63, 174, 385, 475, 752, 1010, 1055, and 1328
+against stable Lateral Lunge UUID
+`6a58d6cc-4a46-409a-9b89-c4330c3b8d6f`. The completed family retains one
+selectable bodyweight step-out full-cycle variant. Stance, lateral step and
+return, side-balanced dose, range, tempo, repetitions, rest, and cumulative
+exposure remain explicit variant or delivery facts rather than athlete skill.
+
+Source 752 retains Lateral Lunge identity as a slow-eccentric full-cycle
+modifier annotation because the authored repetition returns to standing.
+Sources 63, 174, 385, 475, 1010, and 1328 retain stable archived definitions
+and nonselectable dispositions: their authored records mix fixed-stance and
+step-out actions, omit implement count or position, omit rack/carry/hold or
+load-side facts, contain extraneous compound instructions, or leave both step
+and load protocol unresolved. A generic exercise name or media title cannot
+supply those missing identity facts.
+
+Source 1055 is reassigned to stable Cossack Squat UUID
+`40f08f99-5977-4e49-8907-02d80330d422` as a low-amplitude shift variant. Its
+label says `Bodyweight Lateral Lunge`, but its executable setup establishes a
+fixed wide stance and the instructions shift side to side without stepping.
+Identity follows that authored contract. The correction is deterministic and
+reviewable; it does not imply human approval.
+
+Step-out Lateral Lunge remains distinct from Cossack Squat/fixed-stance side
+shift, stationary or walking lunges, reverse/forward/crossover lunges, lateral
+step-ups, skater bounds, and lunge-to-press/raise/throw sequences because they
+change stance transition, travel direction, support, flight, plane, or ordered
+terminal action. Loaded Lateral Lunge versions remain alternate assessments
+until implement count, carry/rack/hold, load side, full repetition contract,
+and evidence are exact.
+
+The independent queue remains fully adjudicated at 604/604 score-72+ pairs,
+zero unresolved pair, and zero exact collision across 1,048 active definitions.
+These mappings and deterministic dispositions confer no media, relationship,
+calibration, content, or publication approval.
+
+## Medicine Ball Shot-Put identity completion
+
+Migration 458 retains stable Medicine Ball Shot-Put family UUID
+`5beb30c6-84d5-4210-8eee-ea29e7032e4e` and the lineage of sources 154, 357,
+1002, 1197, 1270, 1318, and 1478. The prior consolidation correctly recognized
+the shared unilateral shot-put-style release, but it incorrectly treated
+missing orientation, stance, ball position, pivot, target/receiver, return,
+catch, and finish facts as executable variant dimensions.
+
+All seven source representations are now identity-quarantined and
+nonselectable. Source 154 is generic; sources 357 and 1002 are side-on but omit
+or conflict on ball start, pivot, or return; source 1197 adds a partner without
+complete role/catch facts; source 1270 permits catch or no catch; source 1318
+does not define a full split-stance release; source 1478 is rotational but
+omits its exact entry, stance, ball position, target, and return. Each stable
+source can be restored only from original authoritative evidence.
+
+The family owns one explicitly research-authored working specification:
+static side-on start, rear-shoulder/upper-chest ball position, controlled rear-
+hip load, declared natural pivot, ground-up unilateral push to a rated wall,
+balanced finish, no catch, safe retrieval, full reset, and balanced side dose.
+It is a review candidate, not an assertion that any legacy row or candidate
+video has been approved.
+
+Forward-facing, step-behind, shuffle, half-kneeling, seated, split-stance,
+partner, rebound-catch, open-lane, velocity-measured, and alternating-side
+versions remain variant or delivery proposals when they preserve the
+unilateral shoulder-level shot-put release. Bilateral chest pass, bilateral
+rotational throw, scoop toss, cable press, overhead/slam actions, and the
+competition track-and-field shot put remain distinct definitions because arm
+count, grip, implement path, free release, support, action sequence, rules, or
+outcome changes.
+
+The alias `Medicine Ball Rollout` exposed a score-72 comparison between Rollout
+and Shot-Put. It is explicitly distinct: Rollout is a supported anti-extension
+task with the implement moving away and returning without release; Shot-Put is
+a standing unilateral ballistic free projection. The queue therefore contains
+605/605 adjudicated pairs, zero unresolved pair, and zero exact collision across
+1,048 active definitions. No deterministic disposition confers media, graph,
+calibration, content, or publication approval.
+
+## Suitcase Carry identity completion
+
+Migration 459 retains stable Suitcase Carry family UUID
+`d200b890-4a90-4b00-b0fc-242a688635a7` and the complete lineage of sources
+204, 452, 504, 559, 1028, 1340, and 1470. The family identity is one implement
+in one loaded hand during locomotion. Implement, handle, load position, hand,
+route, foot rule, direction, turn, pace, pickup, terminal action, side order,
+and dose remain explicit variant or delivery dimensions.
+
+All seven legacy source representations are nonselectable. Dumbbell source 452
+and kettlebell source 504 remain duplicate consolidations at the definition
+level, and source 559 remains a consolidated narrow-base route variant, but
+their underspecified legacy variants are not executable. Sandbag source 1028,
+throwing source 1340, and march source 1470 retain `needs_human_review`
+dispositions because grip/position, a complete carry contract, or in-place
+versus traveling march mechanics are unresolved.
+
+Three research-authored review variants make the currently supported contracts
+explicit: straight-lane dumbbell, straight-lane kettlebell, and dumbbell
+single-line walk. Equipment geometry is a variant rather than a new exercise
+when the one-hand side carry action is preserved. A single-line foot-centering
+constraint is also a route/balance variant. Mass, distance, work time, and
+controlled pace are dosage annotations unless they change the task.
+
+Farmer Carry is explicitly distinct because it uses two matched implements and
+bilateral loading rather than one loaded hand and side-balanced exposure.
+Suitcase Hold is explicitly distinct because it removes locomotion, route,
+pace, gait contacts, and moving clearance. Front-rack, overhead, deadlift,
+step-up/lunge compound, backward, lateral, stair, obstacle, uneven-surface,
+turning, in-place-march, and traveling high-knee versions remain separate
+definition or variant assessments according to their mechanics.
+
+The independent queue remains fully adjudicated at 605/605 score-72+ pairs,
+zero unresolved pair, and zero exact collision across 1,048 active definitions.
+These mappings and deterministic dispositions confer no media, relationship,
+calibration, content, or publication approval.
+
+## Bent-Knee Soleus Raise identity resolution (migration 460)
+
+Sources 215, 365, 432, 578, 763, 1151, and 1400 now share stable Bent-Knee
+Soleus Raise UUID `6e34d34e-0118-4bce-97a1-5caa1f0ce398`. Migration 460 also
+resolves the separate active `Seated Dumbbell Calf Raise` definition attached
+to source 432 into this survivor. Six obsolete definitions are archived, their
+publication authority is cleared, and all seven source representations remain
+mapped and auditable as identity quarantines.
+
+No legacy row is an executable exact variant. The sources variously combine
+floor and step surfaces, allow optional load, omit implement count or load
+contact, fail to declare seated versus standing support or knee angle, omit
+laterality and side order, leave range or reset undefined, or describe only a
+sport context. Source 763 additionally leaves its concentric assistance
+contract unresolved. These gaps require authoritative source recovery, not
+inference from labels or candidate videos.
+
+The migration adds three explicitly research-authored working specifications:
+bilateral seated bodyweight floor, unilateral seated machine, and single-leg
+seated dumbbell floor. They are review-only content, not source restorations.
+Standing straight-knee heel raise remains distinct by knee position and loading
+contract; bent-knee isometric hold remains distinct because it removes the
+cyclic raise/lower repetition.
+
+The independent identity queue remains fully adjudicated at 605/605 score-72+
+pairs, with zero unresolved pair and zero exact collision across 1,047 active
+definitions. Identity closure grants no media, graph, calibration, content, or
+publication approval.
+
+## Back Squat identity resolution (migration 461)
+
+Sources 1, 367, 368, 370, and 371 share stable Back Squat UUID
+`1ad09283-aa35-486f-b6bf-bdbdc1b575ee`. Separate High-Bar, Low-Bar, Pause, and
+Tempo definitions are consolidated into the family, while every legacy source
+variant stays identity-quarantined because its executable and safety contract
+is incomplete. The active high- and low-bar specifications are explicitly
+research-authored review candidates, not source restorations.
+
+Back Squat remains distinct from Box Squat by unsupported versus intentional
+box-contact reversal; from Split Squat by bilateral parallel versus stationary
+split stance and side dose; and from Front Squat by posterior versus anterior
+bar interface, grip, torso strategy, failure response, and rerack. These three
+new score-72+ pairs are adjudicated distinct, closing the queue at 608/608 with
+zero unresolved pair and zero exact collision across 1,047 active definitions.
+Identity decisions confer no media, graph, calibration, content, or publication
+approval.
+
+## Box Jump identity resolution (migration 462)
+
+Sources 2, 1543, 1546, 1547, 1549, 1552, 1556, 1557, and 1558 share stable
+Box Jump UUID `aa51dcd1-c8b9-456a-beb2-4abac2c9d9e9`. Eight previously
+separate definitions remain consolidated into the family. Every source variant
+is archived because its source text leaves at least one approach, preload, arm,
+takeoff, box, landing, hold, exit, reset, or dose fact unresolved.
+
+The active stationary countermovement/natural-arm, paused-static/hands-on-hips,
+stationary-countermovement/hands-on-hips, and one-step bilateral-gather cards
+are explicitly research-authored working specifications rather than source
+restorations. Box height, takeoff distance, hold, attempts, and rest are
+modifier annotations inside an exact variant. Unilateral takeoff or landing,
+lateral or broad projection, obstacles, elevated drop entry, rebound sequences,
+external load, far-floor landing, and formal maximum-height testing require
+separate variant or definition review. A miss or box strike is an incident, not
+a selectable exercise.
+
+The independent identity queue remains closed at 608/608 score-72+ pairs with
+zero unresolved pair and zero exact collision across 1,047 active definitions.
+Identity resolution confers no media, graph, calibration, content, or
+publication approval.
+
+## Depth Jump identity resolution (migration 463)
+
+Sources 3, 725, and 1092 retain stable Depth Jump UUID
+`fe5e8eb1-e783-4a37-a1b8-14d970ac1679`. Their source variants are archived:
+source 3 mixes vertical or target direction with minimal-contact language, and
+the other two still omit the exact platform, entry lead, arm policy,
+countermovement strategy, final landing, hold, reset, measurement, and dose.
+Authoritative missing mechanics are required before any source-derived variant
+can be restored.
+
+The active hands-on-hips and free-arms specifications are explicitly research-
+authored review candidates, not source restorations. Arm policy is a variant
+because it changes coordination and attainable rebound. Platform height,
+step-off lead, target, attempts, rest, contact-time observation, and measurement
+method are modifiers inside an exact contract. Bounce Drop Jump, landing-only
+Drop Landing, floor Countermovement Jump, nonvertical projection, a second
+platform, external load, unilateral contacts, and repeated rebounds remain
+separate identity proposals or existing definitions; unstable-surface execution
+is rejected.
+
+The independent queue now contains 610/610 adjudicated surfaced pairs, zero
+unresolved pair, and zero exact collision across 1,047 active definitions.
+Identity decisions create no media, graph, calibration, content, or publication
+approval.
+
+## Nordic Hamstring identity resolution (migrations 464–465)
+
+Sources 4, 574, and 839 retain stable Nordic Hamstring Curl UUID
+`03894b45-360d-444b-a142-6771ce6df7dd`. Their underspecified baseline,
+assisted, and isometric representations are archived rather than silently
+mapped to an invented execution. The replacement working specifications fix
+contraction mode, assistance interface, support slope, hip and knee position,
+range, tempo or hold, catch, and return. Range, band parameters, anchor provider,
+sets, repetitions or holds, and rest are modifiers only inside a fixed identity;
+different slopes, hip angles, assistance interfaces, external load, testing,
+and unilateral execution remain separate variant or definition proposals.
+
+The hardened name surfaced one score-76 pair with Reverse Nordic Curl. Migration
+465 records it as distinct using the current authored Nordic contract and legacy
+Reverse Nordic source 575: Nordic Hamstring Curl is a forward-fall,
+ankle-anchored knee-flexor task with visible knee extension during eccentric
+loading; Reverse Nordic Curl is a backward-lean knee-extensor task with visible
+knee flexion during eccentric quadriceps loading. Loaded tissues, direction,
+anchor, joint motion, muscle action, balance, range, failure response, fatigue,
+and substitution differ. Reverse Nordic still requires its own full canonical
+audit; this identity decision is not card approval.
+
+The independent queue now contains 611/611 adjudicated surfaced pairs, zero
+unresolved pair, and zero exact collision across 1,047 active definitions.
+Identity decisions create no media, graph, calibration, content, or publication
+approval and contain no exercise skill/proficiency classification.
+
+## Dead Bug identity resolution (migration 470)
+
+The stable survivor is `dead-bug`
+(`2a07d4d4-5012-420c-9549-8bdbc64ec675`). `cross-crawl-dead-bug`
+(`d1cb006f-094a-4ab9-86d0-f1f327fe2972`) is consolidated because both labels
+describe a supine alternating contralateral arm-and-leg pattern under a quiet
+rib-pelvis anti-extension contract. Neural or cross-crawl emphasis, cadence,
+cueing, dose, and rest are delivery properties. Limb action, lever, range,
+terminal contact, and breathing are variant properties.
+
+The generic source representations are not restored as executable variants.
+Two exact working variants fix a bent-knee heel contact or a long-leg hover,
+with full return before alternation. Heel-tap-only, iso-press, fixed wall press,
+loaded bilateral pullover, band-pulldown rotation resistance, legs-only
+eccentric lowering, and partner hand press remain distinct exercises because
+they change primary action, external force, limb contract, or repetition
+boundary.
+
+The canonical similarity audit now reports 614/614 adjudicated surfaced pairs,
+zero unresolved pair, and zero exact collision across 1,044 active definitions.
+All decisions are identity/traceability records only and create no coach,
+media, calibration, card, or publication approval.
+
+## Front Plank identity resolution (migrations 467–468)
+
+Front Plank UUID `4bffab47-a9c6-483e-ac8f-5c73b9641fd3` now owns sources 5,
+240, 602, and 827. Generic Plank Hold is the same prone bilateral static
+anti-extension family without enough source facts to select a variant. RKC
+Plank retains the same forearm-and-toe support identity while changing pelvic
+intent, voluntary tension, elbow-to-toe pull, hold, rest, and dose. Standard,
+long-lever/posterior-tilt, and RKC high-tension executions are therefore exact
+variants. Their legacy representations remain archived until authoritative
+missing facts are supplied.
+
+Migration 467 also corrects the prior long-lever consolidation by removing PMID
+`32707142`, a prone-CPR review, and recording PMID `25325773` as direct acute
+variant-comparison evidence. That study supports preserving lever and pelvic
+intent; it does not approve the identity decision, one universal setup, or any
+score or dose.
+
+Migration 468 records three distinct neighbors. Bear Plank is a quadruped hand-
+and-foot, flexed-knee hover. Glute Bridge is a supine dynamic hip-extension
+cycle supported by upper back and feet; the alias “prone bridge” does not make
+it a glute bridge. Side Plank uses unilateral lateral support and primarily
+resists lateral flexion with per-side dosage. Orientation, contacts, action,
+plane, laterality, lever, loaded tissues, repetition boundary, and dose separate
+each from Front Plank.
+
+The independent queue now contains 613/613 adjudicated surfaced pairs, zero
+unresolved pair, and zero exact collision across 1,045 active definitions.
+These decisions create no media, graph, calibration, content, or publication
+approval and contain no exercise skill/proficiency classification.
+
+## World's Greatest Stretch identity resolution (migration 471)
+
+World's Greatest Stretch UUID `af147afc-63e9-4944-a5b5-d3b5d2fa6120`
+retains sources 10 and 883. Both require the same identity-defining actions: a
+long lunge, lead-side elbow or hand toward the instep, ipsilateral thoracic
+rotation, hand return, and front-leg hamstring rockback. “With Rotation” is
+therefore a redundant label, not another exercise. Rear-knee support, direct or
+stationary entry/exit, owned ranges, tempo, breathing, and dose are exact
+variant or delivery dimensions.
+
+Three nearby identities remain separate. Spiderman Lunge Hamstring Sweep omits
+required thoracic rotation. World's Greatest Stretch to Plank requires a
+braced plank return between lunge repetitions. Inchworm to World's Greatest
+Stretch adds a standing hinge, hand walk, plank exposure, and return. Adding or
+removing these ordered actions changes the repetition boundary, loading,
+logistics, duration, and rendering rather than merely renaming the same card.
+
+The independent identity queue remains 614/614 adjudicated, with zero
+unresolved pair and zero exact collision across 1,044 active definitions. These
+machine decisions remain human-review quarantined and create no approvals.
