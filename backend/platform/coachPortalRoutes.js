@@ -3239,8 +3239,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     const facilityId = Number(req.platformAuth.user.facility_id)
     const memberId = num(req.body?.member_id)
     const movements = Array.isArray(req.body?.movements) ? req.body.movements : []
-    const recipientEmail = String(req.body?.recipient_email || '').trim() || null
-    if (memberId == null && !recipientEmail) return bad(res, 'Select an athlete or provide a recipient email.')
+    const recipientEmails = [...new Set(
+      String(req.body?.recipient_email || '')
+        .split(',')
+        .map((email) => email.trim())
+        .filter(Boolean),
+    )]
+    const recipientEmail = recipientEmails.length ? recipientEmails.join(', ') : null
+    if (memberId == null && recipientEmails.length === 0) return bad(res, 'Select an athlete or provide a recipient email.')
     if (movements.length === 0) return bad(res, 'Complete at least one movement.')
     const member = memberId == null ? { rows: [{ id: null }] } : await pool.query(`SELECT id FROM public.member WHERE id = $1 AND facility_id = $2`, [memberId, facilityId])
     if (member.rows.length === 0) return bad(res, 'Athlete not found.', 404)
@@ -3282,15 +3288,25 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       await client.query('COMMIT')
       const athleteName = memberId == null ? 'Athlete' : (await pool.query(`SELECT trim(concat(first_name, ' ', last_name)) AS name, email, parent_guardian_ids FROM public.member WHERE id = $1`, [memberId])).rows[0]
       const guardianRows = memberId == null || !athleteName?.parent_guardian_ids?.length ? { rows: [] } : await pool.query(`SELECT email FROM public.member WHERE id = ANY($1::bigint[]) AND email IS NOT NULL`, [athleteName.parent_guardian_ids])
-      const recipients = [...new Set([recipientEmail, ...(guardianRows.rows || []).map((row) => row.email), athleteName?.email].filter(Boolean))]
+      const recipients = [...new Set([
+        ...recipientEmails,
+        ...(guardianRows.rows || []).map((row) => row.email),
+        athleteName?.email,
+      ].filter(Boolean))]
       if (recipients.length > 0 && isEmailConfigured()) {
-        const lines = reportInput.movements.flatMap((movement) => movement.components.map((component) => `${movement.label}${movement.variant ? ` — ${movement.variant}` : ''}: ${component.label} — ${component.score}/5${component.issues.length ? `; Needs practice: ${component.issues.join(', ')}` : ''}`))
-        const overall = Math.round(reportInput.movements.reduce((sum, movement) => sum + movement.components.reduce((inner, component) => inner + (component.score || 0), 0) / Math.max(movement.components.length, 1), 0) / Math.max(reportInput.movements.length, 1))
+        const lines = reportInput.movements.flatMap((movement) => movement.components.map((component) => {
+          const scoreLabel = component.score == null ? 'Not scored' : `${component.score}/5`
+          return `${movement.label}${movement.variant ? ` — ${movement.variant}` : ''}: ${component.label} — ${scoreLabel}${component.issues.length ? `; Needs practice: ${component.issues.join(', ')}` : ''}`
+        }))
+        const scoredComponents = reportInput.movements.flatMap((movement) => movement.components.filter((component) => component.score != null))
+        const overall = scoredComponents.length
+          ? Math.round(scoredComponents.reduce((sum, component) => sum + (component.score || 0), 0) / scoredComponents.length)
+          : null
         await Promise.all(recipients.map((to) => sendEmail({
           to,
           subject: `${req.body?.evaluation_name || 'Foundational Floor'} evaluation report${athleteName?.name ? ` — ${athleteName.name}` : ''}`,
-          text: [`Evaluation date: ${req.body?.evaluated_at || new Date().toISOString().slice(0, 10)}`, ...lines, `Overall score: ${overall}/5`].join('\n'),
-          html: `<h2>${String(req.body?.evaluation_name || 'Foundational Floor')}</h2><p>Evaluation date: ${String(req.body?.evaluated_at || new Date().toISOString().slice(0, 10))}</p><ul>${lines.map((line) => `<li>${line.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</li>`).join('')}</ul><p><strong>Overall score: ${overall}/5</strong></p>`,
+          text: [`Evaluation date: ${req.body?.evaluated_at || new Date().toISOString().slice(0, 10)}`, ...lines, `Overall score: ${overall == null ? 'Not scored' : `${overall}/5`}`].join('\n'),
+          html: `<h2>${String(req.body?.evaluation_name || 'Foundational Floor')}</h2><p>Evaluation date: ${String(req.body?.evaluated_at || new Date().toISOString().slice(0, 10))}</p><ul>${lines.map((line) => `<li>${line.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</li>`).join('')}</ul><p><strong>Overall score: ${overall == null ? 'Not scored' : `${overall}/5`}</strong></p>`,
           category: 'gymnastics_evaluation',
           idempotencyKey: `gymnastics-evaluation-${created.rows[0].id}-${to}`,
         })))

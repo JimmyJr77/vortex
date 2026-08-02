@@ -68,7 +68,7 @@ const HERO_ENROLL_PROGRAMS = [
 const HeroEnrollDropdown = () => (
   <details className="group relative z-50 w-full max-w-xs sm:w-auto sm:max-w-none">
     <summary
-      className={`${heroCtaClass} w-full cursor-pointer list-none border-2 border-gray-500 bg-transparent text-white hover:border-gray-400 hover:bg-gray-500 hover:text-white [&::-webkit-details-marker]:hidden`}
+      className={`${heroSecondaryCtaClass} w-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
     >
       Enroll Now
       <ChevronDown
