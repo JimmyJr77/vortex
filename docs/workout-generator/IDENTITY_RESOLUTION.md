@@ -1874,3 +1874,44 @@ machine-authored review proposals; no qualified identity, relationship, or
 approval decision is inferred. Exercise difficulty remains complexity plus
 physical difficulty only, while athlete proficiency remains outside exercise
 cards.
+
+## Precision Jump, restricted target, and full-turn identity closure
+
+Migrations 487 and 489 consolidate source 20 into `Broad Jump to Stick` while
+preserving the generic source definition and variant as archived identity
+lineage. The legacy label supports a stationary bilateral horizontal flight
+and controlled terminal landing, but it does not establish the exact target,
+support interface, contact, hold, approach, turn, or connection. The selectable
+parkour interpretation is therefore the exact low restricted-target variant
+`5cc18072-971f-4f98-bf71-1213341167e4`; it is not inferred onto the archived
+source baseline.
+
+Open stable full-foot landing and secured low restricted bilateral forefoot
+landing are exact variants because the scored stationary no-turn flight and
+terminal stick remain the same while support/contact geometry materially
+changes selection and persistence. Distance, target markers, attempts, rest,
+and hold within a reviewed exact variant can be delivery annotations. Running
+entry, unilateral takeoff or landing, drop entry, rebound, bar release, wall or
+hand contact, and a connected exit change the repetition and require a distinct
+definition or an unresolved exact specification.
+
+World Gymnastics lists basic Precision and 360 Precision as separate actions.
+The full-turn card therefore has its own definition
+`1101413d-55c7-4585-abc2-6e63484ec434`; open versus low restricted target is an
+exact support-interface variant inside that full-turn action. Turn direction is
+a persisted delivery dimension, but changing rotation amount, adding an
+airborne tuck, changing projection to lateral, adding obstacle clearance, or
+changing the endpoint creates a distinct task.
+
+Migration 489 closes the six similarity pairs surfaced by the new definition:
+360 versus quarter-turn, nonrotational lateral jump, vertical Tuck Jump, static-
+start vertical Squat Jump, bilateral lateral low-hurdle clearance, and Tuck Jump
+to Lateral Stick. Together with migration 487, the family records one duplicate
+consolidation and 12 distinct-neighbor decisions. All are deterministic
+machine-authored boundaries with `reviewed_by=NULL`; none is a qualified human
+approval.
+
+The final detector reports 626/626 adjudicated score-72-or-higher pairs across
+1,045 active definitions, zero unresolved pair, and zero exact collision.
+Difficulty remains exercise complexity plus physical difficulty only; athlete
+readiness and skill-library levels are not exercise identity fields.

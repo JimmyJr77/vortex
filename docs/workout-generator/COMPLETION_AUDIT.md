@@ -3099,3 +3099,54 @@ disposable PostgreSQL. The remaining gates are:
   failed closed because its protection query included four historical retired
   legacy media rows; narrowing protection to exact current card versions
   resolved the false positive without weakening current human-review guards.
+
+## 2026-08-02 — Source 20 Precision Jump consolidation and 360 family completion
+
+- Legacy source 20 is consolidated into the stable `Broad Jump to Stick`
+  definition (`1260d75e-6807-4c91-859d-7d561a9160a3`, card version 3). Its
+  generic source definition (`6dc5fcf1-6383-4aed-a73b-7465384fd18b`) and
+  baseline (`dd36d133-894b-4562-9cc7-016d1db6f56c`) are archived and
+  nonselectable because the source omits exact entry, target, support,
+  contact, hold, and connection facts. Source lineage maps to exact restricted-
+  target variant `5cc18072-971f-4f98-bf71-1213341167e4` without inventing
+  those facts on the archived row.
+- The survivor now has exact open-surface and low restricted-target variants
+  at complexity / physical difficulty / derived overall `44/48/48` and
+  `62/54/62`. A distinct `Bilateral 360-Degree Jump to Stick` definition
+  (`1101413d-55c7-4585-abc2-6e63484ec434`) has open-surface and restricted-
+  target variants at `78/64/78` and `86/68/86`. Exercise scores describe the
+  task only; legacy age/skill fields are null and the source is unpublished.
+- Persisted current-version scope is 4 selectable variants, 11 review delivery
+  profiles, 32 candidate evidence sections, 10 current oEmbed-healthy media
+  candidates, 41 alternate assessments, 12 review-only relationship rows, 6
+  review-only new calibration anchors, 1 duplicate-consolidation decision, 12
+  distinct-neighbor decisions across migrations 487 and 489, and 2 canonical
+  packets. Each packet has exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Migration 487 passed final-byte direct execution twice, production-runner
+  registration, stored/local checksum comparison, runner skip, and exact-file
+  re-entry at checksum `2192026862`, registered
+  `2026-08-02 13:24:48.619779-04`. Its first transactional draft attempt found
+  17—not the stale expected 16—360 alternate assessments; the assertion and
+  packet summary were corrected without deleting a valid boundary.
+- The post-487 audit surfaced six new name/mechanics pairs. Follow-up migration
+  489 distinguishes the 360 action from quarter-turn, lateral jump, Tuck Jump,
+  Squat Jump, lateral low-hurdle clearance, and Tuck-Jump-to-Lateral-Stick
+  identities. It passed unchanged direct execution twice and registered at
+  checksum `1326745458` on `2026-08-02 13:28:59.307957-04`, then skipped and
+  re-entered cleanly. The final identity report is 626/626 adjudicated pairs,
+  zero unresolved score-72-or-higher pair, and zero exact collision.
+- Registry `2026-08-02.88` contains 378 sources. Focused validation passes
+  226 tests; the full backend suite passes 1,025 tests with 20 intentional
+  skips and zero failures. Focused ESLint, registry JSON parsing,
+  `git diff --check`, persisted audit, identity reporting, and the production
+  build pass. Existing browser-data freshness and greater-than-500-kB Admin
+  chunk advisories remain nonblocking.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,045 active
+  definitions, 96 machine-complete and 949 machine-incomplete cards, 95
+  current healthy embeddable 3–5-candidate sets, 724/0 graph review/approved,
+  939/0 calibration review/approved, and 0 published. Release remains correctly
+  blocked at 0/25 published, 0/3 approved depth in all seven phases, 0/10
+  approved graph edges, 0/3 approved calibration anchors, and 0/20 real coach
+  reviews. No human, media, graph, calibration, content, or publication
+  approval was fabricated.

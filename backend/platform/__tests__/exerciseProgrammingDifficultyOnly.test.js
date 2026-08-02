@@ -673,6 +673,10 @@ const PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION = readFil
   new URL('../../migrations/487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION = readFileSync(
+  new URL('../../migrations/489_coaching_precision_360_similarity_identity_closure.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -11318,6 +11322,60 @@ test('Precision Jump consolidation authors exact restricted-target and 360 contr
   )
   assert.doesNotMatch(
     PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Precision 360 similarity closure distinguishes every surfaced jump neighbor without approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'489_coaching_precision_360_similarity_identity_closure\.sql'/,
+  )
+  for (const token of [
+    '487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql',
+    '2192026862',
+    '1101413d-55c7-4585-abc2-6e63484ec434',
+    'c66bd9c5-a3f9-4afe-bdde-68c4d2904a04',
+    '17ba05de-abea-4b9f-b117-a4f12cfadc6f',
+    '8496ad9b-ef69-4d0b-8279-650d92ca3239',
+    '91c2fab1-0fc9-4d68-88b8-75b7ba2b06c9',
+    '452c5f80-c157-42f8-9882-fa83c6a38c98',
+    'bf4e454b-7514-44af-bcfb-698e95b906dc',
+    'full_360_turn_vs_90_degree_quarter_turn',
+    'forward_full_turn_vs_nonrotational_lateral_projection',
+    'full_turn_forward_flight_vs_vertical_airborne_tuck_action',
+    'countermovement_forward_full_turn_vs_static_squat_vertical_jump',
+    'forward_full_turn_target_vs_lateral_obstacle_clearance',
+    'full_turn_forward_target_vs_airborne_tuck_to_lateral_stick',
+    'world_gymnastics_parkour_table_of_tricks_2026',
+    'current_exact_canonical_contracts',
+    'exerciseScoresDescribeTasksOnly',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.match(
+      PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  assert.match(
+    PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
+    /decision='distinct_exercises'[\s\S]*?<>6/,
+  )
+  assert.match(
+    PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
+    /refuses to overwrite an existing or human-reviewed identity decision/,
+  )
+  assert.match(
+    PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
+    /exercise_json_has_level_classification\(evidence_json\)/,
+  )
+  assert.doesNotMatch(
+    PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION,
     /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
   )
 })

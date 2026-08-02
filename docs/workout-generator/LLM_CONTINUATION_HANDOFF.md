@@ -345,6 +345,50 @@ append-only audit histories above.
 
 ## Live checkpoint: completed work
 
+Legacy source 20, `Precision Jump`, is complete to machine-authored quarantine
+through immutable migrations 487 and 489.
+
+- Source 20 maps as `duplicate_consolidation` to `Broad Jump to Stick`
+  (`1260d75e-6807-4c91-859d-7d561a9160a3`, card version 3). Generic source
+  definition `6dc5fcf1-6383-4aed-a73b-7465384fd18b` and baseline
+  `dd36d133-894b-4562-9cc7-016d1db6f56c` are archived/nonselectable.
+- Exact survivor variants are open-surface
+  `962d4295-1d84-400f-af24-53ff25813f96` at `44/48/48` and restricted-target
+  parkour precision `5cc18072-971f-4f98-bf71-1213341167e4` at `62/54/62`.
+- Distinct `Bilateral 360-Degree Jump to Stick`
+  (`1101413d-55c7-4585-abc2-6e63484ec434`) contains open-surface variant
+  `b365da0f-2779-4883-8152-a5b3c09bee9f` at `78/64/78` and restricted-target
+  variant `1101413d-55c7-4585-abc2-6e63484ec435` at `86/68/86`.
+- Persisted current scope is 4 selectable variants, 11 profiles, 32 evidence
+  sections, 10 healthy candidate media rows, 41 alternates, 12 migration-487
+  relationship proposals, 6 new review-only calibrations, 1 duplicate and 12
+  distinct migration-owned identity decisions, and 2 current packets. Each
+  packet contains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Migration 487 checksum is `2192026862`, registered
+  `2026-08-02 13:24:48.619779-04`. Migration 489 checksum is `1326745458`,
+  registered `2026-08-02 13:28:59.307957-04`. Both passed direct execution
+  twice before registration, normal-runner registration and skip, stored/file
+  checksum verification, and exact-file re-entry. Do not edit either file.
+- Registry `2026-08-02.88` contains 378 sources. Focused tests pass 226/226;
+  the full backend suite passes 1,025 with 20 intentional skips; focused lint,
+  JSON parsing, diff checks, persisted audit, identity reporting, and the
+  production build pass.
+- Authoritative global state is 1,676/1,676 mappings, 1,045 active definitions,
+  96 machine-complete, 949 incomplete, 95 current healthy embeddable 3–5-media
+  sets, 626/626 adjudicated surfaced pairs, zero unresolved pair, zero exact
+  collision, 724/0 graph review/approved, 939/0 calibration review/approved,
+  and 0 published.
+- Release is correctly blocked at 0/25 published definitions, 0/3 approved
+  depth in all seven phases, 0/10 approved graph edges, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews. No human/media/graph/
+  calibration/content/publication approval was fabricated.
+
+The active next family is legacy source 21, `90/90 Breathing with Reach`.
+Follow the newest `Immediate next work` section below.
+
+## Prior verified checkpoint: source 19
+
 The last comprehensively verified family is legacy source 19, completed to
 machine-authored quarantine as three distinct definitions by immutable
 migrations 485 and 486:
@@ -709,6 +753,62 @@ only; playback, exactness, captions, accessibility, cue quality, safety, and
 approval remain unverified and must stay null/quarantined.
 
 ## Immediate next work
+
+Sources 20 and its six newly surfaced similarity neighbors are complete to
+machine-authored quarantine through immutable migrations 487 and 489. Do not
+edit either registered file. The active family is legacy source 21:
+
+- legacy identity: `21 | 90/90 Breathing with Reach |
+  9090-breathing-with-reach`;
+- canonical definition:
+  `0ac22398-2eed-482a-aae8-8d26ba888eaf`, card/schema `1`/`1.0.0`, status
+  `review`;
+- current active variants are baseline
+  `cb077d9c-261b-4944-8f3e-6109491c73cd`, source-1404 Hip Reset
+  `4276c5c7-19d9-4cfc-830f-fb6482b3430c`, and source-656 Reach
+  `329f2581-c1b7-4c2b-8a71-8c5c34a59cb1`;
+- all three currently use skeletal `20/10/20` complexity / physical / overall
+  JSON, empty requirements, and require complete reassessment;
+- current scope is 3 active variants, 4 skeletal profiles, 0 evidence, 4
+  unreviewed media rows, 0 alternates, and 0 calibration anchors;
+- the current canonical audit packet has 20 blockers;
+- legacy text describes supine feet-on-wall/bench/box hip-and-knee 90/90,
+  ceiling/forward reach, nasal inhale, lower-rib/abdominal expansion, and slow
+  full exhale without crunching, but instructions are empty;
+- legacy state improperly retains `age_min=6` and `is_published=true`; skill
+  level and linked skill are null. Do not copy the age/publication claims.
+- legacy movement requirements currently claim `spine_rotation` despite a
+  sagittal/rib-position breathing description. Treat this as a defect to audit,
+  not evidence.
+
+Exact next execution order:
+
+1. Reconcile current `HEAD`, worktree, latest coaching/scheduling migration
+   filenames, and disposable PostgreSQL ledger. Preserve concurrent scheduling
+   and generated metrics changes.
+2. Query every source-21 definition/source/variant/profile/score/safety/media/
+   relationship/identity/packet row plus source IDs 656 and 1404 and every
+   neighboring 90/90 hip-lift, hip-shift, balloon, wall-supported breathing,
+   dead-bug breathing, crocodile breathing, and reach identity.
+3. Resolve whether `90/90 Breathing with Reach`, `90/90 Breathing with Hip
+   Reset`, wall/bench/box support, arm position, heel pressure or hip lift,
+   unilateral reach, balloon resistance, and pelvic shift are same identity,
+   exact variants, delivery annotations, or distinct cards. Quarantine missing
+   limb/support/breath-cycle/end-state facts rather than guessing.
+4. Research direct respiratory/rehabilitation or professional instruction,
+   relevant biomechanics and physiology with strict sample/task limitations,
+   population and symptom constraints, dosage and duration, meaningful
+   alternates, and 3–5 current embeddable YouTube candidates for every completed
+   definition. Do not make clinical-treatment, posture-correction, or universal
+   diaphragmatic-breathing claims from generic evidence.
+5. Author the next free idempotent coaching migration only after checking the
+   shared tree. Migration 488 is concurrent scheduling work and 489 is the
+   immutable Precision-360 identity closure; do not reuse either number.
+6. Repeat the complete direct-SQL twice, registry/test/init, checksum,
+   production-runner, persisted audit, identity closure, release gate, focused
+   and full validation, build, documentation, and return-handoff process.
+
+## Historical source-20 next-work instructions (completed by migrations 487 and 489)
 
 Source 19 is complete to machine-authored quarantine through immutable
 migrations 485 and 486. Do not edit either registered file. Migration 485 is
@@ -1582,3 +1682,80 @@ Use this template:
   `Immediate next work` section; do not infer stance, target, distance, height,
   contact, stick duration, rebound, run-up, turn, or connection identity from
   the generic label.
+
+### Return handoff — 2026-08-02 13:31 America/New_York
+
+- Branch / HEAD: `main` /
+  `aa20937e8793a78ba9d0fc0d3a868ca473cfbd50`. Concurrent commit `aa20937`
+  captured migration 487, registry `.88`, its research/static tests, the
+  initial source-20 audit documentation, and unrelated scheduling work while
+  final validation was running. Reconcile again before editing.
+- Worktree: task-owned dirty files are new migration 489,
+  `backend/platform/initTables.js`,
+  `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`, the
+  five workout-generator audit/review ledgers, and this handoff. Preserve the
+  unrelated generated `docs/NEEDS_ENGINE_CATEGORY_METRICS.json` diff.
+- Registered migrations: immutable 487 checksum `2192026862`, timestamp
+  `2026-08-02 13:24:48.619779-04`; immutable 489 checksum `1326745458`,
+  timestamp `2026-08-02 13:28:59.307957-04`. Both passed unchanged direct
+  execution twice before registration, production-runner registration and
+  skip, stored/local checksum comparison, and exact-file re-entry. Do not edit
+  either; use a later corrective migration.
+- Completed family: source 20 is duplicate-consolidated into `Broad Jump to
+  Stick` card 3 with open and restricted-target variants. Generic source
+  definition/baseline are archived. Distinct `Bilateral 360-Degree Jump to
+  Stick` card 1 has open and restricted-target variants.
+- Persisted family counts: 4 selectable variants; 11 review profiles split
+  5/6; 32 candidate evidence rows split 16/16; 10 current healthy candidate
+  media rows split 5/5; 41 alternates split 24/17; 12 migration-487 review-only
+  relationships; 6 new review-only calibrations; 1 duplicate and 12 distinct
+  migration-owned identity decisions; and 2 packets with exactly
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+- Difficulty vectors: no-turn open `44/48/48`, no-turn restricted
+  `62/54/62`, 360 open `78/64/78`, and 360 restricted `86/68/86`, expressed
+  as exercise complexity / physical difficulty / derived maximum. No exercise
+  athlete level or age classification remains.
+- Registry: `2026-08-02.88` / 378 parsed sources.
+- Global audit: 1,676/1,676 mappings, 1,045 active definitions, 96 machine-
+  complete, 949 incomplete, 95 current healthy embeddable 3–5-candidate sets,
+  724/0 graph review/approved, 939/0 calibration review/approved, and 0
+  published. All 1,045 cards remain quarantined.
+- Identity: 626/626 surfaced score-72+ pairs adjudicated, 0 unresolved, 0 exact
+  collision. The first post-487 audit surfaced six neighbors; migration 489
+  closes all six distinct-action boundaries.
+- Release gate: expected `blocked`; 0/25 published, 0/3 approved depth in all
+  seven phases, 0/10 approved relationships, 0/3 approved calibration anchors,
+  and 0/20 real coach reviews.
+- Validation: focused suite 226/226; full backend 1,025 pass, 20 intentional
+  skips, 0 failures; focused ESLint, registry JSON parsing, `git diff --check`,
+  persisted audit, identity report, and production build pass. Build retains
+  only existing baseline-browser-mapping/caniuse-lite freshness and greater-
+  than-500-kB Admin chunk advisories.
+- Failures and corrections: before the first SQL run, an invalid string
+  `'NULL'::BIGINT` and an athlete-classification-shaped score key were removed.
+  The first 487 run rolled back because the 360 alternate count was 17 while
+  the stale assertion expected 16; the valid assessment was retained and the
+  assertion corrected. A focused static test initially looked for one missing
+  token and then for tuple-shaped JSON scores; both test defects were repaired.
+  A stale packet alternate count was corrected from 16 to 17, after which final
+  bytes passed twice. The audit then surfaced six similarity pairs; immutable
+  489 closed them. Read-only verification queries guessed one obsolete mapping
+  table and two legacy columns; schema inspection corrected the queries without
+  data changes.
+- Human review remaining: watch all 10 videos fully and verify playback,
+  exactness, contact, target, direction/rotation, endpoint, captions,
+  accessibility, quality, safety, and conflicts; adjudicate 32 evidence
+  applications, 41 alternates, 13 identity decisions, 12 graph proposals, and
+  all relevant score anchors; independently review content and publication;
+  establish approved phase depth; run shadow generation, clean deployment
+  rehearsal, monitoring/rollback/incident proof, support readiness, and a real
+  coach pilot.
+- Documentation updated: all five append-only workout-generator ledgers and
+  this zero-context handoff contain final source-20/360 metrics, identity
+  closure, test/build evidence, and remaining gates.
+- Exact next action: audit source 21 `90/90 Breathing with Reach`, definition
+  `0ac22398-2eed-482a-aae8-8d26ba888eaf`, using the newest `Immediate next
+  work` section. Resolve the three current source variants and the erroneous
+  inherited `spine_rotation` requirement before authoring; do not copy
+  `age_min=6` or `is_published=true`.

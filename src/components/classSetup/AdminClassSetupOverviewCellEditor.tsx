@@ -98,7 +98,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [programOptions, setProgramOptions] = useState<TopProgram[]>([])
   const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
   const [primarySportId, setPrimarySportId] = useState<number | null>(null)
-  const [excludeFromDropIns, setExcludeFromDropIns] = useState(false)
+  const [allowDropIns, setAllowDropIns] = useState(true)
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
@@ -114,7 +114,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setTextValue('')
     setSelectedProgramsId(row.programsId)
     setPrimarySportId(row.primarySportId)
-    setExcludeFromDropIns(row.excludeFromDropIns)
+    setAllowDropIns(!row.excludeFromDropIns)
     setSkillLevel(row.skillLevel ?? '')
     setStatusValue(row.status)
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
@@ -189,15 +189,13 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       sportTags: 'Sport Tags',
       program: 'Program',
       programDescription: 'Program Description',
-      excludeFromDropIns: 'Exclude from Drop-ins',
+      excludeFromDropIns: 'Allow Drop-ins',
       className: 'Class',
       classDescription: 'Class Description',
       schedule: 'Schedule',
       skillLevel: 'Skill Level',
       status: 'Status',
       active: 'Status',
-      costPerClass: 'Pricing',
-      fee1x: 'Pricing',
       costPerMonth: 'Pricing',
     }
     return `Edit ${labels[columnId] ?? columnId}`
@@ -220,8 +218,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       'primarySport',
       'programDescription',
       'excludeFromDropIns',
-      'costPerClass',
-      'fee1x',
       'costPerMonth',
     ]
     if (
@@ -253,7 +249,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           break
         case 'excludeFromDropIns':
           if (row.programsId == null) throw new Error('Missing program')
-          await updateTopProgram(row.programsId, { excludeFromDropIns })
+          await updateTopProgram(row.programsId, { excludeFromDropIns: !allowDropIns })
           break
         case 'className':
           await updateClassEvent(row.classId, { displayName: textValue.trim() })
@@ -275,8 +271,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
             await updateClassEvent(row.classId, { isActive: statusValue === 'Active' })
           }
           break
-        case 'costPerClass':
-        case 'fee1x':
         case 'costPerMonth': {
           if (row.programsId == null) throw new Error('Missing program')
           await updateTopProgram(row.programsId, { pricingCostOptions: pricingDraft })
@@ -375,14 +369,14 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
             <input
               type="checkbox"
-              checked={excludeFromDropIns}
-              onChange={(event) => setExcludeFromDropIns(event.target.checked)}
+              checked={allowDropIns}
+              onChange={(event) => setAllowDropIns(event.target.checked)}
               className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600"
             />
             <span>
-              <span className="block text-sm font-medium text-gray-900">Exclude from drop-ins</span>
+              <span className="block text-sm font-medium text-gray-900">Allow Drop-ins</span>
               <span className="mt-1 block text-xs text-gray-500">
-                Hide this program’s classes and dates from the single-day drop-in flow.
+                Yes adds this program’s classes to the drop-in course enrollment list. No removes them.
               </span>
             </span>
           </label>
@@ -391,7 +385,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           </p>
         </div>
       )
-      saveDisabled = excludeFromDropIns === row.excludeFromDropIns
+      saveDisabled = allowDropIns === !row.excludeFromDropIns
       break
     case 'skillLevel':
       body = (
@@ -456,8 +450,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       hideFooter = true
       wide = true
       break
-    case 'costPerClass':
-    case 'fee1x':
     case 'costPerMonth':
       body = (
         <div className="space-y-4">

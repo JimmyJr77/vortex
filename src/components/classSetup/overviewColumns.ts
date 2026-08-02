@@ -17,11 +17,8 @@ export type OverviewColumnId =
   | 'schedule'
   | 'excludeFromDropIns'
   | 'status'
-  | 'costPerClass'
-  | 'fee1x'
   | 'costPerMonth'
   | 'active'
-  | 'enrollees'
 
 export type FilterKind = 'text' | 'numeric' | 'status' | 'skillLevel' | 'primarySport' | 'currency'
 
@@ -44,13 +41,10 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
   { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 220, defaultWidth: 280 },
-  { id: 'excludeFromDropIns', label: 'Exclude from Drop-ins', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 160 },
-  { id: 'costPerClass', label: 'Cost per Class', editable: true, filterKind: 'currency', minWidth: 110, defaultWidth: 120 },
-  { id: 'fee1x', label: 'Monthly 1×/Week', editable: true, filterKind: 'currency', minWidth: 120, defaultWidth: 140 },
+  { id: 'excludeFromDropIns', label: 'Allow Drop-ins', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 130 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
   { id: 'status', label: 'Status', editable: true, filterKind: 'status', minWidth: 90, defaultWidth: 100 },
   { id: 'active', label: 'Active', editable: true, filterKind: 'text', minWidth: 80, defaultWidth: 90 },
-  { id: 'enrollees', label: 'Enrollees', editable: false, filterKind: 'numeric', minWidth: 90, defaultWidth: 100 },
 ]
 
 export type TextFilter = { kind: 'text'; query: string }
@@ -94,7 +88,8 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
     case 'programDescription':
       return row.programDescription?.trim() || '—'
     case 'excludeFromDropIns':
-      return row.excludeFromDropIns ? 'Yes' : 'No'
+      // Column is "Allow Drop-ins": Yes = included in drop-in list (not excluded).
+      return row.excludeFromDropIns ? 'No' : 'Yes'
     case 'className':
       return row.className || '—'
     case 'classDescription':
@@ -105,16 +100,10 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return formatSkillLevel(row.skillLevel)
     case 'status':
       return row.status
-    case 'costPerClass':
-      return row.costPerClass || '—'
-    case 'fee1x':
-      return row.fee1x || '—'
     case 'costPerMonth':
       return row.costPerMonthSummary || '—'
     case 'active':
       return row.classIsActive ? 'Yes' : 'No'
-    case 'enrollees':
-      return String(row.enrolleeCount)
     default:
       return '—'
   }
@@ -135,17 +124,8 @@ export function compareOverviewRows(
 
   switch (column) {
     case 'classId':
-    case 'enrollees':
-      cmp = a[column === 'classId' ? 'classId' : 'enrolleeCount'] - b[column === 'classId' ? 'classId' : 'enrolleeCount']
+      cmp = a.classId - b.classId
       break
-    case 'costPerClass':
-    case 'fee1x': {
-      const key = column === 'costPerClass' ? 'costPerClass' : 'fee1x'
-      const av = parseCurrency(a[key]) ?? -1
-      const bv = parseCurrency(b[key]) ?? -1
-      cmp = av - bv
-      break
-    }
     case 'costPerMonth':
       cmp = compareStrings(a.costPerMonthSummary ?? '', b.costPerMonthSummary ?? '')
       break
@@ -202,10 +182,7 @@ export function applyOverviewFilters(
         case 'numeric':
           return matchesNumericFilter(Number(display) || 0, filter)
         case 'currency':
-          return matchesCurrencyFilter(
-            col.id === 'costPerClass' ? row.costPerClass : col.id === 'fee1x' ? row.fee1x : row.costPerMonthSummary,
-            filter,
-          )
+          return matchesCurrencyFilter(row.costPerMonthSummary, filter)
         case 'status':
           return filter.values.length === 0 || filter.values.includes(row.status)
         case 'multi':

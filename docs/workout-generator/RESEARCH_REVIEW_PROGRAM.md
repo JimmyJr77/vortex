@@ -3174,3 +3174,53 @@ Underbar, Giant, Bar Cast, Cast to Handstand, standing Precision Jump, and any
 connection before the declared endpoint. Do not infer athlete readiness or a
 skill-library level from exercise difficulty. Separate qualified content
 review and independent publication approval remain mandatory.
+
+## Precision Jump and Bilateral 360 Jump review packet
+
+Review the no-turn family as one stationary bilateral forward flight ending in
+a declared stick. Confirm that the open variant lands on a stable full-foot
+surface and the restricted parkour variant lands both forefeet together on the
+secured low horizontal target, then holds two seconds without step, shuffle,
+hand contact, rebound, fall, or connection. Confirm exact takeoff/target
+geometry, arm policy, miss and bailout, assistance, valid/invalid contact,
+contact accounting, dose, rest, duration, and stop behavior. Do not infer a
+running, unilateral, elevated, gap, rebound, drop, Lache, wall-contact, or
+connected interpretation from the generic source label.
+
+Review the 360 definition as a distinct full whole-body turn with declared
+direction, forward projection, target reacquisition, final heading, bilateral
+contact, stick, and full reset. Confirm open versus low restricted target as
+exact support-interface variants. Quarter-turn, half-turn, no-turn, lateral
+projection, vertical Tuck or Squat Jump, obstacle clearance, tuck-to-lateral
+stick, in-place turn, run-up, unilateral takeoff, rebound, flip, load,
+assistance, elevation/gap, and connected exits remain distinct definitions or
+separately reviewed exact variants—not silent annotations.
+
+Use the current World Gymnastics 2026 Table of Tricks to support the basic-
+versus-360 action boundary and competition difficulty modifiers. Treat those
+points as competition values, not Vortex scores. Use the UrbanLeap handbook
+for direct educational Precision and 360 technique/progression/fault context;
+it is not a universal normative safety standard. Use the seven-traceur
+precision-coordination study only for its controlled no-run-up laboratory task,
+the ten-traceur 0.75-m drop study only as adjacent landing-load evidence, the
+15-participant 100-standing-long-jump study only as deliberately fatiguing
+exposure evidence, and rotational-landing research only as adjacent evidence.
+None establishes universal eligibility, safety, target geometry, dose,
+recovery, progression order, outcome, or numeric difficulty.
+
+Watch all ten candidates completely. No-turn IDs are `0M10agVeUzw`,
+`Fhz-s_Hqo8I`, `9sb4TYNHGio`, `FFgenf0h-3M`, and `opS9-hg9Rzc`. Full-turn IDs
+are `C4402xYqsXM`, `sB-XldxEVes`, `_ZXj9H_45po`, `jgkdLk_IuEQ`, and
+`LSpKH0qsz6E`. oEmbed metadata and iframe health prove neither playback nor an
+exact card/variant match. Record start, approach, takeoff, direction, rotation,
+projection, target geometry, contact, stick, endpoint, assistance, conflicts,
+captions, accessibility, cue/demonstration quality, safety, reviewer identity,
+rationale, timestamp, and reviewed card version.
+
+Independently adjudicate 41 alternates, 13 migration-owned identity decisions,
+12 migration-487 graph proposals, and the 6 new score anchors, plus the two
+existing open-variant anchors included by the packet. Verify all 32 evidence
+applications and all working coach/athlete/support content. Complexity and
+physical difficulty are exercise-task scores only; athlete readiness remains a
+workout input and skill-library levels remain on skill cards. Separate content
+review and publication approval are mandatory.

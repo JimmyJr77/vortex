@@ -38,17 +38,11 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'schedule',
   'status',
   'active',
-  'costPerClass',
-  'fee1x',
   'costPerMonth',
 ])
 
 const STATUS_COLUMNS: ReadonlySet<OverviewColumnId> = new Set(['status', 'active'])
-const PRICING_COLUMNS: ReadonlySet<OverviewColumnId> = new Set([
-  'costPerClass',
-  'fee1x',
-  'costPerMonth',
-])
+const PRICING_COLUMNS: ReadonlySet<OverviewColumnId> = new Set(['costPerMonth'])
 
 export function isCopyableColumn(columnId: OverviewColumnId): boolean {
   return COPYABLE_COLUMN_IDS.has(columnId)
@@ -94,8 +88,6 @@ const PROGRAM_LEVEL_COLUMNS: ReadonlySet<OverviewColumnId> = new Set([
   'sportTags',
   'programDescription',
   'excludeFromDropIns',
-  'costPerClass',
-  'fee1x',
   'costPerMonth',
 ])
 
@@ -137,8 +129,6 @@ function valuesEqualForColumn(
     case 'status':
     case 'active':
       return source.status === target.status
-    case 'costPerClass':
-    case 'fee1x':
     case 'costPerMonth':
       return (
         JSON.stringify(normalizeProgramPricingOptions(source.pricingCostOptions)) ===
@@ -368,8 +358,6 @@ export async function applyCopyToTarget(
         await updateClassEvent(target.classId, { isActive: source.status === 'Active' })
       }
       break
-    case 'costPerClass':
-    case 'fee1x':
     case 'costPerMonth': {
       if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
       await updateTopProgram(target.programsId, {

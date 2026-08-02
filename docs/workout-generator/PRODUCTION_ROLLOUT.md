@@ -1114,3 +1114,30 @@ are additive and should not be rolled back destructively during an incident.
   published phase depth, shadow generation, representative substitutions and
   failure testing, a real coach pilot, clean-database rehearsal, staged flags,
   monitoring, rollback, incident response, and user/coach support readiness.
+
+## Source-20 / full-turn checkpoint after migrations 487 and 489
+
+- Automated family authorship now passes for `Broad Jump to Stick` card 3 and
+  `Bilateral 360-Degree Jump to Stick` card 1. Both current packets contain
+  only media, graph, calibration, and publication human gates; neither card is
+  published or approved.
+- Migration 487 is registered at checksum `2192026862`; six surfaced neighbor
+  pairs were then closed by immutable migration 489 at checksum `1326745458`.
+  The identity queue is 626/626 adjudicated with zero unresolved pair and zero
+  exact collision.
+- Registry `.88`, focused validation, focused lint, JSON/diff checks, two-pass
+  direct SQL, production-runner registration/skip/re-entry, persisted audit,
+  the 1,025-pass backend suite, and the production build are green. Existing
+  browser-data freshness and large Admin-chunk notices remain advisories.
+- Library state is 1,676/1,676 mappings, 1,045 active definitions, 96 machine-
+  complete and 949 machine-incomplete cards, 95 healthy current embeddable
+  media sets, 724 review-only graph edges, 939 review-only calibration rows,
+  and zero approvals or publications.
+- Release is correctly `blocked`: 0/25 published, 0/3 approved depth in every
+  required phase, 0/10 approved relationships, 0/3 approved calibration
+  anchors, and 0/20 real coach reviews. Full-video review, evidence/identity/
+  alternate review, independent difficulty calibration, graph adjudication,
+  content review, separate publication approval, phase depth, shadow exercise
+  selection, substitutions and failure testing, clean deployment rehearsal,
+  a representative coach pilot, monitoring/rollback/incident proof, and coach/
+  athlete support readiness remain production requirements.

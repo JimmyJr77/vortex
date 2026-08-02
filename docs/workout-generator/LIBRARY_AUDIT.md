@@ -3287,3 +3287,52 @@ current healthy embeddable 3–5-candidate sets, and 617/617 adjudicated surface
 pairs with no unresolved pair or exact collision. Graph/calibration queues are
 713/933 review-only rows with zero approvals. All cards remain unpublished and
 human-gated.
+
+## Precision Jump and Bilateral 360 Jump library checkpoint
+
+Source 20 is no longer a separate selectable duplicate. It maps to `Broad Jump
+to Stick` card version 3, whose exact variants declare either an open stable
+full-foot landing or a secured low restricted bilateral forefoot target. The
+generic Precision Jump source definition and baseline are archived identity
+quarantines. A separate `Bilateral 360-Degree Jump to Stick` card represents
+the identity-changing full-turn action and declares open versus restricted
+target as exact variants.
+
+All four selectable variants contain controlled movement/body/equipment
+taxonomy; muscles, joints, actions, planes, laterality, and contact sequence;
+exact start/action/valid/invalid/stop/reset contracts; complete task-only
+difficulty vectors; landing, load, fatigue, recovery, cumulative contact, and
+downstream-interference rules; population/environment/equipment/station/
+bailout constraints; duration formulas, dose ranges, rest, measurements,
+quality gates, stop rules, substitutions, and revalidation; and athlete,
+coach, accessibility, persistence, incident, and support-operation content.
+
+Difficulty vectors are complexity / physical difficulty / derived maximum:
+open no-turn `44/48/48`, restricted no-turn `62/54/62`, open 360
+`78/64/78`, and restricted-target 360 `86/68/86`. They do not classify an
+athlete. The legacy source's age and skill fields are null, and the exercise is
+not published.
+
+Current persisted family scope is 4 selectable variants, 11 active profiles,
+32 candidate evidence sections, 10 current healthy embeddable candidates, 41
+alternate assessments, 12 migration-487 relationship proposals, 6 new
+review-only calibration anchors, 13 migration-owned identity decisions across
+487/489, and 2 audit packets containing only the four required human blockers.
+The five no-turn media IDs are `0M10agVeUzw`, `Fhz-s_Hqo8I`, `9sb4TYNHGio`,
+`FFgenf0h-3M`, and `opS9-hg9Rzc`; the five 360 IDs are `C4402xYqsXM`,
+`sB-XldxEVes`, `_ZXj9H_45po`, `jgkdLk_IuEQ`, and `LSpKH0qsz6E`. Current
+oEmbed metadata health is not playback, exactness, caption, accessibility,
+quality, safety, reviewer, or approval verification.
+
+Migration 487 is immutable at checksum `2192026862`; follow-up identity closure
+489 is immutable at `1326745458`; registry `2026-08-02.88` contains 378
+sources; focused tests pass 226/226; the backend suite passes 1,025 tests plus
+20 intentional skips; focused lint, JSON parsing, diff checks, PostgreSQL
+re-entry, persisted audits, and the production build pass.
+
+The global audit is now 1,676/1,676 mappings, 1,045 active definitions, 96
+machine-complete and 949 incomplete cards, 95 current healthy embeddable
+3–5-candidate sets, and 626/626 adjudicated similarity pairs with zero
+unresolved pair or exact collision. Graph/calibration queues contain 724/939
+review-only rows with zero approvals, and all 1,045 cards remain quarantined
+and unpublished.
