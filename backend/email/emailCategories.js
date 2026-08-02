@@ -35,6 +35,7 @@ export const EMAIL_CATEGORIES = Object.freeze({
   registration_alert: STREAM_TRANSACTIONAL,
   waiver_request: STREAM_TRANSACTIONAL,
   security_notification: STREAM_TRANSACTIONAL,
+  gymnastics_evaluation: STREAM_TRANSACTIONAL,
 
   // --- marketing (no senders today; reserved + scaffolded) ---
   newsletter: STREAM_MARKETING,

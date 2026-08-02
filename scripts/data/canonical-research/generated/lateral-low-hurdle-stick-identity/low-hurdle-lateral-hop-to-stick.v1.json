@@ -1,0 +1,384 @@
+{
+  "facilityId": 1,
+  "slug": "low-hurdle-lateral-hop-to-stick",
+  "researchVersion": "2026-08-01.12",
+  "assessmentSummary": {
+    "identity": "Undefined legacy source: lateral low-hurdle clearance and terminal-stick wording are present, but takeoff foot count, landing foot count and leg, obstacle dimensions, contact count, direction relative to stance, landing zone, hold, exit, and reset are not declared.",
+    "currentCardFindings": [
+      "The record mixes generic high-impact boilerplate with a title that can describe bilateral or ipsilateral single-leg execution.",
+      "Neither hop terminology nor the old difficulty and dosage rows prove support or landing-leg identity.",
+      "The source remains traceable but becomes archived, unscored, unpublished, and human-review quarantined."
+    ],
+    "difficultyDecision": "Do not score an undefined task; exercise complexity and physical difficulty require fixed takeoff, landing, obstacle, contact, hold, and reset contracts.",
+    "identityDecision": {
+      "resolution": "retire_ambiguous_source_without_direct_consolidation",
+      "possibleMappings": [
+        "bilateral-lateral-low-hurdle-jump-to-stick",
+        "single-leg-lateral-low-hurdle-hop-to-stick"
+      ],
+      "humanReviewRequired": true
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T01:05:00.000Z",
+      "cardVersion": 2,
+      "status": "archived",
+      "description": "Archived nonprescribable source. The record names a lateral low-hurdle clearance and terminal stick but does not declare takeoff foot count, landing foot count or leg, obstacle dimensions, contact count, direction relative to stance, landing zone, hold, exit, or reset.",
+      "familyKey": "unresolved_lateral_low_hurdle_support_and_landing_identity",
+      "movementPatterns": [
+        "clear_obstacle",
+        "land",
+        "stabilize"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "lower_leg",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine"
+      ],
+      "requiredEquipment": [
+        "low_hurdle"
+      ],
+      "optionalEquipment": [
+        "floor_markers",
+        "landing_mat"
+      ],
+      "environment": {
+        "known": [
+          "lateral_projection",
+          "raised_low_hurdle",
+          "terminal_stick_wording"
+        ],
+        "unresolved": [
+          "takeoff_foot_count",
+          "landing_foot_count",
+          "landing_leg",
+          "obstacle_dimensions",
+          "contact_count",
+          "direction_relative_to_stance",
+          "landing_zone",
+          "hold",
+          "exit",
+          "reset"
+        ],
+        "selectionBlocked": true
+      },
+      "population": {
+        "reason": "readiness, side dose, trip exposure, and impact cannot be matched to an undefined support contract",
+        "supportPath": "choose_an_exact_bilateral_or_same_leg_low_hurdle_card",
+        "selectionBlocked": true
+      },
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Unilateral and bilateral landings have materially different knee kinematics and muscle-activation demands.",
+        "A lateral hurdle task must declare takeoff foot count, landing foot count and leg, obstacle, direction, contact count, terminal hold, and reset; hop or jump wording alone cannot supply those facts."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21873903/",
+      "sourceTitle": "Training specificity of hurdle vs. countermovement jump training",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Bilateral and unilateral hurdle jumps showed different force and contact-time characteristics in a standardized protocol.",
+        "Raised-hurdle clearance is represented separately from a floor-line or open-floor target because it adds required equipment, minimum clearance, visual demand, trip exposure, and altered failure consequences."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Jump landing uses foot, ankle, knee, hip, pelvis, and trunk control, with different demands when landing on one leg versus two.",
+        "Cards declare plantar flexors, quadriceps, hamstrings, gluteals, hip adductors and rotators, foot and ankle stabilizers, and trunk stabilizers without implying isolated-muscle causation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "sourceTitle": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Changing hurdle height altered jump height and flight-phase hip and knee positions in the studied hurdle-jump protocol.",
+        "The exact card fixes one lateral clearance, declared low obstacle dimensions, declared takeoff and landing support, controlled absorption, terminal hold, and full reset."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21873903/",
+      "sourceTitle": "Training specificity of hurdle vs. countermovement jump training",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hurdle and support conditions change mechanical and coordination demands and therefore must remain fixed when comparing tasks.",
+        "Difficulty scores exercise complexity and physical difficulty only, with overall derived as their maximum; athlete proficiency is not an exercise-card field."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "sourceTitle": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hurdle height can alter clearance strategy even when some lower-limb work measures do not differ between tested heights.",
+        "Track obstacle dimensions, bodyweight contacts, takeoff and landing support, direction, landing quality, attempts, other jump and running load, symptoms, rest, and recovery without asserting a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "sourceTitle": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Obstacle dimensions are part of the task and cannot be treated as invisible equipment metadata.",
+        "Require a collapsible low hurdle, level high-traction surface, marked takeoff and landing zones, clear fall space, no cross-traffic, stable footwear policy, and a complete coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Landing-feedback interventions use observable movement targets, but the evidence does not establish one universal safe repetition count.",
+        "Dose fully reset single clearances, count every landing contact and side, preserve the declared hold, and stop before technique or output changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/7-line-drills-to-improve-agility/",
+      "sourceTitle": "7 Line Drills to Improve Agility",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Lateral line drills distinguish one-foot and two-foot execution and demonstrate why support must be named explicitly.",
+        "Instructions state foot support, direction, obstacle, takeoff zone, clearance, landing zone, whole-foot absorption, hold, exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "sourceTitle": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hurdle height changes flight posture and must be selected deliberately rather than progressed by assumption.",
+        "Stop for pain, guarding, obstacle contact, toe catch, uncontrolled landing, split or wrong-foot contact, free-foot touch, extra hop or step, target miss, alignment loss, dizziness, unsafe equipment, or two changed reps."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21873903/",
+      "sourceTitle": "Training specificity of hurdle vs. countermovement jump training",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Bilateral and unilateral hurdle protocols have different mechanical characteristics and should not be pooled silently.",
+        "Workout generation validates exact card and variant, obstacle inventory and dimensions, lane, side balance, contact and fatigue budgets, duration, rest, substitutions, and persisted output after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Clear observable landing feedback can support movement practice, but card text cannot promise injury prevention.",
+        "Athlete support explains the foot contract, obstacle, target, expected landing, symptoms, self-checks, stop rule, and how to request a ground-only or non-impact alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21873903/",
+      "sourceTitle": "Training specificity of hurdle vs. countermovement jump training",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Standardized hurdle protocols require the support condition and obstacle setup to remain consistent.",
+        "Coaches document hurdle dimensions, takeoff and landing marks, foot contract, direction, valid attempts, contacts, hold, rest, side order, faults, symptoms, and substitutions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Changing from unilateral to bilateral landing changes the task rather than merely reducing difficulty.",
+        "Accessible delivery may reduce obstacle height, lateral distance, intent, attempts, precision, or measurement pressure and increase rest or multimodal instruction while preserving the exact support and obstacle contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37519153/",
+      "sourceTitle": "Effects of hurdle height on lower limb joint kinematics and kinetics of male trainee sprinters during hurdle jumps",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Obstacle height is a meaningful mechanical dimension and must be bounded within the reviewed variant.",
+        "Support, landing leg, obstacle versus floor target, contact count, rebound, approach, rotation, and terminal action require explicit variant or definition review; measured distance, hold duration, attempts, and rest can be delivery modifiers within bounds."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify foot support, obstacle, direction, contact count, clearance, landing, hold, reset, cueing, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=lymbF-brPvQ",
+      "title": "Double Leg Lateral Hurdle Hop Stick",
+      "channelName": "Levelup Jared Hatz",
+      "sourceQuery": "adjacent bilateral interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:05:00.000Z"
+      },
+      "notes": "Adjacent bilateral interpretation only; media cannot establish the legacy source foot contract."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7aMbZAmd2qY",
+      "title": "1 Leg Lateral Hurdle Hop with Stick",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "adjacent single leg interpretation",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:05:00.000Z"
+      },
+      "notes": "Adjacent single-leg interpretation only; it does not prove the source support contract."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Bw5ytVM3U_8",
+      "title": "Lateral Hurdle Hop Stick",
+      "channelName": "Performance Unlimited",
+      "sourceQuery": "ambiguous lateral hurdle hop stick wording",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:05:00.000Z"
+      },
+      "notes": "Title repeats the ambiguity and remains candidate evidence only; no mapping or approval is inferred."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bilateral Lateral Low-Hurdle Jump to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative evidence establishes simultaneous two-foot takeoff and landing, one clearance, and a terminal hold.",
+      "distinguishingDimensions": {
+        "possibleMapping": "bilateral-lateral-low-hurdle-jump-to-stick"
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Low-Hurdle Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "Possible only if authoritative evidence establishes same-leg takeoff and landing, one clearance, side accounting, and terminal hold.",
+      "distinguishingDimensions": {
+        "possibleMapping": "single-leg-lateral-low-hurdle-hop-to-stick"
+      }
+    },
+    {
+      "name": "Opposite-Leg Lateral Bound over Low Hurdle to Stick",
+      "classification": "new_definition",
+      "rationale": "A contralateral landing is a third support identity.",
+      "distinguishingDimensions": {
+        "takeoffLandingRelationship": "contralateral"
+      }
+    },
+    {
+      "name": "Continuous Lateral Hurdle Hops",
+      "classification": "new_definition",
+      "rationale": "Repeated rebounds remove the terminal hold and full reset.",
+      "distinguishingDimensions": {
+        "terminalAction": "rebound"
+      }
+    },
+    {
+      "name": "Multi-Hurdle Lateral Hop-and-Stick Series",
+      "classification": "new_definition",
+      "rationale": "Multiple obstacles and contacts change sequence, fatigue, spacing, and dosage.",
+      "distinguishingDimensions": {
+        "obstacles": "multiple"
+      }
+    },
+    {
+      "name": "Ground-Only Lateral Jump or Hop to Stick",
+      "classification": "new_definition",
+      "rationale": "Removing the obstacle removes clearance, trip, and equipment constraints but still requires foot-count identity.",
+      "distinguishingDimensions": {
+        "obstacle": "none"
+      }
+    },
+    {
+      "name": "Hurdle Height, Distance, Hold, Attempts, Rest, or Side Order",
+      "classification": "modifier_annotation",
+      "rationale": "These become delivery modifiers only after exact support, contact, obstacle, hold, and reset identity is resolved.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "hurdle_height",
+          "distance",
+          "hold",
+          "attempts",
+          "rest",
+          "side_order"
+        ]
+      }
+    }
+  ]
+}

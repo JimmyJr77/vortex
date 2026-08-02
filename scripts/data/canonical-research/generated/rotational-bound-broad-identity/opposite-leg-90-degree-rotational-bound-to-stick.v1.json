@@ -1,0 +1,458 @@
+{
+  "facilityId": 1,
+  "slug": "opposite-leg-90-degree-rotational-bound-to-stick",
+  "researchVersion": "2026-08-02.13",
+  "assessmentSummary": {
+    "identity": "From a stationary single-leg stance facing the start heading, take off from the declared leg, project forward-diagonally in one flight while reorienting the whole body exactly 90 degrees toward the declared side, land on the opposite leg inside the rotated target, absorb under control, hold without a free-foot touch, hand touch, extra hop, or step, exit safely, and reset fully.",
+    "currentCardFindings": [
+      "The exact authored contract combines a one-leg to opposite-leg bound, horizontal-diagonal projection, a 90-degree whole-body turn, one landing, and terminal stabilization.",
+      "It is not mapped from the ambiguous rotational-bound source, which never declared support, exact angle, or contact sequence.",
+      "Five links passed current oEmbed health checks but remain unreviewed candidate demonstrations."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 68,
+      "absoluteLoadDemand": 66,
+      "baseOverallDifficulty": 68,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "stationary-opposite-leg-forward-diagonal-bound-90-degree-whole-body-turn-to-stick",
+        "exerciseComplexity": 68,
+        "physicalDifficulty": 66,
+        "overallDifficulty": 68
+      }
+    ],
+    "identityDecision": {
+      "resolution": "author_exact_opposite_leg_rotational_bound_without_source_mapping",
+      "groundParent": "lateral-bound",
+      "legacySourceMapped": false
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T01:37:44.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "From a stationary single-leg stance facing the start heading, take off from the declared leg, project forward-diagonally in one flight while reorienting the whole body exactly 90 degrees toward the declared side, land on the opposite leg inside the rotated target, absorb under control, hold without a free-foot touch, hand touch, extra hop, or step, exit safely, and reset fully.",
+      "familyKey": "opposite_leg_forward_diagonal_quarter_turn_bound_to_terminal_stick",
+      "movementPatterns": [
+        "bound",
+        "horizontal_projection",
+        "rotate",
+        "land",
+        "stabilize"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "lower_leg",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine"
+      ],
+      "requiredEquipment": [
+        "floor_markers"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "landing_mat",
+        "video_capture"
+      ],
+      "environment": {
+        "space": {
+          "crossTraffic": "none",
+          "clearFallSpace": true,
+          "clearFlightZone": true,
+          "turnAngleDegrees": 90,
+          "markedStartHeading": true,
+          "markedRotatedLandingHeading": true
+        },
+        "surface": {
+          "dry": true,
+          "level": true,
+          "highTraction": true
+        },
+        "footwear": "stable_and_surface_appropriate",
+        "lighting": "landing_target_and_surface_fully_visible",
+        "supervision": {
+          "fullStartFlightLandingSightline": true
+        }
+      },
+      "population": {
+        "eligibleWhen": [
+          "pain_free_single_leg_takeoff_and_landing",
+          "owns_opposite_leg_lateral_bound_to_stick",
+          "owns_bilateral_quarter_turn_landing",
+          "can_follow_declared_turn_direction"
+        ],
+        "individualizeBy": [
+          "current_symptoms",
+          "landing_control",
+          "training_history",
+          "surface",
+          "footwear",
+          "confidence",
+          "prior_joint_history",
+          "same_session_impact"
+        ],
+        "doNotAutoSelectWhen": [
+          "acute_pain",
+          "giving_way",
+          "dizziness",
+          "unable_to_hold_single_leg_landing",
+          "unsafe_space",
+          "unmarked_orientation"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "A forward jump with a 90-degree whole-body rotation creates a declared reorientation and a lateral component at landing rather than a generic forward or lateral landing.",
+        "Canonical identity therefore fixes takeoff support, horizontal or diagonal projection, exactly 90 degrees of whole-body reorientation, landing support, one flight, terminal hold, exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32636436/",
+      "sourceTitle": "Inverse optimal control with time-varying objectives: application to human jumping movement analysis",
+      "sourcePublisher": "Scientific Reports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Standing broad-jump execution includes takeoff, flight, landing, and finish phases, and target success depends on the takeoff vector and landing-foot placement.",
+        "The controlled taxonomy distinguishes an opposite-leg single-leg bound from a bilateral broad jump and records horizontal projection, transverse reorientation, landing support, and stabilization explicitly."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Unilateral and bilateral landings have different knee kinematics and muscle-activation demands.",
+        "Cards describe foot, ankle, knee, hip, pelvis, trunk, and thoracic control across sagittal, frontal, and transverse planes without claiming isolated-muscle causation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Whole-body rotation changes the landing geometry and can load the two legs differently while decelerating horizontal velocity.",
+        "Direction, rotation angle, landing support, body orientation, and terminal stabilization are material mechanical variables and cannot be inferred from a generic rotational label."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41766813/",
+      "sourceTitle": "Rotational vs. Straight Landings: Exploring Task-Specific Responses to Inform ACL-Injury Risk Screening",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Rotational and straight landings, and unilateral and bilateral landing tasks, show task-specific kinematic and kinetic responses.",
+        "Difficulty scores exercise complexity and physical difficulty only; overall is their maximum, and athlete skill or proficiency is excluded from exercise cards."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Single-leg jump-landing biomechanics vary with direction and external load.",
+        "Track declared support, direction, angle, horizontal distance, bodyweight contacts, valid attempts, other jump and running load, symptoms, technique change, rest, and recovery without asserting a universal threshold."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32636436/",
+      "sourceTitle": "Inverse optimal control with time-varying objectives: application to human jumping movement analysis",
+      "sourcePublisher": "Scientific Reports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing-foot placement is part of target success in a standing broad jump.",
+        "Require marked takeoff orientation, exact rotated landing orientation and zone, level high-traction surface, clear diagonal flight and fall space, no cross-traffic, stable footwear policy, and full coach sightlines."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Landing-feedback interventions use observable task-specific criteria, but the evidence does not establish one universal safe repetition count.",
+        "Dose fully reset single efforts, count every landing and failed attempt, preserve the declared hold, balance direction and side exposure, and stop before angle, distance, support, or landing quality changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6776723/",
+      "sourceTitle": "The Effects of Mid-flight Whole-Body and Trunk Rotation on Landing Mechanics: Implications for Anterior Cruciate Ligament Injuries",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Whole-body and trunk rotation are not interchangeable landing instructions.",
+        "Instructions specify start support, projection target, whole-body 90-degree turn, exact landing support and orientation, controlled absorption, hold, safe exit, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41766813/",
+      "sourceTitle": "Rotational vs. Straight Landings: Exploring Task-Specific Responses to Inform ACL-Injury Risk Screening",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Rotational landing is a task-specific exposure and should not be treated as an unlabeled straight-landing substitute.",
+        "Stop for pain, guarding, giving way, dizziness, wrong support, under- or over-rotation, target miss, foot slide, alignment loss, free-foot or hand touch, extra hop or step, unsafe space, or two changed repetitions."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32636436/",
+      "sourceTitle": "Inverse optimal control with time-varying objectives: application to human jumping movement analysis",
+      "sourcePublisher": "Scientific Reports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Broad-jump strategy changes with target demands, so distance and landing-foot placement must remain visible to programming logic.",
+        "Workout generation validates exact card and variant, lane and target geometry, side and direction balance, contacts, cumulative impact and fatigue, duration, rest, substitutions, rendering, and persisted output after every change."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Observable landing feedback can support movement practice, but card text cannot promise injury prevention.",
+        "Athlete support explains the foot contract, turn direction and angle, landing target, valid hold, symptoms, self-checks, stop rule, and how to request a straight, bilateral, lower-distance, or non-impact alternative."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35714032/",
+      "sourceTitle": "Entry angle during jump landing changes biomechanical risk factors for ACL injury",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Landing entry angle changes biomechanical measures and must be controlled when comparing attempts.",
+        "Coaches record start and finish orientation, support, turn direction, target angle and distance, valid attempts, contacts, hold, rest, side order, faults, symptoms, and substitutions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "sourceTitle": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "sourcePublisher": "Clinical Journal of Sport Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Changing between unilateral and bilateral landing changes the exercise rather than merely reducing difficulty.",
+        "Accessible delivery may reduce distance, intent, attempts, precision, or measurement pressure and increase rest or multimodal instruction while preserving the exact support, angle, contact, hold, and reset contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41766813/",
+      "sourceTitle": "Rotational vs. Straight Landings: Exploring Task-Specific Responses to Inform ACL-Injury Risk Screening",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Rotation and support materially change the landing task.",
+        "Takeoff support, landing support, turn angle family, projection direction, contact count, rebound, approach, external cue, and terminal action require explicit variant or definition review; target distance, hold, attempts, rest, and side order can be bounded delivery modifiers."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube oEmbed health establishes current link and embedding availability only.",
+        "A human must watch the full video and verify start and landing support, exact angle, projection, body orientation, contact count, hold, reset, cue quality, safety, captions, accessibility, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=PDezjzuC3Kc",
+      "title": "Rotational Bound to Stick",
+      "channelName": "Waterloo Warriors Varsity Strength and Conditioning",
+      "sourceQuery": "rotational bound to stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:37:44.000Z"
+      },
+      "notes": "Title-level candidate only; opposite-leg support, exact 90-degree turn, one flight, hold, quality, safety, captions, and accessibility require review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=k6fqQi52I4g",
+      "title": "90* Rotational Bound and Stick",
+      "channelName": "Repattern Co (Formerly Swell Wellness)",
+      "sourceQuery": "90 degree rotational bound stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:37:44.000Z"
+      },
+      "notes": "Angle and stick appear in the title; every other exact-contract and quality gate remains unapproved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=D5YeB42KzMo",
+      "title": "Rotational Bound (Stick)",
+      "channelName": "Orthopedic Institute Performance",
+      "sourceQuery": "rotational bound stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:37:44.000Z"
+      },
+      "notes": "Candidate only; title does not prove support, angle, projection, or quality."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Wzk8mQ1j6Yg",
+      "title": "SL 90 degree rotational \"bound\" to stick",
+      "channelName": "Sustain Physical Therapy and Performance",
+      "sourceQuery": "single leg 90 degree rotational bound stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:37:44.000Z"
+      },
+      "notes": "Strong title-level candidate; opposite-leg landing and all playback quality gates remain unresolved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=JQ3zy2vBlFg",
+      "title": "Rotational Bound to 1-Leg Stick",
+      "channelName": "Hockey Training Exercise Demonstrations",
+      "sourceQuery": "rotational bound one leg stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T01:37:44.000Z"
+      },
+      "notes": "One-leg landing title candidate only; no exact-match or approval is inferred."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Opposite-Leg 90-Degree Rotational Bound to Stick",
+      "classification": "same_identity",
+      "rationale": "This concise name preserves support, angle, rotation, one flight, and terminal stick.",
+      "distinguishingDimensions": {
+        "takeoffLandingRelationship": "opposite_leg",
+        "turnAngleDegrees": 90
+      }
+    },
+    {
+      "name": "Same-Leg 90-Degree Rotational Hop to Stick",
+      "classification": "new_definition",
+      "rationale": "Landing on the takeoff leg changes the contact relationship and unilateral braking strategy.",
+      "distinguishingDimensions": {
+        "takeoffLandingRelationship": "same_leg"
+      }
+    },
+    {
+      "name": "Bilateral 90-Degree Rotational Broad Jump to Stick",
+      "classification": "new_definition",
+      "rationale": "Two-foot takeoff and landing change propulsion, force attenuation, dose, and readiness.",
+      "distinguishingDimensions": {
+        "support": "bilateral"
+      }
+    },
+    {
+      "name": "Opposite-Leg Lateral Bound to Stick",
+      "classification": "new_definition",
+      "rationale": "Removing whole-body rotation preserves a frontal-plane landing heading rather than the rotated target.",
+      "distinguishingDimensions": {
+        "turnAngleDegrees": 0,
+        "existingDefinition": "lateral-bound"
+      }
+    },
+    {
+      "name": "45-Degree Opposite-Leg Rotational Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "A smaller declared angle preserves the base contact sequence but changes target geometry and rotational demand.",
+      "distinguishingDimensions": {
+        "turnAngleDegrees": 45
+      }
+    },
+    {
+      "name": "Assisted Opposite-Leg Rotational Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "External assistance preserves the task while reducing projection and landing demand within reviewed bounds.",
+      "distinguishingDimensions": {
+        "assistance": "external"
+      }
+    },
+    {
+      "name": "Lateral Bound to Rotational Bound and Stick",
+      "classification": "new_definition",
+      "rationale": "Two ordered flights and landings create a separate multi-contact sequence.",
+      "distinguishingDimensions": {
+        "contactSequence": "lateral_bound_then_rotational_bound"
+      }
+    },
+    {
+      "name": "Continuous Rotational Bounds",
+      "classification": "new_definition",
+      "rationale": "Repeated rebound contacts remove the terminal hold and full reset.",
+      "distinguishingDimensions": {
+        "terminalAction": "rebound",
+        "contacts": "repeated"
+      }
+    },
+    {
+      "name": "Distance, Hold, Attempts, Rest, Turn Side, or Side Order",
+      "classification": "modifier_annotation",
+      "rationale": "These scale delivery inside the reviewed support, angle, projection, contact, and terminal-state contract.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "distance",
+          "hold",
+          "attempts",
+          "rest",
+          "turn_side",
+          "side_order"
+        ]
+      }
+    }
+  ]
+}
