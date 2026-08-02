@@ -2803,3 +2803,51 @@ disposable PostgreSQL. The remaining gates are:
   85, leaving 957; exact current-card healthy embeddable 3–5-candidate coverage
   is 84/1,042. Hollow Body Hold retains exactly `CARD-MEDIA-01`,
   `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+
+## Handstand Hold family audit hardening (migration 477)
+
+- Preserves stable Freestanding Handstand Hold UUID
+  `74ff4c17-2a19-4ae4-8f0b-320eac87c3f3` and Wall-Supported Handstand Hold
+  UUID `8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f`. All five traceable legacy
+  sources remain mapped, but their incomplete baselines are archived identity
+  quarantines because the source text does not fix support, orientation,
+  contact, surface, entry, exit, timer, hold, or failure boundaries.
+- Four selectable working specifications cover freestanding floor,
+  freestanding locked low parallettes, chest-to-wall, and back-to-wall static
+  holds. Their complexity/physical/overall vectors are `88/74/88`, `90/72/90`,
+  `64/68/68`, and `58/64/64`. Overall is the maximum of exercise complexity and
+  physical difficulty; no athlete skill or proficiency classification is
+  stored.
+- Kick-up, Wall Walk, Wall Walk-Up to Handstand Line, Wall-Facing Toe Pull,
+  Handstand Shoulder Shrug, Handstand Push-Up, and Wall Handstand Negative to
+  Box remain distinct by entry, contact, locomotion, scapular action, pressing,
+  or eccentric repetition boundary. A support, orientation, contact, surface,
+  or intended-action change is not silently treated as a coaching annotation.
+- Eight Movement Intelligence/Capacity delivery profiles persist exact support
+  and contact contracts, dose, rest, duration, fatigue and inverted-support
+  budgets, station logistics, substitutions, coach/athlete output, stop rules,
+  and failure-state persistence. The two cards store 32 candidate evidence
+  sections, 64 alternate assessments, eight review-only graph proposals, eight
+  review-only calibration anchors, and ten current oEmbed-healthy media
+  candidates without approval.
+- Current evidence combines professional and governing-body protocols with a
+  systematic review and acute EMG, pressure, stabilometric, shoulder-test,
+  balance-control, and neck-position studies. The packet removes unrelated CPR
+  PMID `32707142` and does not treat generic closed-chain evidence as exact
+  identity evidence. No source establishes a universal line, readiness rule,
+  training dose, recovery interval, safety threshold, transfer outcome, or
+  numeric difficulty.
+- Migration 477 passes repeated direct disposable-PostgreSQL execution,
+  production-runner registration, and exact-file re-entry at checksum
+  `913966457`. Registry `2026-08-02.82` contains 340 sources. Focused validation
+  passes `206/206`; the full backend suite passes 1,009 tests with 20 intentional
+  skips and zero failures. Focused lint, registry parsing, persisted audit, diff
+  integrity, and the production build pass; the build retains only existing
+  dependency-freshness and chunk-size advisories.
+- The authoritative library remains 1,676/1,676 mapped legacy rows and 1,042
+  active definitions. All 616 surfaced identity pairs are adjudicated, with
+  zero unresolved pair and zero exact collision. Machine-complete cards rise to
+  87, leaving 955; exact current-card healthy embeddable 3–5-candidate coverage
+  is 86/1,042. Graph/calibration queues are 665/891 review-only rows with zero
+  approvals. Both Handstand cards retain exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.

@@ -3048,3 +3048,37 @@ adjudicated surfaced identity pairs with zero unresolved collision. Graph and
 calibration queues contain 657/883 review-only rows with zero approvals. Runner
 checksum is `1754451518`; focused validation is `208/208`, and the backend suite
 is 1,007 passes plus 20 intentional skips.
+
+## Handstand Hold family audit hardening (migration 477)
+
+Freestanding and wall-supported static holds now have separate canonical
+identities. Four working variants declare the exact hand-support interface,
+external contact, wall orientation, line, gaze, entry, timer start, static-hold
+boundary, first invalidating event, bailout or descent, and supervision. Five
+ambiguous legacy variants remain archived for lineage rather than becoming
+selectable specifications.
+
+The difficulty vectors are `88/74/88` and `90/72/90` for freestanding floor and
+parallette holds, and `64/68/68` and `58/64/64` for chest-to-wall and back-to-
+wall holds. They represent exercise complexity, physical difficulty, and their
+maximum. Exercise and safety proficiency fields are null. The cards include
+controlled multiplanar anatomy, zero planned landing contacts, hand/wrist/
+shoulder/inversion load and fatigue budgets, entry and exit exposure,
+environment and population constraints, eight contextual profiles, duration
+and substitution revalidation, and coach/athlete/support operations.
+
+The two cards persist 32 candidate evidence sections, 64 alternate decisions,
+eight graph proposals, eight calibration proposals, and ten current privacy-
+enhanced candidate embeds. The audit replaces unrelated prone-CPR evidence and
+records the narrow scope of small, acute, trained, novice, review, and governing-
+body sources. Every media exactness field, reviewer, relationship approval,
+calibration approval, content approval, and publication authority remains null.
+
+The persisted audit leaves exactly the four human gates on both Handstand cards.
+The global snapshot is 1,676/1,676 mapped legacy rows, 1,042 active definitions,
+87 machine-complete and 955 machine-incomplete cards, 86/1,042 definitions with
+exactly three to five current healthy embeddable candidates, and 616/616
+adjudicated surfaced identity pairs with zero unresolved collision. Graph and
+calibration queues contain 665/891 review-only rows with zero approvals. Runner
+checksum is `913966457`; focused validation is `206/206`, and the backend suite
+is 1,009 passes plus 20 intentional skips.

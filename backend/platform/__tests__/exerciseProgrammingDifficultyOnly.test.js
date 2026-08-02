@@ -633,6 +633,10 @@ const HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/476_coaching_hollow_body_hold_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/477_coaching_handstand_hold_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10198,6 +10202,98 @@ test('Hollow Body Hold completion keeps static lever variants distinct from movi
   )
 })
 
+test('Handstand Hold completion separates unsupported balance from exact wall-supported holds without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'477_coaching_handstand_hold_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'freestanding_static_inverted_hand_support_balance',
+    'wall_supported_static_inverted_hand_support_hold',
+    'freestanding-floor-straight-line',
+    'freestanding-parallettes-straight-line',
+    'chest-to-wall-straight-line',
+    'back-to-wall-straight-line',
+    'static_no_contact_hold_vs_kickup_entry_task',
+    'static_freestanding_hold_vs_dynamic_wall_walk_cycle',
+    'no_external_contact_hold_vs_wall_release_repetition',
+    'static_scapular_support_vs_repeated_scapular_motion',
+    'static_hold_vs_dynamic_elbow_flexion_extension_press',
+    'static_hold_vs_eccentric_inverted_press_lower',
+    'max_exercise_complexity_physical_difficulty',
+    'invalidProneCprCitationRemoved',
+  ]) {
+    assert.match(
+      HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [88, 74, 88],
+    [90, 72, 90],
+    [64, 68, 68],
+    [58, 64, 64],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'nDY1jlI8k6U',
+    'XtQC5F2dY1s',
+    'd6_lcWtQDxw',
+    'jmF7prkqDho',
+    'GamQNn1Avs0',
+    '2v1YDTzMcO8',
+    'H3JRaep2lUE',
+    'hLYXOP-rFk8',
+    'yvr4Nbba6Zk',
+    'vNhVZcGZK7I',
+  ]) {
+    assert.match(
+      HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10247,6 +10343,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     FRONT_PLANK_SIMILARITY_CLOSURE_MIGRATION,
     PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
     HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

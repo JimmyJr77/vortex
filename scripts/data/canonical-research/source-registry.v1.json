@@ -1,6 +1,69 @@
 {
-  "registryVersion": "2026-08-02.81",
+  "registryVersion": "2026-08-02.82",
   "sources": {
+    "crossfit_handstand_coaching_guide": {
+      "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
+      "title": "Gymnastics for CrossFit Coaches: A Comprehensive Training Guide",
+      "publisher": "CrossFit",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "usa_gymnastics_jumpstart_handstand_test": {
+      "url": "https://static.usagym.org/PDFs/T%26T/JumpStart/testing23/process.pdf",
+      "title": "2023–2024 JumpStart Fitness Testing Process",
+      "publisher": "USA Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 86
+    },
+    "handstand_biomechanics_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41473027/",
+      "title": "Biomechanical analyses of the handstand: a systematic review",
+      "publisher": "Frontiers in Sports and Active Living",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "handstand_postural_control_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29471194/",
+      "title": "Relationship between postural control and muscle activity during a handstand in young and adult gymnasts",
+      "publisher": "Human Movement Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "handstand_palmar_pressure_distribution": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39508479/",
+      "title": "The effect of full-body weight-bearing on palmar pressure distribution in collegiate-level gymnasts",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "novice_handstand_shoulder_tests": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38739595/",
+      "title": "Are the shoulder joint function, stability, and mobility tests predictive of handstand execution?",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "handstand_stabilometric_experience": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31197281/",
+      "title": "Stabilometric profile of handstand technique in male gymnasts",
+      "publisher": "Acta of Bioengineering and Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "handstand_bidirectional_balance_control": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7801474/",
+      "title": "Bidirectional causal control in the dynamics of handstand balance",
+      "publisher": "Scientific Reports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "handstand_neck_angle_variability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40980972/",
+      "title": "Neck Angle in the Handstand Changes the Pattern of Multi-Joint Variability",
+      "publisher": "Journal of Motor Behavior",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
     "crossfit_gymnastics_hollow_body_guide": {
       "url": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
       "title": "Gymnastics Training Guide",

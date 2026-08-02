@@ -1673,3 +1673,36 @@ The post-migration detector remains closed at 616/616 adjudicated surfaced
 pairs across 1,042 active definitions, with zero unresolved pair and zero exact
 collision. The records infer no media, graph, calibration, content, or
 publication approval and contain no athlete skill/proficiency classification.
+
+## Handstand Hold support and action identity
+
+Migration 477 preserves two stable identities instead of allowing the generic
+“Handstand Hold” label to erase external support. Freestanding Handstand Hold
+UUID `74ff4c17-2a19-4ae4-8f0b-320eac87c3f3` requires both hands to remain fixed
+on the declared floor or parallette interface with no wall, spotter, apparatus,
+foot, head, forearm, or partner contact after valid time begins. Wall-Supported
+Handstand Hold UUID `8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f` requires a declared
+chest-to-wall or back-to-wall orientation and continuous declared foot contact.
+Support interface, orientation, wall contact, hand marks, line, gaze, entry,
+timer start, stop, and exit are identity-bearing facts.
+
+The five legacy representations remain traceable but nonselectable because none
+defines that complete contract. Freestanding floor and locked-low-parallette
+holds are exact variants of the unsupported identity. Chest-to-wall and back-
+to-wall holds are exact variants of the supported identity. A wall or spotter
+touch ends unsupported valid time; loss of required wall contact ends supported
+valid time. Neither state can be inferred from a generic label or substituted
+without full workout revalidation.
+
+Handstand Kick-Up to Wall or Spot, Wall Walk, Wall Walk-Up to Handstand Line,
+Wall-Facing Toe Pull, Handstand Shoulder Shrug, Handstand Push-Up, and Wall
+Handstand Negative to Box remain separate. They score an entry/arrival,
+traveling contact sequence, terminal line sequence, wall-release cycle,
+scapular repetition, dynamic press, or eccentric lower rather than the same
+static hold. Equipment, tempo, or coaching annotations cannot repair those
+action and repetition-boundary differences.
+
+The post-migration detector remains closed at 616/616 adjudicated surfaced
+pairs across 1,042 active definitions, with zero unresolved pair and zero exact
+collision. No media, graph, calibration, content, or publication approval is
+inferred, and neither exercise card contains athlete skill/proficiency metadata.

@@ -910,3 +910,36 @@ are additive and should not be rolled back destructively during an incident.
   depth, real shadow generation, the 20-workout coach pilot, empty-database
   bootstrap rehearsal, staged flags, monitoring, and rollback evidence remain
   required.
+
+## Automated gate snapshot after migration 477
+
+- Freestanding and wall-supported Handstand Holds now expose four exact
+  difficulty-only variants and eight Movement Intelligence/Capacity profiles.
+  Support, contact, orientation, surface, entry, timer, stop, and exit are
+  explicit selection facts. Exercise scores describe complexity and physical
+  difficulty only; athlete readiness remains a workout input and skill levels
+  remain exclusive to skill-library cards.
+- Direct and repeated disposable-PostgreSQL execution, production-runner
+  registration, exact-file re-entry, registry validation, focused `206/206`,
+  backend 1,009-pass/20-skip, focused lint, persisted audit, diff integrity, and
+  production build are green. Migration checksum is `913966457`; registry
+  version `.82` contains 340 sources.
+- Ten current healthy privacy-enhanced media candidates remain unapproved.
+  Qualified humans must verify full playback, exact definition and variant,
+  support, orientation, contact, line, gaze, entry, timer boundary, stop, exit,
+  captions, accessibility, cue quality, safety, conflicts, reviewer identity,
+  timestamp, and card-version match. Eight graph proposals and eight exercise-
+  difficulty anchors remain review-only.
+- The current library maps all 1,676 legacy rows to 1,042 active definitions.
+  Identity remains closed at 616/616 surfaced pairs with zero unresolved pair
+  and zero exact collision. Machine-complete cards are 87 and machine-incomplete
+  cards are 955. Exact current-card healthy embeddable 3–5-video coverage is
+  86/1,042. All definitions remain quarantined; both Handstand cards retain only
+  media, graph, calibration, and publication human blockers.
+- The operational release check remains intentionally blocked: 0 published
+  definitions, 0 approved graph edges, 0 approved calibration anchors, zero
+  approved depth in every required phase, and 0/20 real coach reviews. Global
+  graph/calibration queues are 665/891 review-only rows. Remaining card
+  authorship, qualified review, shadow generation, the coach pilot, clean-
+  database rehearsal, staged flags, monitoring, and rollback evidence remain
+  production requirements.

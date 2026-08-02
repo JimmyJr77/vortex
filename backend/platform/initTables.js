@@ -474,6 +474,8 @@ export async function initPlatformTables(pool) {
     '474_coaching_kettlebell_swing_taxonomy_gate_completion.sql',
     '475_coaching_pull_up_chin_up_identity_and_family_completion.sql',
     '476_coaching_hollow_body_hold_family_audit_hardening.sql',
+    '477_coaching_handstand_hold_family_audit_hardening.sql',
+    '478_coaching_cartwheel_hand_placement_line_drill_audit_hardening.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

@@ -2931,3 +2931,43 @@ Independently adjudicate all 32 alternate assessments, 12 relationship
 proposals, and 12 complexity/physical-difficulty anchors. Give particular
 scrutiny to loaded holds versus dynamic pullovers or partner exchanges. Separate
 qualified content review and publication approval remain mandatory.
+
+## Handstand Hold human-review packet
+
+Review four working specifications separately: freestanding floor,
+freestanding locked low parallettes, chest-to-wall, and back-to-wall static
+holds. Verify support interface and stability, hand marks and spacing, external
+contact, wall orientation and distance, declared line and gaze, entry, timer
+start, valid-hold boundary, continuous breathing, first invalidating event,
+bailout or descent, supervision, station clearance, sets, attempts, valid,
+failed and early-terminated seconds, rest, symptoms, and cumulative inverted-
+support, wrist, overhead-press, tumbling, grip, entry, exit, and fall exposure.
+Difficulty review covers exercise complexity and physical difficulty only; it
+must not classify athlete proficiency.
+
+The CrossFit coaching guide and USA Gymnastics JumpStart test protocol provide
+professional and governing-body context. PMIDs `41473027`, `29471194`,
+`39508479`, `38739595`, `31197281`, and `40980972`, plus PMC `7801474`, provide
+systematic-review, acute muscle-activity, palmar-pressure, novice assessment,
+stabilometric, motor-control, and neck-position evidence. Preserve their
+limits: samples and methods vary, several studies are small or acute, and the
+sources do not establish one universal line, eligibility rule, training dose,
+recovery interval, safety or injury threshold, transfer outcome, or numeric
+difficulty. Do not restore prone-CPR PMID `32707142` or treat generic closed-
+chain EMG evidence as exact Handstand identity proof.
+
+Watch the freestanding candidates `nDY1jlI8k6U`, `XtQC5F2dY1s`, `d6_lcWtQDxw`,
+`jmF7prkqDho`, and `GamQNn1Avs0`, and the wall-supported candidates
+`2v1YDTzMcO8`, `H3JRaep2lUE`, `hLYXOP-rFk8`, `yvr4Nbba6Zk`, and
+`vNhVZcGZK7I` in full. Current oEmbed responses establish only title, channel,
+thumbnail, iframe, and link-health metadata. Record full playback, exact card
+and variant, support and contact facts, captions, accessibility, demonstration
+and cue quality, safety concerns, conflicts, reviewer identity, rationale,
+timestamp, and card-version match. Do not infer exactness or approval from a
+title, channel, or successful embed response.
+
+Independently adjudicate all 64 alternate assessments, eight relationship
+proposals, and eight complexity/physical-difficulty anchors. Give particular
+scrutiny to unsupported versus wall-supported holds and static holds versus
+kick-ups, wall walks, toe pulls, shrugs, presses, and eccentric lowers. Separate
+qualified content review and publication approval remain mandatory.

@@ -2593,7 +2593,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2781,7 +2781,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2901,7 +2901,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3022,7 +3022,7 @@ test('landmine explosive press packets consolidate hand count while preserving a
     ['landmine-squat-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3153,7 +3153,7 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
     ['landmine-reverse-lunge-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'landmine_squat_muscle_activity_kinetics',
     'acsm_landmine_squat_exercise',
@@ -3290,7 +3290,7 @@ test('hill sprint acceleration packet separates grade identity, start variants, 
     mediaCandidates: [],
   })
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
   for (const sourceKey of [
     'uphill_sprint_slope_kinematics',
     'resisted_sprint_acceleration_meta_analysis',
@@ -4617,7 +4617,7 @@ test('Cossack audit sources distinguish direct technique from adjacent biomechan
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const wideStance = registryDocument.sources.wide_stance_foot_angle_squat_biomechanics
   assert.equal(wideStance.url, 'https://pubmed.ncbi.nlm.nih.gov/30026952/')
@@ -4642,7 +4642,7 @@ test('Floor Press sources separate direct technique, floor-specific testing, and
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const floorTest = registryDocument.sources.isometric_floor_press_validity
   assert.equal(floorTest.url, 'https://pubmed.ncbi.nlm.nih.gov/42367017/')
@@ -4670,7 +4670,7 @@ test('Rotational Ball Slam sources separate direct technique from adjacent power
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const ace = registryDocument.sources.ace_rotational_slam
   assert.equal(
@@ -4698,7 +4698,7 @@ test('One-Arm Row sources separate exact variant technique from adjacent row bio
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const ace = registryDocument.sources.ace_single_arm_row_technique
   assert.equal(
@@ -4731,7 +4731,7 @@ test('Push-Up sources replace the unrelated calf-raise PMID with direct variant 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const technique = registryDocument.sources.nasm_push_up_technique
   assert.equal(
@@ -4769,7 +4769,7 @@ test('Reverse Lunge evidence separates direct reverse-step kinetics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const direct = registryDocument.sources.reverse_lunge_joint_kinetics
   assert.equal(direct.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4641539/')
@@ -4795,7 +4795,7 @@ test('Lateral Lunge evidence separates direct step-out biomechanics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const olderAdults = registryDocument.sources.lateral_lunge_older_adult_biomechanics
   const healthy = registryDocument.sources.lateral_lunge_healthy_biomechanics
@@ -4829,7 +4829,7 @@ test('Suitcase Carry evidence distinguishes unilateral locomotion, static holds,
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const activation = registryDocument.sources.loaded_carry_muscle_activation
   assert.equal(activation.url, 'https://pubmed.ncbi.nlm.nih.gov/38665162/')
@@ -4856,7 +4856,7 @@ test('Bent-Knee Soleus Raise evidence separates knee-position adaptation, tendon
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const hypertrophy = registryDocument.sources.bent_knee_calf_raise_hypertrophy_knee_position
   assert.equal(
@@ -4892,7 +4892,7 @@ test('Back Squat evidence separates bar position, stance, depth, loading, adapta
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const barPosition = registryDocument.sources.back_squat_high_low_3rm_biomechanics
   assert.equal(barPosition.url, 'https://pubmed.ncbi.nlm.nih.gov/38900172/')
@@ -4923,7 +4923,7 @@ test('Box Jump evidence distinguishes propulsion, elevated landing, height, arm 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const comparison = registryDocument.sources.countermovement_hurdle_box_jump_comparison
   assert.equal(comparison.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10204452/')
@@ -4955,7 +4955,7 @@ test('Depth Jump evidence separates countermovement height strategy from bounce 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const technique = registryDocument.sources.drop_jump_technique_rsi_study
   assert.equal(technique.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/')
@@ -4986,7 +4986,7 @@ test('Nordic Hamstring evidence separates variation mechanics, angle-specific is
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const variation = registryDocument.sources.nordic_hamstring_variation_kinematics_emg
   assert.equal(variation.url, 'https://pubmed.ncbi.nlm.nih.gov/31644582/')
@@ -5019,7 +5019,7 @@ test('Front Plank evidence separates exact lever and tension variants from tests
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const lever = registryDocument.sources.front_plank_long_lever_posterior_tilt_emg
   assert.equal(lever.url, 'https://pubmed.ncbi.nlm.nih.gov/25325773/')
@@ -5053,7 +5053,7 @@ test('Kettlebell Swing evidence separates exact technique, hand count, load, fat
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const technique = registryDocument.sources.ace_two_hand_kettlebell_swing_technique
   assert.equal(
@@ -5098,7 +5098,7 @@ test('Pull-Up evidence separates grip variants, strict identity, loading, fatigu
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const instruction = registryDocument.sources.ace_pull_up_instruction
   assert.equal(
@@ -5146,7 +5146,7 @@ test('Hollow Body Hold evidence separates the exact static shape from abdominal 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.81')
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
 
   const instruction = registryDocument.sources.crossfit_gymnastics_hollow_body_guide
   assert.equal(
@@ -5186,5 +5186,60 @@ test('Hollow Body Hold evidence separates the exact static shape from abdominal 
     registryDocument.sources.dynamic_pullover_pectoralis_lat_emg.url,
     'https://pubmed.ncbi.nlm.nih.gov/19620925/',
     'PMID 19620925 is rowing evidence, not Hollow Body Hold or pullover evidence',
+  )
+})
+
+test('Handstand Hold evidence separates unsupported balance, wall support, entry, pressing, and dynamic action boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-02.82')
+
+  const professional = registryDocument.sources.crossfit_handstand_coaching_guide
+  assert.equal(
+    professional.url,
+    'https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf',
+  )
+  assert.equal(professional.publisher, 'CrossFit')
+  assert.equal(professional.kind, 'professional_standard')
+  assert.ok(professional.evidenceQuality >= 80)
+
+  const governingBody = registryDocument.sources.usa_gymnastics_jumpstart_handstand_test
+  assert.equal(
+    governingBody.url,
+    'https://static.usagym.org/PDFs/T%26T/JumpStart/testing23/process.pdf',
+  )
+  assert.equal(governingBody.publisher, 'USA Gymnastics')
+  assert.equal(governingBody.kind, 'governing_body')
+  assert.ok(governingBody.evidenceQuality >= 85)
+
+  const expectedResearch = new Map([
+    ['handstand_biomechanics_systematic_review', 'https://pubmed.ncbi.nlm.nih.gov/41473027/'],
+    ['handstand_postural_control_emg', 'https://pubmed.ncbi.nlm.nih.gov/29471194/'],
+    ['handstand_palmar_pressure_distribution', 'https://pubmed.ncbi.nlm.nih.gov/39508479/'],
+    ['novice_handstand_shoulder_tests', 'https://pubmed.ncbi.nlm.nih.gov/38739595/'],
+    ['handstand_stabilometric_experience', 'https://pubmed.ncbi.nlm.nih.gov/31197281/'],
+    ['handstand_bidirectional_balance_control', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7801474/'],
+    ['handstand_neck_angle_variability', 'https://pubmed.ncbi.nlm.nih.gov/40980972/'],
+  ])
+  for (const [sourceKey, url] of expectedResearch) {
+    const source = registryDocument.sources[sourceKey]
+    assert.equal(source.url, url)
+    assert.equal(source.kind, 'peer_reviewed_research')
+    assert.ok(source.evidenceQuality >= 84)
+    assert.notEqual(
+      source.url,
+      'https://pubmed.ncbi.nlm.nih.gov/32707142/',
+      'PMID 32707142 is prone-CPR evidence, not Handstand Hold evidence',
+    )
+  }
+  assert.match(
+    registryDocument.sources.handstand_biomechanics_systematic_review.title,
+    /systematic review/i,
+  )
+  assert.match(
+    registryDocument.sources.handstand_neck_angle_variability.title,
+    /Neck Angle/i,
   )
 })
