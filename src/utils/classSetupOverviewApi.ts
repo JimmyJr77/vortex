@@ -1,6 +1,7 @@
 import { adminApiRequest } from './api'
 import { formatOfferingRangeCompact } from './dateUtils'
 import { type ProgramPricingOption } from './programPricingOptions'
+import { type CostUnit } from './schedulingApi'
 
 export type ClassSetupOverviewStatus = 'Active' | 'Inactive' | 'Legacy'
 
@@ -56,7 +57,7 @@ export interface ClassSetupOverviewRow {
   pricingCostOptions: ProgramPricingOption[]
   /** Effective class cost after Program → Class cascade (override or inherited). */
   effectiveCostAmountCents?: number
-  effectiveCostUnit?: string | null
+  effectiveCostUnit?: CostUnit | null
 }
 
 export interface ClassSetupOverviewResponse {
@@ -127,6 +128,17 @@ export function formatScheduleCell(
       return segments.map((segment) => `${activeDates} · ${segment} · ${spaces}`)
     })
     .join('\n')
+}
+
+export interface ClassSetupOverviewScheduleLine {
+  scheduleText: string
+}
+
+/** Preserve each rendered timeslot as a searchable line for the row-expanded table. */
+export function expandScheduleLines(row: ClassSetupOverviewRow): ClassSetupOverviewScheduleLine[] {
+  return formatScheduleCell(row.slotGroups, row.offerings)
+    .split('\n')
+    .map((scheduleText) => ({ scheduleText }))
 }
 
 export function formatSpacesCell(slotGroups: ClassSetupSlotGroup[]): string {

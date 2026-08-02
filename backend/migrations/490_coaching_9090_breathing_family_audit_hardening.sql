@@ -825,6 +825,7 @@ BEGIN
     jsonb_build_object(
       'technicalComplexity',v.complexity,
       'absoluteLoadDemand',v.physical,
+      'physicalDifficulty',v.physical,
       'relativeStrengthDemand',v.relative_strength,
       'mobilityDemand',v.mobility,'balanceDemand',1,
       'stabilityDemand',v.stability,'coordinationDemand',v.coordination,
@@ -1178,7 +1179,10 @@ BEGIN
     p.phase_suitability,p.methodology_alignment,
     jsonb_build_object(
       'primaryObjective',p.primary_objective,
-      'appropriateWhen',p.appropriate_when,
+      'appropriateWhen',jsonb_build_array(
+        'the_exact_variant_matches_the_workout_purpose',
+        'current_support_equipment_population_and_symptom_constraints_pass',
+        'the_declared_dose_duration_and_same_session_budgets_fit'),
       'notEvidenceOf',jsonb_build_array(
         'structural_repositioning','injury_prevention','treatment_success',
         'accelerated_recovery','sport_transfer','athlete_readiness'),
@@ -1195,7 +1199,9 @@ BEGIN
     p.expected_adaptation,p.equipment_required,
     jsonb_build_object(
       'footprint',p.footprint,'surface','level_dry_stable_floor',
-      'supportOrEquipment',p.support_or_equipment,
+      'supportOrEquipment',jsonb_build_object(
+        'equipmentRequired',to_jsonb(p.equipment_required),
+        'stationFootprint',p.footprint),
       'setupSeconds',p.setup_seconds,'resetSeconds',p.reset_seconds,
       'transitionSeconds',p.transition_seconds,
       'stationThroughput',p.station_throughput,
@@ -1206,7 +1212,7 @@ BEGIN
     ARRAY[]::UUID[],'review',
     jsonb_build_object(
       'unit','seconds',
-      'formula','setupSeconds + sets * (breathCycles * secondsPerBreathCycle + resetSecondsPerSet) + (sets - 1) * restSeconds + transitionSeconds',
+      'durationFormula','setupSeconds + sets * (breathCycles * secondsPerBreathCycle + resetSecondsPerSet) + (sets - 1) * restSeconds + transitionSeconds',
       'setupSeconds',p.setup_seconds,
       'secondsPerBreathCycleMin',p.cycle_seconds_min,
       'secondsPerBreathCycleMax',p.cycle_seconds_max,
@@ -1421,7 +1427,7 @@ BEGIN
       'very_low','1',
       'Comfortable repeatable breath awareness after training.',
       ARRAY['wall']::TEXT[],15,5,8,7,11,45,170,
-      'Keep exact hand feedback and wall support; end before strain and assist floor exit when needed.',
+      'Keep exact hand feedback and wall support, observe for delayed breath or position symptoms, end before strain, and confirm a safe assisted floor exit when needed.',
       'Hands low on the sides, use easy breaths, and stop if anything feels worse.',
       'Every counted cycle remains comfortable, unforced, symptom-free, and exact; fatigue does not create hand pressure, reach, hip lift, wall pressure, or unsafe floor exit.',
       ARRAY[
@@ -1827,7 +1833,700 @@ BEGIN
 
   -- IDENTITY_GRAPH_CALIBRATION
 
+  INSERT INTO coaching.exercise_identity_resolution_v1(
+    facility_id,survivor_definition_id,resolved_definition_id,decision,
+    rationale,evidence_json,resolution_source,reviewed_by,resolved_at)
+  VALUES
+    (1,reach_definition,lateral_definition,'distinct_exercises',
+      'The reach card holds both arms in a bilateral ceiling reach; the lateral-expansion card keeps both hands on the lower lateral ribs as sensory feedback. Those arm and hand contacts change the scored action and valid repetition.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_arm_reach_vs_hands_on_lateral_ribs_no_reach','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,balloon_definition,'distinct_exercises',
+      'Passive supported bilateral reach does not include heel pull, pelvic lift, ball squeeze, asymmetric arms, mouth-contact equipment, or resisted balloon exhalation; the balloon sequence has a different action and repetition boundary.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','passive_supported_reach_vs_active_heel_pull_hip_lift_ball_and_balloon_sequence','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,balloon_definition,'distinct_exercises',
+      'Hands-on-ribs lateral-expansion breathing has no lift, heel pull, ball, balloon, overhead arm, or unilateral equipment handling; the balloon card adds all of those identity-bearing actions.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','hands_on_ribs_passive_breathing_vs_active_hip_lift_ball_and_balloon','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,hip_switch_definition,'distinct_exercises',
+      'Supported supine breathing with a static bilateral reach does not include seated hip rotation or alternating 90/90 leg positions. Hip Switch has a different orientation, joint action, laterality sequence, and endpoint.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supine_static_breath_and_reach_vs_seated_dynamic_hip_rotation','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,hip_switch_definition,'distinct_exercises',
+      'Wall-supported supine breathing with static feet and hands on the ribs differs from seated alternating hip rotation in orientation, support, limb motion, primary action, and repetition completion.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supine_static_wall_breathing_vs_seated_dynamic_hip_rotation','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,balloon_definition,hip_switch_definition,'distinct_exercises',
+      'The hip-lift and balloon sequence is a supine heel-pull, small-lift, adduction, and resisted-exhalation task; Hip Switch is a seated alternating-rotation task without that equipment or breath cycle.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supine_hip_lift_balloon_sequence_vs_seated_hip_switch','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,crocodile_definition,'distinct_exercises',
+      'Crocodile breathing is prone and uses the floor or hands as anterior feedback; the reach card is supine with legs supported near 90/90 and both arms reaching vertically.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supine_supported_bilateral_reach_vs_prone_breathing_feedback','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,crocodile_definition,'distinct_exercises',
+      'Both may cue low rib expansion, but the 90/90 card is supine with feet on a wall and hands on the lateral ribs, while Crocodile Breathing is prone with different contacts and pressure feedback.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supine_wall_supported_lateral_feedback_vs_prone_anterior_feedback','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,balloon_definition,crocodile_definition,'distinct_exercises',
+      'Prone breathing omits the wall-supported heel pull, small hip lift, ball squeeze, asymmetric arms, and balloon exhalation that define the ball-and-balloon repetition.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','active_supine_hip_lift_balloon_vs_prone_passive_breathing','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,dead_bug_definition,'distinct_exercises',
+      'The supported reach card keeps both legs fixed and both arms reaching; Dead Bug adds unsupported or moving contralateral limbs and a dynamic limb-return repetition boundary.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','static_supported_reach_breathing_vs_dynamic_contralateral_limb_motion','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,dead_bug_definition,'distinct_exercises',
+      'Hands-on-ribs wall breathing holds all limbs in fixed support, whereas Dead Bug scores dynamic contralateral limb motion, unsupported leverage, and limb return.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','static_supported_breathing_vs_dynamic_dead_bug_limb_cycle','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,balloon_definition,dead_bug_definition,'distinct_exercises',
+      'The exact hip-lift/ball/balloon card keeps the leg support and asymmetric arm positions fixed; Dead Bug adds dynamic limb excursions and omits the same heel-pull, lift, and equipment contract.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','fixed_hip_lift_balloon_sequence_vs_dynamic_dead_bug_limb_cycle','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,box_breath_definition,'distinct_exercises',
+      'Box breathing is defined by a timed inhale-hold-exhale-hold cadence and is not tied to supported 90/90 legs or a bilateral reach. The reach card explicitly avoids forced breath holds.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supported_reach_unforced_cycle_vs_timed_four_phase_breath_holds','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,box_breath_definition,'distinct_exercises',
+      'Lateral-expansion wall breathing uses a comfortable inhale, longer exhale, and reset without prescribed retention; Box Breath scores four timed phases including holds and need not use the 90/90 support.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','wall_supported_lateral_expansion_vs_timed_box_breath_holds','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,balloon_definition,box_breath_definition,'distinct_exercises',
+      'Box breathing omits heel pull, hip lift, ball squeeze, balloon resistance, and asymmetric arm positions; the balloon card does not score a four-phase timed hold protocol.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','hip_lift_balloon_action_vs_timed_box_breath_protocol','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,reach_definition,med_ball_breath_definition,'distinct_exercises',
+      'Med Ball Belly Breathing uses an external implement on the abdomen for pressure or feedback and has no required bilateral ceiling reach or 90/90 leg-support contract.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','supported_bilateral_reach_vs_external_abdominal_med_ball_feedback','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,lateral_definition,med_ball_breath_definition,'distinct_exercises',
+      'Hands-on-ribs feedback with feet on a wall differs from external medicine-ball abdominal contact in equipment, pressure interface, support, and valid repetition.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','manual_lateral_rib_feedback_vs_external_med_ball_abdominal_feedback','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now()),
+    (1,balloon_definition,med_ball_breath_definition,'distinct_exercises',
+      'Medicine-ball belly breathing applies external abdominal feedback without the heel pull, small hip lift, knee ball squeeze, asymmetric arms, and resisted balloon exhalation of the exact balloon card.',
+      jsonb_build_object('migration',migration_key,'identityBoundary','hip_lift_ball_and_balloon_vs_med_ball_abdominal_feedback','humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+      'deterministic_identity_equivalence',NULL,now())
+  ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
+    decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
+    evidence_json=EXCLUDED.evidence_json,
+    resolution_source=EXCLUDED.resolution_source,reviewed_by=NULL,
+    resolved_at=now()
+  WHERE coaching.exercise_identity_resolution_v1.reviewed_by IS NULL
+    AND coaching.exercise_identity_resolution_v1.resolution_source<>'human_review';
+
+  INSERT INTO coaching.exercise_relationship_v1(
+    from_variant_id,to_variant_id,relationship,similarity_score,dimensions,
+    reason,conditions_json,review_status,created_by,reviewed_by,reviewed_at)
+  VALUES
+    (reach_wall_variant,reach_support_variant,'equipment_equivalent',92,
+      ARRAY['load','stability','fatigue'],
+      'Both variants retain supported supine 90/90 breathing and bilateral reach; lower-leg support usually reduces active wall pressure and cramp risk, so equipment and load still require revalidation.',
+      jsonb_build_object('migration',migration_key,'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('support interface','support height and stability','leg effort','hamstring symptoms','dose','duration','station logistics','persistence','coach rendering','athlete rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (reach_support_variant,reach_wall_variant,'equipment_equivalent',88,
+      ARRAY['load','stability','fatigue'],
+      'Changing from fully supported lower legs to feet on a wall preserves the bilateral-reach breath cycle but can add contact pressure and leg effort and therefore is not an automatic swap.',
+      jsonb_build_object('migration',migration_key,'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('support interface','wall traction','hip and knee angle','leg effort','hamstring symptoms','dose','duration','station logistics','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (lateral_wall_variant,reach_wall_variant,'progression',76,
+      ARRAY['complexity','stability','fatigue'],
+      'Moves the hands from lateral-rib feedback to a sustained bilateral ceiling reach while retaining wall-supported supine 90/90 breathing and an unforced breath cycle.',
+      jsonb_build_object('migration',migration_key,'onlyWhen',jsonb_build_array('bilateral reach matches workout intent','shoulder reach is comfortable'),'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','arm and hand contacts','shoulder symptoms','dose','fatigue','duration','logistics','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (reach_wall_variant,lateral_wall_variant,'regression',84,
+      ARRAY['complexity','stability','fatigue'],
+      'Removes the sustained arm reach and restores hands-on-ribs feedback, but this selects a distinct no-reach card and must still match the workout purpose.',
+      jsonb_build_object('migration',migration_key,'onlyWhen',jsonb_build_array('no-reach lateral feedback matches objective'),'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','hand contact','purpose','dose','fatigue','duration','logistics','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (reach_wall_variant,balloon_variant,'progression',58,
+      ARRAY['load','complexity','stability','fatigue','decision_demand'],
+      'Adds heel pull, small pelvic lift, ball squeeze, exact asymmetric arms, mouth-contact equipment, and balloon resistance; this is a distinct exercise rather than an automatic harder form.',
+      jsonb_build_object('migration',migration_key,'onlyWhen',jsonb_build_array('exact balloon identity matches purpose','equipment hygiene material and supervision pass'),'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','laterality','equipment','hygiene','allergy','breath pressure','symptoms','dose','fatigue','duration','logistics','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (balloon_variant,reach_wall_variant,'regression',64,
+      ARRAY['load','complexity','stability','fatigue','decision_demand'],
+      'Removes the heel pull, hip lift, ball, balloon, resistance, and asymmetric arms and selects supported bilateral reach; the changed purpose and repetition boundary require full revalidation.',
+      jsonb_build_object('migration',migration_key,'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','purpose','support','equipment removal','dose','fatigue','duration','logistics','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (reach_wall_variant,dead_bug_variant,'progression',52,
+      ARRAY['load','leverage','complexity','stability','fatigue'],
+      'Adds unsupported dynamic limb motion and longer lever control to a separately defined Dead Bug action; only use when that dynamic trunk-and-limb purpose is intended.',
+      jsonb_build_object('migration',migration_key,'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','limb sequence','leverage','lumbar and hip symptoms','dose','fatigue','duration','space','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (dead_bug_variant,reach_wall_variant,'regression',62,
+      ARRAY['load','leverage','complexity','stability','fatigue'],
+      'Restores fixed supported legs and bilateral reach and removes dynamic limb excursions, selecting a distinct low-load supported breathing action.',
+      jsonb_build_object('migration',migration_key,'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','support','arm position','purpose','dose','fatigue','duration','station','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (lateral_wall_variant,crocodile_variant,'lateral_substitution',68,
+      ARRAY['stability','complexity','fatigue'],
+      'Both can serve low-load breath-awareness intent, but wall-supported supine lateral feedback and prone floor feedback have different positions, contacts, access constraints, and symptom profiles.',
+      jsonb_build_object('migration',migration_key,'onlyWhen',jsonb_build_array('general comfortable breath-awareness purpose permits either position'),'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','position','support contacts','floor access','population constraints','symptoms','dose','duration','space','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL),
+    (crocodile_variant,lateral_wall_variant,'lateral_substitution',68,
+      ARRAY['stability','complexity','fatigue'],
+      'Changes prone floor feedback to a wall-supported supine 90/90 position with hands on the lateral ribs; this is a distinct card and must be reselected and rerendered.',
+      jsonb_build_object('migration',migration_key,'onlyWhen',jsonb_build_array('wall-supported supine position matches the workout purpose'),'automaticSubstitution',FALSE,'revalidate',jsonb_build_array('identity','position','wall and floor station','hip and knee tolerance','population constraints','symptoms','dose','duration','persistence','rendering'),'reviewOnly',TRUE,'approvalsCreated',FALSE),
+      'review',NULL,NULL,NULL)
+  ON CONFLICT(from_variant_id,to_variant_id,relationship) DO UPDATE SET
+    similarity_score=EXCLUDED.similarity_score,dimensions=EXCLUDED.dimensions,
+    reason=EXCLUDED.reason,conditions_json=EXCLUDED.conditions_json,
+    review_status='review',created_by=NULL,reviewed_by=NULL,reviewed_at=NULL,
+    updated_at=now()
+  WHERE coaching.exercise_relationship_v1.reviewed_by IS NULL
+    AND coaching.exercise_relationship_v1.review_status<>'approved';
+
+  INSERT INTO coaching.exercise_score_calibration_v1(
+    facility_id,variant_id,dimension,proposed_score,anchor_tier,rationale,status,
+    version,created_by,reviewed_by,review_notes,reviewed_at)
+  VALUES
+    (1,reach_wall_variant,'technicalComplexity',26,20,'Supported supine positioning, wall contact, bilateral reach, an unforced inhale and longer exhale, and quality reset create low but nontrivial exercise complexity.','review',1,NULL,NULL,'Independent calibration required; this score does not classify an athlete.',NULL),
+    (1,reach_wall_variant,'absoluteLoadDemand',8,20,'Body mass is floor supported and external load is absent; only light wall contact, arm reach, and breathing effort contribute to physical difficulty.','review',1,NULL,NULL,'Independent calibration required.',NULL),
+    (1,reach_support_variant,'technicalComplexity',22,20,'Fully supported lower legs reduce support management while the participant still coordinates a bilateral reach, comfortable inhale, longer exhale, and reset.','review',1,NULL,NULL,'Independent calibration required; this score does not classify an athlete.',NULL),
+    (1,reach_support_variant,'absoluteLoadDemand',5,20,'Stable lower-leg support removes most active leg effort and leaves only low reach and breathing demand without external resistance.','review',1,NULL,NULL,'Independent calibration required.',NULL),
+    (1,lateral_wall_variant,'technicalComplexity',16,20,'The direct task uses fixed wall-supported legs, hands-on-ribs feedback, one comfortable inhale, one longer exhale, and a relaxed reset without an arm reach.','review',1,NULL,NULL,'Independent calibration required; this score does not classify an athlete.',NULL),
+    (1,lateral_wall_variant,'absoluteLoadDemand',4,20,'The floor and wall support body mass and no external load or active lift is used; physical demand is limited to comfortable breathing and light positional effort.','review',1,NULL,NULL,'Independent calibration required.',NULL),
+    (1,balloon_variant,'technicalComplexity',48,40,'Exact laterality, heel pull, small pelvic lift, ball pressure, overhead arm position, balloon seal, resisted exhale, reinhalation, and safe equipment handling create moderate coordination complexity.','review',1,NULL,NULL,'Independent calibration required; this score does not classify an athlete.',NULL),
+    (1,balloon_variant,'absoluteLoadDemand',20,20,'A low hip lift, hamstring and adductor isometrics, overhead arm position, and balloon resistance add physical demand while the floor and wall still support most body mass.','review',1,NULL,NULL,'Independent calibration required.',NULL)
+  ON CONFLICT(facility_id,variant_id,dimension,version) DO UPDATE SET
+    proposed_score=EXCLUDED.proposed_score,anchor_tier=EXCLUDED.anchor_tier,
+    rationale=EXCLUDED.rationale,status='review',created_by=NULL,
+    reviewed_by=NULL,review_notes=EXCLUDED.review_notes,reviewed_at=NULL,
+    updated_at=now();
+
   -- LEGACY_AND_PACKETS
 
+  UPDATE coaching.exercise SET
+    name='90/90 Breathing with Reach',slug='9090-breathing-with-reach',
+    description='Supported supine 90/90 breathing with both arms reaching toward the ceiling. Select the exact feet-on-wall or fully-supported lower-leg canonical variant; one repetition is a comfortable inhale and longer unforced exhale with stable support, bilateral reach, no hip lift, and a comfortable reset.',
+    instructions='Select and record the exact support variant. Lie supine with the declared wall or lower-leg support and hips and knees near 90 degrees. Reach both arms toward the ceiling without shrugging. Inhale comfortably through the nose, then exhale longer and unforced without crunching or forcing the back flat. Keep the support stable and do not add heel pull, hip lift, ball, balloon, limb motion, or breath hold. Reset to comfortable breathing and stop for symptoms or loss of position.',
+    skill_level=NULL,age_min=NULL,age_max=NULL,default_sets=1,
+    default_reps=4,default_work_seconds=NULL,default_rest_seconds=30,
+    tempo='comfortable inhale; longer unforced exhale; no forced hold',
+    load_note='Low external load. Track wall pressure, reach effort, breath strain, symptoms, completed and invalid cycles, and same-session trunk, shoulder, respiratory, and supine exposure.',
+    est_seconds_per_set=60,is_published=FALSE,archived=FALSE,
+    card_summary='Supported 90/90 breathing with bilateral reach; exact wall-foot and fully-supported lower-leg variants are selected and persisted separately.',
+    coach_language='Declare the exact support variant and observe support stability, leg effort, bilateral reach, neck and shoulder tension, breath strain, rib and pelvic comfort, symptoms, valid cycles, reset, and safe floor exit.',
+    athlete_language='Let the declared support carry your legs, reach both hands without shrugging, breathe in comfortably, and exhale longer without crunching. Stop and tell the coach if breathing or the position feels wrong.',
+    programming_logic=jsonb_build_object(
+      'selectionStatus','canonical_variant_required','selectable',TRUE,
+      'canonicalDefinitionId',reach_definition,
+      'exactVariantIds',jsonb_build_array(reach_wall_variant,reach_support_variant),
+      'difficultyModel','max_exercise_complexity_physical_difficulty',
+      'exerciseDifficultyDescribesTaskOnly',TRUE,
+      'selectionInputs',jsonb_build_array('workout purpose','support availability and stability','current symptoms','supine tolerance','shoulder reach tolerance','prior trunk shoulder and breathing exposure'),
+      'substitutionRevalidation',jsonb_build_array('identity','support and equipment','population constraints','dose','fatigue','duration','logistics','persistence','coach rendering','athlete rendering'),
+      'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+    scalable_variables=ARRAY[
+      'breath_cycles','comfortable_inhale_seconds','unforced_exhale_seconds',
+      'rest_seconds','support_height','reach_effort']::TEXT[],
+    movement_family='Supported 90/90 Breathing with Bilateral Reach',
+    primary_phase_key=NULL,phase_subrole=NULL,primary_order_slot=NULL,
+    movement_requirements=jsonb_build_object(
+      'selectable',TRUE,'canonicalVariantRequired',TRUE,
+      'supportInterface','feet_on_stable_wall_or_lower_legs_fully_supported',
+      'start','supine_hips_and_knees_near_ninety_bilateral_vertical_reach',
+      'actionSequence',jsonb_build_array('comfortable_nasal_inhale','lower_rib_and_abdominal_expansion','longer_unforced_exhale','comfortable_reset'),
+      'mustMaintain',jsonb_build_array('declared_leg_support','bilateral_reach_without_shrug','comfortable_neck_rib_pelvis_and_back','unforced_breathing'),
+      'mustNotAdd',jsonb_build_array('spinal_rotation','crunch','forced_lumbar_flattening','heel_pull','hip_lift','ball','balloon','unsupported_limb_motion','forced_breath_hold'),
+      'validCompletion','one_comfortable_inhale_and_longer_unforced_exhale_with_exact_support_reach_and_reset'),
+    coaching_execution=jsonb_build_object(
+      'qualityGates',jsonb_build_array('support_stable','exact_variant_visible','both_arms_reach_without_shrug','breathing_unforced','no_added_hip_lift_or_implement','comfortable_reset'),
+      'stopRules',jsonb_build_array('pain','dizziness','faintness','chest_pain','unusual_shortness_of_breath','panic_or_air_hunger','neurologic_symptom','repeated_cramp','support_moves','cannot_reset_comfortably'),
+      'persistence',jsonb_build_array('definition_and_variant','support_interface','planned_and_actual_cycles','cadence_if_prescribed','valid_invalid_partial_assisted_and_symptom_cycles','first_fault','stop_reason','duration','substitution')),
+    pairing_logic=jsonb_build_object(
+      'sameSessionBudget',jsonb_build_array('trunk_static_work','shoulder_reach_time','active_wall_pressure','breathing_practice_and_symptoms','supine_time'),
+      'avoidAutomaticPairingWith',jsonb_build_array('forced_breath_holds','maximal_respiratory_work','symptom_provoking_supine_work'),
+      'revalidateAfterSubstitution',TRUE),
+    media_library=jsonb_build_object(
+      'candidate_video_ids',jsonb_build_array('GZ6X2M6gRvQ','O-cf22YQzAg','QN77knnBw8o','yFGJI00OZ8k','kA6AtZkDxmg'),
+      'reviewState','oembed_metadata_only_candidate_quarantine',
+      'playbackExactnessCaptionsAccessibilityQualityAndApprovalVerified',FALSE,
+      'humanReviewRequired',TRUE),
+    programming_kind='exercise',linked_skill_id=NULL,why_publish_ready=FALSE,
+    updated_at=now()
+  WHERE id=21;
+
+  UPDATE coaching.exercise SET
+    description=CASE id
+      WHEN 656 THEN 'Archived duplicate source for supported 90/90 breathing with bilateral reach. Select the canonical definition and its exact wall-foot or fully-supported lower-leg variant.'
+      ELSE 'Archived ambiguous Hip Reset source. The source does not identify support contact, heel pressure, hip lift, pelvic shift, reach, ball or balloon, breath cycle, valid completion, or reset and cannot be selected safely.' END,
+    instructions=CASE id
+      WHEN 656 THEN 'Do not prescribe this duplicate legacy source. Route to the canonical 90/90 Breathing with Reach definition and select an exact support variant.'
+      ELSE 'Do not prescribe or infer an exercise from this contextual label. Route to human identity review or select a separately exact supported reach, lateral-expansion, hip-lift/balloon, hip-shift, or other reviewed definition.' END,
+    skill_level=NULL,age_min=NULL,age_max=NULL,default_sets=NULL,
+    default_reps=NULL,default_work_seconds=NULL,default_rest_seconds=NULL,
+    tempo=NULL,load_note=NULL,est_seconds_per_set=60,is_published=FALSE,
+    archived=TRUE,
+    card_summary=CASE id
+      WHEN 656 THEN 'Archived duplicate; represented by exact canonical supported-reach variants.'
+      ELSE 'Archived identity quarantine; exact Hip Reset action remains unresolved.' END,
+    coach_language='Do not render or prescribe this legacy source. Select an exact canonical identity and rerun constraints, dose, budgets, duration, logistics, persistence, and coach and athlete rendering.',
+    athlete_language='This old card is unavailable because its exact exercise was duplicated or not specified. Ask for the exact reviewed version.',
+    programming_logic=jsonb_build_object(
+      'selectionStatus','identity_quarantine','selectable',FALSE,
+      'canonicalReachDefinitionId',reach_definition,
+      'duplicateConsolidation',id=656,
+      'identityFactsMissing',id=1404,
+      'mustNotInferHipLiftBalloonIdentity',id=1404,
+      'difficultyModel','max_exercise_complexity_physical_difficulty',
+      'exerciseDifficultyDescribesTaskOnly',TRUE,
+      'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+    scalable_variables='{}'::TEXT[],
+    movement_family=CASE id WHEN 656 THEN
+      'Supported 90/90 Breathing with Bilateral Reach' ELSE
+      'Unresolved 90/90 Breathing Context' END,
+    primary_phase_key=NULL,phase_subrole=NULL,primary_order_slot=NULL,
+    movement_requirements=jsonb_build_object(
+      'selectable',FALSE,'sourceIdentityQuarantine',TRUE,
+      'missingIdentityFacts',CASE id WHEN 1404 THEN jsonb_build_array(
+        'support_interface','heel_pressure','hip_lift','pelvic_shift',
+        'arm_reach','ball_or_balloon','breath_cycle','valid_completion')
+        ELSE jsonb_build_array('exact_wall_or_lower_leg_support_variant') END,
+      'routeToDefinition',reach_definition),
+    coaching_execution=jsonb_build_object(
+      'doNotRenderExecutionFromLegacySource',TRUE,
+      'routeToCanonicalOrIdentityReview',TRUE),
+    pairing_logic=jsonb_build_object('doNotPairUnresolvedSource',TRUE),
+    media_library=jsonb_build_object(
+      'reviewState','historical_candidates_superseded',
+      'humanReviewRequired',TRUE),
+    programming_kind='exercise',linked_skill_id=NULL,why_publish_ready=FALSE,
+    updated_at=now()
+  WHERE id IN(656,1404);
+
+  UPDATE coaching.exercise_safety_profile SET
+    risk_level=CASE WHEN exercise_id=21 THEN 1 ELSE 2 END,
+    impact_level=0,requires_spotting=FALSE,
+    requires_coach_supervision=CASE WHEN exercise_id=21
+      THEN 'recommended' ELSE 'required' END,
+    minimum_age_recommended=NULL,minimum_skill_level=NULL,
+    minimum_prerequisite_notes=CASE WHEN exercise_id=21 THEN
+      'Readiness is evaluated from the exact canonical variant, current comfortable supine and breathing tolerance, symptoms, support stability, and workout context. Exercise difficulty does not classify the participant.'
+      ELSE 'This source is nonselectable. Select an exact canonical definition before evaluating current readiness; no age or exercise-level cutoff is inferred.' END,
+    readiness_checks=CASE WHEN exercise_id=21 THEN ARRAY[
+      'Confirm exact wall-foot or fully-supported lower-leg variant and stable support.',
+      'Confirm comfortable floor entry exit supported supine position and bilateral reach.',
+      'Confirm comfortable resting breathing and ability to report pain dizziness faintness panic air hunger or unusual shortness of breath.',
+      'Review pregnancy postpartum respiratory cardiovascular neurologic and musculoskeletal context without diagnosing or clearing clinically.',
+      'Review same-session trunk shoulder breathing and supine exposure before dose.']::TEXT[]
+      ELSE ARRAY[
+        'Do not start from this archived source card.',
+        'Select an exact canonical definition and variant before exposure.',
+        'Run current symptom support equipment dose duration logistics and rendering checks on the selected identity.']::TEXT[] END,
+    stop_signs=ARRAY[
+      'Pain guarding numbness tingling weakness or a new neurologic symptom.',
+      'Dizziness faintness chest pain unusual shortness of breath panic or air hunger.',
+      'Forced breathing repeated cramp neck jaw or shoulder strain or inability to reset comfortably.',
+      'Support movement loss of declared contact or any unplanned hip lift implement limb motion or breath hold.',
+      'Participant requests stop or coach cannot confirm the exact identity and quality gate.']::TEXT[],
+    contraindications=CASE WHEN exercise_id=21 THEN ARRAY[
+      'Unstable wall bench box floor lane or unsafe floor access.',
+      'Supported supine position bilateral reach or comfortable resting breathing is not tolerated.',
+      'Current symptoms or clinical instructions conflict with the planned exercise.',
+      'Exact support variant dose stop signal or supervision is not declared.']::TEXT[]
+      ELSE ARRAY[
+        'Archived duplicate or unresolved source identity.',
+        'Undefined support action breath cycle equipment laterality or valid completion.']::TEXT[] END,
+    common_substitutions=CASE WHEN exercise_id=21 THEN ARRAY[
+      'Select the fully-supported lower-leg reach variant after full revalidation.',
+      'Select the wall-foot reach variant after full revalidation.',
+      'Select the distinct hands-on-ribs no-reach card when bilateral reach is not intended.',
+      'Select a separately reviewed non-supine breathing exercise when supine positioning is unsuitable.']::TEXT[]
+      ELSE ARRAY[
+        'Select Supported 90/90 Breathing with Bilateral Reach and an exact support variant.',
+        'Select 90/90 Wall-Supported Breathing with Lateral Expansion.',
+        'Select 90/90 Hip Lift with Ball and Balloon only when every exact action and equipment requirement is intended and validated.',
+        'Route the ambiguous Hip Reset label to identity review.']::TEXT[] END
+  WHERE exercise_id=ANY(source_ids);
+
+  UPDATE coaching.exercise_score_v1 SET
+    technical_complexity=CASE WHEN exercise_id IN(21,656) THEN 26 ELSE NULL END,
+    absolute_load_demand=CASE WHEN exercise_id IN(21,656) THEN 8 ELSE NULL END,
+    coordination_demand=CASE WHEN exercise_id IN(21,656) THEN 22 ELSE NULL END,
+    impact=CASE WHEN exercise_id IN(21,656) THEN 1 ELSE NULL END,
+    supervision_demand=CASE WHEN exercise_id=21 THEN 20
+      WHEN exercise_id=656 THEN 30 ELSE NULL END,
+    base_overall_difficulty=CASE WHEN exercise_id IN(21,656)
+      THEN greatest(26,8) ELSE NULL END,
+    legacy_scores=(coalesce(legacy_scores,'{}'::JSONB)
+      -'athleteSkillOrProficiencyClassification')||jsonb_build_object(
+      'candidateReassessment',migration_key,
+      'projectionScope',CASE exercise_id
+        WHEN 21 THEN 'canonical_wall_supported_bilateral_reach_working_variant'
+        WHEN 656 THEN 'duplicate_source_projection_only_not_selectable'
+        ELSE 'identity_unresolved_no_numeric_difficulty_assigned' END,
+      'difficultyModel','max_exercise_complexity_physical_difficulty',
+      'exerciseScoresDescribeTaskOnly',TRUE,
+      'sourceSelectable',exercise_id=21,
+      'humanReviewRequired',TRUE),
+    migration_confidence=CASE exercise_id WHEN 21 THEN 66
+      WHEN 656 THEN 60 ELSE 20 END,
+    human_review_status='queued',reviewed_by=NULL,reviewed_at=NULL,
+    review_notes=NULL,updated_at=now()
+  WHERE exercise_id=ANY(source_ids);
+
+  INSERT INTO coaching.exercise_card_test_packet_v1(
+    definition_id,facility_id,card_version,schema_version,audit_version,status,
+    checks_json,blocking_issues_json,human_review_required,checked_at)
+  SELECT p.definition_id,1,p.card_version,'2.0.0',migration_key,'quarantined',
+    jsonb_build_object(
+      'identity',jsonb_build_object(
+        'passed',TRUE,'identityKey',p.identity_key,
+        'activeWorkingSpecifications',p.variant_count,
+        'archivedSourceRepresentations',3,
+        'exerciseSkillClassificationAbsent',TRUE),
+      'taxonomy',jsonb_build_object(
+        'passed',TRUE,'controlledTerms',TRUE,
+        'breathPatternControlled',TRUE),
+      'anatomy',jsonb_build_object(
+        'passed',TRUE,'musclesJointsActionsPlanesLateralityAndSupportContacts',TRUE,
+        'clinicalOutcomeInferred',FALSE),
+      'difficulty',jsonb_build_object(
+        'passed',TRUE,'model','max_exercise_complexity_physical_difficulty',
+        'overallDerived',TRUE,'scoreScope','exercise_task_only',
+        'independentCalibrationRequired',TRUE),
+      'loadFatigueRecovery',jsonb_build_object(
+        'passed',TRUE,'lowExternalLoadDoesNotMeanZeroExposure',TRUE,
+        'validInvalidPartialAssistedSymptomAndIncidentCyclesCounted',TRUE,
+        'breathReachLiftEquipmentAndSameSessionBudgetsDeclared',TRUE),
+      'constraints',jsonb_build_object(
+        'passed',TRUE,'supportFloorSpaceEquipmentPopulationSymptomAccessibilityAndSupervision',TRUE),
+      'delivery',jsonb_build_object(
+        'passed',TRUE,'profiles',p.profile_count,
+        'breathCycleDoseCadenceRestDurationStationMeasurementScalingAndSubstitution',TRUE),
+      'instructions',jsonb_build_object(
+        'passed',TRUE,'athleteCoachAndSupportOperations',TRUE,
+        'validInvalidStopExitAndEscalationRules',TRUE),
+      'research',jsonb_build_object(
+        'passed',TRUE,'sections',16,'registryVersion',research_version,
+        'directTechniqueAndGeneralEvidenceSeparated',TRUE,
+        'heterogeneityBiasSafetyAndNoUniversalOutcomeLimitsExplicit',TRUE),
+      'media',jsonb_build_object(
+        'passed',FALSE,'candidateCount',5,
+        'currentOEmbedMetadataHealthy',TRUE,'playbackReviewed',FALSE,
+        'exactMatchReviewed',FALSE,'captionsReviewed',FALSE,
+        'accessibilityReviewed',FALSE,'qualityReviewed',FALSE,
+        'approvalCreated',FALSE),
+      'relationships',jsonb_build_object(
+        'passed',FALSE,'reviewOnlyOutgoing',p.outgoing_graph,'approved',0,
+        'automaticSubstitutionAuthorized',FALSE),
+      'calibration',jsonb_build_object(
+        'passed',FALSE,'reviewOnly',p.calibration_count,'approved',0),
+      'alternates',jsonb_build_object(
+        'passed',TRUE,'assessments',p.alternate_count,
+        'identityBoundariesExplicit',TRUE),
+      'generationSupport',jsonb_build_object(
+        'passed',TRUE,'selectionConstraints',TRUE,'cumulativeBudgets',TRUE,
+        'duration',TRUE,'equipmentAndStation',TRUE,
+        'substitutionRevalidation',TRUE,'renderingAndPersistence',TRUE,
+        'coachAndAthleteRenderingRequired',TRUE),
+      'publication',jsonb_build_object(
+        'passed',FALSE,'reviewer',NULL,'approver',NULL)),
+    jsonb_build_array(
+      jsonb_build_object(
+        'code','CARD-MEDIA-01',
+        'message','A qualified human must watch all five candidates in full and verify exact card and variant, support, contacts, reach or no-reach, lift, ball, balloon and laterality where applicable, complete breath cycle, captions, accessibility, cue quality, safety, conflicts, current playback, reviewer identity, timestamp, and card version.'),
+      jsonb_build_object(
+        'code','CARD-GRAPH-03',
+        'message','A qualified coach must approve or reject every progression, regression, equipment-equivalent, and lateral-substitution proposal. No automatic transfer among distinct breathing, reach, hip-lift, balloon, Dead Bug, or Crocodile identities is authorized.'),
+      jsonb_build_object(
+        'code','CARD-CALIBRATION-01',
+        'message','An independent qualified reviewer must calibrate exercise complexity and physical difficulty. These task scores do not classify an athlete and do not alter skill-library levels.'),
+      jsonb_build_object(
+        'code','CARD-PUBLISH-01',
+        'message','A qualified content reviewer and separate approver must verify identity, instructions, safety, evidence application, dosage, support operations, and every working specification before publication.')),
+    TRUE,now()
+  FROM (VALUES
+    (reach_definition,2,'supported_9090_breathing_with_bilateral_reach',2,4,22,5,4),
+    (lateral_definition,1,'wall_supported_9090_lateral_expansion_breathing',1,2,16,2,2),
+    (balloon_definition,1,'wall_supported_9090_hip_lift_ball_and_balloon',1,2,20,1,2)
+  ) p(definition_id,card_version,identity_key,variant_count,profile_count,
+      alternate_count,outgoing_graph,calibration_count)
+  ON CONFLICT(definition_id) DO UPDATE SET
+    facility_id=EXCLUDED.facility_id,card_version=EXCLUDED.card_version,
+    schema_version=EXCLUDED.schema_version,audit_version=EXCLUDED.audit_version,
+    status='quarantined',checks_json=EXCLUDED.checks_json,
+    blocking_issues_json=EXCLUDED.blocking_issues_json,
+    human_review_required=TRUE,checked_at=now();
+
   -- FINAL_ASSERTIONS
+
+  IF (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id=ANY(source_ids) AND definition_id=reach_definition
+        AND provenance_json->>'migration'=migration_key
+        AND provenance_json->>'representedBySelectableSourceVariant'='false')<>3
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id=21 AND source_kind='legacy_migration')
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id IN(656,1404)
+        AND source_kind='duplicate_consolidation')<>2
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id=1404
+        AND provenance_json->>'mustNotMapToHipLiftBalloonCard'='true')
+    OR (SELECT count(*) FROM coaching.exercise_variant_v1
+      WHERE id=ANY(source_variant_ids) AND definition_id=reach_definition
+        AND status='archived'
+        AND requirements_json->>'representation'='identity_quarantine'
+        AND requirements_json->>'selectable'='false')<>3
+    OR (SELECT count(*) FROM coaching.exercise_definition_v1
+      WHERE id IN(source_656_definition,source_1404_definition)
+        AND status='archived'
+        AND provenance_json->>'breathingFamilyAuditMigration'=migration_key
+        AND provenance_json->>'selectable'='false')<>2 THEN
+    RAISE EXCEPTION '% found invalid source lineage archive or identity quarantine',
+      migration_key;
+  END IF;
+
+  IF (SELECT count(*) FROM coaching.exercise_definition_v1
+      WHERE id IN(reach_definition,lateral_definition,balloon_definition)
+        AND status='review' AND schema_version='2.0.0'
+        AND approved_video_url IS NULL AND reviewed_by IS NULL
+        AND approved_by IS NULL AND last_reviewed_at IS NULL
+        AND movement_patterns<>'{}'::TEXT[] AND body_regions<>'{}'::TEXT[]
+        AND required_equipment<>'{}'::TEXT[]
+        AND anatomy_json<>'{}'::JSONB AND environment_json<>'{}'::JSONB
+        AND population_json<>'{}'::JSONB
+        AND athlete_support_json<>'{}'::JSONB
+        AND coach_support_json<>'{}'::JSONB
+        AND support_operations_json<>'{}'::JSONB
+        AND provenance_json->>'breathingFamilyAuditMigration'=migration_key
+        AND provenance_json->>'canonicalAuthoredFromResearch'='true'
+        AND provenance_json->>'approvalsCreated'='false')<>3
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
+      WHERE id=reach_definition AND legacy_exercise_id=21
+        AND card_version=2 AND slug='9090-breathing-with-reach')
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
+      WHERE id=lateral_definition AND legacy_exercise_id IS NULL
+        AND card_version=1
+        AND slug='9090-wall-supported-breathing-with-lateral-expansion')
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
+      WHERE id=balloon_definition AND legacy_exercise_id IS NULL
+        AND card_version=1
+        AND slug='9090-hip-lift-with-ball-and-balloon') THEN
+    RAISE EXCEPTION '% found incomplete active canonical definitions',migration_key;
+  END IF;
+
+  IF (SELECT count(*) FROM coaching.exercise_variant_v1
+      WHERE id=ANY(active_variant_ids) AND status='review'
+        AND requirements_json->>'selectable'='true'
+        AND requirements_json->>'workingSpecificationRequiresHumanReview'='true'
+        AND difficulty_json->>'technicalMeaning'='exercise_complexity'
+        AND difficulty_json->>'loadMeaning'='physical_difficulty'
+        AND (difficulty_json->>'technicalComplexity')::INTEGER BETWEEN 1 AND 100
+        AND (difficulty_json->>'absoluteLoadDemand')::INTEGER BETWEEN 1 AND 100
+        AND (difficulty_json->>'physicalDifficulty')::INTEGER=
+          (difficulty_json->>'absoluteLoadDemand')::INTEGER
+        AND (difficulty_json->>'baseOverallDifficulty')::INTEGER=greatest(
+          (difficulty_json->>'technicalComplexity')::INTEGER,
+          (difficulty_json->>'physicalDifficulty')::INTEGER)
+        AND load_profile_json<>'{}'::JSONB
+        AND fatigue_profile_json<>'{}'::JSONB
+        AND programming_profile_json<>'{}'::JSONB)<>4
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1
+      WHERE id=reach_wall_variant AND definition_id=reach_definition
+        AND (difficulty_json->>'technicalComplexity')::INTEGER=26
+        AND (difficulty_json->>'physicalDifficulty')::INTEGER=8
+        AND (difficulty_json->>'baseOverallDifficulty')::INTEGER=26)
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1
+      WHERE id=reach_support_variant AND definition_id=reach_definition
+        AND (difficulty_json->>'technicalComplexity')::INTEGER=22
+        AND (difficulty_json->>'physicalDifficulty')::INTEGER=5
+        AND (difficulty_json->>'baseOverallDifficulty')::INTEGER=22)
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1
+      WHERE id=lateral_wall_variant AND definition_id=lateral_definition
+        AND (difficulty_json->>'technicalComplexity')::INTEGER=16
+        AND (difficulty_json->>'physicalDifficulty')::INTEGER=4
+        AND (difficulty_json->>'baseOverallDifficulty')::INTEGER=16)
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1
+      WHERE id=balloon_variant AND definition_id=balloon_definition
+        AND (difficulty_json->>'technicalComplexity')::INTEGER=48
+        AND (difficulty_json->>'physicalDifficulty')::INTEGER=20
+        AND (difficulty_json->>'baseOverallDifficulty')::INTEGER=48) THEN
+    RAISE EXCEPTION '% found incomplete variants or invalid difficulty model',migration_key;
+  END IF;
+
+  IF (SELECT count(*) FROM coaching.exercise_delivery_profile_v1
+      WHERE variant_id=ANY(active_variant_ids) AND status='review'
+        AND cardinality(equipment_required)>0
+        AND length(coach_instructions)>=100
+        AND length(athlete_instructions) BETWEEN 10 AND 240
+        AND cardinality(stop_rules)>=3
+        AND coalesce(time_model_json->>'durationFormula','')<>''
+        AND dose_scaling_json<>'{}'::JSONB
+        AND measurement_json<>'{}'::JSONB
+        AND support_prompts_json<>'{}'::JSONB)<>8
+    OR EXISTS(SELECT 1 FROM unnest(active_variant_ids) listed(variant_id)
+      WHERE (SELECT count(*) FROM coaching.exercise_delivery_profile_v1 profile
+        WHERE profile.variant_id=listed.variant_id AND profile.status='review')<>2) THEN
+    RAISE EXCEPTION '% found incomplete contextual delivery profiles',migration_key;
+  END IF;
+
+  IF (SELECT count(*) FROM coaching.exercise_section_evidence_v1
+      WHERE (definition_id=reach_definition AND reviewed_card_version=2
+          OR definition_id IN(lateral_definition,balloon_definition)
+            AND reviewed_card_version=1)
+        AND review_status='candidate' AND reviewer_user_id IS NULL
+        AND reviewed_at IS NULL
+        AND claims_json->>'researchVersion'=research_version
+        AND claims_json->>'humanReviewRequired'='true'
+        AND claims_json->>'approvalsCreated'='false')<>48
+    OR EXISTS(SELECT 1 FROM (VALUES
+        (reach_definition,2),(lateral_definition,1),(balloon_definition,1)
+      ) listed(definition_id,card_version)
+      WHERE (SELECT count(DISTINCT evidence.section_key)
+        FROM coaching.exercise_section_evidence_v1 evidence
+        WHERE evidence.definition_id=listed.definition_id
+          AND evidence.reviewed_card_version=listed.card_version
+          AND evidence.review_status='candidate'
+          AND evidence.reviewer_user_id IS NULL)<>16)
+    OR (SELECT count(*) FROM coaching.exercise_media_candidate_v1
+      WHERE (definition_id=reach_definition AND reviewed_card_version=2
+          OR definition_id IN(lateral_definition,balloon_definition)
+            AND reviewed_card_version=1)
+        AND link_status='healthy' AND review_status='candidate'
+        AND embedding_allowed AND captions_available IS NULL
+        AND exact_variant_match IS NULL
+        AND demonstration_quality_score IS NULL
+        AND reviewer_user_id IS NULL AND reviewed_at IS NULL)<>15
+    OR EXISTS(SELECT 1 FROM (VALUES
+        (reach_definition,2),(lateral_definition,1),(balloon_definition,1)
+      ) listed(definition_id,card_version)
+      WHERE (SELECT count(*) FROM coaching.exercise_media_candidate_v1 media
+        WHERE media.definition_id=listed.definition_id
+          AND media.reviewed_card_version=listed.card_version
+          AND media.link_status='healthy' AND media.review_status='candidate')<>5)
+    OR (SELECT count(*) FROM coaching.exercise_alternate_assessment_v1
+      WHERE definition_id=reach_definition AND reviewed_card_version=2
+        AND review_status='candidate' AND reviewer_user_id IS NULL)<>22
+    OR (SELECT count(*) FROM coaching.exercise_alternate_assessment_v1
+      WHERE definition_id=lateral_definition AND reviewed_card_version=1
+        AND review_status='candidate' AND reviewer_user_id IS NULL)<>16
+    OR (SELECT count(*) FROM coaching.exercise_alternate_assessment_v1
+      WHERE definition_id=balloon_definition AND reviewed_card_version=1
+        AND review_status='candidate' AND reviewer_user_id IS NULL)<>20 THEN
+    RAISE EXCEPTION '% found incomplete evidence media or alternate packets',migration_key;
+  END IF;
+
+  IF (SELECT count(*) FROM coaching.exercise_relationship_v1
+      WHERE conditions_json->>'migration'=migration_key
+        AND review_status='review' AND reviewed_by IS NULL)<>10
+    OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
+      WHERE variant_id=ANY(active_variant_ids) AND status='review'
+        AND version=1 AND reviewed_by IS NULL)<>8
+    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
+      WHERE evidence_json->>'migration'=migration_key
+        AND decision='duplicate_consolidated' AND reviewed_by IS NULL)<>1
+    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
+      WHERE evidence_json->>'migration'=migration_key
+        AND decision='needs_human_review' AND reviewed_by IS NULL)<>1
+    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
+      WHERE evidence_json->>'migration'=migration_key
+        AND decision='distinct_exercises' AND reviewed_by IS NULL)<>18
+    OR (SELECT count(*) FROM coaching.exercise_card_test_packet_v1
+      WHERE definition_id IN(reach_definition,lateral_definition,balloon_definition)
+        AND audit_version=migration_key AND status='quarantined'
+        AND human_review_required
+        AND jsonb_array_length(blocking_issues_json)=4)<>3
+    OR EXISTS(SELECT 1 FROM coaching.exercise_card_test_packet_v1 packet
+      CROSS JOIN LATERAL jsonb_array_elements(packet.blocking_issues_json) blocker
+      WHERE packet.definition_id IN(reach_definition,lateral_definition,balloon_definition)
+        AND packet.audit_version=migration_key
+        AND blocker->>'code' NOT IN(
+          'CARD-MEDIA-01','CARD-GRAPH-03','CARD-CALIBRATION-01','CARD-PUBLISH-01')) THEN
+    RAISE EXCEPTION '% found incomplete graph calibration identity or packet state',
+      migration_key;
+  END IF;
+
+  IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 definition
+      CROSS JOIN LATERAL unnest(definition.movement_patterns) key
+      WHERE definition.id IN(reach_definition,lateral_definition,balloon_definition)
+        AND NOT EXISTS(SELECT 1 FROM coaching.movement_pattern allowed
+          WHERE allowed.key=key))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 definition
+      CROSS JOIN LATERAL unnest(definition.body_regions) key
+      WHERE definition.id IN(reach_definition,lateral_definition,balloon_definition)
+        AND NOT EXISTS(SELECT 1 FROM coaching.body_region allowed
+          WHERE allowed.key=key))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 definition
+      CROSS JOIN LATERAL unnest(
+        definition.required_equipment||definition.optional_equipment) key
+      WHERE definition.id IN(reach_definition,lateral_definition,balloon_definition)
+        AND NOT EXISTS(SELECT 1 FROM coaching.equipment allowed
+          WHERE allowed.key=key))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_delivery_profile_v1 profile
+      CROSS JOIN LATERAL unnest(profile.equipment_required) key
+      WHERE profile.variant_id=ANY(active_variant_ids)
+        AND NOT EXISTS(SELECT 1 FROM coaching.equipment allowed
+          WHERE allowed.key=key))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_relationship_v1 relationship
+      WHERE conditions_json->>'migration'=migration_key
+        AND relationship.relationship IN('progression','regression')
+        AND EXISTS(SELECT 1 FROM unnest(relationship.dimensions) dimension
+          WHERE dimension<>ALL(ARRAY[
+            'load','leverage','range','speed','stability','complexity',
+            'impact','decision_demand','fatigue']))) THEN
+    RAISE EXCEPTION '% created uncontrolled taxonomy or graph dimensions',migration_key;
+  END IF;
+
+  IF EXISTS(SELECT 1 FROM coaching.exercise
+      WHERE id=ANY(source_ids)
+        AND (skill_level IS NOT NULL OR age_min IS NOT NULL
+          OR age_max IS NOT NULL OR linked_skill_id IS NOT NULL
+          OR is_published OR why_publish_ready))
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise
+      WHERE id=21 AND NOT archived
+        AND movement_requirements->>'selectable'='true'
+        AND (movement_requirements->'mustNotAdd' ? 'spinal_rotation'))
+    OR (SELECT count(*) FROM coaching.exercise
+      WHERE id IN(656,1404) AND archived
+        AND movement_requirements->>'selectable'='false')<>2
+    OR EXISTS(SELECT 1 FROM coaching.exercise_safety_profile
+      WHERE exercise_id=ANY(source_ids)
+        AND (minimum_skill_level IS NOT NULL
+          OR minimum_age_recommended IS NOT NULL))
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_score_v1
+      WHERE exercise_id=21 AND technical_complexity=26
+        AND absolute_load_demand=8 AND base_overall_difficulty=26
+        AND human_review_status='queued'
+        AND reviewed_by IS NULL AND reviewed_at IS NULL)
+    OR NOT EXISTS(SELECT 1 FROM coaching.exercise_score_v1
+      WHERE exercise_id=1404 AND technical_complexity IS NULL
+        AND absolute_load_demand IS NULL
+        AND base_overall_difficulty IS NULL
+        AND legacy_scores->>'projectionScope'=
+          'identity_unresolved_no_numeric_difficulty_assigned')
+    OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 definition
+      WHERE definition.id IN(reach_definition,lateral_definition,balloon_definition)
+        AND coaching.exercise_json_has_level_classification(jsonb_build_array(
+          definition.provenance_json,definition.environment_json,
+          definition.population_json,definition.anatomy_json,
+          definition.athlete_support_json,definition.coach_support_json,
+          definition.support_operations_json)))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 variant
+      WHERE variant.id=ANY(active_variant_ids)
+        AND coaching.exercise_json_has_level_classification(jsonb_build_array(
+          variant.difficulty_json,variant.requirements_json,
+          variant.load_profile_json,variant.fatigue_profile_json,
+          variant.programming_profile_json)))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_media_candidate_v1
+      WHERE (definition_id=reach_definition AND reviewed_card_version=2
+          OR definition_id IN(lateral_definition,balloon_definition)
+            AND reviewed_card_version=1)
+        AND (review_status<>'candidate' OR reviewer_user_id IS NOT NULL
+          OR reviewed_at IS NOT NULL OR captions_available IS NOT NULL
+          OR exact_variant_match IS NOT NULL
+          OR demonstration_quality_score IS NOT NULL))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_relationship_v1
+      WHERE conditions_json->>'migration'=migration_key
+        AND (review_status='approved' OR reviewed_by IS NOT NULL))
+    OR EXISTS(SELECT 1 FROM coaching.exercise_score_calibration_v1
+      WHERE variant_id=ANY(active_variant_ids)
+        AND (status='approved' OR reviewed_by IS NOT NULL)) THEN
+    RAISE EXCEPTION '% retained or fabricated age proficiency approval media or publication state',
+      migration_key;
+  END IF;
 END $$;

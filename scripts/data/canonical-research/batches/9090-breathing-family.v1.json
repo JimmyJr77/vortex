@@ -1,0 +1,328 @@
+{
+  "batchKey": "9090-breathing-family-v1",
+  "researchVersion": "2026-08-02.89",
+  "snapshotAt": "2026-08-02T18:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/9090-breathing-family",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "diaphragm_postural_function_mri",
+      "claims": [
+        "Dynamic MRI in 30 healthy adults supports ventilatory and postural diaphragm behavior during limb tasks, but it is not a direct trial of {{canonicalName}}.",
+        "Represent the observed muscles, joints, respiratory actions, support contacts, planes, and laterality without inferring universal muscle force, structural repositioning, or clinical benefit."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "Diaphragmatic-breathing protocols, populations, outcomes, and reporting are highly heterogeneous, and no source assigns a Vortex difficulty score or participant classification.",
+        "Assess exercise complexity and physical difficulty separately, derive overall as their maximum, and keep every numeric proposal in independent review."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "Low external load does not mean zero exposure, while safety and adverse-event reporting in the breathing literature are incomplete.",
+        "Track valid, invalid, partial, assisted, and symptom-limited cycles; breath effort; position and equipment demand; prior trunk and respiratory work; duration; and recovery only as a conservative planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "acog_pregnancy_postpartum_exercise",
+      "claims": [
+        "ACOG advises avoiding prolonged supine exercise after 20 weeks of pregnancy and individualizing activity; this general guidance is not clinical clearance for {{canonicalName}}.",
+        "Require safe floor access, stable supports and equipment, comfortable unforced breathing, current symptom screening, accessible instruction, and a separately reviewed non-supine option when indicated."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "The systematic review reports heterogeneous protocols and underreported safety, so absence of reported harm does not establish universal safety.",
+        "Do not force inhale, exhale, pressure, or retention. Stop for pain, dizziness, faintness, chest pain, unusual shortness of breath, panic, air hunger, neurologic signs, position or equipment failure, or inability to reset comfortably."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "slow_breathing_systematic_review",
+      "claims": [
+        "Slow-breathing studies use varied protocols and proposed mechanisms, so they do not prove one universal phase placement, autonomic reset, treatment effect, recovery acceleration, or sport transfer.",
+        "Use {{canonicalName}} only for an observable low-load breath or coordination purpose, with exact identity, dose, cumulative exposure, duration, logistics, and substitution revalidation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "va_diaphragmatic_breathing",
+      "claims": [
+        "VA guidance presents supported position, comfortable nasal inhale, longer exhale, and gradual practice in plain language.",
+        "Athlete support must show the exact setup and action, expected low effort, self-checks, unexpected symptoms, stop signal, accessible alternatives, and safe exit without treatment claims."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acog_pregnancy_postpartum_exercise",
+      "claims": [
+        "Supine positioning is not universally appropriate, and individualization must be based on current context rather than age or an exercise-card level.",
+        "Offer comfortable angles, safe supports, fewer cycles, longer rest, multimodal instruction, and separately reviewed substitutions; removing identity-bearing actions or equipment requires a different card."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube documents privacy-enhanced embedding, and five candidates for {{canonicalName}} returned current oEmbed title, channel, and embed metadata on 2026-08-02.",
+        "oEmbed health does not prove playback, exact action or variant, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "9090-wall-supported-breathing-with-lateral-expansion",
+      "assessmentSummary": {
+        "identity": "Supine feet-on-wall 90/90 breathing with both hands on the lower lateral abdomen or rib margin as feedback. One repetition is a comfortable nasal inhale into the hands, a longer unforced exhale, and a relaxed reset. There is no reach, heel pull, hip lift, ball, balloon, limb motion, or forced hold.",
+        "currentCardFindings": [
+          "Functional Movement Systems directly supports the position, hand feedback, approximate cadence, and relaxed reset, but does not establish a universal treatment, structural correction, or performance outcome.",
+          "Removing the reach changes hand contact and valid completion, so this is distinct from 90/90 Breathing with Reach rather than a hidden modifier.",
+          "The review-only difficulty proposal is 16 exercise complexity, 4 physical difficulty, and derived overall 16; it does not classify a participant."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["breath", "brace"],
+          "support": "supine_feet_on_stable_wall_hands_on_lower_lateral_ribs",
+          "laterality": "bilateral",
+          "excludedActions": ["arm_reach", "heel_pull", "hip_lift", "ball_squeeze", "balloon_exhalation", "limb_motion", "forced_breath_hold"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 16,
+          "absoluteLoadDemand": 4,
+          "physicalDifficulty": 4,
+          "baseOverallDifficulty": 16,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "none",
+          "impactClass": "none",
+          "primaryExposure": ["comfortable_breath_cycles", "wall_contact", "supine_time", "rib_feedback"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "breathsPerSet": "3-6",
+          "cadence": "comfortable_inhale_and_longer_unforced_exhale",
+          "rest": "as_needed_for_normal_comfortable_breathing",
+          "durationRule": "recompute_from_actual_cycles_cadence_pauses_rest_setup_invalid_attempts_and_substitutions"
+        },
+        "programmingDecision": "Use only when hands-on-ribs no-reach breath awareness matches the workout purpose. Wall-supported reach, hip-lift/balloon, prone Crocodile Breathing, Box Breath, and dynamic Dead Bug work are distinct identities and require full substitution revalidation.",
+        "calibrationEvidence": {
+          "basis": "direct FMS instruction plus heterogeneous breathing research and adjacent-card comparison",
+          "uncertainty": "No source establishes a universal Vortex score, clinical effect, optimal dose, recovery interval, or progression order.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "FMS directly specifies feet on a wall, hips and knees near 90 degrees, comfortable neck and spine, both hands on the lower lateral abdomen or ribs, nasal inhale, longer nasal exhale, and a relaxed pause.",
+            "{{canonicalName}} preserves those contacts and excludes reach, hip lift, heel pull, ball, balloon, and limb motion from its repetition boundary."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The directly observable task is supported breath control with static trunk organization and manual lateral-rib feedback, not spinal rotation or a dynamic reach.",
+            "Control the breath, brace, supine support, feet-on-wall, hands-on-ribs, no-reach, and bilateral taxonomy terms."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "FMS instructs lateral expansion into the hands with relaxed support and a longer exhale.",
+            "Keep the hands as light feedback, wall pressure low, neck and shoulders quiet, and breathing unforced; no source proves one universal rib or pelvic position."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The source supplies approximate inhale, exhale, and pause timing but does not validate one universal workout set count.",
+            "Use conservative comfortable cycles, optional cadence, rest as needed, and stop before strain; all numeric workout dosage remains a programming inference."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The direct sequence supports wall placement, near-90-degree hips and knees, hands on the lower sides, comfortable nasal inhale, longer exhale, and relaxed reset.",
+            "Instructions must state no reach or lift, light hand feedback, unforced breathing, valid reset, symptom stop, and safe floor exit."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The direct setup makes support, hand placement, cadence, and relaxation observable.",
+            "Coach support must inspect wall and floor stability, hands and lower ribs, neck and shoulders, breath strain, wall pressure, symptoms, valid reset, dose, and safe exit."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The ball-and-balloon publication adds heel pull, a small lift, knee-ball pressure, asymmetric arms, and resisted balloon exhalation, all absent here.",
+            "Bilateral reach and ball-and-balloon forms are distinct definitions; comfortable cadence, cycle count, rest, light hand placement, and head support are delivery annotations only while this exact no-reach action remains."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=AnvRX080sR4","title":"90/90 Wall Breathing","channelName":"Athletic Edge Physical Therapy","sourceQuery":"wall-supported 90/90 breathing search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=V6Zrlo5w7oY","title":"Supine 90-90 Breathing","channelName":"Hayley Kava, Pelvic Floor Physical Therapist","sourceQuery":"wall-supported 90/90 breathing search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=xzzJgFbgexc","title":"Rib Expansion Rest (90/90 Breathing)","channelName":"The Posture Project","sourceQuery":"90/90 lateral-expansion search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=K2wKibekVbA","title":"9090 Wall Ribcage Expansion Breathing","channelName":"phyzix","sourceQuery":"90/90 wall rib-cage expansion search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=8UAOFVQIqYQ","title":"90/90 wall breathing drill","channelName":"BodySmart","sourceQuery":"90/90 wall breathing search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"90/90 Wall Breathing with Lateral Expansion","classification":"same_identity","rationale":"Punctuation and display-name synonym for the exact hands-on-ribs no-reach card.","distinguishingDimensions":{"alias":true}},
+        {"name":"Comfortable Inhale and Exhale Cadence","classification":"modifier_annotation","rationale":"Cadence is delivery metadata while it remains unforced and the same support, hand contact, action, and reset remain exact.","distinguishingDimensions":{"deliveryDimension":"cadence"}},
+        {"name":"Breath Cycles, Sets, and Rest","classification":"modifier_annotation","rationale":"Dose changes exposure and duration without changing identity when every action and support contact remains exact.","distinguishingDimensions":{"deliveryDimensions":["cycles","sets","rest"]}},
+        {"name":"Supported 90/90 Breathing with Bilateral Reach","classification":"new_definition","rationale":"Moving the hands from the ribs to a sustained bilateral ceiling reach changes contacts, shoulder and scapular action, and valid completion.","distinguishingDimensions":{"targetDefinitionId":"0ac22398-2eed-482a-aae8-8d26ba888eaf"}},
+        {"name":"90/90 Hip Lift with Ball and Balloon","classification":"new_definition","rationale":"Heel pull, pelvic lift, ball pressure, asymmetric arms, and balloon resistance create a different action and repetition boundary.","distinguishingDimensions":{"targetDefinitionId":"96d4d5fe-1ad1-4930-9c74-2054764d0c6c"}},
+        {"name":"Crocodile Breathing","classification":"new_definition","rationale":"Prone orientation and floor feedback differ from supine wall support and hands-on-lateral-ribs contact.","distinguishingDimensions":{"orientation":"prone"}},
+        {"name":"Box Breath","classification":"new_definition","rationale":"Four timed phases with breath holds differ from the unforced inhale, longer exhale, and relaxed reset used here.","distinguishingDimensions":{"breathCycle":"timed_inhale_hold_exhale_hold"}},
+        {"name":"Pain-Through or Forced-Breath 90/90","classification":"reject","rationale":"Continuing through symptoms, forcing cadence, or losing stable support violates quality and stop rules.","distinguishingDimensions":{"qualityState":"invalid_and_unsafe"}}
+      ]
+    },
+    {
+      "slug": "9090-hip-lift-with-ball-and-balloon",
+      "assessmentSummary": {
+        "identity": "Supine feet-on-wall 90/90 hip lift with heel pull, a small pelvic lift, gentle ball squeeze, right arm overhead, left hand controlling a personal balloon, comfortable nasal inhale, and slow resisted balloon exhale. The exact laterality, equipment, lift, and breath cycle are identity-bearing.",
+        "currentCardFindings": [
+          "Boyle et al. directly describe the sequence as a clinical suggestion and theoretical rationale, not an outcome trial or universal treatment.",
+          "This is not the generic legacy Hip Reset source, which lacks the facts required to map to this action and remains quarantined.",
+          "The review-only difficulty proposal is 48 exercise complexity, 20 physical difficulty, and derived overall 48; equipment, laterality, lift, and resisted exhale drive complexity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["breath", "bridge", "brace", "pull"],
+          "support": "supine_feet_on_wall_small_hip_lift",
+          "equipment": ["ball", "balloon", "wall"],
+          "laterality": "right_arm_overhead_left_hand_balloon"
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 20,
+          "physicalDifficulty": 20,
+          "baseOverallDifficulty": 48,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "ball_pressure_and_balloon_expiratory_resistance",
+          "impactClass": "none",
+          "primaryExposure": ["heel_pull", "hamstring_and_adductor_isometrics", "small_hip_lift", "overhead_arm_position", "balloon_resistance", "mouth_contact_equipment"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2",
+          "breathsPerSet": "2-4",
+          "cadence": "comfortable_nasal_inhale_and_slow_controlled_balloon_exhale",
+          "rest": "45-120_seconds_or_until_normal_comfortable_breathing",
+          "durationRule": "include_setup_hygiene_equipment_handling_invalid_cycles_rest_and_safe_exit"
+        },
+        "programmingDecision": "Use only when the exact hip-lift/ball/balloon coordination task is selected, equipment and hygiene pass, laterality is declared, direct sightline is available, and current symptoms permit. Passive reach, lateral-expansion breathing, no-balloon hip lift, mirrored arms, hip shift, Dead Bug, and Box Breath are distinct definitions or unresolved variants.",
+        "calibrationEvidence": {
+          "basis": "exact Boyle sequence plus heterogeneous breathing research and adjacent-card comparison",
+          "uncertainty": "The exact source is a clinical suggestion; it does not establish treatment efficacy, universal safety, optimal dose, recovery, score, or progression order.",
+          "reviewNeeded": ["qualified_content_and_safety_review", "equipment_and_hygiene_review", "independent_difficulty_calibration", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The publication directly specifies feet on a wall, a ball between the knees, right arm overhead, left hand holding a balloon, heel pull, small tailbone lift, ball pressure, nasal inhale, and controlled balloon exhalation.",
+            "{{canonicalName}} preserves that exact equipment, laterality, action sequence, completion, and safe exit and must not be inferred from the ambiguous Hip Reset label."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The observed task combines breath control, heel pull, small bridge, isometric adduction, asymmetric arm positions, and balloon resistance.",
+            "Control wall, ball, balloon, bridge, pull, brace, breath, laterality, mouth-contact equipment, and no-impact taxonomy rather than labeling it passive breathing."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The clinical article discusses diaphragm, abdominal wall, pelvic floor, hamstrings, adductors, heel pull, pelvic lift, and asymmetric arm positions as parts of the proposed sequence.",
+            "Record those task roles without claiming isolated activation, universal pelvic position, or a proven treatment mechanism."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The technique requires pulling the heels down rather than pushing away, lifting the tailbone only slightly, maintaining ball pressure, holding the exact arms, and exhaling into the balloon.",
+            "A high bridge, push-away, ball loss, wrong laterality, arm change, forced pressure, or uncontrolled equipment invalidates the repetition."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The article describes repeated balloon cycles but is not a comparative dosing trial.",
+            "Use conservative low-volume cycles with direct supervision and sufficient rest; count invalid, partial, assisted, symptom, and equipment-failure cycles as exposure."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The source supplies exact wall, ball, heel, lift, arm, hand, balloon, inhale, and exhale steps.",
+            "Instructions must also add material and hygiene checks, personal balloon control, unforced pressure, quality gates, symptom stop, controlled lowering, equipment removal, and safe floor exit."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The exact sequence exposes observable feet, heel pull, lift height, ball pressure, arm laterality, balloon seal, face and neck strain, and breath-cycle checkpoints.",
+            "Coach support must maintain direct sightline, control hygiene and equipment, detect pressure or symptom responses, count every exposure, and revalidate all substitutions."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "FMS hands-on-ribs breathing has no heel pull, lift, ball, balloon, overhead arm, or asymmetric equipment handling.",
+            "Passive lateral expansion and bilateral reach are distinct cards; mirrored arms, no balloon, hip shift, hemibridge, right-arm reach, or high bridge are not silently equivalent to this exact sequence."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=4GoqjoEXaAw","title":"90-90 Hip Lift with Balloon","channelName":"PRI Postural Restoration Institute","sourceQuery":"exact hip-lift-with-balloon search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=zL1Hmkt7aJA","title":"90 90 Hip Lift with Right Arm Reach and Ballon","channelName":"Inspire Physical Therapy","sourceQuery":"exact hip-lift-with-balloon search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=lcZp3gEz5_s","title":"90-90 hip lift with balloon","channelName":"Dr. Ethan Colliver","sourceQuery":"exact hip-lift-with-balloon search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=U1AG5y81VcQ","title":"90-90 Hip Lift with Balloon (explained)","channelName":"Greco PT & Armcare","sourceQuery":"exact hip-lift-with-balloon search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=-zxaq9lANYg","title":"90/90 Hip Lift with Right Arm Reach and Balloon","channelName":"Zac Cupples","sourceQuery":"exact hip-lift-with-balloon search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:00:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"90/90 Bridge with Ball and Balloon","classification":"same_identity","rationale":"Published synonym when the exact heel pull, small lift, ball pressure, arm laterality, and balloon cycle are unchanged.","distinguishingDimensions":{"alias":true}},
+        {"name":"Mirrored Arm and Balloon Arrangement","classification":"new_variant","rationale":"Mirroring right and left changes laterality and requires its own exact specification and evidence.","distinguishingDimensions":{"laterality":"left_arm_overhead_right_hand_balloon"}},
+        {"name":"No Overhead Arm Hip Lift with Balloon","classification":"new_variant","rationale":"Removing the overhead arm changes the shoulder and rib constraints while retaining the hip-lift and balloon family.","distinguishingDimensions":{"armAction":"no_overhead_arm"}},
+        {"name":"90/90 Hip Lift without Balloon","classification":"new_definition","rationale":"Removing balloon resistance and mouth-contact equipment changes the breath and equipment contract.","distinguishingDimensions":{"primaryAction":"hip_lift_without_balloon"}},
+        {"name":"90/90 Hip Shift with Hemibridge and Balloon","classification":"new_definition","rationale":"Hip shift and hemibridge add frontal and transverse asymmetry and a different support sequence.","distinguishingDimensions":{"primaryAction":"hip_shift_and_hemibridge"}},
+        {"name":"Supported 90/90 Breathing with Bilateral Reach","classification":"new_definition","rationale":"Removing heel pull, lift, ball, and balloon and adding bilateral reach selects the passive reach card.","distinguishingDimensions":{"targetDefinitionId":"0ac22398-2eed-482a-aae8-8d26ba888eaf"}},
+        {"name":"90/90 Wall Breathing with Lateral Expansion","classification":"new_definition","rationale":"Removing the active lift and equipment and placing both hands on the ribs selects the passive no-reach card.","distinguishingDimensions":{"targetDefinitionId":"b366c4d4-d75e-4902-915c-4b363e6b6238"}},
+        {"name":"Shared or Unreviewed Balloon","classification":"reject","rationale":"Shared mouth-contact equipment or unresolved material, allergy, integrity, hygiene, or choking risk fails equipment readiness.","distinguishingDimensions":{"equipmentPolicy":"prohibited"}}
+      ]
+    }
+  ]
+}

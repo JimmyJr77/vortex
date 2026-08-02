@@ -3150,3 +3150,163 @@ disposable PostgreSQL. The remaining gates are:
   approved graph edges, 0/3 approved calibration anchors, and 0/20 real coach
   reviews. No human, media, graph, calibration, content, or publication
   approval was fabricated.
+
+## 2026-08-02 — Source 21 90/90 breathing-family completion
+
+- Legacy source 21 survives as `Supported 90/90 Breathing with Bilateral
+  Reach` (`0ac22398-2eed-482a-aae8-8d26ba888eaf`, card version 2). Source 656
+  is duplicate-consolidated into that card. Source 1404, `90/90 Breathing with
+  Hip Reset`, remains archived, nonselectable, and `needs_human_review`
+  because its support, heel-pressure, lift, shift, reach, equipment, breath-
+  cycle, and completion mechanics are unspecified.
+- The reach card has feet-on-wall variant
+  `4193b7da-09de-4558-b7a1-1ac9440d19eb` at complexity / physical difficulty /
+  derived maximum `26/8/26` and fully supported lower-leg variant
+  `e9384c20-f26f-4a12-b9ba-913be80b2d82` at `22/5/22`. Distinct research-
+  authored `90/90 Wall-Supported Breathing with Lateral Expansion`
+  (`b366c4d4-d75e-4902-915c-4b363e6b6238`) has variant
+  `b5719ed0-5d31-4030-9c11-7ea81aabe254` at `16/4/16`. Distinct `90/90 Hip
+  Lift with Ball and Balloon` (`96d4d5fe-1ad1-4930-9c74-2054764d0c6c`) has
+  variant `d4393550-a0b4-485a-8b99-e6bb1b7e71f3` at `48/20/48`.
+- Persisted current-version scope is 4 selectable variants, 8 contextual
+  profiles, 48 candidate evidence rows, 15 current oEmbed-healthy media
+  candidates, 58 alternate assessments, 10 review-only relationship rows, 8
+  review-only complexity/physical-difficulty anchors, 18 distinct boundaries,
+  1 duplicate consolidation, 1 unresolved human-review quarantine, and 3
+  current audit packets. Each packet contains exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Migration
+  `490_coaching_9090_breathing_family_audit_hardening.sql` passed two unchanged
+  direct PostgreSQL executions before registration, production-runner
+  registration, stored/local checksum comparison, runner skip, and exact-file
+  re-entry. It is immutable at checksum `3490270351`, registered
+  `2026-08-02 14:24:10.627994-04`.
+- Registry `2026-08-02.89` contains 383 sources. The mixed 90/90/shin-box batch
+  no longer applies shin-box evidence to the reach card, and the two new cards
+  have a dedicated validated/generated research batch. Focused validation
+  passes `228/228`; the full backend suite passes 1,030 tests with 20
+  intentional skips and zero failures. Focused ESLint, ten changed-JSON parses,
+  `git diff --check`, persisted audit, identity reporting, and the production
+  build pass. The build required one type-only repair to the concurrently
+  committed class-setup API contract (`effectiveCostUnit: CostUnit`); pricing
+  behavior did not change. Existing browser-data freshness and greater-than-
+  500-kB Admin chunk advisories remain nonblocking.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,047 active
+  definitions, 99 machine-complete and 948 machine-incomplete cards, 98
+  current healthy embeddable 3–5-candidate sets, 627/627 adjudicated surfaced
+  identity pairs, zero unresolved pair, zero exact collision, 734/0 graph
+  review/approved, 947/0 calibration review/approved, and 0 published.
+- Release remains correctly `blocked`: 0/25 published definitions, 0/3
+  approved depth in every required phase, 0/10 approved relationships, 0/3
+  approved calibration anchors, and 0/20 real coach reviews. No human, media,
+  graph, calibration, content, playback, caption, accessibility, exactness, or
+  publication approval was fabricated.
+- Transactional draft failures are retained as evidence. Early attempts rolled
+  back for missing profile fields, a nonexistent safety `updated_at` column,
+  invalid zero legacy impact, missing canonical `physicalDifficulty`, a short
+  coach instruction, and uncontrolled `spine_rotation`; each was corrected
+  before final bytes passed twice. Focused-test tuple expectations were then
+  aligned to the database-proven authored vectors without changing SQL.
+
+## 2026-08-02 — Source 22 Crocodile Breathing completion
+
+- Legacy source 22 remains the stable `Crocodile Breathing` definition
+  (`2e308a8e-6a1d-48d4-b095-fe3dd18803d8`, card version 2). Its skeletal
+  baseline is archived and replaced by three exact selectable variants: flat
+  prone floor feedback (`a041a9a6-a61a-4d14-9969-5eba23fe94fb`) at exercise
+  complexity / physical difficulty / derived maximum `18/4/18`, lower-leg
+  bolster support (`d729bed4-7a61-401e-9e0d-cc0da73cd35e`) at `20/3/20`, and
+  light nonrestrictive band feedback (`08396682-5289-4b8c-a9f1-715a56681198`)
+  at `24/5/24`. These are exercise-task scores only; athlete proficiency and
+  skill-library levels are not exercise-card fields.
+- Persisted current-version scope is 3 selectable variants, 6 contextual
+  prepare/restore profiles, 16 candidate evidence sections, 5 current oEmbed-
+  healthy media candidates, 20 alternate assessments, 8 review-only graph
+  proposals, 6 review-only complexity/load anchors, 6 migration-owned identity
+  boundaries plus 3 pre-existing 90/90-family boundaries, and 1 automated
+  packet. The packet has exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Migration 491 is immutable at checksum `1519177130`, registered
+  `2026-08-02 14:52:25.126422-04`. The independent audit then exposed an
+  authoring/runtime mismatch: zero impact accumulation is incompatible with
+  the canonical 1–100 score scale. Immutable migration 492 corrected the
+  normalized score floor to 1 while retaining `impactClass=none` and zero
+  landing/hand contacts. It is registered at checksum `763304095` on
+  `2026-08-02 14:55:22.298379-04`. Both migrations passed unchanged direct
+  execution twice, production-runner registration and skip, stored/local
+  checksum comparison, and exact-file re-entry.
+- Registry `2026-08-02.90` contains 386 parsed sources. Focused validation
+  passes `231/231`; the full backend suite passes 1,033 tests with 20
+  intentional skips and zero failures. Focused ESLint, changed-JSON parsing,
+  `git diff --check`, persisted audit, identity reporting, and the production
+  build pass. Existing browser-data freshness and greater-than-500-kB Admin
+  chunk advisories remain nonblocking.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,047 active
+  definitions, 100 machine-complete and 947 machine-incomplete cards, 99
+  current healthy embeddable 3–5-candidate sets, 628/628 adjudicated surfaced
+  identity pairs, zero unresolved pair, zero exact collision, 740/0 graph
+  review/approved, 953/0 calibration review/approved, and 0 published.
+- Release remains correctly `blocked`: 0/25 published definitions, zero
+  approved depth in all seven phases, 0/10 approved graph edges, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews. All five media candidates
+  still require full playback, exactness, caption, accessibility, cue-quality,
+  safety, conflict, reviewer, and approval checks. No human approval was
+  fabricated.
+
+## 2026-08-02 — Source 23 Full-Body Joint CARs Flow completion
+
+- Legacy source 23 remains the stable `Full-Body Joint CARs Flow` definition
+  (`c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3`, card version 2). Its skeletal
+  baseline (`f4b3acdd-8a11-48d1-a061-c3dcd859f215`) is archived. Selectable
+  review variants are the independent standing eight-region sequence
+  (`c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c`) at exercise complexity / physical
+  difficulty / derived maximum `38/8/38`, and the wall-supported-lower-body-
+  segments sequence (`627e9509-da11-4e18-8e6a-e67eea115dad`) at `42/6/42`.
+  The legacy `age_min=8` classification and false publication flag were
+  removed; no athlete skill, proficiency, or age classification was copied.
+- Persisted current-version scope is 2 selectable variants, 4 contextual
+  profiles, 16 candidate evidence sections, 4 current oEmbed-healthy but
+  unreviewed media candidates, 20 alternate assessments, 6 review-only graph
+  proposals, 4 review-only complexity/physical-difficulty anchors, 8 explicit
+  identity boundaries, and 1 quarantined automated packet. The packet contains
+  exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+- Migration 493 is immutable at checksum `3758480733`, registered
+  `2026-08-02 15:15:10.588696-04`. The independent audit then found that four
+  athlete instructions exceeded the 240-character contract and four
+  regression edges used descriptive `mobility`/`duration` rather than the
+  controlled graph vocabulary. Immutable migration 494 shortens the text to
+  238 characters and uses `range`, `stability`, and `complexity` while
+  preserving the descriptive facts in rationale metadata. Migration 494 is
+  checksum `3916243330`, registered `2026-08-02 15:22:32.216772-04`.
+  Both final byte sets passed two unchanged direct PostgreSQL executions before
+  registration, runner registration/skip, stored/local checksum comparison,
+  and exact-file re-entry. No approval state was created.
+- Registry `2026-08-02.91` contains 390 parsed sources. The validated research
+  packet records that professional CARs sources support slow, deliberate,
+  pain-free, momentum-free joint rotations and full-body routines, but do not
+  establish one universal order, dose, difficulty score, or safety/eligibility
+  rule. The neck–shoulders–elbows–wrists–spine–hips–knees–ankles order is an
+  explicit Vortex review contract, not an externally validated universal
+  standard.
+- Focused validation passes 234/234; the full backend suite passes 1,036 tests
+  with 20 intentional skips and zero failures. Focused ESLint, changed-JSON
+  parsing, `git diff --check`, persisted audit, Source-23 invariant queries,
+  identity reporting, and the production build pass. The first build exposed
+  an unrelated concurrent class-setup contract mismatch; retaining `active` as
+  a legacy edit key and exporting the row-expansion schedule helper restored
+  the shared build without reverting the concurrent row-layout work. Existing
+  browser-data freshness and greater-than-500-kB Admin chunk advisories remain
+  nonblocking.
+- The authoritative snapshot is 1,676/1,676 mappings, 1,047 active
+  definitions, 101 machine-complete and 946 machine-incomplete cards, 100
+  current healthy embeddable 3–5-candidate sets, 628/628 adjudicated surfaced
+  identity pairs, zero unresolved pair, zero exact collision, 746/0 graph
+  review/approved, 957/0 calibration review/approved, and 0 published.
+- Release remains correctly `blocked`: 0/25 published definitions, zero
+  approved depth in all seven phases, 0/10 approved relationships, 0/3
+  approved calibration anchors, and 0/20 real coach reviews. All four videos,
+  evidence applications, alternates, identity boundaries, graph proposals,
+  score anchors, content, and publication state still require qualified human
+  review. No media, content, graph, calibration, or publication approval was
+  fabricated.

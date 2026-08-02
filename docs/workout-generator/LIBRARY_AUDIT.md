@@ -3336,3 +3336,119 @@ machine-complete and 949 incomplete cards, 95 current healthy embeddable
 unresolved pair or exact collision. Graph/calibration queues contain 724/939
 review-only rows with zero approvals, and all 1,045 cards remain quarantined
 and unpublished.
+
+## Source 21 90/90 breathing-family audit
+
+The completed machine-authored family contains three exact definitions and
+four selectable variants: supported bilateral reach with either wall-foot or
+fully supported lower-leg contact, wall-supported no-reach lateral-rib
+feedback, and the separate hip-lift/ball/balloon sequence. Every working card
+now has stable identity and aliases; controlled taxonomy; muscles, joints,
+actions, planes, laterality, support and breath-cycle mechanics; environment,
+population, symptom, space, station, sightline, hygiene, and equipment
+constraints; coach, athlete, and support-operations content; and explicit
+repetition, invalidation, stop, exit, and persistence contracts.
+
+All four variants author exercise complexity and physical difficulty only,
+with overall derived by `max`: `26/8/26`, `22/5/22`, `16/4/16`, and
+`48/20/48`. Load, grip, spinal, eccentric, joint-stress, contact, impact,
+local/technical/metabolic/grip fatigue, recovery planning, same-session
+exposure, interference, dose, duration bounds, setup/reset/transition, station
+throughput, quality gates, scaling order, and substitution revalidation are
+explicit. Legacy age, exercise skill/proficiency, linked-skill, and publication
+claims are null; source 1404 receives no numeric score while identity remains
+unresolved.
+
+Current persisted coverage is 8 delivery profiles, 48 candidate evidence
+sections, 15 healthy embeddable candidate media rows, 58 alternate
+assessments, 20 identity decisions, 10 review-only graph edges, 8 review-only
+difficulty anchors, and 3 automated packets with only media, graph,
+calibration, and publication human gates. Candidate videos have metadata and
+embed-response health only; playback, exactness, captions, accessibility,
+quality, safety, reviewer, and approval fields remain null.
+
+Migration 490 is immutable at checksum `3490270351`; registry
+`2026-08-02.89` contains 383 parsed sources; focused tests pass 228/228; the
+full backend suite passes 1,030 tests with 20 intentional skips; focused lint,
+ten JSON parses, diff integrity, disposable-PostgreSQL re-entry, persisted
+audits, and production build pass.
+
+The global audit is 1,676/1,676 mappings, 1,047 active definitions, 99 machine-
+complete and 948 incomplete cards, 98 current healthy embeddable 3–5-candidate
+sets, and 627/627 adjudicated surfaced pairs with zero unresolved pair or
+exact collision. Graph/calibration queues contain 734/947 review-only rows
+with zero approvals. All 1,047 cards remain quarantined and unpublished.
+
+## Source 22 Crocodile Breathing library audit
+
+The completed machine-authored card contains three exact variants: flat prone
+floor feedback, stable lower-leg bolster support, and light nonrestrictive band
+feedback. Each declares stable identity and aliases; controlled taxonomy;
+muscles, joints, actions, planes, laterality, support, feedback, and breath-
+cycle mechanics; task-only difficulty; load, fatigue, impact, recovery, and
+interference; equipment, environment, population, symptom, space, hygiene,
+station, and sightline constraints; exact dose/time models; quality gates,
+stop/reset rules, substitutions, and revalidation; and athlete, coach,
+accessibility, persistence, incident, and support-operation content.
+
+Current persisted scope is 3 selectable variants, 6 active profiles, 16
+candidate evidence sections, 5 current healthy embeddable candidates, 20
+alternate assessments, 8 review-only graph proposals, 6 review-only
+difficulty/load anchors, 9 relevant identity boundaries, and 1 test packet
+containing only media, graph, calibration, and publication human blockers.
+Candidate video IDs are `2mCwbWPtICI`, `76-Sw5nZ2YI`, `_8f9RHUfE1Q`,
+`aimIzymb81E`, and `XhYrGbEI2c8`; current metadata health is not playback,
+exactness, caption, accessibility, quality, safety, reviewer, or approval
+verification.
+
+Migration 491 is immutable at checksum `1519177130`; normalized-score-floor
+correction 492 is immutable at `763304095`; registry `2026-08-02.90` contains
+386 parsed sources; focused tests pass 231/231; the backend suite passes 1,033
+tests plus 20 intentional skips; focused lint, JSON parsing, diff integrity,
+disposable-PostgreSQL re-entry, persisted audit, identity reporting, and the
+production build pass.
+
+The global audit is now 1,676/1,676 mappings, 1,047 active definitions, 100
+machine-complete and 947 incomplete cards, 99 current healthy embeddable
+3–5-candidate sets, and 628/628 adjudicated similarity pairs with zero
+unresolved pair or exact collision. Graph/calibration queues contain 740/953
+review-only rows with zero approvals. All 1,047 cards remain quarantined and
+unpublished.
+
+## 2026-08-02 — Source 23 Full-Body Joint CARs library contract
+
+`Full-Body Joint CARs Flow` is now machine-complete and human-review
+quarantined through immutable migrations 493 (`3758480733`) and 494
+(`3916243330`). The card explicitly models the fixed eight-region sequence,
+joint-specific active actions and directions, bilateral completion, neutral
+checkpoints, standing balance/support, compensation limits, pain/neurologic/
+dizziness/balance stops, equipment and footprint, setup and transition time,
+duration bounds, cumulative low-load joint exposure, substitutions, and
+planned/actual persistence. The athlete text is bounded to 238 characters;
+coach, athlete, and support-operation content remains detailed in structured
+fields and contextual profiles.
+
+The independent variant is `38/8/38`; the wall-supported-lower-body-segments
+variant is `42/6/42`. These values represent exercise complexity, physical
+difficulty, and their derived maximum. Wall contact reduces physical balance
+demand but adds support sequencing and contact-management complexity. No
+exercise skill level, readiness rank, age classification, or independently
+authored overall score exists.
+
+Current-version data includes 2 variants, 4 delivery profiles, 16 candidate
+evidence rows, 4 healthy/embeddable oEmbed candidates, 20 alternate
+assessments, 6 review-only relationships, 4 review-only score anchors, 8
+identity boundaries, and one four-blocker packet. oEmbed health proves metadata
+availability only; playback, exact complete sequence, actions, sides, support,
+captions, accessibility, cue quality, safety, conflicts, reviewer identity, and
+approval remain unknown.
+
+Registry `2026-08-02.91` contains 390 sources; focused tests pass 234/234; the
+backend suite passes 1,036 plus 20 intentional skips; lint, JSON parsing, diff
+integrity, disposable-PostgreSQL idempotency/registration/re-entry, persisted
+audit, identity reporting, and production build pass. The global audit is now
+1,676/1,676 mappings, 1,047 active definitions, 101 machine-complete and 946
+incomplete cards, 100 current healthy embeddable 3–5-candidate sets, and
+628/628 adjudicated similarity pairs with zero unresolved pair or exact
+collision. Graph/calibration queues contain 746/957 review rows and zero
+approvals. All 1,047 cards remain quarantined and unpublished.

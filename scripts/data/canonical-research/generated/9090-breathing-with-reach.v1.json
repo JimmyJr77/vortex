@@ -1,13 +1,13 @@
 {
   "facilityId": 1,
   "slug": "9090-breathing-with-reach",
-  "researchVersion": "2026-07-25.21",
+  "researchVersion": "2026-08-02.89",
   "assessmentSummary": {
-    "identity": "A supported supine breathing drill with hips and knees near 90 degrees, feet on a wall or calves on a stable support, and a gentle bilateral reach during a slow exhale while the rib cage and pelvis remain comfortably organized.",
+    "identity": "A supported supine breathing exercise with hips and knees near 90 degrees and a bilateral ceiling reach throughout one comfortable inhale, longer unforced exhale, and reset. Feet-on-wall and fully-supported lower-leg interfaces are exact variants; hands-on-ribs no-reach breathing and active hip-lift/ball/balloon breathing are distinct definitions.",
     "currentCardFindings": [
       "The existing card describes the supine support and reach clearly but overstates a universal rib-down or pelvic-position outcome and does not define support stability, breath duration, permitted effort, dizziness rules, or dosage boundaries.",
-      "The archived Hip Reset card described the same supported 90/90 breathing action; hip reset is an intended context, not a separate movement identity.",
-      "The legacy 20-point difficulty obscures the very low physical load and the modest respiratory, rib-cage, pelvic, and reaching coordination required."
+      "The archived Hip Reset source omits support, heel pressure, hip lift, pelvic shift, reach, ball or balloon, breath cycle, completion, and reset facts; it remains an identity quarantine and must not be guessed into the reach or balloon card.",
+      "The prior generic 20/10 score obscured the difference between exercise complexity and physical difficulty. The exact wall-supported reach proposal is 26/8/26, while fully supported lower legs reduce it to 22/5/22."
     ],
     "proposedTaxonomy": {
       "movementPatterns": [
@@ -54,14 +54,16 @@
       ]
     },
     "proposedDifficulty": {
-      "technicalComplexity": 22,
-      "absoluteLoadDemand": 4,
-      "coordinationDemand": 24,
-      "supervisionDemand": 14,
+      "technicalComplexity": 26,
+      "absoluteLoadDemand": 8,
+      "physicalDifficulty": 8,
+      "coordinationDemand": 28,
+      "supervisionDemand": 12,
       "failureConsequence": 8,
       "impact": 1,
       "workCapacityDemand": 5,
-      "baseOverallDifficulty": 22
+      "baseOverallDifficulty": 26,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
     },
     "proposedLoadProfile": {
       "loadingType": "supported_bodyweight_respiratory_motor_control",
@@ -88,7 +90,6 @@
       "optionalEquipment": [
         "mat",
         "head_support",
-        "small_ball_between_knees",
         "visual_breath_timer"
       ],
       "environment": [
@@ -212,25 +213,83 @@
         "full_video_review"
       ]
     },
-    "programmingDecision": "Retain one supported supine 90/90 breathing-with-reach definition. Hip reset, feet-on-wall versus calves-on-bench support, reach angle, and non-loaded breath cadence are variants or contextual annotations; avoid structural-reset and automatic-recovery claims.",
+    "programmingDecision": "Retain one supported supine 90/90 bilateral-reach definition with exact feet-on-wall and fully-supported lower-leg variants. Keep the under-specified Hip Reset source quarantined. Author hands-on-ribs no-reach lateral expansion and active heel-pull/hip-lift/ball/balloon breathing as distinct definitions. Treat only cycle count, comfortable cadence, rest, and reach effort within the exact action as delivery annotations; avoid structural-reset, treatment, recovery, or transfer claims.",
     "currentCardSnapshot": {
-      "capturedAt": "2026-07-26T02:35:00.000Z",
-      "cardVersion": 1,
+      "capturedAt": "2026-08-02T18:30:00.000Z",
+      "cardVersion": 2,
       "status": "review",
-      "description": "Lie on the back with feet on a wall, bench, or box so hips and knees are bent to roughly 90 degrees. Keep the neck neutral. Reach arms toward the ceiling or slightly forward to bring the ribs down. Inhale through the nose, expanding the abdomen and lower ribs. Exhale slowly and fully, letting the ribs soften down without crunching.",
-      "familyKey": "Breathing reset",
-      "movementPatterns": [],
-      "bodyRegions": [],
-      "requiredEquipment": [],
-      "optionalEquipment": [],
-      "environment": {},
-      "population": {},
-      "difficulty": {
-        "absoluteLoadDemand": 10,
-        "coordinationDemand": 20,
-        "technicalComplexity": 20,
-        "baseOverallDifficulty": 20
+      "description": "A supported supine breath-cycle exercise with hips and knees near 90 degrees and both arms reaching toward the ceiling. One exact variant plants both feet on a stable wall; another fully supports the lower legs on a stable bench or box. A repetition is one comfortable inhale and longer unforced exhale while the bilateral reach, neck, support contact, rib cage, pelvis, and lumbar region remain within the declared quality contract.",
+      "familyKey": "supported_9090_breathing_with_bilateral_reach",
+      "movementPatterns": [
+        "breath",
+        "reach",
+        "brace"
+      ],
+      "bodyRegions": [
+        "core",
+        "rib_cage",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "shoulder",
+        "scapula",
+        "neck"
+      ],
+      "requiredEquipment": [
+        "wall_or_bench_or_box"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "towel",
+        "timer"
+      ],
+      "environment": {
+        "station": "one_supine_lane_and_one_declared_support_interface_per_participant",
+        "support": "variant_declared_stable_wall_or_nonrolling_bench_or_box",
+        "surface": "level_dry_stable_floor_with_optional_mat",
+        "clearance": [
+          "full_supine_body_length",
+          "unobstructed_bilateral_vertical_reach",
+          "no_cross_traffic",
+          "safe_floor_entry_and_exit",
+          "coach_side_view"
+        ],
+        "sightline": "coach_can_observe_neck_shoulders_rib_cage_pelvis_support_and_breath_strain",
+        "changeRule": "Wall versus lower-leg support requires an exact variant. Removing or unilateralizing the reach, adding a hip lift, ball, balloon, limb motion, resistance, or breath hold changes identity or requires separate review."
       },
+      "population": {
+        "cautions": [
+          "current_or_recent_respiratory_cardiovascular_neurologic_neck_back_hip_knee_or_shoulder_symptoms",
+          "dizziness_faintness_panic_air_hunger_or_unusual_shortness_of_breath",
+          "pregnancy_or_postpartum_status_requiring_supine_position_individualization",
+          "inability_to_get_to_or_from_the_floor_safely",
+          "instructions_from_a_treating_clinician_that_conflict_with_this_workout_card"
+        ],
+        "exclusions": [
+          "unstable_or_rolling_leg_support",
+          "cannot_breathe_comfortably_at_rest",
+          "active_chest_pain_faintness_or_unusual_shortness_of_breath",
+          "reach_or_supported_hip_knee_position_produces_pain_or_neurologic_symptoms"
+        ],
+        "generalReadiness": [
+          "comfortable_supported_supine_position",
+          "comfortable_unforced_resting_breathing",
+          "pain_free_declared_shoulder_hip_and_knee_position",
+          "can_report_symptoms_air_hunger_and_uncertainty"
+        ],
+        "defaultPopulation": "participants_who_can_tolerate_supported_supine_9090_and_bilateral_reach_with_comfortable_unforced_breathing",
+        "notClinicalClearance": true,
+        "positionSpecificCautions": [
+          "shoulder_symptoms_with_vertical_reach",
+          "hamstring_cramp_with_wall_contact",
+          "supine_hypotensive_or_pressure_symptoms",
+          "after_twenty_weeks_pregnancy_consider_non_supine_substitution_and_follow_individual_clinical_guidance"
+        ],
+        "individualizationRequired": true,
+        "neverInferReadinessFromExerciseDifficulty": true
+      },
+      "difficulty": {},
       "loadProfile": {},
       "fatigueProfile": {}
     }
@@ -238,86 +297,86 @@
   "evidence": [
     {
       "sectionKey": "identity",
-      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
-      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
-      "sourcePublisher": "U.S. Department of Veterans Affairs",
-      "sourceKind": "professional_standard",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
       "claims": [
-        "VA guidance defines diaphragmatic breathing as a supported lying or seated exercise using a slow nasal inhale and longer controlled exhale.",
-        "90/90 Breathing with Reach adds the explicit supported 90/90 leg position and gentle reach; the card must not treat a claimed hip reset as a second identity."
+        "Functional Movement Systems directly specifies a supine feet-on-wall 90/90 breathing cycle with hands on the lower lateral abdomen or ribs; it does not include an arm reach.",
+        "Supported 90/90 Breathing with Bilateral Reach retains the audited legacy bilateral reach as an identity-bearing action. Hands-on-ribs no-reach breathing and active hip-lift/ball/balloon breathing therefore remain distinct cards, and the ambiguous Hip Reset source stays quarantined."
       ]
     },
     {
       "sectionKey": "taxonomy",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
       "claims": [
-        "The shin-box paper describes hand support, arm position, external load, tall kneeling, half kneeling, standing, and single-leg finish as regressions, stages, or progressions within a named movement sequence.",
-        "Classify 90/90 Breathing with Reach by body orientation, support position, hip actions, transition endpoint, arm task, assistance, external load, cadence, laterality, and whether standing is required."
+        "The direct instruction establishes supine support, hips and knees near 90 degrees, a breath cycle, and fixed contact positions rather than spinal rotation.",
+        "Classify Supported 90/90 Breathing with Bilateral Reach as supported breath control, bilateral reach, and static trunk organization; declare wall-foot versus fully-supported lower-leg contact as exact variants."
       ]
     },
     {
       "sectionKey": "anatomy",
-      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
-      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
-      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/20705944/",
+      "sourceTitle": "Stabilizing function of the diaphragm: dynamic MRI and synchronized spirometric assessment",
+      "sourcePublisher": "Journal of Applied Physiology",
       "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 80,
+      "evidenceQuality": 86,
       "claims": [
-        "Hip-rotator leverage changes with hip-flexion angle; a muscle may not perform the same rotational role across upright, flexed, and deeply flexed positions.",
-        "Represent the diaphragm and rib cage for the breathing card and the hip rotators, gluteals, adductors, knee flexors, foot contacts, pelvis, and trunk stabilizers actually used by each seated or get-up variant without reducing hip rotation to one named muscle."
+        "Dynamic MRI in 30 healthy adults supports ventilatory and postural diaphragm behavior during limb tasks, but it is not a trial of this exercise and does not quantify individual muscle force.",
+        "Represent diaphragm, intercostals, abdominal wall, rib cage, spine, pelvis, supported hips and knees, scapular protraction, shoulder-position demand, and cervical stabilization without promising structural change."
       ]
     },
     {
       "sectionKey": "biomechanics",
-      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
-      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
-      "sourcePublisher": "U.S. Department of Veterans Affairs",
-      "sourceKind": "professional_standard",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/20705944/",
+      "sourceTitle": "Stabilizing function of the diaphragm: dynamic MRI and synchronized spirometric assessment",
+      "sourcePublisher": "Journal of Applied Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
       "claims": [
-        "Diaphragmatic breathing uses abdominal excursion with comparatively quiet upper-chest accessory-muscle activity.",
-        "The reach should remain low effort and free of shrugging or crunching while the stable leg support prevents balance demand from obscuring breathing."
+        "Breathing and limb-position demands can coexist, but the cited laboratory task does not establish one optimal rib, lumbar, or pelvic posture for all participants.",
+        "Keep the bilateral reach, declared support, and comfortable breath cycle exact; invalidate shrugging, crunching, forced flattening, support loss, hip lift, heel pull, or added equipment."
       ]
     },
     {
       "sectionKey": "difficulty",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
       "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "evidenceQuality": 92,
       "claims": [
-        "Hand support, arm position, external load, and the standing or single-leg endpoint materially change coordination and physical demand.",
-        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. These are exercise attributes; athlete experience is programming context and is not a card level."
+        "Published diaphragmatic-breathing protocols and outcomes are highly heterogeneous, and no source assigns a Vortex difficulty score or participant classification.",
+        "The review-only wall-supported proposal is 26 exercise complexity and 8 physical difficulty; fully supported lower legs reduce support management to 22 and 5. Overall is derived as the maximum."
       ]
     },
     {
       "sectionKey": "load_fatigue_recovery",
-      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
-      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
-      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
       "sourceKind": "peer_reviewed_research",
       "evidenceQuality": 92,
       "claims": [
-        "Range-of-motion interventions vary substantially in technique, intensity, duration, frequency, target tissue, supervision, and population, so generic mobility labels do not determine dose or recovery.",
-        "90/90 Breathing with Reach must track active versus supported range, sides or breaths, assistance, external load, tempo, end-position control, symptom response, technique loss, and overlap with other hip, trunk, kneeling, or respiratory work."
+        "Low external load does not mean zero exposure, and the systematic review reports variable protocols with safety information often underreported.",
+        "Track support pressure, reach time, breath effort, invalid or symptom-limited cycles, prior trunk and shoulder work, total supine time, and recovery as a conservative planning estimate rather than a biological guarantee."
       ]
     },
     {
       "sectionKey": "constraints",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2020/04/physical-activity-and-exercise-during-pregnancy-and-the-postpartum-period",
+      "sourceTitle": "Physical Activity and Exercise During Pregnancy and the Postpartum Period",
+      "sourcePublisher": "American College of Obstetricians and Gynecologists",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 95,
       "claims": [
-        "The published sequence uses floor contact, an upright torso, optional hand support, and progressively more demanding arm, load, kneeling, standing, and balance positions.",
-        "Require a non-slip padded surface, clear transition space, stable support where assigned, and pain-free hip, knee, back, and breathing tolerance; do not force a nominal 90-degree shape when anatomy or symptoms prevent it."
+        "ACOG advises avoiding prolonged supine exercise after 20 weeks of pregnancy and individualizing activity; that general guidance is not clearance for this card.",
+        "Require a stable wall or braced bench/box, safe floor access, comfortable supine position and reach, unforced resting breathing, symptom reporting, and a separately reviewed non-supine option when indicated."
       ]
     },
     {
@@ -328,32 +387,32 @@
       "sourceKind": "professional_standard",
       "evidenceQuality": 82,
       "claims": [
-        "VA instruction uses a slow inhale and a longer exhale, then progresses practice position as control improves.",
-        "For a workout card, use a shorter conservative dose of three to six comfortable breaths per set; this is a programming inference, not a clinical prescription."
+        "VA guidance uses a comfortable nasal inhale and a longer controlled exhale and allows position progression; it does not establish one universal workout dose for this reach card.",
+        "Use a small dose of comfortable cycles with rest as needed, count invalid and symptom-limited attempts as exposure, and recompute duration from actual cadence, pauses, rest, setup, and substitutions."
       ]
     },
     {
       "sectionKey": "instructions",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
       "claims": [
-        "The published get-up procedure specifies an upright torso, approximately right-angle knees, controlled rotation, knee pressure into the floor, hip extension, half-kneeling transition, standing finish, and controlled reversal.",
-        "Instructions for 90/90 Breathing with Reach must name the exact support, limb position, allowed assistance, movement path, breath or tempo, endpoint, return, side order, and definition of a successful repetition."
+        "The direct source specifies stable wall support, hips and knees near 90 degrees, comfortable neck and spine, nasal inhale, longer exhale, pause, and relaxation, while the audited legacy source adds bilateral reach.",
+        "Instructions must declare the exact support variant, bilateral reach, comfortable inhale, longer unforced exhale, no crunch or hip lift, valid reset, symptom stop, and safe floor exit."
       ]
     },
     {
       "sectionKey": "safety_stop_rules",
-      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30245619/",
-      "sourceTitle": "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
-      "sourcePublisher": "Frontiers in Human Neuroscience",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
       "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 88,
+      "evidenceQuality": 92,
       "claims": [
-        "Slow-breathing research includes varied protocols and proposed autonomic effects, while mechanisms and generalization remain uncertain.",
-        "Do not force breath depth, duration, or retention. Stop for dizziness, faintness, chest pain, unusual shortness of breath, panic, neurologic symptoms, or musculoskeletal pain."
+        "The review found substantial protocol heterogeneity and incomplete safety reporting, so absence of reported harm does not establish universal safety.",
+        "Do not force breath depth, exhale, or retention. Stop for pain, dizziness, faintness, chest pain, unusual shortness of breath, panic, air hunger, neurologic symptoms, cramp, support movement, or inability to reset comfortably."
       ]
     },
     {
@@ -370,50 +429,50 @@
     },
     {
       "sectionKey": "athlete_support",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
+      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
+      "sourcePublisher": "U.S. Department of Veterans Affairs",
+      "sourceKind": "professional_standard",
       "evidenceQuality": 82,
       "claims": [
-        "The published get-up uses sequential front, side, and angled images to distinguish the seated, tall-kneeling, half-kneeling, standing, and single-leg stages.",
-        "Athlete support should show the exact start and finish, both sides, permitted hand support, the primary cue, a successful repetition, a comfortable-range option, and the stop signal."
+        "VA instructions use simple position, inhale, and exhale language and advance only as control becomes comfortable.",
+        "Athlete support must identify the exact leg support, bilateral reach, expected low effort, comfortable breath, self-checks, unexpected symptoms, stop signal, and safe exit without clinical promises."
       ]
     },
     {
       "sectionKey": "coach_support",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
       "claims": [
-        "The published sequence supplies regressions and progressions based on hand support, arm position, load, standing, and single-leg balance.",
-        "Coach support should distinguish position access from active control, provide front and side observation points, side comparison, assistance and load decisions, floor and spacing checks, dosage logging, and rules for shortening or ending the sequence."
+        "The direct setup provides observable support, hand or arm position, cadence, and relaxation checkpoints.",
+        "Coach support must distinguish the two support variants and observe reach, neck and shoulder tension, breath strain, support pressure, rib and pelvic comfort, symptoms, valid reset, duration, and floor exit."
       ]
     },
     {
       "sectionKey": "accessibility",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
-      "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "sourceUrl": "https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2020/04/physical-activity-and-exercise-during-pregnancy-and-the-postpartum-period",
+      "sourceTitle": "Physical Activity and Exercise During Pregnancy and the Postpartum Period",
+      "sourcePublisher": "American College of Obstetricians and Gynecologists",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 95,
       "claims": [
-        "The published sequence explicitly permits hands behind the body to support an upright posture and progresses by changing arm position or adding load.",
-        "Accessibility options include elevating the hips, opening the knee angles, using hands or a stable support, shortening the transition, omitting the stand, adding padding, reducing sensory load, and using visual plus plain-language cues."
+        "Supine positioning is not universally appropriate, and pregnancy guidance requires individualization rather than a generic age or exercise-level cutoff.",
+        "Offer exact lower-leg support, comfortable joint angles, head support, fewer cycles, longer rest, multimodal instruction, or a separately reviewed non-supine substitution; removing the reach selects a different card."
       ]
     },
     {
       "sectionKey": "alternates",
-      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
-      "sourceTitle": "The shin box get-up",
-      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2971640/",
+      "sourceTitle": "The Value of Blowing Up a Balloon",
+      "sourcePublisher": "North American Journal of Sports Physical Therapy",
       "sourceKind": "peer_reviewed_research",
-      "evidenceQuality": 82,
+      "evidenceQuality": 74,
       "claims": [
-        "The paper distinguishes the seated switch, hip lift, half-kneeling transition, standing get-up, single-leg finish, arm positions, assistance, and external loading.",
-        "Treat hand support, arm position, reach, cadence, and light load as controlled variants when the primary sequence remains; retain separate definitions when the primary joint action or training stimulus changes, such as isolated end-range lift-offs or a Turkish get-up."
+        "The published ball-and-balloon sequence explicitly adds heel pull, a small pelvic lift, knee-ball pressure, right arm overhead, left-hand balloon control, and repeated resisted exhalation.",
+        "Those actions define a separate card. Hands-on-ribs no-reach breathing is also distinct; wall versus fully-supported lower legs remain exact reach variants, while cycle count, comfortable cadence, rest, and effort are delivery annotations."
       ]
     },
     {
@@ -424,8 +483,8 @@
       "sourceKind": "manufacturer_instruction",
       "evidenceQuality": 82,
       "claims": [
-        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
-        "The direct videos for 90/90 Breathing with Reach returned healthy oEmbed player metadata on 2026-07-26. Exact support position, full sequence, safety, cue quality, captions, accessibility, and demonstration quality remain pending human review."
+        "YouTube documents privacy-enhanced embedding, and five reach candidates returned current oEmbed metadata on 2026-08-02.",
+        "Metadata health does not prove playback, exact support or reach contract, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
       ]
     }
   ],
@@ -439,7 +498,7 @@
       "embeddingAllowed": true,
       "externalVerification": {
         "method": "youtube_oembed",
-        "verifiedAt": "2026-07-26T02:34:46Z"
+        "verifiedAt": "2026-08-02T18:00:00Z"
       },
       "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
     },
@@ -452,7 +511,7 @@
       "embeddingAllowed": true,
       "externalVerification": {
         "method": "youtube_oembed",
-        "verifiedAt": "2026-07-26T02:34:46Z"
+        "verifiedAt": "2026-08-02T18:00:00Z"
       },
       "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
     },
@@ -465,7 +524,7 @@
       "embeddingAllowed": true,
       "externalVerification": {
         "method": "youtube_oembed",
-        "verifiedAt": "2026-07-26T02:34:46Z"
+        "verifiedAt": "2026-08-02T18:00:00Z"
       },
       "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
     },
@@ -478,7 +537,20 @@
       "embeddingAllowed": true,
       "externalVerification": {
         "method": "youtube_oembed",
-        "verifiedAt": "2026-07-26T02:34:46Z"
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kA6AtZkDxmg",
+      "title": "90/90 Breathing with Reach",
+      "channelName": "MASS",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
       },
       "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
     }
@@ -486,10 +558,11 @@
   "alternateAssessments": [
     {
       "name": "90/90 Breathing without Reach",
-      "classification": "new_variant",
-      "rationale": "Removing the reach lowers scapular and abdominal coordination while preserving supported supine breathing.",
+      "classification": "new_definition",
+      "rationale": "Removing the bilateral reach and placing both hands on the lower lateral ribs changes the arm and hand contacts, feedback method, valid repetition, and coaching observation contract.",
       "distinguishingDimensions": {
-        "armTask": "resting"
+        "armTask": "hands_on_lateral_ribs_no_reach",
+        "implementedDefinitionId": "b366c4d4-d75e-4902-915c-4b363e6b6238"
       }
     },
     {
@@ -522,6 +595,15 @@
       "rationale": "Adding unsupported alternating limb motion changes the primary task to dynamic trunk control under a longer lever.",
       "distinguishingDimensions": {
         "primaryTrainingStimulus": "dynamic_anti_extension_control"
+      }
+    },
+    {
+      "name": "90/90 Breathing with Hip Reset",
+      "classification": "reject",
+      "rationale": "The legacy contextual label omits support, heel pressure, hip lift, pelvic shift, arm reach, ball or balloon, breath cycle, valid completion, and reset. It remains nonselectable pending human identity review.",
+      "distinguishingDimensions": {
+        "identityState": "quarantined_missing_action_contract",
+        "mustNotMapAutomaticallyToBalloonCard": true
       }
     }
   ]

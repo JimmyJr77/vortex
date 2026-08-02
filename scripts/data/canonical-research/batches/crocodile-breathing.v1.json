@@ -1,0 +1,220 @@
+{
+  "batchKey": "crocodile-breathing-v1",
+  "researchVersion": "2026-08-02.90",
+  "snapshotAt": "2026-08-02T18:35:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/crocodile-breathing",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "aliverti_prone_supine_chest_wall_2001",
+      "claims": [
+        "Optoelectronic plethysmography documents position-dependent chest-wall compartment behavior in prone and supine breathing, but it is not a trial of {{canonicalName}}.",
+        "Represent respiratory muscles, static support contacts, comfortable cervical and trunk position, respiratory actions, planes, and bilateral laterality without inventing structural correction or muscle-force precision."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "Diaphragmatic-breathing protocols and outcomes are heterogeneous and no source assigns a Vortex score or athlete classification.",
+        "Assess exercise complexity and physical difficulty separately, derive overall as their maximum, and keep every numeric proposal in independent review."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "Low external load does not mean zero respiratory, positional, neck, floor-contact, or feedback-equipment exposure, and adverse-event reporting is incomplete.",
+        "Track valid, invalid, partial, assisted, and symptom-limited cycles; position and feedback load; breath effort; total prone time; prior respiratory and trunk work; and recovery only as a conservative planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "fms_take_a_deep_breath_crocodile",
+      "claims": [
+        "FMS states that the athlete should remain flat rather than posted on the elbows and should move to a different position when comfortable prone alignment is not achievable.",
+        "Require safe floor access, a clean stable surface, comfortable head and neck support, sufficient face and breathing clearance, declared feedback equipment, consent before touch, and an alternative when prone positioning is unsuitable."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+      "claims": [
+        "Heterogeneous protocols and incomplete safety reporting do not establish universal safety or justify forcing inhalation, exhalation, pressure, retention, or prone tolerance.",
+        "Stop for pain, dizziness, faintness, chest pain, unusual shortness of breath, panic or air hunger, neurologic signs, obstructed breathing, loss of head or floor support, equipment restriction, or inability to reset comfortably."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "fms_take_a_deep_breath_crocodile",
+      "claims": [
+        "FMS presents Crocodile Breathing as an entry point and gives practice examples, not a universal phase placement, treatment, sport-transfer result, set count, or recovery interval.",
+        "Use {{canonicalName}} only for an observable low-load prone breath-awareness purpose with exact variant, dose, cumulative exposure, duration, logistics, and substitution revalidation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "fms_crocodile_breathing_exercise",
+      "claims": [
+        "FMS gives plain-language prone setup, relaxed upper-body instruction, nasal breathing, abdominal contact with the floor, slow exhale, and comfortable continuation.",
+        "Athlete support must identify the exact setup and feedback variant, expected low effort, self-checks, unexpected symptoms, stop signal, accessible alternatives, and safe floor exit without diagnosis or treatment claims."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "fms_take_a_deep_breath_crocodile",
+      "claims": [
+        "FMS recommends a lower-leg bolster for comfort in some cases and abandoning prone Crocodile Breathing when a comfortable flat position is not achievable.",
+        "Offer safe floor-transfer help, head and lower-leg support, fewer cycles, longer rest, multimodal instruction, and a separately selected hooklying or other card when prone positioning is not appropriate."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Five selected candidates for {{canonicalName}} returned current YouTube oEmbed title, channel, thumbnail, and embed metadata on 2026-08-02.",
+        "oEmbed health does not prove playback, exact action or variant, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "crocodile-breathing",
+      "assessmentSummary": {
+        "identity": "Prone diaphragmatic-breathing practice with the body flat, forehead supported on stacked hands, chest/arms/neck relaxed, and one repetition defined as a comfortable nasal inhale producing abdominal and lower-rib floor feedback, a slow unforced nasal exhale, and a comfortable reset. Posting on the elbows, adding trunk or limb motion, external respiratory resistance, a different orientation, or a different breath-hold protocol changes identity or requires separate review.",
+        "currentCardFindings": [
+          "The current baseline has empty canonical anatomy, load, fatigue, constraints, programming, athlete, coach, and support fields and retains unsupported age and publication claims.",
+          "FMS directly supports the flat prone stacked-hand setup, relaxed upper body, abdominal floor feedback, unforced breathing, lower-leg bolster option, consented tactile cueing, and light elastic-band feedback.",
+          "The provisional review-only scores are 18/4/18 for flat prone, 20/3/20 for lower-leg bolster support, and 24/5/24 for light elastic-band feedback, expressed as exercise complexity / physical difficulty / derived maximum."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["breath", "brace"],
+          "bodyRegions": ["core", "spine"],
+          "support": "prone_anterior_trunk_and_lower_body_forehead_on_stacked_hands",
+          "laterality": "bilateral",
+          "equipmentByVariant": ["none_or_mat", "lower_leg_bolster", "light_elastic_band_feedback"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 18,
+          "absoluteLoadDemand": 4,
+          "physicalDifficulty": 4,
+          "baseOverallDifficulty": 18,
+          "variantScoreProposals": {
+            "flatProne": {"technicalComplexity": 18, "physicalDifficulty": 4, "baseOverallDifficulty": 18},
+            "lowerLegBolster": {"technicalComplexity": 20, "physicalDifficulty": 3, "baseOverallDifficulty": 20},
+            "elasticBandFeedback": {"technicalComplexity": 24, "physicalDifficulty": 5, "baseOverallDifficulty": 24}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "none_or_nonrestrictive_feedback_only",
+          "impactClass": "none",
+          "primaryExposure": ["comfortable_breath_cycles", "prone_time", "forehead_and_anterior_trunk_contact", "variant_specific_feedback_equipment"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "breathsPerSet": "3-8",
+          "cadence": "comfortable_nasal_inhale_and_slow_unforced_nasal_exhale_with_optional_short_pause_annotation",
+          "rest": "as_needed_for_normal_comfortable_breathing_and_position",
+          "durationRule": "recompute_from_actual_cycles_cadence_pauses_rest_setup_floor_transfer_feedback_setup_invalid_attempts_and_substitutions"
+        },
+        "programmingDecision": "Use only when prone floor feedback matches the workout purpose and floor access, head/neck comfort, breathing clearance, consent, equipment, symptoms, dose, and sightline pass. Hooklying, 90/90, Box Breath, med-ball feedback, resisted breathing, elbow-posted, Cobra/press-up, rocking, and limb-motion actions are distinct or separately reviewed.",
+        "calibrationEvidence": {
+          "basis": "direct FMS instruction, adjacent prone/supine chest-wall research, heterogeneous diaphragmatic-breathing evidence, and exact neighboring-card comparison",
+          "uncertainty": "No source establishes universal technique, outcome, eligibility, dose, recovery, progression order, or Vortex score.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "full_video_review", "coach_and_athlete_comprehension_test", "feedback_equipment_and_touch_review"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "fms_crocodile_breathing_exercise",
+          "claims": [
+            "FMS directly specifies prone position, forehead on one hand stacked over the other, relaxed chest/arms/neck, nasal inhale with abdominal floor contact, slow nasal exhale, and continuation while comfortable.",
+            "{{canonicalName}} retains that support and breath-cycle boundary; optional pauses are delivery cadence, while external feedback, different orientation, limb motion, or elbow posting require explicit classification."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "fms_take_a_deep_breath_crocodile",
+          "claims": [
+            "The observable task is prone breath control with static floor and hand contacts, not spinal extension, a plank, Cobra, rocking, or dynamic limb exercise.",
+            "Control breath, brace, prone support, floor feedback, bilateral expansion, feedback-equipment, no-impact, and static-action taxonomy terms."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "aliverti_prone_supine_chest_wall_2001",
+          "claims": [
+            "Prone versus supine positioning changes the distribution of chest-wall compartment volume during quiet breathing in the studied setting.",
+            "This supports recording prone contacts and observable abdominal/lower-rib expansion, not claiming universal posterior expansion, structural repositioning, diaphragm isolation, or treatment."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "fms_take_a_deep_breath_crocodile",
+          "claims": [
+            "FMS offers example breath counts and practice duration but does not validate one universal workout dose.",
+            "Use conservative comfortable cycles, optional cadence annotations, rest as needed, and stop before strain; actual duration includes floor transfer, feedback setup, invalid cycles, rest, and safe exit."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "fms_crocodile_breathing_exercise",
+          "claims": [
+            "The direct sequence supports flat prone placement, forehead on stacked hands, relaxed upper body, slow nasal inhale into abdominal floor contact, slow unforced nasal exhale, and comfortable reset.",
+            "Instructions must declare the exact feedback/support variant, avoid elbow posting and forced breathing, define a valid cycle, state symptom stops, and provide a safe floor exit."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "fms_take_a_deep_breath_crocodile",
+          "claims": [
+            "FMS makes flat alignment, upper-versus-lower initiation, lateral expansion, forcing, support comfort, tactile consent, and feedback equipment observable coaching concerns.",
+            "Coach support must inspect floor and face clearance, head/neck and elbow position, upper-chest/shoulder effort, abdominal and side feedback, equipment restriction, consent, symptoms, valid reset, dose, and safe exit."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "fms_take_a_deep_breath_crocodile",
+          "claims": [
+            "FMS distinguishes flat prone Crocodile Breathing from hooklying breathing and describes lower-leg, coach-touch, cuff-weight, and elastic-band feedback options.",
+            "Persist support or equipment-bearing variants, retain consented touch and cadence as delivery annotations when they do not support the body, and keep underspecified loading or moving-prone forms quarantined or distinct."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=2mCwbWPtICI","title":"Joe Sullivan Demonstrates Crocodile Breathing | elitefts.com","channelName":"elitefts","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:33:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=76-Sw5nZ2YI","title":"Crocodile Breathing: Improve Core Strength & Spinal Stability | MYo Lab Health & Wellness","channelName":"MYo Lab Health & Wellness","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:33:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=_8f9RHUfE1Q","title":"Crocodile Breathing","channelName":"Garrett McLaughlin","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:33:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=aimIzymb81E","title":"Crocodile Breathing | Breath Patterning","channelName":"Dr. Carl Baird","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:33:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=XhYrGbEI2c8","title":"Crocodile Breathing Exercise","channelName":"New Dimensions Physical Therapy","sourceQuery":"exact-name search checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T18:33:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Prone Crocodile Breathing","classification":"same_identity","rationale":"Direct synonym when the flat prone stacked-hand support and exact breath cycle remain unchanged.","distinguishingDimensions":{"alias":true}},
+        {"name":"Lower-Leg Bolster Crocodile Breathing","classification":"new_variant","rationale":"The scored prone breath cycle remains exact while lower-leg support and equipment materially change selection, comfort, logistics, and persistence.","distinguishingDimensions":{"support":"lower_legs_on_bolster","equipment":"bolster"}},
+        {"name":"Light Elastic-Band Feedback Crocodile Breathing","classification":"new_variant","rationale":"The same prone cycle uses declared nonrestrictive lateral feedback equipment that must be selected and persisted.","distinguishingDimensions":{"feedback":"light_elastic_band","equipment":"bands"}},
+        {"name":"Consented Coach Tactile Cueing","classification":"modifier_annotation","rationale":"Permission-based light observation feedback does not support the body or change the scored breath cycle; contact location, consent, and coach delivery must still be persisted.","distinguishingDimensions":{"deliveryDimension":"consented_tactile_feedback"}},
+        {"name":"Optional Short Pause Between Breath Phases","classification":"modifier_annotation","rationale":"A comfortable optional pause is cadence metadata while the same inhale, exhale, reset, and support remain exact; forced or timed hold protocols are different.","distinguishingDimensions":{"deliveryDimension":"cadence"}},
+        {"name":"Breath Cycles, Sets, and Rest","classification":"modifier_annotation","rationale":"Dose changes exposure and duration without changing identity while every contact and action remains exact.","distinguishingDimensions":{"deliveryDimensions":["cycles","sets","rest"]}},
+        {"name":"Light Cuff Weights on Back","classification":"new_variant","rationale":"External devices and load location change the exact feedback and load contract; device mass, placement, migration risk, monitoring, and safety remain underspecified and human-quarantined.","distinguishingDimensions":{"feedback":"cuff_weights","reviewState":"needs_human_review"}},
+        {"name":"Hooklying Diaphragmatic Breathing","classification":"new_definition","rationale":"Supine orientation, back support, and self-directed hand feedback replace prone anterior floor contact.","distinguishingDimensions":{"targetDefinitionId":"d2214132-df42-4512-bcc3-7c0745321b0b"}},
+        {"name":"Supported 90/90 Breathing with Bilateral Reach","classification":"new_definition","rationale":"Supine leg support and bilateral arm reach change orientation, support, shoulder action, and valid completion.","distinguishingDimensions":{"targetDefinitionId":"0ac22398-2eed-482a-aae8-8d26ba888eaf"}},
+        {"name":"90/90 Wall-Supported Breathing with Lateral Expansion","classification":"new_definition","rationale":"Supine wall support and hands-on-ribs feedback differ from prone anterior floor feedback.","distinguishingDimensions":{"targetDefinitionId":"b366c4d4-d75e-4902-915c-4b363e6b6238"}},
+        {"name":"90/90 Hip Lift with Ball and Balloon","classification":"new_definition","rationale":"Heel pull, hip lift, ball pressure, asymmetric arms, and resisted balloon exhalation create a different action and equipment boundary.","distinguishingDimensions":{"targetDefinitionId":"96d4d5fe-1ad1-4930-9c74-2054764d0c6c"}},
+        {"name":"Box Breathing Hold","classification":"new_definition","rationale":"Four prescribed timed phases with breath holds define a different breath-cycle contract and need not use prone support.","distinguishingDimensions":{"targetDefinitionId":"4d4aba1c-c4b5-4915-a85d-fd943acd1e91"}},
+        {"name":"Med Ball Belly Breathing","classification":"new_definition","rationale":"External medicine-ball abdominal contact and pressure replace floor feedback and change equipment and load.","distinguishingDimensions":{"targetDefinitionId":"ae51bba4-1fd3-4492-b515-b3cf26327089"}},
+        {"name":"Makarasana Yoga Pose","classification":"new_definition","rationale":"The named pose has variable arm, head, leg, rest, and breath contracts and cannot be assumed to equal this exact exercise without a complete specification.","distinguishingDimensions":{"identityState":"variable_pose_contract"}},
+        {"name":"Elbow-Posted Prone Breathing","classification":"new_definition","rationale":"Posting on the elbows changes upper-extremity support, thoracic and cervical position, load, and valid support contact.","distinguishingDimensions":{"support":"forearms_or_elbows"}},
+        {"name":"Crocodile Rocking","classification":"new_definition","rationale":"Rocking adds repeated trunk or limb motion and a movement endpoint absent from the static breath cycle.","distinguishingDimensions":{"action":"rocking"}},
+        {"name":"Prone Press-Up or Cobra with Breathing","classification":"new_definition","rationale":"Active spinal extension and arm support change joint actions, load, orientation, and repetition boundary.","distinguishingDimensions":{"action":"prone_press_up_or_cobra"}},
+        {"name":"Prone Swimmer Hover","classification":"new_definition","rationale":"Limb elevation and hover time add shoulder, hip, and spinal actions and physical demand.","distinguishingDimensions":{"targetDefinitionId":"21a45ff8-214c-4a35-b091-2b7e0976679d"}},
+        {"name":"Pursed-Lip Exhale in Exact Prone Setup","classification":"modifier_annotation","rationale":"Exhale route is delivery metadata only when the prone support, comfortable effort, no forced retention, and valid reset remain exact; clinical protocols require separate review.","distinguishingDimensions":{"deliveryDimension":"exhale_route"}},
+        {"name":"Pain-Through, Obstructed, or Forced Crocodile Breathing","classification":"reject","rationale":"Continuing through symptoms, blocked face clearance, restrictive equipment, forced pressure, or loss of support violates the repetition and stop contract.","distinguishingDimensions":{"qualityState":"invalid_and_unsafe"}}
+      ]
+    }
+  ]
+}

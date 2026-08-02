@@ -1,0 +1,19 @@
+{
+  "batchKey": "9090-breathing-family-v1",
+  "researchVersion": "2026-08-02.89",
+  "generatedAt": "2026-08-02T18:30:00.000Z",
+  "cards": [
+    {
+      "slug": "9090-wall-supported-breathing-with-lateral-expansion",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "9090-hip-lift-with-ball-and-balloon",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    }
+  ]
+}

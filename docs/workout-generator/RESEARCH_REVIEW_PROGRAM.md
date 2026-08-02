@@ -3224,3 +3224,120 @@ applications and all working coach/athlete/support content. Complexity and
 physical difficulty are exercise-task scores only; athlete readiness remains a
 workout input and skill-library levels remain on skill cards. Separate content
 review and publication approval are mandatory.
+
+## 90/90 breathing-family source-21 review packet
+
+Review three distinct cards and four exact variants. For `Supported 90/90
+Breathing with Bilateral Reach`, confirm either both feet on a stable wall or
+the calves/heels fully supported on a nonrolling bench/box, hips and knees near
+90 degrees, both arms reaching without shrug, no prescribed heel pull or hip
+lift, a comfortable inhale, longer unforced exhale, and comfortable reset. For
+`90/90 Wall-Supported Breathing with Lateral Expansion`, confirm both hands
+remain on the lower lateral ribs and no arm reach is scored. For `90/90 Hip
+Lift with Ball and Balloon`, confirm the exact right-arm-overhead/left-hand-
+balloon laterality, heel pull, small lift, ball pressure, resisted exhale,
+reinhalation protocol, hygiene/material controls, and separate endpoint.
+
+Use Functional Movement Systems only for its direct lateral-expansion
+instruction; VA guidance for general comfortable diaphragmatic-breathing
+instruction; the 2018 and 2026 reviews for heterogeneous slow/diaphragmatic-
+breathing findings and limitations; the postural-task MRI study only as
+indirect diaphragm-function evidence; Boyle et al. only as a clinical
+suggestion for the ball-and-balloon sequence; and ACOG for the current caution
+around prolonged supine exercise after 20 weeks of pregnancy. None establishes
+a universal posture, structural reset, treatment effect, athletic transfer,
+eligibility rule, safe dose, recovery interval, progression order, or numeric
+difficulty for these exact cards.
+
+Watch all 15 candidates completely. Reach IDs are `GZ6X2M6gRvQ`,
+`O-cf22YQzAg`, `QN77knnBw8o`, `yFGJI00OZ8k`, and `kA6AtZkDxmg`. Lateral-
+expansion IDs are `AnvRX080sR4`, `V6Zrlo5w7oY`, `xzzJgFbgexc`, `K2wKibekVbA`,
+and `8UAOFVQIqYQ`. Ball-and-balloon IDs are `4GoqjoEXaAw`, `zL1Hmkt7aJA`,
+`lcZp3gEz5_s`, `U1AG5y81VcQ`, and `-zxaq9lANYg`. Current oEmbed responses
+prove title/channel/thumbnail/embed metadata only. Record full playback, exact
+definition/variant, support, arm and hand contacts, heel/lift/ball/balloon
+actions, laterality, breath cycle, endpoint, captions, accessibility,
+demonstration/cue quality, safety, conflicts, reviewer identity, rationale,
+timestamp, and reviewed card version.
+
+Independently adjudicate all 48 evidence applications, 58 alternates, 20
+identity decisions, 10 graph proposals, and 8 complexity/physical-difficulty
+anchors. Give special scrutiny to source 1404's unresolved `Hip Reset` label;
+wall versus fully supported reach; reach versus hands-on-ribs no-reach; the
+active heel-pull/lift/ball/balloon sequence; and boundaries with Hip Switch,
+Crocodile Breathing, Dead Bug, Box Breath, and Med Ball Belly Breathing. Do not
+infer athlete readiness or a skill-library level from exercise difficulty.
+Separate qualified content review and independent publication approval remain
+mandatory.
+
+## Crocodile Breathing source-22 review packet
+
+Review one prone breathing identity with three exact support/feedback variants.
+Confirm the face remains clear, forehead rests on stacked hands, upper body and
+legs remain relaxed, and one repetition is a comfortable nasal inhale into
+abdominal/lower-rib floor feedback, a slow unforced nasal exhale, and a
+comfortable reset. For the bolster variant, confirm stable nonrolling lower-
+leg support without changing the repetition. For the band variant, confirm
+light nonrestrictive circumferential feedback that does not impede breathing.
+Optional cadence, pause, dose, pursed-lip exhale, or consented coach touch must
+remain delivery annotations only when they preserve the same breath cycle.
+
+Use the Functional Movement Systems Crocodile Breathing materials for direct
+exercise/instruction context and Aliverti et al. only for the measured prone-
+versus-supine chest-wall mechanics in its studied sample. Do not turn either
+source into universal treatment, structural-reset, performance-transfer,
+eligibility, dose, recovery, progression, safety, or numeric-difficulty claims.
+Weighted cuffs remain quarantined until load, placement, pressure, fit,
+contraindications, and stop behavior are specified and independently reviewed.
+
+Watch all five candidates completely: `2mCwbWPtICI`, `76-Sw5nZ2YI`,
+`_8f9RHUfE1Q`, `aimIzymb81E`, and `XhYrGbEI2c8`. Current oEmbed metadata proves
+neither playback nor exact card/variant match. Record posture, face clearance,
+hand/forehead contact, support or band placement, breath cycle, endpoint,
+assistance/touch, conflicts, captions, accessibility, cue/demonstration
+quality, safety, reviewer identity, rationale, timestamp, and reviewed card
+version.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 9
+relevant identity boundaries, 8 graph proposals, and 6 complexity/load
+anchors. Verify coach/athlete/support content and the flat, bolster, and band
+difficulty vectors `18/4/18`, `20/3/20`, and `24/5/24`. Exercise difficulty is
+not an athlete proficiency level. Separate qualified content review and
+independent publication approval remain mandatory.
+
+## 2026-08-02 — Source 23 Full-Body Joint CARs human-review packet
+
+The registry is `2026-08-02.91` / 390 sources. Sixteen candidate evidence
+applications draw on ACE professional CARs guidance, the Kinstretch starter
+pack, a full-body Kinstretch follow-along, the 2025 nonspecific-neck-pain CPG,
+and YouTube's official embed documentation. Reviewers must keep their scopes
+separate: professional material supports slow, deliberate, active, pain-free,
+momentum-limited rotations and compensation awareness; the CPG supplies
+clinical warning context only; none validates the exact Vortex eight-region
+order, universal dose, eligibility, outcomes, recovery interval, or difficulty
+score.
+
+Watch the four candidates in full before any media state changes:
+
+- `6p1OHgpmVwU` — The Jiu-Jitsu Therapist, “Full Body CARs Routine”;
+- `AyJ3omVBIho` — Melissa Ray Fitness, “Morning Routine - Functional Range
+  Conditioning - Full Body CARs”;
+- `m9Ar5qvCUbg` — Vegan CornHub, “Follow-Along FULL BODY CARS Routine (30
+  min)”;
+- `p_WqlqgfNrc` — Breathe and Flow, “Mobility Routine for Every Day and Every
+  Joint! (Full Body CARS)”.
+
+Current oEmbed title/channel/iframe health is not playback or exactness
+approval. Record complete-sequence match, region order, joint actions,
+directions, sides, support/base, momentum and compensation, neutral
+checkpoints, dose, captions, accessibility, cue/demonstration quality, safety,
+conflicts, reviewer identity, rationale, timestamp, and card-version match.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 8
+identity boundaries, 6 graph proposals, and 4 complexity/physical-difficulty
+anchors. Verify the independent `38/8/38` and wall-supported `42/6/42` vectors,
+coach/athlete/support content, the 238-character athlete instruction, and every
+stop/incident/persistence rule. The automated packet must retain exactly
+`CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review. Separate content review and
+independent publication approval remain mandatory.

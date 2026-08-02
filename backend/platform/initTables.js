@@ -485,6 +485,12 @@ export async function initPlatformTables(pool) {
     '486_coaching_lache_family_canonical_audit_contract_correction.sql',
     '487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql',
     '489_coaching_precision_360_similarity_identity_closure.sql',
+    '490_coaching_9090_breathing_family_audit_hardening.sql',
+    '491_coaching_crocodile_breathing_family_audit_hardening.sql',
+    '492_coaching_crocodile_breathing_normalized_score_floor_correction.sql',
+    '493_coaching_full_body_joint_cars_flow_audit_hardening.sql',
+    '494_coaching_full_body_joint_cars_audit_contract_correction.sql',
+    '495_coaching_neck_cars_identity_and_family_audit_hardening.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

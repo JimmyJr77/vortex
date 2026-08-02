@@ -1141,3 +1141,100 @@ are additive and should not be rolled back destructively during an incident.
   selection, substitutions and failure testing, clean deployment rehearsal,
   a representative coach pilot, monitoring/rollback/incident proof, and coach/
   athlete support readiness remain production requirements.
+
+## Source-21 / full-turn checkpoint after migration 490
+
+- Automated family authorship now passes for supported bilateral-reach 90/90
+  breathing, wall-supported lateral-expansion breathing, and the exact 90/90
+  hip-lift/ball/balloon sequence. All three current packets contain only
+  media, graph, calibration, and publication human gates; none is published or
+  approved.
+- Migration 490 is registered at checksum `3490270351` and passed unchanged
+  direct execution twice, normal-runner registration/skip, stored/local
+  checksum comparison, exact-file re-entry, family assertions, and global
+  audit. Registry `.89` has 383 sources; focused validation is 228/228; full
+  backend validation is 1,030 pass plus 20 intentional skips; focused lint,
+  JSON/diff checks, identity reporting, and production build are green.
+- Library state is 1,676/1,676 mappings, 1,047 active definitions, 99 machine-
+  complete and 948 machine-incomplete cards, 98 healthy current embeddable
+  3–5-media sets, 734 review-only graph edges, 947 review-only calibration
+  rows, and zero approvals or publications. The identity detector is 627/627
+  adjudicated with zero unresolved pair and zero collision.
+- Release is correctly `blocked`: 0/25 published, 0/3 approved depth in all
+  seven phases, 0/10 approved relationships, 0/3 approved calibration anchors,
+  and 0/20 real coach reviews. The blocked result is a valid human/rollout gate,
+  not an automated validation failure.
+- Production authorization still requires qualified full-video review;
+  evidence, identity, alternate, graph, and difficulty adjudication; separate
+  content review and publication approval; published phase depth; shadow
+  generation; representative substitution/failure testing; a clean-database
+  deployment rehearsal; a real coach pilot; staged flags; monitoring,
+  rollback, and incident proof; and coach/athlete/support readiness. The 948
+  remaining machine-incomplete cards also require the same family-by-family
+  authorship process before comprehensive library rollout.
+
+## Source-22 Crocodile Breathing checkpoint after migrations 491–492
+
+- Automated family authorship now passes for the three exact Crocodile
+  Breathing support/feedback variants. Its current packet contains only media,
+  graph, calibration, and publication human gates; the card remains in review
+  and unpublished.
+- Migration 491 is registered at checksum `1519177130`. The authoritative
+  audit caught a canonical score-floor incompatibility that SQL constraints did
+  not expose; corrective migration 492 is registered at checksum `763304095`.
+  Both passed repeated direct execution, normal-runner registration/skip,
+  checksum comparison, exact re-entry, family assertions, and global audit.
+- Registry `.90` has 386 sources; focused validation is 231/231; full backend
+  validation is 1,033 pass plus 20 intentional skips; focused lint, JSON/diff
+  checks, identity reporting, and production build are green.
+- Library state is 1,676/1,676 mappings, 1,047 active definitions, 100 machine-
+  complete and 947 machine-incomplete cards, 99 healthy current embeddable
+  3–5-media sets, 740 review-only graph edges, 953 review-only calibration
+  rows, and zero approvals or publications. The identity detector is 628/628
+  adjudicated with zero unresolved pair and zero collision.
+- Release remains correctly `blocked`: 0/25 published, zero approved phase
+  depth, 0/10 approved relationships, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. Production authorization still requires qualified
+  full-video review; evidence, identity, alternate, graph, and difficulty
+  adjudication; separate content/publication approval; phase depth; shadow
+  generation; representative substitution/failure tests; clean-database
+  rehearsal; staged flags; monitoring/rollback/incident proof; support
+  readiness; and a representative real coach pilot. The remaining 947
+  machine-incomplete cards still require family-by-family authorship.
+
+## 2026-08-02 — Source 23 rollout checkpoint
+
+- Immutable migrations 493 (`3758480733`, registered
+  `2026-08-02 15:15:10.588696-04`) and 494 (`3916243330`, registered
+  `2026-08-02 15:22:32.216772-04`) pass disposable-PostgreSQL idempotency,
+  production registration/skip, checksum comparison, exact-file re-entry, and
+  authoritative audit. Migration 494 corrects only the 240-character athlete-
+  instruction contract and controlled graph dimensions; it creates no review
+  or approval state.
+- Source 23 contributes one machine-complete composite card, two exact review
+  variants, four operational profiles, one current 4-video candidate set, and
+  review packets for evidence, alternates, identity, graph, calibration,
+  content, and publication. It remains nonselectable for a published pool until
+  those human gates are completed.
+- Global automated coverage is 1,676/1,676 mappings, 1,047 cards in review, 101
+  machine-complete / 946 machine-incomplete, 100 healthy embeddable 3–5-media
+  sets, 746 review-only graph edges, 957 review-only calibration rows, 628/628
+  surfaced identity pairs adjudicated, zero unresolved collision, and zero
+  approvals or publications. Coverage metrics are 14.71% score complete,
+  14.52% anatomy, 11.65% load, 12.03% fatigue, 14.52% support, 14.71%
+  operational, 14.52% candidate research cards, and 9.55% healthy embeddable
+  candidate sets.
+- Focused tests pass 234/234, the full backend passes 1,036 with 20 intentional
+  skips, and lint, JSON parsing, diff integrity, persisted audit, identity
+  reporting, and production build pass. A concurrent class-setup row-layout
+  type mismatch was repaired compatibly before the successful build; no
+  exercise or scheduling behavior was removed.
+- Release remains correctly `blocked`: 0/25 published, zero approved phase
+  depth, 0/10 approved relationships, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. Production authorization still requires qualified
+  full-video and content review; evidence/alternate/identity/graph/difficulty
+  adjudication; separate publication approval; shadow generation; representative
+  substitution and failure tests; clean deployment rehearsal; staged flags;
+  monitoring, rollback, and incident proof; support readiness; and a real
+  coach pilot. The remaining 946 machine-incomplete cards still require exact
+  family-by-family authorship.

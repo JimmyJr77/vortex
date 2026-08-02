@@ -1,0 +1,535 @@
+{
+  "facilityId": 1,
+  "slug": "neck-cars",
+  "researchVersion": "2026-08-02.92",
+  "assessmentSummary": {
+    "identity": "One slow active cervical circumduction contract that deliberately combines flexion, lateral flexion, extension within comfortable controllable range, and axial rotation to trace a continuous head-on-thorax path in each direction without momentum, forced range, or material trunk and shoulder compensation. A chin nod or tall posture is setup/quality, not a separate exercise, unless the scored task ends before the complete CAR path.",
+    "currentCardFindings": [
+      "Source 24 has one schema/card-v1 skeletal baseline, empty controlled taxonomy/anatomy/load/fatigue/constraints/support/programming data, one incomplete profile, zero evidence or alternates, no score calibration, four unverified media rows, one incoming review-only graph edge, one distinct full-body-flow boundary, and 20 blockers. Duplicate source 897 adds five currently oEmbed-healthy but unreviewed candidate links.",
+      "Legacy age_min=6 and is_published=true are unsupported athlete classification and approval claims and must be cleared rather than migrated.",
+      "Source 897 Neck CARs with Tall Posture expresses the same full cervical CAR action and should consolidate into this canonical identity; source 898 Wall Cervical Rotation + Chin Nod ends after a nod-plus-side-to-side rotation sequence and remains distinct."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "rotate"
+      ],
+      "bodyRegions": [
+        "neck",
+        "spine"
+      ],
+      "support": "declared_seated_supported_or_standing_independent_base_with_head_moving_relative_to_stable_thorax",
+      "laterality": "bilateral_directional",
+      "equipment": [
+        "none",
+        "box_or_chair_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 4,
+      "physicalDifficulty": 4,
+      "baseOverallDifficulty": 28,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)",
+      "variantScoreProposals": {
+        "standing_independent": {
+          "technicalComplexity": 28,
+          "physicalDifficulty": 4,
+          "baseOverallDifficulty": 28
+        },
+        "seated_supported": {
+          "technicalComplexity": 24,
+          "physicalDifficulty": 3,
+          "baseOverallDifficulty": 24
+        }
+      }
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "unloaded_active_cervical_range",
+      "impactClass": "none",
+      "primaryExposure": [
+        "active_cervical_multi_planar_range",
+        "head_on_thorax_control",
+        "direction_reversal",
+        "postural_stabilization"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "circlesPerDirection": "1-3",
+      "tempo": "slow_deliberate_continuous_path_with_no_momentum",
+      "rest": "between_directions_or_as_needed_for_symptom_free_control",
+      "durationRule": "sum_actual_circle_seconds_direction_changes_setup_rest_invalid_or_partial_attempts_symptom_stop_and_safe_exit"
+    },
+    "programmingDecision": "Use only as a low-load cervical mobility/control exercise with an exact seated-supported or standing-independent variant. Range, tempo, voluntary effort, and circle count are delivery annotations inside that variant. Select a distinct chin-nod, rotation-only, isometric, resisted, vestibular, passive-stretch, full-body-flow, or clinical-assessment card when that is the actual task.",
+    "calibrationEvidence": {
+      "basis": "ACE professional CARs instruction, Kinstretch example dosage, an asymptomatic-adult cervical kinematics study, the nonspecific-neck-pain guideline, five current oEmbed candidates, and direct comparison with source 897 and source 898",
+      "uncertainty": "No source validates a universal head path, normal range, neck position, dose, frequency, outcome, injury-prevention effect, recovery interval, eligibility rule, progression order, or Vortex difficulty score.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "cervical_action_and_direction_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T19:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Controlled cervical rotations and nods.",
+      "familyKey": "Joint scan",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 20,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 20
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6341704/",
+      "sourceTitle": "Experimental assessment of cervical ranges of motion and compensatory strategies",
+      "sourcePublisher": "Chiropractic & Manual Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "A study of 97 asymptomatic adults measured head motion relative to the thorax in flexion-extension, axial rotation, and lateral inclination and found substantial inter-individual and coupled-motion variability.",
+        "Represent cervical flexion, extension, left/right lateral flexion, and left/right axial rotation as the observable composite path while recording thorax, shoulder, jaw, and momentum compensation; do not assign one universal normal range."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Neck CARs require a slow remembered multi-planar path, direction reversal, head-on-thorax control, and compensation monitoring despite negligible external load and impact.",
+        "No source assigns a Vortex score or athlete classification; score exercise complexity and physical difficulty only, derive overall as their maximum, and keep proposals in independent calibration review."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://markowtrainingsystems.com/wp-content/uploads/2020/02/2020KinstretchStarterPack.pdf",
+      "sourceTitle": "Kinstretch Starter Pack",
+      "sourcePublisher": "Markow Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The starter material presents CARs as deliberate active joint circles with example repetitions rather than a loaded conditioning task or validated universal recovery prescription.",
+        "Track controlled circles by direction, active-range effort, symptom-limited range, support/base, total duration, invalid attempts, and overlapping same-session cervical loading without inventing tissue force or recovery precision."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12620902/",
+      "sourceTitle": "Clinical Practice Guideline: Nonspecific Neck Pain",
+      "sourcePublisher": "Deutsches Ärzteblatt International",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "The neck-pain guideline distinguishes nonspecific exercise contexts from trauma, progressive symptoms, neurologic findings, severe restriction, dizziness, unsteady gait, visual disturbance, and other signs requiring clinical evaluation.",
+        "Require a stable declared seated or standing base, an uncluttered area, pain-free controllable motion, no forced range, and a non-diagnostic escalation path when symptoms or history exceed exercise-professional scope."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12620902/",
+      "sourceTitle": "Clinical Practice Guideline: Nonspecific Neck Pain",
+      "sourcePublisher": "Deutsches Ärzteblatt International",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "Neurologic deficit, numbness or paresthesia, dizziness, unsteady gait, visual disturbance, severe or progressive pain, trauma, and marked protective restriction are clinically relevant warning findings rather than normal training sensations.",
+        "Stop for sharp or increasing neck or radiating pain, unusual headache, dizziness, faintness, nausea, visual change, numbness, tingling, weakness, unsteady balance, involuntary guarding, uncontrolled motion, or inability to return to neutral; do not diagnose or clear the participant."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE permits basic CARs concepts in warm-up, cool-down, or mobility routines while reserving individualized assessment, diagnosis, and injury treatment for appropriately qualified professionals.",
+        "Use the card only for low-load cervical mobility/control when the exact base, path, dose, symptoms, supervision, and downstream neck-loading budget fit; do not use it as a readiness test, treatment, or proof of joint health."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "CARs use slow intentional active motion without momentum through the available pain-free range, with pinching and compensation treated as relevant observations.",
+        "Athlete support must show the path and direction, permit a smaller controlled range, distinguish mild muscular effort from warning symptoms, provide seated or standing setup choices, and make stops or partial repetitions visible."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6341704/",
+      "sourceTitle": "Experimental assessment of cervical ranges of motion and compensatory strategies",
+      "sourcePublisher": "Chiropractic & Manual Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The research protocol measured cervical motion from a stabilized seated base and demonstrates that base and thorax control materially affect what is measured, but it was not an exercise-accessibility trial.",
+        "Offer separately persisted seated-supported and standing-independent variants, smaller range, slower pacing, fewer circles, rest, visual path cues, verbal direction cues, and a non-moving alternative; do not silently convert a clinical restriction into an exercise prescription."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Nine legacy Neck CARs candidates across sources 24 and 897 returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-02; five exact-title candidates were selected for the survivor review packet.",
+        "oEmbed health does not prove playback, exact cervical path, direction, base, dose, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE defines CARs as slow deliberate joint-specific rotation through active pain-free range in all applicable directions and planes without momentum.",
+        "Neck CARs requires the declared composite cervical path in both directions; a tall posture and initial nod are setup/quality facts, while a rotation-only or nod-only endpoint is a different repetition contract."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "The observable task is active multi-planar cervical mobility and control, not passive stretching, axial rotation alone, a fast neck roll, or clinical assessment.",
+        "Control mobility, rotation, cervical/spinal region, bodyweight load, no-impact, base/support, direction, active range, compensation, and terminal neutral state."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6341704/",
+      "sourceTitle": "Experimental assessment of cervical ranges of motion and compensatory strategies",
+      "sourcePublisher": "Chiropractic & Manual Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Healthy adult head-on-thorax motion includes flexion-extension, axial rotation, and lateral inclination with variable coupled and compensatory strategies.",
+        "Do not prescribe one numeric normal range or demand a geometrically perfect circle; observe a continuous controllable composite path and record material thorax, shoulder, jaw, speed, and balance compensation."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://markowtrainingsystems.com/wp-content/uploads/2020/02/2020KinstretchStarterPack.pdf",
+      "sourceTitle": "Kinstretch Starter Pack",
+      "sourcePublisher": "Markow Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The starter pack provides 2-5 repetitions per joint as an example for a daily routine, not a validated universal neck prescription.",
+        "Use a conservative review-only 1-3 circles in each direction with actual duration derived from tempo, base setup, direction changes, rest, partial/invalid attempts, symptoms, and safe exit."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Direct professional guidance supports slow intentional active motion without momentum through available pain-free range while observing pain, pinching, and compensation.",
+        "Instructions must declare seated or standing base, stack the torso, trace the composite path without forcing extension or rotation, complete both directions, return to neutral, and apply symptom stops."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12620902/",
+      "sourceTitle": "Clinical Practice Guideline: Nonspecific Neck Pain",
+      "sourcePublisher": "Deutsches Ärzteblatt International",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "The guideline makes trauma, severe/progressive or radiating pain, neurologic findings, dizziness, unsteady gait, visual disturbance, and marked restriction relevant escalation information rather than coaching diagnoses.",
+        "Coach support must screen the declared exercise context, manage sightlines and stable bases, demonstrate each direction, inspect momentum and thorax compensation, stop and record warning symptoms, and refer without diagnosing."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Joint-specific CARs remain distinct from full-body routines, while assessment and personalized injury management require additional professional scope.",
+        "Consolidate the tall-posture duplicate, author seated and standing exact variants, keep range/tension/repetition changes as delivery annotations, and preserve rotation-only, chin-nod, resisted, passive, vestibular, full-body, and clinical tasks as distinct."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=J3tkQ4pk_Sc",
+      "title": "Controlled Articular Rotations (CARs) - Neck",
+      "channelName": "Tangelo - Seattle Chiropractor + Rehab",
+      "sourceQuery": "legacy candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T19:30:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=c-zu1t-NsSo",
+      "title": "How to Do Neck CARs | Improve Neck Mobility & Joint Control",
+      "channelName": "Peak Functional",
+      "sourceQuery": "legacy candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T19:30:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iIt5_T8HM_Q",
+      "title": "Neck CARs",
+      "channelName": "Functional Bodybuilding",
+      "sourceQuery": "legacy candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T19:30:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4wV_Jkk34ho",
+      "title": "Cervical CARs",
+      "channelName": "E3 Rehab Exercise Library",
+      "sourceQuery": "duplicate-source candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T19:32:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xqBwoN7AglQ",
+      "title": "Seated Cervical CARS for Neck Mobility",
+      "channelName": "Therapy Exercises with Dr. Paula Sauer",
+      "sourceQuery": "duplicate-source candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T19:32:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Neck CARs with Tall Posture",
+      "classification": "same_identity",
+      "rationale": "Source 897 supplies the same full slow cervical CAR path; tall stacked posture is required setup/quality rather than a different scored action.",
+      "distinguishingDimensions": {
+        "sourceLegacyExerciseId": 897,
+        "disposition": "duplicate_consolidation"
+      }
+    },
+    {
+      "name": "Cervical CARs",
+      "classification": "same_identity",
+      "rationale": "Direct terminology alias only when the full composite path, both directions, declared base, and neutral finish remain exact.",
+      "distinguishingDimensions": {
+        "alias": true
+      }
+    },
+    {
+      "name": "Standing Independent Neck CARs",
+      "classification": "new_variant",
+      "rationale": "Standing changes balance, support, supervision, and logistics while preserving the exact cervical repetition contract.",
+      "distinguishingDimensions": {
+        "base": "standing_independent",
+        "authorship": "proposed_exact_variant"
+      }
+    },
+    {
+      "name": "Seated Supported Neck CARs",
+      "classification": "new_variant",
+      "rationale": "A stable seated base reduces balance demand and constrains thorax motion while preserving the exact cervical repetition contract.",
+      "distinguishingDimensions": {
+        "base": "seated_supported",
+        "equipment": "chair",
+        "authorship": "proposed_exact_variant"
+      }
+    },
+    {
+      "name": "Supine Neck CARs",
+      "classification": "new_variant",
+      "rationale": "Head support, gravity vector, surface contact, extension availability, and exit change materially and require a separately specified variant.",
+      "distinguishingDimensions": {
+        "base": "supine",
+        "reviewState": "identity_quarantine"
+      }
+    },
+    {
+      "name": "Range-Reduced Neck CARs",
+      "classification": "modifier_annotation",
+      "rationale": "Smaller pain-free controllable range is a delivery annotation when the intended path and both directions remain; planned omission of an action requires separate review.",
+      "distinguishingDimensions": {
+        "delivery": "range"
+      }
+    },
+    {
+      "name": "Neck CARs Circle Count Tempo Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Circle count, cadence, and rest change dose without changing the exact action or base.",
+      "distinguishingDimensions": {
+        "delivery": [
+          "circles",
+          "tempo",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Low-Tension or Irradiated Neck CARs",
+      "classification": "modifier_annotation",
+      "rationale": "Voluntary body tension changes effort/dose only while the path, base, range contract, and terminal state remain exact.",
+      "distinguishingDimensions": {
+        "delivery": "voluntary_tension"
+      }
+    },
+    {
+      "name": "Wall Cervical Rotation + Chin Nod",
+      "classification": "new_definition",
+      "rationale": "Source 898 ends after a chin nod plus side-to-side axial rotation against wall feedback and omits the complete cervical CAR path.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "9f724fc9-6861-49a0-8f2d-f279543ca303",
+        "action": "nod_then_rotation_only"
+      }
+    },
+    {
+      "name": "Chin Nod or Chin Tuck",
+      "classification": "new_definition",
+      "rationale": "A flexion/retraction control repetition ends without lateral flexion, extension, circumduction, or direction reversal.",
+      "distinguishingDimensions": {
+        "action": "nod_or_retraction_only"
+      }
+    },
+    {
+      "name": "Cervical Rotation Only",
+      "classification": "new_definition",
+      "rationale": "Side-to-side axial rotation omits the composite CAR path and has its own repetition endpoints.",
+      "distinguishingDimensions": {
+        "action": "axial_rotation_only"
+      }
+    },
+    {
+      "name": "Cervical Isometric Hold",
+      "classification": "new_definition",
+      "rationale": "A static force-duration task has no circular path and carries different loading, dose, and failure rules.",
+      "distinguishingDimensions": {
+        "contraction": "isometric"
+      }
+    },
+    {
+      "name": "Resisted Harness or Band Neck Circle",
+      "classification": "new_definition",
+      "rationale": "External resistance, anchor direction, load magnitude, failure consequence, and recovery create a loaded exercise rather than an unloaded CAR.",
+      "distinguishingDimensions": {
+        "externalLoad": true
+      }
+    },
+    {
+      "name": "Passive Cervical Stretch",
+      "classification": "new_definition",
+      "rationale": "A held passive or assisted position replaces active controlled multi-planar motion.",
+      "distinguishingDimensions": {
+        "contraction": "passive_hold"
+      }
+    },
+    {
+      "name": "Manual-Assisted Cervical Range",
+      "classification": "new_definition",
+      "rationale": "External hands, clinical authority, applied force, consent, and symptom interpretation change the task and scope.",
+      "distinguishingDimensions": {
+        "assistance": "manual",
+        "scope": "clinical_or_qualified_manual"
+      }
+    },
+    {
+      "name": "Vestibular Gaze-Stabilization Head Turns",
+      "classification": "new_definition",
+      "rationale": "A visual target, gaze-stability outcome, head speed, symptom rules, and vestibular intent define a different drill.",
+      "distinguishingDimensions": {
+        "target": "visual",
+        "purpose": "vestibular_gaze_stability"
+      }
+    },
+    {
+      "name": "Full-Body Joint CARs Flow",
+      "classification": "new_definition",
+      "rationale": "The eight-region composite includes seven additional regions, transitions, balance, and a different completion boundary.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3"
+      }
+    },
+    {
+      "name": "Generic Head Circles or Neck Rolls",
+      "classification": "new_definition",
+      "rationale": "The label does not establish speed, active control, sequence, extension policy, direction, compensation, or finish and must remain identity-quarantined rather than assumed to be CARs.",
+      "distinguishingDimensions": {
+        "identity": "underspecified",
+        "reviewState": "quarantine"
+      }
+    },
+    {
+      "name": "Clinician Neck CAR Assessment or Treatment",
+      "classification": "new_definition",
+      "rationale": "Assessment, diagnosis, individualized treatment, clearance, and clinical measurement change purpose, authority, and escalation.",
+      "distinguishingDimensions": {
+        "scope": "clinical_assessment_or_treatment"
+      }
+    },
+    {
+      "name": "Fast Forced or Symptom-Provoking Neck Circles",
+      "classification": "reject",
+      "rationale": "Momentum, forced end range, pain, neurologic symptoms, dizziness, visual disturbance, or loss of control violate the valid exercise contract.",
+      "distinguishingDimensions": {
+        "qualityState": "invalid_and_unsafe"
+      }
+    }
+  ]
+}

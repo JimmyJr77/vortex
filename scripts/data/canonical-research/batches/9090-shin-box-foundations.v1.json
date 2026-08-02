@@ -1,7 +1,7 @@
 {
   "batchKey": "9090-shin-box-foundations-v1",
-  "researchVersion": "2026-07-25.21",
-  "snapshotAt": "2026-07-26T02:35:00.000Z",
+  "researchVersion": "2026-08-02.89",
+  "snapshotAt": "2026-08-02T18:30:00.000Z",
   "facilityId": 1,
   "sourceRegistry": "../source-registry.v1.json",
   "sharedEvidence": [
@@ -138,11 +138,11 @@
     {
       "slug": "9090-breathing-with-reach",
       "assessmentSummary": {
-        "identity": "A supported supine breathing drill with hips and knees near 90 degrees, feet on a wall or calves on a stable support, and a gentle bilateral reach during a slow exhale while the rib cage and pelvis remain comfortably organized.",
+        "identity": "A supported supine breathing exercise with hips and knees near 90 degrees and a bilateral ceiling reach throughout one comfortable inhale, longer unforced exhale, and reset. Feet-on-wall and fully-supported lower-leg interfaces are exact variants; hands-on-ribs no-reach breathing and active hip-lift/ball/balloon breathing are distinct definitions.",
         "currentCardFindings": [
           "The existing card describes the supine support and reach clearly but overstates a universal rib-down or pelvic-position outcome and does not define support stability, breath duration, permitted effort, dizziness rules, or dosage boundaries.",
-          "The archived Hip Reset card described the same supported 90/90 breathing action; hip reset is an intended context, not a separate movement identity.",
-          "The legacy 20-point difficulty obscures the very low physical load and the modest respiratory, rib-cage, pelvic, and reaching coordination required."
+          "The archived Hip Reset source omits support, heel pressure, hip lift, pelvic shift, reach, ball or balloon, breath cycle, completion, and reset facts; it remains an identity quarantine and must not be guessed into the reach or balloon card.",
+          "The prior generic 20/10 score obscured the difference between exercise complexity and physical difficulty. The exact wall-supported reach proposal is 26/8/26, while fully supported lower legs reduce it to 22/5/22."
         ],
         "proposedTaxonomy": {
           "movementPatterns": [
@@ -189,14 +189,16 @@
           ]
         },
         "proposedDifficulty": {
-          "technicalComplexity": 22,
-          "absoluteLoadDemand": 4,
-          "coordinationDemand": 24,
-          "supervisionDemand": 14,
+          "technicalComplexity": 26,
+          "absoluteLoadDemand": 8,
+          "physicalDifficulty": 8,
+          "coordinationDemand": 28,
+          "supervisionDemand": 12,
           "failureConsequence": 8,
           "impact": 1,
           "workCapacityDemand": 5,
-          "baseOverallDifficulty": 22
+          "baseOverallDifficulty": 26,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
         },
         "proposedLoadProfile": {
           "loadingType": "supported_bodyweight_respiratory_motor_control",
@@ -223,7 +225,6 @@
           "optionalEquipment": [
             "mat",
             "head_support",
-            "small_ball_between_knees",
             "visual_breath_timer"
           ],
           "environment": [
@@ -347,39 +348,87 @@
             "full_video_review"
           ]
         },
-        "programmingDecision": "Retain one supported supine 90/90 breathing-with-reach definition. Hip reset, feet-on-wall versus calves-on-bench support, reach angle, and non-loaded breath cadence are variants or contextual annotations; avoid structural-reset and automatic-recovery claims."
+        "programmingDecision": "Retain one supported supine 90/90 bilateral-reach definition with exact feet-on-wall and fully-supported lower-leg variants. Keep the under-specified Hip Reset source quarantined. Author hands-on-ribs no-reach lateral expansion and active heel-pull/hip-lift/ball/balloon breathing as distinct definitions. Treat only cycle count, comfortable cadence, rest, and reach effort within the exact action as delivery annotations; avoid structural-reset, treatment, recovery, or transfer claims."
       },
       "evidence": [
         {
           "sectionKey": "identity",
-          "sourceKey": "va_diaphragmatic_breathing",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
           "claims": [
-            "VA guidance defines diaphragmatic breathing as a supported lying or seated exercise using a slow nasal inhale and longer controlled exhale.",
-            "{{canonicalName}} adds the explicit supported 90/90 leg position and gentle reach; the card must not treat a claimed hip reset as a second identity."
+            "Functional Movement Systems directly specifies a supine feet-on-wall 90/90 breathing cycle with hands on the lower lateral abdomen or ribs; it does not include an arm reach.",
+            "{{canonicalName}} retains the audited legacy bilateral reach as an identity-bearing action. Hands-on-ribs no-reach breathing and active hip-lift/ball/balloon breathing therefore remain distinct cards, and the ambiguous Hip Reset source stays quarantined."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The direct instruction establishes supine support, hips and knees near 90 degrees, a breath cycle, and fixed contact positions rather than spinal rotation.",
+            "Classify {{canonicalName}} as supported breath control, bilateral reach, and static trunk organization; declare wall-foot versus fully-supported lower-leg contact as exact variants."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "diaphragm_postural_function_mri",
+          "claims": [
+            "Dynamic MRI in 30 healthy adults supports ventilatory and postural diaphragm behavior during limb tasks, but it is not a trial of this exercise and does not quantify individual muscle force.",
+            "Represent diaphragm, intercostals, abdominal wall, rib cage, spine, pelvis, supported hips and knees, scapular protraction, shoulder-position demand, and cervical stabilization without promising structural change."
           ]
         },
         {
           "sectionKey": "biomechanics",
-          "sourceKey": "va_diaphragmatic_breathing",
+          "sourceKey": "diaphragm_postural_function_mri",
           "claims": [
-            "Diaphragmatic breathing uses abdominal excursion with comparatively quiet upper-chest accessory-muscle activity.",
-            "The reach should remain low effort and free of shrugging or crunching while the stable leg support prevents balance demand from obscuring breathing."
+            "Breathing and limb-position demands can coexist, but the cited laboratory task does not establish one optimal rib, lumbar, or pelvic posture for all participants.",
+            "Keep the bilateral reach, declared support, and comfortable breath cycle exact; invalidate shrugging, crunching, forced flattening, support loss, hip lift, heel pull, or added equipment."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+          "claims": [
+            "Published diaphragmatic-breathing protocols and outcomes are highly heterogeneous, and no source assigns a Vortex difficulty score or participant classification.",
+            "The review-only wall-supported proposal is 26 exercise complexity and 8 physical difficulty; fully supported lower legs reduce support management to 22 and 5. Overall is derived as the maximum."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
+          "claims": [
+            "Low external load does not mean zero exposure, and the systematic review reports variable protocols with safety information often underreported.",
+            "Track support pressure, reach time, breath effort, invalid or symptom-limited cycles, prior trunk and shoulder work, total supine time, and recovery as a conservative planning estimate rather than a biological guarantee."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "acog_pregnancy_postpartum_exercise",
+          "claims": [
+            "ACOG advises avoiding prolonged supine exercise after 20 weeks of pregnancy and individualizing activity; that general guidance is not clearance for this card.",
+            "Require a stable wall or braced bench/box, safe floor access, comfortable supine position and reach, unforced resting breathing, symptom reporting, and a separately reviewed non-supine option when indicated."
           ]
         },
         {
           "sectionKey": "dosage",
           "sourceKey": "va_diaphragmatic_breathing",
           "claims": [
-            "VA instruction uses a slow inhale and a longer exhale, then progresses practice position as control improves.",
-            "For a workout card, use a shorter conservative dose of three to six comfortable breaths per set; this is a programming inference, not a clinical prescription."
+            "VA guidance uses a comfortable nasal inhale and a longer controlled exhale and allows position progression; it does not establish one universal workout dose for this reach card.",
+            "Use a small dose of comfortable cycles with rest as needed, count invalid and symptom-limited attempts as exposure, and recompute duration from actual cadence, pauses, rest, setup, and substitutions."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The direct source specifies stable wall support, hips and knees near 90 degrees, comfortable neck and spine, nasal inhale, longer exhale, pause, and relaxation, while the audited legacy source adds bilateral reach.",
+            "Instructions must declare the exact support variant, bilateral reach, comfortable inhale, longer unforced exhale, no crunch or hip lift, valid reset, symptom stop, and safe floor exit."
           ]
         },
         {
           "sectionKey": "safety_stop_rules",
-          "sourceKey": "slow_breathing_systematic_review",
+          "sourceKey": "diaphragmatic_breathing_systematic_review_2026",
           "claims": [
-            "Slow-breathing research includes varied protocols and proposed autonomic effects, while mechanisms and generalization remain uncertain.",
-            "Do not force breath depth, duration, or retention. Stop for dizziness, faintness, chest pain, unusual shortness of breath, panic, neurologic symptoms, or musculoskeletal pain."
+            "The review found substantial protocol heterogeneity and incomplete safety reporting, so absence of reported harm does not establish universal safety.",
+            "Do not force breath depth, exhale, or retention. Stop for pain, dizziness, faintness, chest pain, unusual shortness of breath, panic, air hunger, neurologic symptoms, cramp, support movement, or inability to reset comfortably."
           ]
         },
         {
@@ -388,6 +437,46 @@
           "claims": [
             "Slow breathing can influence cardiorespiratory and autonomic measures, but protocols and mechanisms vary.",
             "Use the card as low-intensity breathing practice or a transition to comfortable post-session breathing; do not promise nervous-system reset, structural repositioning, recovery acceleration, or sport-performance transfer."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "va_diaphragmatic_breathing",
+          "claims": [
+            "VA instructions use simple position, inhale, and exhale language and advance only as control becomes comfortable.",
+            "Athlete support must identify the exact leg support, bilateral reach, expected low effort, comfortable breath, self-checks, unexpected symptoms, stop signal, and safe exit without clinical promises."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "fms_9090_breathing_lateral_expansion",
+          "claims": [
+            "The direct setup provides observable support, hand or arm position, cadence, and relaxation checkpoints.",
+            "Coach support must distinguish the two support variants and observe reach, neck and shoulder tension, breath strain, support pressure, rib and pelvic comfort, symptoms, valid reset, duration, and floor exit."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "acog_pregnancy_postpartum_exercise",
+          "claims": [
+            "Supine positioning is not universally appropriate, and pregnancy guidance requires individualization rather than a generic age or exercise-level cutoff.",
+            "Offer exact lower-leg support, comfortable joint angles, head support, fewer cycles, longer rest, multimodal instruction, or a separately reviewed non-supine substitution; removing the reach selects a different card."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "boyle_9090_hip_lift_balloon",
+          "claims": [
+            "The published ball-and-balloon sequence explicitly adds heel pull, a small pelvic lift, knee-ball pressure, right arm overhead, left-hand balloon control, and repeated resisted exhalation.",
+            "Those actions define a separate card. Hands-on-ribs no-reach breathing is also distinct; wall versus fully-supported lower legs remain exact reach variants, while cycle count, comfortable cadence, rest, and effort are delivery annotations."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube documents privacy-enhanced embedding, and five reach candidates returned current oEmbed metadata on 2026-08-02.",
+            "Metadata health does not prove playback, exact support or reach contract, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
           ]
         }
       ],
@@ -401,7 +490,7 @@
           "embeddingAllowed": true,
           "externalVerification": {
             "method": "youtube_oembed",
-            "verifiedAt": "2026-07-26T02:34:46Z"
+            "verifiedAt": "2026-08-02T18:00:00Z"
           }
         },
         {
@@ -413,7 +502,7 @@
           "embeddingAllowed": true,
           "externalVerification": {
             "method": "youtube_oembed",
-            "verifiedAt": "2026-07-26T02:34:46Z"
+            "verifiedAt": "2026-08-02T18:00:00Z"
           }
         },
         {
@@ -425,7 +514,7 @@
           "embeddingAllowed": true,
           "externalVerification": {
             "method": "youtube_oembed",
-            "verifiedAt": "2026-07-26T02:34:46Z"
+            "verifiedAt": "2026-08-02T18:00:00Z"
           }
         },
         {
@@ -437,17 +526,30 @@
           "embeddingAllowed": true,
           "externalVerification": {
             "method": "youtube_oembed",
-            "verifiedAt": "2026-07-26T02:34:46Z"
+            "verifiedAt": "2026-08-02T18:00:00Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=kA6AtZkDxmg",
+          "title": "90/90 Breathing with Reach",
+          "channelName": "MASS",
+          "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-08-02T18:00:00Z"
           }
         }
       ],
       "alternateAssessments": [
         {
           "name": "90/90 Breathing without Reach",
-          "classification": "new_variant",
-          "rationale": "Removing the reach lowers scapular and abdominal coordination while preserving supported supine breathing.",
+          "classification": "new_definition",
+          "rationale": "Removing the bilateral reach and placing both hands on the lower lateral ribs changes the arm and hand contacts, feedback method, valid repetition, and coaching observation contract.",
           "distinguishingDimensions": {
-            "armTask": "resting"
+            "armTask": "hands_on_lateral_ribs_no_reach",
+            "implementedDefinitionId": "b366c4d4-d75e-4902-915c-4b363e6b6238"
           }
         },
         {
@@ -480,6 +582,15 @@
           "rationale": "Adding unsupported alternating limb motion changes the primary task to dynamic trunk control under a longer lever.",
           "distinguishingDimensions": {
             "primaryTrainingStimulus": "dynamic_anti_extension_control"
+          }
+        },
+        {
+          "name": "90/90 Breathing with Hip Reset",
+          "classification": "reject",
+          "rationale": "The legacy contextual label omits support, heel pressure, hip lift, pelvic shift, arm reach, ball or balloon, breath cycle, valid completion, and reset. It remains nonselectable pending human identity review.",
+          "distinguishingDimensions": {
+            "identityState": "quarantined_missing_action_contract",
+            "mustNotMapAutomaticallyToBalloonCard": true
           }
         }
       ]

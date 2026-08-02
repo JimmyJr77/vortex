@@ -1,7 +1,7 @@
 {
   "facilityId": 1,
   "slug": "shin-box-get-up",
-  "researchVersion": "2026-07-25.21",
+  "researchVersion": "2026-08-02.89",
   "assessmentSummary": {
     "identity": "A ground-to-stand sequence beginning in a seated shin-box or staggered 90/90 position, extending the hips into tall kneeling, moving through half kneeling, rising to standing, and reversing the sequence under control before changing sides.",
     "currentCardFindings": [
@@ -237,7 +237,7 @@
     },
     "programmingDecision": "Retain one Shin Box Get-Up definition and correct its baseline to the complete ground-to-stand sequence. The hip lift, assisted version, half-kneeling endpoint, arm positions, external load, continuous flow, and single-leg finish are controlled stages or variants. A Turkish get-up remains a separate exercise.",
     "currentCardSnapshot": {
-      "capturedAt": "2026-07-26T02:35:00.000Z",
+      "capturedAt": "2026-08-02T18:30:00.000Z",
       "cardVersion": 1,
       "status": "review",
       "description": "Start in a shin box position. Use hands as needed. Drive through the hips to rise into a tall kneeling or hip-extended position, then return under control and switch sides.",

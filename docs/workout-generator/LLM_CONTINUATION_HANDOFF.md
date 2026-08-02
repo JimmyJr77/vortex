@@ -1,12 +1,19 @@
 # Zero-context LLM continuation handoff: canonical exercise library
 
-Last updated: 2026-08-02
+Last updated: 2026-08-02 15:35 America/New_York
 
 This document is both the complete instruction set for a replacement LLM and
 the live return-handoff ledger. Give the replacement LLM this entire file. It
 must read the repository state before acting, update the files identified in
 the handoff section, and update the live checkpoint in this file before handing
 the work back.
+
+This is an append-only working ledger. Historical sections intentionally remain
+for traceability. The final dated continuation checkpoint at the end of this
+file is the operative state and supersedes every older `Immediate next work`,
+`Exact next action`, or draft-migration instruction above it. A replacement LLM
+must start at the end, reconcile that checkpoint against Git and PostgreSQL,
+and then use the earlier sections for the full contract and history.
 
 ## Role and mission
 
@@ -413,8 +420,9 @@ through immutable migrations 487 and 489.
   calibration anchors, and 0/20 real coach reviews. No human/media/graph/
   calibration/content/publication approval was fabricated.
 
-The active next family is legacy source 21, `90/90 Breathing with Reach`.
-Follow the newest `Immediate next work` section below.
+Source 21 is complete to machine-authored quarantine through immutable
+migration 490. The active next family is legacy source 22, `Crocodile
+Breathing`. Follow the newest `Immediate next work` section below.
 
 ## Prior verified checkpoint: source 19
 
@@ -781,7 +789,222 @@ YouTube oEmbed metadata checks. The candidate video IDs are `7r-UOQi8YvE`,
 only; playback, exactness, captions, accessibility, cue quality, safety, and
 approval remain unverified and must stay null/quarantined.
 
-## Immediate next work
+## Immediate next work: source 22 Crocodile Breathing
+
+Source 21 is complete to machine-authored quarantine through immutable
+migration 490. Do not edit the registered SQL; use a later correction
+migration if new evidence exposes a defect. The exact final source-21
+checkpoint is:
+
+- migration filename/checksum/registration:
+  `490_coaching_9090_breathing_family_audit_hardening.sql` / `3490270351` /
+  `2026-08-02 14:24:10.627994-04`;
+- unchanged direct run 1, unchanged direct run 2, normal-runner registration,
+  stored/local checksum comparison, normal-runner skip, and exact-file
+  re-entry all passed;
+- 3 current definitions, 4 variants, 8 profiles, 48 evidence rows, 15 healthy
+  candidate media rows, 58 alternates, 20 migration-owned identity decisions,
+  10 review-only graph rows, 8 review-only calibrations, and 3 packets with
+  only the four standard human blockers;
+- registry `2026-08-02.89` / 383 sources; focused `228/228`; full backend
+  1,030 pass plus 20 intentional skips; focused lint, ten JSON parses, diff
+  integrity, persisted audit, identity report, and production build pass;
+- global state: 1,676/1,676 mappings, 1,047 active definitions, 99 machine-
+  complete, 948 incomplete, 98 healthy current 3–5-media sets, 627/627
+  adjudicated surfaced pairs, zero unresolved pair, zero exact collision,
+  734/0 graph review/approved, 947/0 calibration review/approved, and 0
+  published;
+- release correctly remains blocked at 0/25 published, 0/3 approved depth in
+  all seven phases, 0/10 approved relationships, 0/3 approved calibration
+  anchors, and 0/20 real coach reviews.
+
+All five append-only audit/review ledgers contain this final source-21 state.
+The production build initially exposed a concurrently committed type mismatch
+in class-setup copy/paste. The narrow type-only repair changes
+`ClassSetupOverviewRow.effectiveCostUnit` from arbitrary `string` to the
+existing `CostUnit` union; it passes focused ESLint and the build and does not
+change runtime pricing behavior.
+
+### Source-22 baseline audit
+
+Legacy source 22 is:
+
+- ID/name/slug: `22 | Crocodile Breathing | crocodile-breathing`;
+- description: `Lie face down with forehead supported and breathe into the
+  floor without shrugging or forcing air into the chest.`;
+- canonical definition:
+  `2e308a8e-6a1d-48d4-b095-fe3dd18803d8`, card version 1, schema 1.0.0,
+  status `review`;
+- skeletal baseline variant:
+  `42909b84-690a-45b5-908a-c085196d1141`;
+- current legacy defaults: 1 set, 5 reps, 45 work seconds, 0 rest, 60 estimated
+  seconds; unsupported `age_min=6` and `is_published=true` remain and must not
+  be copied automatically; exercise skill and linked-skill values are null;
+- current legacy score: complexity `20`, physical/load `10`, derived overall
+  `20`, coordination `20`, with impact and supervision absent; these are not
+  independently calibrated;
+- current safety: risk 1, impact 0, no spotting, optional coach supervision,
+  null minimum age/skill, generic trunk-bracing readiness/stop language, and
+  substitutions that have not been identity-revalidated;
+- definition taxonomy, anatomy, constraints, athlete support, coach support,
+  support operations, load, fatigue, and programming objects are empty;
+- current scope: 1 skeletal variant, 2 skeletal profiles, 0 evidence rows, 4
+  unverified legacy media rows, 0 alternate assessments, 2 preexisting
+  review-only relationships (1 outgoing and 1 incoming), 0 calibrations, and
+  1 audit packet with 20 blockers;
+- three new source-21 machine boundaries already distinguish it from supported
+  90/90 reach, hands-on-ribs lateral expansion, and hip-lift/ball/balloon.
+
+The two profiles are `legacy-prepare_and_access` and `legacy-restore`. Their
+timing/scaling/measurement/support/logistics objects are empty and their coach
+language contains unrelated generic bracing, rib-flare, lumbar-sag, and
+conditioning claims. Reauthor them from the exact Crocodile repetition rather
+than copying that template.
+
+### Source-22 research already completed
+
+1. Functional Movement Systems' current `Crocodile Breathing` exercise page is
+   direct technique evidence. It specifies prone position, forehead on stacked
+   hands, relaxed chest/arms/neck, slow nasal inhale with abdominal contact
+   against the floor, slow nasal exhale, and an optional short-pause cadence.
+   The exact cadence must be a delivery decision; it is not a universal safety
+   or identity rule.
+2. Functional Movement Systems' `Take A Deep Breath` article supplies detailed
+   professional instruction and alternate assessment: remain flat rather than
+   posted on elbows; use anterior ribs/chest contact; optionally use a lower-
+   leg bolster for comfort; do not force an uncomfortable prone position;
+   obtain permission before coach touch; and treat coach hands, light cuff
+   weights, or a light elastic band as tactile feedback rather than restraint.
+   Its movement-screen anecdotes and suggested breath counts do not establish
+   universal outcomes, dose, diagnosis, or numeric difficulty.
+3. Aliverti et al., `Compartmental analysis of breathing in the supine and
+   prone positions by optoelectronic plethysmography`, DOI
+   `10.1114/1.1332084`, is adjacent position/chest-wall-kinematics evidence. It
+   does not validate the named exercise, cueing, outcome, eligibility, or
+   dose.
+4. Reuse the registered VA diaphragmatic-breathing source and the 2026
+   systematic review PMID `41482169` only for their general instruction and
+   heterogeneous evidence/limitations. Reuse YouTube oEmbed documentation only
+   for candidate metadata provenance.
+5. Hooklying diaphragmatic breathing changes orientation and floor-feedback
+   contact and remains a distinct definition, not a Crocodile variant. A
+   lower-leg bolster, consented coach tactile feedback, cuff-weight feedback,
+   and light elastic-band feedback retain the prone breath-cycle identity but
+   change support, assistance, load, or equipment and require explicit variant
+   versus delivery decisions. Posting on elbows, adding trunk/limb motion,
+   loaded respiratory training, prone press-up/Cobra, Crocodile rocking, and
+   prescribed Box-Breath holds must not be silently merged.
+6. The working identity disposition retains one `Crocodile Breathing`
+   definition and proposes three exact selectable variants: flat prone with
+   stacked hands and no external feedback; prone with a lower-leg bolster;
+   and prone with a light elastic band used only as lateral tactile feedback.
+   Consented light coach touch, optional pauses, cadence, and dose remain
+   delivery annotations. Cuff-weight feedback is quarantined as a potential
+   future variant because device, mass, placement, migration, and safety are
+   underspecified. Hooklying breathing, 90/90 breathing, Box Breath, Med Ball
+   Belly breathing, Makarasana as variably taught, elbow-posted prone work,
+   Crocodile Rocking, prone press-up/Cobra, and prone swimmer/YTW actions stay
+   distinct cards.
+7. The controlled-taxonomy audit found existing `breath` and `brace` movement
+   keys; `core`, `spine`, and `thoracic_spine` body-region keys; and `none`,
+   `mat`, and `bands` equipment keys. The migration must add a controlled
+   `bolster` equipment key before using it. Do not invent a cuff-weight
+   equipment variant in this checkpoint.
+8. The proposed exercise difficulty vectors are flat `18/4/18`, bolster
+   `20/3/20`, and band feedback `24/5/24`, expressed as complexity / physical
+   difficulty / derived maximum. They are candidate calibration judgments,
+   not athlete skill or proficiency levels, and remain review-only.
+
+Six current YouTube IDs returned healthy oEmbed metadata on 2026-08-02:
+`2mCwbWPtICI`, `76-Sw5nZ2YI`, `_8f9RHUfE1Q`, `aimIzymb81E`, `XhYrGbEI2c8`,
+and `AeqR_Dne9w0`. Select three to five after card-specific assessment; a
+reasonable initial five are the four legacy candidates plus `XhYrGbEI2c8`,
+with `AeqR_Dne9w0` retained as an alternate assessment. oEmbed proves only
+current title/channel/thumbnail/embed-response metadata. Playback, full-video
+exactness, captions, accessibility, cue quality, safety, conflicts, reviewer
+identity, and approval remain unverified and must stay null/quarantined.
+
+The source-22 research artifacts are now encoded:
+
+- `scripts/data/canonical-research/source-registry.v1.json` is version
+  `2026-08-02.90` with 386 registered sources. The three new sources are the
+  direct FMS exercise page, the FMS detailed breathing article, and Aliverti
+  et al. prone/supine chest-wall kinematics research.
+- `scripts/data/canonical-research/batches/crocodile-breathing.v1.json` is the
+  authored batch. Its generated artifacts are in
+  `scripts/data/canonical-research/generated/crocodile-breathing/`.
+- The generated packet contains 16 card-section evidence rows, 5 candidate
+  media rows, and 20 alternate assessments. Batch validation and write passed
+  against disposable PostgreSQL after correcting the difficulty proposal to
+  include the required top-level baseline score plus nested per-variant score
+  proposals.
+- `backend/platform/__tests__/canonicalResearchBatch.test.js` now pins
+  registry `.90` / 386 and checks the Crocodile source quality, evidence,
+  media, alternates, proposed variants, distinct Hooklying boundary, derived
+  maxima, and absence of athlete age/skill/proficiency classification. The
+  research test file passes 75/75. The existing 90/90 batch correctly remains
+  at research version `.89`.
+
+### Exact source-22 next execution order
+
+1. Reconcile `HEAD`, `git status`, migration filenames, and disposable
+   `schema_migrations`; migration 491 was free at this checkpoint but must be
+   rechecked because the repository is shared.
+2. Recheck the controlled taxonomy, two preexisting review relationships,
+   legacy phase/dose/readiness rows, and adjacent definition UUIDs against the
+   current shared database before encoding the already-decided identity
+   boundaries. Do not repeat the completed broad audit or research.
+3. Author the next free idempotent migration with protected-record guards,
+   complete taxonomy/anatomy/difficulty/load/fatigue/constraints/profiles/
+   support/persistence content, alternate decisions, review-only graph and
+   complexity/physical calibration proposals, legacy age/publication cleanup,
+   and one packet containing only the four standard human blockers. The
+   intended shape is 1 definition at card/schema version 2, the retired
+   skeletal baseline, 3 selectable exact variants, 6 prepare/restore profiles,
+   16 evidence rows, 5 media candidates, 20 alternates, 6 complexity/physical
+   calibration rows, explicit identity decisions, and review-only
+   substitution/equipment-equivalent edges. Assert actual persisted counts.
+4. Run the final exact SQL directly twice against disposable PostgreSQL, query
+   persisted invariants, add init/static/research tests, and pass focused lint,
+   JSON parsing, focused tests, and `git diff --check` before registration.
+5. Register with the normal runner, verify checksum and skip, re-enter the exact
+   immutable file, run persisted audit/identity/expected-blocked release checks,
+   full backend, and production build, then append actual results to all six
+   ledgers before selecting source 23.
+
+### Current return handoff — 2026-08-02 14:39 America/New_York
+
+- Branch / HEAD: `main` /
+  `f5621272a621c6a39e9d4734377b541e71a70a37`, matching `origin/main`.
+- Registered state: migration 490 is immutable at `3490270351`; no source-22
+  migration has been created, executed, wired, registered, or represented as
+  complete.
+- Source-21 task-owned dirty files are migration 490, its init/static/research
+  wiring, corrected/generated 90/90 batches, registry `.89`, all six workout-
+  generator ledgers, and the new dedicated breathing-family batch/output.
+- `src/utils/classSetupOverviewApi.ts` contains the narrow type-only build
+  repair described above. `docs/NEEDS_ENGINE_CATEGORY_METRICS.json` changed
+  only because the full backend suite refreshed generated-time output; preserve
+  it and do not attribute it to source 22.
+- Source-22 task-owned changes now include registry `.90` / 386, the authored
+  Crocodile batch, generated packet, and research-test coverage. The generated
+  packet contains 16 evidence sections, 5 media candidates, and 20 alternate
+  assessments; the research test file passes 75/75. No source-22 migration has
+  been authored, executed, wired, or registered.
+- The current source-22 worktree also contains the source-21 files listed
+  above; preserve all of them. The newly added source-22 paths are
+  `scripts/data/canonical-research/batches/crocodile-breathing.v1.json` and
+  `scripts/data/canonical-research/generated/crocodile-breathing/`, plus
+  source-22 edits within the shared registry, research test, and this handoff.
+- Exact next action: recheck that migration number 491 remains free, then
+  author `backend/migrations/491_coaching_crocodile_breathing_family_audit_hardening.sql`
+  from the finalized three-variant identity plan. Use generated UUIDs
+  `a041a9a6-a61a-4d14-9969-5eba23fe94fb` (flat),
+  `d729bed4-7a61-401e-9e0d-cc0da73cd35e` (bolster), and
+  `08396682-5289-4b8c-a9f1-715a56681198` (band) unless a current collision
+  check fails. Do not mutate registered migration 490.
+
+## Completed source-21 working record (historical; superseded by the checkpoint above)
 
 Sources 20 and its six newly surfaced similarity neighbors are complete to
 machine-authored quarantine through immutable migrations 487 and 489. Do not
@@ -835,15 +1058,23 @@ The unregistered working file is:
 
 `backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql`
 
-It is intentionally incomplete and must not be registered yet. It currently
-contains guards, taxonomy, lineage/archive operations, three definitions, four
-variants, eight delivery profiles, the evidence insert, 15 candidate-media
-rows, and alternate assessments. The following marker sections are still
-empty and are the exact next authoring points:
+The SQL authorship is now complete, but the file remains mutable and
+unregistered. Do not register it until the one remaining focused static-test
+failure is repaired and all focused checks pass. The migration contains
+fail-closed guards, controlled taxonomy, lineage/archive operations, three
+definitions, four variants, eight delivery profiles, 48 evidence rows, 15
+candidate-media rows, alternate assessments, identity boundaries, ten
+review-only graph proposals, eight review-only calibration proposals, legacy
+cleanup, three quarantined card packets, and final assertions. The
+`IDENTITY_GRAPH_CALIBRATION`, `LEGACY_AND_PACKETS`, and `FINAL_ASSERTIONS`
+sections are complete.
 
-- `-- IDENTITY_GRAPH_CALIBRATION`;
-- `-- LEGACY_AND_PACKETS`;
-- `-- FINAL_ASSERTIONS`.
+The exact current local SQL checksum is `3490270351`. The exact SQL bytes
+passed a direct `ON_ERROR_STOP=1` run and an unchanged second direct run against
+disposable PostgreSQL. Migration 490 is still absent from `schema_migrations`;
+it is wired into `backend/platform/initTables.js` but has not passed the normal
+runner, registration/skip, stored-checksum comparison, or registered-file
+re-entry. Treat the file as mutable until registration and immutable afterward.
 
 Draft UUIDs are:
 
@@ -862,11 +1093,16 @@ Draft profile UUIDs are `02032b70` (reach-wall preparation), `eb20f202`
 `2c3640e1` (lateral restoration), `c68a393a` (balloon preparation), and
 `9ca464ff` (balloon restoration); use the full IDs already declared in the SQL.
 
-The evidence block should persist one selected source for each of 16 sections
-on each of the three cards: 48 candidate evidence rows backed by eight source
-families. Before registration, verify the resulting count from PostgreSQL and
-never substitute an expected count for persisted proof. The exactness/general
-evidence set already researched is:
+The direct-run database state persisted one selected source for each of 16
+sections on each of the three cards: 48 candidate evidence rows backed by eight
+source families. The persisted family totals are 3 definitions, 4 selectable
+variants, 8 delivery profiles, 48 evidence rows, 15 candidate-media rows, 58
+alternate assessments, 10 review-only graph proposals, 8 review-only
+calibration proposals, 20 migration-owned identity rows (18 distinct, 1
+duplicate consolidation, and 1 needs-human-review quarantine), and 3 current
+packets with exactly the four standard human blockers. Requery after normal
+registration and use that output, not these expected checkpoint values, in the
+final audit ledgers. The exactness/general evidence set is:
 
 - Functional Movement Systems, `90/90 Breathing with Lateral Expansion`;
 - U.S. Department of Veterans Affairs diaphragmatic-breathing instructions;
@@ -891,77 +1127,92 @@ accessibility, cue quality, safety, and approval remain unverified and null:
 - ball and balloon: `4GoqjoEXaAw`, `zL1Hmkt7aJA`, `lcZp3gEz5_s`,
   `U1AG5y81VcQ`, `-zxaq9lANYg`.
 
-The research registry remains at `2026-08-02.88` / 378 sources and has not yet
-been updated for source 21. The existing source-21 content inside
-`scripts/data/canonical-research/batches/9090-shin-box-foundations.v1.json`
-and its generated manifest incorrectly reuse shin-box evidence in unrelated
-sections. Correct all source-21 sections or create a dedicated batch and
-regenerate it. Add the five not-yet-registered source families (FMS, the 2026
-review, diaphragm MRI, Boyle, and ACOG); reuse the VA, 2018 review, and YouTube
-entries already in `scripts/data/canonical-research/source-registry.v1.json`.
-Advance the registry version only to the actual resulting version/count.
+The research registry is now `2026-08-02.89` / 383 parsed sources. It adds FMS
+90/90 lateral-expansion instruction, the 2026 diaphragmatic-breathing review,
+the diaphragm postural-function MRI study, Boyle's 90/90 hip-lift-with-balloon
+clinical suggestion, and current ACOG pregnancy/postpartum guidance; it reuses
+the existing VA, 2018 slow-breathing review, and YouTube provenance entries.
+
+The mixed batch
+`scripts/data/canonical-research/batches/9090-shin-box-foundations.v1.json` is
+corrected so all 16 reach-card evidence sections are card-specific and no
+shin-box evidence pollutes the reach card. It now contains 5 reach candidates,
+classifies the ambiguous Hip Reset source as rejected/quarantined, and does not
+create a new reach definition. Its generated packets and manifest were
+regenerated. A dedicated new-card batch exists at
+`scripts/data/canonical-research/batches/9090-breathing-family.v1.json`; its
+generated output is under
+`scripts/data/canonical-research/generated/9090-breathing-family/`. Both
+batches passed dry-run validation and generation. The new registry and batch
+test passes inside the focused suite.
 
 ### Exact next execution order
 
 1. Reconcile `HEAD`, `git status`, migration filenames, and the disposable
    ledger again. Preserve all concurrent work.
-2. Inspect the current migration-490 evidence/media/alternate block to ensure
-   the previously large patch is complete and syntactically intact.
-3. Add explicit review-only identity resolutions, graph proposals, and the
-   eight complexity/physical calibration proposals. Do not populate approval
-   or reviewer fields.
-4. Update the three legacy rows and their safety/readiness records: remove age,
-   exercise skill/proficiency, linked-skill, and publication claims; make 656
-   and 1404 archived/nonselectable; keep 1404 identity-quarantined.
-5. Create three automated card packets, one per selectable definition, with
-   exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
-   `CARD-PUBLISH-01` as the remaining human blockers.
-6. Add fail-closed final assertions for exact definitions, variants, profiles,
-   evidence, five media candidates per card, alternates, identity decisions,
-   graph/calibration review rows, packets, controlled taxonomy, legacy cleanup,
-   archived source variants, and the absence of fabricated approvals or
-   prohibited skill/age keys.
-7. Run `git diff --check`, then execute the unregistered draft directly against
-   disposable PostgreSQL with `ON_ERROR_STOP=1`. Fix transactional failures and
-   run the final unchanged bytes a second time. Query exact persisted family
-   and global invariants.
-8. Correct/regenerate the research batch, update the registry and registry
-   tests, add the migration-490 static contract test, register 490 after 489 in
-   `backend/platform/initTables.js`, and run focused tests/lint/JSON checks.
-9. Compute the exact 31-based unsigned checksum, register migration 490 with
-   the normal runner, verify stored/file checksum and normal-runner skip, and
-   directly re-enter the exact immutable file. Never edit it after this point.
-10. Run the persisted canonical audit, identity report, expected-blocked release
-    check, full backend suite, production build, and diff-integrity checks.
-11. Append actual results to all five audit/review ledgers and update the live
-    checkpoint and return handoff in this file. Only then select the next
-    machine-incomplete source family.
+2. Repair the only currently failing focused assertion in
+   `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`.
+   The lower-leg-supported variant's actual tuple begins
+   `22,5,3,12,12,22`; the test incorrectly expects `22,5,4,12,12,22` at the
+   `reach_support_variant` regex. This is a test expectation defect, not a
+   persisted SQL defect. Confirm the remaining source-21 assertions rather
+   than weakening them.
+3. Rerun the focused three-file suite. The last run was 227/228: every research
+   test, the canonical audit tests, and all other static migration tests passed;
+   only the tuple assertion above failed. Continue until the suite is entirely
+   green.
+4. Run focused ESLint on the changed JavaScript files, parse every changed JSON
+   file, and run `git diff --check`. Recompute the exact checksum if the SQL
+   changes; if any SQL byte changes, directly execute the new exact bytes twice
+   and requery persisted invariants before continuing.
+5. Register migration 490 with the normal runner against disposable
+   PostgreSQL, verify the stored checksum equals the exact local checksum, run
+   the normal runner again to prove a clean skip, then directly re-enter the
+   exact registered file. Never edit migration 490 after this point; use a new
+   correction migration if a defect appears.
+6. Run the persisted canonical audit, identity queue report, and
+   expected-blocked release check. Resolve any newly surfaced direct identity
+   collision or unresolved score-72-or-higher pair before calling the family
+   checkpoint complete.
+7. Run the full backend suite, production build, focused lint, JSON checks, and
+   final diff-integrity check. Preserve unrelated dirty work and record all
+   intentional skips and existing warnings accurately.
+8. Append actual post-registration results to all five audit/review ledgers and
+   add a new dated return handoff here. Only then select the next
+   machine-incomplete source family.
 
 ### Current worktree and database checkpoint
 
 As of this update, branch `main` is at
-`7b1720e5a083048c5c4c77348196884794513987`, matching `origin/main`.
-The task-owned work is the modified migration-490 draft and this handoff file.
-The current unrelated concurrent class-setup/Admin pricing work is:
+`f5621272a621c6a39e9d4734377b541e71a70a37`, matching `origin/main`.
+Concurrent class-setup/Admin pricing work was captured by that shared commit;
+do not revert or rewrite it. Recheck status because the shared branch and
+worktree can move while work is in progress.
 
-- `backend/programs/classSetupOverview.js`;
-- `backend/programs/__tests__/classSetupOverviewPricing.test.js` (untracked);
-- `src/components/Admin.tsx`;
-- `src/components/classSetup/AdminClassSetupOverviewCellEditor.tsx`;
-- `src/components/classSetup/classSetupCopyPaste.ts`;
-- `src/utils/classSetupOverviewApi.ts`.
+The task-owned dirty files are:
 
-Preserve those files exactly and do not include them in exercise-card edits.
-Recheck status because the shared branch/worktree can change while work is in
-progress.
+- `backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql`;
+- `backend/platform/initTables.js`;
+- `backend/platform/__tests__/canonicalResearchBatch.test.js`;
+- `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`;
+- `scripts/data/canonical-research/source-registry.v1.json`;
+- `scripts/data/canonical-research/batches/9090-shin-box-foundations.v1.json`;
+- the regenerated mixed-batch files under
+  `scripts/data/canonical-research/generated/`;
+- untracked `scripts/data/canonical-research/batches/9090-breathing-family.v1.json`;
+- untracked generated directory
+  `scripts/data/canonical-research/generated/9090-breathing-family/`;
+- this handoff after the present update.
 
 The disposable database is
 `postgresql://jimmy_mac@127.0.0.1:55434/vortex_skip`. Its latest registered
 exercise migrations are immutable 487 (`2192026862`, registered
 `2026-08-02 13:24:48.619779-04`) and 489 (`1326745458`, registered
 `2026-08-02 13:28:59.307957-04`). Migration 490 is absent from
-`schema_migrations` and has not passed direct execution, idempotency, checksum,
-normal-runner registration, persisted audit, tests, or build.
+`schema_migrations`. Its current exact SQL bytes passed direct execution twice
+and persisted family assertions, but normal-runner registration, stored-
+checksum proof, post-registration audits, the completely green focused suite,
+focused lint, full backend suite, and production build remain outstanding.
 
 Also preserve the concurrent Needs Engine behavior already implemented in the
 shared history: full equipment coverage is enforced only for `must_use`;
@@ -993,6 +1244,91 @@ Never write `complete`, `approved`, `verified`, or `production ready` without
 the corresponding persisted or qualified-human evidence. If work stops while
 490 is still mutable, state exactly which marker or assertion is next and do
 not report draft counts as persisted counts.
+
+### Return handoff — 2026-08-02 14:22 America/New_York
+
+- Branch / HEAD: `main` /
+  `f5621272a621c6a39e9d4734377b541e71a70a37`, exactly matching
+  `origin/main` at this checkpoint. The shared branch can move; reconcile it
+  before editing.
+- Worktree: the exact task-owned modified/untracked set is listed in `Current
+  worktree and database checkpoint` above. It consists only of migration 490,
+  its init/test/research wiring, corrected/generated 90/90 research files, the
+  new dedicated breathing batch/output, and this handoff. Preserve all
+  concurrently committed class-setup work and the Needs Engine `must_use`
+  versus `use_only` behavior.
+- Last registered exercise migrations: immutable 487 / `2192026862` /
+  `2026-08-02 13:24:48.619779-04` and immutable 489 / `1326745458` /
+  `2026-08-02 13:28:59.307957-04`. Migration 490 is unregistered. Its current
+  local checksum is `3490270351`; direct run 1 and unchanged direct run 2
+  passed, but normal-runner registration, skip, stored-checksum comparison,
+  and registered exact-file re-entry have not occurred.
+- Family state: source 21 `90/90 Breathing with Reach` survives as definition
+  `0ac22398-2eed-482a-aae8-8d26ba888eaf` with wall-reach variant
+  `4193b7da-09de-4558-b7a1-1ac9440d19eb` at `26/8/26` and fully supported
+  variant `e9384c20-f26f-4a12-b9ba-913be80b2d82` at `22/5/22`.
+  Research-authored lateral-expansion definition
+  `b366c4d4-d75e-4902-915c-4b363e6b6238` has variant
+  `b5719ed0-5d31-4030-9c11-7ea81aabe254` at `16/4/16`. Research-authored
+  ball-and-balloon definition `96d4d5fe-1ad1-4930-9c74-2054764d0c6c` has
+  variant `d4393550-a0b4-485a-8b99-e6bb1b7e71f3` at `48/20/48`. Values are
+  complexity / physical difficulty / derived maximum; no athlete skill or age
+  level is authored.
+- Legacy identity: source 656 is duplicate-consolidated to the reach card.
+  Source 1404 remains archived, nonselectable, and `needs_human_review` because
+  `90/90 Breathing with Hip Reset` does not specify enough mechanics to merge
+  with the reach or ball-and-balloon identity. Legacy age, skill/proficiency,
+  linked-skill, and publication fields are cleared; the old duplicate/source
+  rows remain as lineage rather than being deleted.
+- Direct-run persisted family counts: 3 definitions, 4 variants, 8 profiles,
+  48 evidence rows, 15 candidate-media rows, 58 alternates, 10 review-only
+  graph proposals, 8 review-only calibration proposals, 20 migration-owned
+  identity decisions, and 3 packets with exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Requery after
+  registration before recording final metrics.
+- Research: registry `2026-08-02.89` contains 383 sources. Five source families
+  were added: FMS lateral-expansion instructions, the 2026 diaphragmatic-
+  breathing review, diaphragm postural-function MRI research, Boyle's
+  ball-and-balloon clinical suggestion, and ACOG guidance. The mixed
+  90/90/shin-box batch was corrected and regenerated; the dedicated breathing-
+  family batch and generated output were added. Both generation passes and
+  the new research tests succeeded.
+- Validation: the current focused run is 227/228. All research-batch and
+  canonical-audit coverage passed. The only failure is the new static regex
+  expecting `22,5,4,12,12,22`; the SQL correctly contains
+  `22,5,3,12,12,22`. Focused lint, final JSON checks, full backend suite,
+  production build, post-registration audit, identity detector, and release
+  check have not run for source 21. `git diff --check` passes at this handoff.
+- Failures and repairs: early direct SQL attempts rolled back transactionally
+  for missing delivery-profile fields, a nonexistent safety `updated_at`
+  column, an invalid zero legacy-impact value, a missing canonical
+  `physicalDifficulty` value, a too-short coach instruction, and the wrong
+  `spine_rotation` action key. Each was repaired, temporary diagnostics were
+  removed, and final unchanged SQL passed twice. The first focused run exposed
+  a parenthesis-sensitive token-regex defect and was repaired. The second
+  focused run exposed only the tuple-expectation defect described above.
+- Global state: no source-21 post-registration audit exists yet. The last
+  authoritative source-20 snapshot remains 1,676/1,676 mappings, 1,045 active,
+  96 machine-complete, 949 incomplete, 95 healthy current 3–5-media sets,
+  626/626 adjudicated surfaced pairs, zero unresolved, zero direct collision,
+  724/0 graph review/approved, 939/0 calibration review/approved, and 0
+  published. Do not label expected source-21 deltas as results.
+- Release/human gates: the last release check was correctly blocked at 0/25
+  published definitions, 0/3 approved depth in every required phase, 0/10
+  approved relationships, 0/3 approved calibration anchors, and 0/20 real
+  coach reviews. All 15 source-21 YouTube records have metadata/embed-response
+  health only. Full playback, exactness, captions, accessibility, cue quality,
+  safety, conflicts, content/graph/calibration/media/publication approval,
+  pilot evidence, deployment rehearsal, monitoring, rollback, incidents, and
+  support readiness remain quarantined human/rollout work.
+- Documentation: only this zero-context handoff has been updated for the
+  current source-21 in-progress checkpoint. Append to the other five audit and
+  review ledgers only after registration and authoritative audits/tests/build.
+- Exact next action: change the supported-variant static expectation in
+  `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js` from
+  `22,5,4,12,12,22` to `22,5,3,12,12,22`, rerun the focused suite, and then
+  follow the numbered `Exact next execution order` without skipping checksum,
+  registration, persisted audits, full validation, or documentation.
 
 ## Historical source-20 next-work instructions (completed by migrations 487 and 489)
 
@@ -1945,3 +2281,570 @@ Use this template:
   work` section. Resolve the three current source variants and the erroneous
   inherited `spine_rotation` requirement before authoring; do not copy
   `age_min=6` or `is_published=true`.
+
+### Return handoff — 2026-08-02 15:08 America/New_York
+
+- Branch / HEAD: `main` / `f5621272a621c6a39e9d4734377b541e71a70a37` at
+  the last reconciliation. Recheck before editing because this is a shared
+  dirty worktree and concurrent commits can move the branch.
+- Preserve concurrent work: do not revert the Needs Engine `use_only` versus
+  `must_use` equipment fix, typed PrescriptionError response/display changes,
+  generated `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`, source-21 work,
+  `src/utils/classSetupOverviewApi.ts`, or any unrelated dirty files.
+- Registered immutable migrations: source-21 migration 490 checksum
+  `3490270351`; source-22 migration 491 checksum `1519177130`, registered
+  `2026-08-02 14:52:25.126422-04`; score-floor correction 492 checksum
+  `763304095`, registered `2026-08-02 14:55:22.298379-04`. Never edit a
+  registered migration; use the next free migration for corrections.
+- Source 22 is complete to machine-authored quarantine as `Crocodile
+  Breathing` (`2e308a8e-6a1d-48d4-b095-fe3dd18803d8`) with flat
+  (`a041a9a6-a61a-4d14-9969-5eba23fe94fb`, `18/4/18`), lower-leg bolster
+  (`d729bed4-7a61-401e-9e0d-cc0da73cd35e`, `20/3/20`), and light band-feedback
+  (`08396682-5289-4b8c-a9f1-715a56681198`, `24/5/24`) variants. The old
+  baseline is archived/nonselectable.
+- Persisted family counts: 3 selectable variants, 6 contextual profiles, 16
+  evidence rows, 5 current healthy media candidates, 20 alternates, 8 review-
+  only graph rows, 6 review-only calibrations, 6 migration-owned identity
+  boundaries plus 3 pre-existing 90/90 boundaries, and 1 current packet with
+  exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+- Registry: current `2026-08-02.91` / 390 parsed sources; the source-22 batch
+  itself remains reproducibly pinned to `.90`. Source-22 batch and generated
+  packet live under `scripts/data/canonical-research/batches/crocodile-
+  breathing.v1.json` and `scripts/data/canonical-research/generated/crocodile-
+  breathing/`.
+- Global audit: 1,676/1,676 mappings; 1,047 active definitions; 100 machine-
+  complete and 947 incomplete cards; 99 current healthy embeddable media sets;
+  740/0 graph review/approved; 953/0 calibration review/approved; and zero
+  published. All 1,047 remain quarantined.
+- Identity: 628/628 surfaced score-72-or-higher pairs adjudicated, zero
+  unresolved pair, and zero exact collision.
+- Release: expected `blocked`; 0/25 published, zero approved depth in all seven
+  phases, 0/10 approved graph edges, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. These are genuine human/rollout gates, not failed
+  automated authorship.
+- Validation: focused suite 231/231; full backend 1,033 pass, 20 intentional
+  skips, 0 failures; focused ESLint, changed-JSON parsing, `git diff --check`,
+  persisted audit, identity report, and production build pass. Build retains
+  only existing browser-data freshness and greater-than-500-kB Admin chunk
+  advisories.
+- Failures/corrections: migration 491 drafts rolled back on a missing values
+  alias, missing delivery column, legacy impact score 0, and legacy difficulty
+  load 0.5; each was corrected before registration. The post-registration
+  canonical audit then rejected `impactAccumulation=0` on the 1–100 score
+  scale. Immutable correction 492 sets impact and impact accumulation to the
+  valid floor 1 while preserving no-impact class and zero contacts. A draft
+  492 run also rolled back on an ambiguous PL/pgSQL variable and was corrected
+  before registration. No approval state changed.
+- Human review remaining: watch all five videos fully; verify playback,
+  exactness, variant, support/feedback, breath cycle, captions, accessibility,
+  cue quality, safety, conflicts, and reviewer/version data; adjudicate
+  evidence, alternates, identity boundaries, graph proposals, and score
+  anchors; independently review content and publication; establish approved
+  phase depth; then run shadow generation, clean deployment rehearsal,
+  monitoring/rollback/incident proof, support readiness, and a real coach
+  pilot.
+- Next family baseline audit and research packet are complete: source 23
+  `Full-Body Joint CARs Flow`,
+  definition `c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3`, baseline variant
+  `f4b3acdd-8a11-48d1-a061-c3dcd859f215`. It currently has schema/card v1,
+  empty controlled taxonomy/anatomy/support/load/fatigue/programming data, one
+  skeletal delivery profile, zero evidence, four unreviewed media rows, zero
+  alternates, zero relationships, zero calibrations, zero identity decisions,
+  and 20 blockers. Legacy source incorrectly carries `age_min=8` and
+  `is_published=true`; do not copy either classification/claim. The validated
+  `.91` batch is `scripts/data/canonical-research/batches/full-body-joint-cars-
+  flow.v1.json`; generated packet/manifest are under
+  `scripts/data/canonical-research/generated/full-body-joint-cars-flow/`.
+  Four new registry sources cover ACE professional CARs guidance, a Kinstretch
+  starter pack, a full-body follow-along, and the nonspecific-neck-pain CPG.
+  The packet has all 16 required evidence sections, four current oEmbed-
+  healthy but unreviewed media candidates, and 20 alternate assessments.
+- Source-23 identity decision: keep one exact ordered composite flow rather
+  than consolidating joint-specific cards. The legacy neck, shoulders, elbows,
+  wrists, spine, hips, knees, ankles order is a proposed Vortex review contract,
+  not a universal externally validated standard. Preserve Neck CARs, Hip CARs,
+  Wall-Supported Hip CARs, Ankle CARs, Arm Circles / Shoulder CARs, Quadruped
+  Shoulder Circles, Cat-Cow, and Quadruped Spinal Circles as distinct. Keep
+  clinical assessment/treatment, fast momentum circles, passive stretching,
+  yoga flows, and incomplete selected-joint circuits distinct or rejected.
+- Source-23 research validation: registry/batch JSON parse, the complete
+  canonical-research test file passes 76/76, and the database-backed generator
+  wrote one valid packet. Current research-only score proposal is exercise
+  complexity / physical difficulty / derived maximum `38/8/38`; it has no
+  approval and must enter independent calibration review.
+- Exact next action: reconcile Git/DB state, inspect controlled taxonomy and
+  exact neighboring variant/profile contracts, then author migration 493 for
+  the fixed eight-region composite flow. Specify each joint's observable
+  actions and direction, bilateral/alternating rules, standing/support base,
+  neutral checkpoints, valid/invalid completion, repetitions/time, transitions,
+  compensation, pain/neurologic stops, equipment/space, duration formula,
+  logistics, substitutions, graph proposals, calibration proposals, identity
+  boundaries, evidence, media candidates, and a four-human-blocker packet.
+
+### Current live continuation — 2026-08-02 15:19 America/New_York
+
+This is the authoritative starting point for the next LLM. It supersedes the
+15:08 return handoff and all older next-action text while retaining those
+entries as audit history.
+
+- Repository: `/Users/jimmy_mac/Desktop/code/vortex`.
+- Branch / HEAD at the last reconciliation: `main` /
+  `f5621272a621c6a39e9d4734377b541e71a70a37`. Run `git status --short`,
+  `git rev-parse --abbrev-ref HEAD`, and `git rev-parse HEAD` again before any
+  edit because this is a shared dirty worktree.
+- Preserve every concurrent change listed in `Concurrent work that must remain
+  preserved`, including the Needs Engine `use_only`/`must_use` correction,
+  typed prescription-error details, UI blocker/relaxation display,
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`,
+  `src/utils/classSetupOverviewApi.ts`, and all unrelated dirty files. Do not
+  commit, push, reset, discard, or deploy.
+- Source 23 research is complete for `Full-Body Joint CARs Flow`, legacy source
+  ID 23, canonical definition
+  `c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3`. Registry version is
+  `2026-08-02.91` with 390 parsed sources. The batch is
+  `scripts/data/canonical-research/batches/full-body-joint-cars-flow.v1.json`;
+  generated evidence, media, alternates, manifest, and packet are under
+  `scripts/data/canonical-research/generated/full-body-joint-cars-flow/`.
+- Migration 493,
+  `backend/migrations/493_coaching_full_body_joint_cars_flow_audit_hardening.sql`,
+  is registered and immutable. Stored checksum: `3758480733`; registered at
+  `2026-08-02 15:15:10.588696-04`. Never edit 493. It passed unchanged direct
+  execution twice before registration, pre-registration no-persist canonical
+  audit, production-runner registration, runner skip, and exact registered-file
+  re-entry.
+- Migration 493 archives baseline variant
+  `f4b3acdd-8a11-48d1-a061-c3dcd859f215` and creates independent standing
+  variant `c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c` at `38/8/38` and
+  wall-supported-lower-body-segments variant
+  `627e9509-da11-4e18-8e6a-e67eea115dad` at `42/6/42`. Scores are complexity /
+  physical difficulty / derived maximum. It persists 4 profiles, 16 evidence
+  rows, 4 current oEmbed-healthy but unreviewed media candidates, 20 alternate
+  assessments, 6 review-only graph proposals, 4 review-only calibrations, 8
+  identity boundaries, and one quarantined test packet. It clears the legacy
+  `age_min=8` classification and false `is_published=true` state; do not
+  reintroduce either.
+- The authoritative post-493 audit found two machine-contract defects despite
+  the migration's static checks: all four athlete instructions were 333
+  characters where the canonical maximum is 240, and four regression edges
+  used descriptive `mobility` and `duration` dimensions rather than the
+  controlled graph vocabulary. Those defects caused `CARD-INSTRUCTION-01` and
+  `CARD-GRAPH-01` and left five packet blockers. The remaining four intended
+  blockers are the honest human gates: `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- An unregistered corrective draft now exists at
+  `backend/migrations/494_coaching_full_body_joint_cars_audit_contract_correction.sql`.
+  Current local checksum: `3916243330`; current length: 91 lines. It shortens
+  the athlete text to 238 characters, changes the four regression dimensions
+  to controlled `range`, `stability`, and `complexity`, preserves descriptive
+  mobility/duration facts in rationale metadata, restores the packet to the
+  four honest human blockers, refuses to touch human-reviewed state, and
+  creates no approval. Migration 494 is already listed after 493 in
+  `backend/platform/initTables.js`; its static contract test is already present
+  in `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`.
+- Migration 494 has not yet been executed, registered, or validated. Treat its
+  checksum and contents as mutable until its exact bytes pass the required
+  draft checks. After it is registered, record the stored checksum/timestamp
+  and never edit it; use migration 495 for any later correction.
+
+Exact continuation order:
+
+1. Reconcile Git status/HEAD, inspect all task-owned diffs, and confirm no
+   concurrent edit overlaps migration 494, `initTables.js`, or the static test.
+2. Run the targeted difficulty/static contract test, focused ESLint, JSON
+   parsing, and `git diff --check`. Fix draft-only defects without touching
+   immutable migrations.
+3. Against disposable PostgreSQL
+   `postgresql://jimmy_mac@127.0.0.1:55434/vortex_skip` with
+   `DATABASE_SSL=false`, execute the exact current migration-494 file using
+   `psql -v ON_ERROR_STOP=1 -f ...` twice. Both runs must pass unchanged.
+   Database access may require sandbox escalation; request it rather than
+   substituting an unverified database.
+4. Run the canonical audit in no-persist mode. Prove the Source-23 instruction
+   and graph machine issues are gone and that its packet has exactly the four
+   human-only blockers. A release gate may remain blocked; an audit error may
+   not.
+5. Register the unchanged 494 bytes using the production migration runner:
+   `DB_URL=postgresql://jimmy_mac@127.0.0.1:55434/vortex_skip
+   DATABASE_SSL=false npm run migrate:all`. Run the production runner again to
+   prove skip behavior. Query `schema_migrations` for the exact filename,
+   checksum, and timestamp, compare the stored/local checksum, and execute the
+   exact registered file once more to prove safe re-entry. Never edit it after
+   registration.
+6. Run the authoritative persistent canonical audit, identity report, and
+   release check. Query exact Source-23 counts and invariants instead of relying
+   on expected totals or static string tests.
+7. Expected values to verify, not blindly report: 1,676/1,676 legacy mappings;
+   1,047 active definitions; 101 machine-complete and 946 incomplete cards; 100
+   current healthy 3-to-5-candidate media sets; 628/628 score-72-or-higher
+   identity pairs adjudicated with zero unresolved and zero direct collision;
+   746 graph rows in review and zero approved; 957 calibration rows in review
+   and zero approved; zero published definitions; and exactly four Source-23
+   packet blockers. Report actual query output if any value differs.
+8. Run the complete focused platform set, the full backend/platform suite,
+   focused lint, changed-JSON parsing, `git diff --check`, and the production
+   build. Source 22's previous verified baseline was 231/231 focused and 1,033
+   pass plus 20 intentional skips in the full backend suite. Source 23 added
+   research, migration-493, and migration-494 tests, so 234 focused and 1,036
+   full passes are plausible only as estimates; record actual counts.
+9. Append the final Source-23 checkpoint, including both immutable checksums,
+   timestamps, failures/corrections, exact family/global counts, validations,
+   and remaining human gates, to all six authoritative files named in
+   `Authoritative documentation and how to update it`. Do not rewrite history
+   or promote candidate/review data to approved/published state.
+10. Only after Source 23 is fully documented and green, begin the baseline
+    audit for source 24 `Neck CARs`, canonical definition
+    `ee59b220-042c-482a-b7b5-5923d644c800`. Query its mapping, source payload,
+    canonical definition, variants, profiles, evidence, media, alternates,
+    graph, calibration, identity, and packet before research or editing. Do not
+    infer an athlete age, skill, or proficiency classification.
+
+Human work remains deliberately unresolved. A qualified reviewer must still
+watch all Source-23 videos fully and record playback, exact flow/variant,
+joint order, support, bilateral/directional behavior, captions, accessibility,
+cue quality, safety, conflicts, reviewer identity, rationale, timestamp, and
+card-version match. Qualified reviewers must adjudicate the evidence,
+alternates, identity boundaries, graph proposals, and independent complexity /
+physical-difficulty anchors, then separately approve content and publication.
+Library-wide rollout still requires approved phase depth, shadow generation,
+clean deployment rehearsal, monitoring, rollback and incident proof, support
+readiness, and a real coach pilot. None of those approvals may be synthesized
+from successful automation.
+
+Before returning control, append a new dated `Return handoff` entry using the
+template above and update all six authoritative ledgers with actual evidence.
+The next LLM must leave this file sufficiently current that a zero-context LLM
+can resume without rereading chat history or guessing whether a migration was
+registered.
+
+### Return handoff — 2026-08-02 15:27 America/New_York
+
+This is now the authoritative continuation point and supersedes the 15:19
+draft checkpoint above.
+
+- Branch / HEAD: `main` / `f5621272a621c6a39e9d4734377b541e71a70a37` at
+  final reconciliation. Recheck immediately because the worktree is shared.
+- Worktree: task-owned changes include canonical research/static tests,
+  `backend/platform/initTables.js`, immutable uncommitted migrations 490–494,
+  source-21/source-22/source-23 batch/generated artifacts, registry `.91`, the
+  five append-only audit/review ledgers, and this handoff. Preserve unrelated
+  `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`. Concurrent class-setup work is
+  present in `src/components/classSetup/overviewColumns.ts` and
+  `src/utils/classSetupOverviewApi.ts`; the latter also retains the prior
+  `CostUnit` compatibility repair. The successful build required retaining
+  `active` as a legacy edit-key type and exporting `expandScheduleLines`; do
+  not remove the concurrent row-expanded layout. Run `git status --short` for
+  the complete current list. Do not commit, push, reset, discard, or deploy.
+- Last registered migration / checksum: immutable
+  `494_coaching_full_body_joint_cars_audit_contract_correction.sql` /
+  `3916243330`, registered `2026-08-02 15:22:32.216772-04`. Immutable
+  prerequisite 493 is `3758480733`, registered
+  `2026-08-02 15:15:10.588696-04`. Never edit 493 or 494; use migration 495 for
+  a later correction.
+- Unregistered migration state: none for Source 23. Migration 494 passed exact
+  direct execution twice before registration, no-persist canonical audit,
+  production-runner registration, runner skip, stored/local checksum match,
+  exact registered-file re-entry, persisted audit, and invariant queries.
+- Family completed: source 23 `Full-Body Joint CARs Flow`, definition
+  `c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3`, is machine-complete and human-review
+  quarantined. Archived baseline:
+  `f4b3acdd-8a11-48d1-a061-c3dcd859f215`. Selectable review variants are
+  independent standing `c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c` at `38/8/38`
+  and wall-supported lower-body segments
+  `627e9509-da11-4e18-8e6a-e67eea115dad` at `42/6/42`. Scores mean exercise
+  complexity / physical difficulty / derived maximum; no athlete skill,
+  proficiency, or age classification exists.
+- Persisted family counts: 2 selectable variants, 4 contextual profiles, 16
+  candidate evidence rows, 4 current oEmbed-healthy but unreviewed media
+  candidates, 20 alternate assessments, 6 review-only relationships, 4
+  review-only complexity/physical-difficulty calibrations, 8 identity
+  boundaries, and 1 packet with exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Maximum athlete-instruction
+  length is 238 and invalid controlled-dimension regression count is zero.
+- Registry version / count: `2026-08-02.91` / 390 parsed sources. Batch:
+  `scripts/data/canonical-research/batches/full-body-joint-cars-flow.v1.json`.
+  Generated packet/manifest:
+  `scripts/data/canonical-research/generated/full-body-joint-cars-flow/`.
+- Global audit snapshot: 1,676/1,676 legacy mappings, 1,047 active definitions,
+  101 machine-complete, 946 machine-incomplete, 100 current healthy
+  embeddable 3–5-candidate sets, 746/0 graph review/approved, 957/0 calibration
+  review/approved, and zero published. All 1,047 remain quarantined.
+- Identity snapshot: 628/628 score-72-or-higher pairs adjudicated, zero
+  unresolved pair, and zero exact collision. The composite eight-region flow
+  remains distinct from all joint-specific CARs cards and from fast circles,
+  passive stretching, yoga flows, and clinical assessment/treatment.
+- Release gate: correctly `blocked`. Coverage is 14.71% score, 14.52% anatomy,
+  11.65% load, 12.03% fatigue, 14.52% support, 14.71% operational, 14.52%
+  candidate-research cards, and 9.55% current healthy embeddable sets. Release
+  still has 0/25 published, zero approved depth in all seven phases, 0/10
+  approved graph edges, 0/3 approved calibration anchors, and 0/20 real coach
+  reviews.
+- Focused tests: 234/234 pass, zero skips/failures.
+- Full backend: 1,036 pass, 20 intentional skips, zero failures.
+- Lint / data integrity: focused ESLint, four Source-23 JSON parses, static
+  checksum/instruction-length checks, persisted/no-persist audits, Source-23
+  invariant queries, identity report, and `git diff --check` pass.
+- Build: production build passes. Existing browser-data/caniuse-lite freshness
+  and greater-than-500-kB Admin chunk advisories remain nonblocking.
+- Failures and corrections: post-493 audit discovered 333-character athlete
+  text and uncontrolled `mobility`/`duration` graph dimensions; immutable 494
+  corrected them to 238 characters and `range`/`stability`/`complexity` while
+  preserving human gates. One read-only invariant query used invalid JSONPath
+  escaping and was rerun with `jsonb_array_elements`; no data changed. The
+  first production build failed because concurrent row-layout code referenced
+  `expandScheduleLines` while older editor/copy code still typed `active`.
+  The compatibility additions described above restored the build without
+  reverting either behavior.
+- Human review remaining: watch all four videos completely and record playback,
+  exact flow/variant, order, actions, sides, support, captions, accessibility,
+  cue quality, safety, conflicts, reviewer identity, rationale, timestamp, and
+  card version. Adjudicate 16 evidence applications, 20 alternates, 8 identity
+  boundaries, 6 graph proposals, and 4 score anchors; independently approve
+  content and publication. Library-wide work still requires approved phase
+  depth, shadow generation, clean deployment rehearsal, monitoring/rollback/
+  incident proof, support readiness, a real coach pilot, and exact authorship
+  for 946 machine-incomplete cards.
+- Documentation updated: all five append-only workout-generator ledgers and
+  this handoff now contain the final Source-23 metrics, validation, failures,
+  corrections, and remaining gates.
+- Exact next action: baseline-audit source 24 `Neck CARs`, canonical definition
+  `ee59b220-042c-482a-b7b5-5923d644c800`. Query its legacy source mapping and
+  payload, definition, variants, profiles, evidence, media, alternates,
+  relationships, calibrations, identity decisions, and packet before editing.
+  Then research exact cervical CAR identity, controlled joint actions, support
+  variants, clinical-scope boundaries, dosage limitations, and 3–5 current
+  YouTube candidates. Do not infer age, readiness, skill, or proficiency; do
+  not treat the full-body composite, generic neck circles, clinical assessment,
+  passive stretching, or symptom-provoking motion as aliases.
+
+### Return handoff — 2026-08-02 15:35 America/New_York
+
+This is the authoritative continuation point. It supersedes every older
+`Immediate next work`, `Exact next action`, `Current live continuation`, and
+`Return handoff` section above. The earlier sections remain the complete
+mission, quality contract, operating procedure, command reference, and audit
+history. A zero-context replacement LLM must read this entire file, begin with
+the reconciliation steps below, and update this file plus the five other
+authoritative ledgers before returning control.
+
+#### Repository and safety state
+
+- Work only in `/Users/jimmy_mac/Desktop/code/vortex`.
+- Branch / HEAD at reconciliation: `main` /
+  `f5621272a621c6a39e9d4734377b541e71a70a37`. Re-run `git status --short`,
+  `git rev-parse --abbrev-ref HEAD`, and `git rev-parse HEAD` before editing;
+  the worktree is shared and dirty.
+- Do not commit, push, deploy, reset, checkout, discard, rewrite, or broadly
+  format existing work. Preserve every unrelated or concurrent change.
+- In particular, preserve the Needs Engine `use_only` versus `must_use`
+  equipment fix, typed prescription-error details and UI blocker/relaxation
+  display, `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`, the concurrent
+  row-expanded class-setup changes, the `CostUnit` and
+  `expandScheduleLines` compatibility exports in
+  `src/utils/classSetupOverviewApi.ts`, and the legacy `active` edit-key type
+  compatibility in `src/components/classSetup/overviewColumns.ts`.
+- Migrations 493 and 494 are registered and immutable. Migration 493 checksum
+  is `3758480733`, registered `2026-08-02 15:15:10.588696-04`. Migration 494
+  checksum is `3916243330`, registered
+  `2026-08-02 15:22:32.216772-04`. Never edit them. The next free migration is
+  495.
+- Source 23 `Full-Body Joint CARs Flow` is fully machine-complete and honestly
+  human-review quarantined. Its final counts and validation results are in the
+  immediately preceding handoff. Do not repeat that work.
+- The last authoritative global snapshot remains 1,676/1,676 legacy mappings,
+  1,047 active definitions, 101 machine-complete, 946 machine-incomplete, 100
+  current healthy 3–5-candidate media sets, 628/628 surfaced identity pairs
+  adjudicated, zero unresolved pair, zero direct collision, 746/0 graph
+  review/approved, 957/0 calibration review/approved, and zero published.
+  These are pre-Source-24 implementation values; query actual values after
+  migration 495 rather than treating them as expected constants.
+
+#### Source 24 baseline audit and identity decisions already completed
+
+- Legacy source 24 is `Neck CARs`.
+- Survivor canonical definition:
+  `ee59b220-042c-482a-b7b5-5923d644c800`.
+- Skeletal survivor baseline variant:
+  `444a2645-e29e-473f-8956-1bb624a771b4`.
+- Skeletal survivor profile:
+  `94b35854-ed3a-4952-8cc2-00189c18f20e`.
+- The survivor is schema/card version 1 with empty controlled taxonomy,
+  anatomy, load, fatigue, constraints, support, and programming data; one
+  skeletal profile; zero evidence; four legacy unverified media rows; zero
+  alternates; zero calibration; one incoming review-only relationship from
+  the completed full-body flow; one existing full-body distinct-identity
+  boundary; and 20 blockers.
+- Legacy source 24 incorrectly has `age_min=6` and `is_published=true`. Clear
+  both. Do not migrate or reinterpret either as an athlete classification or
+  approval.
+- Legacy source 897 is `Neck CARs with Tall Posture`, definition
+  `b0142272-15c6-4c52-bc27-c715a0fc41a8`, baseline variant
+  `fce891ab-7041-4edb-92b6-b464ce6a5d64`. It is a direct duplicate of source
+  24: tall stacked posture is required setup/quality for the same complete
+  cervical CAR path, not a different repetition contract. Consolidate source
+  897 into the source-24 survivor, archive its definition and variant, and
+  remap source 897 to the survivor while preserving duplicate lineage. It also
+  has unsupported `age_min=8` and `is_published=true`; clear/archive them.
+- Legacy source 898 `Wall Cervical Rotation + Chin Nod`, definition
+  `9f724fc9-6861-49a0-8f2d-f279543ca303`, variant
+  `adf40d54-16bb-454f-9b75-ceb557afd2ec`, remains distinct. It ends after a
+  chin nod plus side-to-side axial rotation against wall feedback and does not
+  perform the full cervical CAR path.
+- `Full-Body Joint CARs Flow` remains distinct. Chin nod, rotation-only,
+  isometric, resisted, passive, manual-assisted, vestibular, generic neck roll,
+  clinical assessment/treatment, and incomplete selected-joint tasks also
+  remain distinct or identity-quarantined. Fast, forced, uncontrolled, or
+  symptom-provoking neck circles are rejected.
+- Range, tempo, circle count, rest, and voluntary tension are delivery
+  annotations when the full path and exact base remain unchanged. Supine CARs
+  remains a proposed exact-variant identity quarantine until its gravity,
+  support, range, and exit contract is separately authored.
+
+#### Source 24 research state already completed
+
+- Registry version is `2026-08-02.92` with 391 parsed sources.
+- Batch:
+  `scripts/data/canonical-research/batches/neck-cars.v1.json`.
+- Generated packet:
+  `scripts/data/canonical-research/generated/neck-cars/neck-cars.v1.json`.
+- Generated manifest:
+  `scripts/data/canonical-research/generated/neck-cars/neck-cars-v1.manifest.json`.
+- The generated manifest proves 16 required evidence sections, five media
+  candidates, and 20 alternate assessments. The full canonical-research test
+  file passes 77/77 after the five-candidate update.
+- One wording defect remains in the batch: the
+  `assessmentSummary.calibrationEvidence.basis` string says `four current
+  oEmbed candidates`, but the final packet contains five. Change that word to
+  `five`, regenerate the packet/manifest, and rerun the 77-test research file
+  before using the packet in migration 495.
+- Direct research sources already registered and read:
+  - ACE professional CARs guidance:
+    `https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/`;
+  - Kinstretch starter material:
+    `https://markowtrainingsystems.com/wp-content/uploads/2020/02/2020KinstretchStarterPack.pdf`;
+  - 2025 nonspecific-neck-pain guideline:
+    `https://pmc.ncbi.nlm.nih.gov/articles/PMC12620902/`;
+  - 2019 cervical range and compensatory-strategy study:
+    `https://pmc.ncbi.nlm.nih.gov/articles/PMC6341704/`.
+- These sources support slow deliberate active pain-free motion without
+  momentum, the observable cervical action planes, compensation monitoring,
+  exercise-professional scope limits, example-only dosage, and symptom/red-
+  flag escalation. They do not establish one universal range/path, universal
+  dose/frequency/recovery, eligibility, outcome, injury prevention,
+  progression order, or Vortex difficulty score.
+- Five candidates currently return YouTube oEmbed metadata:
+  `J3tkQ4pk_Sc`, `c-zu1t-NsSo`, `iIt5_T8HM_Q`, `4wV_Jkk34ho`, and
+  `xqBwoN7AglQ`. This proves metadata/embed response health only. It does not
+  prove playback, exact path/variant, captions, accessibility, cue quality,
+  safety, reviewer identity, or approval. Keep every media row `candidate`
+  with human-only fields null.
+
+#### Exact Source 24 implementation to continue
+
+No migration 495 exists yet. Do not assume Source 24 is implemented or
+registered. Continue in this order:
+
+1. Reconcile Git/HEAD and inspect overlapping diffs. Correct the stale
+   four-versus-five wording in the batch, regenerate with
+   `backend/scripts/build-canonical-research-batch.mjs --write`, and rerun
+   `backend/platform/__tests__/canonicalResearchBatch.test.js`.
+2. Inspect the live schema and controlled taxonomy in disposable PostgreSQL
+   before authoring. In particular, identify the authoritative equipment table
+   and controlled key for a chair/seated support; do not invent an equipment
+   key. Read recent immutable family migrations for exact JSON shapes, enum
+   values, profile roles, graph types/dimensions, calibrations, and packet
+   assertions.
+3. Author
+   `backend/migrations/495_coaching_neck_cars_identity_and_family_audit_hardening.sql`.
+   Reserve these exact selectable review variants:
+   - standing independent Neck CARs:
+     `e66a4cc2-c8ac-4242-9340-948fd0329394`, proposed difficulty
+     `28/4/28`;
+   - seated supported Neck CARs:
+     `d55e8b63-019a-448d-af26-9b8a5a21cd68`, proposed difficulty
+     `24/3/24`.
+   Scores are exercise complexity / physical difficulty / their derived
+   maximum. Every normalized score field must remain within 1–100; for a
+   no-impact exercise use the valid score floor where the schema requires it
+   while retaining impact class `none` and contacts `0`.
+4. Migration 495 must fail closed on prerequisite drift and on any human-
+   reviewed or approved survivor/duplicate content. It must supersede only
+   candidate/review state; archive both skeletal baselines; archive the source-
+   897 duplicate definition; preserve and update both legacy mappings and
+   provenance; clear unsupported legacy ages/publication; upgrade the survivor
+   to card version 2; and persist complete controlled taxonomy, anatomy,
+   actions, planes, laterality, exact repetition boundaries, load, fatigue,
+   recovery, constraints, stop rules, coach/athlete/support content,
+   programming, persistence, and revalidation contracts.
+5. Persist two contextual delivery profiles per selectable variant, for four
+   total, using only controlled roles and phase keys. Include full dose,
+   duration model and bounds, quality gates, symptoms/stops, measurements,
+   setup/transition/reset, equipment quantities, space, throughput,
+   supervision, coach prompts, athlete prompts, support/incident prompts, and
+   substitution revalidation. The standing variant should require no
+   equipment; the seated variant must use the verified controlled chair key.
+6. Persist exactly the research packet's 16 current candidate evidence
+   applications, five candidate media rows, and 20 alternate assessments, all
+   at card version 2 with honest limitations and no approval. Add the explicit
+   source-897 duplicate consolidation, the source-898 distinct boundary, and
+   preserve the full-body distinct boundary without creating conflicting
+   duplicate identity rows.
+7. Add review-only graph proposals between standing and seated variants and
+   narrowly relevant distinct neighbors. Use only controlled relationship
+   types and controlled dimensions such as `load`, `leverage`, `range`,
+   `speed`, `stability`, `complexity`, `impact`, `decision_demand`, and
+   `fatigue`; do not use descriptive terms as graph dimensions. Descriptive
+   mobility, duration, equipment, or clinical facts belong in rationale and
+   revalidation metadata.
+8. Add four review-only calibration proposals: complexity and physical
+   difficulty for each exact variant. Overall is derived and must not be
+   independently calibrated. Create one current automated packet containing
+   only the four honest human gates `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+   `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Assert exact family counts,
+   identity disposition, score formulas, controlled dimensions, absence of
+   approvals, and absence of athlete skill/proficiency/age classifications.
+9. Register migration 495 in numeric order in
+   `backend/platform/initTables.js`. Add comprehensive static contract coverage
+   to `exerciseProgrammingDifficultyOnly.test.js` and retain the Source-24
+   research coverage in `canonicalResearchBatch.test.js`.
+10. Apply the exact draft to disposable PostgreSQL twice with
+    `ON_ERROR_STOP=1`; run the no-persist canonical audit; fix draft defects;
+    and repeat both unchanged executions after every byte change. Then compute
+    the platform checksum, register the exact file with the normal migration
+    runner, prove runner skip, query the stored checksum/timestamp, compare it
+    with the local bytes, and directly re-enter the exact registered file.
+    Once registered, migration 495 is immutable.
+11. Run exact Source-24 invariant queries, the persisted canonical audit,
+    identity report, and release check. A release block is correct; a migration,
+    audit, identity, or packet error is not. Record actual global deltas rather
+    than guessing them because duplicate consolidation changes the active-
+    definition count.
+12. Run focused tests and ESLint, changed-JSON parsing, `git diff --check`, the
+    complete backend/platform suite, and the production build. Preserve and
+    report existing browser-data freshness and large Admin-chunk advisories
+    separately from real failures.
+13. Append actual Source-24 results to
+    `COMPLETION_AUDIT.md`, `IDENTITY_RESOLUTION.md`, `LIBRARY_AUDIT.md`,
+    `PRODUCTION_ROLLOUT.md`, and `RESEARCH_REVIEW_PROGRAM.md`. Then append a new
+    dated authoritative `Return handoff` here with exact filenames, UUIDs,
+    checksums, registration time, family/global counts, test totals, failures
+    and corrections, human gates, worktree state, and the exact next
+    machine-incomplete family. Never replace historical ledger entries.
+
+#### Work still outside automated authority
+
+Qualified humans must watch all five Source-24 candidates fully and record
+playback, exact path and variant, base, directions, range policy, captions,
+accessibility, cue quality, safety, conflicts, reviewer identity, rationale,
+timestamp, and card-version match. Qualified reviewers must adjudicate the 16
+evidence applications, 20 alternates, identity decisions, graph proposals,
+and four score anchors, then independently approve content and publication.
+Do not synthesize any of those approvals from passing tests or oEmbed health.
+
+The overall library objective remains active after Source 24. At the last
+verified checkpoint, 946 active definitions still lacked complete exact
+authorship. Production rollout also still needs approved phase depth, shadow
+generation, clean deployment rehearsal, monitoring, rollback and incident
+proof, support readiness, and a real coach pilot. Continue one exact family at
+a time and keep the complete single-workout generator flow green; do not mark
+the goal complete after one card family or one passing build.

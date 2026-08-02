@@ -1,0 +1,13 @@
+{
+  "batchKey": "neck-cars-v1",
+  "researchVersion": "2026-08-02.92",
+  "generatedAt": "2026-08-02T19:30:00.000Z",
+  "cards": [
+    {
+      "slug": "neck-cars",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 20
+    }
+  ]
+}

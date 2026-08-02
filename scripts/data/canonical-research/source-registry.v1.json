@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.88",
+  "registryVersion": "2026-08-02.92",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2646,6 +2646,97 @@
       "publisher": "Journal of Sports Science and Medicine",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 84
+    },
+    "fms_9090_breathing_lateral_expansion": {
+      "url": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "title": "90/90 Breathing with Lateral Expansion",
+      "publisher": "Functional Movement Systems",
+      "kind": "expert_instruction",
+      "evidenceQuality": 84
+    },
+    "diaphragmatic_breathing_systematic_review_2026": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "title": "The health effects of diaphragmatic breathing: A systematic review",
+      "publisher": "Complementary Therapies in Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "diaphragm_postural_function_mri": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20705944/",
+      "title": "Stabilizing function of the diaphragm: dynamic MRI and synchronized spirometric assessment",
+      "publisher": "Journal of Applied Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "boyle_9090_hip_lift_balloon": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2971640/",
+      "title": "The Value of Blowing Up a Balloon",
+      "publisher": "North American Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 74
+    },
+    "acog_pregnancy_postpartum_exercise": {
+      "url": "https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2020/04/physical-activity-and-exercise-during-pregnancy-and-the-postpartum-period",
+      "title": "Physical Activity and Exercise During Pregnancy and the Postpartum Period",
+      "publisher": "American College of Obstetricians and Gynecologists",
+      "kind": "professional_standard",
+      "evidenceQuality": 95
+    },
+    "fms_crocodile_breathing_exercise": {
+      "url": "https://www.functionalmovement.com/exercises/776/single_leg_chop_2_step_motion",
+      "title": "Crocodile Breathing",
+      "publisher": "Functional Movement Systems",
+      "kind": "expert_instruction",
+      "evidenceQuality": 86
+    },
+    "fms_take_a_deep_breath_crocodile": {
+      "url": "https://www.functionalmovement.com/articles/780/take_a_deep_breath",
+      "title": "Take A Deep Breath",
+      "publisher": "Functional Movement Systems",
+      "kind": "expert_instruction",
+      "evidenceQuality": 82
+    },
+    "aliverti_prone_supine_chest_wall_2001": {
+      "url": "https://doi.org/10.1114/1.1332084",
+      "title": "Compartmental analysis of breathing in the supine and prone positions by optoelectronic plethysmography",
+      "publisher": "Annals of Biomedical Engineering",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "ace_controlled_articular_rotations_2024": {
+      "url": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "title": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "kinstretch_starter_pack_cars": {
+      "url": "https://markowtrainingsystems.com/wp-content/uploads/2020/02/2020KinstretchStarterPack.pdf",
+      "title": "Kinstretch Starter Pack",
+      "publisher": "Markow Training Systems",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "kinstretch_full_body_cars_followalong": {
+      "url": "https://kinstretchwithbeard.vhx.tv/class-focus-full-body/videos/beginnervideo-6-carsfollowalong-1080-high",
+      "title": "CARs Follow Along Routine — Full Body",
+      "publisher": "Kinstretch with Beard",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "nonspecific_neck_pain_cpg_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12620902/",
+      "title": "Clinical Practice Guideline: Nonspecific Neck Pain",
+      "publisher": "Deutsches Ärzteblatt International",
+      "kind": "professional_standard",
+      "evidenceQuality": 94
+    },
+    "cervical_rom_compensatory_strategies_2019": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6341704/",
+      "title": "Experimental assessment of cervical ranges of motion and compensatory strategies",
+      "publisher": "Chiropractic & Manual Therapies",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
     }
   }
 }

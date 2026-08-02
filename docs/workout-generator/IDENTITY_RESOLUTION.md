@@ -1915,3 +1915,101 @@ The final detector reports 626/626 adjudicated score-72-or-higher pairs across
 1,045 active definitions, zero unresolved pair, and zero exact collision.
 Difficulty remains exercise complexity plus physical difficulty only; athlete
 readiness and skill-library levels are not exercise identity fields.
+
+## 90/90 breathing reach, lateral expansion, and ball-and-balloon identity
+
+Migration 490 preserves `Supported 90/90 Breathing with Bilateral Reach`
+(`0ac22398-2eed-482a-aae8-8d26ba888eaf`) as a supine supported task with both
+arms reaching throughout a comfortable inhale, longer unforced exhale, and
+reset. Feet-on-wall and fully supported lower-leg executions are exact
+variants because support interface and leg effort change selection,
+difficulty, logistics, and persistence while the bilateral-reach breath-cycle
+boundary remains the same. Source 656 is therefore duplicate-consolidated into
+this stable identity.
+
+`90/90 Wall-Supported Breathing with Lateral Expansion`
+(`b366c4d4-d75e-4902-915c-4b363e6b6238`) is distinct because both hands stay
+on the lateral ribs and no arm reach is scored. `90/90 Hip Lift with Ball and
+Balloon` (`96d4d5fe-1ad1-4930-9c74-2054764d0c6c`) is distinct because it adds
+heel pull, a small hip lift, ball squeeze, exact asymmetric arms, mouth-contact
+balloon equipment, resisted exhalation, and a separate completion sequence.
+Those changes are not dose annotations or automatic progressions.
+
+The vague source-1404 label `90/90 Breathing with Hip Reset` does not declare
+support, heel pressure, lift, pelvic shift, reach, ball, balloon, breath cycle,
+or endpoint. Its source representation and old duplicate definition remain
+archived/nonselectable with a `needs_human_review` disposition; migration 490
+explicitly forbids mapping it to the ball-and-balloon card without new human
+evidence.
+
+Eighteen additional machine-authored boundaries distinguish all three cards
+from Hip Switch, Crocodile Breathing, Dead Bug, Box Breath, and Med Ball Belly
+Breathing, plus the pairwise boundaries within the new family. Ten proposed
+progression, regression, equipment-equivalent, and lateral-substitution edges
+remain review-only and require complete revalidation; graph proximity does not
+merge identities. The final detector reports 627/627 surfaced score-72-or-
+higher pairs adjudicated across 1,047 active definitions, zero unresolved
+pair, and zero exact collision. No boundary has `reviewed_by`, and no qualified
+human identity or relationship approval is implied.
+
+## Crocodile Breathing support-interface and feedback boundaries
+
+Migration 491 preserves one stable Crocodile Breathing identity: prone, face
+clear, forehead supported on stacked hands, upper body and legs relaxed, with a
+comfortable nasal inhale into abdominal/lower-rib floor feedback, slow
+unforced nasal exhale, and comfortable reset. Flat prone execution, lower-leg
+support on a stable bolster, and light nonrestrictive circumferential band
+feedback are exact variants because the repetition boundary is unchanged while
+support or feedback changes selection, setup, difficulty, and persistence.
+
+Hooklying diaphragmatic breathing, 90/90 supported breathing, Box Breathing,
+medicine-ball belly breathing, rocking or yoga Makarasana, elbow-posted prone
+breathing, Cobra, prone swimmer, and prone Y/T/W actions change posture,
+support, breath timing, loading, limb action, or terminal contract. They remain
+distinct definitions rather than aliases or silent variants. Weighted cuff
+feedback remains quarantined as a potential new exact variant because load,
+placement, pressure, fit, contraindications, and stop behavior have not been
+specified or reviewed.
+
+Six new machine-authored identity boundaries cover hooklying, Box Breath,
+medicine-ball belly breathing, prone swimmer, Y/T/W isometric, and Y/T/W raise;
+three pre-existing source-21 boundaries cover 90/90 reach, lateral expansion,
+and ball-and-balloon breathing. The eight graph proposals remain review-only
+and do not merge identities. After migrations 491–492, the detector reports
+628/628 surfaced score-72-or-higher pairs across 1,047 active definitions,
+zero unresolved pair, and zero exact collision. No qualified human identity or
+relationship approval is implied.
+
+## 2026-08-02 — Source 23 Full-Body Joint CARs identity decision
+
+Source 23 retains one composite definition,
+`c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3`, because the scored action is the
+complete ordered neck, shoulders, elbows, wrists, spine, hips, knees, and
+ankles flow. The order is an explicit Vortex review contract inferred from the
+legacy card and must not be described as a universal externally validated CARs
+sequence. The underspecified baseline variant
+`f4b3acdd-8a11-48d1-a061-c3dcd859f215` is archived rather than silently
+selected.
+
+Independent standing (`c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c`) and wall-
+supported lower-body segments (`627e9509-da11-4e18-8e6a-e67eea115dad`) are
+exact variants because support and balance change while the complete ordered
+flow and repetition boundary remain. Low intensity, circle count, direction,
+tempo, and rest remain delivery annotations only when the exact variant and
+complete sequence are unchanged. A seated full-body sequence remains an
+identity quarantine until its support, joint actions, order, completion, and
+exit are fully specified.
+
+Neck CARs, Hip CARs, Wall-Supported Hip CARs, Ankle CARs, Arm Circles /
+Shoulder CARs, Quadruped Shoulder Circles, Cat-Cow, and Quadruped Spinal
+Circles remain distinct definitions because they omit regions or change base,
+contact, action, or repetition boundary. Fast momentum circles, passive
+stretching, yoga flows, clinical assessment/treatment, and painful or
+neurologic-symptom execution also remain distinct or rejected. Eight persisted
+boundaries record these decisions; six graph rows are review-only adjacency
+proposals and authorize no merge or automatic substitution.
+
+After immutable migrations 493–494, the detector remains 628/628 surfaced
+score-72-or-higher pairs adjudicated across 1,047 active definitions, with zero
+unresolved pair and zero exact collision. No human identity, relationship, or
+publication approval is implied.

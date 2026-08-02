@@ -1,13 +1,13 @@
 {
   "batchKey": "9090-shin-box-foundations-v1",
-  "researchVersion": "2026-07-25.21",
-  "generatedAt": "2026-07-26T02:35:00.000Z",
+  "researchVersion": "2026-08-02.89",
+  "generatedAt": "2026-08-02T18:30:00.000Z",
   "cards": [
     {
       "slug": "9090-breathing-with-reach",
       "evidenceSections": 16,
-      "mediaCandidates": 4,
-      "alternateAssessments": 5
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
     },
     {
       "slug": "9090-hip-switch",

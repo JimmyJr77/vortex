@@ -1,4 +1,5 @@
 import {
+  expandScheduleLines,
   formatScheduleCell,
   type ClassSetupOverviewRow,
   type ClassSetupOverviewStatus,
@@ -31,7 +32,8 @@ export interface OverviewColumnDef {
   defaultWidth: number
 }
 
-export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
+/** Shared class/program fields — rowspan across schedule lines. */
+export const GROUP_COLUMNS: OverviewColumnDef[] = [
   { id: 'classId', label: 'Class ID', editable: false, filterKind: 'numeric', minWidth: 80, defaultWidth: 90 },
   { id: 'primarySport', label: 'Primary Sport', editable: true, filterKind: 'primarySport', minWidth: 120, defaultWidth: 140 },
   { id: 'sportTags', label: 'Sport Tags', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 150 },
@@ -40,12 +42,17 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'className', label: 'Class', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
-  { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 220, defaultWidth: 280 },
+]
+
+/** Per scheduled timeslot line — one table row each. */
+export const SCHEDULE_COLUMNS: OverviewColumnDef[] = [
+  { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 260, defaultWidth: 320 },
   { id: 'excludeFromDropIns', label: 'Allow Drop-ins', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 130 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
   { id: 'status', label: 'Status', editable: true, filterKind: 'status', minWidth: 90, defaultWidth: 100 },
-  { id: 'active', label: 'Active', editable: true, filterKind: 'text', minWidth: 80, defaultWidth: 90 },
 ]
+
+export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [...GROUP_COLUMNS, ...SCHEDULE_COLUMNS]
 
 export type TextFilter = { kind: 'text'; query: string }
 export type NumericFilter = { kind: 'numeric'; min: string; max: string }
@@ -102,8 +109,6 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.status
     case 'costPerMonth':
       return row.costPerMonthSummary || '—'
-    case 'active':
-      return row.classIsActive ? 'Yes' : 'No'
     default:
       return '—'
   }
@@ -174,7 +179,12 @@ export function applyOverviewFilters(
     OVERVIEW_COLUMNS.every((col) => {
       const filter = filters[col.id]
       if (!filter) return true
-      const display = getCellDisplayValue(row, col.id)
+      const display =
+        col.id === 'schedule'
+          ? expandScheduleLines(row)
+              .map((line) => line.scheduleText)
+              .join(' ')
+          : getCellDisplayValue(row, col.id)
 
       switch (filter.kind) {
         case 'text':
@@ -226,7 +236,10 @@ export function matchesOverviewSmartFilter(row: ClassSetupOverviewRow, query: st
   const terms = smartFilterTerms(query)
   if (terms.length === 0) return true
   const searchableText = normalizeSmartFilterText(
-    OVERVIEW_COLUMNS.map((column) => getCellDisplayValue(row, column.id)).join(' '),
+    [
+      ...OVERVIEW_COLUMNS.map((column) => getCellDisplayValue(row, column.id)),
+      ...expandScheduleLines(row).map((line) => line.scheduleText),
+    ].join(' '),
   )
   return terms.every((term) => searchableText.includes(term))
 }

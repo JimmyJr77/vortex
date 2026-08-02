@@ -1,0 +1,471 @@
+{
+  "facilityId": 1,
+  "slug": "9090-wall-supported-breathing-with-lateral-expansion",
+  "researchVersion": "2026-08-02.89",
+  "assessmentSummary": {
+    "identity": "Supine feet-on-wall 90/90 breathing with both hands on the lower lateral abdomen or rib margin as feedback. One repetition is a comfortable nasal inhale into the hands, a longer unforced exhale, and a relaxed reset. There is no reach, heel pull, hip lift, ball, balloon, limb motion, or forced hold.",
+    "currentCardFindings": [
+      "Functional Movement Systems directly supports the position, hand feedback, approximate cadence, and relaxed reset, but does not establish a universal treatment, structural correction, or performance outcome.",
+      "Removing the reach changes hand contact and valid completion, so this is distinct from 90/90 Breathing with Reach rather than a hidden modifier.",
+      "The review-only difficulty proposal is 16 exercise complexity, 4 physical difficulty, and derived overall 16; it does not classify a participant."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "breath",
+        "brace"
+      ],
+      "support": "supine_feet_on_stable_wall_hands_on_lower_lateral_ribs",
+      "laterality": "bilateral",
+      "excludedActions": [
+        "arm_reach",
+        "heel_pull",
+        "hip_lift",
+        "ball_squeeze",
+        "balloon_exhalation",
+        "limb_motion",
+        "forced_breath_hold"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 16,
+      "absoluteLoadDemand": 4,
+      "physicalDifficulty": 4,
+      "baseOverallDifficulty": 16,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "none",
+      "impactClass": "none",
+      "primaryExposure": [
+        "comfortable_breath_cycles",
+        "wall_contact",
+        "supine_time",
+        "rib_feedback"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "breathsPerSet": "3-6",
+      "cadence": "comfortable_inhale_and_longer_unforced_exhale",
+      "rest": "as_needed_for_normal_comfortable_breathing",
+      "durationRule": "recompute_from_actual_cycles_cadence_pauses_rest_setup_invalid_attempts_and_substitutions"
+    },
+    "programmingDecision": "Use only when hands-on-ribs no-reach breath awareness matches the workout purpose. Wall-supported reach, hip-lift/balloon, prone Crocodile Breathing, Box Breath, and dynamic Dead Bug work are distinct identities and require full substitution revalidation.",
+    "calibrationEvidence": {
+      "basis": "direct FMS instruction plus heterogeneous breathing research and adjacent-card comparison",
+      "uncertainty": "No source establishes a universal Vortex score, clinical effect, optimal dose, recovery interval, or progression order.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-02T18:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "A supine breathing exercise with both feet supported on a stable wall, hips and knees near 90 degrees, and both hands on the lower lateral abdomen/rib margin for feedback. One repetition is a comfortable nasal inhale that expands into the hands, followed by a longer unforced exhale and comfortable reset. There is no arm reach, hip lift, heel pull, ball squeeze, balloon, limb motion, or forced breath hold.",
+      "familyKey": "wall_supported_9090_lateral_expansion_breathing",
+      "movementPatterns": [
+        "breath",
+        "brace"
+      ],
+      "bodyRegions": [
+        "core",
+        "rib_cage",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "neck"
+      ],
+      "requiredEquipment": [
+        "wall"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "towel",
+        "timer"
+      ],
+      "environment": {
+        "station": "one_supine_wall_lane_per_participant",
+        "support": "stable_wall_with_both_feet_supported",
+        "surface": "level_dry_stable_floor_with_optional_mat",
+        "clearance": [
+          "full_supine_body_length",
+          "safe_floor_entry_and_exit",
+          "no_cross_traffic",
+          "coach_side_view"
+        ],
+        "sightline": "coach_can_observe_hands_lower_ribs_neck_shoulders_pelvis_feet_and_breath_strain",
+        "changeRule": "Adding a reach, active heel pull, hip lift, ball, balloon, unsupported legs, limb motion, external pressure, or prescribed breath hold changes identity or requires separate review."
+      },
+      "population": {
+        "cautions": [
+          "current_or_recent_respiratory_cardiovascular_neurologic_neck_back_hip_knee_or_shoulder_symptoms",
+          "dizziness_faintness_panic_air_hunger_or_unusual_shortness_of_breath",
+          "pregnancy_or_postpartum_status_requiring_supine_position_individualization",
+          "inability_to_get_to_or_from_the_floor_safely",
+          "instructions_from_a_treating_clinician_that_conflict_with_this_workout_card"
+        ],
+        "exclusions": [
+          "unstable_or_unavailable_wall_support",
+          "cannot_breathe_comfortably_at_rest",
+          "active_chest_pain_faintness_or_unusual_shortness_of_breath",
+          "wall_supported_hip_or_knee_position_produces_pain_or_neurologic_symptoms"
+        ],
+        "generalReadiness": [
+          "comfortable_supported_supine_position",
+          "comfortable_unforced_resting_breathing",
+          "pain_free_declared_shoulder_hip_and_knee_position",
+          "can_report_symptoms_air_hunger_and_uncertainty"
+        ],
+        "defaultPopulation": "participants_who_can_tolerate_wall_supported_supine_9090_and_comfortable_unforced_breathing",
+        "notClinicalClearance": true,
+        "positionSpecificCautions": [
+          "hamstring_cramp_or_excess_leg_effort_at_wall",
+          "supine_hypotensive_or_pressure_symptoms",
+          "after_twenty_weeks_pregnancy_consider_non_supine_substitution_and_follow_individual_clinical_guidance"
+        ],
+        "individualizationRequired": true,
+        "neverInferReadinessFromExerciseDifficulty": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/20705944/",
+      "sourceTitle": "Stabilizing function of the diaphragm: dynamic MRI and synchronized spirometric assessment",
+      "sourcePublisher": "Journal of Applied Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Dynamic MRI in 30 healthy adults supports ventilatory and postural diaphragm behavior during limb tasks, but it is not a direct trial of 90/90 Wall-Supported Breathing with Lateral Expansion.",
+        "Represent the observed muscles, joints, respiratory actions, support contacts, planes, and laterality without inferring universal muscle force, structural repositioning, or clinical benefit."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Diaphragmatic-breathing protocols, populations, outcomes, and reporting are highly heterogeneous, and no source assigns a Vortex difficulty score or participant classification.",
+        "Assess exercise complexity and physical difficulty separately, derive overall as their maximum, and keep every numeric proposal in independent review."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Low external load does not mean zero exposure, while safety and adverse-event reporting in the breathing literature are incomplete.",
+        "Track valid, invalid, partial, assisted, and symptom-limited cycles; breath effort; position and equipment demand; prior trunk and respiratory work; duration; and recovery only as a conservative planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2020/04/physical-activity-and-exercise-during-pregnancy-and-the-postpartum-period",
+      "sourceTitle": "Physical Activity and Exercise During Pregnancy and the Postpartum Period",
+      "sourcePublisher": "American College of Obstetricians and Gynecologists",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 95,
+      "claims": [
+        "ACOG advises avoiding prolonged supine exercise after 20 weeks of pregnancy and individualizing activity; this general guidance is not clinical clearance for 90/90 Wall-Supported Breathing with Lateral Expansion.",
+        "Require safe floor access, stable supports and equipment, comfortable unforced breathing, current symptom screening, accessible instruction, and a separately reviewed non-supine option when indicated."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41482169/",
+      "sourceTitle": "The health effects of diaphragmatic breathing: A systematic review",
+      "sourcePublisher": "Complementary Therapies in Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "The systematic review reports heterogeneous protocols and underreported safety, so absence of reported harm does not establish universal safety.",
+        "Do not force inhale, exhale, pressure, or retention. Stop for pain, dizziness, faintness, chest pain, unusual shortness of breath, panic, air hunger, neurologic signs, position or equipment failure, or inability to reset comfortably."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30245619/",
+      "sourceTitle": "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
+      "sourcePublisher": "Frontiers in Human Neuroscience",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Slow-breathing studies use varied protocols and proposed mechanisms, so they do not prove one universal phase placement, autonomic reset, treatment effect, recovery acceleration, or sport transfer.",
+        "Use 90/90 Wall-Supported Breathing with Lateral Expansion only for an observable low-load breath or coordination purpose, with exact identity, dose, cumulative exposure, duration, logistics, and substitution revalidation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
+      "sourcePublisher": "U.S. Department of Veterans Affairs",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "VA guidance presents supported position, comfortable nasal inhale, longer exhale, and gradual practice in plain language.",
+        "Athlete support must show the exact setup and action, expected low effort, self-checks, unexpected symptoms, stop signal, accessible alternatives, and safe exit without treatment claims."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2020/04/physical-activity-and-exercise-during-pregnancy-and-the-postpartum-period",
+      "sourceTitle": "Physical Activity and Exercise During Pregnancy and the Postpartum Period",
+      "sourcePublisher": "American College of Obstetricians and Gynecologists",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 95,
+      "claims": [
+        "Supine positioning is not universally appropriate, and individualization must be based on current context rather than age or an exercise-card level.",
+        "Offer comfortable angles, safe supports, fewer cycles, longer rest, multimodal instruction, and separately reviewed substitutions; removing identity-bearing actions or equipment requires a different card."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube documents privacy-enhanced embedding, and five candidates for 90/90 Wall-Supported Breathing with Lateral Expansion returned current oEmbed title, channel, and embed metadata on 2026-08-02.",
+        "oEmbed health does not prove playback, exact action or variant, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "FMS directly specifies feet on a wall, hips and knees near 90 degrees, comfortable neck and spine, both hands on the lower lateral abdomen or ribs, nasal inhale, longer nasal exhale, and a relaxed pause.",
+        "90/90 Wall-Supported Breathing with Lateral Expansion preserves those contacts and excludes reach, hip lift, heel pull, ball, balloon, and limb motion from its repetition boundary."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "The directly observable task is supported breath control with static trunk organization and manual lateral-rib feedback, not spinal rotation or a dynamic reach.",
+        "Control the breath, brace, supine support, feet-on-wall, hands-on-ribs, no-reach, and bilateral taxonomy terms."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "FMS instructs lateral expansion into the hands with relaxed support and a longer exhale.",
+        "Keep the hands as light feedback, wall pressure low, neck and shoulders quiet, and breathing unforced; no source proves one universal rib or pelvic position."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "The source supplies approximate inhale, exhale, and pause timing but does not validate one universal workout set count.",
+        "Use conservative comfortable cycles, optional cadence, rest as needed, and stop before strain; all numeric workout dosage remains a programming inference."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct sequence supports wall placement, near-90-degree hips and knees, hands on the lower sides, comfortable nasal inhale, longer exhale, and relaxed reset.",
+        "Instructions must state no reach or lift, light hand feedback, unforced breathing, valid reset, symptom stop, and safe floor exit."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.functionalmovement.com/Exercises/803/90_90_breathing_with_lateral_expansion",
+      "sourceTitle": "90/90 Breathing with Lateral Expansion",
+      "sourcePublisher": "Functional Movement Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct setup makes support, hand placement, cadence, and relaxation observable.",
+        "Coach support must inspect wall and floor stability, hands and lower ribs, neck and shoulders, breath strain, wall pressure, symptoms, valid reset, dose, and safe exit."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2971640/",
+      "sourceTitle": "The Value of Blowing Up a Balloon",
+      "sourcePublisher": "North American Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 74,
+      "claims": [
+        "The ball-and-balloon publication adds heel pull, a small lift, knee-ball pressure, asymmetric arms, and resisted balloon exhalation, all absent here.",
+        "Bilateral reach and ball-and-balloon forms are distinct definitions; comfortable cadence, cycle count, rest, light hand placement, and head support are delivery annotations only while this exact no-reach action remains."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=AnvRX080sR4",
+      "title": "90/90 Wall Breathing",
+      "channelName": "Athletic Edge Physical Therapy",
+      "sourceQuery": "wall-supported 90/90 breathing search checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=V6Zrlo5w7oY",
+      "title": "Supine 90-90 Breathing",
+      "channelName": "Hayley Kava, Pelvic Floor Physical Therapist",
+      "sourceQuery": "wall-supported 90/90 breathing search checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xzzJgFbgexc",
+      "title": "Rib Expansion Rest (90/90 Breathing)",
+      "channelName": "The Posture Project",
+      "sourceQuery": "90/90 lateral-expansion search checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=K2wKibekVbA",
+      "title": "9090 Wall Ribcage Expansion Breathing",
+      "channelName": "phyzix",
+      "sourceQuery": "90/90 wall rib-cage expansion search checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=8UAOFVQIqYQ",
+      "title": "90/90 wall breathing drill",
+      "channelName": "BodySmart",
+      "sourceQuery": "90/90 wall breathing search checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-02T18:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "90/90 Wall Breathing with Lateral Expansion",
+      "classification": "same_identity",
+      "rationale": "Punctuation and display-name synonym for the exact hands-on-ribs no-reach card.",
+      "distinguishingDimensions": {
+        "alias": true
+      }
+    },
+    {
+      "name": "Comfortable Inhale and Exhale Cadence",
+      "classification": "modifier_annotation",
+      "rationale": "Cadence is delivery metadata while it remains unforced and the same support, hand contact, action, and reset remain exact.",
+      "distinguishingDimensions": {
+        "deliveryDimension": "cadence"
+      }
+    },
+    {
+      "name": "Breath Cycles, Sets, and Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Dose changes exposure and duration without changing identity when every action and support contact remains exact.",
+      "distinguishingDimensions": {
+        "deliveryDimensions": [
+          "cycles",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Supported 90/90 Breathing with Bilateral Reach",
+      "classification": "new_definition",
+      "rationale": "Moving the hands from the ribs to a sustained bilateral ceiling reach changes contacts, shoulder and scapular action, and valid completion.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "0ac22398-2eed-482a-aae8-8d26ba888eaf"
+      }
+    },
+    {
+      "name": "90/90 Hip Lift with Ball and Balloon",
+      "classification": "new_definition",
+      "rationale": "Heel pull, pelvic lift, ball pressure, asymmetric arms, and balloon resistance create a different action and repetition boundary.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "96d4d5fe-1ad1-4930-9c74-2054764d0c6c"
+      }
+    },
+    {
+      "name": "Crocodile Breathing",
+      "classification": "new_definition",
+      "rationale": "Prone orientation and floor feedback differ from supine wall support and hands-on-lateral-ribs contact.",
+      "distinguishingDimensions": {
+        "orientation": "prone"
+      }
+    },
+    {
+      "name": "Box Breath",
+      "classification": "new_definition",
+      "rationale": "Four timed phases with breath holds differ from the unforced inhale, longer exhale, and relaxed reset used here.",
+      "distinguishingDimensions": {
+        "breathCycle": "timed_inhale_hold_exhale_hold"
+      }
+    },
+    {
+      "name": "Pain-Through or Forced-Breath 90/90",
+      "classification": "reject",
+      "rationale": "Continuing through symptoms, forcing cadence, or losing stable support violates quality and stop rules.",
+      "distinguishingDimensions": {
+        "qualityState": "invalid_and_unsafe"
+      }
+    }
+  ]
+}

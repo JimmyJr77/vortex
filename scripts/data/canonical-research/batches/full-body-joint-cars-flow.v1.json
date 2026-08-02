@@ -1,0 +1,214 @@
+{
+  "batchKey": "full-body-joint-cars-flow-v1",
+  "researchVersion": "2026-08-02.91",
+  "snapshotAt": "2026-08-02T19:18:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/full-body-joint-cars-flow",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "ace_controlled_articular_rotations_2024",
+      "claims": [
+        "ACE describes CARs as joint-specific rotational motion through the active pain-free range available in all applicable planes, without momentum.",
+        "Represent the declared cervical, shoulder, elbow, wrist, spinal, hip, knee, and ankle regions, their observable joint actions, bilateral or side-specific execution, posture, support, and compensations without claiming isolated tissue effects."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "ace_controlled_articular_rotations_2024",
+      "claims": [
+        "A multi-region sequence adds memory, control, balance, side-to-side, compensation-monitoring, and transition demands despite low external load.",
+        "No source assigns a Vortex score or athlete classification; score exercise complexity and physical difficulty only, derive overall as their maximum, and retain every proposal for independent calibration."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "kinstretch_starter_pack_cars",
+      "claims": [
+        "The starter material treats CARs as controlled active joint circles rather than a high-repetition calorie task and gives example repetitions, not validated universal loading or recovery rules.",
+        "Track active-range exposure by region and side, total controlled circles, transitions, balance support, symptom-limited omissions, compensation, total duration, and same-session joint loading; keep recovery conservative and review-only."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_controlled_articular_rotations_2024",
+      "claims": [
+        "ACE distinguishes general exercise-professional use from individualized assessment, diagnosis, injury management, and personalized clinical programming that require appropriate education and scope.",
+        "Require a stable uncluttered area, optional balance support, pain-free controllable range, exact joint/side sequence, appropriate coaching scope, and an alternate card or referral path when a region cannot be moved safely."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nonspecific_neck_pain_cpg_2025",
+      "claims": [
+        "The neck-pain guideline identifies neurologic deficits, numbness or paresthesia, dizziness or unsteady gait, visual disturbance, and other red flags as clinically relevant rather than normal mobility-training sensations.",
+        "Stop the flow for sharp or increasing pain, pinching, dizziness, faintness, visual change, unusual headache, numbness, tingling, weakness, unsteady gait, loss of balance, uncontrolled compensation, or inability to return to the declared neutral checkpoint; do not diagnose."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "ace_controlled_articular_rotations_2024",
+      "claims": [
+        "ACE permits basic CARs concepts within warm-up, cool-down, or mobility routines while reserving individualized assessment and injury treatment for appropriately qualified professionals.",
+        "Use the whole-body flow only when a low-load multi-region mobility/control sequence matches the phase purpose, available time, coaching scope, balance support, joint exclusions, and downstream loading; a joint-specific card is a different selection."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "kinstretch_full_body_cars_followalong",
+      "claims": [
+        "The full-body follow-along emphasizes focus, minimizing compensation, never pushing through pain, and backing out of painful range before continuing safely.",
+        "Athlete support must name the exact region and side, explain small pain-free circles are valid, distinguish effort from warning symptoms, provide balance and communication options, and make skipped or modified regions visible."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "kinstretch_full_body_cars_followalong",
+      "claims": [
+        "The source demonstrates that full-body CARs routines can use different bases and lower-intensity versions, so posture is not a universal hidden constant.",
+        "Provide a stable wall or chair for balance, smaller ranges, slower pacing, fewer circles, rest between regions, multimodal instruction, and separately reviewed seated or region-specific alternatives rather than silently changing the exact flow."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Four legacy candidates for {{canonicalName}} returned current YouTube oEmbed title, channel, thumbnail, and embed metadata on 2026-08-02.",
+        "oEmbed health does not prove playback, exact eight-region order, joint actions, sides, posture, dose, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; every candidate remains quarantined."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "full-body-joint-cars-flow",
+      "assessmentSummary": {
+        "identity": "One ordered low-load whole-body mobility/control flow that visits the declared neck, shoulders, elbows, wrists, spine, hips, knees, and ankles with slow deliberate active circles in both applicable directions, minimal momentum and compensation, pain-free controllable range, and a neutral checkpoint before each transition. The eight-region legacy order is a Vortex review contract, not an externally validated universal CARs order.",
+        "currentCardFindings": [
+          "The current schema/card-v1 baseline has empty taxonomy, anatomy, constraints, load, fatigue, programming, athlete, coach, and support content; one skeletal profile; no evidence, alternates, relationships, calibrations, or identity decisions; and 20 blockers.",
+          "Legacy age_min=8 and is_published=true are unsupported athlete classification and approval claims and must be cleared rather than migrated.",
+          "Joint-specific CAR cards remain distinct because they omit the exact multi-region sequence; a clinical assessment, treatment protocol, passive stretch, fast momentum-driven joint circle, or yoga flow is also a different task."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["mobility", "rotate", "balance"],
+          "bodyRegions": ["full_body", "neck", "shoulders", "arms", "spine", "hips", "knees", "ankles"],
+          "support": "standing_or_declared_supported_base_with_neutral_checkpoint_between_regions",
+          "laterality": "bilateral_and_alternating_unilateral_by_joint",
+          "equipment": ["none", "optional_wall_or_chair_balance_support"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 8,
+          "physicalDifficulty": 8,
+          "baseOverallDifficulty": 38,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_active_range_with_optional_balance_support",
+          "impactClass": "none",
+          "primaryExposure": ["controlled_joint_circles_by_region_and_side", "standing_balance", "active_end_range", "total_flow_duration"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2 complete flows",
+          "circlesPerRegionSideDirection": "1-3",
+          "tempo": "slow_deliberate_no_momentum_with_neutral_checkpoint",
+          "rest": "between_regions_or_as_needed_for_balance_and_symptom_free_control",
+          "durationRule": "sum_actual_circles_and_hold_seconds_plus_side_changes_region_transitions_support_setup_rest_omissions_invalid_attempts_and_safe_exit"
+        },
+        "programmingDecision": "Use as a composite low-load mobility/control item only when every included region is allowed and the full sequence fits time, space, balance, supervision, and downstream joint-loading constraints. Select a joint-specific card when only one region is intended. Never present the flow as diagnosis, treatment, readiness clearance, or proof of joint health.",
+        "calibrationEvidence": {
+          "basis": "ACE professional instruction, two Kinstretch full-body routine resources, clinical neck red-flag guidance, and exact neighboring-card comparison",
+          "uncertainty": "No source validates the legacy eight-region order, one universal posture, universal dose, long-term outcome, injury prevention, safe range, recovery interval, progression order, or Vortex score.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "joint_action_and_sequence_review", "full_video_review", "coach_and_athlete_comprehension_test", "clinical_scope_and_stop_rule_review"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "ace_controlled_articular_rotations_2024",
+          "claims": [
+            "ACE defines CARs by slow deliberate joint-specific rotation through active pain-free range without momentum and recognizes full-body programs as distinct from isolated joint use.",
+            "{{canonicalName}} is the complete declared eight-region sequence; order, sides, directions, neutral checkpoints, omissions, support, and terminal completion must be persisted rather than inferred."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ace_controlled_articular_rotations_2024",
+          "claims": [
+            "The observable task is active multi-planar mobility and control across multiple regions with balance and transition demands, not passive stretching or high-speed warm-up circles.",
+            "Control mobility, rotation, balance, full-body and region-specific anatomy, bodyweight load, no-impact, direction, side, support, compensation, and composite-flow taxonomy."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "ace_controlled_articular_rotations_2024",
+          "claims": [
+            "Each articulation has its own available axes and planes, while the intent is active control without momentum and minimized compensation from other regions.",
+            "Do not claim one perfect circle, isolated capsule adaptation, tissue diagnosis, structural correction, or equivalent range across joints, sides, ages, or participants."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "kinstretch_starter_pack_cars",
+          "claims": [
+            "The starter pack gives 2–5 repetitions per joint as an example for a daily routine, not a validated universal workout prescription.",
+            "Use conservative 1–3 review-only circles per region, side, and direction with actual time derived from tempo, transitions, setup, rest, omitted regions, invalid attempts, and safe exit."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "kinstretch_full_body_cars_followalong",
+          "claims": [
+            "Direct guidance supports focused execution, minimized compensation, pain-free range, and backing out of painful portions rather than forcing through them.",
+            "Instructions must announce each region and side, stabilize the rest of the body as appropriate, use slow no-momentum motion, return to neutral, log skipped or modified regions, and apply symptom stops."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "ace_controlled_articular_rotations_2024",
+          "claims": [
+            "ACE makes pain, pinching, compensation, active range, professional scope, and client-specific modification observable coaching concerns.",
+            "Coach support must manage sightlines and spacing, cue one region at a time, inspect balance and nonmoving-region compensation, avoid diagnosis, record omissions/symptoms, and select a separate card when exact flow validity cannot be maintained."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "kinstretch_full_body_cars_followalong",
+          "claims": [
+            "Full-body routines may use lower-intensity or different-base versions, but posture, support, included regions, and sequence must be explicit to remain reproducible.",
+            "Classify exact supported or seated flows as separately reviewed variants, cadence and circle counts as dose annotations, joint-specific CARs as distinct definitions, and pain-through or diagnostic use as rejected delivery."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=6p1OHgpmVwU","title":"Full Body CARs Routine","channelName":"The Jiu-Jitsu Therapist","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T19:15:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=AyJ3omVBIho","title":"Morning Routine - Functional Range Conditioning - Full Body CARs","channelName":"Melissa Ray Fitness","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T19:15:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=m9Ar5qvCUbg","title":"Follow-Along FULL BODY CARS Routine (30 min)","channelName":"Vegan CornHub","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T19:15:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=p_WqlqgfNrc","title":"Mobility Routine for Every Day and Every Joint! (Full Body CARS)","channelName":"Breathe and Flow","sourceQuery":"legacy candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T19:15:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Full-Body CARs Flow","classification":"same_identity","rationale":"Direct alias only when all eight declared regions, sides, directions, checkpoints, and terminal completion remain exact.","distinguishingDimensions":{"alias":true}},
+        {"name":"Head-to-Toe CARs Routine","classification":"same_identity","rationale":"Common alias only when it maps to the exact Vortex eight-region flow rather than an arbitrary full-body routine.","distinguishingDimensions":{"aliasRequiresExactSequence":true}},
+        {"name":"Low-Intensity Full-Body CARs Flow","classification":"new_variant","rationale":"The complete ordered flow remains while range, voluntary tension, tempo, and repetition ceilings materially change dose and selection.","distinguishingDimensions":{"intensity":"low","reviewState":"needs_human_review"}},
+        {"name":"Balance-Supported Standing Full-Body CARs","classification":"new_variant","rationale":"Stable wall or chair contact changes support, equipment, logistics, and balance demand while the exact region sequence remains.","distinguishingDimensions":{"support":"wall_or_chair"}},
+        {"name":"Seated Full-Body CARs Flow","classification":"new_variant","rationale":"A seated base changes hip, knee, ankle, spine, and balance execution and requires an exact separately reviewed contract.","distinguishingDimensions":{"base":"seated","reviewState":"needs_human_review"}},
+        {"name":"Circles, Directions, Tempo, and Rest","classification":"modifier_annotation","rationale":"Dose and cadence remain annotations only inside a reviewed exact sequence and support variant.","distinguishingDimensions":{"deliveryDimensions":["circles","direction","tempo","rest"]}},
+        {"name":"Neck CARs","classification":"new_definition","rationale":"The joint-specific task omits the remaining seven regions and has its own cervical stop rules.","distinguishingDimensions":{"targetDefinitionId":"ee59b220-042c-482a-b7b5-5923d644c800"}},
+        {"name":"Hip CARs — Standing or Quadruped","classification":"new_definition","rationale":"The joint-specific hip task has its own base, side, actions, and completion contract.","distinguishingDimensions":{"targetDefinitionId":"d6e78620-3ba8-4198-8bea-d651359c7f8d"}},
+        {"name":"Wall-Supported Hip CARs","classification":"new_definition","rationale":"Wall-supported unilateral hip rotation is one region rather than the full ordered flow.","distinguishingDimensions":{"targetDefinitionId":"6098b518-ccea-4088-abd7-1d4716f3aa31"}},
+        {"name":"Ankle CARs","classification":"new_definition","rationale":"The joint-specific ankle task omits the other declared regions.","distinguishingDimensions":{"targetDefinitionId":"2157c8df-d013-4946-a6dd-2e0dedc3fe42"}},
+        {"name":"Arm Circles / Shoulder CARs","classification":"new_definition","rationale":"Shoulder-only action and possible momentum-driven arm circles do not equal the full exact flow.","distinguishingDimensions":{"targetDefinitionId":"32610be3-19c7-4eed-8752-5f49bcbbf276"}},
+        {"name":"Quadruped Shoulder Circles","classification":"new_definition","rationale":"Closed-chain quadruped scapular/shoulder loading changes support, load, actions, and repetition boundary.","distinguishingDimensions":{"targetDefinitionId":"51ca966b-7d25-419a-8629-7961e45933c0"}},
+        {"name":"Cat-Cow","classification":"new_definition","rationale":"Alternating spinal flexion and extension in quadruped is not the multi-region CARs sequence.","distinguishingDimensions":{"targetDefinitionId":"29f1f054-8700-4233-9866-63810e69242e"}},
+        {"name":"Quadruped Spinal Circles","classification":"new_definition","rationale":"Quadruped spine/pelvis circles use closed-chain support and one regional repetition boundary.","distinguishingDimensions":{"targetDefinitionId":"c8a4e447-0b65-4c0b-985b-7f5466fc07ec"}},
+        {"name":"Fast Momentum-Driven Joint Circle Warm-Up","classification":"new_definition","rationale":"Momentum, speed, reduced control, and warm-up intent differ from deliberate CARs execution.","distinguishingDimensions":{"tempo":"fast","momentum":true}},
+        {"name":"Passive Full-Body Stretching Sequence","classification":"new_definition","rationale":"Passive holds and externally assisted range replace active controlled joint rotations.","distinguishingDimensions":{"contraction":"passive"}},
+        {"name":"Yoga Mobility Flow","classification":"new_definition","rationale":"Pose transitions, weight-bearing contacts, breath rules, and endpoints are not the declared joint-by-joint sequence.","distinguishingDimensions":{"task":"pose_flow"}},
+        {"name":"Clinician CARs Assessment or Injury Treatment","classification":"new_definition","rationale":"Assessment, diagnosis, or individualized treatment changes purpose, authority, measurements, and escalation and cannot be implied by a workout exercise card.","distinguishingDimensions":{"scope":"clinical_assessment_or_treatment"}},
+        {"name":"Abbreviated Selected-Joint CARs Circuit","classification":"new_definition","rationale":"Omitting declared regions changes the composite task; select the joint-specific cards or author an exact circuit.","distinguishingDimensions":{"sequence":"partial"}},
+        {"name":"Pain-Through or Neurologic-Symptom CARs","classification":"reject","rationale":"Forcing painful, dizzy, neurologic, unstable, or uncontrolled motion violates the valid-range and stop contract.","distinguishingDimensions":{"qualityState":"invalid_and_unsafe"}}
+      ]
+    }
+  ]
+}

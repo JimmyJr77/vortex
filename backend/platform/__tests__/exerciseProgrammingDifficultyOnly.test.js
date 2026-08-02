@@ -677,6 +677,30 @@ const PRECISION_360_SIMILARITY_IDENTITY_CLOSURE_MIGRATION = readFileSync(
   new URL('../../migrations/489_coaching_precision_360_similarity_identity_closure.sql', import.meta.url),
   'utf8',
 )
+const BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/490_coaching_9090_breathing_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/491_coaching_crocodile_breathing_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/492_coaching_crocodile_breathing_normalized_score_floor_correction.sql', import.meta.url),
+  'utf8',
+)
+const FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/493_coaching_full_body_joint_cars_flow_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION = readFileSync(
+  new URL('../../migrations/494_coaching_full_body_joint_cars_audit_contract_correction.sql', import.meta.url),
+  'utf8',
+)
+const NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/495_coaching_neck_cars_identity_and_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -11380,6 +11404,576 @@ test('Precision 360 similarity closure distinguishes every surfaced jump neighbo
   )
 })
 
+test('90/90 breathing audit separates reach, lateral expansion, and exact ball-and-balloon identities without athlete levels or approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'490_coaching_9090_breathing_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    '490_coaching_9090_breathing_family_audit_hardening',
+    '2026-08-02.89',
+    '0ac22398-2eed-482a-aae8-8d26ba888eaf',
+    'b366c4d4-d75e-4902-915c-4b363e6b6238',
+    '96d4d5fe-1ad1-4930-9c74-2054764d0c6c',
+    '4193b7da-09de-4558-b7a1-1ac9440d19eb',
+    'e9384c20-f26f-4a12-b9ba-913be80b2d82',
+    'b5719ed0-5d31-4030-9c11-7ea81aabe254',
+    'd4393550-a0b4-485a-8b99-e6bb1b7e71f3',
+    'ambiguous_hip_reset_context_without_action_contract',
+    'bilateral_arm_reach_vs_hands_on_lateral_ribs_no_reach',
+    'passive_supported_reach_vs_active_heel_pull_hip_lift_ball_and_balloon_sequence',
+    'sourceRepresentationSelectable',
+    'mustNotMapToHipLiftBalloonCard',
+    'physicalDifficulty',
+    'technicalMeaning',
+    'exercise_complexity',
+    'loadMeaning',
+    'physical_difficulty',
+    'overallFormula',
+    'max(exercise_complexity,physical_difficulty)',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'playbackExactnessCaptionsAccessibilityQualityAndApprovalVerified',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION.includes(token),
+      `missing migration token ${token}`,
+    )
+  }
+
+  for (const sourceId of ['21', '656', '1404']) {
+    assert.match(
+      BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`source_ids CONSTANT BIGINT\\[\\] := ARRAY\\[21,656,1404\\]|id=${sourceId}|id IN\\(656,1404\\)`),
+    )
+  }
+  for (const videoId of [
+    'GZ6X2M6gRvQ', 'O-cf22YQzAg', 'QN77knnBw8o', 'yFGJI00OZ8k', 'kA6AtZkDxmg',
+    'AnvRX080sR4', 'V6Zrlo5w7oY', 'xzzJgFbgexc', 'K2wKibekVbA', '8UAOFVQIqYQ',
+    '4GoqjoEXaAw', 'zL1Hmkt7aJA', 'lcZp3gEz5_s', 'U1AG5y81VcQ', '-zxaq9lANYg',
+  ]) {
+    assert.match(BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION, new RegExp(videoId))
+  }
+
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reach_wall_variant[^]*?26,8,6,15,18,28/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reach_support_variant[^]*?22,5,3,12,12,22/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /lateral_wall_variant[^]*?16,4,2,10,8,16/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /balloon_variant[^]*?48,20,22,24,42,54/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status='candidate'[\s\S]*?<>48/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /demonstration_quality_score IS NULL[\s\S]*?<>15/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?<>22[\s\S]*?lateral_definition[\s\S]*?<>16[\s\S]*?balloon_definition[\s\S]*?<>20/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /conditions_json->>'migration'=migration_key[\s\S]*?<>10/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /variant_id=ANY\(active_variant_ids\)[\s\S]*?<>8/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /decision='distinct_exercises'[\s\S]*?<>18/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /decision='needs_human_review'[\s\S]*?<>1/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4\)<>3/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_id=1404 AND technical_complexity IS NULL[\s\S]*?identity_unresolved_no_numeric_difficulty_assigned/,
+  )
+  assert.match(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /refuses to replace % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Crocodile Breathing audit persists exact support and feedback variants without athlete levels or approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'491_coaching_crocodile_breathing_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    '491_coaching_crocodile_breathing_family_audit_hardening',
+    '2026-08-02.90',
+    '2e308a8e-6a1d-48d4-b095-fe3dd18803d8',
+    '42909b84-690a-45b5-908a-c085196d1141',
+    'a041a9a6-a61a-4d14-9969-5eba23fe94fb',
+    'd729bed4-7a61-401e-9e0d-cc0da73cd35e',
+    '08396682-5289-4b8c-a9f1-715a56681198',
+    'flat-prone-stacked-hands',
+    'lower-leg-bolster-support',
+    'light-elastic-band-lateral-feedback',
+    'superseded_source_skeleton',
+    'prone_crocodile_breath_cycle',
+    'cuff_weight_quarantine',
+    'consented_touch_annotation',
+    'box_breath_distinct',
+    'med_ball_distinct',
+    'swimmer_distinct',
+    'physicalDifficulty',
+    'technicalMeaning',
+    'exercise_complexity',
+    'loadMeaning',
+    'physical_difficulty',
+    'overallFormula',
+    'max_exercise_complexity_physical_difficulty',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION.includes(token),
+      `missing Crocodile migration token ${token}`,
+    )
+  }
+
+  for (const videoId of [
+    '2mCwbWPtICI', '76-Sw5nZ2YI', '_8f9RHUfE1Q', 'aimIzymb81E', 'XhYrGbEI2c8',
+  ]) {
+    assert.match(
+      CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /flat_variant,'flat-prone-stacked-hands'[^]*?18,4,14/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /bolster_variant,'lower-leg-bolster-support'[^]*?20,3,14/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /band_variant,'light-elastic-band-lateral-feedback'[^]*?24,5,18/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status='candidate'[\s\S]*?<>16/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /demonstration_quality_score IS NULL[\s\S]*?<>5/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?reviewer_user_id IS NULL\)<>20/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /conditions_json->>'migration'=migration_key[\s\S]*?<>8/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /variant_id=ANY\(active_variant_ids\)[\s\S]*?<>6/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /evidence_json->>'migration'=migration_key[\s\S]*?<>6/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /technical_complexity=24,absolute_load_demand=5[\s\S]*?base_overall_difficulty=greatest\(24,5\)/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /refuses to replace % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Crocodile Breathing score-floor correction preserves no-impact mechanics and human gates', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'492_coaching_crocodile_breathing_normalized_score_floor_correction\.sql'/,
+  )
+  for (const token of [
+    '492_coaching_crocodile_breathing_normalized_score_floor_correction',
+    '2e308a8e-6a1d-48d4-b095-fe3dd18803d8',
+    'a041a9a6-a61a-4d14-9969-5eba23fe94fb',
+    'd729bed4-7a61-401e-9e0d-cc0da73cd35e',
+    '08396682-5289-4b8c-a9f1-715a56681198',
+    "'{impact}','1'::JSONB",
+    "'{impactAccumulation}','1'::JSONB",
+    "load_profile_json->>'impactClass'='none'",
+    "load_profile_json->>'landingContactsPerRep'",
+    "load_profile_json->>'handImpactContactsPerRep'",
+    'scoreScaleFloor',
+    'physicalImpactClass',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION.includes(token),
+      `missing Crocodile score-floor correction token ${token}`,
+    )
+  }
+  assert.match(
+    CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION,
+    /refuses to alter human-reviewed Crocodile state/,
+  )
+  assert.match(
+    CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.doesNotMatch(
+    CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    CROCODILE_BREATHING_NORMALIZED_SCORE_FLOOR_CORRECTION_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Full-Body Joint CARs audit persists an exact composite flow without athlete levels or approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'493_coaching_full_body_joint_cars_flow_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    '493_coaching_full_body_joint_cars_flow_audit_hardening',
+    '2026-08-02.91',
+    'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3',
+    'f4b3acdd-8a11-48d1-a061-c3dcd859f215',
+    'c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c',
+    '627e9509-da11-4e18-8e6a-e67eea115dad',
+    'standing-independent-eight-region-sequence',
+    'standing-wall-supported-lower-body-sequence',
+    'superseded_source_skeleton',
+    'ordered_full_body_joint_cars_flow',
+    'legacyOrderIsVortexReviewContractNotUniversalStandard',
+    'clinical_scope_distinct',
+    'unsafe_reject',
+    'physicalDifficulty',
+    'technicalMeaning',
+    'exercise_complexity',
+    'loadMeaning',
+    'physical_difficulty',
+    'overallFormula',
+    'max_exercise_complexity_physical_difficulty',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION.includes(token),
+      `missing Full-Body Joint CARs migration token ${token}`,
+    )
+  }
+
+  for (const videoId of [
+    '6p1OHgpmVwU', 'AyJ3omVBIho', 'm9Ar5qvCUbg', 'p_WqlqgfNrc',
+  ]) {
+    assert.match(
+      FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /independent_variant,'standing-independent-eight-region-sequence'[^]*?38,8,42,20,18,14/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /wall_variant,'standing-wall-supported-lower-body-sequence'[^]*?42,6,44,18,14,12/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /review_status='candidate'[\s\S]*?<>16/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /demonstration_quality_score IS NULL[\s\S]*?<>4/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?reviewer_user_id IS NULL\)<>20/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /from_variant_id=ANY\(active_variant_ids\)[\s\S]*?<>6/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /variant_id=ANY\(active_variant_ids\)[\s\S]*?<>4/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /survivor_definition_id=canonical_definition[\s\S]*?<>8/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /technical_complexity=42,absolute_load_demand=6[\s\S]*?base_overall_difficulty=greatest\(42,6\)/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /refuses to overwrite % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Full-Body Joint CARs audit correction enforces concise instructions and controlled graph dimensions', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'494_coaching_full_body_joint_cars_audit_contract_correction\.sql'/,
+  )
+  for (const token of [
+    '494_coaching_full_body_joint_cars_audit_contract_correction',
+    'athleteInstructionMaximumCharacters',
+    'graphDimensionsUseControlledProgressionVocabulary',
+    "ARRAY['range','stability','complexity']",
+    'athleteInstructionsAtMost240Characters',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION.includes(token),
+      `missing Full-Body Joint CARs correction token ${token}`,
+    )
+  }
+  assert.match(
+    FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /length\(athlete_instructions\) BETWEEN 10 AND 240/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.match(
+    FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /refuses to alter % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    FULL_BODY_JOINT_CARS_AUDIT_CONTRACT_CORRECTION_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Neck CARs audit consolidates the tall-posture duplicate and authors exact base variants without approvals', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'495_coaching_neck_cars_identity_and_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    '495_coaching_neck_cars_identity_and_family_audit_hardening',
+    '2026-08-02.92',
+    'ee59b220-042c-482a-b7b5-5923d644c800',
+    'b0142272-15c6-4c52-bc27-c715a0fc41a8',
+    '9f724fc9-6861-49a0-8f2d-f279543ca303',
+    '444a2645-e29e-473f-8956-1bb624a771b4',
+    'fce891ab-7041-4edb-92b6-b464ce6a5d64',
+    'e66a4cc2-c8ac-4242-9340-948fd0329394',
+    'd55e8b63-019a-448d-af26-9b8a5a21cd68',
+    'standing-independent-complete-cervical-car',
+    'seated-supported-complete-cervical-car',
+    'duplicate_consolidated',
+    'duplicate_consolidation',
+    'superseded_source_skeleton',
+    'complete_cervical_car_both_directions',
+    'box_or_chair_optional',
+    'mobilityRemainsPurposeNotControlledMovementPattern',
+    'physicalDifficulty',
+    'exercise_complexity',
+    'physical_difficulty',
+    'overallFormula',
+    'max_exercise_complexity_physical_difficulty',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION.includes(token),
+      `missing Neck CARs migration token ${token}`,
+    )
+  }
+
+  for (const videoId of [
+    'J3tkQ4pk_Sc', 'c-zu1t-NsSo', 'iIt5_T8HM_Q', '4wV_Jkk34ho', 'xqBwoN7AglQ',
+  ]) {
+    assert.match(
+      NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /standing_variant,'standing-independent-complete-cervical-car'[^]*?28,4,28,18,20,5,6,30/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /seated_variant,'seated-supported-complete-cervical-car'[^]*?24,3,24,14,16,4,4,26/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status='candidate'[\s\S]*?<>16/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /demonstration_quality_score IS NULL[\s\S]*?<>5/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?reviewer_user_id IS NULL\)<>20/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /conditions_json->>'migration'=migration_key[\s\S]*?<>5/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /variant_id=ANY\(active_variant_ids\)[\s\S]*?<>4/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /resolved_definition_id IN\(duplicate_definition,wall_rotation_definition\)[\s\S]*?<>2/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /length\(athlete_instructions\) BETWEEN 10 AND 240/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ARRAY\['stability','complexity'\]/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ARRAY\['range','complexity','fatigue'\]/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /technical_complexity=28,absolute_load_demand=4[\s\S]*?base_overall_difficulty=greatest\(28,4\)/,
+  )
+  assert.match(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /refuses to overwrite % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -11436,6 +12030,10 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
     LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
     PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    BREATHING_9090_FAMILY_AUDIT_HARDENING_MIGRATION,
+    CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
+    FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
+    NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,
