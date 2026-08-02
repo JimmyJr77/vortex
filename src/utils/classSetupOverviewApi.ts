@@ -54,6 +54,9 @@ export interface ClassSetupOverviewRow {
   fee1x: string | null
   costPerMonthSummary: string | null
   pricingCostOptions: ProgramPricingOption[]
+  /** Effective class cost after Program → Class cascade (override or inherited). */
+  effectiveCostAmountCents?: number
+  effectiveCostUnit?: string | null
 }
 
 export interface ClassSetupOverviewResponse {

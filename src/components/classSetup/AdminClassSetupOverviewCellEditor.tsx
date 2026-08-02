@@ -15,6 +15,7 @@ import {
   adminFetchOrphanedSignups,
   adminFetchSchedulingForm,
   adminFetchSignups,
+  adminSaveSchedulingForm,
   type SchedulingFormDetail,
   type SchedulingOffering,
   type SchedulingOrphanedSignup,
@@ -102,6 +103,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
+  const [classMonthlyDollars, setClassMonthlyDollars] = useState('')
   const [scheduleLoading, setScheduleLoading] = useState(false)
   const [scheduleDetail, setScheduleDetail] = useState<SchedulingFormDetail | null>(null)
   const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
@@ -119,6 +121,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setStatusValue(row.status)
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
     setPricingDraft(options)
+    const cents = Number(row.effectiveCostAmountCents ?? 0)
+    setClassMonthlyDollars(cents > 0 ? (cents / 100).toFixed(2) : '')
 
     switch (columnId) {
       case 'programDescription':
@@ -218,7 +222,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       'primarySport',
       'programDescription',
       'excludeFromDropIns',
-      'costPerMonth',
+      // Program defaults only — class overrides are saved on the scheduling form.
+      ...(row.pricingOverridesProgram ? [] : (['costPerMonth'] as OverviewColumnId[])),
     ]
     if (
       programLevelColumns.includes(columnId) &&
@@ -272,8 +277,31 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           }
           break
         case 'costPerMonth': {
-          if (row.programsId == null) throw new Error('Missing program')
-          await updateTopProgram(row.programsId, { pricingCostOptions: pricingDraft })
+          if (row.pricingOverridesProgram) {
+            if (row.formId == null) throw new Error('No scheduling form is linked to this class.')
+            const form = await adminFetchSchedulingForm(row.formId)
+            const dollars = Number(classMonthlyDollars)
+            const amountCents = Number.isFinite(dollars) ? Math.max(0, Math.round(dollars * 100)) : 0
+            await adminSaveSchedulingForm(
+              {
+                title: form.title,
+                description: form.description,
+                startDate: form.startDate ?? undefined,
+                endDate: form.endDate ?? undefined,
+                isActive: form.isActive,
+                maxSlotsPerUser: form.maxSlotsPerUser,
+                slotCostMonthlyCents: amountCents,
+                costUnit: 'per_month',
+                freeSlotsPerUser: form.freeSlotsPerUser,
+                maxFreeSlotsTotal: form.maxFreeSlotsTotal,
+                pricingOverridesProgram: true,
+              },
+              row.formId,
+            )
+          } else {
+            if (row.programsId == null) throw new Error('Missing program')
+            await updateTopProgram(row.programsId, { pricingCostOptions: pricingDraft })
+          }
           break
         }
         default:
@@ -451,62 +479,82 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       wide = true
       break
     case 'costPerMonth':
-      body = (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Pricing belongs to <strong>{row.programName}</strong>. Saving here updates every class and enrollment flow that uses this program.
-          </p>
-          {row.pricingOverridesProgram && (
-            <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">
-              This class has a scheduling-form pricing override. Program prices below still update other classes using this program.
+      if (row.pricingOverridesProgram) {
+        body = (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              This class uses adjusted pricing (not the program default). Cost per month is stored on the class scheduling form.
             </p>
-          )}
-          <div className="grid gap-3 sm:grid-cols-2">
-            {PROGRAM_PRICING_OPTION_DEFS.map((definition) => {
-              const option = pricingDraft.find((item) => item.key === definition.key)
-              const dollars = option?.enabled && option.amountCents > 0
-                ? (option.amountCents / 100).toFixed(2)
-                : ''
-              return (
-                <div key={definition.key} className="rounded-lg border border-gray-200 p-3">
-                  <label className="mb-1 block text-xs font-semibold text-gray-700">
-                    {definition.label.replace(/^\$\s*/, '')}
-                  </label>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={dollars}
-                      onChange={(event) => setPricingDraft((current) =>
-                        setPricingOptionAmount(current, definition.key, event.target.value),
-                      )}
-                      className="h-10 w-full rounded-lg border border-gray-300 pl-7 pr-3 text-sm"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {definition.key === 'per_offering' && option && (
-                    <select
-                      value={option.offeringLabel ?? 'offering'}
-                      onChange={(event) => setPricingDraft((current) => current.map((item) =>
-                        item.key === 'per_offering'
-                          ? { ...item, offeringLabel: event.target.value as 'offering' | 'event' }
-                          : item,
-                      ))}
-                      className="mt-2 h-9 w-full rounded-lg border border-gray-300 bg-white px-2 text-xs"
-                    >
-                      <option value="offering">Per offering</option>
-                      <option value="event">Per event</option>
-                    </select>
-                  )}
-                </div>
-              )
-            })}
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Cost per month</label>
+              <div className="relative max-w-xs">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={classMonthlyDollars}
+                  onChange={(event) => setClassMonthlyDollars(event.target.value)}
+                  className="h-10 w-full rounded-lg border border-gray-300 pl-7 pr-3 text-sm"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      )
-      wide = true
+        )
+      } else {
+        body = (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              This class uses program defaults for <strong>{row.programName}</strong>. Saving here updates every class that still inherits this program’s pricing.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {PROGRAM_PRICING_OPTION_DEFS.map((definition) => {
+                const option = pricingDraft.find((item) => item.key === definition.key)
+                const dollars = option?.enabled && option.amountCents > 0
+                  ? (option.amountCents / 100).toFixed(2)
+                  : ''
+                return (
+                  <div key={definition.key} className="rounded-lg border border-gray-200 p-3">
+                    <label className="mb-1 block text-xs font-semibold text-gray-700">
+                      {definition.label.replace(/^\$\s*/, '')}
+                    </label>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={dollars}
+                        onChange={(event) => setPricingDraft((current) =>
+                          setPricingOptionAmount(current, definition.key, event.target.value),
+                        )}
+                        className="h-10 w-full rounded-lg border border-gray-300 pl-7 pr-3 text-sm"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    {definition.key === 'per_offering' && option && (
+                      <select
+                        value={option.offeringLabel ?? 'offering'}
+                        onChange={(event) => setPricingDraft((current) => current.map((item) =>
+                          item.key === 'per_offering'
+                            ? { ...item, offeringLabel: event.target.value as 'offering' | 'event' }
+                            : item,
+                        ))}
+                        className="mt-2 h-9 w-full rounded-lg border border-gray-300 bg-white px-2 text-xs"
+                      >
+                        <option value="offering">Per offering</option>
+                        <option value="event">Per event</option>
+                      </select>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+        wide = true
+      }
       break
     default:
       body = <p className="text-sm text-gray-500">This field cannot be edited.</p>

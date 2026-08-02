@@ -33,6 +33,35 @@ coach-support, athlete-support, provenance, and validation task. It is not a
 bulk copy-editing exercise. Continue one exact exercise family at a time until
 the whole library meets the canonical requirements.
 
+The complete objective also includes preserving and proving the production-
+quality single-workout generator built in this shared tree. For representative
+inputs, the final system must demonstrate end to end:
+
+- canonical exercise selection under user needs and hard constraints;
+- cumulative fatigue, impact, contact, and downstream-interference budgets;
+- equipment, space, station, staffing, setup, transition, and throughput
+  logistics;
+- dose and duration estimation with observable bounds;
+- substitutions that rerun identity, constraint, dose, budget, duration,
+  logistics, persistence, and rendering validation;
+- fail-closed workout validation and actionable blocking/relaxation details;
+- persistence of planned and actual output, versions, substitutions, partial
+  or invalid attempts, symptoms, incidents, timing, and cumulative exposure;
+- separate, understandable coach and athlete renderings plus support-operation
+  context;
+- production-grade tests, data-quality reporting, migration/backfill tooling,
+  and documentation;
+- migrations against disposable PostgreSQL, focused lint, the complete
+  platform/backend suite, and a production build.
+
+Do not regress the existing canonical-generator implementation while auditing
+cards. The current family-by-family card completion loop is the immediate work;
+the broader single-workout proof must remain green at each verified checkpoint.
+Machine-authored completeness is necessary but is not publication or rollout
+approval. Human content/media/graph/calibration review, pilot evidence,
+deployment rehearsal, monitoring, rollback, incident handling, and support
+readiness remain separate production gates.
+
 Do not mark the overall objective complete merely because one migration, one
 family, the infrastructure, or the test suite is complete. Current evidence
 shows that most active definitions still require full card authorship.
@@ -756,57 +785,214 @@ approval remain unverified and must stay null/quarantined.
 
 Sources 20 and its six newly surfaced similarity neighbors are complete to
 machine-authored quarantine through immutable migrations 487 and 489. Do not
-edit either registered file. The active family is legacy source 21:
+edit either registered file. Source 21 has now been audited and researched,
+and migration 490 is partially authored. Resume that draft; do not repeat the
+audit or restart the migration.
 
-- legacy identity: `21 | 90/90 Breathing with Reach |
-  9090-breathing-with-reach`;
-- canonical definition:
-  `0ac22398-2eed-482a-aae8-8d26ba888eaf`, card/schema `1`/`1.0.0`, status
-  `review`;
-- current active variants are baseline
-  `cb077d9c-261b-4944-8f3e-6109491c73cd`, source-1404 Hip Reset
-  `4276c5c7-19d9-4cfc-830f-fb6482b3430c`, and source-656 Reach
-  `329f2581-c1b7-4c2b-8a71-8c5c34a59cb1`;
-- all three currently use skeletal `20/10/20` complexity / physical / overall
-  JSON, empty requirements, and require complete reassessment;
-- current scope is 3 active variants, 4 skeletal profiles, 0 evidence, 4
-  unreviewed media rows, 0 alternates, and 0 calibration anchors;
-- the current canonical audit packet has 20 blockers;
-- legacy text describes supine feet-on-wall/bench/box hip-and-knee 90/90,
-  ceiling/forward reach, nasal inhale, lower-rib/abdominal expansion, and slow
-  full exhale without crunching, but instructions are empty;
-- legacy state improperly retains `age_min=6` and `is_published=true`; skill
-  level and linked skill are null. Do not copy the age/publication claims.
-- legacy movement requirements currently claim `spine_rotation` despite a
-  sagittal/rib-position breathing description. Treat this as a defect to audit,
-  not evidence.
+### Current source-21 findings and identity decisions
 
-Exact next execution order:
+- Legacy source 21 is `90/90 Breathing with Reach`; its text specifies supine
+  feet on a wall, bench, or box; hips and knees near 90 degrees; neutral neck;
+  arms toward the ceiling/slightly forward; nasal inhale with lower-rib and
+  abdominal expansion; and a slow full exhale without crunching.
+- Legacy source 656, `90/90 Breathing with Reach — Mobility`, is materially the
+  same reach identity and is a duplicate-consolidation source.
+- Legacy source 1404, `90/90 Breathing with Hip Reset`, is too vague to resolve.
+  It omits the support, heel-pressure, hip-lift, pelvic-shift, reach,
+  ball/balloon, breath-cycle, and valid-completion contract. Keep its source
+  variant archived and nonselectable, and change its identity disposition to
+  `needs_human_review`; do not guess that it is the ball-and-balloon exercise.
+- The surviving reach definition is
+  `0ac22398-2eed-482a-aae8-8d26ba888eaf` with two exact variants: bilateral
+  reach with feet on a wall, and bilateral reach with the lower legs fully
+  supported on a stable bench/box. Neither includes heel pull or hip lift.
+- Create a distinct research-authored card, `90/90 Wall-Supported Breathing
+  with Lateral Expansion`, for the no-reach, hands-on-lateral-ribs contract.
+- Create a distinct research-authored card, `90/90 Hip Lift with Ball and
+  Balloon`, for heel pull, small hip lift, ball squeeze, unilateral arm/balloon
+  behavior, and its separate breath-cycle contract.
+- The inherited `spine_rotation` and shoulder-flexion requirements are not
+  supported by the reach source description and must not survive as automatic
+  movement requirements.
+- Null every exercise-card age, skill/proficiency, and linked-skill
+  classification inherited from the legacy rows. Source 21's `age_min=6` and
+  all three legacy publication flags are unsupported; all remain unpublished.
+- Draft difficulty vectors are complexity / physical / derived maximum:
+  reach-wall `26/8/26`, fully-supported reach `22/5/22`, lateral-expansion
+  `16/4/16`, and ball-and-balloon `48/20/48`.
 
-1. Reconcile current `HEAD`, worktree, latest coaching/scheduling migration
-   filenames, and disposable PostgreSQL ledger. Preserve concurrent scheduling
-   and generated metrics changes.
-2. Query every source-21 definition/source/variant/profile/score/safety/media/
-   relationship/identity/packet row plus source IDs 656 and 1404 and every
-   neighboring 90/90 hip-lift, hip-shift, balloon, wall-supported breathing,
-   dead-bug breathing, crocodile breathing, and reach identity.
-3. Resolve whether `90/90 Breathing with Reach`, `90/90 Breathing with Hip
-   Reset`, wall/bench/box support, arm position, heel pressure or hip lift,
-   unilateral reach, balloon resistance, and pelvic shift are same identity,
-   exact variants, delivery annotations, or distinct cards. Quarantine missing
-   limb/support/breath-cycle/end-state facts rather than guessing.
-4. Research direct respiratory/rehabilitation or professional instruction,
-   relevant biomechanics and physiology with strict sample/task limitations,
-   population and symptom constraints, dosage and duration, meaningful
-   alternates, and 3–5 current embeddable YouTube candidates for every completed
-   definition. Do not make clinical-treatment, posture-correction, or universal
-   diaphragmatic-breathing claims from generic evidence.
-5. Author the next free idempotent coaching migration only after checking the
-   shared tree. Migration 488 is concurrent scheduling work and 489 is the
-   immutable Precision-360 identity closure; do not reuse either number.
-6. Repeat the complete direct-SQL twice, registry/test/init, checksum,
-   production-runner, persisted audit, identity closure, release gate, focused
-   and full validation, build, documentation, and return-handoff process.
+The original active skeletal variants are baseline
+`cb077d9c-261b-4944-8f3e-6109491c73cd`, source-656
+`329f2581-c1b7-4c2b-8a71-8c5c34a59cb1`, and source-1404
+`4276c5c7-19d9-4cfc-830f-fb6482b3430c`. The old duplicate definitions are
+`3cc260a4-c61c-43bf-abbe-167db83f8814` for source 656 and
+`d65d13d0-135c-4593-8de1-fdcd9e057dc0` for source 1404. Archive these rows;
+do not delete lineage.
+
+### Current migration-490 draft
+
+The unregistered working file is:
+
+`backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql`
+
+It is intentionally incomplete and must not be registered yet. It currently
+contains guards, taxonomy, lineage/archive operations, three definitions, four
+variants, eight delivery profiles, the evidence insert, 15 candidate-media
+rows, and alternate assessments. The following marker sections are still
+empty and are the exact next authoring points:
+
+- `-- IDENTITY_GRAPH_CALIBRATION`;
+- `-- LEGACY_AND_PACKETS`;
+- `-- FINAL_ASSERTIONS`.
+
+Draft UUIDs are:
+
+- lateral-expansion definition:
+  `b366c4d4-d75e-4902-915c-4b363e6b6238`;
+- ball-and-balloon definition:
+  `96d4d5fe-1ad1-4930-9c74-2054764d0c6c`;
+- reach-wall variant: `4193b7da-09de-4558-b7a1-1ac9440d19eb`;
+- fully-supported reach variant: `e9384c20-f26f-4a12-b9ba-913be80b2d82`;
+- lateral-expansion variant: `b5719ed0-5d31-4030-9c11-7ea81aabe254`;
+- ball-and-balloon variant: `d4393550-a0b4-485a-8b99-e6bb1b7e71f3`.
+
+Draft profile UUIDs are `02032b70` (reach-wall preparation), `eb20f202`
+(reach-wall restoration), `a6752d37` (supported-reach preparation),
+`a38d4472` (supported-reach restoration), `f83241ae` (lateral preparation),
+`2c3640e1` (lateral restoration), `c68a393a` (balloon preparation), and
+`9ca464ff` (balloon restoration); use the full IDs already declared in the SQL.
+
+The evidence block should persist one selected source for each of 16 sections
+on each of the three cards: 48 candidate evidence rows backed by eight source
+families. Before registration, verify the resulting count from PostgreSQL and
+never substitute an expected count for persisted proof. The exactness/general
+evidence set already researched is:
+
+- Functional Movement Systems, `90/90 Breathing with Lateral Expansion`;
+- U.S. Department of Veterans Affairs diaphragmatic-breathing instructions;
+- 2018 systematic review of slow-breathing psychophysiology, PMID `30245619`;
+- 2026 diaphragmatic-breathing systematic review, PMID `41482169`, including
+  its heterogeneity, bias, and safety-reporting limitations;
+- diaphragm postural-task MRI study, PMID `20705944`, as indirect evidence;
+- Boyle et al. clinical suggestion for the 90/90 bridge with ball and balloon,
+  PMCID `PMC2971640`, not outcome validation;
+- current ACOG guidance restricting prolonged supine exercise after 20 weeks
+  of pregnancy;
+- YouTube embed/oEmbed documentation only for candidate-link provenance.
+
+There are five metadata-healthy YouTube candidates per definition. These IDs
+have oEmbed metadata only; playback, full-video exactness, captions,
+accessibility, cue quality, safety, and approval remain unverified and null:
+
+- reach: `GZ6X2M6gRvQ`, `O-cf22YQzAg`, `QN77knnBw8o`, `yFGJI00OZ8k`,
+  `kA6AtZkDxmg`;
+- no-reach lateral expansion: `AnvRX080sR4`, `V6Zrlo5w7oY`, `xzzJgFbgexc`,
+  `K2wKibekVbA`, `8UAOFVQIqYQ`;
+- ball and balloon: `4GoqjoEXaAw`, `zL1Hmkt7aJA`, `lcZp3gEz5_s`,
+  `U1AG5y81VcQ`, `-zxaq9lANYg`.
+
+The research registry remains at `2026-08-02.88` / 378 sources and has not yet
+been updated for source 21. The existing source-21 content inside
+`scripts/data/canonical-research/batches/9090-shin-box-foundations.v1.json`
+and its generated manifest incorrectly reuse shin-box evidence in unrelated
+sections. Correct all source-21 sections or create a dedicated batch and
+regenerate it. Add the five not-yet-registered source families (FMS, the 2026
+review, diaphragm MRI, Boyle, and ACOG); reuse the VA, 2018 review, and YouTube
+entries already in `scripts/data/canonical-research/source-registry.v1.json`.
+Advance the registry version only to the actual resulting version/count.
+
+### Exact next execution order
+
+1. Reconcile `HEAD`, `git status`, migration filenames, and the disposable
+   ledger again. Preserve all concurrent work.
+2. Inspect the current migration-490 evidence/media/alternate block to ensure
+   the previously large patch is complete and syntactically intact.
+3. Add explicit review-only identity resolutions, graph proposals, and the
+   eight complexity/physical calibration proposals. Do not populate approval
+   or reviewer fields.
+4. Update the three legacy rows and their safety/readiness records: remove age,
+   exercise skill/proficiency, linked-skill, and publication claims; make 656
+   and 1404 archived/nonselectable; keep 1404 identity-quarantined.
+5. Create three automated card packets, one per selectable definition, with
+   exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+   `CARD-PUBLISH-01` as the remaining human blockers.
+6. Add fail-closed final assertions for exact definitions, variants, profiles,
+   evidence, five media candidates per card, alternates, identity decisions,
+   graph/calibration review rows, packets, controlled taxonomy, legacy cleanup,
+   archived source variants, and the absence of fabricated approvals or
+   prohibited skill/age keys.
+7. Run `git diff --check`, then execute the unregistered draft directly against
+   disposable PostgreSQL with `ON_ERROR_STOP=1`. Fix transactional failures and
+   run the final unchanged bytes a second time. Query exact persisted family
+   and global invariants.
+8. Correct/regenerate the research batch, update the registry and registry
+   tests, add the migration-490 static contract test, register 490 after 489 in
+   `backend/platform/initTables.js`, and run focused tests/lint/JSON checks.
+9. Compute the exact 31-based unsigned checksum, register migration 490 with
+   the normal runner, verify stored/file checksum and normal-runner skip, and
+   directly re-enter the exact immutable file. Never edit it after this point.
+10. Run the persisted canonical audit, identity report, expected-blocked release
+    check, full backend suite, production build, and diff-integrity checks.
+11. Append actual results to all five audit/review ledgers and update the live
+    checkpoint and return handoff in this file. Only then select the next
+    machine-incomplete source family.
+
+### Current worktree and database checkpoint
+
+As of this update, branch `main` is at
+`7b1720e5a083048c5c4c77348196884794513987`, matching `origin/main`.
+The task-owned work is the modified migration-490 draft and this handoff file.
+The current unrelated concurrent class-setup/Admin pricing work is:
+
+- `backend/programs/classSetupOverview.js`;
+- `backend/programs/__tests__/classSetupOverviewPricing.test.js` (untracked);
+- `src/components/Admin.tsx`;
+- `src/components/classSetup/AdminClassSetupOverviewCellEditor.tsx`;
+- `src/components/classSetup/classSetupCopyPaste.ts`;
+- `src/utils/classSetupOverviewApi.ts`.
+
+Preserve those files exactly and do not include them in exercise-card edits.
+Recheck status because the shared branch/worktree can change while work is in
+progress.
+
+The disposable database is
+`postgresql://jimmy_mac@127.0.0.1:55434/vortex_skip`. Its latest registered
+exercise migrations are immutable 487 (`2192026862`, registered
+`2026-08-02 13:24:48.619779-04`) and 489 (`1326745458`, registered
+`2026-08-02 13:28:59.307957-04`). Migration 490 is absent from
+`schema_migrations` and has not passed direct execution, idempotency, checksum,
+normal-runner registration, persisted audit, tests, or build.
+
+Also preserve the concurrent Needs Engine behavior already implemented in the
+shared history: full equipment coverage is enforced only for `must_use`;
+`use_only` remains an allow-list. Do not regress its structured
+`PrescriptionError` details or blocking/suggested-relaxation UI.
+
+### Required return-handoff template
+
+Before yielding this work to any other LLM or back to the original agent,
+append a dated `Return handoff` section to this file. It must include:
+
+- branch, exact `HEAD`, `origin/main` relationship, and exact `git status`;
+- task-owned versus unrelated/concurrent dirty files and preservation notes;
+- last registered migration, timestamp, stored checksum, local checksum, and
+  whether direct run 1, unchanged run 2, normal-runner registration/skip, and
+  exact-file re-entry each passed;
+- family/card names, all stable definition/variant IDs, archived/quarantined
+  source identities, difficulty vectors, and exact persisted row counts;
+- registry version/count and every source added, removed, or corrected;
+- global audit, identity, graph/calibration, media-coverage, and publication
+  totals from actual commands;
+- release-gate result and every remaining human/pilot/rollout blocker;
+- focused tests, lint, JSON checks, diff checks, full backend suite, build, and
+  any intentional skips or pre-existing warnings;
+- every failed attempt, its exact cause, whether it rolled back, and the repair;
+- documents updated, incomplete edits, and one exact next action.
+
+Never write `complete`, `approved`, `verified`, or `production ready` without
+the corresponding persisted or qualified-human evidence. If work stops while
+490 is still mutable, state exactly which marker or assertion is next and do
+not report draft counts as persisted counts.
 
 ## Historical source-20 next-work instructions (completed by migrations 487 and 489)
 

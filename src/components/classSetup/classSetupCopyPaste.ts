@@ -12,6 +12,7 @@ import {
   adminDeleteSlotGroup,
   adminEnsureFormActiveDates,
   adminFetchSchedulingForm,
+  adminSaveSchedulingForm,
   type SchedulingSlotGroup,
   type SlotBatchPayload,
 } from '../../utils/schedulingApi'
@@ -91,7 +92,11 @@ const PROGRAM_LEVEL_COLUMNS: ReadonlySet<OverviewColumnId> = new Set([
   'costPerMonth',
 ])
 
-export function isProgramLevelColumn(columnId: OverviewColumnId): boolean {
+export function isProgramLevelColumn(
+  columnId: OverviewColumnId,
+  source?: ClassSetupOverviewRow | null,
+): boolean {
+  if (columnId === 'costPerMonth' && source?.pricingOverridesProgram) return false
   return PROGRAM_LEVEL_COLUMNS.has(columnId)
 }
 
@@ -130,6 +135,13 @@ function valuesEqualForColumn(
     case 'active':
       return source.status === target.status
     case 'costPerMonth':
+      if (source.pricingOverridesProgram || target.pricingOverridesProgram) {
+        return (
+          source.pricingOverridesProgram === target.pricingOverridesProgram &&
+          Number(source.effectiveCostAmountCents ?? 0) === Number(target.effectiveCostAmountCents ?? 0) &&
+          (source.effectiveCostUnit || 'per_month') === (target.effectiveCostUnit || 'per_month')
+        )
+      }
       return (
         JSON.stringify(normalizeProgramPricingOptions(source.pricingCostOptions)) ===
         JSON.stringify(normalizeProgramPricingOptions(target.pricingCostOptions))
@@ -167,7 +179,7 @@ export function buildCopyChangePreviews(
       columnLabel: columnLabel(columnId),
       fromDisplay: getCellDisplayValue(target, columnId),
       toDisplay: getCellDisplayValue(source, columnId),
-      programLevel: isProgramLevelColumn(columnId),
+      programLevel: isProgramLevelColumn(columnId, source),
     })
   }
 
@@ -359,10 +371,32 @@ export async function applyCopyToTarget(
       }
       break
     case 'costPerMonth': {
-      if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
-      await updateTopProgram(target.programsId, {
-        pricingCostOptions: normalizeProgramPricingOptions(source.pricingCostOptions),
-      })
+      if (source.pricingOverridesProgram) {
+        if (target.formId == null) throw new Error(`“${target.className}” has no scheduling form`)
+        const form = await adminFetchSchedulingForm(target.formId)
+        const amountCents = Math.max(0, Math.round(Number(source.effectiveCostAmountCents ?? 0)))
+        await adminSaveSchedulingForm(
+          {
+            title: form.title,
+            description: form.description,
+            startDate: form.startDate ?? undefined,
+            endDate: form.endDate ?? undefined,
+            isActive: form.isActive,
+            maxSlotsPerUser: form.maxSlotsPerUser,
+            slotCostMonthlyCents: amountCents,
+            costUnit: source.effectiveCostUnit || 'per_month',
+            freeSlotsPerUser: form.freeSlotsPerUser,
+            maxFreeSlotsTotal: form.maxFreeSlotsTotal,
+            pricingOverridesProgram: true,
+          },
+          target.formId,
+        )
+      } else {
+        if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
+        await updateTopProgram(target.programsId, {
+          pricingCostOptions: normalizeProgramPricingOptions(source.pricingCostOptions),
+        })
+      }
       break
     }
     default:
@@ -405,7 +439,10 @@ export function canReceiveCopy(
 ): boolean {
   if (!isCopyableColumn(targetColumnId)) return false
   if (!isCompatibleCopyTarget(sourceColumnId, targetColumnId)) return false
-  if (isProgramLevelColumn(targetColumnId) && target.programsId == null) return false
+  if (isProgramLevelColumn(targetColumnId, source) && target.programsId == null) return false
+  if (targetColumnId === 'costPerMonth' && source?.pricingOverridesProgram && target.formId == null) {
+    return false
+  }
   if (targetColumnId === 'program' && target.classId < 0) return false
   if (targetColumnId === 'schedule') {
     if (target.formId == null) return false

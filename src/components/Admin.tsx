@@ -141,7 +141,7 @@ const GROUPS: GroupDef[] = [
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classes', 'coaches', 'scheduling', 'classesEvents'] },
+  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },

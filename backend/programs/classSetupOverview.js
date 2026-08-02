@@ -11,7 +11,10 @@ import {
   resolveProgramsSchema,
 } from './schema.js'
 import { hydrateProgramPricingRow } from './programPricingOptions.js'
-import { readCost } from './pricingDefaults.js'
+import {
+  formHasCustomPricingOverride,
+  resolveEffectiveFormPricing,
+} from './pricingDefaults.js'
 import { buildGroupDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 
 function resolveStatus({ classArchived, programArchived, classIsActive, programIsActive }) {
@@ -50,6 +53,30 @@ function mapSlotGroupRow(row, scheduleLabel) {
   }
 }
 
+function formatCents(cents) {
+  return cents > 0 ? `$${(cents / 100).toFixed(2)}` : null
+}
+
+/** Format a resolved single-amount class/program cost for Class Master. */
+export function formatResolvedCostSummary(amountCents, unit = 'per_month') {
+  const amount = formatCents(Number(amountCents) || 0)
+  if (!amount) return null
+  switch (unit) {
+    case 'per_class':
+      return `${amount}/class`
+    case 'per_week':
+      return `${amount}/wk`
+    case 'per_hour':
+      return `${amount}/hr`
+    case 'per_offering':
+      return `${amount}/offering`
+    case 'per_slot':
+    case 'per_month':
+    default:
+      return `${amount}/mo`
+  }
+}
+
 function pricingDisplayFromOptions(options) {
   const enabled = (options ?? []).filter((o) => o.enabled && o.amountCents > 0)
   const find = (key) => enabled.find((o) => o.key === key) ?? null
@@ -63,7 +90,6 @@ function pricingDisplayFromOptions(options) {
       o.key !== 'monthly_1x' &&
       (o.key.startsWith('monthly_') || o.key.startsWith('unlimited_')),
   )
-  const formatCents = (cents) => (cents > 0 ? `$${(cents / 100).toFixed(2)}` : null)
   return {
     costPerClass: perClass ? formatCents(perClass.amountCents) : null,
     fee1x: monthly1x ? formatCents(monthly1x.amountCents) : null,
@@ -85,6 +111,40 @@ function pricingDisplayFromOptions(options) {
             .join(' · ')
         : null,
     pricingCostOptions: options ?? [],
+  }
+}
+
+/**
+ * Class Master Cost per Month: class form override when set, otherwise program defaults.
+ */
+export function resolveClassSetupPricingDisplay(programPricingRow, formPricingRow) {
+  const hydratedProgram = hydrateProgramPricingRow(programPricingRow)
+  const programOptionsDisplay = pricingDisplayFromOptions(hydratedProgram?.pricing_cost_options ?? [])
+  const effective = resolveEffectiveFormPricing(hydratedProgram, formPricingRow)
+  const usesClassOverride = formHasCustomPricingOverride(formPricingRow)
+
+  if (usesClassOverride) {
+    return {
+      costPerClass: null,
+      fee1x: null,
+      costPerMonthSummary: formatResolvedCostSummary(effective.costAmountCents, effective.costUnit),
+      pricingCostOptions: programOptionsDisplay.pricingCostOptions,
+      pricingOverridesProgram: true,
+      effectiveCostAmountCents: effective.costAmountCents,
+      effectiveCostUnit: effective.costUnit,
+    }
+  }
+
+  return {
+    costPerClass: programOptionsDisplay.costPerClass,
+    fee1x: programOptionsDisplay.fee1x,
+    costPerMonthSummary:
+      programOptionsDisplay.costPerMonthSummary ||
+      formatResolvedCostSummary(effective.costAmountCents, effective.costUnit),
+    pricingCostOptions: programOptionsDisplay.pricingCostOptions,
+    pricingOverridesProgram: false,
+    effectiveCostAmountCents: effective.costAmountCents,
+    effectiveCostUnit: effective.costUnit,
   }
 }
 
@@ -263,24 +323,20 @@ export async function buildClassSetupOverview(pool) {
     const classArchived = Boolean(row.class_archived)
     const programArchived = Boolean(row.program_archived)
 
-    const hydrated = hydrateProgramPricingRow({
-      pricing_cost_options: row.pricing_cost_options,
-      pricing_slot_cost_monthly_cents: row.pricing_slot_cost_monthly_cents,
-      pricing_cost_unit: row.pricing_cost_unit,
-      pricing_cost_amount_cents: row.pricing_cost_amount_cents,
-    })
-    const pricing = pricingDisplayFromOptions(hydrated?.pricing_cost_options ?? [])
-    const programCost = readCost({
-      pricing_cost_amount_cents: row.pricing_cost_amount_cents,
-      pricing_cost_unit: row.pricing_cost_unit,
-      pricing_slot_cost_monthly_cents: row.pricing_slot_cost_monthly_cents,
-    }, { amountKey: 'pricing_cost_amount_cents', unitKey: 'pricing_cost_unit', legacyKey: 'pricing_slot_cost_monthly_cents' })
-    const formCost = readCost({
-      cost_amount_cents: row.form_cost_amount_cents,
-      cost_unit: row.form_cost_unit,
-      slot_cost_monthly_cents: row.form_slot_cost_monthly_cents,
-    }, { amountKey: 'cost_amount_cents', unitKey: 'cost_unit', legacyKey: 'slot_cost_monthly_cents' })
-    const hasDifferentPrice = Boolean(formCost && (!programCost || formCost.amountCents !== programCost.amountCents || formCost.unit !== programCost.unit))
+    const pricing = resolveClassSetupPricingDisplay(
+      {
+        pricing_cost_options: row.pricing_cost_options,
+        pricing_slot_cost_monthly_cents: row.pricing_slot_cost_monthly_cents,
+        pricing_cost_unit: row.pricing_cost_unit,
+        pricing_cost_amount_cents: row.pricing_cost_amount_cents,
+      },
+      {
+        pricing_overrides_program: row.pricing_overrides_program,
+        cost_amount_cents: row.form_cost_amount_cents,
+        cost_unit: row.form_cost_unit,
+        slot_cost_monthly_cents: row.form_slot_cost_monthly_cents,
+      },
+    )
 
     return {
       classId: Number(row.class_id),
@@ -303,7 +359,7 @@ export async function buildClassSetupOverview(pool) {
         : [],
       formId,
       formActive: formId != null ? Boolean(row.form_active) : null,
-      pricingOverridesProgram: Boolean(row.pricing_overrides_program) && hasDifferentPrice,
+      pricingOverridesProgram: pricing.pricingOverridesProgram,
       offerings: formId != null ? offeringsByFormId.get(formId) ?? [] : [],
       slotGroups: formId != null ? slotGroupsByFormId.get(formId) ?? [] : [],
       enrolleeCount: formId != null ? enrolleesByFormId.get(formId) ?? 0 : 0,
@@ -312,6 +368,8 @@ export async function buildClassSetupOverview(pool) {
       fee1x: pricing.fee1x,
       costPerMonthSummary: pricing.costPerMonthSummary,
       pricingCostOptions: pricing.pricingCostOptions,
+      effectiveCostAmountCents: pricing.effectiveCostAmountCents,
+      effectiveCostUnit: pricing.effectiveCostUnit,
     }
   })
 
