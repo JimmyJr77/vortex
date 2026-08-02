@@ -104,7 +104,7 @@ function formatSlotGroupActiveDates(
   return '—'
 }
 
-/** Class Master schedule cell: [active dates] · [day/time…] · [spaces] */
+/** Class Master schedule cell: [active dates] · [day/time…] · [max spaces] */
 export function formatScheduleCell(
   slotGroups: ClassSetupSlotGroup[],
   offerings: ClassSetupOffering[] = [],
@@ -113,7 +113,7 @@ export function formatScheduleCell(
   return slotGroups
     .flatMap((group) => {
       const activeDates = formatSlotGroupActiveDates(group, offerings)
-      const spaces = `${group.signupCount}/${group.maxParticipants}`
+      const spaces = String(group.maxParticipants)
       const segments = (group.scheduleLabel || '—')
         .split(/\s*;\s*/)
         .map((part) => part.trim())
@@ -128,7 +128,7 @@ export function formatScheduleCell(
 
 export function formatSpacesCell(slotGroups: ClassSetupSlotGroup[]): string {
   if (slotGroups.length === 0) return '—'
-  return slotGroups.map((g) => `${g.signupCount}/${g.maxParticipants}`).join('; ')
+  return slotGroups.map((g) => String(g.maxParticipants)).join('; ')
 }
 
 export { formatOfferingRangeCompact }

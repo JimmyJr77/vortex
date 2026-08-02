@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.87",
+  "registryVersion": "2026-08-02.88",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2618,6 +2618,34 @@
       "publisher": "Sportverletzung Sportschaden",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 78
+    },
+    "world_gymnastics_parkour_table_of_tricks_2026": {
+      "url": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1.1%20-%20PK%20Code%20of%20Points%202025-2028%20-%20Table%20of%20tricks%202026.pdf",
+      "title": "Parkour Code of Points 2025–2028 — Table of Tricks 2026",
+      "publisher": "World Gymnastics / Fédération Internationale de Gymnastique",
+      "kind": "governing_body",
+      "evidenceQuality": 95
+    },
+    "parkour_precision_coordination_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6093881/",
+      "title": "On the coordination of highly dynamic human movements: an extension of the Uncontrolled Manifold approach applied to precision jump in parkour",
+      "publisher": "Scientific Reports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "parkour_precision_drop_landing_forces": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761764/",
+      "title": "Ground reaction forces and loading rates associated with parkour and traditional drop landing techniques",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "parkour_precision_repeated_jump_fatigue": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11622049/",
+      "title": "Acute Neuromuscular Fatigue of a Random Vs Constant Session of Repeated Standing Long Jumps",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
     }
   }
 }

@@ -345,62 +345,64 @@ append-only audit histories above.
 
 ## Live checkpoint: completed work
 
-The last comprehensively verified family is Handstand Snap-Down to Feet-
-Together Stick, implemented by immutable migration 484.
+The last comprehensively verified family is legacy source 19, completed to
+machine-authored quarantine as three distinct definitions by immutable
+migrations 485 and 486:
 
-- 1,676 of 1,676 legacy rows are mapped to 1,043 active definitions.
+- `Two-Bar Lache Transfer to Retained Catch`
+  (`abc659bf-ce3c-4b7c-a118-f2b0c761bd07`);
+- `Bar Hollow–Arch Tap Swing`
+  (`3018f919-8d85-4870-a1d2-ece8fd2af15e`);
+- `Lache Precision to Two-Foot Stick`
+  (`656028eb-c7d1-4a2f-a216-45763b201796`).
+
+The ambiguous source baseline
+`9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5` is archived and nonselectable. The
+latest immutable migration is 486,
+`coaching_lache_family_canonical_audit_contract_correction`, checksum
+`4213002410`, registered `2026-08-02 12:47:09.976476-04`. Migration 485 is
+immutable at checksum `376239898`, registered
+`2026-08-02 12:39:45.047632-04`. Do not edit either file; use a later
+corrective migration if new evidence exposes a defect.
+
+Authoritative post-486 state:
+
+- 1,676 of 1,676 legacy rows are mapped to 1,045 active definitions.
 - The surfaced identity detector reports 617 of 617 pairs adjudicated, zero
   unresolved score-72-or-higher pair, and zero exact collision.
-- 92 definitions are machine-complete and 951 are machine-incomplete.
-- 91 of 1,043 definitions have exactly three to five current healthy
-  embeddable candidates for their current card version.
-- Graph/calibration queues contain 702/921 review-only rows with zero
+- 95 definitions are machine-complete and 950 are machine-incomplete.
+- 94 of 1,045 definitions have three to five current healthy embeddable
+  candidates for their current card version.
+- Graph/calibration queues contain 713/933 review-only rows with zero
   approvals.
 - There are zero published definitions, zero approved depth in every required
   phase, and zero of 20 required real coach workout reviews.
-- Registry `2026-08-02.86` contains 368 sources.
-- Focused validation passes 220 tests; the full backend suite passes 1,019
-  tests with 20 intentional skips and zero failures. Focused lint, JSON
-  parsing, persisted audit, identity reporting, diff integrity, and the
+- Registry `2026-08-02.87` contains 374 sources.
+- Focused validation passes 223 tests; the full backend suite passes 1,022
+  tests with 20 intentional skips and zero failures. Focused lint, registry
+  JSON parsing, persisted audit, identity reporting, diff integrity, and the
   production build pass.
-- The production build retains only existing stale browser-data and >500 kB
-  chunk advisories.
+- The production build retains only existing baseline-browser-mapping and
+  caniuse-lite freshness notices plus the greater-than-500-kB Admin chunk
+  advisory.
 - The release gate is correctly blocked at 0/25 published definitions, phase
-  depth 0/3, 0/10 approved graph edges, 0/3 approved calibration anchors, and
-  0/20 coach reviews.
+  depth 0/3 in all seven required phases, 0/10 approved graph edges, 0/3
+  approved calibration anchors, and 0/20 coach reviews.
 
-Latest immutable registered migration:
+Persisted source-19 scope is 6 selectable variants, 16 profiles, 48 evidence
+rows, 15 healthy candidate media rows, 38 alternate assessments, 11 review-
+only graph proposals, 12 review-only calibration proposals, 15 survivor-owned
+identity boundaries, and 3 current test packets. Each packet contains exactly
+`CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01`. No media, relationship, calibration, content, publication,
+or reviewer approval was created.
 
-- 484 `coaching_handstand_snap_down_family_audit_hardening`, checksum
-  `4224855249`, registered `2026-08-02 12:01:33.321697-04`.
-
-Its exact registered file passes normal-runner re-entry. Do not edit migration
-484; add a later migration if another correction is required. Migrations
-479–482 remain immutable at checksums `4176817151`, `2984990515`, `722794694`,
-and `229324910`.
-
-Handstand Snap-Down family state:
-
-- canonical definition: `60f5b21a-991c-4ce8-9068-3c42b2043021`, card version
-  2;
-- legacy source: 18;
-- archived source baseline: `064e650c-28e8-4820-b0da-7043bb509c2c`;
-- back-to-wall heel-contact variant:
-  `68c16da0-414f-4932-97f4-1d8b236af8dd`, `70/62/70`;
-- independent freestanding variant:
-  `68a0499b-34b0-4621-b798-b49ffd8ed1a1`, `82/70/82`;
-- 2 selectable variants, 4 profiles, 16 evidence sections, 4 media candidates,
-  24 alternates, 8 graph proposals, 4 calibration proposals, 8 explicit
-  boundaries, and 1 current packet with exactly the four standard human gates;
-- video IDs: `7r-UOQi8YvE`, `BnnX00Hlqpk`, `D6bbi5bv0TY`, and `dqEZV4DW8aU`.
-
-The first draft run rolled back on a forbidden athlete-classification JSON key
-and exposed misaligned difficulty tuples. The next run rolled back on an
-uncontrolled media discovery method. After removing the key, realigning both
-22-field vectors, and using `manual_research`, the final committed migration-
-484 bytes passed two direct executions, production-runner registration,
-normal-runner skip, and exact-file direct re-entry. No candidate media,
-relationship, calibration, content, or publication approval was created.
+The active next family is legacy source 20, `Precision Jump`. Follow
+`Immediate next work` below. Its first identity decision must compare it
+directly with the already completed `Standing Broad Jump` and `Broad Jump to
+Stick` contracts before deciding whether source 20 is a distinct parkour
+precision identity, an exact duplicate to consolidate, or an unresolved
+identity quarantine.
 
 ### Prior verified family: Bar Cast / Cast to Handstand
 
@@ -707,6 +709,79 @@ only; playback, exactness, captions, accessibility, cue quality, safety, and
 approval remain unverified and must stay null/quarantined.
 
 ## Immediate next work
+
+Source 19 is complete to machine-authored quarantine through immutable
+migrations 485 and 486. Do not edit either registered file. Migration 485 is
+registered at checksum `376239898`; corrective migration 486 is registered at
+checksum `4213002410`. The authoritative post-correction checkpoint is 1,676/
+1,676 mappings, 1,045 active definitions, 95 machine-complete, 950 incomplete,
+94 current healthy embeddable 3–5-media sets, 617/617 adjudicated surfaced
+pairs, zero unresolved pair, zero exact collision, 713/0 graph review/approved,
+933/0 calibration review/approved, and 0 published. Focused tests pass 223/223;
+the full backend suite passes 1,022 with 20 intentional skips; focused lint,
+JSON parsing, diff checks, persisted audit, identity reporting, and production
+build pass. The release gate remains correctly blocked on human review,
+approved phase depth, and coach-pilot evidence.
+
+The active family is legacy source 20:
+
+- legacy identity: `20 | Precision Jump | precision-jump`;
+- legacy description: `Controlled jump to a precise landing.`; instructions
+  are empty;
+- legacy dose is 4 sets of 5, 45 seconds rest, 40 estimated seconds per set;
+- unsupported `age_min=8` and `is_published=true` remain and must not be copied
+  automatically; exercise skill level and linked skill are already null;
+- canonical definition:
+  `6dc5fcf1-6383-4aed-a73b-7465384fd18b`, card/schema version `1`/`1.0.0`,
+  status `review`;
+- active baseline variant:
+  `dd36d133-894b-4562-9cc7-016d1db6f56c`;
+- the card has empty movement/body/equipment taxonomy, anatomy, environment,
+  population, athlete support, coach support, and support operations;
+- current baseline has 2 skeletal delivery profiles, 0 evidence rows, 4
+  unverified candidate media rows, 0 alternate assessments, 1 preexisting
+  review-only relationship, 0 calibration anchors, 3 identity-resolution rows
+  created by adjacent completed families, and 20 canonical blockers;
+- legacy score is complexity 40, physical/load 10, derived overall 40, and
+  coordination 40, with impact/supervision absent; safety is risk 2, impact 1,
+  and recommended supervision;
+- current media IDs are `9sb4TYNHGio`, `FFgenf0h-3M`, `_b0HCpsuP6c`, and
+  `opS9-hg9Rzc`; titles, channels, link health, embedding, playback, exactness,
+  captions, accessibility, quality, safety, and approval are unverified.
+
+Exact next execution order:
+
+1. Reconcile `HEAD`, `git status`, the latest migration number, and disposable
+   PostgreSQL state. Preserve unrelated `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`
+   and all concurrent class-setup, scheduling, and Needs Engine changes.
+2. Query every current source-20 row plus neighboring standing broad jump,
+   target jump, stick landing, box/platform jump, drop landing, Lache Precision,
+   and skill-library identities. Read the three existing identity decisions and
+   the one relationship before authoring; do not overwrite adjacent reviewed
+   or machine-authored lineage.
+3. Research the exact Precision Jump repetition contract from direct parkour
+   or governing-body sources. Resolve takeoff stance, arm policy, horizontal
+   target, foot placement, target dimensions, height/gap, simultaneous contact,
+   stabilization time, overstep/understep, rebound, fall, run-up, turn, and
+   connected-action boundaries. Do not copy age or athlete proficiency levels.
+4. Research and classify meaningful alternates. Create distinct cards for
+   identity-changing standing/running, unilateral/bilateral, height, turn,
+   rebound, obstacle, bar-release, or connected actions; use exact variants
+   only when the repetition remains the same; reserve delivery annotations for
+   non-identity dose or validated target-distance changes.
+5. Validate or replace the four media candidates and produce 3–5 current
+   healthy privacy-enhanced candidates for every definition authored. oEmbed
+   health is metadata only; keep every human review and approval field null.
+6. Author the next free idempotent migration (expected 487 only after checking
+   the shared repository), update the research registry and static tests, run
+   direct SQL twice, focused validation, normal registration, checksum and re-
+   entry proof, persisted family/global audits, identity and release reports,
+   full backend, lint, and production build.
+7. Append actual results to all five audit/review ledgers and this handoff.
+   Never report expected row counts as persisted proof or machine completion as
+   qualified human approval.
+
+## Completed source-19 implementation record (historical)
 
 Source 18 is complete to machine-authored quarantine. Do not edit immutable
 migration 484 or repeat its research unless new mechanics evidence requires a
@@ -1427,3 +1502,83 @@ Use this template:
   `backend/platform/__tests__/exerciseProgrammingDifficultyOnly.test.js`, then
   follow the numbered `Exact next execution order` above without skipping the
   normal runner, persisted queries, full suite, build, or docs.
+
+### Return handoff — 2026-08-02 12:53 America/New_York
+
+- Branch / HEAD: `main` /
+  `bdbcd22d19a7f5a07f78e09419afcc445cb761b9`. Concurrent commit `bdbcd22`
+  captured migrations 485–486, registry/tests/init wiring, prior handoff edits,
+  and unrelated class-setup/scheduling work. Reconcile before editing because
+  the shared branch can move again.
+- Worktree: task-owned dirty files are the five workout-generator audit/review
+  ledgers and this handoff, now appended with the final source-19 checkpoint.
+  Preserve unrelated generated `docs/NEEDS_ENGINE_CATEGORY_METRICS.json`; its
+  only current diff is generated-time output from the full backend suite.
+- Last registered migration / checksum: correction migration
+  `486_coaching_lache_family_canonical_audit_contract_correction.sql` /
+  `4213002410`, registered `2026-08-02 12:47:09.976476-04`. Family migration
+  485 is immutable at `376239898`, registered
+  `2026-08-02 12:39:45.047632-04`. Stored and exact-file checksums match.
+- Unregistered migration state: none. Migration 485 and correction 486 each
+  passed unchanged direct run 1, unchanged direct run 2, normal-runner
+  registration, normal-runner skip, stored/local checksum comparison, and
+  exact-file re-entry.
+- Family completed or in progress: source 19 is complete to machine-authored
+  quarantine as `Two-Bar Lache Transfer to Retained Catch`
+  (`abc659bf-ce3c-4b7c-a118-f2b0c761bd07`), `Bar Hollow–Arch Tap Swing`
+  (`3018f919-8d85-4870-a1d2-ece8fd2af15e`), and `Lache Precision to Two-Foot
+  Stick` (`656028eb-c7d1-4a2f-a216-45763b201796`). Ambiguous baseline
+  `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5` is archived/nonselectable.
+- Persisted family counts: 6 selectable variants; 16 profiles split 11/2/3;
+  48 evidence rows split 16 each; 15 healthy candidate media rows split 5
+  each; 38 alternates split 18/10/10; 11 review-only relationships; 12 review-
+  only calibrations split 8/2/2; 15 survivor-owned boundaries split 9/5/1;
+  and 3 current canonical packets with exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Registry version / count: `2026-08-02.87` / 374 parsed sources.
+- Global audit snapshot: 1,676/1,676 mappings, 1,045 active definitions, 95
+  machine-complete, 950 machine-incomplete, 94 current healthy embeddable
+  3–5-candidate sets, 713/0 graph review/approved, 933/0 calibration
+  review/approved, and 0 published definitions. All cards remain quarantined.
+- Identity snapshot: 617/617 surfaced pairs adjudicated, 0 unresolved score-
+  72-or-higher pair, and 0 exact collision.
+- Release gate: expected `blocked`; 0/25 published, 0/3 approved depth in all
+  seven phases, 0/10 approved graph edges, 0/3 approved calibration anchors,
+  and 0/20 real coach reviews.
+- Focused tests: 223/223 pass.
+- Full backend: 1,022 pass, 20 intentional skips, 0 failures.
+- Lint: focused ESLint, registry JSON parsing, and `git diff --check` pass.
+- Build: production build passes; existing baseline-browser-mapping and
+  caniuse-lite freshness notices plus the greater-than-500-kB Admin chunk
+  advisory remain.
+- Failures and corrections: migration 485 draft attempts rolled back on
+  uncontrolled calibration tiers 90 and 70 and then an unqualified final-
+  count alias; controlled tiers 80/60 and a qualified alias fixed them. The
+  first focused test used literal UUID proximity to locate score tuples and
+  was corrected to pin UUIDs separately and scores by exact variant key. The
+  independent canonical audit then found missing `landingContactsPerRep` and
+  new-definition `primaryIdentitySource` keys; migration 486 corrected both.
+  Its first direct attempt failed closed on four historical retired media rows;
+  the guard was narrowed to exact current card versions, then final bytes
+  passed twice. Read-only exploratory queries twice guessed old identity-
+  resolution column names and once guessed a legacy duration column; schema
+  inspection corrected them without data changes.
+- Human review remaining: watch all 15 media candidates fully; verify playback,
+  exact definition/variant, grip, apparatus geometry, action, release/contact,
+  endpoint, captions, accessibility, cue quality, safety, and conflicts;
+  adjudicate all evidence, 38 alternates, 15 boundaries, 11 graph proposals,
+  and 12 score anchors; independently review content and approve publication;
+  establish approved phase depth; run shadow generation, clean deployment
+  rehearsal, monitoring/rollback proof, support readiness, and real coach
+  pilot.
+- Documentation updated: all five append-only audit/review documents and this
+  handoff contain the final source-19 counts, correction history, validation,
+  global metrics, and human gates.
+- Exact next action: source 20 `Precision Jump`, definition
+  `6dc5fcf1-6383-4aed-a73b-7465384fd18b`, baseline
+  `dd36d133-894b-4562-9cc7-016d1db6f56c`. It has 2 skeletal profiles, 0
+  evidence, 4 unverified media IDs, 0 alternates, 1 existing relationship, 0
+  calibrations, 3 adjacent identity decisions, and 20 blockers. Follow the new
+  `Immediate next work` section; do not infer stance, target, distance, height,
+  contact, stick duration, rebound, run-up, turn, or connection identity from
+  the generic label.

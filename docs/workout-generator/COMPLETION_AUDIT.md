@@ -3036,3 +3036,66 @@ disposable PostgreSQL. The remaining gates are:
   difficulty tuple values; the next run rejected the uncontrolled media
   discovery method. Both rolled back fully. Removing the key, realigning the
   two 22-field vectors, and using controlled `manual_research` resolved them.
+
+## 2026-08-02 — Source 19 Lache / Tap Swing / Lache Precision completion
+
+- Legacy source 19 is no longer treated as the vague `Lache Swing`. Its mapped
+  definition is `Two-Bar Lache Transfer to Retained Catch`
+  (`abc659bf-ce3c-4b7c-a118-f2b0c761bd07`, card version 2). The ambiguous
+  source baseline `9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5` is archived as a
+  nonselectable identity quarantine while source lineage remains intact.
+- Two identity-changing neighbors received complete distinct cards: `Bar
+  Hollow–Arch Tap Swing` (`3018f919-8d85-4870-a1d2-ece8fd2af15e`) and `Lache
+  Precision to Two-Foot Stick` (`656028eb-c7d1-4a2f-a216-45763b201796`). The
+  six selectable variants have complexity / physical difficulty / derived
+  overall values `82/78/82`, `88/84/88`, `86/82/86`, `76/72/76`, `68/64/68`,
+  and `86/82/86`. No exercise-card athlete level, age classification, or
+  linked skill was retained.
+- Persisted scope is 6 selectable variants, 16 contextual profiles, 48
+  candidate evidence sections (16 per definition), 15 current healthy
+  candidate media rows (5 per definition), 38 alternate assessments, 11
+  review-only graph proposals, 12 review-only complexity/physical-difficulty
+  anchors, 15 explicit distinct-identity boundaries, and 3 current canonical
+  packets. Each packet has exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Migration 485 passed two unchanged direct executions, production-runner
+  registration, stored/local checksum comparison, normal-runner skip, and
+  exact-file re-entry. Its registration is
+  `485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql`
+  / `376239898` / `2026-08-02 12:39:45.047632-04`.
+- The first independent canonical audit correctly found that migration 485
+  omitted the audit-required `landingContactsPerRep` key and the HTTPS
+  `primaryIdentitySource` for both research-authored definitions. Corrective
+  migration 486 added `0` landing contacts to the four retained-catch variants
+  and Tap Swing, `2` to Lache Precision, and explicit UrbanLeap identity
+  provenance to the two nonlegacy definitions without changing identity,
+  difficulty, review, or approval state. It passed two unchanged direct runs,
+  production registration, runner skip, stored/local checksum comparison, and
+  exact-file re-entry at
+  `486_coaching_lache_family_canonical_audit_contract_correction.sql` /
+  `4213002410` / `2026-08-02 12:47:09.976476-04`.
+- Registry `2026-08-02.87` contains 374 sources. Focused validation passes
+  `223/223`; the full backend suite passes 1,022 tests with 20 intentional
+  skips and zero failures. Focused ESLint, registry JSON parsing,
+  `git diff --check`, persisted audit, identity reporting, and the production
+  build pass. Existing browser-data freshness and greater-than-500-kB chunk
+  warnings remain advisory.
+- The authoritative post-486 snapshot is 1,676/1,676 mapped legacy rows, 1,045
+  active definitions, 95 machine-complete and 950 machine-incomplete cards,
+  and 94/1,045 definitions with three to five current healthy embeddable
+  candidates. All 617 surfaced identity pairs remain adjudicated, with zero
+  unresolved score-72-or-higher pair and zero exact collision. Graph and
+  calibration queues contain 713/933 review-only rows with zero approvals;
+  published definitions remain zero.
+- Release remains correctly `blocked`: 0/25 published definitions, zero
+  approved depth versus 3 in every required phase, 0/10 approved graph edges,
+  0/3 approved calibration anchors, and 0/20 real coach reviews. No media,
+  content, relationship, calibration, reviewer, approver, playback, caption,
+  accessibility, exactness, or publication approval was fabricated.
+- Transactional failures remain part of the record. Migration 485 first
+  rejected uncontrolled calibration tiers 90 and 70, then rejected an
+  unqualified final-count alias; all attempts rolled back and were corrected
+  to controlled tiers 80/60 and a qualified alias. Migration 486 initially
+  failed closed because its protection query included four historical retired
+  legacy media rows; narrowing protection to exact current card versions
+  resolved the false positive without weakening current human-review guards.

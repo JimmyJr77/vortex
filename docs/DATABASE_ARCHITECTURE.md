@@ -185,14 +185,18 @@ per form with no category sub-level. **`scheduling_slot_group.inherits_offering_
 active dates follow the linked `scheduling_offering`; offering date edits cascade to matching
 slot groups and time slots via `updateOffering` in [handlers.js](../backend/scheduling/handlers.js).
 
-**Active dates source of truth (2026-08):** class date windows live on
-`scheduling_form.start_date` / `end_date` (user-facing “Active dates”). Migration
+**Active dates source of truth (2026-08):** each timeslot group stores its own window on
+`scheduling_slot_group.active_start` / `active_end` (null end = evergreen). Billing resolves
+class start from `active_start` on the slot group (and still may fall back to form/offering
+dates for legacy inherit rows). Form-level `scheduling_form.start_date` / `end_date` are kept
+as an aggregate (MIN start / MAX end, or null end if any group is evergreen) via
+`syncFormActiveDatesFromSlotGroups` after slot create/delete, and dual-written to the selected
+`scheduling_offering` for pricing FKs. Migration
 [483_class_active_dates_from_offerings.sql](../backend/migrations/483_class_active_dates_from_offerings.sql)
-copies selected/latest offering windows onto the form, materializes them onto slot groups,
-and clears `scheduling_offering.label` (labels retired from UI). Admin APIs
-`PUT …/forms/:id/active-dates` and `adminEnsureFormActiveDates` keep a selected offering row
-in sync for pricing/FK scopes; UI no longer presents multi-offering pickers or offering
-labels. See §10 for the `scheduling_offering` entity as an Active (legacy) removal candidate.
+backfilled form + slot dates from offerings; [488_scheduling_slot_query_indexes.sql](../backend/migrations/488_scheduling_slot_query_indexes.sql)
+indexes Active dates, day-of-week, specific date, and capacity for class lookup without an
+offerings parent. UI edits Active dates inside the timeslot builder (not a separate card).
+See §10 for the `scheduling_offering` entity as an Active (legacy) removal candidate.
 
 ### 4.5 Coaching graph (see [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md) Part 5)
 Strong cross-schema FKs to `public.facility`, `public.app_user`, `public.member`. **`023`**
@@ -561,16 +565,19 @@ The "class category" (scheduling-category) concept was fully removed: classes no
 
 ### 10.3c Scheduling offerings → form Active dates ([483](../backend/migrations/483_class_active_dates_from_offerings.sql))
 
-Form Active dates (`scheduling_form.start_date` / `end_date`) are the user-facing source of truth.
-`scheduling_offering` rows remain for FK/pricing scopes (`offering_id` on slots, discount rules,
-free passes) but labels and multi-offering UI are retired.
+Per-timeslot Active dates (`scheduling_slot_group.active_start` / `active_end`) are the
+user-facing source of truth in the timeslot builder. Form dates are an aggregate synced from
+slot groups; `scheduling_offering` rows remain for FK/pricing scopes (`offering_id` on slots,
+discount rules, free passes) but labels and multi-offering UI are retired.
 
 | Object | Status | Replacement | Evidence / Notes |
 |--------|--------|-------------|------------------|
 | `scheduling_offering.label` | Retired (nulled) | Date range display only | Cleared in [483](../backend/migrations/483_class_active_dates_from_offerings.sql); UI no longer prefers labels (`classOfferingOptions`, enrollments, signup embed). |
-| Admin Scheduling “Offerings” panel | Removed (UI) | Timeslots + form Active dates (`ClassActiveDatesEditor` / `adminUpdateFormActiveDates`) | [AdminScheduling.tsx](../src/components/AdminScheduling.tsx) panels are `overview` \| `slots` only; ensures backing offering via `adminEnsureFormActiveDates`. |
-| `AdminSchedulingOfferings` | Candidate | Class Master Active dates cell / `ClassActiveDatesEditor` | No remaining UI imports (Admin Scheduling + Class Master use Active dates APIs). Safe to delete the component file once confirmed. |
-| `scheduling_offering` entity (multi-window model) | Active (legacy) / Candidate | Single form Active dates window + internal selected offering for pricing FKs | Do **not** drop while discount/free-pass/slot FKs reference `offering_id`. Pre-drop: audit `pricing_benefit_selection`, free-pass scopes, `scheduling_slot_group.offering_id`, signup `offering_id`. |
+| Admin Scheduling “Offerings” panel | Removed (UI) | Consolidated timeslot card (Active dates + schedule + class notes) | [AdminSchedulingSlots.tsx](../src/components/scheduling/AdminSchedulingSlots.tsx); form aggregate via `syncFormActiveDatesFromSlotGroups`. |
+| `ClassActiveDatesEditor` | Candidate | Inline Active dates in timeslot builder | No remaining UI imports after timeslot consolidation. Safe to delete once confirmed. |
+| `AdminSchedulingOfferings` | Candidate | Timeslot builder Active dates | No remaining UI imports. Safe to delete the component file once confirmed. |
+| Standalone form Active dates card above timeslots | Removed (UI) | Per-slot-group Active dates in builder | Billing start = slot group `active_start`; query indexes in [488](../backend/migrations/488_scheduling_slot_query_indexes.sql). |
+| `scheduling_offering` entity (multi-window model) | Active (legacy) / Candidate | Slot-group Active dates + form aggregate + internal selected offering for pricing FKs | Do **not** drop while discount/free-pass/slot FKs reference `offering_id`. Pre-drop: audit `pricing_benefit_selection`, free-pass scopes, `scheduling_slot_group.offering_id`, signup `offering_id`. |
 
 ### 10.4 Application / API surfaces to retire (no DDL until callers gone)
 

@@ -483,6 +483,7 @@ export async function initPlatformTables(pool) {
     '484_coaching_handstand_snap_down_family_audit_hardening.sql',
     '485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql',
     '486_coaching_lache_family_canonical_audit_contract_correction.sql',
+    '487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

@@ -627,6 +627,78 @@ function validateOfferingDateRange(startDate, endDate, evergreen) {
   return { ok: true, startDate: start, endDate: end }
 }
 
+/**
+ * Keep scheduling_form (+ selected offering) Active dates aligned with slot groups
+ * so billing/catalog can resolve class start from form or group active_start.
+ */
+async function syncFormActiveDatesFromSlotGroups(client, formId) {
+  const agg = await client.query(
+    `
+    SELECT
+      MIN(active_start) AS start_date,
+      CASE
+        WHEN COUNT(*) FILTER (WHERE active_start IS NOT NULL AND active_end IS NULL AND dates_tbd IS NOT TRUE) > 0
+          THEN NULL
+        ELSE MAX(active_end)
+      END AS end_date
+    FROM scheduling_slot_group
+    WHERE form_id = $1
+      AND dates_tbd IS NOT TRUE
+      AND active_start IS NOT NULL
+    `,
+    [formId],
+  )
+  const startDate = formatDateOnly(agg.rows[0]?.start_date)
+  if (!startDate) return null
+  const endDate = formatDateOnly(agg.rows[0]?.end_date)
+
+  const formUpdate = await client.query(
+    `
+    UPDATE scheduling_form
+    SET start_date = $2, end_date = $3, updated_at = now()
+    WHERE id = $1 AND deleted_at IS NULL
+    RETURNING *
+    `,
+    [formId, startDate, endDate],
+  )
+
+  const offeringRes = await client.query(
+    `
+    SELECT id FROM scheduling_offering
+    WHERE form_id = $1
+    ORDER BY is_selected DESC NULLS LAST, start_date DESC NULLS LAST, id DESC
+    LIMIT 1
+    FOR UPDATE
+    `,
+    [formId],
+  )
+  if (offeringRes.rows.length > 0) {
+    await client.query(
+      `
+      UPDATE scheduling_offering
+      SET start_date = $2, end_date = $3, label = NULL, is_selected = TRUE, updated_at = now()
+      WHERE id = $1
+      `,
+      [offeringRes.rows[0].id, startDate, endDate],
+    )
+    await client.query(
+      `UPDATE scheduling_offering SET is_selected = FALSE, updated_at = now()
+       WHERE form_id = $1 AND id <> $2`,
+      [formId, offeringRes.rows[0].id],
+    )
+  } else {
+    await client.query(
+      `
+      INSERT INTO scheduling_offering (form_id, start_date, end_date, label, is_selected)
+      VALUES ($1, $2, $3, NULL, TRUE)
+      `,
+      [formId, startDate, endDate],
+    )
+  }
+
+  return formUpdate.rows[0] ?? null
+}
+
 async function syncOfferingDatesToSlotGroups(client, offeringId, { newStart, newEnd, oldStart, oldEnd }) {
   const groupRes = await client.query(
     `
@@ -3692,6 +3764,7 @@ export function createSchedulingHandlers(pool) {
             )
             inserted.push(result.rows[0])
           }
+          await syncFormActiveDatesFromSlotGroups(client, Number(req.params.formId))
           await client.query('COMMIT')
         } catch (e) {
           await client.query('ROLLBACK')
@@ -3890,18 +3963,29 @@ export function createSchedulingHandlers(pool) {
     },
 
     async deleteSlotGroup(req, res) {
+      const client = await pool.connect()
       try {
-        await orphanSignupsForSlotGroup(pool, req.params.id)
-        const result = await pool.query('DELETE FROM scheduling_slot_group WHERE id = $1 RETURNING id', [
-          req.params.id,
-        ])
-        if (result.rows.length === 0) {
+        await client.query('BEGIN')
+        const existing = await client.query(
+          'SELECT id, form_id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE',
+          [req.params.id],
+        )
+        if (existing.rows.length === 0) {
+          await client.query('ROLLBACK')
           return res.status(404).json({ success: false, message: 'Slot group not found' })
         }
+        const formId = Number(existing.rows[0].form_id)
+        await orphanSignupsForSlotGroup(client, req.params.id)
+        await client.query('DELETE FROM scheduling_slot_group WHERE id = $1', [req.params.id])
+        await syncFormActiveDatesFromSlotGroups(client, formId)
+        await client.query('COMMIT')
         res.json({ success: true, message: 'Time slot deleted' })
       } catch (err) {
+        await client.query('ROLLBACK').catch(() => {})
         console.error('[scheduling] deleteSlotGroup:', err)
         res.status(500).json({ success: false, message: 'Failed to delete time slot' })
+      } finally {
+        client.release()
       }
     },
 

@@ -433,15 +433,15 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
       ) : scheduleLoading && !scheduleDetail ? (
         <p className="py-8 text-center text-sm text-gray-500">Loading schedule editor…</p>
-      ) : scheduleDetail && selectedOffering ? (
+      ) : scheduleDetail ? (
         <AdminSchedulingSlots
           formId={row.formId}
           detail={scheduleDetail}
           formStartDate={scheduleDetail.startDate ?? null}
           formEndDate={scheduleDetail.endDate ?? null}
-          offeringId={selectedOffering.id}
-          offeringStartDate={selectedOffering.startDate}
-          offeringEndDate={selectedOffering.endDate}
+          offeringId={selectedOffering?.id ?? null}
+          offeringStartDate={selectedOffering?.startDate ?? scheduleDetail.startDate ?? null}
+          offeringEndDate={selectedOffering?.endDate ?? scheduleDetail.endDate ?? null}
           setupContextPrimary={`${row.programName} · ${row.className}`}
           existingSlotsPosition="top"
           orphanedSignups={scheduleOrphans}

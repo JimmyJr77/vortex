@@ -3234,3 +3234,56 @@ unresolved pair or exact collision. Graph/calibration queues contain 702/921
 review-only rows and zero approvals. Migration 484 is immutable at checksum
 `4224855249`; registry `2026-08-02.86` contains 368 sources; focused tests are
 220/220 and the full backend suite is 1,019 passes plus 20 intentional skips.
+
+## Two-Bar Lache, Tap Swing, and Lache Precision canonical cards
+
+Source 19 now produces three exact cards rather than one vague swing label.
+The retained-catch card has four selectable variants: same-height independent
+`82/78/82`, higher-target independent `88/84/88`, lower-target independent
+`86/82/86`, and same-height coach-secured `76/72/76`. The no-release Tap Swing
+card is `68/64/68`; the low-target bilateral two-second Precision stick is
+`86/82/86`. These triples are exercise complexity, physical difficulty, and
+their derived maximum—not athlete proficiency or readiness.
+
+All three definitions include controlled movement/body-region/equipment
+taxonomy; primary, secondary, and stabilizing anatomy; joints, actions,
+planes, and laterality; explicit start, grip, apparatus, action, target,
+contact, terminal, assistance, invalidation, stop, and bailout contracts;
+bodyweight and inertial load drivers without invented force shares; source
+hand supports, target hand catches, landing contacts, impact, invalid,
+assisted, and incident exposures; local, grip, technical, and impact fatigue;
+planning-only recovery estimates; and same-session hanging, pulling, swinging,
+release, catch, dismount, and landing interference budgets.
+
+The 16 delivery profiles comprise 11 retained-catch profiles, 2 Tap Swing
+profiles, and 3 Precision profiles. They declare equipment, geometry,
+clearance, lane, station capacity, sightline, setup/reset/transition, exact
+dose and rest, bounded duration formulas, quality gates, at least eight stop
+rules, scaling order, measurement, substitution revalidation, coach and
+athlete instructions, support prompts, cumulative exposure, and planned versus
+actual persistence. The two research-authored definitions have explicit HTTPS
+primary identity provenance; the source definition retains legacy lineage.
+
+Each definition has 16 scoped candidate evidence sections and 5 current
+healthy privacy-enhanced YouTube candidates. The IDs are
+`3o0NrxeRCsk`/`FuNZG4yF1jo`/`NrC-TbmShKQ`/`HMGZNRRTV4s`/`PmGur4Nfzfc` for
+retained catch, `SYdukm1xvEY`/`8epKPyb1e4g`/`rCe1Z0C9WnI`/`lcAyqMk4l7w`/
+`yl2IawdA00o` for Tap Swing, and `s0Xbm2An7W4`/`FHwls3YJ1_U`/`EDnsNRgcggo`/
+`zpVjQTemsJk`/`4I5ZJ1-qSH0` for Precision. oEmbed metadata health does not
+prove playback, exact identity or variant, captions, accessibility, cue
+quality, safety, or approval; all human fields remain null.
+
+The family also has 38 alternate dispositions, 15 explicit boundaries, 11
+review-only relationships, and 12 review-only complexity/physical-difficulty
+anchors. Its three current canonical packets contain exactly the four media,
+graph, calibration, and publication human gates. Migration 485 is immutable at
+checksum `376239898`; canonical-audit correction 486 is immutable at
+`4213002410`; registry `2026-08-02.87` contains 374 sources; focused tests pass
+223/223; and the backend suite passes 1,022 tests plus 20 intentional skips.
+
+The global persisted audit is now 1,676/1,676 mappings, 1,045 active
+definitions, 95 machine-complete and 950 machine-incomplete cards, 94/1,045
+current healthy embeddable 3–5-candidate sets, and 617/617 adjudicated surfaced
+pairs with no unresolved pair or exact collision. Graph/calibration queues are
+713/933 review-only rows with zero approvals. All cards remain unpublished and
+human-gated.

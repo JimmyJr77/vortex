@@ -61,13 +61,15 @@ Moved from rigid day-of-week slots to enroll **forms** tied to programs, date wi
 (operations), Pricing (rules).
 
 ### Active dates replace offerings UI (2026-08)
-User-facing language is **Active dates** (form `start_date`/`end_date`), not “offerings.”
-Migration `483_class_active_dates_from_offerings.sql` promotes offering windows onto the form,
-clears `scheduling_offering.label`, and keeps offering rows only for internal pricing/FK IDs.
-**Admin Scheduling** panels are Classes + Timeslots only (no Offerings panel); opening timeslots
-calls `adminEnsureFormActiveDates`. **Class Master** should edit Active dates via form APIs /
-`ClassActiveDatesEditor`, not the legacy multi-offering editor or Offering Description labels.
-`AdminSchedulingOfferings` is unused (candidate delete; see DATABASE_ARCHITECTURE §10.3c).
+User-facing language is **Active dates**, not “offerings.” Each timeslot group stores its own
+Session/Evergreen window (`scheduling_slot_group.active_start` / `active_end`); the timeslot
+builder edits those dates above Schedule by / Max participants, with class notes at the bottom.
+Form `start_date`/`end_date` stay synced as an aggregate for catalog/billing fallbacks.
+Migration `483` backfilled from offerings; `488` adds query indexes (dates, day, capacity).
+**Admin Scheduling** panels are Classes + Timeslots only. **Class Master** schedule edit shows
+the schedule list at the top, then Add new / edit into the consolidated timeslot card.
+`ClassActiveDatesEditor` / `AdminSchedulingOfferings` are unused (candidate delete; see
+DATABASE_ARCHITECTURE §10.3c).
 
 ### Scheduling categories removed (migration `033`)
 The "class category" sub-level under each scheduling form was removed end-to-end (DB tables,

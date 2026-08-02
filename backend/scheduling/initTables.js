@@ -359,6 +359,18 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const slotQueryIndexesMigration = path.join(
+    __dirname,
+    '../migrations/488_scheduling_slot_query_indexes.sql',
+  )
+  if (fs.existsSync(slotQueryIndexesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(slotQueryIndexesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] slot query indexes migration:', err.message)
+    }
+  }
+
   const abridgedNamesMigration = path.join(
     __dirname,
     '../migrations/052_scheduling_abridged_names.sql',

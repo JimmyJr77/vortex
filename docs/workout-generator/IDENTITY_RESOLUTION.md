@@ -1837,3 +1837,40 @@ adjudicated surfaced pairs across 1,043 active definitions, with zero
 unresolved score-72-or-higher pair and zero exact collision. All eight new
 identity boundaries and eight graph proposals remain unreviewed; no qualified
 human identity, relationship, or approval decision is inferred.
+
+## Lache transfer versus Tap Swing, Precision landing, and adjacent bar actions
+
+Migration 485 preserves source 19 lineage but rejects `Lache Swing` as a
+selectable identity because it does not declare whether the hands release,
+what receives the body, or where the repetition ends. Baseline
+`9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5` is archived as
+`identity_quarantine`. The surviving legacy definition becomes `Two-Bar Lache
+Transfer to Retained Catch` (`abc659bf-ce3c-4b7c-a118-f2b0c761bd07`): active
+bilateral overgrip, hollow–arch source swing, simultaneous release, no turn or
+flip, bilateral target-bar catch, and retention through the first post-catch
+rearward apex.
+
+Same-height independent, higher-target, lower-target, and declared
+coach-secured retained catches are exact variants because the release/catch
+repetition remains the same while geometry or assistance changes selection,
+loading, logistics, validity, and persistence. A no-release full swing cycle
+is instead the distinct `Bar Hollow–Arch Tap Swing`
+(`3018f919-8d85-4870-a1d2-ece8fd2af15e`). Releasing to simultaneous feet and
+a two-second target stick is the distinct `Lache Precision to Two-Foot Stick`
+(`656028eb-c7d1-4a2f-a216-45763b201796`).
+
+The 15 persisted boundaries also keep same-bar release/regrasp, half turn,
+one-arm or off-axis catch, simple dismount, flyaway or flip, wall/cat/arm-jump
+contact, dynamic entry, chained transfers, Dyno, Pole Swing, Underbar, Giant,
+Bar Cast, Cast to Handstand, and connected post-contact actions outside these
+three cards. Gap within an already validated exact station can be dosage, but
+target height, contact interface, release/no-release rule, turn, assistance,
+and terminal state cannot be silent annotations.
+
+After migrations 485–486 and the persisted audit, 1,045 active definitions
+still produce 617/617 adjudicated surfaced pairs, zero unresolved score-72-or-
+higher pair, and zero exact collision. All 15 boundaries and 11 graph rows are
+machine-authored review proposals; no qualified identity, relationship, or
+approval decision is inferred. Exercise difficulty remains complexity plus
+physical difficulty only, while athlete proficiency remains outside exercise
+cards.

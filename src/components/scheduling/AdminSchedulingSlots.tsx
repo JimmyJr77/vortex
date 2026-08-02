@@ -5,6 +5,7 @@ import {
   WEEK_LETTERS,
   adminCreateSlotBatch,
   adminDeleteSlotGroup,
+  adminSaveSchedulingForm,
   adminUpdateSlotGroupMax,
   dayAbbrev,
   schedulingHasMultipleWeeks,
@@ -20,12 +21,13 @@ import {
   weekBucketLabel,
 } from '../../utils/slotSort'
 import OrphanedSignupsPanel from './OrphanedSignupsPanel'
-import ClassActiveDatesEditor from './ClassActiveDatesEditor'
 import type {
   SchedulingFormSummary,
   SchedulingOrphanedSignup,
   SchedulingSignup,
 } from '../../utils/schedulingApi'
+
+type DurationMode = 'session' | 'evergreen'
 
 interface Props {
   formId: number
@@ -201,7 +203,7 @@ function updateDateEntryAt(entries: DateEntry[], idx: number, updater: (entry: D
 }
 
 function payloadBase(
-  activeDatesMode: 'inherit' | 'custom' | 'tbd',
+  durationMode: DurationMode,
   activeStart: string,
   activeEnd: string,
   scheduleMode: 'day' | 'date',
@@ -210,9 +212,10 @@ function payloadBase(
 ) {
   return {
     offeringId: offeringId ?? null,
-    activeDatesMode,
-    activeStart: activeDatesMode === 'custom' ? activeStart || null : null,
-    activeEnd: activeDatesMode === 'custom' ? activeEnd || null : null,
+    // Persist dates on each slot group so billing can resolve class start per timeslot.
+    activeDatesMode: 'custom' as const,
+    activeStart: activeStart || null,
+    activeEnd: durationMode === 'evergreen' ? null : activeEnd || null,
     scheduleMode,
     maxParticipants,
   }
@@ -251,18 +254,13 @@ const AdminSchedulingSlots = ({
   const [slotsContextOpen, setSlotsContextOpen] = useState(true)
   const [activeWeekKey, setActiveWeekKey] = useState<string | null>(null)
   const [editingSlotGroupId, setEditingSlotGroupId] = useState<number | null>(null)
-  const [classStartDate, setClassStartDate] = useState(formStartDate)
-  const [classEndDate, setClassEndDate] = useState(formEndDate)
-  const [activeDatesMode] = useState<'inherit' | 'custom' | 'tbd'>('inherit')
+  const [builderOpen, setBuilderOpen] = useState(existingSlotsPosition !== 'top')
+  const [durationMode, setDurationMode] = useState<DurationMode>(formEndDate ? 'session' : 'evergreen')
   const [activeStart, setActiveStart] = useState('')
   const [activeEnd, setActiveEnd] = useState('')
+  const [classNotes, setClassNotes] = useState(detail.description ?? '')
   const [scheduleMode, setScheduleMode] = useState<'day' | 'date'>('day')
   const [maxParticipants, setMaxParticipants] = useState(10)
-
-  useEffect(() => {
-    setClassStartDate(formStartDate)
-    setClassEndDate(formEndDate)
-  }, [formId, formStartDate, formEndDate])
   const [weeks, setWeeks] = useState<WeekRow[]>(createDefaultWeeks('', ''))
   const [activeWeekIdx, setActiveWeekIdx] = useState(0)
   const [dateEntries, setDateEntries] = useState<DateEntry[]>([
@@ -271,21 +269,38 @@ const AdminSchedulingSlots = ({
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  useEffect(() => {
+    setClassNotes(detail.description ?? '')
+  }, [formId, detail.description])
+
+  useEffect(() => {
+    if (existingSlotsPosition !== 'top') setBuilderOpen(true)
+  }, [existingSlotsPosition, formId])
+
   const commitLastTime = (time: TimeRow) => {
     lastTimeRef.current = time
     writeSessionLastTime(formId, time)
   }
 
-  const inheritedDates = () => ({
-    start: formatDateForInput(offeringStartDate ?? classStartDate ?? formStartDate),
-    end: formatDateForInput(offeringEndDate ?? classEndDate ?? formEndDate),
+  const seedDatesFromForm = () => ({
+    start: formatDateForInput(offeringStartDate ?? formStartDate),
+    end: formatDateForInput(offeringEndDate ?? formEndDate),
   })
 
+  const closeBuilder = () => {
+    if (existingSlotsPosition === 'top') setBuilderOpen(false)
+  }
+
+  const scrollToBuilder = () => {
+    builderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   const resetBuilderForm = (preserveTime?: TimeRow) => {
-    const { start, end } = inheritedDates()
+    const { start, end } = seedDatesFromForm()
     const seedTime = resolveSeedTime(formId, offeringScopedSlotGroups, preserveTime)
     setSaveError(null)
     setEditingSlotGroupId(null)
+    setDurationMode(end ? 'session' : 'evergreen')
     setActiveStart(start)
     setActiveEnd(end)
     setScheduleMode('day')
@@ -296,24 +311,30 @@ const AdminSchedulingSlots = ({
     commitLastTime(seedTime)
   }
 
-  const scrollToBuilder = () => {
-    builderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const openBlankBuilder = () => {
+    resetBuilderForm()
+    setBuilderOpen(true)
+    requestAnimationFrame(() => scrollToBuilder())
   }
 
   const populateFormFromGroup = (group: SchedulingSlotGroup) => {
-    const { start, end } = inheritedDates()
+    const groupStart =
+      formatDateForInput(group.activeStart) || seedDatesFromForm().start
+    const groupEnd = group.datesTbd
+      ? ''
+      : formatDateForInput(group.activeEnd) || ''
+    const mode: DurationMode = groupEnd ? 'session' : 'evergreen'
+
     setMaxParticipants(group.maxParticipants)
     setScheduleMode(group.scheduleMode)
-
-    // Timeslots always inherit class Active dates going forward.
-    setActiveStart(start)
-    setActiveEnd(end)
+    setDurationMode(mode)
+    setActiveStart(groupStart)
+    setActiveEnd(groupEnd)
 
     const occurrences = group.occurrences
     if (occurrences.length === 0) return
 
-    const firstOcc = occurrences[0]
-    const latestOcc = [...occurrences].sort((a, b) => b.id - a.id)[0] ?? firstOcc
+    const latestOcc = [...occurrences].sort((a, b) => b.id - a.id)[0] ?? occurrences[0]
     commitLastTime(timeRowFromOccurrence(latestOcc))
 
     if (group.scheduleMode === 'day') {
@@ -328,19 +349,16 @@ const AdminSchedulingSlots = ({
             return {
               dayOfWeek: d.value,
               enabled: false,
-              activeStart: start,
-              activeEnd: end,
+              activeStart: groupStart,
+              activeEnd: groupEnd,
               times: [defaultTime()],
             }
           }
-          const occ = dayOcc[0]
-          const dayStart = occ.inheritsFormDates ? start : formatDateForInput(occ.activeStart) || start
-          const dayEnd = occ.inheritsFormDates ? end : formatDateForInput(occ.activeEnd) || end
           return {
             dayOfWeek: d.value,
             enabled: true,
-            activeStart: dayStart,
-            activeEnd: dayEnd,
+            activeStart: groupStart,
+            activeEnd: groupEnd,
             times: dayOcc.map((o) => ({
               startTime: normalizeTime(o.startTime),
               endTime: normalizeTime(o.endTime),
@@ -362,7 +380,7 @@ const AdminSchedulingSlots = ({
           endTime: normalizeTime(occ.endTime),
         })
       }
-      setWeeks(createDefaultWeeks(start, end))
+      setWeeks(createDefaultWeeks(groupStart, groupEnd))
       setActiveWeekIdx(0)
       setDateEntries(
         [...dateMap.entries()].map(([date, times]) => ({
@@ -374,20 +392,22 @@ const AdminSchedulingSlots = ({
         })),
       )
     }
-
-    scrollToBuilder()
   }
 
   const handleEditGroup = (group: SchedulingSlotGroup) => {
     setSaveError(null)
     populateFormFromGroup(group)
     setEditingSlotGroupId(group.id)
+    setBuilderOpen(true)
+    requestAnimationFrame(() => scrollToBuilder())
   }
 
   const handleCopyGroup = (group: SchedulingSlotGroup) => {
     setSaveError(null)
     populateFormFromGroup(group)
     setEditingSlotGroupId(null)
+    setBuilderOpen(true)
+    requestAnimationFrame(() => scrollToBuilder())
   }
 
   const weekSections = useMemo(() => {
@@ -416,32 +436,23 @@ const AdminSchedulingSlots = ({
     )
   }, [offeringId, weekSections])
 
-  const applyInheritedDates = () => {
-    const { start, end } = inheritedDates()
-    setActiveStart(start)
-    setActiveEnd(end)
-    setWeeks((prev) =>
-      prev.map((w) => ({
-        ...w,
-        days: w.days.map((d) => ({
-          ...d,
-          activeStart: d.activeStart || start,
-          activeEnd: d.activeEnd || end,
-        })),
-      })),
-    )
-  }
-
   useEffect(() => {
     if (prevOfferingIdRef.current !== offeringId) {
       prevOfferingIdRef.current = offeringId
       resetBuilderForm()
+      if (existingSlotsPosition === 'top') setBuilderOpen(false)
     }
   }, [offeringId])
 
   useEffect(() => {
-    if (activeDatesMode === 'inherit' && !editingSlotGroupId) applyInheritedDates()
-  }, [activeDatesMode, formStartDate, formEndDate, offeringStartDate, offeringEndDate, offeringId, editingSlotGroupId])
+    if (editingSlotGroupId || builderOpen === false) return
+    if (activeStart) return
+    const { start, end } = seedDatesFromForm()
+    if (!start && !end) return
+    setDurationMode(end ? 'session' : 'evergreen')
+    setActiveStart(start)
+    setActiveEnd(end)
+  }, [formStartDate, formEndDate, offeringStartDate, offeringEndDate, editingSlotGroupId, builderOpen, activeStart])
 
   const addWeek = () => {
     if (weeks.length >= WEEK_LETTERS.length) return
@@ -545,9 +556,18 @@ const AdminSchedulingSlots = ({
     setWeeks((prev) => syncTimesAcrossDays(prev, previousCellTime, newTime))
   }
 
+  const activeDatesValidationError = (() => {
+    if (!activeStart) return 'Start date is required for Active dates.'
+    if (durationMode === 'session') {
+      if (!activeEnd) return 'End date is required for session Active dates.'
+      if (activeEnd < activeStart) return 'End date must be on or after the start date.'
+    }
+    return null
+  })()
+
   const buildPayload = (): SlotBatchPayload | null => {
     const base = payloadBase(
-      activeDatesMode,
+      durationMode,
       activeStart,
       activeEnd,
       scheduleMode,
@@ -562,8 +582,9 @@ const AdminSchedulingSlots = ({
             .filter((d) => d.enabled)
             .map((d) => ({
               dayOfWeek: d.dayOfWeek,
-              activeStart: activeDatesMode === 'custom' ? d.activeStart || null : null,
-              activeEnd: activeDatesMode === 'custom' ? d.activeEnd || null : null,
+              // Slot-group Active dates apply to every day in the batch.
+              activeStart: activeStart || null,
+              activeEnd: durationMode === 'evergreen' ? null : activeEnd || null,
               times: d.times.map((t) => ({
                 startTime: t.startTime,
                 endTime: t.endTime,
@@ -596,6 +617,11 @@ const AdminSchedulingSlots = ({
     if (savingRef.current) return
     setSaveError(null)
 
+    if (activeDatesValidationError) {
+      setSaveError(activeDatesValidationError)
+      return
+    }
+
     const payload = buildPayload()
     if (!payload) {
       setSaveError(
@@ -606,14 +632,29 @@ const AdminSchedulingSlots = ({
       return
     }
 
-    if (offeringId == null) {
-      setSaveError('Select an offering before adding timeslots.')
-      return
-    }
-
     savingRef.current = true
     setSaving(true)
     try {
+      const notesChanged = (classNotes ?? '') !== (detail.description ?? '')
+      if (notesChanged) {
+        await adminSaveSchedulingForm(
+          {
+            title: detail.title,
+            description: classNotes,
+            startDate: detail.startDate ?? undefined,
+            endDate: detail.endDate ?? undefined,
+            isActive: detail.isActive,
+            maxSlotsPerUser: detail.maxSlotsPerUser,
+            slotCostMonthlyCents: detail.slotCostMonthlyCents,
+            costUnit: detail.costUnit,
+            freeSlotsPerUser: detail.freeSlotsPerUser,
+            maxFreeSlotsTotal: detail.maxFreeSlotsTotal,
+            pricingOverridesProgram: detail.pricingOverridesProgram,
+          },
+          formId,
+        )
+      }
+
       if (editingSlotGroupId) {
         const existing = detail.slotGroups?.find((g) => g.id === editingSlotGroupId)
         const activeSignups =
@@ -624,6 +665,7 @@ const AdminSchedulingSlots = ({
             await adminUpdateSlotGroupMax(editingSlotGroupId, maxParticipants)
             await onRefresh()
             resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
+            closeBuilder()
             return
           }
           const proceed = confirm(
@@ -637,6 +679,7 @@ const AdminSchedulingSlots = ({
       await adminCreateSlotBatch(formId, payload)
       await onRefresh()
       resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
+      closeBuilder()
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Failed to save slot')
     } finally {
@@ -677,25 +720,64 @@ const AdminSchedulingSlots = ({
 
   const week = weeks[activeWeekIdx]
 
+  const durationBtn = (mode: DurationMode, label: string, hint: string) => {
+    const active = durationMode === mode
+    return (
+      <button
+        type="button"
+        onClick={() => setDurationMode(mode)}
+        className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+          active
+            ? 'border-vortex-red bg-red-50 text-gray-900 ring-1 ring-vortex-red'
+            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        <span className="block font-semibold">{label}</span>
+        <span className="text-xs text-gray-500">{hint}</span>
+      </button>
+    )
+  }
+
   const builderForm = (
     <div ref={builderRef}>
       <h3 className="text-xl font-bold text-black mb-4">
         {editingSlotGroupId ? 'Edit time slot' : 'Add time slot'}
       </h3>
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4 w-full">
-        <p className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
-          Timeslots use the class <strong>Active dates</strong> above
-          {activeStart ? (
-            <>
-              {' '}
-              ({activeStart}
-              {activeEnd ? ` → ${activeEnd}` : ' · Ongoing'})
-            </>
-          ) : (
-            <> — set them before adding timeslots</>
-          )}
-          .
-        </p>
+        <div className="space-y-3">
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900">Active dates</h4>
+            <p className="mt-0.5 text-xs text-gray-500">
+              When this timeslot runs. Start date is used for billing class-start timing.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {durationBtn('session', 'Session', 'Fixed start and end')}
+            {durationBtn('evergreen', 'Evergreen', 'Starts on a date, no end')}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-semibold mb-1">Start date</label>
+              <input
+                type="date"
+                value={activeStart}
+                onChange={(e) => setActiveStart(e.target.value)}
+                className="w-full h-10 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+              />
+            </div>
+            {durationMode === 'session' && (
+              <div>
+                <label className="block text-sm font-semibold mb-1">End date</label>
+                <input
+                  type="date"
+                  value={activeEnd}
+                  onChange={(e) => setActiveEnd(e.target.value)}
+                  className="w-full h-10 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+                />
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -766,33 +848,6 @@ const AdminSchedulingSlots = ({
                     </label>
                     {day.enabled && (
                       <div className="ml-6 space-y-2">
-                        {activeDatesMode === 'custom' && (
-                          <div className="grid grid-cols-2 gap-2">
-                            <input
-                              type="date"
-                              value={day.activeStart}
-                              placeholder="From"
-                              onChange={(e) => {
-                                const activeStartVal = e.target.value
-                                setWeeks((prev) =>
-                                  updateWeekDay(prev, activeWeekIdx, dayIdx, (d) => ({ ...d, activeStart: activeStartVal })),
-                                )
-                              }}
-                              className="rounded border px-2 py-1 text-sm"
-                            />
-                            <input
-                              type="date"
-                              value={day.activeEnd}
-                              onChange={(e) => {
-                                const activeEndVal = e.target.value
-                                setWeeks((prev) =>
-                                  updateWeekDay(prev, activeWeekIdx, dayIdx, (d) => ({ ...d, activeEnd: activeEndVal })),
-                                )
-                              }}
-                              className="rounded border px-2 py-1 text-sm"
-                            />
-                          </div>
-                        )}
                         {day.times.map((t, timeIdx) => (
                           <div key={timeIdx} className="flex gap-2 items-center">
                             <input
@@ -925,6 +980,17 @@ const AdminSchedulingSlots = ({
           </div>
         )}
 
+        <div>
+          <label className="block text-sm font-semibold mb-1">Class notes</label>
+          <textarea
+            value={classNotes}
+            onChange={(e) => setClassNotes(e.target.value)}
+            rows={3}
+            placeholder="Internal notes for this class (optional)"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+          />
+        </div>
+
         {saveError && (
           <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
             {saveError}
@@ -940,13 +1006,16 @@ const AdminSchedulingSlots = ({
           >
             {saving ? 'Saving…' : editingSlotGroupId ? 'Finalize Edit' : 'Add time slot'}
           </button>
-          {editingSlotGroupId && (
+          {(editingSlotGroupId || existingSlotsPosition === 'top') && (
             <button
               type="button"
-              onClick={() => resetBuilderForm()}
+              onClick={() => {
+                resetBuilderForm()
+                closeBuilder()
+              }}
               className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
             >
-              Cancel edit
+              {editingSlotGroupId ? 'Cancel edit' : 'Cancel'}
             </button>
           )}
         </div>
@@ -1030,15 +1099,9 @@ const AdminSchedulingSlots = ({
                         </ul>
                       </td>
                       <td className="py-2 pr-3 align-top">
-                        <span className="inline-flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {group.signupCount}/{group.maxParticipants}
-                          {(group.waitlistCount ?? 0) > 0 && (
-                            <span className="text-amber-700">
-                              {' '}
-                              · {group.waitlistCount} waitlisted
-                            </span>
-                          )}
+                        <span className="inline-flex items-center gap-1 text-gray-700">
+                          <Users className="w-3.5 h-3.5" aria-hidden />
+                          {group.maxParticipants}
                         </span>
                       </td>
                       <td className="py-2 pr-3 align-top text-gray-600">
@@ -1090,23 +1153,26 @@ const AdminSchedulingSlots = ({
 
   return (
     <div className="space-y-8">
-      <ClassActiveDatesEditor
-        formId={formId}
-        startDate={classStartDate}
-        endDate={classEndDate}
-        embedded
-        onSaved={async (next) => {
-          setClassStartDate(next.startDate)
-          setClassEndDate(next.endDate)
-          setActiveStart(formatDateForInput(next.startDate))
-          setActiveEnd(formatDateForInput(next.endDate))
-          await onRefresh()
-        }}
-      />
+      {existingSlotsPosition === 'top' && (
+        <>
+          {existingSlotsCard}
+          {canBuild && (
+            <div>
+              <button
+                type="button"
+                onClick={openBlankBuilder}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+              >
+                <Plus className="w-4 h-4" />
+                Add new
+              </button>
+            </div>
+          )}
+          {canBuild && builderOpen && builderForm}
+        </>
+      )}
 
-      {existingSlotsPosition === 'top' && existingSlotsCard}
-
-      {canBuild && builderForm}
+      {existingSlotsPosition === 'bottom' && canBuild && builderForm}
 
       <div className={`${existingSlotsPosition === 'bottom' ? 'border-t border-gray-200 pt-8' : ''} space-y-6`}>
         {existingSlotsPosition === 'bottom' && existingSlotsCard}

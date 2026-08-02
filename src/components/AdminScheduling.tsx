@@ -515,7 +515,7 @@ const AdminScheduling = ({
                           })
                         : null,
                   ])}
-                  canBuild={Boolean(selectedOffering || detail.startDate)}
+                  canBuild={Boolean(selectedId && detail)}
                   orphanedSignups={orphanedSignups}
                   signups={signups}
                   forms={forms}

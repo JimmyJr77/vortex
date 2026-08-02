@@ -199,7 +199,10 @@ export function slotGroupToBatchPayload(
 ): SlotBatchPayload {
   const base = {
     offeringId,
-    activeDatesMode: 'inherit' as const,
+    // Preserve each group's Active dates so billing start stays correct after copy.
+    activeDatesMode: 'custom' as const,
+    activeStart: group.activeStart ?? null,
+    activeEnd: group.datesTbd ? null : group.activeEnd ?? null,
     maxParticipants: group.maxParticipants,
   }
 

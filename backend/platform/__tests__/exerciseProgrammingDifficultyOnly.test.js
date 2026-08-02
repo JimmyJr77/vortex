@@ -669,6 +669,10 @@ const LACHE_FAMILY_CANONICAL_AUDIT_CONTRACT_CORRECTION_MIGRATION = readFileSync(
   new URL('../../migrations/486_coaching_lache_family_canonical_audit_contract_correction.sql', import.meta.url),
   'utf8',
 )
+const PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -11169,6 +11173,155 @@ test('Lache canonical-audit correction supplies load and research-lineage contra
   )
 })
 
+test('Precision Jump consolidation authors exact restricted-target and 360 contracts without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'487_coaching_precision_jump_identity_and_360_family_audit_hardening\.sql'/,
+  )
+
+  for (const token of [
+    'Broad Jump to Stick',
+    'Bilateral 360-Degree Jump to Stick',
+    '6dc5fcf1-6383-4aed-a73b-7465384fd18b',
+    '1260d75e-6807-4c91-859d-7d561a9160a3',
+    '1101413d-55c7-4585-abc2-6e63484ec434',
+    '5cc18072-971f-4f98-bf71-1213341167e4',
+    'b365da0f-2779-4883-8152-a5b3c09bee9f',
+    '1101413d-55c7-4585-abc2-6e63484ec435',
+    'identity-quarantine-source-20',
+    'standing-parkour-two-foot-precision-low-restricted-target',
+    'stationary-bilateral-forward-360-open-surface-stick',
+    'standing-parkour-360-precision-low-restricted-target',
+    'duplicate_consolidated_into_broad_jump_to_stick_family',
+    'same_stationary_bilateral_horizontal_jump_and_terminal_stick_family',
+    'zero_rotation_vs_full_360_rotation',
+    'foot_supported_takeoff_vs_bar_swing_release',
+    '360_vs_90_degree_whole_body_turn',
+    '360_vs_180_degree_whole_body_turn',
+    'max_exercise_complexity_physical_difficulty',
+    'landingFootContactsPerRep',
+    'valid invalid partial assisted and incident attempts',
+    'coachAndAthleteRenderingRequired',
+    'revalidateAllGenerationInputs',
+    '2026-08-02.88',
+  ]) {
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+
+  for (const [variantKey, complexity, physical] of [
+    ['open-surface-natural-arm-bilateral-stick', 44, 48],
+    ['standing-parkour-two-foot-precision-low-restricted-target', 62, 54],
+    ['stationary-bilateral-forward-360-open-surface-stick', 78, 64],
+    ['standing-parkour-360-precision-low-restricted-target', 86, 68],
+  ]) {
+    const overall = Math.max(complexity, physical)
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(variantKey),
+    )
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(`"technicalComplexity":${complexity},"absoluteLoadDemand":${physical},"physicalDifficulty":${physical}`),
+    )
+    assert.ok(overall >= complexity && overall >= physical)
+  }
+
+  for (const videoId of [
+    '0M10agVeUzw',
+    'Fhz-s_Hqo8I',
+    '9sb4TYNHGio',
+    'FFgenf0h-3M',
+    'opS9-hg9Rzc',
+    'C4402xYqsXM',
+    'sB-XldxEVes',
+    '_ZXj9H_45po',
+    'jgkdLk_IuEQ',
+    'LSpKH0qsz6E',
+  ]) {
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  for (const assertion of [
+    /exercise_variant_v1[\s\S]*?status='review'[\s\S]*?<>4/,
+    /exercise_delivery_profile_v1[\s\S]*?stop_rules[\s\S]*?<>11/,
+    /exercise_section_evidence_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+    /exercise_media_candidate_v1[\s\S]*?link_status='healthy'[\s\S]*?<>10/,
+    /media\.link_status='healthy'[\s\S]*?<>5/,
+    /definition_id=survivor_definition[\s\S]*?exercise_alternate_assessment_v1[\s\S]*?<>24/,
+    /definition_id=rotation_definition[\s\S]*?exercise_alternate_assessment_v1[\s\S]*?<>17/,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>12/,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>6/,
+    /decision='duplicate_consolidated'[\s\S]*?<>1/,
+    /decision='distinct_exercises'[\s\S]*?<>6/,
+    /exercise_card_test_packet_v1[\s\S]*?jsonb_array_length\(blocking_issues_json\)=4\)<>2/,
+  ]) {
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      assertion,
+    )
+  }
+
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /source_kind='duplicate_consolidation'/,
+  )
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /\(rotation_definition,1,'bilateral_360_horizontal_jump_terminal_stick',2,6,17,4,4\)/,
+  )
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL[\s\S]*?is_published=FALSE/,
+  )
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,[\s\S]*?minimum_skill_level=NULL/,
+  )
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /captions_available IS NULL[\s\S]*?exact_variant_match IS NULL[\s\S]*?demonstration_quality_score IS NULL[\s\S]*?reviewer_user_id IS NULL AND reviewed_at IS NULL/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+
+  assert.doesNotMatch(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -11224,6 +11377,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     BACK_BRIDGE_SCORE_CONTRACT_CORRECTION_MIGRATION,
     HANDSTAND_SNAP_DOWN_FAMILY_AUDIT_HARDENING_MIGRATION,
     LACHE_TRANSFER_TAP_SWING_PRECISION_FAMILY_AUDIT_HARDENING_MIGRATION,
+    PRECISION_JUMP_IDENTITY_AND_360_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

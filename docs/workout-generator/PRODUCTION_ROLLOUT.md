@@ -1077,3 +1077,40 @@ are additive and should not be rolled back destructively during an incident.
   depth; run shadow generation and real coach pilot; rehearse on a clean
   database; and prove staged flags, monitoring, rollback, incident, and support
   operations before production authorization.
+
+## Automated gate snapshot after migrations 485–486
+
+- Source 19 now yields three machine-complete, publication-quarantined cards:
+  Two-Bar Lache Transfer to Retained Catch, Bar Hollow–Arch Tap Swing, and
+  Lache Precision to Two-Foot Stick. Together they provide 6 exact
+  difficulty-only variants, 16 operational profiles, 48 evidence sections, 15
+  current media candidates, 38 alternate assessments, 15 identity boundaries,
+  11 relationship proposals, and 12 calibration proposals. Each current audit
+  packet has only media, graph, calibration, and publication human gates.
+- Migration 485 passes repeated direct disposable-PostgreSQL execution,
+  production registration, stored/local checksum comparison, normal-runner
+  skip, and exact-file re-entry at checksum `376239898`. Independent audit
+  detected missing canonical load/provenance keys; corrective migration 486
+  passed the same gate sequence at checksum `4213002410` and reduced all three
+  cards to human-only blockers. This correction did not create an approval or
+  alter identity or difficulty.
+- Registry JSON `2026-08-02.87`/374, focused ESLint, JSON parsing,
+  `git diff --check`, focused `223/223`, full backend 1,022-pass/20-skip,
+  persisted audit, identity report, and production build pass. Existing stale
+  browser-data and large-chunk warnings remain advisory.
+- Global state is 1,676/1,676 mappings, 1,045 active definitions, 95 machine-
+  complete and 950 incomplete cards, and 94/1,045 exact current healthy
+  embeddable 3–5-candidate sets. Identity remains 617/617 adjudicated surfaced
+  pairs with zero unresolved pair or exact collision. Graph/calibration queues
+  contain 713/933 review-only rows and zero approvals.
+- Release is correctly `blocked`: 0/25 published, 0/3 approved depth in each
+  of seven phases, 0/10 approved relationships, 0/3 approved calibration
+  anchors, and 0/20 real coach reviews. The release report shows 1,045 cards in
+  review, 0 media failures, 713 relationships in review, 933 calibrations in
+  review, and 0 connected approved variants.
+- Production authorization still requires qualified full-video review,
+  evidence and identity review, independent score calibration, graph
+  adjudication, separate content review and publication approval, sufficient
+  published phase depth, shadow generation, representative substitutions and
+  failure testing, a real coach pilot, clean-database rehearsal, staged flags,
+  monitoring, rollback, incident response, and user/coach support readiness.

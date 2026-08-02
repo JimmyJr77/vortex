@@ -3132,3 +3132,45 @@ Standing Snap-Down, Donkey Kick, hand pop, unilateral landing, and altered
 terminal states. A Round-Off skill-library link does not import a proficiency
 level onto the exercise. Separate qualified content review and publication
 approval remain mandatory after all candidate decisions.
+
+## Lache / Tap Swing / Lache Precision source-19 review packet
+
+Review three distinct working cards. For `Two-Bar Lache Transfer to Retained
+Catch`, confirm bilateral closed overgrip, active source hang, hollow–arch tap,
+simultaneous release, no turn/flip, declared target height, bilateral catch,
+and retention to the first rearward apex. For `Bar Hollow–Arch Tap Swing`,
+confirm one-bar no-release support and the exact matching bottom-crossing full-
+cycle endpoint. For `Lache Precision to Two-Foot Stick`, confirm source-bar
+release, no target hand contact, simultaneous feet on the declared low target,
+and a two-second no-step/no-fall stick. The closed-overgrip and endpoints are
+conservative Vortex working contracts requiring review, not universal rules.
+
+Use the World Gymnastics 2021 Parkour Age Group manual and 2025 Table of Tricks
+to distinguish swing, Tap Swing, Lache Precision, turns, dynamic entries, and
+dismounts without copying age or acquisition levels. Use UrbanLeap pages
+151–154 for direct Lache transfer action, same/higher/lower target progression,
+faults, apparatus, and safety scope; it is a professional Erasmus+ handbook,
+not EU or universal medical approval. Treat the Gervais/Baudin release study,
+Kovacs release/regrasp paper, pull-up/scapular work, hangboard endurance,
+upper-extremity review, and parkour injury survey as adjacent evidence only.
+None proves a universal grip, release instant, catch rule, dose, recovery,
+eligibility threshold, progression order, outcome, or numeric difficulty.
+
+Watch all 15 candidates in full. Retained-catch IDs are `3o0NrxeRCsk`,
+`FuNZG4yF1jo`, `NrC-TbmShKQ`, `HMGZNRRTV4s`, and `PmGur4Nfzfc`; Tap Swing IDs
+are `SYdukm1xvEY`, `8epKPyb1e4g`, `rCe1Z0C9WnI`, `lcAyqMk4l7w`, and
+`yl2IawdA00o`; Precision IDs are `s0Xbm2An7W4`, `FHwls3YJ1_U`, `EDnsNRgcggo`,
+`zpVjQTemsJk`, and `4I5ZJ1-qSH0`. Current oEmbed responses prove metadata
+health only. Record full playback, exact definition/variant, grip, source and
+target geometry, release/no-release, turn, target contact, endpoint,
+assistance, captions, accessibility, demonstration/cue quality, safety,
+conflicts, reviewer identity, rationale, timestamp, and card-version match.
+
+Independently adjudicate 38 alternate assessments, 15 identity boundaries, 11
+graph proposals, and 12 complexity/physical-difficulty anchors. Pay particular
+attention to same-bar regrasp, dismount, half turn, one-arm catch, wall/cat
+contact, flipping release, dynamic entry, chained transfers, Dyno, Pole Swing,
+Underbar, Giant, Bar Cast, Cast to Handstand, standing Precision Jump, and any
+connection before the declared endpoint. Do not infer athlete readiness or a
+skill-library level from exercise difficulty. Separate qualified content
+review and independent publication approval remain mandatory.
