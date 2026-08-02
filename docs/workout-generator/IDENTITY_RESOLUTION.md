@@ -1706,3 +1706,35 @@ The post-migration detector remains closed at 616/616 adjudicated surfaced
 pairs across 1,042 active definitions, with zero unresolved pair and zero exact
 collision. No media, graph, calibration, content, or publication approval is
 inferred, and neither exercise card contains athlete skill/proficiency metadata.
+
+## Cartwheel marked-line contact identity
+
+Migration 478 preserves Cartwheel Hand-Placement Line Drill UUID
+`847bebc6-1eb0-4a61-835d-56ea156b4fca`. Legacy source 15 remains mapped for
+lineage, but its baseline is archived because “may stop before full leg
+turnover” does not define a repeatable endpoint and the source omits side, hand
+orientation, marker geometry, external support, turnover, terminal foot order,
+and valid completion. Those facts cannot be recovered from the name.
+
+The three selectable review variants are exact marked-line specifications:
+standing lunge, half-kneeling entry, and declared wall-assisted turnover. They
+retain the same scored sequence—lead foot, first hand, second hand, first foot,
+second foot, controlled opposite lunge—while changing a declared start or
+support constraint that the generator must select and persist. Marker spacing,
+sets, repetitions, rest, and qualified spotting within the exact contract are
+delivery annotations. The candidate T-shape hand orientation is explicit but
+is not asserted as universally correct.
+
+Panel-mat step-over changes support height, obstacle, and leg path. Finish Lunge
+scores only the terminal phase. Power Hurdle adds a dynamic entry. Round-Off
+adds feet-together snap-down. Freestanding and wall-supported Handstand cards
+score static holds. Donkey Kick uses bilateral hand support and a foot-hop
+cycle. All seven remain distinct definitions. Partial return, one-arm, aerial,
+beam, race, and conditioning forms also require a new exact card or quarantine,
+not a silent Cartwheel annotation.
+
+Full unmarked Cartwheel performance remains skill-library content, and its
+skill levels are not copied to the exercise. The post-migration detector stays
+closed at 616/616 surfaced pairs across 1,042 active definitions, with zero
+unresolved score-72-or-higher pair and zero exact collision. The seven recorded
+boundaries add provenance without fabricating reviewer approval.

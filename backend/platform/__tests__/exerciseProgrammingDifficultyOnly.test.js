@@ -637,6 +637,14 @@ const HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/477_coaching_handstand_hold_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/478_coaching_cartwheel_hand_placement_line_drill_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
+const BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/479_coaching_back_bridge_hold_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -10294,6 +10302,252 @@ test('Handstand Hold completion separates unsupported balance from exact wall-su
   )
 })
 
+test('Cartwheel line-drill completion defines exact marked-contact variants without copying skill-library levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'478_coaching_cartwheel_hand_placement_line_drill_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'standing-t-shape-marked-line-four-contact',
+    'half-kneeling-t-shape-marked-line-four-contact',
+    'wall-assisted-t-shape-marked-line-four-contact',
+    'lead_foot_start',
+    'first_hand',
+    'second_hand',
+    'first_foot',
+    'second_foot_finish',
+    'marked_line_contacts_vs_panel_mat_or_obstacle_step_over',
+    'full_marked_contact_cycle_vs_terminal_finish_only',
+    'static_or_step_entry_vs_power_hurdle_entry',
+    'sequential_foot_finish_vs_feet_together_snapdown',
+    'four_contact_rotation_vs_static_inverted_hold',
+    'wall_assisted_turnover_vs_static_wall_hold',
+    'alternating_hand_hand_foot_foot_sequence_vs_bilateral_foot_hop',
+    'full_unmarked_cartwheel_performance_and_skill_levels_remain_in_skill_cards',
+    'max_exercise_complexity_physical_difficulty',
+    'identity_quarantine',
+    'workingSpecificationRequiresHumanReview',
+  ]) {
+    assert.match(
+      CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [56, 50, 56],
+    [64, 58, 64],
+    [58, 54, 58],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'J4DISL56-kI',
+    'tc6EYwsUaws',
+    'kdPlscoyYO8',
+    'dFkTY-ZOSpU',
+    'CZb-afEMaIc',
+  ]) {
+    assert.match(
+      CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>8/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>6/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /exercise_identity_resolution_v1[\s\S]*?decision='distinct_exercises'[\s\S]*?<>7/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',2/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /'handContactsPerRep',2/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL,is_published=FALSE/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,minimum_skill_level=NULL/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(id\) DO UPDATE SET/,
+  )
+  assert.match(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(variant_id,profile_key\) DO UPDATE SET/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
+test('Back Bridge completion isolates the static hands-and-feet hold from dynamic skills without athlete proficiency', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'479_coaching_back_bridge_hold_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    'Gymnastics Back Bridge Hold',
+    'supine-entry-floor-bilateral-static-hold',
+    'supine-entry-feet-elevated-bilateral-static-hold',
+    'supine-entry-floor-one-leg-straight-up-static-hold',
+    'hands_and_feet_arch_hold_vs_shoulders_and_feet_hip_extension_repetition',
+    'static_hold_vs_standing_entry',
+    'supine_entry_vs_handstand_entry',
+    'static_hold_vs_kickover',
+    'static_hold_vs_back_walkover',
+    'static_hold_vs_bridge_pushup',
+    'fixed_support_vs_bridge_walk',
+    'head_clear_vs_head_supported_bridge',
+    'gymnastics_bridge_vs_glute_bridge',
+    'bridge_kickover_handstand_to_bridge_and_walkover_skill_levels_remain_in_skill_cards',
+    'max_exercise_complexity_physical_difficulty',
+    'identity_quarantine',
+  ]) {
+    assert.match(
+      BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(token),
+    )
+  }
+  for (const [complexity, physical, overall] of [
+    [68, 72, 72],
+    [64, 70, 70],
+    [76, 78, 78],
+  ]) {
+    assert.equal(overall, Math.max(complexity, physical))
+  }
+  for (const videoId of [
+    'TrxZLshL0Ec',
+    'aozR72_L16g',
+    'tSvmWU-0Zo0',
+    'usyrUMFhLUc',
+  ]) {
+    assert.match(
+      BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /count\(DISTINCT section_key\)[\s\S]*?<>16/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_alternate_assessment_v1[\s\S]*?review_status='candidate'[\s\S]*?<>32/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_relationship_v1[\s\S]*?review_status='review'[\s\S]*?<>8/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_score_calibration_v1[\s\S]*?status='review'[\s\S]*?<>6/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /exercise_identity_resolution_v1[\s\S]*?decision='distinct_exercises'[\s\S]*?<>9/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /'landingContactsPerRep',0/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL,is_published=FALSE/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /minimum_age_recommended=NULL,minimum_skill_level=NULL/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /protected_count<>0[\s\S]*?refuses to replace % human-reviewed records/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(id\) DO UPDATE SET/,
+  )
+  assert.match(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ON CONFLICT\(variant_id,profile_key\) DO UPDATE SET/,
+  )
+  for (const blocker of [
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+  ]) {
+    assert.match(
+      BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -10344,6 +10598,8 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     PULL_UP_CHIN_UP_FAMILY_COMPLETION_MIGRATION,
     HOLLOW_BODY_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
     HANDSTAND_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
+    CARTWHEEL_HAND_PLACEMENT_LINE_DRILL_AUDIT_HARDENING_MIGRATION,
+    BACK_BRIDGE_HOLD_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

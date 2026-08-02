@@ -3082,3 +3082,43 @@ adjudicated surfaced identity pairs with zero unresolved collision. Graph and
 calibration queues contain 665/891 review-only rows with zero approvals. Runner
 checksum is `913966457`; focused validation is `206/206`, and the backend suite
 is 1,009 passes plus 20 intentional skips.
+
+## Cartwheel Hand-Placement Line Drill canonical card
+
+The stable card is now an exact marked-line hand-hand-foot-foot Cartwheel drill
+rather than an ambiguous label that may stop before turnover. Standing,
+half-kneeling, and wall-assisted variants declare lead side, start, hand marks
+and candidate orientation, surface, wall/spotter contact, full leg turnover,
+first and second foot marks, opposite-lunge finish, invalidating events, and
+termination. The legacy source remains traceable but is not selectable.
+
+Difficulty is `64/58/64` for standing, `56/50/56` for half-kneeling, and
+`58/54/58` for wall-assisted, representing exercise complexity, physical
+difficulty, and their maximum. No exercise proficiency or athlete ranking is
+stored. The card includes controlled taxonomy and multiplanar anatomy, two hand
+and two foot contacts per complete repetition, impact/load/fatigue/recovery
+profiles, cumulative Cartwheel/Round-Off/Handstand/tumbling/landing exposure,
+equipment and lane constraints, population and symptom rules, and direct
+observation requirements.
+
+Six contextual profiles include dose, rest, duration bounds, setup/reset/
+transition time, one-athlete lane throughput, marker inspection, cumulative
+contacts, substitution revalidation, coach/athlete instructions, measurement,
+persistence, incident routing, and at least ten explicit stop rules. Seven
+identity boundaries and 32 alternate assessments prevent step-over,
+finish-only, hurdle, Round-Off, Handstand, Donkey Kick, partial-return,
+one-arm/aerial/beam, and conditioning tasks from being collapsed into the card.
+
+The current card has 16 candidate evidence sections, five healthy embeddable
+candidate videos, eight review-only relationships, six review-only difficulty
+anchors, and exactly the four media/graph/calibration/publication human gates.
+No exact-match, caption, quality, reviewer, content, or publication approval is
+inferred.
+
+The persisted global audit is 1,676/1,676 mapped legacy rows, 1,042 active
+definitions, 88 machine-complete and 954 machine-incomplete cards, 87/1,042
+definitions with exactly three to five current healthy embeddable candidates,
+and 616/616 adjudicated surfaced identity pairs with zero unresolved collision.
+Graph and calibration queues contain 673/897 review-only rows with zero
+approvals. Runner checksum is `1161560817`; focused validation is `212/212`, and
+the backend suite is 1,011 passes plus 20 intentional skips.

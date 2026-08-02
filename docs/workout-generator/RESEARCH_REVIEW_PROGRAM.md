@@ -2971,3 +2971,43 @@ proposals, and eight complexity/physical-difficulty anchors. Give particular
 scrutiny to unsupported versus wall-supported holds and static holds versus
 kick-ups, wall walks, toe pulls, shrugs, presses, and eccentric lowers. Separate
 qualified content review and publication approval remain mandatory.
+
+## Cartwheel Hand-Placement Line Drill human-review packet
+
+Review the standing, half-kneeling, and wall-assisted working specifications
+separately. Verify lead side, start, five marker locations, candidate T-shape
+hand orientation, surface stability, hand-hand-foot-foot contact order, no hand
+slide or regrasp, exact wall and spotter contract, full leg turnover, declared
+first and second foot marks, controlled opposite lunge, invalidating events,
+stop/exit behavior, lane clearance, observation, dose, rest, timing, symptoms,
+and cumulative hand-support, inversion, tumbling, jumping, and landing exposure.
+Difficulty review covers exercise complexity and physical difficulty only; it
+must not classify athlete proficiency or modify Cartwheel skill-card levels.
+
+Masaryk University's Safe Gymnastics material and USASF Cartwheel PT.14 provide
+direct marker, contact-sequence, lunge, line, side-handstand, panel-mat, and
+progression context. PMID `29343188`, DOI
+`10.1080/14763141.2021.1876755`, PMCID `PMC11235812`, PMID `12929780`, the
+International Journal of Sport Psychology manual-guidance experiments, and DOI
+`10.26858/cpjok.v18i1.524` provide adjacent loading, complexity, impact,
+practice-order, guidance, and floor-tape evidence. Preserve their limitations:
+small and task-specific samples do not establish one universal hand
+orientation, readiness or safety threshold, workout dose, recovery interval,
+progression order, transfer outcome, or numeric difficulty score.
+
+Watch `J4DISL56-kI`, `tc6EYwsUaws`, `kdPlscoyYO8`, `dFkTY-ZOSpU`, and
+`CZb-afEMaIc` in full. Current YouTube oEmbed responses establish only title,
+channel, thumbnail, iframe, and link health. Record exact definition/variant,
+side, start, marks, hand orientation, support, wall or spotter contact,
+turnover, foot order, finish, captions, accessibility, demonstration and cue
+quality, safety concerns, conflicts, reviewer identity, rationale, timestamp,
+and card-version match. Do not infer exactness or approval from title, channel,
+or successful embedding.
+
+Independently adjudicate all 32 alternate assessments, eight relationship
+proposals, and six complexity/physical-difficulty anchors. Give particular
+scrutiny to the wall-assisted contact contract, T-shape hand-orientation claim,
+partial returns, panel-mat step-overs, finish-only work, hurdle entries,
+Round-Off snap-down, static Handstands, Donkey Kicks, and unmarked Cartwheel
+skill performance. Separate qualified content review and publication approval
+remain mandatory.

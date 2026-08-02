@@ -943,3 +943,35 @@ are additive and should not be rolled back destructively during an incident.
   authorship, qualified review, shadow generation, the coach pilot, clean-
   database rehearsal, staged flags, monitoring, and rollback evidence remain
   production requirements.
+
+## Automated gate snapshot after migration 478
+
+- Cartwheel Hand-Placement Line Drill now exposes three exact difficulty-only
+  variants and six Prepare & Access/Movement Intelligence profiles. Side,
+  start, markers, hand orientation, support, wall contact, full turnover,
+  terminal foot order, finish, and stop/exit behavior are generator inputs.
+  Full Cartwheel skill levels remain exclusive to the skill library.
+- Direct and repeated disposable-PostgreSQL execution, production-runner
+  registration, exact-file re-entry, registry validation, focused `212/212`,
+  backend 1,011-pass/20-skip, focused lint, persisted audit, identity report,
+  diff integrity, and production build are green. Migration checksum is
+  `1161560817`; registry version `.83` contains 348 sources.
+- Five current healthy privacy-enhanced media candidates remain unapproved.
+  Qualified humans must verify full playback, exact card and variant, side,
+  start, hand orientation, five marks, support, wall/spotter contact, turnover,
+  foot order, finish, captions, accessibility, cue quality, safety, conflicts,
+  reviewer identity, timestamp, and card-version match. Eight graph proposals
+  and six exercise-difficulty anchors remain review-only.
+- The library maps all 1,676 legacy rows to 1,042 active definitions. Identity
+  remains closed at 616/616 surfaced pairs with zero unresolved pair and zero
+  exact collision. Machine-complete cards are 88 and machine-incomplete cards
+  are 954. Exact current-card healthy embeddable 3–5-video coverage is
+  87/1,042. All definitions remain quarantined; Cartwheel retains only media,
+  graph, calibration, and publication human blockers.
+- The operational release check remains intentionally blocked: 0 published
+  definitions, 0 approved graph edges, 0 approved calibration anchors, zero
+  approved depth in every required phase, and 0/20 real coach reviews. Global
+  graph/calibration queues are 673/897 review-only rows. Remaining card
+  authorship, qualified review, shadow generation, the coach pilot, clean-
+  database rehearsal, staged flags, monitoring, and rollback evidence remain
+  production requirements.

@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Archive, Loader2, Search, Trash2, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
+import AdminClassSetupCopyConfirmModal from './AdminClassSetupCopyConfirmModal'
 import { useSpreadsheetResize } from './useSpreadsheetResize'
 import {
   OVERVIEW_COLUMNS,
@@ -15,21 +16,34 @@ import {
   type OverviewColumnId,
   type SortConfig,
 } from './overviewColumns'
+import {
+  applyCopyChangePreviews,
+  buildCopyChangePreviews,
+  canReceiveCopy,
+  cellKey,
+  isCopyableColumn,
+} from './classSetupCopyPaste'
 import { type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
 import { archiveClassEvent, deleteClassEvent } from '../../utils/programsApi'
 
 interface Props {
   rows: ClassSetupOverviewRow[]
   unlocked: boolean
+  copyMode: boolean
+  onCopyModeChange: (active: boolean) => void
   onRefresh: () => void
 }
 
 const tdBase = 'px-3 py-2 align-top text-sm text-gray-900 border-b border-gray-100'
 const actionColumnWidth = 104
 
+type CopySource = { classId: number; columnId: OverviewColumnId }
+
 const AdminClassSetupOverviewTable = ({
   rows,
   unlocked,
+  copyMode,
+  onCopyModeChange,
   onRefresh,
 }: Props) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'program', direction: 'asc' })
@@ -39,7 +53,35 @@ const AdminClassSetupOverviewTable = ({
   const [collapsedColumns, setCollapsedColumns] = useState<Set<OverviewColumnId>>(() => new Set())
   const [pendingAction, setPendingAction] = useState<{ classId: number; kind: 'archive' | 'delete' } | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [copySource, setCopySource] = useState<CopySource | null>(null)
+  const [copyTargets, setCopyTargets] = useState<Set<string>>(() => new Set())
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [copySaving, setCopySaving] = useState(false)
+  const [copySaveError, setCopySaveError] = useState<string | null>(null)
   const { getColumnWidth, getRowHeight, startColumnResize, startRowResize } = useSpreadsheetResize()
+
+  const resetCopySelection = () => {
+    setCopySource(null)
+    setCopyTargets(new Set())
+    setConfirmOpen(false)
+    setCopySaveError(null)
+  }
+
+  const exitCopyMode = () => {
+    resetCopySelection()
+    onCopyModeChange(false)
+  }
+
+  useEffect(() => {
+    if (!copyMode) {
+      setCopySource(null)
+      setCopyTargets(new Set())
+      setConfirmOpen(false)
+      setCopySaveError(null)
+      return
+    }
+    setEditTarget(null)
+  }, [copyMode])
 
   const toggleColumnCollapsed = (columnId: OverviewColumnId) => {
     setCollapsedColumns((previous) => {
@@ -67,6 +109,13 @@ const AdminClassSetupOverviewTable = ({
     )
   }, [rows, filters, smartFilter, sortConfig])
 
+  const rowsById = useMemo(() => new Map(rows.map((row) => [row.classId, row])), [rows])
+
+  const changePreviews = useMemo(() => {
+    if (!copySource) return []
+    return buildCopyChangePreviews(rows, copySource.classId, copySource.columnId, copyTargets)
+  }, [rows, copySource, copyTargets])
+
   const handleSort = (columnId: OverviewColumnId) => {
     setSortConfig((prev) => {
       if (prev.column !== columnId) {
@@ -88,7 +137,36 @@ const AdminClassSetupOverviewTable = ({
     })
   }
 
+  const handleCopyCellClick = (row: ClassSetupOverviewRow, columnId: OverviewColumnId) => {
+    if (!isCopyableColumn(columnId)) return
+
+    if (!copySource) {
+      setCopySource({ classId: row.classId, columnId })
+      setCopyTargets(new Set())
+      return
+    }
+
+    const key = cellKey(row.classId, columnId)
+    if (row.classId === copySource.classId && columnId === copySource.columnId) {
+      // Re-clicking the source clears targets but keeps source; use Reset to fully clear.
+      return
+    }
+
+    if (!canReceiveCopy(copySource.columnId, row, columnId)) return
+
+    setCopyTargets((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
   const handleCellClick = (row: ClassSetupOverviewRow, columnId: OverviewColumnId) => {
+    if (copyMode) {
+      handleCopyCellClick(row, columnId)
+      return
+    }
     if (!unlocked) return
     const col = OVERVIEW_COLUMNS.find((c) => c.id === columnId)
     if (!col?.editable) return
@@ -132,6 +210,48 @@ const AdminClassSetupOverviewTable = ({
     }
   }
 
+  const handleConfirmCopySave = async () => {
+    if (!copySource) return
+    const source = rowsById.get(copySource.classId)
+    if (!source) {
+      setCopySaveError('Source class is no longer available. Reset and try again.')
+      return
+    }
+
+    setCopySaving(true)
+    setCopySaveError(null)
+    try {
+      await applyCopyChangePreviews(source, rowsById, changePreviews)
+      setConfirmOpen(false)
+      exitCopyMode()
+      await onRefresh()
+    } catch (e) {
+      setCopySaveError(e instanceof Error ? e.message : 'Failed to save copied values')
+    } finally {
+      setCopySaving(false)
+    }
+  }
+
+  const copyToastMessage = !copySource
+    ? 'Select field to copy'
+    : 'Select the cells within which you want to apply the copy.'
+
+  const cellCopyState = (
+    row: ClassSetupOverviewRow,
+    columnId: OverviewColumnId,
+  ): 'source' | 'viable' | 'target' | 'disabled' | null => {
+    if (!copyMode) return null
+    if (!isCopyableColumn(columnId)) return 'disabled'
+    if (copySource) {
+      const key = cellKey(row.classId, columnId)
+      if (row.classId === copySource.classId && columnId === copySource.columnId) return 'source'
+      if (copyTargets.has(key)) return 'target'
+      if (canReceiveCopy(copySource.columnId, row, columnId)) return 'viable'
+      return 'disabled'
+    }
+    return null
+  }
+
   return (
     <>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -165,6 +285,43 @@ const AdminClassSetupOverviewTable = ({
           <ClearFiltersButton filters={filters} onClear={() => setFilters({})} />
         </div>
       </div>
+
+      {copyMode && (
+        <div
+          className="mb-3 flex flex-col gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+          role="status"
+        >
+          <p className="text-sm font-bold text-amber-950">{copyToastMessage}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={resetCopySelection}
+              className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-sm text-amber-950 hover:bg-amber-100"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={exitCopyMode}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCopySaveError(null)
+                setConfirmOpen(true)
+              }}
+              disabled={!copySource || copyTargets.size === 0 || changePreviews.length === 0}
+              className="rounded-lg bg-vortex-red px-3 py-1.5 text-sm text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
         {actionError && (
           <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">
@@ -214,15 +371,33 @@ const AdminClassSetupOverviewTable = ({
                 <tr key={row.classId} className="hover:bg-gray-50/60 group relative">
                   {OVERVIEW_COLUMNS.map((column, columnIndex) => {
                     const value = getCellDisplayValue(row, column.id)
-                    const editable = column.editable && unlocked
                     const collapsed = collapsedColumns.has(column.id)
                     const columnWidth = renderedColumnWidths[columnIndex]
+                    const copyState = cellCopyState(row, column.id)
+                    const editable = column.editable && unlocked && !copyMode
+
+                    let copyClass = ''
+                    if (copyMode && !collapsed) {
+                      if (copyState === 'source') {
+                        copyClass = 'bg-green-200 text-green-950 cursor-default'
+                      } else if (copyState === 'target') {
+                        copyClass = 'bg-orange-300 text-orange-950 cursor-pointer'
+                      } else if (copyState === 'viable') {
+                        copyClass = 'bg-yellow-200 text-yellow-950 cursor-pointer hover:bg-yellow-300'
+                      } else if (copyState === 'disabled' || !isCopyableColumn(column.id)) {
+                        copyClass = 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      } else {
+                        // Awaiting source selection — copyable cells stay interactive.
+                        copyClass = 'cursor-pointer hover:bg-amber-100'
+                      }
+                    }
+
                     return (
                       <td
                         key={column.id}
-                        className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''} ${
-                          columnIndex === 0 ? 'relative' : ''
-                        }`}
+                        className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
+                          editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
+                        } ${copyClass}`}
                         style={{
                           width: columnWidth,
                           maxWidth: columnWidth,
@@ -256,7 +431,7 @@ const AdminClassSetupOverviewTable = ({
                       <button
                         type="button"
                         onClick={() => void handleArchive(row)}
-                        disabled={row.classArchived || pendingAction?.classId === row.classId}
+                        disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
                         className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
                         aria-label={`Archive ${row.className}`}
                         title={row.classArchived ? 'Already archived' : 'Archive class'}
@@ -268,7 +443,7 @@ const AdminClassSetupOverviewTable = ({
                       <button
                         type="button"
                         onClick={() => void handleDelete(row)}
-                        disabled={pendingAction?.classId === row.classId}
+                        disabled={copyMode || pendingAction?.classId === row.classId}
                         className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
                         aria-label={`Permanently delete ${row.className}`}
                         title="Permanently delete class"
@@ -297,6 +472,20 @@ const AdminClassSetupOverviewTable = ({
         target={editTarget}
         onClose={() => setEditTarget(null)}
         onSaved={onRefresh}
+      />
+
+      <AdminClassSetupCopyConfirmModal
+        open={confirmOpen}
+        changes={changePreviews}
+        saving={copySaving}
+        error={copySaveError}
+        onClose={() => {
+          if (!copySaving) {
+            setConfirmOpen(false)
+            setCopySaveError(null)
+          }
+        }}
+        onConfirm={() => void handleConfirmCopySave()}
       />
     </>
   )

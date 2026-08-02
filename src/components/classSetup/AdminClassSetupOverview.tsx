@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Lock, Unlock } from 'lucide-react'
+import { Copy, Loader2, Lock, Unlock } from 'lucide-react'
 import AdminClassSetupOverviewTable from './AdminClassSetupOverviewTable'
 import { fetchClassSetupOverview, type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
 const AdminClassSetupOverview = () => {
@@ -7,6 +7,7 @@ const AdminClassSetupOverview = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [unlocked, setUnlocked] = useState(false)
+  const [copyMode, setCopyMode] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -40,9 +41,29 @@ const AdminClassSetupOverview = () => {
               {rows.length} class{rows.length !== 1 ? 'es' : ''}
             </span>
           )}
+          {unlocked && (
+            <button
+              type="button"
+              onClick={() => setCopyMode(true)}
+              disabled={copyMode}
+              aria-label="Copy field values"
+              title="Copy field values across classes"
+              className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                copyMode
+                  ? 'border-amber-400 bg-amber-50 text-amber-800'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              } disabled:cursor-default`}
+            >
+              <Copy className="h-4 w-4" />
+              Copy
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setUnlocked((v) => !v)}
+            onClick={() => {
+              setUnlocked((v) => !v)
+              setCopyMode(false)
+            }}
             className={`inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border ${
               unlocked
                 ? 'border-vortex-red bg-vortex-red/5 text-vortex-red'
@@ -85,6 +106,8 @@ const AdminClassSetupOverview = () => {
         <AdminClassSetupOverviewTable
           rows={rows}
           unlocked={unlocked}
+          copyMode={copyMode}
+          onCopyModeChange={setCopyMode}
           onRefresh={load}
         />
       )}

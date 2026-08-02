@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.82",
+  "registryVersion": "2026-08-02.84",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2380,6 +2380,125 @@
       "publisher": "Journal of Strength and Conditioning Research",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 90
+    },
+    "safe_gymnastics_cartwheel_markers": {
+      "url": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/floor_12_cartwheel.html",
+      "title": "Safe Gymnastics 4all — Floor 12: Cartwheel",
+      "publisher": "Masaryk University Faculty of Sports Studies",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "usasf_cartwheel_pt14": {
+      "url": "https://resources.usasfmembers.net/wp-content/uploads/2020/09/02-PreSchool-FUNdamentals-Tumbling-PT14.pdf",
+      "title": "Preschool FUNdamentals Tumbling — Cartwheel PT.14",
+      "publisher": "U.S. All Star Federation",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "cartwheel_roundoff_hand_position_loads": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29343188/",
+      "title": "Technique selection in young female gymnasts: Elbow and wrist joint loading during the cartwheel and round-off",
+      "publisher": "European Journal of Sport Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "cartwheel_skill_complexity_upper_limb_loading": {
+      "url": "https://doi.org/10.1080/14763141.2021.1876755",
+      "title": "The effect of changes in fundamental skill complexity on upper limb loading and biomechanical characteristics of performance in female gymnastics",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "foundation_tumbling_upper_lower_impact": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11235812/",
+      "title": "Upper and lower limb impact loading during artistic gymnastics foundation floor tumbling skills",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "cartwheel_alternating_blocked_practice": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12929780/",
+      "title": "Alternating versus blocked practice in learning a cartwheel",
+      "publisher": "Perceptual and Motor Skills",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "cartwheel_manual_guidance_acquisition": {
+      "url": "https://www.ijsp-online.com/abstract/view/41/255",
+      "title": "When is manual guidance effective for the acquisition of complex skills in Gymnastics?",
+      "publisher": "International Journal of Sport Psychology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "cartwheel_floor_tape_learning": {
+      "url": "https://doi.org/10.26858/cpjok.v18i1.524",
+      "title": "Application of Floor Tape Media to Improve Psychomotor Ability: Cartwheel Movement Floor Exercise at Elementary School",
+      "publisher": "Competitor: Jurnal Pendidikan Kepelatihan Olahraga",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 68
+    },
+    "bridge_spine_hyperextension_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4769315/",
+      "title": "Stretching the Spines of Gymnasts: A Review",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "gymnast_spinal_rom_back_pain_dynamic_skills": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7225801/",
+      "title": "Spinal range of motion and back pain in female artistic gymnasts during back walkovers and back handsprings",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "back_walkover_hip_extension_lumbar_lordosis": {
+      "url": "https://www.tandfonline.com/doi/full/10.1080/10255842.2020.1812841",
+      "title": "Contribution of hip extension and lumbar lordosis during back walkover performed by rhythmic and woman artistic gymnasts: a preliminary study",
+      "publisher": "Computer Methods in Biomechanics and Biomedical Engineering",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 72
+    },
+    "young_gymnast_back_bridge_flexibility": {
+      "url": "https://www.apunts.org/en-control-flexibilitat-joves-gimnastes-competicio-articulo-resumen-S1886658110000617",
+      "title": "Flexibility testing in young competing gymnasts using a trigonometric method: one-year follow-up",
+      "publisher": "Apunts Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "canjump_back_bridge_foundations_manual": {
+      "url": "https://www.gymbc.org/media/o4opcs3u/gbc-canjump-manual-1.pdf",
+      "title": "CanJump Gymnastics Foundations Trampoline Manual",
+      "publisher": "Gymnastics Canada / Gymnastics BC",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "gymnastics_ontario_mag_back_bridge_rules": {
+      "url": "https://www.gymnasticsontario.ca/wp-content/uploads/2014/12/2015-16-MAG-ON-Prov-L12and3-Rules-Nov20152.pdf",
+      "title": "Ontario MAG Provincial Level 1–3 Rules",
+      "publisher": "Gymnastics Ontario",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "gymnastics_ontario_elite_pathways_back_bridge_rules": {
+      "url": "https://www.gymnasticsontario.ca/wp-content/uploads/2014/12/2016-17-Section-I-Technical-Rules-and-Regulations.pdf",
+      "title": "Canadian Elite Pathways Program Technical Rules",
+      "publisher": "Gymnastics Ontario",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "british_gymnastics_bridge_action_boundaries": {
+      "url": "https://mybg.british-gymnastics.org/store/downloadPublic?f=e810bf6f-df1b-4828-957d-6ddafe28f4c6.pdf&t=email",
+      "title": "East Midlands Gymnastics for All Rules 2026",
+      "publisher": "British Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 84
+    },
+    "ssep_gymnastics_bridge_instruction": {
+      "url": "https://ssep.com.au/how-to-correctly-perform-a-gymnastics-bridge/",
+      "title": "How to correctly perform a Gymnastics Bridge",
+      "publisher": "Sydney Sports and Exercise Physiology",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
     }
   }
 }

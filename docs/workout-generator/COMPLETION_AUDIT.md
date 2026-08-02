@@ -2851,3 +2851,53 @@ disposable PostgreSQL. The remaining gates are:
   is 86/1,042. Graph/calibration queues are 665/891 review-only rows with zero
   approvals. Both Handstand cards retain exactly `CARD-MEDIA-01`,
   `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+
+## Cartwheel Hand-Placement Line Drill audit hardening (migration 478)
+
+- Preserves canonical definition UUID
+  `847bebc6-1eb0-4a61-835d-56ea156b4fca` and legacy source 15 while archiving
+  source variant `b6c55d93-4ad8-4be1-aa08-2d31978dac0b` as a nonselectable
+  identity quarantine. The source permits an undefined early stop and does not
+  fix lead side, hand orientation, marker geometry, support, full turnover,
+  terminal foot order, or completion boundary.
+- Three review-selectable working specifications cover standing,
+  half-kneeling, and wall-assisted marked-line Cartwheel drills. Each declares
+  side, start, five marks, candidate T-shape hand orientation, sequential
+  hand-hand-foot-foot contacts, support and wall policy, full turnover,
+  opposite-lunge finish, invalidating events, and stop/exit behavior.
+- Difficulty vectors are `64/58/64`, `56/50/56`, and `58/54/58` for exercise
+  complexity, physical difficulty, and their maximum. Exercise and safety
+  skill/age fields are null; related full Cartwheel performance and its skill
+  levels remain skill-library content.
+- Seven mechanics boundaries keep panel-mat step-over, finish-only lunge, power
+  hurdle entry, Round-Off snap-down, freestanding Handstand hold,
+  wall-supported Handstand hold, and Donkey Kick separate. Thirty-two alternate
+  assessments also quarantine partial-return, one-arm, aerial, beam, dynamic,
+  and other identity-changing tasks.
+- Six Prepare & Access/Movement Intelligence profiles persist exact dosage,
+  timing, contacts, fatigue and impact budgets, logistics, substitutions,
+  quality gates, stop rules, measurements, coach/athlete rendering, and support
+  operations. The card stores 16 candidate evidence sections, five current
+  oEmbed-healthy media candidates, eight review-only graph proposals, six
+  review-only calibration proposals, and one test packet with exactly four
+  human blockers.
+- Evidence includes Masaryk University and USASF instruction plus Cartwheel
+  hand-position loading, skill-complexity, foundation-tumbling impact,
+  alternating-practice, manual-guidance, and floor-tape studies. Each claim is
+  limited to its studied task and population; no source establishes a universal
+  hand orientation, safety/readiness rule, dose, recovery interval, transfer
+  result, or numeric difficulty.
+- Migration 478 passes repeated direct disposable-PostgreSQL execution,
+  production-runner registration, and exact-file re-entry at checksum
+  `1161560817`. Registry `2026-08-02.83` contains 348 sources. Focused validation
+  passes `212/212`; the full backend suite passes 1,011 tests with 20 intentional
+  skips and zero failures. Focused lint, JSON validation, persisted audit,
+  identity report, diff integrity, and the production build pass. The release
+  check returns its expected blocked status.
+- The post-migration library remains 1,676/1,676 mapped legacy rows and 1,042
+  active definitions. Identity is closed at 616/616 surfaced pairs with zero
+  unresolved pair and zero exact collision. Machine-complete cards rise to 88,
+  leaving 954; exact current-card healthy embeddable 3–5-candidate coverage is
+  87/1,042. Graph/calibration queues are 673/897 review-only rows with zero
+  approvals. Cartwheel retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
