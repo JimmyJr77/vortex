@@ -299,6 +299,10 @@ export default function GymnasticsEvaluationPanel() {
   }
 
   const returnToEvaluationForm = () => {
+    // Create-form clears the skill list; restore Foundational Floor so evaluate is usable.
+    if (viewMode === 'create-form' || cards.length === 0) {
+      applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
+    }
     setViewMode('evaluate')
     setEditingFormId(null)
     setEditingFormName('')

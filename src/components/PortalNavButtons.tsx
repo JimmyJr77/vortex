@@ -19,7 +19,7 @@ interface PortalNavButtonsProps {
   availablePortals?: PortalId[]
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
   onLogout: () => void
-  /** Rendered between home and Logout (notification bell). */
+  /** Rendered before home (notification bell / alerts). */
   notifications?: ReactNode
 }
 
@@ -52,16 +52,16 @@ export default function PortalNavButtons({
   }, [open])
 
   return (
-    <div className="flex gap-2 flex-wrap items-center justify-center md:justify-end">
+    <div className="flex w-fit max-w-full flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-end">
       {selectablePortals.length > 0 && (
-        <div ref={rootRef} className="relative z-50">
+        <div ref={rootRef} className="relative z-50 w-full md:w-auto">
           <button
             type="button"
             aria-expanded={open}
             aria-haspopup="listbox"
             aria-label="Switch portal account"
             onClick={() => setOpen((value) => !value)}
-            className={`${HEADER_ACTION_BTN} bg-white text-black hover:bg-gray-100`}
+            className={`${HEADER_ACTION_BTN} w-full bg-white text-black hover:bg-gray-100 md:w-auto`}
           >
             <span>{PORTAL_LABELS[activePortal]}</span>
             <ChevronDown
@@ -74,7 +74,7 @@ export default function PortalNavButtons({
             <div
               role="listbox"
               aria-label="Available portals"
-              className="absolute right-0 top-full z-50 mt-2 min-w-[10.5rem] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 text-left shadow-2xl"
+              className="absolute left-0 right-0 top-full z-50 mt-2 min-w-[10.5rem] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 text-left shadow-2xl md:left-auto md:right-0"
             >
               {selectablePortals.map((portal) => {
                 const isActive = activePortal === portal
@@ -103,28 +103,30 @@ export default function PortalNavButtons({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => onSwitchPortal?.('website')}
-        className={`${HEADER_ACTION_BTN} bg-gray-700 text-white hover:bg-gray-600`}
-        aria-label="Return to website home"
-        title="Website home"
-      >
-        <Home className="h-4 w-4" aria-hidden />
-      </button>
+      <div className="flex items-center gap-2">
+        {notifications}
 
-      {notifications}
+        <button
+          type="button"
+          onClick={() => onSwitchPortal?.('website')}
+          className={`${HEADER_ACTION_BTN} bg-gray-700 text-white hover:bg-gray-600`}
+          aria-label="Return to website home"
+          title="Website home"
+        >
+          <Home className="h-4 w-4" aria-hidden />
+        </button>
 
-      <button
-        type="button"
-        onClick={onLogout}
-        className={`${HEADER_ACTION_BTN} bg-vortex-red text-white hover:bg-red-700`}
-        aria-label="Log out"
-        title="Log out"
-      >
-        <LogOut className="h-4 w-4" aria-hidden />
-        <span className="hidden sm:inline">Logout</span>
-      </button>
+        <button
+          type="button"
+          onClick={onLogout}
+          className={`${HEADER_ACTION_BTN} bg-vortex-red text-white hover:bg-red-700`}
+          aria-label="Log out"
+          title="Log out"
+        >
+          <LogOut className="h-4 w-4" aria-hidden />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 /** Bumped when backend behavior changes — visible on GET /api/health and admin email status. */
-export const API_BUILD_ID = 'promo-membership-stripe-2026-07-27'
+export const API_BUILD_ID = 'gymnastics-eval-list-2026-08-02'
 
 /** Advertised on GET /api/health → apiFeatures for frontend capability checks. */
 export const API_FEATURES = {
@@ -9,4 +9,5 @@ export const API_FEATURES = {
   memberEnrollments: true,
   needsEngineTemplates: true,
   needsEngineRequirements: true,
+  gymnasticsEvaluationList: true,
 }
