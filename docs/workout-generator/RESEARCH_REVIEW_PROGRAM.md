@@ -2895,3 +2895,39 @@ fatigue, and trained-sample studies. It does not establish universal grip,
 scapular position, readiness, safety, injury risk, load, dose, recovery,
 transfer, or difficulty. Qualified content review and a separate publication
 approver remain mandatory.
+
+## Hollow Body Hold human-review packet
+
+Review six static specifications separately: tuck arms-forward, side-specific
+one-leg-extended arms-forward, straight-leg arms-forward, straight-leg arms-
+overhead, fixed-overhead dumbbell, and fixed-overhead medicine-ball. Verify the
+surface, entry, posterior pelvis/trunk relationship, head and shoulder position,
+arm and leg lever, side, implement mass and fixed position, breathing, time
+start, first shape break, symptom stop, controlled exit, sets, rest, recorded
+seconds, and cumulative trunk, hip-flexor, shoulder, gripping, loaded-overhead,
+and related gymnastics exposure. Difficulty review covers exercise complexity
+and physical difficulty only; it is not an athlete proficiency classification.
+
+The CrossFit Gymnastics Training Guide supplies direct identity and technique
+context, and the CrossFit programming article separates initial static holds
+from later dynamic work. PMIDs `15085209`, `23127994`, `9118976`, `26467996`,
+`21975179`, and `18443772` provide adjacent pelvic-control, leg-lowering,
+pullover-boundary, or graded-isometric evidence. Preserve the limitations:
+abdominal hollowing is not itself the exact gymnastics Hollow Body Hold, and
+these sources do not establish a universal shape, progression order, dose,
+recovery interval, safety threshold, treatment effect, transfer outcome, or
+numeric difficulty score. Do not restore unrelated CPR PMID `32707142` or
+rowing PMID `19620925` to current-family provenance.
+
+Watch `QgVOvBM96eE`, `qU0r6449do4`, `pLt0s2cimdI`, `LlDNef_Ztsc`, and
+`VyrUmzIHmzw` in full. Current YouTube oEmbed metadata proves only present
+title, channel, thumbnail, and iframe health. Record full playback, exact
+static definition and variant, every identity dimension, captions,
+accessibility, demonstration and cue quality, safety concerns, conflicts,
+reviewer identity, rationale, timestamp, and card-version match. Do not infer
+exactness or approval from title, channel, or successful embedding.
+
+Independently adjudicate all 32 alternate assessments, 12 relationship
+proposals, and 12 complexity/physical-difficulty anchors. Give particular
+scrutiny to loaded holds versus dynamic pullovers or partner exchanges. Separate
+qualified content review and publication approval remain mandatory.

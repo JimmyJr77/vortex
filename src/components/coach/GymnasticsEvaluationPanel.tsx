@@ -421,7 +421,7 @@ export default function GymnasticsEvaluationPanel() {
     setViewMode('evaluate')
     setEditingSkills(false)
     setEditingFormId(null)
-    setMessage(null)
+    setMessage('Fresh evaluation ready')
     setError(null)
   }
 

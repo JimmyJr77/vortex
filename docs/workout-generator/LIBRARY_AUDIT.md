@@ -3020,3 +3020,31 @@ with zero unresolved collision. Graph and calibration queues contain 645/871
 review-only rows with zero approvals. Runner checksum is `2352809545`; focused
 validation is `206/206`, and the backend suite is 1,005 passes plus 20
 intentional skips.
+
+## Hollow Body Hold family completion (migration 476)
+
+The stable card is now a bounded static supine anti-extension hold rather than
+a generic “core” label. Six exact working variants declare pelvis and trunk
+shape, head/shoulder position, arm and leg lever, side where applicable,
+implement type and fixed position, breathing, time start, first-break stop, and
+controlled exit. Dynamic rocks, flutters, rolls, lowers, pullovers, throws,
+catches, exchanges, Dead Bug, and L-Sit are explicitly non-equivalent.
+
+The difficulty vectors are `34/32/34`, `42/44/44`, `40/54/54`, `48/66/66`,
+`58/74/74`, and `54/70/70` for exercise complexity, physical difficulty, and
+derived overall. Exercise and safety proficiency fields are null. The card has
+controlled taxonomy and multiplanar anatomy, zero landing contacts, lever and
+external-load profiles, fatigue/recovery and same-session budgets, equipment,
+environment and population constraints, 12 contextual profiles, exact duration
+and substitution revalidation, coach/athlete/support operations, 16 evidence
+sections, 32 alternate decisions, 12 graph proposals, 12 calibration proposals,
+and five current privacy-enhanced media candidates.
+
+The persisted audit leaves exactly the four human gates on Hollow Body Hold.
+The global snapshot is 1,676/1,676 mapped legacy rows, 1,042 active definitions,
+85 machine-complete and 957 machine-incomplete cards, 84/1,042 definitions with
+exactly three to five current healthy embeddable candidates, and 616/616
+adjudicated surfaced identity pairs with zero unresolved collision. Graph and
+calibration queues contain 657/883 review-only rows with zero approvals. Runner
+checksum is `1754451518`; focused validation is `208/208`, and the backend suite
+is 1,007 passes plus 20 intentional skips.

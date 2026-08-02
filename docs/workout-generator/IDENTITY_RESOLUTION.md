@@ -1641,3 +1641,35 @@ and qualified review.
 The post-migration detector contains 616/616 adjudicated surfaced pairs across
 1,042 active definitions, zero unresolved pair, and zero exact collision. No
 media, graph, calibration, content, or publication approval is inferred.
+
+## Hollow Body Hold static-shape identity
+
+Migration 476 preserves `hollow-body-hold` UUID
+`aad3f83d-14ba-45b9-b7fe-a6b52cd0424b` as the stable supine static anti-
+extension identity. Its repetition contract is a timed hold with the posterior
+pelvis/trunk relationship, declared limb lever, head and shoulder position,
+continuous breathing, first-shape-break termination, and controlled exit made
+explicit. Tuck, one-leg-extended, straight-leg, arms-forward, arms-overhead,
+fixed-overhead dumbbell, and fixed-overhead medicine-ball executions are exact
+variants because they retain that static contract while changing lever,
+laterality, external load, physical demand, and logistics.
+
+All three legacy source representations map to the stable identity for lineage,
+but remain archived and nonselectable because none supplies a complete working
+contract. A dumbbell or medicine ball belongs to this identity only when its
+position is fixed for the full timed hold. Dynamic shoulder extension/flexion,
+pullover, throw, catch, exchange, flutter, rocking, rolling, or lowering adds an
+action or changes the repetition boundary and therefore cannot be recovered as
+a mere equipment or tempo annotation.
+
+Hollow Rock, Hollow Body Rock to Freeze, Hollow Flutter Kick, Hollow-to-Arch
+Roll, Eccentric Hollow Body Lower, and Partner Hollow Body Medicine-Ball
+Exchange remain distinct. Dead Bug changes the limb-action and contralateral-
+control contract; L-Sit changes support, orientation, joint actions, and load.
+These boundaries prevent a workout substitution from silently changing dose,
+fatigue, floor-space, equipment, duration, or coaching requirements.
+
+The post-migration detector remains closed at 616/616 adjudicated surfaced
+pairs across 1,042 active definitions, with zero unresolved pair and zero exact
+collision. The records infer no media, graph, calibration, content, or
+publication approval and contain no athlete skill/proficiency classification.

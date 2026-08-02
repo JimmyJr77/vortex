@@ -879,3 +879,34 @@ are additive and should not be rolled back destructively during an incident.
   approval, approved profile depth, real shadow generation, a 20-workout coach
   pilot, empty-database bootstrap rehearsal, staged flags, monitoring, and
   rollback evidence remain required.
+
+## Automated gate snapshot after migration 476
+
+- Hollow Body Hold exposes six static, exact difficulty-only variants and 12
+  complete Movement Intelligence/Capacity profiles. A fixed implement remains
+  a load variant; any rock, flutter, roll, lower, pullover, throw, catch, or
+  exchange is a distinct action contract. Athlete readiness remains a workout-
+  selection input, while skill levels remain exclusive to skill-library cards.
+- Direct and repeated disposable-PostgreSQL execution, exact-file re-entry,
+  production-runner registration, registry validation, focused `208/208`,
+  backend 1,007-pass/20-skip, focused lint, persisted audit, diff integrity, and
+  production build are green. Migration checksum is `1754451518`.
+- Five current healthy privacy-enhanced media candidates remain unapproved.
+  Qualified reviewers must verify full playback, exact static definition and
+  variant, lever, side, implement and position, entry, breathing, stop, exit,
+  captions, accessibility, cue quality, safety, conflicts, reviewer identity,
+  timestamp, and card-version match. Twelve graph proposals and 12 complexity/
+  physical-difficulty anchors remain review-only.
+- The current library maps all 1,676 legacy rows to 1,042 active definitions.
+  Identity remains closed at 616/616 surfaced pairs with zero unresolved pair
+  and zero exact collision. Machine-complete cards are 85 and machine-
+  incomplete cards are 957. Exact current-card healthy embeddable 3–5-video
+  coverage is 84/1,042. All definitions remain quarantined; Hollow Body Hold
+  retains only media, graph, calibration, and publication human blockers.
+- This is not rollout authorization. Global graph/calibration queues are
+  657/883 review-only rows with zero approvals. The remaining authored-content
+  backlog, qualified media and relationship review, independent score
+  calibration, content review, separate publication approval, approved phase
+  depth, real shadow generation, the 20-workout coach pilot, empty-database
+  bootstrap rehearsal, staged flags, monitoring, and rollback evidence remain
+  required.

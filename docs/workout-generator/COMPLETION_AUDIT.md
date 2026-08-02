@@ -2760,3 +2760,46 @@ disposable PostgreSQL. The remaining gates are:
   leaving 958; exact current-card healthy embeddable 3–5-candidate coverage is
   83/1,042. Pull-Up / Chin-Up retains exactly `CARD-MEDIA-01`,
   `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+
+## Hollow Body Hold identity and family completion (migration 476)
+
+- Preserves stable Hollow Body Hold UUID
+  `aad3f83d-14ba-45b9-b7fe-a6b52cd0424b` and maps all three traceable legacy
+  sources to it. The generic bodyweight, dumbbell, and medicine-ball source
+  representations remain archived identity quarantines because their text does
+  not establish an exact working position, implement placement, dose, or stop.
+- Six selectable static specifications cover tuck arms-forward, side-specific
+  one-leg-extended arms-forward, straight-leg arms-forward, straight-leg arms-
+  overhead, fixed-overhead dumbbell, and fixed-overhead medicine-ball holds.
+  Their complexity/physical/overall vectors are `34/32/34`, `42/44/44`,
+  `40/54/54`, `48/66/66`, `58/74/74`, and `54/70/70`. No exercise skill or
+  proficiency classification is stored; overall is the maximum of the two
+  exercise-difficulty dimensions.
+- Hollow Rock, rock-to-freeze, flutter-kick, hollow-to-arch roll, eccentric
+  lower, partner medicine-ball exchange, Dead Bug, and L-Sit remain distinct by
+  action, support, implement behavior, or repetition boundary. A loaded variant
+  is a Hollow Body Hold only when the implement remains fixed throughout the
+  timed hold; a pullover, throw, catch, or exchange changes the exercise.
+- Twelve contextual Movement Intelligence/Capacity profiles persist exact dose,
+  duration, load and fatigue budgets, logistics, substitutions, coach/athlete/
+  support output, and failure-state persistence. Sixteen candidate evidence
+  sections, 32 alternate assessments, 12 review-only graph edges, 12 review-
+  only calibration anchors, and five current oEmbed-healthy media candidates
+  are stored without approval.
+- The research packet removes unrelated CPR PMID `32707142` and rowing PMID
+  `19620925`; dynamic pullover boundary evidence uses PMID `21975179`.
+  Abdominal-hollowing and leg-lowering studies remain adjacent evidence and do
+  not prove the exact gymnastics shape, a universal dose, recovery interval,
+  safety threshold, transfer outcome, or numeric difficulty score.
+- Migration 476 passes direct and repeated disposable-PostgreSQL execution,
+  production-runner registration, and exact-file re-entry at checksum
+  `1754451518`. Registry `2026-08-02.81` contains 331 sources. Focused validation
+  passes `208/208`; the full backend suite passes 1,007 tests with 20 intentional
+  skips and zero failures. Focused lint, registry parsing, persisted audit, diff
+  integrity, and the production build pass.
+- The authoritative library remains 1,676/1,676 mapped legacy rows and 1,042
+  active definitions. All 616 surfaced identity pairs are adjudicated, with
+  zero unresolved pair and zero exact collision. Machine-complete cards rise to
+  85, leaving 957; exact current-card healthy embeddable 3–5-candidate coverage
+  is 84/1,042. Hollow Body Hold retains exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
