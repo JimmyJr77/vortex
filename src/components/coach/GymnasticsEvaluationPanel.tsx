@@ -68,6 +68,37 @@ function evaluationDateLabel(value: string) {
   return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleDateString()
 }
 
+function requestStatus(err: unknown): number | null {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const status = Number((err as { status?: unknown }).status)
+    return Number.isFinite(status) ? status : null
+  }
+  return null
+}
+
+function normalizeEvaluationRow(
+  row: Partial<EvaluationListItem> & {
+    id: number | string
+    first_name?: string | null
+    last_name?: string | null
+    athlete_name?: string | null
+  },
+  fallbackAthlete?: string,
+): EvaluationListItem {
+  const athleteFromNames = [row.first_name, row.last_name].filter(Boolean).join(' ').trim()
+  return {
+    id: Number(row.id),
+    member_id: row.member_id ?? null,
+    evaluated_at: String(row.evaluated_at || '').slice(0, 10),
+    evaluation_name: row.evaluation_name || DEFAULT_FORM_NAME,
+    recipient_email: row.recipient_email ?? null,
+    coach_note: row.coach_note ?? null,
+    report: row.report && typeof row.report === 'object' ? row.report : {},
+    athlete_name: row.athlete_name || athleteFromNames || fallbackAthlete || null,
+    coach_name: row.coach_name ?? null,
+  }
+}
+
 const scoreOptions = [1, 2, 3, 4, 5]
 const DEFAULT_FORM_ID = '__foundational_floor__'
 const DEFAULT_FORM_NAME = 'Foundational Floor'
@@ -206,8 +237,40 @@ export default function GymnasticsEvaluationPanel() {
     setHistoryLoading(true)
     setError(null)
     try {
-      const rows = await coachFetch<EvaluationListItem[]>('/api/coach/gymnastics-evaluations')
-      setHistoryItems(Array.isArray(rows) ? rows : [])
+      try {
+        const rows = await coachFetch<EvaluationListItem[]>('/api/coach/gymnastics-evaluations')
+        setHistoryItems((Array.isArray(rows) ? rows : []).map((row) => normalizeEvaluationRow(row)))
+        return
+      } catch (err) {
+        // Older Render builds only expose per-athlete evaluation routes.
+        if (requestStatus(err) !== 404) throw err
+      }
+
+      const chunks = await Promise.all(
+        members.map(async (member) => {
+          try {
+            const rows = await coachFetch<
+              Array<
+                Partial<EvaluationListItem> & {
+                  id: number | string
+                  first_name?: string | null
+                  last_name?: string | null
+                }
+              >
+            >(`/api/coach/athletes/${member.id}/gymnastics-evaluations`)
+            return (Array.isArray(rows) ? rows : []).map((row) =>
+              normalizeEvaluationRow(row, member.name),
+            )
+          } catch {
+            return [] as EvaluationListItem[]
+          }
+        }),
+      )
+      const merged = chunks.flat().sort((a, b) => {
+        if (a.evaluated_at === b.evaluated_at) return b.id - a.id
+        return a.evaluated_at < b.evaluated_at ? 1 : -1
+      })
+      setHistoryItems(merged)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load athlete evaluations.')
       setHistoryItems([])
@@ -221,8 +284,19 @@ export default function GymnasticsEvaluationPanel() {
     setHistoryDetailLoading(true)
     setError(null)
     try {
-      const detail = await coachFetch<EvaluationDetail>(`/api/coach/gymnastics-evaluations/${id}`)
-      setHistoryDetail(detail)
+      try {
+        const detail = await coachFetch<EvaluationDetail>(`/api/coach/gymnastics-evaluations/${id}`)
+        setHistoryDetail({
+          ...normalizeEvaluationRow(detail),
+          movements: Array.isArray(detail.movements) ? detail.movements : [],
+        })
+        return
+      } catch (err) {
+        if (requestStatus(err) !== 404) throw err
+      }
+      const item = historyItems.find((row) => row.id === id)
+      if (!item) throw new Error('Evaluation not found.')
+      setHistoryDetail({ ...item, movements: [] })
     } catch (err) {
       setHistoryDetail(null)
       setError(err instanceof Error ? err.message : 'Unable to load evaluation details.')
@@ -252,7 +326,8 @@ export default function GymnasticsEvaluationPanel() {
   useEffect(() => {
     if (viewMode !== 'history') return
     void loadHistory()
-  }, [viewMode])
+    // Reload when roster arrives so the per-athlete fallback can populate.
+  }, [viewMode, members])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
