@@ -199,7 +199,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       schedule: 'Schedule',
       skillLevel: 'Skill Level',
       status: 'Status',
-      active: 'Status',
       costPerMonth: 'Pricing',
     }
     return `Edit ${labels[columnId] ?? columnId}`
@@ -211,8 +210,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       !row.programsId &&
       columnId !== 'className' &&
       columnId !== 'classDescription' &&
-      columnId !== 'status' &&
-      columnId !== 'active'
+      columnId !== 'status'
     ) {
       setError('This class has no parent program.')
       return
@@ -268,7 +266,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           })
           break
         case 'status':
-        case 'active':
           if (statusValue === 'Legacy') {
             await archiveClassEvent(row.classId, true)
           } else {
@@ -434,7 +431,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       )
       break
     case 'status':
-    case 'active':
       body = (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>

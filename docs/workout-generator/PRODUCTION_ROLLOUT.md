@@ -1238,3 +1238,71 @@ are additive and should not be rolled back destructively during an incident.
   monitoring, rollback, and incident proof; support readiness; and a real
   coach pilot. The remaining 946 machine-incomplete cards still require exact
   family-by-family authorship.
+
+## 2026-08-02 — Source 24 rollout checkpoint
+
+- Immutable migration 495 (`303191298`, registered
+  `2026-08-02 15:51:41.167193-04`) passes unchanged direct execution,
+  production-runner registration/skip, stored/local checksum comparison,
+  exact-file re-entry, family invariants, and authoritative audit. It creates
+  no human review or approval state.
+- Source 24 contributes one machine-complete survivor, two exact review
+  variants, four operational profiles, one current five-video candidate set,
+  and quarantined evidence, alternate, identity, graph, calibration, content,
+  and publication packets. Source 897 is an archived duplicate, reducing the
+  active-definition count by one without losing legacy mapping or provenance.
+- Global automated coverage is 1,676/1,676 mappings, 1,046 active definitions,
+  102 machine-complete / 944 machine-incomplete, 101 healthy current
+  embeddable 3–5-media sets, 750 review-only graph edges, 961 review-only
+  calibration rows, 628/628 surfaced identity pairs adjudicated, zero
+  unresolved collision, and zero approvals or publications. Coverage is
+  14.82% score, 14.63% anatomy, 11.76% load, 12.14% fatigue, 14.63% support,
+  14.82% operational, 14.63% candidate-research cards, and 9.66% healthy
+  embeddable sets.
+- Focused tests pass 236/236, the full backend passes 1,038 with 20 intentional
+  skips, and lint, JSON parsing, diff integrity, persisted/no-persist audits,
+  identity reporting, release checks, and production build pass.
+- Release remains correctly `blocked`: 0/25 published, zero approved phase
+  depth, 0/10 approved relationships, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. Production authorization still requires qualified
+  full-video and content review; evidence/alternate/identity/graph/difficulty
+  adjudication; separate publication approval; published phase depth; shadow
+  generation; representative substitutions and failure tests; clean deployment
+  rehearsal; staged flags; monitoring, rollback, and incident proof; support
+  readiness; and a real coach pilot. The remaining 944 machine-incomplete
+  cards still require exact family-by-family authorship.
+
+## 2026-08-02 — Source 25 rollout checkpoint
+
+- Immutable migration 496 (`2147238365`, registered
+  `2026-08-02 16:24:07.458606-04`) passes two unchanged direct executions,
+  production-runner registration and skip, stored/local checksum comparison,
+  exact-file re-entry, persisted/no-persist audits, family assertions, identity
+  reporting, and release checking. It creates no human review or approval.
+- Source 25 contributes one machine-complete survivor, two exact review
+  variants, four operational profiles, one current five-video candidate set,
+  and quarantined evidence, alternate, identity, graph, calibration, content,
+  and publication packets. Source 889 is an archived duplicate with its ordered
+  segmental sequence preserved as an exact survivor variant, reducing active
+  definitions by one without losing legacy mapping or provenance.
+- Global automated coverage is 1,676/1,676 mappings, 1,045 active definitions,
+  103 machine-complete / 942 machine-incomplete, 102 current healthy
+  embeddable 3–5-media sets, 755 review-only graph edges, 965 review-only
+  calibration rows, 628/628 surfaced identity pairs adjudicated, zero
+  unresolved collision, and zero approvals or publications. Release coverage
+  is 14.93% score, 14.74% anatomy, 11.87% load, 12.25% fatigue, 14.74%
+  support, 14.93% operational, 14.74% candidate-research cards, and 9.76%
+  healthy embeddable sets.
+- Focused tests pass 238/238; the full backend passes 1,040 with 20 intentional
+  skips; focused ESLint, four changed-JSON parses, diff integrity, PostgreSQL
+  proofs, audits, identity/release reports, and production build pass. Existing
+  browser-data freshness and the 855.69-kB Admin chunk warning are nonblocking.
+- Release remains correctly `blocked`: 0/25 published, zero approved phase
+  depth, 0/10 approved relationships, 0/3 approved calibration anchors, and
+  0/20 real coach reviews. Production authorization still requires full-video,
+  evidence, alternate, identity, graph, difficulty, content, and publication
+  review; published phase depth; shadow generation; representative
+  substitutions and failure tests; clean deployment rehearsal; staged flags;
+  monitoring, rollback, and incident proof; support readiness; and a real
+  coach pilot. The remaining 942 machine-incomplete cards continue with Source
+  26 `Quadruped Spinal Circles`.

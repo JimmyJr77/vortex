@@ -1,0 +1,219 @@
+{
+  "batchKey": "cat-cow-v1",
+  "researchVersion": "2026-08-02.93",
+  "snapshotAt": "2026-08-02T20:05:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/cat-cow",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "ace_cat_cow_exercise_library",
+      "claims": [
+        "ACE specifies a hands-and-knees base with hands under shoulders and knees under hips, then alternates whole-spine flexion and extension while the head follows the spinal shape.",
+        "Model sagittal spinal flexion-extension and pelvic tilt as the active task, scapular glide as a coupled observation, and bilateral hands, knees, shoulders, elbows, wrists, hips, and knees as support rather than claiming isolated action at one vertebral level."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "pan_imu_spine_rehabilitation_2024",
+      "claims": [
+        "A 2024 measurement study treated full-spine Cat-Cow as a repeated whole-spine rehabilitation exercise and estimated a head-to-pelvis flexion angle in five repetitions performed by twelve healthy young adult men.",
+        "The task has low external load but observable multi-segment coordination; no source assigns a Vortex score or athlete level, so exercise complexity and physical difficulty remain independent review-only proposals."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "ace_cat_cow_exercise_library",
+      "claims": [
+        "ACE describes a no-external-equipment floor task supported on both hands and knees; the moving spine and pelvis remain under body-segment mass while the upper limbs and knees maintain the quadruped base.",
+        "Track hand, wrist, shoulder, knee, spinal-range, duration, and technical exposure without calling the task unloaded or inventing tissue force, fatigue, or a universal recovery interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "aopt_low_back_pain_cpg_2021",
+      "claims": [
+        "The low-back-pain guideline supports individualized exercise and movement-control or trunk-mobility exercise in applicable clinical contexts while emphasizing patient-centered assessment and screening for red flags.",
+        "A generator may select Cat-Cow only when the participant can safely enter, support, move, and exit the exact quadruped base; pain behavior, neurologic symptoms, trauma, clinical restrictions, wrist or knee intolerance, and floor-transfer limits require modification, another card, or escalation rather than diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "aopt_low_back_pain_cpg_2021",
+      "claims": [
+        "Clinical guidance distinguishes general exercise from evaluation of serious pathology and neurologic deficit and does not make one flexion-extension drill universally appropriate for every back-pain presentation.",
+        "Stop for sharp, increasing, radiating, or unfamiliar pain; numbness, tingling, weakness, saddle sensory change, bowel or bladder change, dizziness, faintness, loss of support, inability to return to neutral, or participant request, and route urgent or clinical concerns without diagnosing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nasm_beginner_cat_cow_program",
+      "claims": [
+        "NASM includes Cat-Cow in an example dynamic warm-up at two sets of ten repetitions, which shows one professional programming context rather than a universal prescription.",
+        "Use conservative contextual ranges, count actual complete cycles, stop before support or spinal sequencing degrades, and revalidate cumulative wrist, knee, shoulder, and spinal-range exposure before later loaded or high-output work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_cat_cow_exercise_library",
+      "claims": [
+        "ACE provides visible quadruped setup, neutral start, cat flexion, cow extension, breathing, and neutral return cues suitable for conversion into concise athlete instructions.",
+        "Athlete support must explain one complete counted cycle, comfortable range, steady support, expected mild muscular or stretch sensation, warning symptoms, self-checks, and how to stop and exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "special_olympics_cat_cow_cooldown",
+      "claims": [
+        "Special Olympics publishes Cat-Cow as a sport cool-down video, supporting an inclusive coach-facing demonstration context but not proving universal access or a specific modification.",
+        "Provide visual, verbal, and written phases, optional mat cushioning, fewer cycles, smaller comfortable range, slower pacing, and rest; separately select or author non-floor, elevated-hand, neutral-wrist, or seated tasks when support and transfer contracts change."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Nine legacy candidates across sources 25 and 889 returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-02; five title-relevant standard or segmental candidates were selected.",
+        "oEmbed health does not prove playback, exact standard or segmental sequence, range, support, breathing, captions, accessibility, cue quality, safety, conflicts, reviewer identity, or approval; all five remain candidates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "cat-cow",
+      "assessmentSummary": {
+        "identity": "One bilateral quadruped spinal flexion-extension cycle: from a stable neutral hands-and-knees base, move through comfortable whole-spine and pelvic flexion, reverse through neutral into comfortable extension, then return to neutral without leaving the declared contacts. Standard coordinated motion and a deliberately caudal-to-cranial segmental wave are exact variants of the same definition; added lateral circling, rotation, limb lift, locomotion, hover, external load, or a non-quadruped base changes identity.",
+        "currentCardFindings": [
+          "Source 25 has one schema/card-v1 skeletal variant, two incomplete legacy profiles, empty controlled taxonomy/anatomy/load/fatigue/constraints/support/programming data, zero evidence or alternates, four unverified candidate media rows, no calibration, one incoming full-body-flow distinct boundary, and 20 blockers.",
+          "Source 889 Cat-Cow Segmental Wave describes the same endpoints, actions, contacts, and full-cycle boundary with stricter ordered segmental sequencing. Consolidate its duplicate definition into source 25 while preserving a selectable segmental-wave exact variant and both source lineages.",
+          "Legacy source 25 age_min=4, source 889 age_min=8, and both is_published=true values are unsupported exercise-card classifications or approvals and must be cleared rather than migrated."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace"],
+          "bodyRegions": ["spine", "thoracic_spine", "neck", "rib_cage", "pelvis", "core", "scapula", "shoulder", "wrist", "knee"],
+          "support": "bilateral_hands_and_knees_quadruped_with_stable_contacts",
+          "laterality": "bilateral_symmetric",
+          "equipment": ["none", "mat_optional"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 24,
+          "absoluteLoadDemand": 10,
+          "physicalDifficulty": 10,
+          "baseOverallDifficulty": 24,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)",
+          "variantScoreProposals": {
+            "standard_coordinated": {"technicalComplexity": 24, "physicalDifficulty": 10, "baseOverallDifficulty": 24},
+            "segmental_wave": {"technicalComplexity": 34, "physicalDifficulty": 10, "baseOverallDifficulty": 34}
+          }
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_closed_chain_quadruped_support_with_active_spinal_flexion_extension",
+          "impactClass": "none",
+          "primaryExposure": ["bilateral_hand_and_knee_support", "wrist_extension_tolerance", "shoulder_and_scapular_support", "active_spinal_flexion_extension", "pelvic_tilt_control"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2",
+          "completeCycles": "4-10",
+          "tempo": "slow_continuous_or_briefly_paused_without_forced_end_range",
+          "rest": "as_needed_to_preserve_support_breathing_and_spinal_control",
+          "durationRule": "setup_plus_actual_phase_and_cycle_seconds_plus_pauses_rest_invalid_or_partial_attempts_symptom_response_substitution_and_safe_floor_exit"
+        },
+        "programmingDecision": "Use standard or segmental-wave Cat-Cow only for low-load quadruped spinal flexion-extension when exact floor access, contacts, comfortable range, symptoms, dose, and downstream support budgets fit. Breath phase, range, hold, tempo, cycle count, and optional mat are delivery annotations. Select distinct spinal-circle, thoracic-only, cervical-only, non-quadruped, hover, loaded, limb-lift, or flow cards when those are the actual tasks.",
+        "calibrationEvidence": {
+          "basis": "ACE direct instruction, NASM example warm-up dosage, Special Olympics inclusive cool-down context, the AOPT low-back-pain guideline, a small healthy-adult IMU study, five current oEmbed candidates, and direct comparison with sources 26 and 889",
+          "uncertainty": "No source validates one universal spinal shape, segmental order, range, breath phase, hold, dose, frequency, recovery interval, treatment effect, eligibility rule, progression order, injury-prevention claim, or Vortex difficulty score.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "spinal_action_and_support_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "ace_cat_cow_exercise_library",
+          "claims": [
+            "ACE defines the recognizable task as quadruped neutral setup followed by cat flexion, cow extension, and return rather than lateral circling, rotation, limb lift, or locomotion.",
+            "Preserve source 889's mandatory segment-by-segment sequencing as an exact variant of the same full cycle; source 26's lateral circular path is a distinct definition."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ace_cat_cow_exercise_library",
+          "claims": [
+            "The task is bilateral closed-chain quadruped whole-spine flexion-extension with pelvic tilt and coupled scapular motion in the sagittal plane.",
+            "Use the existing controlled `brace` pattern for low-load trunk control; keep spinal mobility and flexion-extension in purpose and anatomy rather than inventing an uncontrolled movement-pattern key."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "pan_imu_spine_rehabilitation_2024",
+          "claims": [
+            "The study operationalized full-spine Cat-Cow as a repeated cycle and selected head-to-pelvis flexion as a measurable angle, supporting whole-spine phase and repetition tracking.",
+            "Its twelve healthy young adult male participants and measurement objective do not establish segment-by-segment technique, normal range, safety, clinical effectiveness, or universal dose."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "nasm_beginner_cat_cow_program",
+          "claims": [
+            "NASM's two sets of ten repetitions is one example within a beginner warm-up, while ACE uses longer phase holds; this variation argues against one universal dose.",
+            "Author review-only ranges of one to two sets and four to ten complete cycles, calculate actual time from selected phase duration and all transitions, and stop before support or sequencing degrades."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "ace_cat_cow_exercise_library",
+          "claims": [
+            "Direct ACE steps support hands under shoulders, knees under hips, neutral start, exhaled flexion, controlled extension, head following the spine, and a neutral return.",
+            "The card must count a complete flexion-plus-extension cycle, keep breathing comfortable rather than forced, maintain hand and knee contacts, use comfortable range, and stop on warning symptoms or support loss."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "aopt_low_back_pain_cpg_2021",
+          "claims": [
+            "Clinical guidance supports exercise and movement-control or trunk-mobility interventions for appropriate presentations but requires patient-centered assessment and red-flag screening rather than universal exercise assignment.",
+            "Coach support must verify floor access and exit, wrist/knee/shoulder tolerance, symptoms and restrictions, show side and front views, observe spinal and pelvic phases plus support contacts, and escalate without diagnosis."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "ace_cat_cow_exercise_library",
+          "claims": [
+            "ACE's exact hands-and-knees flexion-extension boundary separates the canonical task from seated, standing, circular, rotational, hover, loaded, and limb-lift alternatives.",
+            "Consolidate source 889 at the definition level but preserve segmental sequencing as a variant; keep breath, range, phase-hold, tempo, cycle-count, and optional-mat changes as delivery annotations."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=1Y0YjXS9sKI","title":"How to Do a Cat Cow Stretch: A Guide from Physical Therapists","channelName":"Hinge Health","sourceQuery":"legacy source-25 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=8kUU_odEY3o","title":"How to: Cat cow exercise by the Women's Sports Medicine Program at Mass General","channelName":"MGHOrthopaedics","sourceQuery":"legacy source-25 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=T0MsxeAROUQ","title":"How to Do the Cat Cow | Medbridge","channelName":"Medbridge","sourceQuery":"legacy source-25 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=d_k1g-SJR-4","title":"Segmental Cat Cow | Spine Range of Motion | Flexion & Extension","channelName":"E3 Rehab Exercise Library","sourceQuery":"legacy source-889 segmental candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=bKYGb1TgS6o","title":"1 Minute Mobility - Segmental Cat Cow","channelName":"The Jiu-Jitsu Therapist","sourceQuery":"legacy source-889 segmental candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-02T20:00:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Cat-Camel or Cat Cow","classification":"same_identity","rationale":"Common naming aliases retain the same quadruped flexion-extension cycle when contacts, phases, and neutral return are exact.","distinguishingDimensions":{"alias":true}},
+        {"name":"Standard Coordinated Quadruped Cat-Cow","classification":"new_variant","rationale":"The whole spine and pelvis move as a coordinated flexion-extension pattern without mandatory segment-by-segment ordering.","distinguishingDimensions":{"variant":"standard_coordinated","authorship":"proposed_exact_variant"}},
+        {"name":"Cat-Cow Segmental Wave","classification":"new_variant","rationale":"Source 889 retains the same contacts, actions, endpoints, and full cycle but requires ordered pelvis-to-spine sequencing, so its duplicate definition should consolidate while the exact sequencing variant remains selectable.","distinguishingDimensions":{"sourceLegacyExerciseId":889,"variant":"segmental_wave","disposition":"definition_consolidation_variant_preservation"}},
+        {"name":"Inhale Cow / Exhale Cat or Comfortable Breath Timing","classification":"modifier_annotation","rationale":"Breath phase changes delivery when the same support, spinal phases, full cycle, and no-breath-hold rule remain.","distinguishingDimensions":{"delivery":"breath_phase"}},
+        {"name":"Cat-Cow Phase Holds, Tempo, Cycles, or Rest","classification":"modifier_annotation","rationale":"Brief holds, cadence, cycle count, and rest change dose rather than the exact repetition boundary.","distinguishingDimensions":{"delivery":["phase_hold","tempo","cycles","rest"]}},
+        {"name":"Range-Reduced Cat-Cow","classification":"modifier_annotation","rationale":"Smaller comfortable flexion-extension range remains the same task if both phases and neutral return remain intended and observable.","distinguishingDimensions":{"delivery":"range"}},
+        {"name":"Cat-Cow on Optional Mat or Knee Cushion","classification":"modifier_annotation","rationale":"Stable cushioning changes contact comfort and setup without changing the hand-and-knee support or scored spinal cycle.","distinguishingDimensions":{"delivery":"surface_cushioning"}},
+        {"name":"Neutral-Wrist Cat-Cow on Fists, Handles, or Wedges","classification":"new_variant","rationale":"Hand interface and wrist position materially change support and equipment and require an exact reviewed support variant before selection.","distinguishingDimensions":{"support":"neutral_wrist_interface","reviewState":"identity_quarantine"}},
+        {"name":"Elevated-Hands Cat-Cow on Bench or Box","classification":"new_variant","rationale":"Elevating the hands changes trunk angle, load distribution, equipment, clearance, and exit while preserving a possible flexion-extension cycle; author separately before use.","distinguishingDimensions":{"support":"elevated_hands","reviewState":"identity_quarantine"}},
+        {"name":"Seated Cat-Cow","classification":"new_definition","rationale":"A seated base removes bilateral hand-and-knee loading and changes pelvic, shoulder, scapular, transfer, and support contracts.","distinguishingDimensions":{"base":"seated"}},
+        {"name":"Standing Wall- or Chair-Supported Cat-Cow","classification":"new_definition","rationale":"Standing support, balance, hand contact, trunk orientation, and fall/exit rules differ from quadruped.","distinguishingDimensions":{"base":"standing_supported"}},
+        {"name":"Supine Pelvic Tilt or Supine Spinal Flexion-Extension","classification":"new_definition","rationale":"A supine surface supports the spine and removes closed-chain hand-and-knee loading, creating different actions and feedback.","distinguishingDimensions":{"base":"supine"}},
+        {"name":"Quadruped Spinal Circles","classification":"new_definition","rationale":"Source 26 adds lateral shifting or lateral flexion and a circular path in both directions rather than one sagittal flexion-extension cycle.","distinguishingDimensions":{"targetDefinitionId":"c8a4e447-0b65-4c0b-985b-7f5466fc07ec","action":"multi_planar_circle"}},
+        {"name":"Thoracic-Only Cat-Camel","classification":"new_definition","rationale":"Holding the pelvis and lumbar region while isolating thoracic flexion-extension changes the intended moving region and completion rule.","distinguishingDimensions":{"movingRegion":"thoracic_only"}},
+        {"name":"Quadruped Cervical Flexion-Extension","classification":"new_definition","rationale":"Moving only the neck while the thorax and pelvis remain fixed omits the canonical whole-spine and pelvic cycle.","distinguishingDimensions":{"movingRegion":"cervical_only"}},
+        {"name":"Cat-Cow with Tail Wag or Lateral Flexion","classification":"new_definition","rationale":"Adding side bending changes plane, action sequence, repetition boundary, and measurement.","distinguishingDimensions":{"addedAction":"lateral_flexion"}},
+        {"name":"Cat-Cow to Child's Pose or Down-Dog Flow","classification":"new_definition","rationale":"Leaving quadruped contacts for another pose adds transition, support, endpoint, and duration contracts.","distinguishingDimensions":{"task":"multi_pose_flow"}},
+        {"name":"Hover or Bear-Position Cat-Cow","classification":"new_definition","rationale":"Lifting the knees creates a loaded hover with different strength, fatigue, support, and failure demands.","distinguishingDimensions":{"support":"knees_hovering","load":"increased_bodyweight_support"}},
+        {"name":"Bird-Dog or Limb-Lift Cat-Cow","classification":"new_definition","rationale":"Removing a hand or knee contact and moving a limb adds balance, laterality, anti-rotation, and limb-action requirements.","distinguishingDimensions":{"support":"three_point_or_two_point","addedAction":"limb_lift"}},
+        {"name":"Loaded, Banded, Partner-Resisted, or Manual-Assisted Cat-Cow","classification":"new_definition","rationale":"External force, anchor or partner contact, consent, load magnitude, failure consequence, and clinical scope create a different task.","distinguishingDimensions":{"externalForce":true}}
+      ]
+    }
+  ]
+}

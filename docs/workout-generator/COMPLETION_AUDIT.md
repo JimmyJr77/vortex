@@ -3310,3 +3310,106 @@ disposable PostgreSQL. The remaining gates are:
   score anchors, content, and publication state still require qualified human
   review. No media, content, graph, calibration, or publication approval was
   fabricated.
+
+## Source 24 Neck CARs completion — 2026-08-02
+
+- Immutable migration 495
+  (`495_coaching_neck_cars_identity_and_family_audit_hardening.sql`) is
+  registered at checksum `303191298`, timestamp
+  `2026-08-02 15:51:41.167193-04`. Its exact 1,023-line file passed unchanged
+  direct execution twice before registration, normal-runner registration and
+  skip, stored/local checksum comparison, and exact registered-file re-entry.
+- Source 24 `Neck CARs` now survives as definition
+  `ee59b220-042c-482a-b7b5-5923d644c800`, card/schema version 2. Source 897
+  `Neck CARs with Tall Posture` is a deterministically consolidated duplicate;
+  its definition and skeletal variant are archived and its source mapping now
+  points to the survivor with duplicate lineage. Source 898 `Wall Cervical
+  Rotation + Chin Nod` and the full-body joint CARs flow remain distinct.
+- Two selectable review variants are authored: standing independent at
+  `28/4/28` and seated supported at `24/3/24`. Values are exercise complexity,
+  physical difficulty, and their derived maximum. No exercise skill,
+  proficiency, readiness, or age classification exists.
+- The persisted family has 4 delivery profiles, 16 current candidate evidence
+  rows, 5 current healthy oEmbed-only media candidates, 20 alternate
+  assessments, 5 controlled-dimension review-only relationships, 4 review-only
+  complexity/physical-difficulty calibrations, and 2 survivor-owned identity
+  decisions. Its current automated packet has exactly `CARD-MEDIA-01`,
+  `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Draft-only failures were transactional: one malformed JSON constructor, one
+  254-character athlete instruction, and one legacy `SMALLINT` projection
+  mismatch were corrected before registration. Diagnostic notices were removed
+  before the immutable bytes were run twice and registered. No partial state or
+  approval was created.
+- Focused canonical-audit/research/difficulty tests pass 236/236. The complete
+  backend suite passes 1,038 tests with 20 intentional skips. Focused ESLint,
+  registry/batch/generated/manifest JSON parsing, diff integrity, persisted and
+  no-persist audits, identity reporting, release checks, and the production
+  build pass. Existing browser-data/caniuse-lite freshness and 855.69-kB Admin
+  chunk warnings remain nonblocking advisories.
+- The post-495 snapshot is 1,676/1,676 legacy mappings, 1,046 active
+  definitions, 102 machine-complete and 944 incomplete cards, 101 current
+  healthy embeddable 3–5-candidate sets, 628/628 surfaced identity pairs
+  adjudicated, zero unresolved pair, zero direct collision, 750/0 graph
+  review/approved, 961/0 calibration review/approved, and zero published. All
+  1,046 active cards remain quarantined.
+- Release remains correctly `blocked`: 0/25 published, zero approved phase
+  depth in all seven phases, 0/10 approved relationships, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews. Qualified humans still
+  must review Source 24 evidence, all five full videos, alternate and identity
+  decisions, graph proposals, score anchors, content, and publication.
+
+## Source 25 Cat-Cow completion — 2026-08-02
+
+- Immutable migration 496
+  (`496_coaching_cat_cow_identity_and_family_audit_hardening.sql`) is
+  registered at checksum `2147238365`, timestamp
+  `2026-08-02 16:24:07.458606-04`. Its exact 1,047-line file passed direct
+  execution twice unchanged before registration, production-runner
+  registration and checksum-safe skip, stored/local checksum comparison, and
+  exact registered-file re-entry.
+- Source 25 `Cat-Cow` survives as definition
+  `29f1f054-8700-4233-9866-63810e69242e`, card/schema version 2. Source 889
+  `Cat-Cow Segmental Wave`, definition
+  `366ca335-c637-4f44-b0f3-616e8db8ee76`, is consolidated as a duplicate and
+  archived; its legacy mapping now points to the survivor while the mandatory
+  ordered sequence is preserved as an exact variant. Source 26 `Quadruped
+  Spinal Circles`, Source 27 `Thread-the-Needle`, and the full-body CARs flow
+  retain distinct repetition contracts.
+- Two selectable review variants are persisted: standard coordinated
+  `3d36d51f-99e0-43db-91a4-da04a49647d5` at `24/10/24` and ordered segmental
+  `8fb77631-0365-471f-a1ce-eb17320b6b99` at `34/10/34`. Values are exercise
+  complexity, physical difficulty, and their derived maximum. Both legacy
+  rows now have null skill/age fields, false publication state, and no linked
+  skill classification.
+- The current family has 4 review delivery profiles, 16 candidate evidence
+  applications, 5 healthy oEmbed-only media candidates, 20 alternate
+  assessments, 5 controlled-dimension review-only relationships, 4 review-only
+  complexity/physical-difficulty calibrations, and 2 survivor-owned identity
+  decisions. Its packet contains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Persisted definition, media,
+  graph, and calibration approval-row counts are all zero.
+- The SQL draft passed on its first and second unchanged executions. The first
+  focused research run correctly exposed 34 stale source-registry-version
+  expectations after registry `.93`; those expectations were updated, and an
+  explicit Cat-Cow research test plus migration contract test were added. No
+  SQL correction or partial transactional state was required.
+- Focused canonical-audit/research/difficulty tests pass 238/238. The complete
+  backend suite passes 1,040 tests with 20 intentional skips. Focused ESLint,
+  four changed-JSON parses, `git diff --check`, direct and production-runner
+  PostgreSQL checks, persisted and no-persist audits, family invariant queries,
+  identity reporting, release checking, and the production build pass.
+  Existing baseline-browser/caniuse-lite freshness and the 855.69-kB Admin
+  chunk are nonblocking advisories.
+- The authoritative post-496 snapshot is 1,676/1,676 legacy mappings, 1,045
+  active definitions, 103 machine-complete and 942 machine-incomplete cards,
+  102 current healthy embeddable 3–5-candidate sets, 628/628 surfaced identity
+  pairs adjudicated, zero unresolved pair, zero direct collision, 755/0 graph
+  review/approved, 965/0 calibration review/approved, and zero published. All
+  1,045 active definitions remain quarantined.
+- Release remains correctly `blocked`: 0/25 published definitions, zero
+  approved depth in all seven phases, 0/10 approved relationships, 0/3 approved
+  calibration anchors, and 0/20 real coach reviews. Qualified humans must still
+  review all five videos in full, 16 evidence applications, 20 alternates, the
+  identity decisions, 5 graph proposals, 4 score anchors, content, and
+  publication. The next exact machine-incomplete family is Source 26
+  `Quadruped Spinal Circles`.

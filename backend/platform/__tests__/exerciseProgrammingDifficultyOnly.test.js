@@ -701,6 +701,10 @@ const NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
   new URL('../../migrations/495_coaching_neck_cars_identity_and_family_audit_hardening.sql', import.meta.url),
   'utf8',
 )
+const CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION = readFileSync(
+  new URL('../../migrations/496_coaching_cat_cow_identity_and_family_audit_hardening.sql', import.meta.url),
+  'utf8',
+)
 const RECENT_FAMILY_IDENTITY_BOUNDARY_MIGRATION = readFileSync(
   new URL('../../migrations/405_coaching_recent_family_identity_boundary_closure.sql', import.meta.url),
   'utf8',
@@ -11974,6 +11978,129 @@ test('Neck CARs audit consolidates the tall-posture duplicate and authors exact 
   )
 })
 
+test('Cat-Cow audit consolidates the segmental duplicate while preserving exact variants and human gates', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'496_coaching_cat_cow_identity_and_family_audit_hardening\.sql'/,
+  )
+  for (const token of [
+    '496_coaching_cat_cow_identity_and_family_audit_hardening',
+    '2026-08-02.93',
+    '29f1f054-8700-4233-9866-63810e69242e',
+    '366ca335-c637-4f44-b0f3-616e8db8ee76',
+    'c8a4e447-0b65-4c0b-985b-7f5466fc07ec',
+    '1032ba98-fa48-4960-a039-2d11b2a492cc',
+    '3d36d51f-99e0-43db-91a4-da04a49647d5',
+    '8fb77631-0365-471f-a1ce-eb17320b6b99',
+    'standard-coordinated-quadruped-cycle',
+    'ordered-segmental-wave-cycle',
+    'duplicate_consolidated',
+    'duplicate_consolidation',
+    'superseded_source_skeleton',
+    'quadruped_spinal_flexion_extension_full_cycle',
+    'mat_optional',
+    'mobilityAndFlexionExtensionRemainPurposeAndAnatomyNotInventedMovementKeys',
+    'physicalDifficulty',
+    'exercise_complexity',
+    'physical_difficulty',
+    'overallFormula',
+    'max_exercise_complexity_physical_difficulty',
+    'CARD-MEDIA-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+    'CARD-PUBLISH-01',
+    'humanReviewRequired',
+    'approvalsCreated',
+  ]) {
+    assert.ok(
+      CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION.includes(token),
+      `missing Cat-Cow migration token ${token}`,
+    )
+  }
+
+  for (const videoId of [
+    '1Y0YjXS9sKI', '8kUU_odEY3o', 'T0MsxeAROUQ', 'd_k1g-SJR-4', 'bKYGb1TgS6o',
+  ]) {
+    assert.match(
+      CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /standard_variant,'standard-coordinated-quadruped-cycle'[^]*?24,10,24,16,14,12,24/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /segmental_variant,'ordered-segmental-wave-cycle'[^]*?34,10,36,20,14,14,32/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /review_status='candidate'[\s\S]*?<>16/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /demonstration_quality_score IS NULL[\s\S]*?<>5/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /reviewed_card_version=2[\s\S]*?reviewer_user_id IS NULL\)<>20/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /conditions_json->>'migration'=migration_key[\s\S]*?<>5/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /variant_id=ANY\(active_variant_ids\)[\s\S]*?<>4/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /resolved_definition_id IN\(duplicate_definition,spinal_circle_definition\)[\s\S]*?<>2/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /length\(athlete_instructions\) BETWEEN 10 AND 240/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ARRAY\['complexity','stability'\]/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /ARRAY\['range','complexity','decision_demand'\]/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /jsonb_array_length\(blocking_issues_json\)=4/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /skill_level=NULL,age_min=NULL,age_max=NULL/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /technical_complexity=34,absolute_load_demand=10[\s\S]*?base_overall_difficulty=greatest\(34,10\)/,
+  )
+  assert.match(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /refuses to overwrite % human-reviewed records/,
+  )
+  assert.doesNotMatch(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /['"](?:athleteProficiency|athleteSkillOrProficiencyClassification|exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+  assert.doesNotMatch(
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    /(?:review_status|status)\s*=\s*'approved'\s*[,;]/,
+  )
+})
+
 test('recent completion migrations calibrate complexity and physical difficulty, never derived overall', () => {
   for (const migration of [
     ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
@@ -12034,6 +12161,7 @@ test('recent completion migrations calibrate complexity and physical difficulty,
     CROCODILE_BREATHING_FAMILY_AUDIT_HARDENING_MIGRATION,
     FULL_BODY_JOINT_CARS_FLOW_AUDIT_HARDENING_MIGRATION,
     NECK_CARS_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
+    CAT_COW_IDENTITY_AND_FAMILY_AUDIT_HARDENING_MIGRATION,
   ]) {
     assert.doesNotMatch(
       migration,

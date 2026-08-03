@@ -1980,6 +1980,41 @@ and do not merge identities. After migrations 491–492, the detector reports
 zero unresolved pair, and zero exact collision. No qualified human identity or
 relationship approval is implied.
 
+## 2026-08-02 — Source 25 Cat-Cow identity closure
+
+Source 25 `Cat-Cow` survives at
+`29f1f054-8700-4233-9866-63810e69242e`. Source 889 `Cat-Cow Segmental Wave`,
+definition `366ca335-c637-4f44-b0f3-616e8db8ee76`, is a duplicate at the
+definition level: it retains the same bilateral hands-and-knees base, sagittal
+spinal flexion and extension endpoints, complete two-phase cycle, and neutral
+return. Migration 496 archives the duplicate definition and skeletal variant,
+remaps legacy source 889 to the survivor with duplicate-consolidation
+provenance, and preserves mandatory pelvis-to-spine sequencing as selectable
+exact variant `8fb77631-0365-471f-a1ce-eb17320b6b99`. The coordinated exact
+variant is `3d36d51f-99e0-43db-91a4-da04a49647d5`.
+
+Source 26 `Quadruped Spinal Circles` remains distinct at
+`c8a4e447-0b65-4c0b-985b-7f5466fc07ec` because it adds lateral shift or
+flexion and a circular multi-planar path. Source 27 `Thread-the-Needle` remains
+distinct because it is a rotational task, and the full-body CARs flow remains
+distinct because it is a multi-region ordered sequence. Seated, standing,
+supine, thoracic-only, cervical-only, lateral-flexion, hover, limb-lift,
+multi-pose-flow, loaded, resisted, partner, manual, and clinical versions
+change base, contact, moving region, action, load, or service scope and require
+separate definitions. Neutral-wrist and elevated-hand forms remain quarantined
+potential exact variants until their support/equipment contracts are authored.
+Breath phase, range, brief phase holds, tempo, cycle count, rest, and optional
+stable mat cushioning remain delivery annotations only when both phases, all
+four contacts, declared sequencing, and neutral return are unchanged.
+
+The persisted survivor owns two machine identity decisions: duplicate
+consolidation for Source 889 and a distinct-exercise boundary for Source 26.
+The detector remains 628/628 surfaced score-72-or-higher pairs adjudicated
+across 1,045 active definitions, with zero unresolved pair and zero direct
+collision. These deterministic decisions preserve lineage and quarantine but
+do not constitute qualified human identity, content, graph, or publication
+approval.
+
 ## 2026-08-02 — Source 23 Full-Body Joint CARs identity decision
 
 Source 23 retains one composite definition,
@@ -2013,3 +2048,31 @@ After immutable migrations 493–494, the detector remains 628/628 surfaced
 score-72-or-higher pairs adjudicated across 1,047 active definitions, with zero
 unresolved pair and zero exact collision. No human identity, relationship, or
 publication approval is implied.
+
+## 2026-08-02 — Source 24 Neck CARs identity closure
+
+Source 24 `Neck CARs` remains the survivor at
+`ee59b220-042c-482a-b7b5-5923d644c800`. Source 897 `Neck CARs with Tall
+Posture` is a direct duplicate: tall stacked posture is setup and quality for
+the same complete active cervical CAR path, directions, completion, and exit,
+not a separate scored action. Migration 495 archives definition
+`b0142272-15c6-4c52-bc27-c715a0fc41a8` and variant
+`fce891ab-7041-4edb-92b6-b464ce6a5d64`, remaps legacy source 897 to the
+survivor, and preserves explicit duplicate-consolidation provenance.
+
+Source 898 `Wall Cervical Rotation + Chin Nod` remains distinct at definition
+`9f724fc9-6861-49a0-8f2d-f279543ca303` because its wall-feedback chin nod and
+side-to-side axial rotation do not traverse a complete cervical CAR. The
+full-body CARs flow also remains distinct. Rotation-only, nod-only, isometric,
+resisted, passive/manual-assisted, vestibular, generic neck-roll, clinical
+assessment/treatment, incomplete selected-joint, forced, fast, uncontrolled,
+and symptom-provoking tasks are distinct, quarantined, or rejected according
+to their exact contracts. Range, tempo, circle count, rest, and voluntary
+tension are delivery annotations only when the complete path and selected base
+remain unchanged. Supine CARs remains unresolved until its gravity, support,
+range, and exit contract is authored.
+
+After duplicate consolidation, the detector still has 628/628 surfaced
+score-72-or-higher pairs adjudicated, zero unresolved pair, and zero direct
+identity collision across 1,046 active definitions. These machine decisions do
+not constitute human identity, relationship, content, or publication approval.

@@ -19,7 +19,6 @@ export type OverviewColumnId =
   | 'excludeFromDropIns'
   | 'status'
   | 'costPerMonth'
-  | 'active'
 
 export type FilterKind = 'text' | 'numeric' | 'status' | 'skillLevel' | 'primarySport' | 'currency'
 

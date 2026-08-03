@@ -1,0 +1,13 @@
+{
+  "batchKey": "cat-cow-v1",
+  "researchVersion": "2026-08-02.93",
+  "generatedAt": "2026-08-02T20:05:00.000Z",
+  "cards": [
+    {
+      "slug": "cat-cow",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 20
+    }
+  ]
+}

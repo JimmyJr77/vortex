@@ -3305,6 +3305,41 @@ difficulty vectors `18/4/18`, `20/3/20`, and `24/5/24`. Exercise difficulty is
 not an athlete proficiency level. Separate qualified content review and
 independent publication approval remain mandatory.
 
+## 2026-08-02 — Source 24 Neck CARs human-review packet
+
+The registry is `2026-08-02.92` / 391 sources. Sixteen candidate evidence
+applications draw on ACE professional CARs guidance, the Kinstretch starter
+pack, the 2025 nonspecific-neck-pain clinical practice guideline, and a 2019
+cervical-range/compensation study. Reviewers must keep these scopes separate:
+the professional sources support slow deliberate active comfortable motion and
+compensation awareness; the clinical sources supply studied action/plane and
+warning context only. None establishes one universal path/range, universal
+dose/frequency/recovery, eligibility, outcome, injury prevention, progression
+order, or Vortex difficulty score.
+
+Watch all five candidates fully before any media state changes:
+
+- `J3tkQ4pk_Sc`;
+- `c-zu1t-NsSo`;
+- `iIt5_T8HM_Q`;
+- `4wV_Jkk34ho`;
+- `xqBwoN7AglQ`.
+
+Current oEmbed health proves title/channel/thumbnail/embed metadata only, not
+playback or exactness. Record exact full cervical path, selected standing or
+seated base, directions, range policy, compensation, symptoms/stops, dose,
+captions, accessibility, cue/demonstration quality, safety, conflicts,
+reviewer identity, rationale, timestamp, and card-version match.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, the
+source-897 duplicate and source-898 distinct decisions, 5 graph proposals,
+and 4 complexity/physical-difficulty anchors. Verify the standing `28/4/28`
+and seated `24/3/24` vectors, coach/athlete/support content, all instruction
+lengths, and every stop/incident/persistence rule. The automated packet must
+retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review. Separate content review and
+independent publication approval remain mandatory.
+
 ## 2026-08-02 — Source 23 Full-Body Joint CARs human-review packet
 
 The registry is `2026-08-02.91` / 390 sources. Sixteen candidate evidence
@@ -3341,3 +3376,42 @@ stop/incident/persistence rule. The automated packet must retain exactly
 `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
 `CARD-PUBLISH-01` until qualified review. Separate content review and
 independent publication approval remain mandatory.
+
+## 2026-08-02 — Source 25 Cat-Cow human-review packet
+
+The registry is `2026-08-02.93` / 396 sources. Sixteen candidate evidence
+applications draw on ACE direct Cat-Cow instruction, the Academy of Orthopaedic
+Physical Therapy low-back-pain guideline, a 2024 healthy-adult IMU measurement
+study, one NASM example warm-up, a Special Olympics cool-down demonstration,
+and YouTube's embed documentation. Reviewers must preserve scope: ACE supports
+the recognizable quadruped phases and setup; the guideline supplies clinical
+selection/red-flag context, not a Cat-Cow prescription; the twelve-man IMU
+study supports cycle measurement, not technique or outcomes; and NASM/Special
+Olympics show example contexts only. None establishes universal spinal shape,
+segmental order, range, breath phase, dose, frequency, recovery, eligibility,
+treatment effect, progression, prevention, or a Vortex score.
+
+Watch all five candidates in full before any media state changes:
+
+- `1Y0YjXS9sKI` — Hinge Health;
+- `8kUU_odEY3o` — MGHOrthopaedics;
+- `T0MsxeAROUQ` — Medbridge;
+- `d_k1g-SJR-4` — E3 Rehab Exercise Library;
+- `bKYGb1TgS6o` — The Jiu-Jitsu Therapist.
+
+Current oEmbed title/channel/thumbnail/iframe health is not playback or
+exactness approval. Record full playback; standard versus ordered-segmental
+variant; hands-and-knees support; flexion, reversal, extension, and neutral
+return; phase counting; range; breathing; support shift; added actions; stops;
+captions; accessibility; cue/demonstration quality; safety; conflicts; reviewer
+identity; rationale; timestamp; and card-version match.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, the
+Source-889 duplicate and Source-26 distinct decisions, 5 graph proposals, and
+4 complexity/physical-difficulty anchors. Verify standard `24/10/24` and
+segmental `34/10/34`, the 202- and 220-character athlete instructions,
+coach/athlete/accessibility/support content, cumulative budgets, every stop and
+incident rule, and complete substitution revalidation. The automated packet
+must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
+content review and independent publication approval remain mandatory.

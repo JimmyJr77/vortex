@@ -3452,3 +3452,85 @@ incomplete cards, 100 current healthy embeddable 3–5-candidate sets, and
 628/628 adjudicated similarity pairs with zero unresolved pair or exact
 collision. Graph/calibration queues contain 746/957 review rows and zero
 approvals. All 1,047 cards remain quarantined and unpublished.
+
+## 2026-08-02 — Source 24 Neck CARs library contract
+
+`Neck CARs` is machine-complete and human-review quarantined through immutable
+migration 495 (`303191298`). Its standing-independent and seated-supported
+variants define exact base, start, complete active cervical loop in both
+directions, comfortable-range policy, valid completion, invalidating
+compensation, symptom stops, reset, and exit. Controlled taxonomy uses movement
+pattern `rotate`, body regions `neck` and `spine`, and equipment keys `none`
+and `box_or_chair_optional`; mobility remains purpose/context, not an invented
+controlled movement-pattern key.
+
+Both variants include muscles, joints, actions, planes, laterality, support,
+compensation, task-only difficulty, load, local/technical/metabolic/grip and
+impact fatigue, planning recovery, cumulative cervical exposure, downstream
+interference, environment/population constraints, exact equipment quantities,
+space, sightlines, station throughput, setup/reset/transition, dose and duration
+bounds, quality gates, scaling and stop rules, substitutions with complete
+revalidation, and coach/athlete/accessibility/support-operation/persistence
+content. Standing is `28/4/28`; seated is `24/3/24`, meaning exercise complexity
+/ physical difficulty / derived maximum only.
+
+Current-version scope is 2 selectable variants, 4 delivery profiles, 16
+candidate evidence applications, 5 current healthy oEmbed candidates, 20
+alternate assessments, 5 review-only relationships, 4 review-only score
+anchors, 2 survivor-owned identity decisions, and one four-blocker packet.
+No evidence, media, graph, calibration, content, or publication approval was
+created. Registry `2026-08-02.92` contains 391 parsed sources; focused tests
+pass 236/236, the backend suite passes 1,038 with 20 intentional skips, and
+lint, JSON, diff integrity, disposable-PostgreSQL idempotency/registration/
+re-entry, audits, identity reporting, release checking, and production build
+pass.
+
+The global audit is now 1,676/1,676 mappings, 1,046 active definitions, 102
+machine-complete and 944 incomplete cards, 101 current healthy embeddable
+3–5-candidate sets, and 628/628 adjudicated similarity pairs with zero
+unresolved pair or exact collision. Graph/calibration queues contain 750/961
+review rows and zero approvals. All 1,046 active cards remain quarantined and
+unpublished.
+
+## 2026-08-02 — Source 25 Cat-Cow library contract
+
+`Cat-Cow` is machine-complete and human-review quarantined through immutable
+migration 496 (`2147238365`). One counted repetition is neutral bilateral
+hands-and-knees quadruped support through comfortable flexion, reversal through
+neutral, comfortable extension, and a final neutral return with all four
+contacts retained. The standard variant uses coordinated global motion; the
+segmental-wave variant requires the declared ordered pelvis-to-spine sequence.
+Lateral circles, rotation, limb lift, hover, locomotion, external force, or a
+non-quadruped base are excluded from this definition.
+
+Controlled taxonomy uses movement pattern `brace`; spinal mobility and
+flexion-extension remain purpose and anatomy rather than invented controlled
+keys. The card explicitly models muscles, joints, actions, sagittal plane,
+bilateral laterality, support sequence, load, no-impact contacts, local and
+technical fatigue, planning recovery, cumulative cycle/range/support budgets,
+downstream interference, equipment and optional mat, floor transfer, surface,
+space, sightlines, throughput, setup/transition/reset, environment/population
+constraints, symptoms, dose and duration formulas, quality gates, scaling,
+stop rules, substitutions, coach and athlete instructions, accessibility,
+support operations, incidents, persistence, and rerender/revalidation rules.
+
+Standard coordinated is `24/10/24`; ordered segmental is `34/10/34`. These are
+exercise complexity / physical difficulty / derived maximum only. Current-
+version scope is 2 selectable variants, 4 review delivery profiles, 16
+candidate evidence applications, 5 current healthy oEmbed candidates, 20
+alternate assessments, 5 review-only relationships, 4 review-only score
+anchors, 2 survivor-owned identity decisions, and one four-blocker packet.
+Source 889 is archived as a duplicate without losing mapping or provenance.
+No evidence, media, graph, calibration, content, or publication approval was
+created.
+
+Registry `2026-08-02.93` contains 396 parsed sources; focused tests pass
+238/238, the backend suite passes 1,040 with 20 intentional skips, and focused
+lint, JSON parsing, diff integrity, disposable-PostgreSQL idempotency,
+registration/checksum/skip/re-entry, persisted and no-persist audits, identity
+and release reporting, and production build pass. The global audit is now
+1,676/1,676 mappings, 1,045 active definitions, 103 machine-complete and 942
+incomplete cards, 102 healthy current embeddable 3–5-candidate sets, 628/628
+adjudicated similarity pairs, zero unresolved pair or collision, 755/0 graph
+review/approved, 965/0 calibration review/approved, and zero published. Source
+26 `Quadruped Spinal Circles` is the next machine-incomplete exact family.

@@ -38,11 +38,10 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'skillLevel',
   'schedule',
   'status',
-  'active',
   'costPerMonth',
 ])
 
-const STATUS_COLUMNS: ReadonlySet<OverviewColumnId> = new Set(['status', 'active'])
+const STATUS_COLUMNS: ReadonlySet<OverviewColumnId> = new Set(['status'])
 const PRICING_COLUMNS: ReadonlySet<OverviewColumnId> = new Set(['costPerMonth'])
 
 export function isCopyableColumn(columnId: OverviewColumnId): boolean {
@@ -132,7 +131,6 @@ function valuesEqualForColumn(
     case 'skillLevel':
       return (source.skillLevel ?? '') === (target.skillLevel ?? '')
     case 'status':
-    case 'active':
       return source.status === target.status
     case 'costPerMonth':
       if (source.pricingOverridesProgram || target.pricingOverridesProgram) {
@@ -362,7 +360,6 @@ export async function applyCopyToTarget(
       })
       break
     case 'status':
-    case 'active':
       if (source.status === 'Legacy') {
         await archiveClassEvent(target.classId, true)
       } else {

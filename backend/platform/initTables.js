@@ -491,6 +491,7 @@ export async function initPlatformTables(pool) {
     '493_coaching_full_body_joint_cars_flow_audit_hardening.sql',
     '494_coaching_full_body_joint_cars_audit_contract_correction.sql',
     '495_coaching_neck_cars_identity_and_family_audit_hardening.sql',
+    '496_coaching_cat_cow_identity_and_family_audit_hardening.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

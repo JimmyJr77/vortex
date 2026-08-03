@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-08-02.92",
+  "registryVersion": "2026-08-02.93",
   "sources": {
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
@@ -2737,6 +2737,41 @@
       "publisher": "Chiropractic & Manual Therapies",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "ace_cat_cow_exercise_library": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/15/cat-cow/",
+      "title": "Back Exercises: Cat-Cow",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "aopt_low_back_pain_cpg_2021": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "title": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "publisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "kind": "professional_standard",
+      "evidenceQuality": 96
+    },
+    "pan_imu_spine_rehabilitation_2024": {
+      "url": "https://doi.org/10.1186/s12984-024-01366-1",
+      "title": "Automated, IMU-based spine angle estimation and IMU location identification for telerehabilitation",
+      "publisher": "Journal of NeuroEngineering and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "nasm_beginner_cat_cow_program": {
+      "url": "https://blog.nasm.org/workout-plan-for-beginners",
+      "title": "The Best 5-Week Workout Plan for Beginners",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "special_olympics_cat_cow_cooldown": {
+      "url": "https://resources.specialolympics.org/sports-essentials/sports-and-coaching/warm-up-and-cool-down-videos/cool-down-cat-cow-stretch",
+      "title": "Cool Down: Cat Cow Stretch",
+      "publisher": "Special Olympics",
+      "kind": "governing_body",
+      "evidenceQuality": 78
     }
   }
 }

@@ -5,7 +5,9 @@ import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClass
 import AdminClassSetupCopyConfirmModal from './AdminClassSetupCopyConfirmModal'
 import { useSpreadsheetResize } from './useSpreadsheetResize'
 import {
+  GROUP_COLUMNS,
   OVERVIEW_COLUMNS,
+  SCHEDULE_COLUMNS,
   applyOverviewFilters,
   compareOverviewRows,
   distinctPrimarySports,
@@ -23,7 +25,10 @@ import {
   cellKey,
   isCopyableColumn,
 } from './classSetupCopyPaste'
-import { type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
+import {
+  expandScheduleLines,
+  type ClassSetupOverviewRow,
+} from '../../utils/classSetupOverviewApi'
 import { archiveClassEvent, deleteClassEvent } from '../../utils/programsApi'
 
 interface Props {
@@ -36,8 +41,25 @@ interface Props {
 
 const tdBase = 'px-3 py-2 align-top text-sm text-gray-900 border-b border-gray-100'
 const actionColumnWidth = 104
+const scheduleClusterStartId = SCHEDULE_COLUMNS[0]?.id
 
 type CopySource = { classId: number; columnId: OverviewColumnId }
+
+function copyHighlightClass(
+  copyMode: boolean,
+  collapsed: boolean,
+  copyState: 'source' | 'viable' | 'target' | 'disabled' | null,
+  columnId: OverviewColumnId,
+): string {
+  if (!copyMode || collapsed) return ''
+  if (copyState === 'source') return 'bg-green-200 text-green-950 cursor-default'
+  if (copyState === 'target') return 'bg-orange-300 text-orange-950 cursor-pointer'
+  if (copyState === 'viable') return 'bg-yellow-200 text-yellow-950 cursor-pointer hover:bg-yellow-300'
+  if (copyState === 'disabled' || !isCopyableColumn(columnId)) {
+    return 'bg-gray-100 text-gray-400 cursor-not-allowed'
+  }
+  return 'cursor-pointer hover:bg-amber-100'
+}
 
 const AdminClassSetupOverviewTable = ({
   rows,
@@ -367,97 +389,132 @@ const AdminClassSetupOverviewTable = ({
             </tr>
           </thead>
           <tbody>
-            {visibleRows.map((row) => {
+            {visibleRows.flatMap((row) => {
+              const scheduleLines = expandScheduleLines(row)
+              const span = scheduleLines.length
               const rowHeight = getRowHeight(row.classId)
-              return (
-                <tr key={row.classId} className="hover:bg-gray-50/60 group relative">
-                  {OVERVIEW_COLUMNS.map((column, columnIndex) => {
-                    const value = getCellDisplayValue(row, column.id)
-                    const collapsed = collapsedColumns.has(column.id)
-                    const columnWidth = renderedColumnWidths[columnIndex]
-                    const copyState = cellCopyState(row, column.id)
-                    const editable = column.editable && unlocked && !copyMode
 
-                    let copyClass = ''
-                    if (copyMode && !collapsed) {
-                      if (copyState === 'source') {
-                        copyClass = 'bg-green-200 text-green-950 cursor-default'
-                      } else if (copyState === 'target') {
-                        copyClass = 'bg-orange-300 text-orange-950 cursor-pointer'
-                      } else if (copyState === 'viable') {
-                        copyClass = 'bg-yellow-200 text-yellow-950 cursor-pointer hover:bg-yellow-300'
-                      } else if (copyState === 'disabled' || !isCopyableColumn(column.id)) {
-                        copyClass = 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      } else {
-                        // Awaiting source selection — copyable cells stay interactive.
-                        copyClass = 'cursor-pointer hover:bg-amber-100'
-                      }
-                    }
-
-                    return (
-                      <td
-                        key={column.id}
-                        className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
-                          editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
-                        } ${copyClass}`}
-                        style={{
-                          width: columnWidth,
-                          maxWidth: columnWidth,
-                          height: rowHeight,
-                          overflow: 'hidden',
-                        }}
-                        title={value}
-                        onClick={() => !collapsed && handleCellClick(row, column.id)}
-                      >
-                        {!collapsed && <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>}
-                        {columnIndex === 0 && !collapsed && (
-                          <button
-                            type="button"
-                            aria-label="Resize row"
-                            className="absolute left-0 right-0 -bottom-1 h-2 cursor-row-resize opacity-0 group-hover:opacity-100 hover:bg-vortex-red/20"
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              startRowResize(row.classId, e.clientY)
-                            }}
-                          />
-                        )}
-                      </td>
-                    )
-                  })}
-                  <td
-                    className="border-b border-l border-gray-100 px-2 py-2 align-top"
-                    style={{ width: actionColumnWidth, minWidth: actionColumnWidth }}
+              return scheduleLines.map((line, lineIndex) => {
+                const isFirstLine = lineIndex === 0
+                return (
+                  <tr
+                    key={`${row.classId}:${line.slotGroupId ?? 'none'}:${lineIndex}`}
+                    className="hover:bg-gray-50/60 group relative"
                   >
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => void handleArchive(row)}
-                        disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
-                        className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
-                        aria-label={`Archive ${row.className}`}
-                        title={row.classArchived ? 'Already archived' : 'Archive class'}
-                      >
-                        {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
-                          ? <Loader2 className="h-4 w-4 animate-spin" />
-                          : <Archive className="h-4 w-4" />}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(row)}
-                        disabled={copyMode || pendingAction?.classId === row.classId}
-                        className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
-                        aria-label={`Permanently delete ${row.className}`}
-                        title="Permanently delete class"
-                      >
-                        {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
-                          ? <Loader2 className="h-4 w-4 animate-spin" />
-                          : <Trash2 className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
+                    {isFirstLine &&
+                      GROUP_COLUMNS.map((column) => {
+                        const columnIndex = OVERVIEW_COLUMNS.findIndex((item) => item.id === column.id)
+                        const value = getCellDisplayValue(row, column.id)
+                        const collapsed = collapsedColumns.has(column.id)
+                        const columnWidth = renderedColumnWidths[columnIndex]
+                        const copyState = cellCopyState(row, column.id)
+                        const editable = column.editable && unlocked && !copyMode
+                        const copyClass = copyHighlightClass(copyMode, collapsed, copyState, column.id)
+
+                        return (
+                          <td
+                            key={column.id}
+                            rowSpan={span}
+                            className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
+                              editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
+                            } ${copyClass} bg-white`}
+                            style={{
+                              width: columnWidth,
+                              maxWidth: columnWidth,
+                              height: rowHeight * span,
+                              overflow: 'hidden',
+                            }}
+                            title={value}
+                            onClick={() => !collapsed && handleCellClick(row, column.id)}
+                          >
+                            {!collapsed && (
+                              <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>
+                            )}
+                            {column.id === 'classId' && !collapsed && (
+                              <button
+                                type="button"
+                                aria-label="Resize row"
+                                className="absolute left-0 right-0 -bottom-1 h-2 cursor-row-resize opacity-0 group-hover:opacity-100 hover:bg-vortex-red/20"
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  startRowResize(row.classId, e.clientY)
+                                }}
+                              />
+                            )}
+                          </td>
+                        )
+                      })}
+
+                    {SCHEDULE_COLUMNS.map((column) => {
+                      const columnIndex = OVERVIEW_COLUMNS.findIndex((item) => item.id === column.id)
+                      const value =
+                        column.id === 'schedule'
+                          ? line.scheduleText
+                          : getCellDisplayValue(row, column.id)
+                      const collapsed = collapsedColumns.has(column.id)
+                      const columnWidth = renderedColumnWidths[columnIndex]
+                      const copyState = cellCopyState(row, column.id)
+                      const editable = column.editable && unlocked && !copyMode
+                      const copyClass = copyHighlightClass(copyMode, collapsed, copyState, column.id)
+                      const clusterStart = column.id === scheduleClusterStartId
+
+                      return (
+                        <td
+                          key={`${column.id}:${lineIndex}`}
+                          className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
+                            editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
+                          } ${copyClass} ${clusterStart ? 'border-l border-l-gray-300' : ''}`}
+                          style={{
+                            width: columnWidth,
+                            maxWidth: columnWidth,
+                            height: rowHeight,
+                            overflow: 'hidden',
+                          }}
+                          title={value}
+                          onClick={() => !collapsed && handleCellClick(row, column.id)}
+                        >
+                          {!collapsed && (
+                            <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>
+                          )}
+                        </td>
+                      )
+                    })}
+
+                    <td
+                      className="border-b border-l border-gray-100 px-2 py-2 align-top"
+                      style={{ width: actionColumnWidth, minWidth: actionColumnWidth, height: rowHeight }}
+                    >
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => void handleArchive(row)}
+                          disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
+                          className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
+                          aria-label={`Archive ${row.className}`}
+                          title={row.classArchived ? 'Already archived' : 'Archive class'}
+                        >
+                          {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
+                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                            : <Archive className="h-4 w-4" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(row)}
+                          disabled={copyMode || pendingAction?.classId === row.classId}
+                          className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
+                          aria-label={`Permanently delete ${row.className}`}
+                          title="Permanently delete class"
+                        >
+                          {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
+                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                            : <Trash2 className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
             })}
             {visibleRows.length === 0 && (
               <tr>
