@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { AlignLeft, Copy, Loader2, Lock, Unlock, WrapText } from 'lucide-react'
 import AdminClassSetupOverviewTable from './AdminClassSetupOverviewTable'
 import { fetchClassSetupOverview, type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
+import { type ColumnDensity } from './overviewColumns'
+import { loadStoredDensity } from './useSpreadsheetResize'
 
 type TextLayout = 'wrap' | 'straight'
 
@@ -12,6 +14,7 @@ const AdminClassSetupOverview = () => {
   const [unlocked, setUnlocked] = useState(false)
   const [copyMode, setCopyMode] = useState(false)
   const [textLayout, setTextLayout] = useState<TextLayout>('straight')
+  const [columnDensity, setColumnDensity] = useState<ColumnDensity>(() => loadStoredDensity())
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -77,6 +80,40 @@ const AdminClassSetupOverview = () => {
             {unlocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             {unlocked ? 'Editing unlocked' : 'Locked'}
           </button>
+          <div
+            className="inline-flex overflow-hidden rounded-lg border border-gray-300"
+            role="group"
+            aria-label="Column width density"
+          >
+            <button
+              type="button"
+              onClick={() => setColumnDensity('min')}
+              aria-pressed={columnDensity === 'min'}
+              title="Min: fit column headers"
+              aria-label="Min column widths"
+              className={`px-3 py-2 text-sm font-semibold ${
+                columnDensity === 'min'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Min
+            </button>
+            <button
+              type="button"
+              onClick={() => setColumnDensity('max')}
+              aria-pressed={columnDensity === 'max'}
+              title="Max: expand columns to show full cell content"
+              aria-label="Max column widths"
+              className={`border-l border-gray-300 px-3 py-2 text-sm font-semibold ${
+                columnDensity === 'max'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Max
+            </button>
+          </div>
           <div
             className="inline-flex overflow-hidden rounded-lg border border-gray-300"
             role="group"
@@ -147,6 +184,7 @@ const AdminClassSetupOverview = () => {
           copyMode={copyMode}
           onCopyModeChange={setCopyMode}
           textWrap={textLayout === 'wrap'}
+          columnDensity={columnDensity}
           onRefresh={load}
         />
       )}

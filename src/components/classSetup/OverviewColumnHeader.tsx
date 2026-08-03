@@ -194,7 +194,7 @@ const OverviewColumnHeader = ({
   return (
     <th
       className={`relative text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50 border-b border-gray-200 ${collapsed ? 'p-0 overflow-visible' : 'px-3 py-3'}`}
-      style={{ width, minWidth: collapsed ? 5 : column.minWidth }}
+      style={{ width, minWidth: collapsed ? 5 : width }}
     >
       {collapsed ? (
         <button

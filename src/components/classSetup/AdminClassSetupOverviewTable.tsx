@@ -14,6 +14,7 @@ import {
   getCellDisplayValue,
   matchesOverviewSmartFilter,
   type ColumnFilters,
+  type ColumnDensity,
   type OverviewColumnId,
   type SortConfig,
 } from './overviewColumns'
@@ -37,6 +38,8 @@ interface Props {
   onCopyModeChange: (active: boolean) => void
   /** Wrap cell text vs single-line ellipsis with hover full text. */
   textWrap: boolean
+  /** Min fits headers; Max expands columns to fit cell content. */
+  columnDensity: ColumnDensity
   onRefresh: () => void
 }
 
@@ -67,6 +70,7 @@ const AdminClassSetupOverviewTable = ({
   copyMode,
   onCopyModeChange,
   textWrap,
+  columnDensity,
   onRefresh,
 }: Props) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'program', direction: 'asc' })
@@ -81,7 +85,10 @@ const AdminClassSetupOverviewTable = ({
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [copySaving, setCopySaving] = useState(false)
   const [copySaveError, setCopySaveError] = useState<string | null>(null)
-  const { getColumnWidth, getRowHeight, startColumnResize, startRowResize } = useSpreadsheetResize()
+  const { getColumnWidth, getRowHeight, startColumnResize, startRowResize } = useSpreadsheetResize(
+    rows,
+    columnDensity,
+  )
 
   const resetCopySelection = () => {
     setCopySource(null)

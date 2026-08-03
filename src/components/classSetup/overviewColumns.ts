@@ -68,6 +68,95 @@ export const SCHEDULE_COLUMNS: OverviewColumnDef[] = [
 
 export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [...GROUP_COLUMNS, ...SCHEDULE_COLUMNS]
 
+export type ColumnDensity = 'min' | 'max'
+
+/**
+ * Non-label header chrome in OverviewColumnHeader:
+ * th px-3 (24) + flex pr-2 (8) + gap-1 × 3 between label/actions (12)
+ * + sort / filter / collapse buttons (16 each = 48) + safety for font variance.
+ */
+const HEADER_CHROME_PX = 112
+/** Fallback when canvas measure is unavailable: text-xs uppercase tracking-wider. */
+const HEADER_CHAR_PX = 9.2
+const HEADER_TRACKING_PX = 0.6 // tracking-wider ≈ 0.05em at 12px
+const CELL_PADDING_PX = 24
+const MAX_COLUMN_PX = 560
+
+let headerMeasureCtx: CanvasRenderingContext2D | null | undefined
+
+/** Pixel width of the header label as rendered (uppercase, semibold, tracking-wider). */
+function measureHeaderLabel(label: string): number {
+  const upper = label.toUpperCase()
+  if (typeof document !== 'undefined') {
+    if (headerMeasureCtx === undefined) {
+      headerMeasureCtx = document.createElement('canvas').getContext('2d')
+    }
+    if (headerMeasureCtx) {
+      // Matches OverviewColumnHeader: text-xs font-semibold uppercase tracking-wider (Inter)
+      headerMeasureCtx.font = '600 12px Inter, system-ui, sans-serif'
+      const base = headerMeasureCtx.measureText(upper).width
+      const tracking = Math.max(0, upper.length - 1) * HEADER_TRACKING_PX
+      return Math.ceil(base + tracking)
+    }
+  }
+  return Math.ceil(upper.length * HEADER_CHAR_PX)
+}
+
+/** Width that keeps the uppercase header label + chrome fully visible. */
+export function headerFitWidth(label: string, minWidth: number): number {
+  return Math.max(minWidth, measureHeaderLabel(label) + HEADER_CHROME_PX)
+}
+
+function estimateContentWidth(text: string, minWidth: number): number {
+  const longest = text
+    .split('\n')
+    .reduce((max, line) => Math.max(max, line.trim().length), 0)
+  return Math.min(MAX_COLUMN_PX, Math.max(minWidth, Math.ceil(longest * 8.1) + CELL_PADDING_PX))
+}
+
+function longestLineValue(rows: ClassSetupOverviewRow[], columnId: OverviewColumnId): string {
+  let longest = ''
+  const consider = (value: string) => {
+    for (const line of value.split('\n')) {
+      if (line.length > longest.length) longest = line
+    }
+  }
+
+  for (const row of rows) {
+    if (
+      columnId === 'activeDates' ||
+      columnId === 'days' ||
+      columnId === 'times' ||
+      columnId === 'capacity'
+    ) {
+      for (const scheduleLine of expandScheduleLines(row)) {
+        consider(scheduleLine[columnId])
+      }
+    } else {
+      consider(getCellDisplayValue(row, columnId))
+    }
+  }
+  return longest
+}
+
+/** Min = header-fit; Max = widest of header-fit and cell content across rows. */
+export function columnWidthsForDensity(
+  density: ColumnDensity,
+  rows: ClassSetupOverviewRow[] = [],
+): Record<OverviewColumnId, number> {
+  const widths = {} as Record<OverviewColumnId, number>
+  for (const column of OVERVIEW_COLUMNS) {
+    const headerWidth = headerFitWidth(column.label, column.minWidth)
+    if (density === 'min') {
+      widths[column.id] = headerWidth
+      continue
+    }
+    const contentWidth = estimateContentWidth(longestLineValue(rows, column.id), column.minWidth)
+    widths[column.id] = Math.max(headerWidth, contentWidth)
+  }
+  return widths
+}
+
 export type TextFilter = { kind: 'text'; query: string }
 export type NumericFilter = { kind: 'numeric'; min: string; max: string }
 export type StatusFilter = { kind: 'status'; values: ClassSetupOverviewStatus[] }

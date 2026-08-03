@@ -144,7 +144,7 @@ function AdminClassRosterPanel({
     void load()
   }, [load])
 
-  const heading = [summary.className, summary.offeringLabel || summary.offeringDates, summary.schedule]
+  const heading = [summary.className, summary.offeringDates || summary.offeringLabel, summary.schedule]
     .filter(Boolean)
     .join(' · ')
 
@@ -383,8 +383,8 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
         row.sportName ?? '',
         row.programName ?? '',
         row.className,
-        row.offeringLabel ?? '',
         row.offeringDates ?? '',
+        row.offeringLabel ?? '',
         row.schedule,
         row.statusLabel,
       ]
@@ -494,7 +494,7 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
             <tr className="border-b border-gray-200 text-left text-gray-600 bg-gray-50">
               <SortableTh label="Sport" sortKey="sportName" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
               <SortableTh label="Class" sortKey="className" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
-              <SortableTh label="Offering" sortKey="offeringLabel" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+              <SortableTh label="Active dates" sortKey="offeringDates" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
               <SortableTh label="Schedule" sortKey="schedule" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
               <SortableTh label="Status" sortKey="statusLabel" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
               <th className="py-2 pr-4 font-semibold text-center">Action</th>
@@ -521,7 +521,7 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
                     <td className="py-3 pr-4 text-gray-700">{row.sportName || '—'}</td>
                     <td className="py-3 pr-4 text-gray-900">{row.className}</td>
                     <td className="py-3 pr-4 text-gray-700">
-                      {row.offeringLabel || row.offeringDates || '—'}
+                      {row.offeringDates || row.offeringLabel || '—'}
                     </td>
                     <td className="py-3 pr-4 text-gray-700">{row.schedule || '—'}</td>
                     <td className="py-3 pr-4 text-gray-700">{row.statusLabel}</td>

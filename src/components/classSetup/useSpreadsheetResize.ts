@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
-import { OVERVIEW_COLUMNS, type OverviewColumnId } from './overviewColumns'
+import {
+  OVERVIEW_COLUMNS,
+  columnWidthsForDensity,
+  type ColumnDensity,
+  type OverviewColumnId,
+} from './overviewColumns'
+import { type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
 
 const STORAGE_KEY = 'vortex-class-setup-overview-sizes'
+const DENSITY_STORAGE_KEY = 'vortex-class-setup-column-density'
 
 type StoredSizes = {
   columnWidths: Partial<Record<OverviewColumnId, number>>
   rowHeights: Record<number, number>
 }
-
-const DEFAULT_COLUMN_WIDTHS = Object.fromEntries(
-  OVERVIEW_COLUMNS.map((c) => [c.id, c.defaultWidth]),
-) as Record<OverviewColumnId, number>
 
 function loadStoredSizes(): StoredSizes {
   try {
@@ -34,15 +37,32 @@ function persistSizes(sizes: StoredSizes) {
   }
 }
 
+function loadStoredDensity(): ColumnDensity {
+  try {
+    const raw = sessionStorage.getItem(DENSITY_STORAGE_KEY)
+    return raw === 'max' ? 'max' : 'min'
+  } catch {
+    return 'min'
+  }
+}
+
+function persistDensity(density: ColumnDensity) {
+  try {
+    sessionStorage.setItem(DENSITY_STORAGE_KEY, density)
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
 const MIN_ROW_HEIGHT = 40
 const MAX_ROW_HEIGHT = 240
 const DEFAULT_ROW_HEIGHT = 44
+const MAX_DRAG_COLUMN_PX = 720
 
-export function useSpreadsheetResize() {
-  const [columnWidths, setColumnWidths] = useState<Record<OverviewColumnId, number>>(() => ({
-    ...DEFAULT_COLUMN_WIDTHS,
-    ...loadStoredSizes().columnWidths,
-  }))
+export function useSpreadsheetResize(rows: ClassSetupOverviewRow[], density: ColumnDensity) {
+  const [columnWidths, setColumnWidths] = useState<Record<OverviewColumnId, number>>(() =>
+    columnWidthsForDensity(loadStoredDensity()),
+  )
   const [rowHeights, setRowHeights] = useState<Record<number, number>>(
     () => loadStoredSizes().rowHeights,
   )
@@ -50,6 +70,18 @@ export function useSpreadsheetResize() {
   useEffect(() => {
     persistSizes({ columnWidths, rowHeights })
   }, [columnWidths, rowHeights])
+
+  useEffect(() => {
+    persistDensity(density)
+    setColumnWidths(columnWidthsForDensity(density, rows))
+    // Re-apply presets when density toggles; Max also refreshes when row data changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- min keeps manual widths across row refreshes
+  }, [density])
+
+  useEffect(() => {
+    if (density !== 'max') return
+    setColumnWidths(columnWidthsForDensity('max', rows))
+  }, [density, rows])
 
   const getColumnWidth = useCallback(
     (columnId: OverviewColumnId) => {
@@ -71,7 +103,10 @@ export function useSpreadsheetResize() {
       const startWidth = getColumnWidth(columnId)
 
       const onMove = (event: MouseEvent) => {
-        const next = Math.min(480, Math.max(minWidth, startWidth + (event.clientX - startX)))
+        const next = Math.min(
+          MAX_DRAG_COLUMN_PX,
+          Math.max(minWidth, startWidth + (event.clientX - startX)),
+        )
         setColumnWidths((prev) => ({ ...prev, [columnId]: next }))
       }
 
@@ -90,7 +125,10 @@ export function useSpreadsheetResize() {
     const startHeight = rowHeights[classId] ?? DEFAULT_ROW_HEIGHT
 
     const onMove = (event: MouseEvent) => {
-      const next = Math.min(MAX_ROW_HEIGHT, Math.max(MIN_ROW_HEIGHT, startHeight + (event.clientY - startY)))
+      const next = Math.min(
+        MAX_ROW_HEIGHT,
+        Math.max(MIN_ROW_HEIGHT, startHeight + (event.clientY - startY)),
+      )
       setRowHeights((prev) => ({ ...prev, [classId]: next }))
     }
 
@@ -111,3 +149,5 @@ export function useSpreadsheetResize() {
     defaultRowHeight: DEFAULT_ROW_HEIGHT,
   }
 }
+
+export { loadStoredDensity }
