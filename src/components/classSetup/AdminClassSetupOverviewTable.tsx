@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Archive, Loader2, Search, Trash2, X } from 'lucide-react'
+import { Archive, Loader2, Search, Trash2, Users, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
 import AdminClassSetupCopyConfirmModal from './AdminClassSetupCopyConfirmModal'
@@ -411,9 +411,15 @@ const AdminClassSetupOverviewTable = ({
                 <tr key={rowKey} className="hover:bg-gray-50/60 group relative">
                   {OVERVIEW_COLUMNS.map((column, columnIndex) => {
                     const value =
-                      column.id === 'schedule'
-                        ? line.scheduleText
-                        : getCellDisplayValue(row, column.id)
+                      column.id === 'activeDates'
+                        ? line.activeDates
+                        : column.id === 'days'
+                          ? line.days
+                          : column.id === 'times'
+                            ? line.times
+                            : column.id === 'capacity'
+                              ? line.capacity
+                              : getCellDisplayValue(row, column.id)
                     const collapsed = collapsedColumns.has(column.id)
                     const columnWidth = renderedColumnWidths[columnIndex]
                     const copyState = cellCopyState(row, column.id)
@@ -434,7 +440,15 @@ const AdminClassSetupOverviewTable = ({
                         }}
                         onClick={() => !collapsed && handleCellClick(row, column.id)}
                       >
-                        {!collapsed && <ClassMasterCellText value={value} wrap={textWrap} />}
+                        {!collapsed &&
+                          (column.id === 'capacity' && value !== '—' ? (
+                            <span className="inline-flex min-w-0 items-center gap-1">
+                              <Users className="h-3.5 w-3.5 shrink-0 text-gray-500" aria-hidden />
+                              <ClassMasterCellText value={value} wrap={textWrap} />
+                            </span>
+                          ) : (
+                            <ClassMasterCellText value={value} wrap={textWrap} />
+                          ))}
                         {columnIndex === 0 && !collapsed && lineIndex === 0 && (
                           <button
                             type="button"

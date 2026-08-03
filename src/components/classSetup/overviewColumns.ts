@@ -1,6 +1,5 @@
 import {
   expandScheduleLines,
-  formatScheduleCell,
   type ClassSetupOverviewRow,
   type ClassSetupOverviewStatus,
 } from '../../utils/classSetupOverviewApi'
@@ -14,8 +13,12 @@ export type OverviewColumnId =
   | 'programDescription'
   | 'className'
   | 'classDescription'
+  | 'classNotes'
   | 'skillLevel'
-  | 'schedule'
+  | 'activeDates'
+  | 'days'
+  | 'times'
+  | 'capacity'
   | 'excludeFromDropIns'
   | 'status'
   | 'costPerMonth'
@@ -40,12 +43,24 @@ export const GROUP_COLUMNS: OverviewColumnDef[] = [
   { id: 'programDescription', label: 'Program Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
   { id: 'className', label: 'Class', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
+  { id: 'classNotes', label: 'Class Notes', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
 ]
 
+/** Schedule parts shown per timeslot line (editing any opens the schedule editor). */
+export const SCHEDULE_PART_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
+  'activeDates',
+  'days',
+  'times',
+  'capacity',
+])
+
 /** Per scheduled timeslot line — one table row each. */
 export const SCHEDULE_COLUMNS: OverviewColumnDef[] = [
-  { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 260, defaultWidth: 320 },
+  { id: 'activeDates', label: 'Active dates', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 140 },
+  { id: 'days', label: 'Days', editable: true, filterKind: 'text', minWidth: 100, defaultWidth: 120 },
+  { id: 'times', label: 'Times', editable: true, filterKind: 'text', minWidth: 110, defaultWidth: 130 },
+  { id: 'capacity', label: 'Capacity', editable: true, filterKind: 'numeric', minWidth: 80, defaultWidth: 90 },
   { id: 'excludeFromDropIns', label: 'Allow Drop-ins', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 130 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
   { id: 'status', label: 'Status', editable: true, filterKind: 'status', minWidth: 90, defaultWidth: 100 },
@@ -100,8 +115,24 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.className || '—'
     case 'classDescription':
       return row.classDescription?.trim() || '—'
-    case 'schedule':
-      return formatScheduleCell(row.slotGroups, row.offerings)
+    case 'classNotes':
+      return row.classNotes?.trim() || '—'
+    case 'activeDates':
+      return expandScheduleLines(row)
+        .map((line) => line.activeDates)
+        .join('\n')
+    case 'days':
+      return expandScheduleLines(row)
+        .map((line) => line.days)
+        .join('\n')
+    case 'times':
+      return expandScheduleLines(row)
+        .map((line) => line.times)
+        .join('\n')
+    case 'capacity':
+      return expandScheduleLines(row)
+        .map((line) => line.capacity)
+        .join('\n')
     case 'skillLevel':
       return formatSkillLevel(row.skillLevel)
     case 'status':
@@ -178,12 +209,7 @@ export function applyOverviewFilters(
     OVERVIEW_COLUMNS.every((col) => {
       const filter = filters[col.id]
       if (!filter) return true
-      const display =
-        col.id === 'schedule'
-          ? expandScheduleLines(row)
-              .map((line) => line.scheduleText)
-              .join(' ')
-          : getCellDisplayValue(row, col.id)
+      const display = getCellDisplayValue(row, col.id)
 
       switch (filter.kind) {
         case 'text':

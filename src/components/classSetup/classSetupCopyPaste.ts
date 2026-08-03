@@ -22,6 +22,7 @@ import {
 } from '../../utils/classSetupOverviewApi'
 import {
   OVERVIEW_COLUMNS,
+  SCHEDULE_PART_COLUMN_IDS,
   getCellDisplayValue,
   type OverviewColumnId,
 } from './overviewColumns'
@@ -35,8 +36,12 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'excludeFromDropIns',
   'className',
   'classDescription',
+  'classNotes',
   'skillLevel',
-  'schedule',
+  'activeDates',
+  'days',
+  'times',
+  'capacity',
   'status',
   'costPerMonth',
 ])
@@ -48,6 +53,10 @@ export function isCopyableColumn(columnId: OverviewColumnId): boolean {
   return COPYABLE_COLUMN_IDS.has(columnId)
 }
 
+export function isSchedulePartColumn(columnId: OverviewColumnId): boolean {
+  return SCHEDULE_PART_COLUMN_IDS.has(columnId)
+}
+
 export function isCompatibleCopyTarget(
   sourceColumnId: OverviewColumnId,
   targetColumnId: OverviewColumnId,
@@ -55,6 +64,9 @@ export function isCompatibleCopyTarget(
   if (sourceColumnId === targetColumnId) return true
   if (STATUS_COLUMNS.has(sourceColumnId) && STATUS_COLUMNS.has(targetColumnId)) return true
   if (PRICING_COLUMNS.has(sourceColumnId) && PRICING_COLUMNS.has(targetColumnId)) return true
+  if (SCHEDULE_PART_COLUMN_IDS.has(sourceColumnId) && SCHEDULE_PART_COLUMN_IDS.has(targetColumnId)) {
+    return true
+  }
   return false
 }
 
@@ -123,7 +135,12 @@ function valuesEqualForColumn(
       return source.className === target.className
     case 'classDescription':
       return (source.classDescription ?? '') === (target.classDescription ?? '')
-    case 'schedule':
+    case 'classNotes':
+      return (source.classNotes ?? '') === (target.classNotes ?? '')
+    case 'activeDates':
+    case 'days':
+    case 'times':
+    case 'capacity':
       return (
         formatScheduleCell(source.slotGroups, source.offerings) ===
         formatScheduleCell(target.slotGroups, target.offerings)
@@ -351,7 +368,31 @@ export async function applyCopyToTarget(
         description: source.classDescription?.trim() || null,
       })
       break
-    case 'schedule':
+    case 'classNotes': {
+      if (target.formId == null) throw new Error(`“${target.className}” has no scheduling form`)
+      const form = await adminFetchSchedulingForm(target.formId)
+      await adminSaveSchedulingForm(
+        {
+          title: form.title,
+          description: source.classNotes?.trim() || null,
+          startDate: form.startDate ?? undefined,
+          endDate: form.endDate ?? undefined,
+          isActive: form.isActive,
+          maxSlotsPerUser: form.maxSlotsPerUser,
+          slotCostMonthlyCents: form.slotCostMonthlyCents,
+          costUnit: form.costUnit,
+          freeSlotsPerUser: form.freeSlotsPerUser,
+          maxFreeSlotsTotal: form.maxFreeSlotsTotal,
+          pricingOverridesProgram: form.pricingOverridesProgram,
+        },
+        target.formId,
+      )
+      break
+    }
+    case 'activeDates':
+    case 'days':
+    case 'times':
+    case 'capacity':
       await applyScheduleCopy(source, target)
       break
     case 'skillLevel':
@@ -408,6 +449,7 @@ export async function applyCopyChangePreviews(
   previews: CopyChangePreview[],
 ): Promise<void> {
   const appliedProgramKeys = new Set<string>()
+  const appliedScheduleClassIds = new Set<number>()
 
   for (const preview of previews) {
     const target = rowsById.get(preview.classId)
@@ -422,6 +464,11 @@ export async function applyCopyChangePreviews(
         appliedProgramKeys.add(pricingDedupe)
       }
       appliedProgramKeys.add(dedupeKey)
+    }
+
+    if (SCHEDULE_PART_COLUMN_IDS.has(preview.columnId)) {
+      if (appliedScheduleClassIds.has(preview.classId)) continue
+      appliedScheduleClassIds.add(preview.classId)
     }
 
     await applyCopyToTarget(source, target, preview.columnId)
@@ -441,8 +488,10 @@ export function canReceiveCopy(
     return false
   }
   if (targetColumnId === 'program' && target.classId < 0) return false
-  if (targetColumnId === 'schedule') {
+  if (SCHEDULE_PART_COLUMN_IDS.has(targetColumnId) || targetColumnId === 'classNotes') {
     if (target.formId == null) return false
+  }
+  if (SCHEDULE_PART_COLUMN_IDS.has(targetColumnId)) {
     if (source && (source.formId == null || source.slotGroups.length === 0)) return false
   }
   if (targetColumnId === 'sportTags') {

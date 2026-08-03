@@ -1,5 +1,5 @@
 import { Loader2, X } from 'lucide-react'
-import { type CopyChangePreview } from './classSetupCopyPaste'
+import { isSchedulePartColumn, type CopyChangePreview } from './classSetupCopyPaste'
 
 interface Props {
   open: boolean
@@ -21,7 +21,7 @@ const AdminClassSetupCopyConfirmModal = ({
   if (!open) return null
 
   const hasProgramLevel = changes.some((change) => change.programLevel)
-  const hasScheduleCopy = changes.some((change) => change.columnId === 'schedule')
+  const hasScheduleCopy = changes.some((change) => isSchedulePartColumn(change.columnId))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

@@ -31,6 +31,8 @@ export interface ClassSetupOverviewRow {
   classId: number
   className: string
   classDescription: string | null
+  /** scheduling_form.description — Class notes from Scheduling timeslot editor. */
+  classNotes: string | null
   skillLevel: string | null
   classIsActive: boolean
   classArchived: boolean
@@ -111,20 +113,44 @@ function formatSlotGroupActiveDates(
   return '—'
 }
 
-function scheduleTextsForSlotGroup(
+const SCHEDULE_TIME_RE = /^\d{1,2}:\d{2}[–-]\d{1,2}:\d{2}$/
+
+/** Split a slot display segment (`Monday · 19:00–20:30`) into day vs time parts. */
+export function parseScheduleSegment(segment: string): { days: string; times: string } {
+  const parts = segment
+    .split(/\s*·\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+  const timeIdx = parts.findIndex((part) => SCHEDULE_TIME_RE.test(part))
+  if (timeIdx >= 0) {
+    const times = parts[timeIdx].replace('-', '–')
+    const days = parts.filter((_, index) => index !== timeIdx).join(' · ') || '—'
+    return { days, times }
+  }
+  return { days: segment.trim() || '—', times: '—' }
+}
+
+function scheduleLinesForSlotGroup(
   group: ClassSetupSlotGroup,
   offerings: ClassSetupOffering[] = [],
-): string[] {
+): Omit<ClassSetupOverviewScheduleLine, 'slotGroupId'>[] {
   const activeDates = formatSlotGroupActiveDates(group, offerings)
-  const spaces = String(group.maxParticipants)
+  const capacity = String(group.maxParticipants)
   const segments = (group.scheduleLabel || '—')
     .split(/\s*;\s*/)
     .map((part) => part.trim())
     .filter(Boolean)
-  if (segments.length === 0) {
-    return [`${activeDates} · — · ${spaces}`]
-  }
-  return segments.map((segment) => `${activeDates} · ${segment} · ${spaces}`)
+  const resolvedSegments = segments.length > 0 ? segments : ['—']
+  return resolvedSegments.map((segment) => {
+    const { days, times } = parseScheduleSegment(segment)
+    return {
+      activeDates,
+      days,
+      times,
+      capacity,
+      scheduleText: `${activeDates} · ${days} · ${times} · ${capacity}`,
+    }
+  })
 }
 
 /** Class Master schedule cell: [active dates] · [day/time…] · [max spaces] */
@@ -133,23 +159,39 @@ export function formatScheduleCell(
   offerings: ClassSetupOffering[] = [],
 ): string {
   if (slotGroups.length === 0) return '—'
-  return slotGroups.flatMap((group) => scheduleTextsForSlotGroup(group, offerings)).join('\n')
+  return slotGroups
+    .flatMap((group) => scheduleLinesForSlotGroup(group, offerings).map((line) => line.scheduleText))
+    .join('\n')
 }
 
 export interface ClassSetupOverviewScheduleLine {
   slotGroupId: number | null
+  activeDates: string
+  days: string
+  times: string
+  capacity: string
+  /** Combined line for search / copy equality. */
   scheduleText: string
 }
 
 /** One Class Master table row per scheduled day/time line. */
 export function expandScheduleLines(row: ClassSetupOverviewRow): ClassSetupOverviewScheduleLine[] {
   if (row.slotGroups.length === 0) {
-    return [{ slotGroupId: null, scheduleText: '—' }]
+    return [
+      {
+        slotGroupId: null,
+        activeDates: '—',
+        days: '—',
+        times: '—',
+        capacity: '—',
+        scheduleText: '—',
+      },
+    ]
   }
   return row.slotGroups.flatMap((group) =>
-    scheduleTextsForSlotGroup(group, row.offerings).map((scheduleText) => ({
+    scheduleLinesForSlotGroup(group, row.offerings).map((line) => ({
       slotGroupId: group.slotGroupId,
-      scheduleText,
+      ...line,
     })),
   )
 }

@@ -134,6 +134,9 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       case 'classDescription':
         setTextValue(row.classDescription ?? '')
         break
+      case 'classNotes':
+        setTextValue(row.classNotes ?? '')
+        break
       default:
         break
     }
@@ -163,7 +166,14 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   }, [row?.formId, onSaved])
 
   useEffect(() => {
-    if (columnId !== 'schedule') return
+    if (
+      columnId !== 'activeDates' &&
+      columnId !== 'days' &&
+      columnId !== 'times' &&
+      columnId !== 'capacity'
+    ) {
+      return
+    }
     void loadSchedule(false)
   }, [columnId, loadSchedule])
 
@@ -196,7 +206,11 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       excludeFromDropIns: 'Allow Drop-ins',
       className: 'Class',
       classDescription: 'Class Description',
-      schedule: 'Schedule',
+      classNotes: 'Class Notes',
+      activeDates: 'Schedule',
+      days: 'Schedule',
+      times: 'Schedule',
+      capacity: 'Schedule',
       skillLevel: 'Skill Level',
       status: 'Status',
       costPerMonth: 'Pricing',
@@ -210,6 +224,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       !row.programsId &&
       columnId !== 'className' &&
       columnId !== 'classDescription' &&
+      columnId !== 'classNotes' &&
       columnId !== 'status'
     ) {
       setError('This class has no parent program.')
@@ -260,6 +275,27 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         case 'classDescription':
           await updateClassEvent(row.classId, { description: textValue.trim() || null })
           break
+        case 'classNotes': {
+          if (row.formId == null) throw new Error('No scheduling form is linked to this class.')
+          const form = await adminFetchSchedulingForm(row.formId)
+          await adminSaveSchedulingForm(
+            {
+              title: form.title,
+              description: textValue.trim() || null,
+              startDate: form.startDate ?? undefined,
+              endDate: form.endDate ?? undefined,
+              isActive: form.isActive,
+              maxSlotsPerUser: form.maxSlotsPerUser,
+              slotCostMonthlyCents: form.slotCostMonthlyCents,
+              costUnit: form.costUnit,
+              freeSlotsPerUser: form.freeSlotsPerUser,
+              maxFreeSlotsTotal: form.maxFreeSlotsTotal,
+              pricingOverridesProgram: form.pricingOverridesProgram,
+            },
+            row.formId,
+          )
+          break
+        }
         case 'skillLevel':
           await updateClassEvent(row.classId, {
             skillLevel: (skillLevel || null) as ClassSetupOverviewRow['skillLevel'],
@@ -378,15 +414,35 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     case 'programDescription':
     case 'className':
     case 'classDescription':
+    case 'classNotes':
       body = (
-        <TextField
-          label={title.replace('Edit ', '')}
-          value={textValue}
-          onChange={setTextValue}
-          multiline={columnId === 'programDescription' || columnId === 'classDescription'}
-        />
+        <div className="space-y-3">
+          {columnId === 'classNotes' && (
+            <p className="text-sm text-gray-600">
+              Same notes field as Scheduling → Timeslots. Stored on the class scheduling form.
+            </p>
+          )}
+          {columnId === 'classNotes' && row.formId == null && (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              Link a scheduling form before editing class notes.
+            </p>
+          )}
+          <TextField
+            label={title.replace('Edit ', '')}
+            value={textValue}
+            onChange={setTextValue}
+            multiline={
+              columnId === 'programDescription' ||
+              columnId === 'classDescription' ||
+              columnId === 'classNotes'
+            }
+          />
+        </div>
       )
-      saveDisabled = !textValue.trim() && columnId !== 'programDescription' && columnId !== 'classDescription'
+      saveDisabled =
+        columnId === 'classNotes'
+          ? row.formId == null
+          : !textValue.trim() && columnId !== 'programDescription' && columnId !== 'classDescription'
       break
     case 'excludeFromDropIns':
       body = (
@@ -446,7 +502,10 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         </div>
       )
       break
-    case 'schedule':
+    case 'activeDates':
+    case 'days':
+    case 'times':
+    case 'capacity':
       body = row.formId == null ? (
         <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
       ) : scheduleLoading && !scheduleDetail ? (
