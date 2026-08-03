@@ -3,11 +3,10 @@ import { Archive, Loader2, Search, Trash2, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
 import AdminClassSetupCopyConfirmModal from './AdminClassSetupCopyConfirmModal'
+import ClassMasterCellText from './ClassMasterCellText'
 import { useSpreadsheetResize } from './useSpreadsheetResize'
 import {
-  GROUP_COLUMNS,
   OVERVIEW_COLUMNS,
-  SCHEDULE_COLUMNS,
   applyOverviewFilters,
   compareOverviewRows,
   distinctPrimarySports,
@@ -36,12 +35,13 @@ interface Props {
   unlocked: boolean
   copyMode: boolean
   onCopyModeChange: (active: boolean) => void
+  /** Wrap cell text vs single-line ellipsis with hover full text. */
+  textWrap: boolean
   onRefresh: () => void
 }
 
 const tdBase = 'px-3 py-2 align-top text-sm text-gray-900 border-b border-gray-100'
 const actionColumnWidth = 104
-const scheduleClusterStartId = SCHEDULE_COLUMNS[0]?.id
 
 type CopySource = { classId: number; columnId: OverviewColumnId }
 
@@ -66,6 +66,7 @@ const AdminClassSetupOverviewTable = ({
   unlocked,
   copyMode,
   onCopyModeChange,
+  textWrap,
   onRefresh,
 }: Props) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'program', direction: 'asc' })
@@ -130,6 +131,19 @@ const AdminClassSetupOverviewTable = ({
       compareOverviewRows(a, b, sortConfig.column!, sortConfig.direction),
     )
   }, [rows, filters, smartFilter, sortConfig])
+
+  const visibleScheduleRows = useMemo(
+    () =>
+      visibleRows.flatMap((row) =>
+        expandScheduleLines(row).map((line, lineIndex) => ({
+          row,
+          line,
+          lineIndex,
+          rowKey: `${row.classId}:${line.slotGroupId ?? 'none'}:${lineIndex}`,
+        })),
+      ),
+    [visibleRows],
+  )
 
   const rowsById = useMemo(() => new Map(rows.map((row) => [row.classId, row])), [rows])
 
@@ -303,7 +317,9 @@ const AdminClassSetupOverviewTable = ({
         <div className="flex items-center gap-3">
           {(smartFilter.trim() || visibleRows.length !== rows.length) && (
             <span className="whitespace-nowrap text-xs text-gray-500">
-              {visibleRows.length} of {rows.length} classes
+              {visibleScheduleRows.length} schedule
+              {visibleScheduleRows.length !== 1 ? 's' : ''} · {visibleRows.length} of {rows.length}{' '}
+              classes
             </span>
           )}
           <ClearFiltersButton filters={filters} onClear={() => setFilters({})} />
@@ -389,134 +405,86 @@ const AdminClassSetupOverviewTable = ({
             </tr>
           </thead>
           <tbody>
-            {visibleRows.flatMap((row) => {
-              const scheduleLines = expandScheduleLines(row)
-              const span = scheduleLines.length
+            {visibleScheduleRows.map(({ row, line, lineIndex, rowKey }) => {
               const rowHeight = getRowHeight(row.classId)
+              return (
+                <tr key={rowKey} className="hover:bg-gray-50/60 group relative">
+                  {OVERVIEW_COLUMNS.map((column, columnIndex) => {
+                    const value =
+                      column.id === 'schedule'
+                        ? line.scheduleText
+                        : getCellDisplayValue(row, column.id)
+                    const collapsed = collapsedColumns.has(column.id)
+                    const columnWidth = renderedColumnWidths[columnIndex]
+                    const copyState = cellCopyState(row, column.id)
+                    const editable = column.editable && unlocked && !copyMode
+                    const copyClass = copyHighlightClass(copyMode, collapsed, copyState, column.id)
 
-              return scheduleLines.map((line, lineIndex) => {
-                const isFirstLine = lineIndex === 0
-                return (
-                  <tr
-                    key={`${row.classId}:${line.slotGroupId ?? 'none'}:${lineIndex}`}
-                    className="hover:bg-gray-50/60 group relative"
-                  >
-                    {isFirstLine &&
-                      GROUP_COLUMNS.map((column) => {
-                        const columnIndex = OVERVIEW_COLUMNS.findIndex((item) => item.id === column.id)
-                        const value = getCellDisplayValue(row, column.id)
-                        const collapsed = collapsedColumns.has(column.id)
-                        const columnWidth = renderedColumnWidths[columnIndex]
-                        const copyState = cellCopyState(row, column.id)
-                        const editable = column.editable && unlocked && !copyMode
-                        const copyClass = copyHighlightClass(copyMode, collapsed, copyState, column.id)
-
-                        return (
-                          <td
-                            key={column.id}
-                            rowSpan={span}
-                            className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
-                              editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
-                            } ${copyClass} bg-white`}
-                            style={{
-                              width: columnWidth,
-                              maxWidth: columnWidth,
-                              height: rowHeight * span,
-                              overflow: 'hidden',
+                    return (
+                      <td
+                        key={column.id}
+                        className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
+                          editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
+                        } ${copyClass}`}
+                        style={{
+                          width: columnWidth,
+                          maxWidth: columnWidth,
+                          height: rowHeight,
+                          overflow: textWrap ? 'hidden' : 'visible',
+                        }}
+                        onClick={() => !collapsed && handleCellClick(row, column.id)}
+                      >
+                        {!collapsed && <ClassMasterCellText value={value} wrap={textWrap} />}
+                        {columnIndex === 0 && !collapsed && lineIndex === 0 && (
+                          <button
+                            type="button"
+                            aria-label="Resize row"
+                            className="absolute left-0 right-0 -bottom-1 h-2 cursor-row-resize opacity-0 group-hover:opacity-100 hover:bg-vortex-red/20"
+                            onMouseDown={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              startRowResize(row.classId, e.clientY)
                             }}
-                            title={value}
-                            onClick={() => !collapsed && handleCellClick(row, column.id)}
-                          >
-                            {!collapsed && (
-                              <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>
-                            )}
-                            {column.id === 'classId' && !collapsed && (
-                              <button
-                                type="button"
-                                aria-label="Resize row"
-                                className="absolute left-0 right-0 -bottom-1 h-2 cursor-row-resize opacity-0 group-hover:opacity-100 hover:bg-vortex-red/20"
-                                onMouseDown={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  startRowResize(row.classId, e.clientY)
-                                }}
-                              />
-                            )}
-                          </td>
-                        )
-                      })}
-
-                    {SCHEDULE_COLUMNS.map((column) => {
-                      const columnIndex = OVERVIEW_COLUMNS.findIndex((item) => item.id === column.id)
-                      const value =
-                        column.id === 'schedule'
-                          ? line.scheduleText
-                          : getCellDisplayValue(row, column.id)
-                      const collapsed = collapsedColumns.has(column.id)
-                      const columnWidth = renderedColumnWidths[columnIndex]
-                      const copyState = cellCopyState(row, column.id)
-                      const editable = column.editable && unlocked && !copyMode
-                      const copyClass = copyHighlightClass(copyMode, collapsed, copyState, column.id)
-                      const clusterStart = column.id === scheduleClusterStartId
-
-                      return (
-                        <td
-                          key={`${column.id}:${lineIndex}`}
-                          className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${
-                            editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''
-                          } ${copyClass} ${clusterStart ? 'border-l border-l-gray-300' : ''}`}
-                          style={{
-                            width: columnWidth,
-                            maxWidth: columnWidth,
-                            height: rowHeight,
-                            overflow: 'hidden',
-                          }}
-                          title={value}
-                          onClick={() => !collapsed && handleCellClick(row, column.id)}
-                        >
-                          {!collapsed && (
-                            <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>
-                          )}
-                        </td>
-                      )
-                    })}
-
-                    <td
-                      className="border-b border-l border-gray-100 px-2 py-2 align-top"
-                      style={{ width: actionColumnWidth, minWidth: actionColumnWidth, height: rowHeight }}
-                    >
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => void handleArchive(row)}
-                          disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
-                          className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
-                          aria-label={`Archive ${row.className}`}
-                          title={row.classArchived ? 'Already archived' : 'Archive class'}
-                        >
-                          {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
-                            ? <Loader2 className="h-4 w-4 animate-spin" />
-                            : <Archive className="h-4 w-4" />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void handleDelete(row)}
-                          disabled={copyMode || pendingAction?.classId === row.classId}
-                          className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
-                          aria-label={`Permanently delete ${row.className}`}
-                          title="Permanently delete class"
-                        >
-                          {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
-                            ? <Loader2 className="h-4 w-4 animate-spin" />
-                            : <Trash2 className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })
+                          />
+                        )}
+                      </td>
+                    )
+                  })}
+                  <td
+                    className="border-b border-l border-gray-100 px-2 py-2 align-top"
+                    style={{ width: actionColumnWidth, minWidth: actionColumnWidth, height: rowHeight }}
+                  >
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleArchive(row)}
+                        disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
+                        className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label={`Archive ${row.className}`}
+                        title={row.classArchived ? 'Already archived' : 'Archive class'}
+                      >
+                        {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Archive className="h-4 w-4" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(row)}
+                        disabled={copyMode || pendingAction?.classId === row.classId}
+                        className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label={`Permanently delete ${row.className}`}
+                        title="Permanently delete class"
+                      >
+                        {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Trash2 className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
             })}
-            {visibleRows.length === 0 && (
+            {visibleScheduleRows.length === 0 && (
               <tr>
                 <td colSpan={OVERVIEW_COLUMNS.length + 1} className="px-4 py-12 text-center text-sm text-gray-500">
                   No classes match the current filters.
