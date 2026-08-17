@@ -38,7 +38,9 @@ const HighlightsModal = ({
       document.body.style.paddingRight = `${scrollbarWidth}px`
     }
     return () => {
-      document.body.style.overflow = prevOverflow
+      // A stale lock can survive a portal-to-website transition. Do not
+      // preserve that stale `hidden` value after this overlay closes.
+      document.body.style.overflow = prevOverflow === 'hidden' ? '' : prevOverflow
       document.body.style.paddingRight = prevPaddingRight
     }
   }, [isOpen])

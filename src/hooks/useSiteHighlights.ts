@@ -11,10 +11,12 @@ import { getHighlightSiteKey } from '../utils/highlightSite'
 interface UseSiteHighlightsOptions {
   /** Only auto-open on home page when true (default). */
   homePageOnly?: boolean
+  /** Allow the carousel to open without an explicit user action (default). */
+  autoOpen?: boolean
 }
 
 export function useSiteHighlights(options: UseSiteHighlightsOptions = {}) {
-  const { homePageOnly = true } = options
+  const { homePageOnly = true, autoOpen = true } = options
   const location = useLocation()
   const siteKey = useMemo(() => getHighlightSiteKey(), [])
 
@@ -55,11 +57,12 @@ export function useSiteHighlights(options: UseSiteHighlightsOptions = {}) {
   }, [siteKey])
 
   const shouldAutoOpen = useMemo(() => {
+    if (!autoOpen) return false
     if (highlights.length === 0) return false
     if (skipAutoOpenForLogin) return false
     if (homePageOnly && !isHomePage) return false
     return shouldAutoOpenCarousel(siteKey, highlights)
-  }, [highlights, homePageOnly, isHomePage, siteKey, skipAutoOpenForLogin])
+  }, [autoOpen, highlights, homePageOnly, isHomePage, siteKey, skipAutoOpenForLogin])
 
   useEffect(() => {
     if (
