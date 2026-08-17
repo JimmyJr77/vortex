@@ -1,0 +1,555 @@
+{
+  "facilityId": 1,
+  "slug": "uphill-bound",
+  "researchVersion": "2026-07-25.6",
+  "assessmentSummary": {
+    "identity": "Short-duration alternating forward bounds on a stable uphill grade, emphasizing propulsive hip extension and controlled grade-specific rhythm.",
+    "currentCardFindings": [
+      "The card's setup incorrectly says to use a flat surface even though incline is the defining constraint.",
+      "The claim that hills reduce landing speed is incomplete: incline can lower normal impact peaks at some speeds while increasing propulsive work and, at steeper grades, internal tibial loading.",
+      "The card lacks a grade range, hill inspection, downhill return rule, weather constraints, and distinction from hill running or sprinting."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "alternating_unilateral_bound",
+        "uphill_projection",
+        "graded_surface_plyometric"
+      ],
+      "jointActions": [
+        "hip_extension",
+        "knee_extension",
+        "ankle_plantarflexion",
+        "contralateral_hip_flexion",
+        "trunk_stabilization"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "repeat_propulsive_bounds_against_gravity_on_a_controlled_incline"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "hip_flexors",
+        "intrinsic_foot",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 69,
+      "absoluteLoadDemand": 30,
+      "coordinationDemand": 72,
+      "supervisionDemand": 58,
+      "failureConsequence": 62,
+      "impact": 61,
+      "workCapacityDemand": 50,
+      "baseOverallDifficulty": 69
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_alternating_uphill_bound",
+      "impactClass": "moderate_to_high_and_grade_speed_dependent",
+      "landingContactsPerRep": "4-10_total_contacts_or_5-15_seconds",
+      "primaryStress": [
+        "propulsive_hip_work",
+        "concentric_center_of_mass_elevation",
+        "ankle_tendon_load",
+        "grade_specific_balance"
+      ],
+      "fatigueSensitivity": "cadence_posture_contact_quality_and_grade_specific_output"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "inspected_stable_uphill_lane",
+        "safe_flat_start_and_finish"
+      ],
+      "optionalEquipment": [
+        "grade_measurement",
+        "cones",
+        "video"
+      ],
+      "environment": [
+        "dry_non_slip_surface",
+        "no_holes_or_cross_slope",
+        "walk_down_recovery_route",
+        "weather_and_visibility_check"
+      ],
+      "population": [
+        "owns_level_alternating_bounds",
+        "pain_free_hill_running",
+        "no_active_tibial_or_achilles_symptoms"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "attemptsPerSet": "1-3",
+      "contactsOrDuration": "4-10_contacts_or_5-15_seconds",
+      "restSeconds": "90-240_with_walk_down_recovery",
+      "intensity": "powerful_not_exhaustive_on_individually_selected_gentle_to_moderate_grade",
+      "progressWhen": "posture, cadence, projection, and symptoms remain stable across the grade"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Push the hill away",
+        "Drive through the hip",
+        "Keep contacts under you",
+        "Walk down to recover"
+      ],
+      "athleteInstructions": [
+        "Bound uphill with powerful alternating contacts",
+        "Stop before it becomes a slow run"
+      ],
+      "commonFaults": [
+        "using an uninspected or steep hill",
+        "turning into hill sprinting",
+        "excessive forward bend",
+        "long contacts",
+        "jogging downhill between efforts"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "competent level bounds",
+        "safe inspected grade",
+        "pain_free tibial and Achilles loading"
+      ],
+      "stopRules": [
+        "pain",
+        "loss_of_bound_pattern",
+        "slipping",
+        "unsafe_surface_or_weather",
+        "posture_collapse",
+        "slow_conditioning_stride"
+      ]
+    },
+    "programmingDecision": "Retain as an incline variant of Alternating Bounds. Correct the flat-surface setup, define grade and duration, require surface inspection and walk-down recovery, and avoid claiming that uphill work is universally lower load.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T00:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "On an inspected, dry, stable uphill lane with a declared gentle-to-moderate grade, perform a short sequence of alternating forward bounds. Each contact projects the body uphill with controlled foot placement, hip extension, trunk organisation, and a planned walk-down recovery. This excludes uphill sprinting, jogging, straight-leg bounds, bilateral hops, downhill bounds, weighted bounds, or an unspecified steep grade.",
+      "familyKey": "alternating_uphill_bounds",
+      "movementPatterns": [
+        "bound",
+        "horizontal_projection",
+        "land",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hamstrings",
+        "glutes",
+        "hip",
+        "pelvis",
+        "core",
+        "spine",
+        "shoulder"
+      ],
+      "requiredEquipment": [
+        "incline_surface",
+        "start_finish_cones",
+        "safe_run_out"
+      ],
+      "optionalEquipment": [
+        "grade_meter",
+        "video_capture",
+        "timer"
+      ],
+      "variantKey": "alternating-gentle-to-moderate-uphill-bounds",
+      "environment": {
+        "surface": "inspected dry stable uphill lane with no holes, loose material, cross-slope, traffic, or unsafe weather; flat controlled start and finish areas",
+        "space": "one athlete at a time in the uphill lane; a separated walk-down recovery route with no cross traffic",
+        "stationCapacity": 1,
+        "inspection": [
+          "inspect grade, surface, traction, weather, visibility, lane, finish, and walk-down route",
+          "mark start and finish; declare grade, contact count or duration, and walk-down recovery",
+          "remove bystanders and prevent downhill jogging through the active lane",
+          "confirm footwear, communication, stop signal, and current running/bounding exposure"
+        ],
+        "changeRule": "Changing grade, surface, traction, direction, contact sequence, distance, duration, pace, load, recovery route, or purpose requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "controlled level alternating bounds and pain-free tolerance of current hill-running and ankle/calf/tibial loading",
+          "safe inspected lane, grade, finish, and walk-down route",
+          "current lower-limb, tendon, impact, and session-fatigue budgets fit",
+          "understands the bound pattern, route, stop signal, and full recovery rule"
+        ],
+        "excludeOrEscalate": [
+          "symptom, restriction, unsafe grade, traction, weather, visibility, surface, footwear, lane, finish, recovery route, or communication conflict",
+          "pain, giving way, dizziness, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal grade, contact count, duration, recovery, impact reduction, readiness threshold, output, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 69,
+        "absoluteLoadDemand": 30,
+        "physicalDifficulty": 30,
+        "coordinationDemand": 72,
+        "supervisionDemand": 58,
+        "failureConsequence": 62,
+        "impact": 61,
+        "workCapacityDemand": 50,
+        "baseOverallDifficulty": 69
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight alternating uphill bounds on individually selected gentle-to-moderate grade",
+        "impactClass": "grade_speed_surface_and_contact_quality_dependent lower-limb impact exposure",
+        "gripDemand": 1,
+        "spinalLoading": 24,
+        "eccentricStress": 44,
+        "landingContactsPerRep": 1,
+        "contactExposureModel": {
+          "per_set_range": "record uphill bound contacts or duration, grade, surface, traction, distance, walk-down recovery, quality loss, symptoms, and other bounds/sprints"
+        },
+        "primaryExposure": [
+          "propulsive_hip_extension",
+          "ankle_calf_tendon_loading",
+          "alternating_unilateral_force_acceptance",
+          "grade_specific_balance_and_trunk_control"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 48,
+        "gripFatigue": 1,
+        "technicalFatigueSensitivity": 60,
+        "impactAccumulation": 61,
+        "recoveryHours": 36,
+        "recoveryHoursPlanningEstimate": 36,
+        "cumulativeBudget": {
+          "uphill_bound_contacts": 30,
+          "alternating_bound_contacts": 40,
+          "lower_limb_plyometric_contacts": 45,
+          "calf_achilles_and_tibial_exposure": 36
+        },
+        "tracking": [
+          "sets",
+          "attempts",
+          "contactsOrDuration",
+          "grade",
+          "surface",
+          "traction",
+          "distance",
+          "walkDownRecovery",
+          "cadence",
+          "qualityLoss",
+          "symptoms",
+          "otherBoundsAndSprints"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Bounding is a multi-jump exercise commonly performed in alternate-leg, same-leg, or double-leg modes, usually with horizontal projection as a defining intent.",
+        "Uphill Bound must state contact sequence, takeoff and landing laterality, projection bias, continuity, number of contacts, terminal action, surface gradient, and reset; labels such as rhythm, distance, or height alone do not establish a new identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal multi-step jumps combine forward-directed force production with repeated unilateral contacts under temporal constraints.",
+        "Uphill Bound belongs to multi-contact plyometric output; alternate-leg and repeated same-leg contacts are controlled identities, while distance, height, rhythm, contact count, and measurement method are controlled variants or delivery dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Bounding coordinates rapid force production and absorption across the foot, ankle, knee, hip, pelvis, and trunk on repeated unilateral contacts.",
+        "The card should assign plantar-flexor and intrinsic-foot stiffness, knee-extensor and hip-extensor propulsion and braking, hamstring swing and stance roles, frontal-plane hip stabilization, arm action, and lumbopelvic control without reducing the task to one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Horizontally oriented plyometric training has direction-specific advantages for horizontal performance, while vertical and horizontal tasks should not be treated as mechanically interchangeable.",
+        "Observable execution must match the card: project the center of mass, strike beneath or only slightly ahead of it, resist braking and collapse, coordinate opposite arm and leg, and preserve the selected horizontal, vertical, or blended bias."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Multi-step horizontal jumps require forward force production, short contact constraints, repeated unilateral organization, and preservation of velocity across contacts.",
+        "Exercise difficulty must score technical complexity, physical and absolute-load demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; projection distance or an athlete label is not an exercise difficulty score."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric exposure is meaningfully affected by total ground contacts and accumulated intervention volume, so contacts must be counted rather than hidden inside generic repetitions or work intervals.",
+        "Uphill Bound needs per-leg and total contacts, surface, projection intent, approach, terminal landing, technical-fatigue thresholds, inter-attempt recovery, between-set recovery, and weekly high-impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "High-intensity plyometrics require progressive preparation, adequate strength and landing control, safe equipment and surfaces, and sufficient recovery.",
+        "The delivery profile should require a long unobstructed lane, level or explicitly graded non-slip surface, suitable footwear, visible finish and run-out zones, safe athlete spacing, and coach sightlines to both frontal and sagittal mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Ground-contact volume is a programming variable and should be interpreted with intervention duration, task intensity, maturity, training history, and outcome rather than copied as a universal dose.",
+        "Prescribe attempts or lanes, contacts per attempt and per leg, distance or contact cap, projection intent, terminal action, full walk-back or timed recovery, and a quality stop; do not prescribe two-second recovery for maximal multi-contact bounds."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Sprint and jump coaches use bounding to develop horizontally directed force and acceleration-related qualities, with execution differentiated by alternate, single, or double contacts.",
+        "Use a small cue set: tall but directionally projected posture, drive through the ground, exchange opposite arm and knee, contact under the hips, keep the pelvis level, and finish with the prescribed stick or run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Advanced unilateral plyometrics require technical readiness, conservative progression, appropriate supervision, and discontinuation when quality or safety deteriorates.",
+        "Stop for pain, giving way, apprehension, repeated valgus or pelvic drop, foot collapse, reaching and braking, loud contacts, loss of rhythm, unintended contact pattern, decreasing distance or velocity, unsafe lane encroachment, or an uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal multi-step jump performance and training can relate to sprint outcomes, but transfer depends on task, population, program, and measurement context.",
+        "Uphill Bound belongs early in a fresh output block after landing, hopping, and lower-amplitude bounding readiness; use it to train or measure a named quality, not as conditioning volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Athlete support should show the exact left-right or same-leg contact pattern, the intended projection angle, arm timing, contact zone, finish, recovery, and what makes a repetition count.",
+        "Use lane markers and one outcome cue, explain the difference between rhythm and maximal-distance attempts, and show how to reduce amplitude without changing the contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Coach support should distinguish alternate, same-leg, and double-leg bounding and select orientation according to the intended performance transfer.",
+        "Provide front and side observation, per-leg contact counts, contact-sequence diagrams, projection and braking criteria, side-to-side comparison, lane and surface setup, workload accounting, regressions, progressions, and terminal-landing rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with shorter lanes, lower amplitude, bound-and-stick contacts, visual footprints, external rhythm marks, fewer contacts, longer recovery, quieter settings, or supported single-leg landings while still assessing the exercise through its difficulty dimensions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Horizontal and vertical plyometric orientations create meaningfully different directional demands and adaptations.",
+        "Contact pattern and surface gradient require a distinct definition or variant; height, distance, rhythm, contact count, approach length, terminal stick, and measurement intent normally belong in variant or delivery profiles unless they change the actual contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Uphill Bound were discovered through visible YouTube search; current availability and embedding, exact contact pattern and projection match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Pq7RIUkj4rQ",
+      "title": "Hill Bounding with 2:13 Marathoner Enoch Nadler",
+      "channelName": "Enoch Nadler",
+      "sourceQuery": "uphill bounds exercise sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=65rWAnDr1cE",
+      "title": "HOW TO: Hill Bounding Like Kilian - IMPROVE YOUR POWER!",
+      "channelName": "Humble Running",
+      "sourceQuery": "uphill bounds exercise sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5bGu4W5rQ1U",
+      "title": "Hill Bounding | How to Train Like Kilian Jornet",
+      "channelName": "Running for Views",
+      "sourceQuery": "uphill bounds exercise sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4soeizlXoMM",
+      "title": "Lydiard Training - Why Hill Bounding improves your running",
+      "channelName": "Lydiard Foundation",
+      "sourceQuery": "uphill bounds exercise sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OiNp4dTiIn0",
+      "title": "Top 3 Hill Exercises For Athletes!",
+      "channelName": "BrotherFaris",
+      "sourceQuery": "uphill bounds exercise sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Alternating Bounds",
+      "classification": "new_variant",
+      "rationale": "The incline is a controlled surface variant of the base alternating contact sequence.",
+      "distinguishingDimensions": {
+        "surfaceGradient": "uphill"
+      }
+    },
+    {
+      "name": "Uphill Sprint",
+      "classification": "new_definition",
+      "rationale": "Running uses cyclical sprint gait rather than exaggerated bound contacts.",
+      "distinguishingDimensions": {
+        "movementPattern": "sprint_running"
+      }
+    },
+    {
+      "name": "Steep Hill Bounding",
+      "classification": "new_variant",
+      "rationale": "A steep grade changes step length, work demand, and internal loading enough to require separate constraints.",
+      "distinguishingDimensions": {
+        "surfaceGradient": "steep_uphill"
+      }
+    },
+    {
+      "name": "Uphill Straight-Leg Bounds",
+      "classification": "new_definition",
+      "rationale": "A straight-leg drill uses a different joint strategy and sprint-mechanics intent.",
+      "distinguishingDimensions": {
+        "jointStrategy": "stiff_knee_straight_leg"
+      }
+    },
+    {
+      "name": "Weighted Uphill Bounds",
+      "classification": "new_variant",
+      "rationale": "External load compounds grade-specific propulsion and tissue demand.",
+      "distinguishingDimensions": {
+        "externalLoad": "weighted"
+      }
+    }
+  ]
+}

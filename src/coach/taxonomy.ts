@@ -53,6 +53,33 @@ export interface TaxonomyItem {
   sort_order?: number
 }
 
+export type TaxonomyV2Scope = 'definition' | 'variant' | 'delivery_profile'
+
+export interface TaxonomyV2Term {
+  id: number
+  key: string
+  name: string
+  domain: string | null
+  description: string | null
+  scopes: TaxonomyV2Scope[]
+  status: 'active' | 'deprecated'
+  sortOrder: number
+  metadata: Record<string, unknown>
+}
+
+export interface TaxonomyV2Catalog {
+  version: '2.0.0'
+  facets: Record<string, TaxonomyV2Term[]>
+  aliases: Array<{
+    facetType: string
+    aliasKey: string
+    termKey: string
+    ambiguous: boolean
+    source: string
+    notes: string | null
+  }>
+}
+
 export interface Taxonomy {
   tenets: Tenet[]
   methodologies: Methodology[]
@@ -66,6 +93,7 @@ export interface Taxonomy {
   sessionPhases?: SessionPhaseTaxonomyItem[]
   phaseOrderSlots?: PhaseOrderSlotTaxonomyItem[]
   phaseSubroles?: PhaseSubroleTaxonomyItem[]
+  taxonomyV2?: TaxonomyV2Catalog
 }
 
 export interface SessionPhaseTaxonomyItem {
@@ -187,16 +215,31 @@ export const TENETS: Tenet[] = [
   { key: 'body_control', name: 'Body Control', description: 'Kinematic awareness - Precise understanding of where the body is in space.', detail: "Achieving exceptional spatial awareness through gymnastics-based training, air sense development, and proprioceptive exercises that translate to any sport." },
 ]
 
+/**
+ * The public-facing v2 methodology layer deliberately excludes training
+ * families (for example Calisthenics), adaptations (Hypertrophy), tenets
+ * (Balance and Mobility), physiology (Neural), niches (Core/Grip/Rotation),
+ * and programming protocols (HIIT). Legacy values remain available through
+ * the database taxonomy and migration mapping for source lineage only.
+ */
 export const TRAINING_METHODOLOGIES: Methodology[] = [
-  { key: 'resistance_calisthenics', name: 'Resistance & Calisthenics', description: 'Foundational strength and endurance building' },
-  { key: 'plyometrics', name: 'Plyometrics', description: 'Explosive power and fast-twitch activation' },
-  { key: 'isometrics', name: 'Isometrics', description: 'Tendon loading and joint stability' },
-  { key: 'eccentric_negative', name: 'Eccentric/Negative Training', description: 'Controlled force development and injury prevention' },
-  { key: 'neural', name: 'Neural Training', description: 'Speed, coordination, and reaction time enhancement' },
-  { key: 'balance_stability', name: 'Balance & Stability Work', description: 'Proprioception and spatial control' },
-  { key: 'mobility_flexibility', name: 'Mobility & Flexibility Drills', description: 'Full-range functional movement' },
-  { key: 'core_body_control', name: 'Core & Body Control Work', description: 'Control, posture, and spatial awareness' },
-  { key: 'hiit', name: 'HIIT', description: 'High-intensity interval training for metabolic conditioning' },
+  { key: 'plyometric', name: 'Plyometric', description: 'Uses a controlled stretch–shortening cycle for elastic output.' },
+  { key: 'ballistic', name: 'Ballistic', description: 'Accelerates an implement or body segment through the intended finish.' },
+  { key: 'isometric', name: 'Isometric', description: 'Uses a deliberate static contraction at a defined position and intent.' },
+  { key: 'eccentric_emphasis', name: 'Eccentric Emphasis', description: 'Prioritizes controlled lowering and force absorption.' },
+  { key: 'eccentric_only', name: 'Eccentric-Only', description: 'Uses a deliberately isolated lowering or absorption task with an approved return method.' },
+  { key: 'eccentric_overload', name: 'Eccentric Overload', description: 'Uses an approved overload only in the lowering phase.' },
+  { key: 'concentric_only', name: 'Concentric-Only', description: 'Removes or minimizes the lowering phase for a specific intent.' },
+  { key: 'tempo_controlled', name: 'Tempo-Controlled', description: 'Uses prescribed cadence to control time under tension or learning.' },
+  { key: 'paused', name: 'Paused', description: 'Uses a deliberate stop at a defined position before continuing.' },
+  { key: 'resisted', name: 'Resisted', description: 'Adds externally directed resistance while preserving the movement identity.' },
+  { key: 'assisted_overspeed', name: 'Assisted/Overspeed', description: 'Uses approved assistance or overspeed only when readiness and safety fit.' },
+  { key: 'accommodating_resistance', name: 'Accommodating Resistance', description: 'Varying resistance changes across the range through an approved tool.' },
+  { key: 'variable_resistance', name: 'Variable Resistance', description: 'Resistance varies intentionally across a repetition or task.' },
+  { key: 'perturbation', name: 'Perturbation', description: 'A controlled disturbance challenges an organized position or response.' },
+  { key: 'instability', name: 'Instability', description: 'A constrained, intentional instability changes the control demand.' },
+  { key: 'blood_flow_restriction', name: 'Blood-Flow Restriction', description: 'A specialized, governed method requiring its own safeguards.' },
+  { key: 'velocity_based', name: 'Velocity-Based', description: 'Velocity targets or feedback govern load, intent, or stop decisions.' },
 ]
 
 export const PHYSIOLOGICAL_EMPHASIS: PhysiologicalEmphasis[] = [

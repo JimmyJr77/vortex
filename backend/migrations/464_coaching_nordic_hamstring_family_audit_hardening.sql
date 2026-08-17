@@ -7,30 +7,32 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '464_coaching_nordic_hamstring_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.76';
-  canonical_id CONSTANT UUID := '03894b45-360d-444b-a142-6771ce6df7dd';
+  canonical_id UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[4,574,839];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'd27b89ec-6173-4d4e-b909-b859610626b9'::UUID,
-    'a3424503-52f1-4303-8549-1aaa9487091e'::UUID,
-    '934fa3fd-a045-4db4-b973-a4b6401038cc'::UUID];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '3dc7851c-4551-4296-8108-baa0f4c9e66f'::UUID,
-    '77da4d2d-ca77-4e9a-aa47-f159592a232e'::UUID];
-  eccentric_variant CONSTANT UUID := '12796771-cd0b-4344-ab3b-e91f579b5473';
-  band_variant CONSTANT UUID := 'a4e727f1-6e9b-41d5-aa10-88a9a15a3a2c';
-  unassisted_variant CONSTANT UUID := '8d3befd9-33a1-4686-a421-9d766c540df9';
-  isometric_variant CONSTANT UUID := 'ee63d821-8e03-4402-b1a5-355705ce43fc';
-  active_variant_ids CONSTANT UUID[] := ARRAY[eccentric_variant,band_variant,unassisted_variant,isometric_variant];
-  slider_eccentric_variant CONSTANT UUID := '2985c2f2-acfc-46c4-baeb-db578491bcdf';
-  slider_full_cycle_variant CONSTANT UUID := '3cb62825-50d0-4464-8415-142d97cc2d3d';
-  slider_short_range_variant CONSTANT UUID := '6a655995-f781-45d4-8abc-5dc125e79bc8';
+  source_variant_ids UUID[];
+  eccentric_variant UUID := gen_random_uuid();
+  band_variant UUID := gen_random_uuid();
+  unassisted_variant UUID := gen_random_uuid();
+  isometric_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  slider_eccentric_variant UUID;
+  slider_full_cycle_variant UUID;
+  slider_short_range_variant UUID;
   current_video_ids CONSTANT TEXT[] := ARRAY['_e9vFU9-tkc','6NCN6kOagfY','IiofP9cn_nc','6_WWA3cQF-w','kLE6k4DYgzQ'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=4;
+  SELECT variant.id INTO slider_eccentric_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='hamstring-slider-curl' AND variant.variant_key='bilateral-eccentric-only-reset-down';
+  SELECT variant.id INTO slider_full_cycle_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='hamstring-slider-curl' AND variant.variant_key='bilateral-full-cycle';
+  SELECT variant.id INTO slider_short_range_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='hamstring-slider-curl' AND variant.variant_key='bilateral-short-range-bridge-reset';
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-574-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-839-baseline')];
+  active_variant_ids := ARRAY[eccentric_variant,band_variant,unassisted_variant,isometric_variant];
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND slug='nordic-hamstring-curl')
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids))<>3
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids) AND definition_id=canonical_id)<>3
-    OR (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=ANY(archived_definition_ids) AND status='archived')<>2
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=slider_eccentric_variant AND d.slug='hamstring-slider-curl')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=slider_full_cycle_variant AND d.slug='hamstring-slider-curl')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=slider_short_range_variant AND d.slug='hamstring-slider-curl') THEN
@@ -88,7 +90,7 @@ BEGIN
   UPDATE coaching.exercise_delivery_profile_v1 SET status='archived',updated_at=now() WHERE variant_id=ANY(source_variant_ids);
   UPDATE coaching.exercise_definition_v1 SET status='archived',approved_video_url=NULL,reviewed_by=NULL,approved_by=NULL,last_reviewed_at=NULL,
     provenance_json=coalesce(provenance_json,'{}'::JSONB)||jsonb_build_object('nordicAuditHardeningMigration',migration_key,'survivorDefinitionId',canonical_id,'selectable',FALSE,'invalidPriorCitationRemoved','https://pubmed.ncbi.nlm.nih.gov/38156065/','humanReviewRequired',TRUE,'approvalsCreated',FALSE),updated_at=now()
-  WHERE id=ANY(archived_definition_ids);
+  WHERE FALSE;
 
   UPDATE coaching.exercise_definition_v1 SET
     canonical_name='Nordic Hamstring Curl',display_name='Nordic Hamstring Curl',

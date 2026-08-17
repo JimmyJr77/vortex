@@ -1,0 +1,562 @@
+{
+  "facilityId": 1,
+  "slug": "standing-bilateral-arm-circles",
+  "researchVersion": "2026-08-09.104",
+  "assessmentSummary": {
+    "identity": "Standing Bilateral Arm Circles use a fixed-foot upright base with both arms raised laterally near shoulder height, elbows long but not forcefully locked, and repeated small controlled circles made simultaneously in one declared direction. Direction reverses only at the declared interval or count. A valid repetition is one complete small revolution by both arms; time-based delivery records actual seconds and direction. Circle diameter within the declared small-to-moderate range, exact arm height within comfort, palm orientation, tempo, direction order, count or time, sets, rest and breathing cues are annotations. Changing to one full-range Shoulder CAR, unilateral execution, a seated base, bent elbows, large windmill arcs, external load, arm swings, shoulder rolls, or a pendulum changes the task.",
+    "currentCardFindings": [
+      "The generic Arm Circles task was hidden inside Source 37's slash label even though the detailed Source-37 instructions describe a Shoulder CAR.",
+      "University of Missouri documents a distinct bilateral standing T-position small-circle warm-up performed forward then backward for time.",
+      "A new canonical definition is necessary so workout generation can select Arm Circles without silently changing the Source-37 Shoulder CAR identity.",
+      "No legacy row, score, publication approval, reviewed media, calibrated dose, age floor, or participant skill classification is inferred for the new card."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "shoulder",
+        "scapula",
+        "core"
+      ],
+      "support": "bilateral_standing_fixed_foot_shoulder_height_repeated_small_arm_circles",
+      "laterality": "bilateral",
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "equipment": [
+        "none"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 16,
+      "absoluteLoadDemand": 14,
+      "physicalDifficulty": 14,
+      "baseOverallDifficulty": 16,
+      "variantScores": {
+        "standingBilateralSmallArmCircles": {
+          "technicalComplexity": 16,
+          "absoluteLoadDemand": 14,
+          "physicalDifficulty": 14,
+          "baseOverallDifficulty": 16
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "none_active_bilateral_arm_mass_and_gravity_only",
+      "impactClass": "none",
+      "primaryExposure": [
+        "bilateral_shoulder_height_arm_support",
+        "repeated_small_shoulder_circles",
+        "deltoid_and_scapular_endurance",
+        "trunk_postural_control"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "secondsPerDirection": "10-30",
+      "completeCirclesPerDirection": "5-20_when_counted",
+      "rest": "15-45_seconds_or_as_needed_to_preserve_arm_height_small_smooth_circles_quiet_trunk_and_symptom_rules",
+      "durationRule": "setup_plus_actual_forward_and_backward_work_seconds_plus_direction_change_plus_rest_invalid_or_partial_seconds_symptom_response_substitution_and_station_reset"
+    },
+    "programmingDecision": "Select only when the workout calls for a simple bilateral shoulder warm-up, unsupported standing and shoulder-height arm support are tolerated, full bilateral sweep space is clear, exact direction and time or count fit, and cumulative shoulder and overhead budgets allow it. Do not silently use a full-range Shoulder CAR, add weights, enlarge into windmills, bend the elbows, switch to unilateral or seated execution, or infer mobility improvement, injury prevention, readiness, diagnosis or treatment. Revalidate duration, fatigue, logistics, substitutions, persistence and rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct University of Missouri Arm Circles instruction, ACE's explicit CAR-versus-arm-circle boundary, peer-reviewed shoulder elevation and muscle-coordination evidence, the 2025 rotator-cuff-tendinopathy scope boundary, current YouTube oEmbed metadata and comparison with Shoulder CAR, arm swings, shoulder rolls, pendulums and loaded circles",
+      "uncertainty": "No source validates one universal arm height, circle diameter, palm orientation, tempo, time, repetitions, frequency, recovery, warm-up outcome, injury-prevention result, population eligibility or Vortex score. Elevation studies are not direct Arm Circle trials and no media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "identity_boundary_review",
+        "anatomy_and_load_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T23:15:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Stand with both feet fixed and raise both long arms laterally near shoulder height. Make repeated small controlled circles with both arms simultaneously in one declared direction, then reverse only at the declared interval or count. One complete small revolution by both arms is one repetition; time-based delivery records actual seconds in each direction. Circle diameter within the declared small-to-moderate range, exact comfortable arm height, palm orientation, tempo, direction order, dose, rest and breathing cues are annotations. Changing to one full-range Shoulder CAR, unilateral or seated execution, bent elbows, windmill arcs, external load, arm swings, shoulder rolls or a pendulum changes the task.",
+      "familyKey": "standing_bilateral_arm_circles",
+      "movementPatterns": [
+        "brace",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "shoulder",
+        "scapula",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {
+        "space": "one standing station with bilateral shoulder-height arm clearance and no cross traffic",
+        "surface": "flat dry stable nonslip standing surface",
+        "changeRule": "Any base laterality lever external load circle path purpose dose symptom space or downstream-demand change requires complete revalidation.",
+        "inspection": [
+          "floor traction and clutter",
+          "bilateral arm and neighbor clearance",
+          "ceiling and wall distance",
+          "coach sightline and communication",
+          "safe stop and emergency route"
+        ],
+        "equipmentKey": "none",
+        "coachSightline": "front and side views of feet arm height elbow shape circle size direction shoulder position trunk breathing and symptoms",
+        "stationCapacity": 1
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night post-trauma sharp increasing or unfamiliar pain",
+          "pinching catching painful clicking recurrent instability or uncontrolled arm drop",
+          "new numbness tingling weakness altered circulation or loss of control",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness or inability to communicate",
+          "standing balance neck back elbow wrist or hand symptoms preventing exact task",
+          "clinical restriction conflicting with bilateral shoulder-height motion",
+          "unsafe bilateral clearance or participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe unsupported standing",
+          "clear bilateral arm space",
+          "comfortable bilateral arm support near shoulder height",
+          "understands circle direction interval or count and stop signal",
+          "can maintain small simultaneous circles without uncontrolled shrugging or trunk motion",
+          "same-session shoulder scapular and overhead budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal ideal arm height circle size or palm orientation",
+          "injury prevention diagnosis treatment readiness correction or clearance",
+          "isolated muscle activation",
+          "one universal dose frequency recovery progression or warm-up outcome",
+          "performance transfer age floor or participant skill level"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct card uses a fixed standing base, both arms raised to a T, small circles, forward and backward intervals, and time-based dosing.",
+        "Vortex makes simultaneous bilateral action, long elbows, exact direction, valid revolution and invalid-compensation rules explicit."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The task is an equipment-free standing bilateral shoulder warm-up.",
+        "Brace and rotate are controlled planning keys rather than claims of a specific adaptation."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6368381/",
+      "sourceTitle": "Patterns of muscle coordination during dynamic glenohumeral joint elevation: An EMG study",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Multi-planar shoulder elevation involves coordinated deltoid, rotator-cuff and scapulothoracic muscle activity.",
+        "The evidence supports a coordinated shoulder-complex exposure but not isolated activation or exact Arm Circle EMG."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12398250/",
+      "sourceTitle": "Scapular kinematics variability in individuals with and without rotator cuff-related shoulder pain: A systematic review with multilevel meta-regression",
+      "sourcePublisher": "Brazilian Journal of Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "Scapular motion accompanies arm elevation and shows substantial normal variability.",
+        "Vortex does not require scapular immobility or diagnose abnormal rhythm; it constrains only task-breaking shrugging or trunk compensation."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct task maintains both arms near shoulder height while coordinating repeated small circles and a direction change.",
+        "The 16/14/16 proposal describes exercise complexity and physical difficulty only and requires independent calibration."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6368381/",
+      "sourceTitle": "Patterns of muscle coordination during dynamic glenohumeral joint elevation: An EMG study",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shoulder elevation recruits coordinated muscle activity even without external equipment.",
+        "Track actual seconds or complete circles, arm height, circle size, pace, faults, symptoms and overlapping shoulder work; recovery remains an estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40165544/",
+      "sourceTitle": "Rotator Cuff Tendinopathy Diagnosis, Nonsurgical Medical Care, and Rehabilitation: A Clinical Practice Guideline",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "Shoulder diagnosis, treatment, prognosis and return-to-function decisions require appropriate clinical context.",
+        "This warm-up card cannot diagnose, treat, screen, clear activity or override restrictions."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Missouri provides a context-specific example of thirty seconds forward, thirty seconds backward, rest and a second set.",
+        "That example informs but does not validate a universal Vortex dose, frequency, fatigue threshold or recovery period."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct sequence is stable standing, arms in a T, repeated small circles, then direction reversal.",
+        "Vortex adds long-elbow, simultaneous-action, exact interval, count, stop, persistence and actual-duration rules."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE distinguishes controlled deliberate joint motion from momentum-driven swinging and emphasizes pain-free range and professional scope.",
+        "Stop for shoulder pain, pinching, catching, instability, neurologic or systemic symptoms, uncontrolled arm drop or trunk compensation, unsafe space, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The source places Arm Circles in a warm-up context and uses limited-space standing delivery.",
+        "The example does not prove readiness, performance transfer, injury prevention or the best order for every workout."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct task has simple stance, T-position, small-circle and direction checkpoints.",
+        "Athlete support must also explain effort, valid time or count, smaller range, unexpected symptoms and how to stop."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12398250/",
+      "sourceTitle": "Scapular kinematics variability in individuals with and without rotator cuff-related shoulder pain: A systematic review with multilevel meta-regression",
+      "sourcePublisher": "Brazilian Journal of Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "Normal scapular motion varies and does not justify one rigid normal pattern.",
+        "Coach support should observe exact bilateral shoulder-height task, arm drop, circle size, trunk compensation, symptoms and accumulated exposure without diagnosing motion."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The movement can be taught with visual stance, T-position, circle-size and direction cues and requires no equipment.",
+        "Lower comfortable arm height, smaller diameter, slower pace, shorter intervals and more rest are annotations; seated or unilateral execution requires another reviewed variant."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE explicitly distinguishes momentum-free full joint CARs from ordinary arm circles.",
+        "Full-range unilateral Shoulder CARs therefore remain a separate definition rather than a larger-circle annotation."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Four Arm Circle candidates returned current YouTube oEmbed title, channel, thumbnail and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact bilateral T-position, circle size, direction, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=mwDgFY86zck",
+      "title": "Workout WARM-UP | ARM CIRCLES",
+      "channelName": "The Hybrid Athlete",
+      "sourceQuery": "Arm Circle candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ndmSvkEdNQQ",
+      "title": "Arm Circles - Shoulder Warm Up",
+      "channelName": "Dr. Christy Lee",
+      "sourceQuery": "Arm Circle candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vTx_ldn6MCA",
+      "title": "Arm Circle Exercise Video (Official)",
+      "channelName": "GetFitso",
+      "sourceQuery": "Arm Circle candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hniUI4ykF64",
+      "title": "BWS Warm-Up Routine - Arm Circles",
+      "channelName": "Built With Science",
+      "sourceQuery": "Arm Circle candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Bilateral Arm Circles",
+      "classification": "same_identity",
+      "rationale": "The descriptive name preserves fixed standing, shoulder-height bilateral repeated small circles.",
+      "distinguishingDimensions": {
+        "variant": "standing_bilateral_small_arm_circles"
+      }
+    },
+    {
+      "name": "Small Forward and Backward Arm Circles",
+      "classification": "same_identity",
+      "rationale": "Direction wording preserves the same simultaneous bilateral task when arm height and circle size remain exact.",
+      "distinguishingDimensions": {
+        "variant": "standing_bilateral_small_arm_circles"
+      }
+    },
+    {
+      "name": "Shoulder-Height Arm Circles",
+      "classification": "same_identity",
+      "rationale": "The alias is exact when it denotes both arms held laterally and repeated small circles rather than full-range loops.",
+      "distinguishingDimensions": {
+        "variant": "standing_bilateral_small_arm_circles"
+      }
+    },
+    {
+      "name": "Circle Diameter",
+      "classification": "modifier_annotation",
+      "rationale": "Small-to-moderate diameter is recorded within the reviewed task; full-range windmills change identity.",
+      "distinguishingDimensions": {
+        "modifier": "circle_diameter"
+      }
+    },
+    {
+      "name": "Comfortable Arm Height",
+      "classification": "modifier_annotation",
+      "rationale": "A modest reduction from shoulder height changes range without changing bilateral repeated circles.",
+      "distinguishingDimensions": {
+        "modifier": "arm_height"
+      }
+    },
+    {
+      "name": "Palm Orientation",
+      "classification": "modifier_annotation",
+      "rationale": "Palm direction is recorded for delivery and media matching while the circle remains the same.",
+      "distinguishingDimensions": {
+        "modifier": "palm_orientation"
+      }
+    },
+    {
+      "name": "Forward-First or Backward-First",
+      "classification": "modifier_annotation",
+      "rationale": "Direction order changes delivery rather than identity.",
+      "distinguishingDimensions": {
+        "modifier": "direction_order"
+      }
+    },
+    {
+      "name": "Tempo",
+      "classification": "modifier_annotation",
+      "rationale": "Controlled pace changes exposure without changing support, path or count.",
+      "distinguishingDimensions": {
+        "modifier": "tempo"
+      }
+    },
+    {
+      "name": "Time Repetitions Sets Rest or Breathing",
+      "classification": "modifier_annotation",
+      "rationale": "These change dosage when exact mechanics remain unchanged.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "time",
+          "repetitions",
+          "sets",
+          "rest",
+          "breathing"
+        ]
+      }
+    },
+    {
+      "name": "Seated Bilateral Arm Circles",
+      "classification": "new_variant",
+      "rationale": "Seated support changes base, transfer, trunk demand, station and accessibility.",
+      "distinguishingDimensions": {
+        "base": "seated"
+      }
+    },
+    {
+      "name": "Unilateral Arm Circles",
+      "classification": "new_variant",
+      "rationale": "One moving arm changes laterality, symmetry, trunk demand and logging.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Bent-Elbow Arm Circles",
+      "classification": "new_variant",
+      "rationale": "Shortening the lever changes contact geometry, physical demand and circle path.",
+      "distinguishingDimensions": {
+        "lever": "bent_elbow"
+      }
+    },
+    {
+      "name": "Weighted Arm Circles",
+      "classification": "new_variant",
+      "rationale": "Dumbbells or other external load materially change joint stress, fatigue, stop rules and dose.",
+      "distinguishingDimensions": {
+        "load": "external"
+      }
+    },
+    {
+      "name": "Large Windmill Arm Circles",
+      "classification": "new_variant",
+      "rationale": "Large alternating or bilateral vertical arcs change range, path, trunk demand and clearance.",
+      "distinguishingDimensions": {
+        "range": "large_windmill"
+      }
+    },
+    {
+      "name": "Standing Single-Arm Shoulder CAR",
+      "classification": "new_definition",
+      "rationale": "One arm tracing a slow full comfortable range with intentional humeral rotation is not a repeated shoulder-height small circle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "32610be3-19c7-4eed-8752-5f49bcbbf276"
+      }
+    },
+    {
+      "name": "Arm Swings",
+      "classification": "new_definition",
+      "rationale": "Reciprocal or bilateral swinging uses a different path, momentum, range and count.",
+      "distinguishingDimensions": {
+        "action": "swing"
+      }
+    },
+    {
+      "name": "Shoulder Rolls",
+      "classification": "new_definition",
+      "rationale": "Scapular elevation, protraction, depression and retraction with arms relaxed differs from long-arm shoulder circles.",
+      "distinguishingDimensions": {
+        "action": "shoulder_roll"
+      }
+    },
+    {
+      "name": "Shoulder Pendulum",
+      "classification": "new_definition",
+      "rationale": "A supported hinge and largely passive hanging-arm motion change base, loading and clinical context.",
+      "distinguishingDimensions": {
+        "action": "passive_pendulum"
+      }
+    },
+    {
+      "name": "Dowel Shoulder Pass-Through",
+      "classification": "new_definition",
+      "rationale": "A bilateral dowel grip and overhead pass-through arc change equipment, hand spacing, path and count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 902
+      }
+    },
+    {
+      "name": "Clinical Shoulder Endurance Test",
+      "classification": "new_definition",
+      "rationale": "A fixed maximum-duration or exhaustion protocol changes purpose, termination, validity, interpretation and risk.",
+      "distinguishingDimensions": {
+        "scope": "assessment"
+      }
+    }
+  ]
+}

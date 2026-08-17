@@ -1,0 +1,13 @@
+{
+  "batchKey": "wrist-rockers-palms-down-v1",
+  "researchVersion": "2026-08-09.97",
+  "generatedAt": "2026-08-09T21:00:00.000Z",
+  "cards": [
+    {
+      "slug": "wrist-rockers-palms-down",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 20
+    }
+  ]
+}

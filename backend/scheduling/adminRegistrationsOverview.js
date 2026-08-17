@@ -10,17 +10,29 @@ import {
   loadEnrollmentTaxonomyByFormIds,
   applyEnrollmentTaxonomy,
 } from './slotDisplayLabel.js'
-import { buildAdminMemberEnrollments } from './adminEnrollmentsView.js'
 import { processDueEnrollmentCancellations } from './memberEnrollmentCancel.js'
 
-/** Active members for the admin roster (portal accounts with is_active). */
-export async function loadActiveMembers(pool) {
+/**
+ * Active members that currently have at least one non-orphaned scheduling signup
+ * or drop-in registration (avoids shipping empty member sections).
+ */
+export async function loadMembersWithEnrollments(pool) {
   const res = await pool.query(
     `
-      SELECT id, first_name, last_name
-      FROM member
-      WHERE is_active = TRUE
-      ORDER BY last_name, first_name, id
+      SELECT DISTINCT m.id, m.first_name, m.last_name
+      FROM member m
+      WHERE m.is_active = TRUE
+        AND (
+          EXISTS (
+            SELECT 1 FROM scheduling_signup s
+            WHERE s.member_id = m.id AND s.orphaned_at IS NULL
+          )
+          OR EXISTS (
+            SELECT 1 FROM drop_in_registration d
+            WHERE d.member_id = m.id
+          )
+        )
+      ORDER BY m.last_name, m.first_name, m.id
     `,
   )
   return res.rows.map((row) => ({
@@ -31,7 +43,7 @@ export async function loadActiveMembers(pool) {
 }
 
 /**
- * All active members with their current enrollments (member-portal shape).
+ * Members with enrollments only (member-portal enrollment shape).
  * @returns {Promise<{ members: Array<{ id, firstName, lastName, enrollments }> }>}
  */
 export async function buildAdminEnrollmentsByMember(pool) {
@@ -41,11 +53,13 @@ export async function buildAdminEnrollmentsByMember(pool) {
     console.warn('[adminRegistrationsOverview] process due cancellations:', err?.message ?? err)
   }
 
-  const members = await loadActiveMembers(pool)
+  const members = await loadMembersWithEnrollments(pool)
   if (!members.length) return { members: [] }
 
   const memberIds = members.map((m) => m.id)
-  const allEnrollments = await queryFamilyMemberEnrollments(pool, memberIds)
+  const allEnrollments = await queryFamilyMemberEnrollments(pool, memberIds, {
+    skipDueCancellations: true,
+  })
   const byMemberId = new Map()
   for (const row of allEnrollments) {
     if (!byMemberId.has(row.member_id)) byMemberId.set(row.member_id, [])
@@ -53,10 +67,12 @@ export async function buildAdminEnrollmentsByMember(pool) {
   }
 
   return {
-    members: members.map((member) => ({
-      ...member,
-      enrollments: byMemberId.get(member.id) ?? [],
-    })),
+    members: members
+      .map((member) => ({
+        ...member,
+        enrollments: byMemberId.get(member.id) ?? [],
+      }))
+      .filter((member) => member.enrollments.length > 0),
   }
 }
 
@@ -217,62 +233,168 @@ export async function buildAdminClassRegistrationSummaries(pool) {
 }
 
 /**
- * Admin enrollment rows for a specific class schedule line (drill-down roster).
+ * Light roster rows for a class schedule line — no per-member pricing pipeline.
  */
 export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId, timeSlotId = null }) {
+  const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
+  await ensurePrimaryDisciplineTagColumn(pool)
+  const schema = await resolveProgramsSchema(pool)
+  const programsTable = schema.programsTable
+  const programFkColumn = schema.programFkColumn
+
   const signupRes = await pool.query(
     `
-      SELECT s.id, s.member_id
+      SELECT
+        s.id, s.member_id, s.form_id, s.status, s.created_at,
+        s.completed_at, s.paused_at,
+        s.pause_effective_date, s.pause_mode,
+        s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_reason, s.manual_discount_rule_id,
+        s.pricing_breakdown,
+        s.slot_group_id, s.time_slot_id, sg.offering_id,
+        m.first_name AS member_first_name,
+        m.last_name AS member_last_name,
+        COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
+        COALESCE(sf.programs_id, class_p.${programFkColumn}) AS program_id,
+        COALESCE(pr.display_name, pr.name) AS program_name,
+        sport_dt.name AS sport_name,
+        ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week, ts.start_time, ts.end_time,
+        o.label AS offering_label, o.start_date AS offering_start_date, o.end_date AS offering_end_date,
+        sg.active_start AS group_active_start, sg.active_end AS group_active_end, sg.dates_tbd AS group_dates_tbd,
+        sf.start_date AS form_start_date, sf.end_date AS form_end_date
       FROM scheduling_signup s
+      JOIN member m ON m.id = s.member_id
+      JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+      JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+      LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
+      LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
+      LEFT JOIN program class_p ON class_p.id = sf.program_id
+      LEFT JOIN ${programsTable} pr ON pr.id = COALESCE(sf.programs_id, class_p.${programFkColumn})
+      LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
       WHERE s.form_id = $1
         AND s.slot_group_id = $2
         AND s.orphaned_at IS NULL
         AND s.archived_at IS NULL
         AND ($3::bigint IS NULL OR s.time_slot_id IS NULL OR s.time_slot_id = $3)
-      ORDER BY s.id
+      ORDER BY m.last_name, m.first_name, s.id
     `,
     [formId, slotGroupId, timeSlotId],
   )
 
-  const memberIds = [...new Set(signupRes.rows.map((r) => Number(r.member_id)).filter(Boolean))]
-  const memberNameById = new Map()
-  if (memberIds.length) {
-    const namesRes = await pool.query(
-      `SELECT id, first_name, last_name FROM member WHERE id = ANY($1::bigint[])`,
-      [memberIds],
+  if (!signupRes.rows.length) return { rows: [] }
+
+  const signupIds = signupRes.rows.map((r) => Number(r.id))
+  const subBySignupId = new Map()
+  try {
+    const subRes = await pool.query(
+      `
+        SELECT DISTINCT ON (source_id)
+          source_id, monthly_amount_cents, discount_amount_cents, net_monthly_cents, status
+        FROM billing_subscription
+        WHERE source_type = 'scheduling_signup'
+          AND source_id = ANY($1::text[])
+        ORDER BY source_id, CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END, id DESC
+      `,
+      [signupIds.map(String)],
     )
-    for (const row of namesRes.rows) {
-      memberNameById.set(Number(row.id), {
-        firstName: row.first_name || '',
-        lastName: row.last_name || '',
-      })
+    for (const r of subRes.rows) {
+      subBySignupId.set(Number(r.source_id), r)
     }
+  } catch {
+    /* billing schema optional for roster display */
   }
 
-  const rows = []
-  for (const signup of signupRes.rows) {
-    const memberId = Number(signup.member_id)
-    const result = await buildAdminMemberEnrollments(pool, memberId)
-    const match = result.rows.find(
-      (r) =>
-        r.source === 'scheduling' &&
-        r.id === Number(signup.id) &&
-        (timeSlotId == null || r.time_slot_id == null || r.time_slot_id === timeSlotId),
+  const groupIds = signupRes.rows
+    .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
+    .map((row) => Number(row.slot_group_id))
+  const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
+  const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(
+    pool,
+    signupRes.rows.map((row) => Number(row.form_id)),
+  )
+
+  const rows = signupRes.rows.map((row) => {
+    const offering = resolveEnrollmentOfferingDisplay(row)
+    const taxonomy = taxonomyByFormId.get(Number(row.form_id))
+    const programName = taxonomy?.programName ?? (row.program_name || null)
+    const sportName = taxonomy?.sportName ?? (row.sport_name || null)
+    const className = taxonomy?.className ?? (row.class_name || 'Class')
+    const sub = subBySignupId.get(Number(row.id))
+    const breakdown = row.pricing_breakdown
+    const snapshotCents =
+      breakdown && typeof breakdown === 'object'
+        ? Number(breakdown.classCostCents ?? breakdown.class_cost_cents ?? 0) || null
+        : null
+    const classCostCents =
+      snapshotCents ?? (sub != null ? Number(sub.monthly_amount_cents) : null) ?? 0
+    const isPaused = row.status === 'paused'
+    const manualCents = isPaused
+      ? 0
+      : row.manual_discount_cents != null
+        ? Number(row.manual_discount_cents)
+        : 0
+    const baseNet = isPaused
+      ? 0
+      : sub != null
+        ? Number(sub.net_monthly_cents)
+        : classCostCents
+    const adjustedCostCents = isPaused ? 0 : Math.max(0, baseNet - manualCents)
+    const billingType =
+      breakdown?.billingType === 'one_time' || breakdown?.billing_type === 'one_time'
+        ? 'one_time'
+        : 'recurring'
+    const enrollmentType =
+      billingType === 'one_time'
+        ? 'one_time'
+        : row.offering_id != null
+          ? 'temporary_block'
+          : 'monthly'
+    const attendanceDate =
+      row.schedule_mode === 'date' && row.specific_date
+        ? String(row.specific_date).slice(0, 10)
+        : null
+
+    return applyEnrollmentTaxonomy(
+      {
+        id: Number(row.id),
+        source: 'scheduling',
+        member_id: Number(row.member_id),
+        member_first_name: row.member_first_name || '',
+        member_last_name: row.member_last_name || '',
+        sport_name: sportName,
+        program_name: programName,
+        class_name: className,
+        program_id: taxonomy?.programId ?? (row.program_id != null ? Number(row.program_id) : null),
+        form_id: Number(row.form_id),
+        slot_group_id: row.slot_group_id != null ? Number(row.slot_group_id) : null,
+        time_slot_id: row.time_slot_id != null ? Number(row.time_slot_id) : null,
+        offering_id: row.offering_id != null ? Number(row.offering_id) : null,
+        offering_label: offering.offering_label,
+        offering_dates: offering.offering_dates,
+        schedule: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
+        status: row.status,
+        billing_status: sub?.status ?? null,
+        class_cost_cents: classCostCents,
+        adjusted_cost_cents: adjustedCostCents,
+        manual_discount_cents: manualCents > 0 ? manualCents : null,
+        manual_discount_pct: row.manual_discount_pct != null ? Number(row.manual_discount_pct) : null,
+        manual_discount_reason: row.manual_discount_reason ?? null,
+        manual_discount_rule_id:
+          row.manual_discount_rule_id != null ? Number(row.manual_discount_rule_id) : null,
+        pause_effective_date: row.pause_effective_date
+          ? String(row.pause_effective_date).slice(0, 10)
+          : null,
+        pause_mode: row.pause_mode ?? null,
+        completed_at: row.completed_at,
+        created_at: row.created_at,
+        enrollment_type: enrollmentType,
+        enrollmentType,
+        attendance_date: attendanceDate,
+        attendanceDate,
+        billing_type: billingType,
+        billingType,
+      },
+      taxonomy,
     )
-    if (!match) continue
-    const names = memberNameById.get(memberId)
-    rows.push({
-      ...match,
-      member_id: memberId,
-      member_first_name: names?.firstName ?? '',
-      member_last_name: names?.lastName ?? '',
-    })
-  }
-
-  rows.sort((a, b) => {
-    const ln = (a.member_last_name || '').localeCompare(b.member_last_name || '')
-    if (ln !== 0) return ln
-    return (a.member_first_name || '').localeCompare(b.member_first_name || '')
   })
 
   return { rows }

@@ -6,22 +6,37 @@ DO $migration$
 DECLARE
   migration_key CONSTANT TEXT := '496_coaching_cat_cow_identity_and_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.93';
-  canonical_definition CONSTANT UUID := '29f1f054-8700-4233-9866-63810e69242e';
-  duplicate_definition CONSTANT UUID := '366ca335-c637-4f44-b0f3-616e8db8ee76';
-  spinal_circle_definition CONSTANT UUID := 'c8a4e447-0b65-4c0b-985b-7f5466fc07ec';
-  thread_definition CONSTANT UUID := '1032ba98-fa48-4960-a039-2d11b2a492cc';
-  full_body_definition CONSTANT UUID := 'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3';
-  source_variant CONSTANT UUID := 'dd378c3e-51cd-44d5-bc26-34e562543f85';
-  duplicate_variant CONSTANT UUID := '77182da9-ca9b-4bbf-ba9f-8d234c19bead';
-  spinal_circle_variant CONSTANT UUID := 'b274f28a-6d80-4ecf-bbff-4fa426f789b4';
-  thread_variant CONSTANT UUID := '5f9f99ba-46f6-4a92-84d4-4080f93463ef';
-  standard_variant CONSTANT UUID := '3d36d51f-99e0-43db-91a4-da04a49647d5';
-  segmental_variant CONSTANT UUID := '8fb77631-0365-471f-a1ce-eb17320b6b99';
-  active_variant_ids CONSTANT UUID[] := ARRAY[standard_variant,segmental_variant];
-  all_owned_variant_ids CONSTANT UUID[] := ARRAY[
-    source_variant,duplicate_variant,standard_variant,segmental_variant];
+  canonical_definition UUID;
+  duplicate_definition UUID;
+  spinal_circle_definition UUID;
+  thread_definition UUID;
+  full_body_definition UUID;
+  source_variant UUID;
+  duplicate_variant UUID;
+  spinal_circle_variant UUID;
+  thread_variant UUID;
+  standard_variant UUID;
+  segmental_variant UUID;
+  active_variant_ids UUID[];
+  all_owned_variant_ids UUID[];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=25;
+  SELECT id INTO duplicate_definition FROM coaching.exercise_definition_v1 WHERE legacy_exercise_id=889;
+  SELECT definition_id INTO spinal_circle_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=26;
+  SELECT definition_id INTO thread_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=27;
+  SELECT definition_id INTO full_body_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=23;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO duplicate_variant FROM coaching.exercise_variant_v1 WHERE definition_id=duplicate_definition AND variant_key='baseline';
+  SELECT id INTO spinal_circle_variant FROM coaching.exercise_variant_v1 WHERE definition_id=spinal_circle_definition AND variant_key='baseline';
+  SELECT id INTO thread_variant FROM coaching.exercise_variant_v1 WHERE definition_id=thread_definition AND variant_key='quadruped-thread-and-open';
+  SELECT id INTO standard_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='standard-coordinated-quadruped-cycle';
+  standard_variant := coalesce(standard_variant,gen_random_uuid());
+  SELECT id INTO segmental_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='ordered-segmental-wave-cycle';
+  segmental_variant := coalesce(segmental_variant,gen_random_uuid());
+  active_variant_ids := ARRAY[standard_variant,segmental_variant];
+  all_owned_variant_ids := ARRAY[source_variant,duplicate_variant,standard_variant,segmental_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=25 AND facility_id=1)
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=889 AND facility_id=1)
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=26 AND facility_id=1)

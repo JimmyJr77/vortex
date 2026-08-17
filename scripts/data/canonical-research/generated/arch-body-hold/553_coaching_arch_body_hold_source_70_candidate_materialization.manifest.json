@@ -1,0 +1,14 @@
+{
+  "migrationKey": "553_coaching_arch_body_hold_source_70_candidate_materialization",
+  "researchVersion": "2026-08-10.116",
+  "generatedAt": "2026-08-10T00:00:00.000Z",
+  "cards": [
+    {
+      "slug": "arch-body-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8,
+      "cardVersion": 2
+    }
+  ]
+}

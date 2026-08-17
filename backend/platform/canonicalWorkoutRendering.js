@@ -50,6 +50,7 @@ export function renderCanonicalWorkoutForAthlete(output) {
       dose: item.dose,
       instructions: item.athleteInstructions,
       support: item.athleteSupport,
+      qualityGate: item.qualityGate,
       measurement: item.measurement?.athleteVisible === false ? null : item.measurement,
       stopRules: item.stopRules,
       videoUrl: item.videoUrl,

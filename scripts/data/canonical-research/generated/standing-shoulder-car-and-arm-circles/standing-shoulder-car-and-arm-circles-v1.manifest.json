@@ -1,0 +1,19 @@
+{
+  "batchKey": "standing-shoulder-car-and-arm-circles-v1",
+  "researchVersion": "2026-08-09.104",
+  "generatedAt": "2026-08-09T23:15:00.000Z",
+  "cards": [
+    {
+      "slug": "arm-circles",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 23
+    },
+    {
+      "slug": "standing-bilateral-arm-circles",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 20
+    }
+  ]
+}

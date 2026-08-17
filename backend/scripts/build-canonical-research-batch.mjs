@@ -34,6 +34,9 @@ if (!batch.snapshotAt || Number.isNaN(Date.parse(batch.snapshotAt))) {
 
 const facilityId = Number(batch.facilityId ?? process.env.FACILITY_ID ?? 1)
 const slugs = batch.cards.map((card) => card.slug)
+const snapshotVariantKeys = Object.fromEntries(batch.cards
+  .filter((card) => String(card.snapshotVariantKey ?? '').trim())
+  .map((card) => [card.slug, String(card.snapshotVariantKey).trim()]))
 const pool = new pg.Pool({
   connectionString,
   ssl: process.env.DATABASE_SSL === 'false' ? false : undefined,
@@ -55,6 +58,7 @@ try {
        definition.optional_equipment,
        definition.environment_json,
        definition.population_json,
+       variant.variant_key,
        variant.difficulty_json,
        variant.load_profile_json,
        variant.fatigue_profile_json,
@@ -86,18 +90,30 @@ try {
          '[]'::jsonb
        ) AS media_candidates
      FROM coaching.exercise_definition_v1 definition
-     LEFT JOIN coaching.exercise_variant_v1 variant
-       ON variant.definition_id=definition.id
-      AND variant.variant_key='baseline'
+     LEFT JOIN LATERAL (
+       SELECT candidate.*
+       FROM coaching.exercise_variant_v1 candidate
+       WHERE candidate.definition_id=definition.id
+         AND candidate.status IN ('review','published')
+       ORDER BY
+         coalesce(candidate.variant_key=($4::jsonb ->> definition.slug), false) DESC,
+         (candidate.variant_key='baseline') DESC,
+         (candidate.status='published') DESC,
+         candidate.created_at DESC,
+         candidate.id
+       LIMIT 1
+     ) variant ON TRUE
      LEFT JOIN coaching.exercise_media_candidate_v1 media
        ON media.definition_id=definition.id
       AND media.reviewed_card_version=definition.card_version
      WHERE definition.facility_id=$1
        AND (definition.status!='archived' OR $3::boolean)
        AND definition.slug=ANY($2::text[])
-     GROUP BY definition.id, variant.id
+     GROUP BY definition.id, variant.id, variant.variant_key,
+       variant.difficulty_json, variant.load_profile_json,
+       variant.fatigue_profile_json
      ORDER BY definition.canonical_name`,
-    [facilityId, slugs, batch.includeArchived === true],
+    [facilityId, slugs, batch.includeArchived === true, JSON.stringify(snapshotVariantKeys)],
   )
   const currentBySlug = new Map(result.rows.map((row) => [row.slug, row]))
   const built = []
@@ -121,6 +137,7 @@ try {
         bodyRegions: row.body_regions,
         requiredEquipment: row.required_equipment,
         optionalEquipment: row.optional_equipment,
+        variantKey: row.variant_key ?? null,
         environment: row.environment_json,
         population: row.population_json,
         difficulty: row.difficulty_json ?? {},

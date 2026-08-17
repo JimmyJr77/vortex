@@ -6,25 +6,45 @@ DO $migration$
 DECLARE
   migration_key CONSTANT TEXT := '493_coaching_full_body_joint_cars_flow_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.91';
-  canonical_definition CONSTANT UUID := 'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3';
-  source_variant CONSTANT UUID := 'f4b3acdd-8a11-48d1-a061-c3dcd859f215';
-  independent_variant CONSTANT UUID := 'c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c';
-  wall_variant CONSTANT UUID := '627e9509-da11-4e18-8e6a-e67eea115dad';
-  active_variant_ids CONSTANT UUID[] := ARRAY[independent_variant,wall_variant];
-  neck_definition CONSTANT UUID := 'ee59b220-042c-482a-b7b5-5923d644c800';
-  neck_variant CONSTANT UUID := '444a2645-e29e-473f-8956-1bb624a771b4';
-  hip_definition CONSTANT UUID := 'd6e78620-3ba8-4198-8bea-d651359c7f8d';
-  hip_variant CONSTANT UUID := '08b464e2-fcf1-4f91-abdb-e760a7f38ee3';
-  wall_hip_definition CONSTANT UUID := '6098b518-ccea-4088-abd7-1d4716f3aa31';
-  ankle_definition CONSTANT UUID := '2157c8df-d013-4946-a6dd-2e0dedc3fe42';
-  ankle_variant CONSTANT UUID := '29652c3e-255d-48f1-88f1-09be865a2eb0';
-  shoulder_definition CONSTANT UUID := '32610be3-19c7-4eed-8752-5f49bcbbf276';
-  shoulder_variant CONSTANT UUID := 'c08feca7-b42d-406f-b924-ffa2005505f6';
-  quadruped_shoulder_definition CONSTANT UUID := '51ca966b-7d25-419a-8629-7961e45933c0';
-  cat_cow_definition CONSTANT UUID := '29f1f054-8700-4233-9866-63810e69242e';
-  spinal_circle_definition CONSTANT UUID := 'c8a4e447-0b65-4c0b-985b-7f5466fc07ec';
+  canonical_definition UUID;
+  source_variant UUID;
+  independent_variant UUID;
+  wall_variant UUID;
+  active_variant_ids UUID[];
+  neck_definition UUID;
+  neck_variant UUID;
+  hip_definition UUID;
+  hip_variant UUID;
+  wall_hip_definition UUID;
+  ankle_definition UUID;
+  ankle_variant UUID;
+  shoulder_definition UUID;
+  shoulder_variant UUID;
+  quadruped_shoulder_definition UUID;
+  cat_cow_definition UUID;
+  spinal_circle_definition UUID;
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=23;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO independent_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='standing-independent-eight-region-sequence';
+  independent_variant := coalesce(independent_variant,gen_random_uuid());
+  SELECT id INTO wall_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='standing-wall-supported-lower-body-sequence';
+  wall_variant := coalesce(wall_variant,gen_random_uuid());
+  SELECT definition_id INTO neck_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=24;
+  SELECT id INTO neck_variant FROM coaching.exercise_variant_v1 WHERE definition_id=neck_definition AND variant_key='baseline';
+  SELECT definition_id INTO hip_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=57;
+  SELECT id INTO hip_variant FROM coaching.exercise_variant_v1 WHERE definition_id=hip_definition AND variant_key='baseline';
+  SELECT definition_id INTO wall_hip_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=1357;
+  SELECT definition_id INTO ankle_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=42;
+  SELECT id INTO ankle_variant FROM coaching.exercise_variant_v1 WHERE definition_id=ankle_definition AND variant_key='baseline';
+  SELECT definition_id INTO shoulder_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=37;
+  SELECT id INTO shoulder_variant FROM coaching.exercise_variant_v1 WHERE definition_id=shoulder_definition AND variant_key='baseline';
+  SELECT id INTO quadruped_shoulder_definition FROM coaching.exercise_definition_v1 WHERE slug='quadruped-shoulder-circles';
+  SELECT definition_id INTO cat_cow_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=25;
+  SELECT definition_id INTO spinal_circle_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=26;
+  active_variant_ids := ARRAY[independent_variant,wall_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=23 AND facility_id=1)
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND facility_id=1 AND legacy_exercise_id=23)

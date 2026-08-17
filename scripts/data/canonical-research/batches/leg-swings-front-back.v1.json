@@ -1,0 +1,53 @@
+{
+  "batchKey": "leg-swings-front-back-source-52",
+  "facilityId": 1,
+  "researchVersion": "2026-08-09.115",
+  "sourceRegistry": "../source-registry.v1.json",
+  "snapshotAt": "2026-08-10T01:20:00.000Z",
+  "outputDirectory": "../generated/leg-swings-front-back",
+  "sharedEvidence": [
+    {"sectionKey":"identity","sourceKey":"dynamic_stretching_flexibility_performance_review","claims":["Dynamic-stretching categories do not make different planes, support contracts, or locomotor patterns identical.","The candidate is a supported, stationary, one-leg pendular swing forward then backward through a comfortable sagittal-plane hip range; walking, lateral swing, kick, march, lunge, hop, and test tasks are excluded."]},
+    {"sectionKey":"taxonomy","sourceKey":"dynamic_static_activity_specific_warmup_study","claims":["Warm-up activity sequence matters.","Stance support, stationary base, sagittal swing direction, side order, and no added travel distinguish this task from lateral swings and locomotor drills."]},
+    {"sectionKey":"anatomy","sourceKey":"acute_stretching_rom_meta_analysis","claims":["Acute stretching evidence does not justify isolated-muscle or outcome claims.","The card records swing hip flexion/extension, stance-foot/ankle and knee organization, pelvis, and trunk control as task roles without diagnosis or guaranteed tissue change."]},
+    {"sectionKey":"biomechanics","sourceKey":"dynamic_stretching_flexibility_performance_review","claims":["Dynamic stretching is controlled movement, not a mandate to force end range.","A valid repetition returns through the start after a comfortable forward and backward swing while the stance foot, pelvis, and trunk remain organized."]},
+    {"sectionKey":"difficulty","sourceKey":"dynamic_static_activity_specific_warmup_study","claims":["Activity-specific warm-up conditions differ.","Scores describe the exercise's coordination and physical demand only; they do not classify athlete proficiency, age, or skill level."]},
+    {"sectionKey":"load_fatigue_recovery","sourceKey":"acute_stretching_warmup_review","claims":["Acute effects depend on type, dose, timing, and surrounding activity.","Track side, repetitions, range, support, pace, symptoms, and downstream work; no universal recovery or readiness claim is made."]},
+    {"sectionKey":"constraints","sourceKey":"nsca_youth_resistance_position","claims":["Instruction, supervision, environment, and progressive exposure are relevant safeguards.","Use stable support, a clear level dry surface, controlled range, communication, and an exit without demographic classification."]},
+    {"sectionKey":"dosage","sourceKey":"dynamic_stretching_flexibility_performance_review","claims":["Dynamic-stretching dose varies across protocols.","Candidate repetition and range proposals remain review-only and stop before forced range, lumbar compensation, balance loss, or ballistic kicking."]},
+    {"sectionKey":"instructions","sourceKey":"dynamic_static_activity_specific_warmup_study","claims":["Implementation matters to the activity that follows.","Cue light support, a rooted stance foot, a small-to-comfortable forward-and-back swing, quiet trunk, controlled return, and deliberate side switch without promising transfer."]},
+    {"sectionKey":"safety_stop_rules","sourceKey":"nsca_youth_resistance_position","claims":["Safe training requires appropriate instruction and environment.","Stop for pain, neurologic or circulation symptoms, dizziness, unsafe support or surface, inability to communicate, or participant request."]},
+    {"sectionKey":"programming","sourceKey":"acute_stretching_warmup_review","claims":["Interpret acute stretching in view of dose and subsequent dynamic activity.","Select only after session inputs, logistics, duration, fatigue, substitutions, and downstream demands are validated."]},
+    {"sectionKey":"athlete_support","sourceKey":"dynamic_stretching_flexibility_performance_review","claims":["A single dynamic movement is not a guaranteed intervention.","Use plain range, balance, breathing, and stop checks; reduce range or choose another reviewed task rather than forcing the swing."]},
+    {"sectionKey":"coach_support","sourceKey":"dynamic_static_activity_specific_warmup_study","claims":["Warm-up components are context-dependent.","Observe support, stance foot, sagittal swing direction, pelvis and trunk compensation, range, pace, side balance, and symptoms without diagnosing restriction."]},
+    {"sectionKey":"accessibility","sourceKey":"nsca_youth_resistance_position","claims":["Instruction and safe environments are implementation safeguards.","Captions, transcript, still sequence, support marker, visual range target, and verbal cueing remain candidate supports; media accessibility is not assumed."]},
+    {"sectionKey":"alternates","sourceKey":"dynamic_stretching_flexibility_performance_review","claims":["Dynamic-movement categories do not establish mechanical equivalence.","The alternate review separates lateral direction, travel, kick intent, hold/static stretch, march, lunge, hop, assessment, support, and range from the supported stationary sagittal contract."]},
+    {"sectionKey":"media","sourceKey":"nsca_youth_resistance_position","claims":["Task-specific instruction remains a safeguard.","oEmbed titles identify two front-to-back candidates and one general leg-swing candidate; every item remains candidate-only pending full human media review."]}
+  ],
+  "cards": [{
+    "slug": "leg-swings-front-back",
+    "snapshotVariantKey": "baseline",
+    "assessmentSummary": {
+      "identity": "One Leg Swings Front/Back repetition is a supported stationary stance on one foot, a controlled pendular swing of the free leg forward and backward through a comfortable sagittal-plane range, and return to the start; complete the declared repetitions then switch sides. It is not a lateral swing, walking swing, kick, march, lunge, hop, balance test, or run.",
+      "currentCardFindings": ["Source 52 omits a repetition boundary, exact support, side accounting, range, fatigue, substitution, and review contract.","Migration 384 consolidates Dynamic Leg Swing Front-to-Back under this stable sagittal identity.","Three oEmbed candidates are recorded without playback, exact-match, accessibility, quality, or approval claims."],
+      "proposedTaxonomy": {"movementPatterns":["hip_flexion","hip_extension","single_leg_stabilize"],"laterality":"one swinging leg with supported stance; complete declared repetitions per side","planes":["sagittal_swing","frontal_transverse_stance_stabilization"],"equipment":["stable_wall_or_rail_support"]},
+      "proposedDifficulty": {"technicalComplexity":18,"absoluteLoadDemand":8,"physicalDifficulty":8,"coordinationDemand":18,"supervisionDemand":8,"failureConsequence":8,"impact":1,"workCapacityDemand":8,"baseOverallDifficulty":18,"overallFormula":"max(exercise_complexity,physical_difficulty)"},
+      "programmingDecision": "Candidate-only supported stationary mobility task: validate exact support, range, side balance, duration, fatigue, logistics, substitutions, and downstream work; recompute after any change.",
+      "calibrationEvidence": {"uncertainty":"No universal range, dose, recovery, readiness, outcome, or score is established; independent human review remains required."}
+    },
+    "evidence": [],
+    "mediaCandidates": [
+      {"url":"https://www.youtube.com/watch?v=0XvKtEZ4i38","title":"How To Do A STANDING FRONT TO BACK LEG SWING | Exercise Demonstration Video and Guide","channelName":"Live Lean TV Daily Exercises","sourceQuery":"legacy dynamic-leg-swing-front-to-back candidate","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T01:20:00.000Z"},"notes":"oEmbed metadata only; title names standing front-to-back swings, but exact support, mechanics, captions, accessibility, safety, quality, and approval remain unverified."},
+      {"url":"https://www.youtube.com/watch?v=E68-pMl1Im8","title":"Leg Swings Front to back","channelName":"Live Being Fit","sourceQuery":"legacy dynamic-leg-swing-front-to-back candidate","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T01:20:00.000Z"},"notes":"oEmbed metadata only; title names front-to-back swings, but exact support, mechanics, captions, accessibility, safety, quality, and approval remain unverified."},
+      {"url":"https://www.youtube.com/watch?v=2wf-N_jCpW4","title":"Legs Swings Front to Back and Side to Side","channelName":"College Station Physical Therapy and Performance Brian Watts","sourceQuery":"legacy leg-swings-front-back candidate","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T01:20:00.000Z"},"notes":"Metadata names both sagittal and lateral directions, so it is not treated as an exact base-variant match; full human review remains required."}
+    ],
+    "alternateAssessments": [
+      {"name":"Supported Stationary Leg Swings — Front/Back","classification":"same_identity","rationale":"Exact candidate contract.","distinguishingDimensions":{"plane":"sagittal"}},
+      {"name":"Range, Cadence, or Repetition Change","classification":"modifier_annotation","rationale":"Same supported stationary sagittal cycle when controlled.","distinguishingDimensions":{"annotation":"range_cadence_or_dose"}},
+      {"name":"Hands-Free Stationary Front/Back Leg Swing","classification":"new_variant","rationale":"Changes the support and balance contract.","distinguishingDimensions":{"externalSupport":false}},
+      {"name":"Leg Swings — Lateral","classification":"new_definition","rationale":"Changes the swing plane and hip action contract.","distinguishingDimensions":{"plane":"frontal"}},
+      {"name":"Walking Leg Swing","classification":"new_definition","rationale":"Adds locomotion and changes the cycle.","distinguishingDimensions":{"locomotion":"walking"}},
+      {"name":"Front Kick","classification":"new_definition","rationale":"Changes intent and terminal action to kicking.","distinguishingDimensions":{"intent":"kick"}},
+      {"name":"Leg-Swing Balance Assessment","classification":"new_definition","rationale":"Assessment changes governance and stop rules.","distinguishingDimensions":{"intent":"assessment"}}
+    ]
+  }]
+}

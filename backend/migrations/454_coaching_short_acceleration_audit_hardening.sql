@@ -6,9 +6,26 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '454_coaching_short_acceleration_audit_hardening';
   completion_key CONSTANT TEXT := '420_coaching_short_acceleration_research_completion';
-  canonical_id CONSTANT UUID := 'ac23941d-24df-4b6f-847d-5863e22afbc1';
+  canonical_id UUID;
   active_variant_ids UUID[];
 BEGIN
+  SELECT id INTO canonical_id FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='10-yard-sprint';
+
+  -- Migration 420 is the authoritative identity audit for this family. Some
+  -- bootstrap histories retained only fifteen of its twenty audited sources.
+  -- Restore the declared source lineage before the hardening assertions; the
+  -- two unresolved source contracts remain nonselectable in their variants.
+  UPDATE coaching.exercise_definition_source_v1
+  SET definition_id=canonical_id,source_kind='legacy_migration',
+      provenance_json=provenance_json||jsonb_build_object(
+        'shortAccelerationAuditHardeningMigration',migration_key,
+        'lineageBackfillFrom','420_coaching_short_acceleration_research_completion',
+        'humanReviewRequired',TRUE,'approvalsCreated',FALSE)
+  WHERE legacy_exercise_id=ANY(ARRAY[
+    6,99,117,118,119,120,325,326,327,706,707,708,744,937,957,
+    1121,1122,1333,1591,1592]::BIGINT[]);
+
   IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_id
         AND provenance_json->>'shortAccelerationAuditHardeningMigration'=migration_key) THEN

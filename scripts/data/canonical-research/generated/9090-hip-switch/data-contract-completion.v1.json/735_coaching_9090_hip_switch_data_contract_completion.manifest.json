@@ -1,0 +1,14 @@
+{
+  "migrationKey": "735_coaching_9090_hip_switch_data_contract_completion",
+  "researchVersion": "2026-08-10.116",
+  "generatedAt": "2026-08-10T02:40:00.000Z",
+  "cards": [
+    {
+      "slug": "9090-hip-switch",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8,
+      "cardVersion": 5
+    }
+  ]
+}

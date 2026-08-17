@@ -569,6 +569,110 @@
             "Wicket-run volume should be prescribed as quality repetitions with complete zone and equipment setup rather than as an unspecified drill count.",
             "Progress spacing only when the athlete clears the wickets without reaching, chopping, clipping, or losing upright rhythm."
           ]
+        },
+        {
+          "sectionKey": "identity",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "The candidate is a wicket-constrained upright sprint, not a generic sprint, hurdle jump, or drill with a universal stride prescription.",
+            "Run-in, wicket zone, run-out, hurdle dimensions, spacing, and quality rules remain explicit task constraints."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "External wicket placement changes the locomotor environment and coaching task.",
+            "Taxonomy describes task mechanics only and does not classify participant skill or readiness."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Sprint posture and contact mechanics involve coordinated lower-limb and trunk action.",
+            "This evidence does not establish isolated activation, treatment, or a universal tissue-loading hierarchy."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Spacing judgment, high-speed coordination, equipment setup, and run-out management make this task materially more complex than an unconstrained sprint.",
+            "The proposed score is task-only and requires independent calibration."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "High-speed sprint exposure must be managed as quality work rather than fatigue conditioning.",
+            "Track runs, fly-zone distance, run-in, wicket setup, quality loss, symptoms, and overlapping sprint or jump exposure; recovery values remain planning estimates."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Instructions must declare the progressive run-in, measured wickets, upright passage, clear run-out, and controlled deceleration.",
+            "Do not count reps with reaching, chopping, clipping, or unrecoverable rhythm loss."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "A clear lane, measured equipment, spacing, and run-out are material safety conditions for sprint drills.",
+            "Stop for pain, unsafe surface or equipment, collision risk, clipped wickets, loss of control, or participant request."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Use as a quality-limited max-velocity-oriented exposure only when the exact setup and current session budget fit.",
+            "No sprint-performance or injury-prevention outcome is guaranteed."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Athlete prompts must prioritize smooth upright rhythm and a controlled run-out over forcing the wickets.",
+            "Unexpected pain, repeated clips, reaching, or loss of control require stopping and escalation."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Coach observation must include individual spacing, hurdle height/count, run-in, posture, contact location, rhythm, run-out, and first quality loss.",
+            "Do not use fixed spacing as a proxy for readiness or proficiency."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Equipment layout, start, passage, finish, and stop rule need visual, verbal, and written representation.",
+            "Changing the support, sprint action, or environment requires separate validation."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Changing wicket spacing is a setup modifier only when the same upright sprint, equipment, and zone sequence remain.",
+            "Adding assistance, a different locomotor action, or a fly-zone finish changes the task boundary."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "Five candidate links are discovery material only pending current oEmbed refresh and qualified exact-match review.",
+            "A link does not establish playback, exact setup, captions, accessibility, safety, or approval."
+          ]
         }
       ],
       "mediaCandidates": [

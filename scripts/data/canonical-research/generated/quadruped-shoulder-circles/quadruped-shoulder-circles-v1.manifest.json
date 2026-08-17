@@ -1,0 +1,13 @@
+{
+  "batchKey": "quadruped-shoulder-circles-v1",
+  "researchVersion": "2026-08-09.101",
+  "generatedAt": "2026-08-09T22:00:00.000Z",
+  "cards": [
+    {
+      "slug": "quadruped-shoulder-circles",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 22
+    }
+  ]
+}

@@ -1,0 +1,479 @@
+{
+  "migrationKey": "741_coaching_skipping_rhythm_source_104_candidate_materialization",
+  "researchVersion": "2026-08-10.121",
+  "batchFile": "../batches/skipping-fast-leg-drills.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 104,
+        "slug": "skipping-rhythm-drill",
+        "canonicalName": "Skipping Rhythm Drill",
+        "displayName": "Skipping Rhythm Drill",
+        "aliases": [
+          "Relaxed Traveling Skip",
+          "Alternating Step-Hop Skip",
+          "Ordinary Skipping Drill"
+        ],
+        "description": "Travel forward in a clear lane using a relaxed alternating left-right step-hop skip with quiet low-amplitude contacts, upright posture, and reciprocal arm action. A pass ends at the declared finish under control. This is not A-skip, running, bounding, a maximal power skip, a cone-spacing task, a ball task, or a single-leg cycle drill.",
+        "familyKey": "skipping_fast_leg_drills",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 2,
+        "status": "review",
+        "identityContract": "traveling_relaxed_submaximal_alternating_left_right_step_hop_skip_with_reciprocal_arms_and_controlled_finish",
+        "confidence": {
+          "content": 82,
+          "scoring": 62,
+          "media": 50
+        },
+        "movementPatterns": [
+          "locomote",
+          "hop"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "hip",
+          "pelvis",
+          "core",
+          "spine",
+          "shoulder"
+        ],
+        "requiredEquipment": [
+          "safe_finish_zone"
+        ],
+        "optionalEquipment": [
+          "start_finish_cones",
+          "video"
+        ],
+        "environment": {
+          "surface": "level dry non-slip forgiving surface with a declared 8-20 metre lane and protected finish",
+          "space": "one athlete at a time; no cross traffic",
+          "stationCapacity": 1,
+          "inspection": [
+            "lane and finish are clear",
+            "surface and footwear support quiet low-amplitude contacts",
+            "start and finish are visible",
+            "communication and exit route are clear"
+          ],
+          "changeRule": "Changing contact sequence, amplitude, intent, lane, cue, object, external spacing, cadence, or finish requires full identity and workout revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "can repeat an alternating step-hop sequence at relaxed submaximal intent",
+            "safe lane, finish, surface, footwear, and communication",
+            "current symptoms and contact budget fit",
+            "understands stop signal and controlled finish"
+          ],
+          "excludeOrEscalate": [
+            "symptom, unsafe surface, lane, finish, footwear, communication, or contact-budget conflict",
+            "pain, limp, repeated stumble, dizziness, neurologic, circulation, breathing, chest, balance, or communication concern",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "a universal readiness level, cadence, contact volume, recovery dose, sprint transfer, or outcome claim"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            104
+          ],
+          "identityAuthority": "Source 104 plus skipping-fast-leg-drills-v1 evidence packet; cadence and pass length are delivery annotations only.",
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true,
+          "externalPlaybackVerificationPerformed": false
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "gluteus_maximus",
+            "hip_flexors",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ],
+          "jointActions": [
+            "alternating_ankle_dorsiflexion_plantarflexion",
+            "alternating_knee_flexion_extension",
+            "alternating_hip_flexion_extension",
+            "contralateral_arm_swing",
+            "trunk_pelvis_organization"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_stabilization"
+          ],
+          "laterality": "alternating left-right step-hop cycles through the full pass",
+          "claimsBoundary": "Task mechanics only; no diagnosis, treatment, injury-prevention, or sprint-performance claim."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate low-to-moderate rhythm and coordination exposure when this exact relaxed step-hop task fits the workout.",
+          "primaryCue": "Step-hop and alternate; stay tall, relaxed, quiet, and finish under control.",
+          "secondaryCues": [
+            "opposite arm and leg move together",
+            "keep the bounce low and forward",
+            "do not stretch contacts or chase speed",
+            "stop before the rhythm changes"
+          ],
+          "expectedSensations": [
+            "light repeated foot, calf, hip, and trunk effort",
+            "relaxed alternating rhythm"
+          ],
+          "unexpectedSensations": [
+            "pain, limping, repeated stumble, dizziness, or inability to control the finish"
+          ],
+          "selfChecks": [
+            "both sides keep the same step-hop rhythm",
+            "contacts stay quiet",
+            "posture and arm action remain relaxed",
+            "finish is controlled"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact relaxed alternating step-hop identity",
+            "lane, surface, footwear, and finish",
+            "left-right rhythm, arm action, posture, amplitude, contact sound, and first quality loss",
+            "actual passes, distance, contacts, rest, symptoms, and stop reason"
+          ],
+          "faultCorrections": {
+            "turns_into_running_or_a_skip": "slow the pass, restore the relaxed step-hop rhythm, or select a separately reviewed task",
+            "loud_or_reaching_contacts": "shorten the lane or reduce amplitude and end the set if quiet contacts do not return",
+            "lost_alternation": "reset at a slower cadence; do not count an incomplete sequence"
+          },
+          "doNotUseWhen": [
+            "a maximal power skip, A-skip, bound, run, cone-spacing, ball, or single-leg cycle task is intended",
+            "the lane, finish, surface, footwear, or communication is unsafe",
+            "the task conflicts with symptoms or contact budget"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "contact_or_symptoms",
+            "lane_or_surface",
+            "rhythm_or_identity",
+            "dose_or_duration",
+            "substitution"
+          ],
+          "supportEscalation": "Stop unresolved symptom, surface, identity, or quality concerns.",
+          "changeImpactPolicy": "Any change to task identity, cue, lane, surface, dose, or substitution reruns selection, logistics, duration, fatigue, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "baseline",
+        "archiveKey": "superseded-source-104-skeleton",
+        "displayName": "Skipping Rhythm Drill Legacy Skeleton — Source 104",
+        "archiveReason": "The legacy row lacks a declared contact sequence, lane, finish, contact accounting, load/fatigue, alternate, and review contract."
+      },
+      "snapshot": {
+        "capturedAt": "2026-08-10T00:00:00.000Z",
+        "cardVersion": 1,
+        "status": "review",
+        "description": "Athlete skips forward with relaxed rhythm, tall posture, and coordinated opposite arm-leg action.",
+        "familyKey": "Balance & rhythm"
+      },
+      "variants": [
+        {
+          "id": "104eafbc-e7e4-4c7e-bf13-1c2fc5001041",
+          "key": "relaxed-alternating-step-hop-skip",
+          "displayName": "Relaxed Alternating Step-Hop Skip",
+          "modifierKeys": [
+            "traveling",
+            "alternating",
+            "relaxed_submaximal",
+            "controlled_finish"
+          ],
+          "difficulty": {
+            "technicalComplexity": 38,
+            "absoluteLoadDemand": 16,
+            "physicalDifficulty": 16,
+            "coordinationDemand": 48,
+            "supervisionDemand": 28,
+            "failureConsequence": 24,
+            "impact": 26,
+            "workCapacityDemand": 28,
+            "baseOverallDifficulty": 38
+          },
+          "requirements": {
+            "equipment": [
+              "safe_finish_zone"
+            ],
+            "laterality": "alternating left-right step-hop",
+            "contactRule": "repeat the relaxed alternating step-hop pattern for the declared pass",
+            "intent": "relaxed_submaximal",
+            "surface": "level_dry_non_slip_forgiving_lane",
+            "finish": "declared_controlled_finish"
+          },
+          "loadProfile": {
+            "gripDemand": 1,
+            "spinalLoading": 4,
+            "eccentricStress": 14,
+            "landingContactsPerRep": 0,
+            "contactExposureModel": {
+              "per_set_range": "record total and per-side step-hop contacts or pass distance"
+            },
+            "externalLoadMethod": "bodyweight_traveling_alternating_step_hop"
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 20,
+            "gripFatigue": 1,
+            "technicalFatigueSensitivity": 30,
+            "impactAccumulation": 26,
+            "recoveryHours": 12,
+            "cumulativeBudget": {
+              "skip_contacts": 30,
+              "calf_foot_cyclic": 24,
+              "locomotor_coordination": 20
+            },
+            "tracking": [
+              "passes",
+              "distance",
+              "contactsPerSide",
+              "surface",
+              "footwear",
+              "cadence",
+              "qualityLoss",
+              "symptoms"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "relaxed_alternating_skip_rhythm",
+              "low_to_moderate_repeated_contacts",
+              "contralateral_coordination"
+            ],
+            "stimulusDose": "passes_with_declared_distance_or_contacts_and_quality",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "prepare-relaxed-skip-rhythm",
+              "phase": "prepare_and_access",
+              "role": "conditional",
+              "purpose": "Candidate low-volume relaxed alternating step-hop preparation when the exact lane, contact, and finish contract fits.",
+              "suitability": 68,
+              "methodologyAlignment": 60,
+              "objectiveRelevance": {
+                "movement_preparation": 62,
+                "rhythm_coordination": 68
+              },
+              "dosage": {
+                "sets": "1-3",
+                "passes": "1-3",
+                "distancePerPass": "8-20 metres or 6-12 contacts per side",
+                "restSeconds": "walk back or 30-75",
+                "countRule": "record only controlled full passes with the alternating step-hop sequence"
+              },
+              "qualityGate": "The alternating step-hop sequence, reciprocal arms, tall relaxed posture, quiet contacts, low amplitude, and controlled finish remain repeatable.",
+              "stopRules": [
+                "stop on pain, limp, repeated stumble, unsafe lane, unsafe finish, or participant request",
+                "stop when rhythm, quiet contacts, posture, alternation, or controlled finish cannot be restored"
+              ],
+              "coachInstructions": "Declare the lane, finish, intent, and count rule; demonstrate one relaxed pass and stop before speed or fatigue changes the task.",
+              "athleteInstructions": "Step-hop and alternate with quiet low contacts, relaxed arms, and a controlled finish.",
+              "expectedAdaptation": "Candidate preparation only; no outcome is guaranteed.",
+              "equipmentRequired": [
+                "safe_finish_zone"
+              ],
+              "logistics": {
+                "stationCapacity": 1,
+                "setupSeconds": 30,
+                "transitionSeconds": 20,
+                "clearanceRequired": true
+              },
+              "substitutionIds": [],
+              "timeModel": {
+                "setupSeconds": 30,
+                "perSetSeconds": 30,
+                "resetSeconds": 30
+              },
+              "doseScaling": {
+                "reduce": "shorter lane, fewer passes, lower amplitude, slower cadence, longer rest, or a separately reviewed task",
+                "doNotAutoProgress": "Do not add maximal projection, A-skip mechanics, external spacing, a ball task, sprint exit, or a single-leg cycle without revalidation."
+              },
+              "measurement": {
+                "record": [
+                  "passes",
+                  "distance",
+                  "contactsPerSide",
+                  "surface",
+                  "footwear",
+                  "cadence",
+                  "qualityLoss",
+                  "symptoms"
+                ]
+              },
+              "supportPrompts": {
+                "athlete": "Relaxed step-hop, alternate, and finish under control.",
+                "coach": "Speed is not a hidden progression."
+              }
+            }
+          ]
+        }
+      ],
+      "legacy": {
+        "description": "Archived Source 104 remains traceable as a generic relaxed skipping skeleton.",
+        "defaultSets": 2,
+        "defaultReps": null,
+        "defaultWorkSeconds": null,
+        "defaultRestSeconds": 20,
+        "tempo": null,
+        "loadNote": "Candidate-only; record passes, distance or contacts, cadence, surface, and symptoms.",
+        "estimatedSecondsPerSet": null,
+        "cardSummary": "Source 104 is represented by the exact relaxed alternating step-hop candidate, not an unspecified skip.",
+        "coachLanguage": "Use the exact candidate only after lane, finish, contact-budget, duration, and downstream-demand checks.",
+        "athleteLanguage": "Keep a relaxed alternating step-hop rhythm and finish under control.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "passes",
+          "distance",
+          "contacts",
+          "cadence",
+          "amplitude",
+          "rest"
+        ],
+        "movementFamily": "skipping_fast_leg_drills",
+        "primaryPhaseKey": "prepare_and_access",
+        "phaseSubrole": "rhythm_coordination",
+        "primaryOrderSlot": "locomotor_rhythm",
+        "movementRequirements": {
+          "selectable": false,
+          "sourceIdentityReauthored": true
+        },
+        "coachingExecution": {
+          "quality_gate": "Legacy source is not selectable; use the exact candidate contract.",
+          "stop_signs": [
+            "pain",
+            "limp",
+            "unsafe lane",
+            "rhythm loss"
+          ]
+        },
+        "pairingLogic": {
+          "revalidateAfterSubstitution": true
+        },
+        "mediaLibrary": {
+          "reviewState": "candidate_only"
+        },
+        "participantStructure": "individual",
+        "programmingKind": "exercise"
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact relaxed skip, lane, finish, surface, symptoms, contact budget, dose, and downstream task—not a participant classification.",
+        "readinessChecks": [
+          "confirm lane, finish, surface, footwear, and stop signal",
+          "confirm relaxed alternating step-hop and controlled finish",
+          "confirm contact budget and symptoms fit"
+        ],
+        "stopSigns": [
+          "pain, limp, or participant request",
+          "dizziness, chest, breathing, neurologic, or circulation symptoms",
+          "unsafe lane, stumble, loud contacts, rhythm loss, or uncontrolled finish"
+        ],
+        "contraindications": [
+          "symptom/restriction or unsafe-setting conflict",
+          "a distinct A-skip, run, bound, maximal power skip, cone, ball, or single-leg cycle intent"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed task only after revalidation.",
+          "Do not treat an A-skip, run, bound, power skip, cone drill, ball task, or single-leg cycle as an automatic substitution."
+        ]
+      },
+      "score": {
+        "technicalComplexity": 38,
+        "absoluteLoadDemand": 16,
+        "coordinationDemand": 48,
+        "impact": 26,
+        "supervisionDemand": 28,
+        "confidence": 62,
+        "reviewNotes": "Candidate task-only reassessment; independent calibration required.",
+        "legacyScores": {
+          "physicalDifficulty": 16,
+          "failureConsequence": 24,
+          "workCapacityDemand": 28
+        },
+        "difficultyProfile": {
+          "technical": 3.8,
+          "complexity": 3.8,
+          "load": 1.6,
+          "overall": 3.8,
+          "attentionDemand": "moderate",
+          "notes": "Exact relaxed alternating traveling step-hop skip only."
+        }
+      },
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

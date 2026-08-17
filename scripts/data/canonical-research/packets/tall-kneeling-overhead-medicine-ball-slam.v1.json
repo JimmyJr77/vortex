@@ -1,0 +1,583 @@
+{
+  "facilityId": 1,
+  "slug": "tall-kneeling-overhead-medicine-ball-slam",
+  "researchVersion": "2026-08-10.123",
+  "assessmentSummary": {
+    "identity": "A bilateral tall-kneeling overhead-to-floor slam that maintains hip extension while using the trunk and shoulders to accelerate the ball downward, followed by a controlled catch or retrieval.",
+    "currentCardFindings": [
+      "The current card says lower-body compensation is limited but does not define tall-kneeling alignment, knee padding, foot position, hip extension, floor target, ball type, rebound, or reset.",
+      "The archived generic kneeling slam described the same identity; half-kneeling and catch-fed versions remain controlled variants.",
+      "Legacy difficulty does not account for reduced base of support, knee-surface tolerance, the inability to step under an errant rebound, or the temptation to collapse through the lumbar spine."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "tall_kneeling_support",
+        "overhead_to_floor_ballistic_slam",
+        "trunk_flexion_with_hip_extension_control"
+      ],
+      "jointActions": [
+        "hip_extension_isometric",
+        "shoulder_flexion",
+        "scapular_upward_rotation",
+        "shoulder_extension",
+        "trunk_bracing_and_flexion"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral",
+      "intent": "maximal_safe_downward_ball_speed_without_lower_leg_drive_or_loss_of_kneeling_position"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "rectus_abdominis",
+        "latissimus_dorsi",
+        "gluteus_maximus",
+        "serratus_anterior",
+        "deltoids"
+      ],
+      "secondaryMuscles": [
+        "obliques",
+        "spinal_stabilizers",
+        "triceps_brachii",
+        "rotator_cuff",
+        "forearm_flexors",
+        "hip_stabilizers"
+      ],
+      "joints": [
+        "knee",
+        "hip",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 30,
+      "coordinationDemand": 52,
+      "supervisionDemand": 56,
+      "failureConsequence": 54,
+      "impact": 18,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 48
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_tall_kneeling_overhead_to_floor",
+      "impactClass": "low_body_impact_with_knee_surface_and_ball_rebound_exposure",
+      "externalLoadMethod": "slam_rated_ball_mass_that_preserves_tall_kneeling_hip_and_trunk_control",
+      "primaryStress": [
+        "anterior_trunk",
+        "lats",
+        "shoulders",
+        "gluteals",
+        "kneeling_contact",
+        "grip"
+      ],
+      "fatigueProfile": [
+        "hip_flexion_collapse",
+        "lumbar_hyperextension",
+        "excessive_trunk_fold",
+        "target_drift",
+        "unsafe_rebound_reach"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_knee_tolerance_and_throwing_load"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_slam_rated_ball",
+        "impact_rated_floor",
+        "knee_tolerant_surface_or_padding",
+        "clear_rebound_zone"
+      ],
+      "optionalEquipment": [
+        "floor_target",
+        "knee_pad",
+        "video"
+      ],
+      "environment": [
+        "non_slip_kneeling_surface",
+        "adequate_overhead_clearance",
+        "no_people_in_rebound_or_retrieval_path"
+      ],
+      "population": [
+        "pain_free_kneeling",
+        "pain_free_overhead_range",
+        "can_hold_tall_hip_extension",
+        "can_manage_ball_without_stepping"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_3-5_slams",
+      "restSeconds": "60-180",
+      "intensity": "high_intent_downward_acceleration_with_position_preserved",
+      "measurement": "ball_mass_target_accuracy_rep_time_and_position_quality",
+      "progressWhen": "the athlete stays tall through the hips and controls the ball without knee discomfort, lumbar collapse, or rebound reach"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Knees comfortable and hips tall",
+        "Squeeze the glutes",
+        "Reach overhead without leaning back",
+        "Slam between the knees",
+        "Do not chase the bounce"
+      ],
+      "athleteInstructions": [
+        "Kneel tall on both knees, lock in your hips and ribs, reach the ball overhead, slam it to the target in front of you, then catch or retrieve only as assigned"
+      ],
+      "commonFaults": [
+        "unsupported_knees",
+        "sitting_on_heels",
+        "hip_flexion_collapse",
+        "backward_lean",
+        "target_too_far_forward",
+        "unsafe_rebound_reach"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "kneeling_tolerance",
+        "tall_hip_extension_control",
+        "pain_free_overhead_motion",
+        "safe_grip"
+      ],
+      "stopRules": [
+        "knee_hip_back_shoulder_or_hand_pain",
+        "loss_of_tall_kneeling",
+        "loss_of_grip",
+        "unsafe_rebound",
+        "ball_or_floor_failure",
+        "two_slow_or_mistargeted_reps"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "side_alignment_demo",
+        "knee_pad_prompt",
+        "hip_position_overlay",
+        "catch_or_retrieve_badge"
+      ],
+      "coach": [
+        "kneeling_surface_check",
+        "ball_mass_and_target_guide",
+        "hip_control_observation",
+        "rebound_reach_warning"
+      ]
+    },
+    "programmingDecision": "Retain one explicit tall-kneeling overhead-slam definition and keep the generic kneeling name as an alias. Treat half-kneeling, counter-movement, partner-fed catch, ball type, and rebound behavior as controlled variants.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:15:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From a bilateral tall-kneeling position with both knees supported on a stable knee-tolerant surface, maintain hip extension and a controlled rib-pelvis position. Raise an intact slam-rated ball overhead, accelerate it straight down into the assigned floor target, then perform the declared dead-ball retrieval or controlled catch reset. This excludes standing, half-kneeling, rotational, scoop-start, partner-fed catch-to-slam, countermovement, or conditioning tasks.",
+      "familyKey": "tall_kneeling_overhead_to_floor_slam",
+      "movementPatterns": [
+        "brace",
+        "throw",
+        "vertical_projection"
+      ],
+      "bodyRegions": [
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine",
+        "scapula",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ],
+      "requiredEquipment": [
+        "slam_ball",
+        "floor_marks",
+        "knee_padding"
+      ],
+      "optionalEquipment": [
+        "medicine_ball",
+        "video_capture",
+        "orientation_target"
+      ],
+      "variantKey": "bilateral-tall-kneeling-overhead-to-floor-slam",
+      "environment": {
+        "surface": "dry, stable, non-slip, impact-suitable floor with knee-tolerant padding, a marked floor target, and a protected rebound or retrieval zone",
+        "space": "one athlete at a time; no people or fragile objects in the overhead, impact, rebound, or retrieval path",
+        "stationCapacity": 1,
+        "inspection": [
+          "confirm intact slam-rated ball, impact-suitable floor, and knee padding",
+          "confirm overhead clearance, target, rebound behavior, and declared retrieval or catch route",
+          "remove cross traffic and bystanders",
+          "confirm tall-kneeling base, grip, communication, and stop signal"
+        ],
+        "changeRule": "Changing support position, knee surface, ball construction or mass, overhead range, target, release, rebound or catch rule, cadence, dose, or purpose requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "comfortable supported bilateral kneeling, maintained hip extension, and controlled trunk position",
+          "can use the selected overhead range, grip, floor target, and declared retrieval or catch rule",
+          "current knee-surface, trunk, shoulder, grip, ballistic-ball, and session-fatigue budgets fit",
+          "understands target, reset, and stop signal"
+        ],
+        "excludeOrEscalate": [
+          "symptom, restriction, unsafe ball, knee surface, floor, clearance, target, rebound or retrieval, spacing, or communication conflict",
+          "pain, loss of grip, dizziness, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal ball mass, range, recovery, readiness threshold, output, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 48,
+        "absoluteLoadDemand": 30,
+        "physicalDifficulty": 30,
+        "coordinationDemand": 52,
+        "supervisionDemand": 56,
+        "failureConsequence": 54,
+        "impact": 18,
+        "workCapacityDemand": 42,
+        "baseOverallDifficulty": 48
+      },
+      "loadProfile": {
+        "externalLoadMethod": "impact-rated slam-ball mass selected for fast downward acceleration while preserving tall-kneeling hip and trunk control",
+        "impactClass": "low_body_impact_with_knee_surface_and_ball-floor-impact_or_rebound-exposure",
+        "gripDemand": 28,
+        "spinalLoading": 26,
+        "eccentricStress": 22,
+        "landingContactsPerRep": 0,
+        "contactExposureModel": {
+          "per_set_range": "record slams, ball mass and construction, knee surface, catch/retrievals, target accuracy, and other ballistic-ball work"
+        },
+        "primaryExposure": [
+          "tall_kneeling_hip_extension_control",
+          "overhead_to_floor_ball_path",
+          "trunk_bracing",
+          "grip",
+          "ball_floor_impact",
+          "optional_rebound_catch"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 36,
+        "gripFatigue": 24,
+        "technicalFatigueSensitivity": 52,
+        "impactAccumulation": 18,
+        "recoveryHours": 24,
+        "recoveryHoursPlanningEstimate": 24,
+        "cumulativeBudget": {
+          "high_intent_tall_kneeling_slams": 20,
+          "ballistic_ball_work": 24,
+          "knee_surface_exposure": 18,
+          "trunk_shoulder_and_grip_exposure": 24
+        },
+        "tracking": [
+          "sets",
+          "slams",
+          "ballMass",
+          "ballConstruction",
+          "kneeSurface",
+          "overheadRange",
+          "reboundRule",
+          "targetAccuracy",
+          "speedOrTime",
+          "qualityLoss",
+          "symptoms",
+          "otherBallisticBallWork"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The standing overhead slam is an overhead-to-floor ballistic action with an explicit hinge, whole-body extension, downward release, and ball-retrieval rule.",
+        "Tall-Kneeling Overhead Medicine Ball Slam must define support position, start and release path, force direction, rebound behavior, catch or retrieval rule, side order, and finish rather than relying on the generic word slam."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "A side-directed rotational slam differs from a straight overhead slam through its deliberate twist, lateral floor target, and alternating or single-side execution.",
+        "Classify Tall-Kneeling Overhead Medicine Ball Slam by support position, bilateral versus side-specific execution, overhead versus scoop start, vertical versus diagonal floor vector, rebound requirement, and static versus dynamic entry."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Medicine-ball rotational output involves trunk musculature including the external obliques, with muscle activity and ball velocity affected by the task and ball mass.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, straight, or rotational slam."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The overhead slam uses lower-body loading and triple extension before a forceful overhead-to-floor action while trunk bracing and a hip hinge protect position.",
+        "Coach pressure from the floor through the hips and trunk into the ball, then redirect force into the assigned floor target without lumbar-dominant extension, flexion, or rotation."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball power exercises vary by position, task, dose, and population, so one generic category cannot represent their technical or physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.power-systems.com/pdf/PSystems_DigitalGuide_Jan18.pdf",
+      "sourceTitle": "2018 Buyers Guide",
+      "sourcePublisher": "Power Systems",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "No-bounce slam balls and rebounding medicine balls have materially different retrieval, catch, and repeat-cadence behavior.",
+        "Tall-Kneeling Overhead Medicine Ball Slam must track ball mass and rebound type, high-intent slams, catches, side balance, technical speed loss, shoulder and trunk fatigue, floor contacts, recovery between sets, and weekly ballistic-ball volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Medicine balls, wall balls, dead-weight balls, and slam balls are not interchangeable for every impact task; implement construction and rebound behavior must match the exercise.",
+        "Require an intact slam-rated ball, a floor rated for repeated impact, safe overhead and rebound clearance, stable footing or knee padding, athlete separation, and no bystanders in the impact, rebound, or retrieval zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/6941/five-exercises-to-help-your-clients-develop-power/",
+      "sourceTitle": "Five Exercises to Help Your Clients Develop Power",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "High-velocity medicine-ball power work is commonly delivered in low-repetition sets with enough recovery to preserve output.",
+        "For power delivery, use roughly three to five sets of three to five high-quality slams or two to five per side with 60–180 seconds between sets; stop before velocity, target accuracy, posture, catch control, or safe retrieval declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The instructional sequence must identify the starting stance, grip, lower-body load, overhead path, bracing action, floor target, and rebound or retrieval behavior.",
+        "State the ball type and mass, stance, target, permitted countermovement or rotation, catch rule, reset, side order, and exact rep-quality rule before the first repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, loss of grip, unsafe rebound, floor or ball failure, lane entry, uncontrolled catch, lumbar-dominant motion, loss of balance, knee discomfort in kneeling, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric and medicine-ball training can improve power outcomes, while transfer depends on the chosen task and population.",
+        "Place Tall-Kneeling Overhead Medicine Ball Slam early in Output work after relevant access and activation. Match stance, vector, ball mass, rebound behavior, and intent to the objective; do not turn maximal slams into indiscriminate fatigue work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam versions need visibly different setup and movement demonstrations.",
+        "Show front, side, and floor-target views; label ball mass and rebound type; demonstrate start, load, release, finish, catch or retrieval, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "Rotational slam coaching must distinguish the side-directed floor target, alternating pattern, and rebound catch from a straight bilateral overhead slam.",
+        "Provide ball-selection and floor-inspection guidance, athlete spacing, target zones, side balance, optional velocity tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly ballistic-contact budgeting."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Ball type, position, movement range, and delivery mode can be changed while preserving a suitable training objective.",
+        "Accessibility options include a lighter or larger soft slam-rated ball, tall-kneeling or supported stance, shorter overhead range, no catch, dead-ball retrieval, reduced rotation, pre-positioned ball, fewer repetitions, longer recovery, and verbal plus visual cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam patterns can be intentionally varied without treating every implement or cadence change as a new base exercise.",
+        "Treat implement, rebound behavior, stance, alternating cadence, arc size, and entry footwork as controlled variants when the force path stays the same; retain separate definitions when the start path, force vector, support position, or required reactive catch materially changes the task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Tall-Kneeling Overhead Medicine Ball Slam remain candidate-only. Availability, embedding, exact support and force-path match, full viewing, ball type, rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ixNyM6SEevo",
+      "title": "Tall Kneeling Medicine Ball Slam",
+      "channelName": "Hybrid Fitness",
+      "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yeE8VZhUPSE",
+      "title": "Tall Kneeling Slam Ball Slam",
+      "channelName": "Pursuit Fitness",
+      "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dnKL3X3ST1o",
+      "title": "Tall Kneeling Overhead Med Ball Slam",
+      "channelName": "Resilient Performance Physical Therapy",
+      "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LhCS360FBvA",
+      "title": "Tall Kneeling Medicine Ball Slam",
+      "channelName": "Three Point Performance",
+      "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Fifv10rZUnU",
+      "title": "Tall Kneeling Med Ball Slam",
+      "channelName": "Elite Performance Institute",
+      "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Kneeling Slam-Ball Slam",
+      "classification": "same_identity",
+      "rationale": "The generic kneeling label describes this tall-kneeling bilateral overhead-to-floor action when no half-kneeling qualifier is present.",
+      "distinguishingDimensions": {
+        "nomenclature": "generic_kneeling"
+      }
+    },
+    {
+      "name": "Half-Kneeling Overhead Slam",
+      "classification": "new_variant",
+      "rationale": "Half kneeling adds asymmetrical support and side-specific hip control while preserving the overhead-to-floor path.",
+      "distinguishingDimensions": {
+        "supportPosition": "half_kneeling"
+      }
+    },
+    {
+      "name": "Countermovement Tall-Kneeling Slam",
+      "classification": "new_variant",
+      "rationale": "A larger preparatory trunk and shoulder countermovement changes delivery but not identity.",
+      "distinguishingDimensions": {
+        "countermovement": "amplified"
+      }
+    },
+    {
+      "name": "Partner-Fed Tall-Kneeling Catch to Slam",
+      "classification": "new_variant",
+      "rationale": "A partner feed adds catch absorption before the same slam and requires separate catch dosage.",
+      "distinguishingDimensions": {
+        "entry": "partner_overhead_feed"
+      }
+    },
+    {
+      "name": "Standing Overhead Slam",
+      "classification": "new_definition",
+      "rationale": "Standing restores ankle, knee, and hip drive and changes output, balance, and retrieval behavior.",
+      "distinguishingDimensions": {
+        "supportPosition": "standing"
+      }
+    }
+  ]
+}

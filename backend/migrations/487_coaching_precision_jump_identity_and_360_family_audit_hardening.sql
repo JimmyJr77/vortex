@@ -12,40 +12,83 @@ DECLARE
   migration_key CONSTANT TEXT :=
     '487_coaching_precision_jump_identity_and_360_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.88';
-  survivor_definition CONSTANT UUID := '1260d75e-6807-4c91-859d-7d561a9160a3';
-  source_definition CONSTANT UUID := '6dc5fcf1-6383-4aed-a73b-7465384fd18b';
-  rotation_definition CONSTANT UUID := '1101413d-55c7-4585-abc2-6e63484ec434';
-  base_variant CONSTANT UUID := '962d4295-1d84-400f-af24-53ff25813f96';
-  source_variant CONSTANT UUID := 'dd36d133-894b-4562-9cc7-016d1db6f56c';
-  precision_variant CONSTANT UUID := '5cc18072-971f-4f98-bf71-1213341167e4';
-  rotation_open_variant CONSTANT UUID := 'b365da0f-2779-4883-8152-a5b3c09bee9f';
-  rotation_precision_variant CONSTANT UUID := '1101413d-55c7-4585-abc2-6e63484ec435';
-  standing_broad_definition CONSTANT UUID := '626ba7ed-840e-4275-9001-bab668e37503';
-  standing_broad_variant CONSTANT UUID := 'b6d4dea3-c379-4029-9de2-5b5f4d4b51e8';
-  lache_precision_definition CONSTANT UUID := '656028eb-c7d1-4a2f-a216-45763b201796';
-  lache_precision_variant CONSTANT UUID := '612fc5a8-a343-4609-9463-b891ebeaf104';
-  ninety_definition CONSTANT UUID := '866cff83-dc6c-4131-b6d8-e471ef92d859';
-  ninety_variant CONSTANT UUID := '1f49a1bd-cc33-420e-9c86-b48e1224594e';
-  one_eighty_definition CONSTANT UUID := 'cdafa4d9-31f5-4cab-b9b4-c0b2385d8e0e';
-  awareness_definition CONSTANT UUID := 'fd2db4bf-6a62-4bae-ab7c-a7eaa4ce587c';
-  rebound_definition CONSTANT UUID := 'abafa520-df54-4378-8bc8-cea2860a4c3a';
-  repeated_definition CONSTANT UUID := 'a3768015-f081-44ff-81a0-2d15a5acb94f';
-  active_definition_ids CONSTANT UUID[] := ARRAY[
-    survivor_definition,rotation_definition
-  ];
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    base_variant,precision_variant,rotation_open_variant,
-    rotation_precision_variant
-  ];
-  protected_definition_ids CONSTANT UUID[] := ARRAY[
-    survivor_definition,source_definition,rotation_definition
-  ];
-  protected_variant_ids CONSTANT UUID[] := ARRAY[
-    base_variant,source_variant,precision_variant,rotation_open_variant,
-    rotation_precision_variant
-  ];
+  survivor_definition UUID;
+  source_definition UUID;
+  rotation_definition UUID;
+  base_variant UUID;
+  source_variant UUID;
+  precision_variant UUID;
+  rotation_open_variant UUID;
+  rotation_precision_variant UUID;
+  standing_broad_definition UUID;
+  standing_broad_variant UUID;
+  lache_precision_definition UUID;
+  lache_precision_variant UUID;
+  ninety_definition UUID;
+  ninety_variant UUID;
+  one_eighty_definition UUID;
+  awareness_definition UUID;
+  rebound_definition UUID;
+  repeated_definition UUID;
+  active_definition_ids UUID[];
+  active_variant_ids UUID[];
+  protected_definition_ids UUID[];
+  protected_variant_ids UUID[];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO survivor_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=146;
+  SELECT definition_id INTO source_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=20;
+  SELECT id INTO rotation_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bilateral-360-degree-jump-to-stick';
+  rotation_definition := coalesce(rotation_definition,gen_random_uuid());
+  SELECT id INTO base_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=survivor_definition AND variant_key='baseline';
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=source_definition AND variant_key='baseline';
+  SELECT id INTO precision_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=survivor_definition
+    AND variant_key='standing-parkour-two-foot-precision-low-restricted-target';
+  precision_variant := coalesce(precision_variant,gen_random_uuid());
+  SELECT id INTO rotation_open_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=rotation_definition
+    AND variant_key='stationary-bilateral-forward-360-open-surface-stick';
+  rotation_open_variant := coalesce(rotation_open_variant,gen_random_uuid());
+  SELECT id INTO rotation_precision_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=rotation_definition
+    AND variant_key='standing-parkour-360-precision-low-restricted-target';
+  rotation_precision_variant := coalesce(rotation_precision_variant,gen_random_uuid());
+  SELECT id INTO standing_broad_definition FROM coaching.exercise_definition_v1
+  WHERE slug='standing-broad-jump';
+  SELECT id INTO standing_broad_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=standing_broad_definition AND variant_key='baseline';
+  SELECT id INTO lache_precision_definition FROM coaching.exercise_definition_v1
+  WHERE slug='lache-precision-two-foot-stick';
+  SELECT id INTO lache_precision_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_precision_definition
+    AND variant_key='low-target-bilateral-two-second-stick';
+  SELECT id INTO ninety_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bilateral-90-degree-rotational-broad-jump-to-stick';
+  SELECT id INTO ninety_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=ninety_definition
+    AND variant_key='stationary-bilateral-forward-diagonal-broad-jump-90-degree-whole-body-turn-to-bilateral-stick';
+  SELECT id INTO one_eighty_definition FROM coaching.exercise_definition_v1
+  WHERE slug='180-jump-to-stick';
+  SELECT id INTO awareness_definition FROM coaching.exercise_definition_v1
+  WHERE slug='360-awareness-catch-with-safe-twist';
+  SELECT id INTO rebound_definition FROM coaching.exercise_definition_v1
+  WHERE slug='single-broad-jump-to-rebound';
+  SELECT id INTO repeated_definition FROM coaching.exercise_definition_v1
+  WHERE slug='repeated-broad-jump';
+  active_definition_ids := ARRAY[survivor_definition,rotation_definition];
+  active_variant_ids := ARRAY[base_variant,precision_variant,rotation_open_variant,
+    rotation_precision_variant];
+  protected_definition_ids := ARRAY[survivor_definition,source_definition,
+    rotation_definition];
+  protected_variant_ids := ARRAY[base_variant,source_variant,precision_variant,
+    rotation_open_variant,rotation_precision_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=survivor_definition
         AND provenance_json->>'precisionJumpAuditMigration'=migration_key)
@@ -900,17 +943,25 @@ BEGIN
     reviewer_user_id=NULL,reviewed_at=NULL,updated_at=now()
   WHERE coaching.exercise_alternate_assessment_v1.reviewer_user_id IS NULL;
 
-  UPDATE coaching.exercise_relationship_v1 SET
-    from_variant_id=precision_variant,
-    reason='Bar support, swing, release, and suspended-source fatigue are added to a foot-supported stationary restricted-target precision; the standing variant does not authorize Lache transfer.',
-    conditions_json=jsonb_build_object(
+  INSERT INTO coaching.exercise_relationship_v1(
+    from_variant_id,to_variant_id,relationship,similarity_score,dimensions,
+    reason,conditions_json,review_status,created_by,reviewed_by,reviewed_at)
+  VALUES(
+    precision_variant,lache_precision_variant,'progression',58,
+    ARRAY['complexity','load','impact','decision_demand'],
+    'Bar support, swing, release, and suspended-source fatigue are added to a foot-supported stationary restricted-target precision; the standing variant does not authorize Lache transfer.',
+    jsonb_build_object(
       'migration',migration_key,'reviewOnly',TRUE,'approvalsCreated',FALSE,
       'automaticSubstitution',FALSE,
       'revalidate',jsonb_build_array('identity','entry support','grip','source and target','geometry','assistance','release','landing','terminal checkpoint','environment','symptoms','dose','contact and fatigue budgets','duration','logistics','persistence','coach rendering','athlete rendering')),
+    'review',NULL,NULL,NULL)
+  ON CONFLICT(from_variant_id,to_variant_id,relationship) DO UPDATE SET
+    similarity_score=EXCLUDED.similarity_score,dimensions=EXCLUDED.dimensions,
+    reason=EXCLUDED.reason,conditions_json=EXCLUDED.conditions_json,
     review_status='review',created_by=NULL,reviewed_by=NULL,reviewed_at=NULL,
     updated_at=now()
-  WHERE id='d533216f-abd9-493b-a577-92713cff0409'::UUID
-    AND reviewed_by IS NULL AND review_status<>'approved';
+  WHERE coaching.exercise_relationship_v1.reviewed_by IS NULL
+    AND coaching.exercise_relationship_v1.review_status<>'approved';
 
   INSERT INTO coaching.exercise_relationship_v1(
     from_variant_id,to_variant_id,relationship,similarity_score,dimensions,

@@ -8,13 +8,18 @@ DECLARE
     '436_coaching_rotational_bound_broad_similarity_closure';
   exact_broad_id CONSTANT UUID :=
     '866cff83-dc6c-4131-b6d8-e471ef92d859';
-  quarter_turn_id CONSTANT UUID :=
-    'c66bd9c5-a3f9-4afe-bdde-68c4d2904a04';
-  half_turn_id CONSTANT UUID :=
-    'cdafa4d9-31f5-4cab-b9b4-c0b2385d8e0e';
+  quarter_turn_id UUID;
+  half_turn_id UUID;
   protected_count INTEGER;
   completed_count INTEGER;
 BEGIN
+  SELECT id INTO quarter_turn_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='two-foot-quarter-turn-jump-to-stick';
+  SELECT id INTO half_turn_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='180-jump-to-stick';
+
   IF(SELECT count(*) FROM coaching.exercise_definition_v1
      WHERE id IN(exact_broad_id,quarter_turn_id,half_turn_id)
        AND facility_id=1)<>3 THEN

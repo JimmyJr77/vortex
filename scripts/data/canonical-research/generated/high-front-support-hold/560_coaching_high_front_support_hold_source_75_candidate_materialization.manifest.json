@@ -1,0 +1,14 @@
+{
+  "migrationKey": "560_coaching_high_front_support_hold_source_75_candidate_materialization",
+  "researchVersion": "2026-08-10.121",
+  "generatedAt": "2026-08-10T04:30:00.000Z",
+  "cards": [
+    {
+      "slug": "front-support-shape-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 8,
+      "cardVersion": 2
+    }
+  ]
+}

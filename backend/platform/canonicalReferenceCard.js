@@ -137,6 +137,18 @@ export const PRODUCTION_REFERENCE_CARD_DRAFT = Object.freeze({
     feedbackPrompts: ['pain', 'difficulty', 'confidence', 'clarity', 'equipment_problem'],
   },
   approvedVideoUrl: null,
+  // Synthetic, independently reviewed taxonomy fixtures used only by contract
+  // tests. They do not represent a production approval or external evidence.
+  taxonomyV2: {
+    assignments: [
+      { facetType: 'training_family', key: 'general_resistance', scope: 'definition', role: 'primary', weight: 5, confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+      { facetType: 'movement_character', key: 'controlled_dynamic', scope: 'definition', role: 'primary', weight: 5, confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+    ],
+    decisions: [
+      { facetType: 'training_family', scope: 'definition', decision: 'classified', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+      { facetType: 'movement_character', scope: 'definition', decision: 'classified', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+    ],
+  },
   variants: [{
     id: 'reference-incline-push-up-baseline',
     variantKey: 'baseline',
@@ -145,12 +157,54 @@ export const PRODUCTION_REFERENCE_CARD_DRAFT = Object.freeze({
     difficulty: {
       technicalComplexity: 28,
       absoluteLoadDemand: 25,
-      coordinationDemand: 24,
-      supervisionDemand: 18,
-      failureConsequence: 20,
-      impact: 5,
-      workCapacityDemand: 35,
       baseOverallDifficulty: 28,
+    },
+    movementGeometry: {
+      planes: ['sagittal', 'transverse'], projections: ['horizontal'], directions: [],
+      supports: ['bilateral'], stances: ['square'], limbRelationships: ['symmetrical'],
+    },
+    anatomyProfile: {
+      assignments: [
+        { key: 'pectoralis_major', kind: 'muscle', role: 'primary_target' },
+        { key: 'triceps_brachii', kind: 'muscle', role: 'primary_target' },
+        { key: 'serratus_anterior', kind: 'muscle', role: 'secondary_target' },
+        { key: 'rotator_cuff', kind: 'muscle', role: 'stabilizer' },
+        { key: 'wrist', kind: 'joint', role: 'stress_exposure' },
+        { key: 'shoulder_horizontal_adduction', kind: 'joint_action', role: 'secondary_target' },
+      ],
+    },
+    equipmentRoles: [
+      { key: 'box', role: 'required', quantityPerStation: 1, conditions: { stable: true } },
+      { key: 'bench', role: 'substitute', quantityPerStation: 1, conditions: { stable: true } },
+    ],
+    taskDemands: {
+      strengthDemand: 35, powerDemand: 10, mobilityDemand: 22, balanceDemand: 12,
+      coordinationDemand: 24, conditioningDemand: 35, impactToleranceDemand: 5,
+      eccentricControlDemand: 25, bodyControlDemand: 35, perceptualDemand: 8,
+      attentionDemand: 18, supervisionDemand: 18, failureConsequence: 20,
+    },
+    stressProfile: {
+      jointStress: 20, tissueStress: 25, neuralDemand: 10, impactStress: 5,
+      localMuscularFatigue: 40, systemicFatigue: 25, gripFatigue: 12,
+      conditioningFatigue: 25, recoveryCost: 14,
+      bodyRegionStress: ['upper_body', 'trunk'], jointStressTargets: ['wrist', 'shoulder'],
+      tissueStressTargets: ['pectoralis_major', 'triceps_brachii'],
+    },
+    scalingHandles: [
+      { dimension: 'external_load', boundary: 'exact_variant', easier: 'raise the hand surface', harder: 'lower the hand surface within the approved range', limits: { preserveHandSupport: true } },
+      { dimension: 'volume', boundary: 'prescription', easier: 'reduce repetitions', harder: 'add repetitions within the delivery-profile cap', limits: { minimumReps: 3, maximumReps: 12 } },
+    ],
+    compositionProfile: {
+      preparesFor: ['horizontal_pressing'], preferredAfter: ['wrist_and_shoulder_access'],
+      avoidAfter: ['high_volume_pressing'], avoidSameSession: ['max_effort_upper_body_push'],
+      pairsWith: ['horizontal_pull'], acceptablePairs: ['lower_body_strength'],
+      interferenceRules: [{ stimulus: 'handstand_or_tumbling_priority', action: 'place_after_skill_or_use_low_dose' }],
+    },
+    // Synthetic review evidence for contract tests only. This is not a
+    // production approval or a claim of external verification.
+    structuredProfileReview: {
+      reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z',
+      provenance: { sourceType: 'synthetic_contract_fixture', approvalCreated: false },
     },
     requirements: {
       equipmentQuantityPerStation: { box: 1 },
@@ -192,6 +246,16 @@ export const PRODUCTION_REFERENCE_CARD_DRAFT = Object.freeze({
         { stimulus: 'heavy_horizontal_press', action: 'reduce_volume_or_omit' },
       ],
       uncertaintyPolicy: 'Exclude when surface stability, wrist tolerance, or current pressing readiness is unknown.',
+    },
+    taxonomyV2: {
+      assignments: [
+        { facetType: 'movement_character', key: 'controlled_dynamic', scope: 'variant', role: 'primary', weight: 5, confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+        { facetType: 'force_velocity', key: 'maximum_strength', scope: 'variant', role: 'compatible', weight: 3, confidence: 80, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+      ],
+      decisions: [
+        { facetType: 'movement_character', scope: 'variant', decision: 'classified', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+        { facetType: 'force_velocity', scope: 'variant', decision: 'classified', confidence: 80, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+      ],
     },
     status: 'review',
     profiles: [{
@@ -239,6 +303,23 @@ export const PRODUCTION_REFERENCE_CARD_DRAFT = Object.freeze({
       supportPrompts: {
         coachDebrief: ['Was the selected height correct?', 'Which fault appeared first?', 'Was the dose retained or edited?'],
         athleteFeedback: ['Did anything hurt?', 'How hard was the set?', 'Were the instructions clear?'],
+      },
+      taxonomyV2: {
+        assignments: [
+          { facetType: 'tenet', key: 'strength', scope: 'delivery_profile', role: 'primary', weight: 5, confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'athletic_niche', key: 'shoulder_strength', scope: 'delivery_profile', role: 'secondary', weight: 3, confidence: 85, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'programming_set_structure', key: 'straight_sets', scope: 'delivery_profile', role: 'default', weight: 5, confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'physiology_mechanism', key: 'maximum_force', scope: 'delivery_profile', role: 'primary', weight: 4, confidence: 90, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+        ],
+        decisions: [
+          { facetType: 'tenet', scope: 'delivery_profile', decision: 'classified', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'methodology', scope: 'delivery_profile', decision: 'not_applicable', rationale: 'Conventional resistance prescription with no special loading method.', confidence: 90, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'athletic_niche', scope: 'delivery_profile', decision: 'classified', confidence: 85, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'programming_set_structure', scope: 'delivery_profile', decision: 'classified', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'programming_clock_structure', scope: 'delivery_profile', decision: 'not_applicable', rationale: 'This profile uses repetitions and straight sets rather than a clock structure.', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'conditioning_protocol', scope: 'delivery_profile', decision: 'not_applicable', rationale: 'This Capacity profile is not prescribed as conditioning.', confidence: 95, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+          { facetType: 'physiology_mechanism', scope: 'delivery_profile', decision: 'classified', confidence: 90, reviewStatus: 'approved', reviewedBy: 9002, reviewedAt: '2026-01-02T00:00:00.000Z' },
+        ],
       },
       status: 'review',
     }],

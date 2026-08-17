@@ -1,0 +1,481 @@
+{
+  "migrationKey": "731_coaching_step_in_stick_candidate_materialization",
+  "researchVersion": "2026-07-25.3",
+  "batchFile": "../batches/landing-braking-progressions.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 223,
+        "preserveLegacyExerciseId": true,
+        "slug": "deceleration-step-down-stop-step-stick",
+        "canonicalName": "Step-In to Stick",
+        "displayName": "Step-In to Stick",
+        "aliases": [
+          "Deceleration Step-Down / Stop-Step Stick",
+          "Single-Step Deceleration to Stick",
+          "Stop-Step Stick"
+        ],
+        "description": "From a declared walking-to-submaximal start, take one purposeful step into a marked stop zone, lower the center of mass as the foot contacts, absorb into a controlled split or athletic stop position, hold for the declared duration without an extra recovery step, then reset. One repetition contains one planned step-in, one braking contact, and one terminal stick; it is not a box step-down, jog-to-stop, cut, or reacceleration.",
+        "familyKey": "single_step_horizontal_deceleration_terminal_stick",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 3,
+        "status": "review",
+        "identityContract": "declared_low_speed_single_step_horizontal_braking_contact_to_terminal_stick_without_box_running_cut_or_reacceleration",
+        "confidence": {
+          "content": 82,
+          "scoring": 62,
+          "media": 50
+        },
+        "movementPatterns": [
+          "locomote",
+          "decelerate",
+          "land",
+          "brace"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "thigh",
+          "hip",
+          "core"
+        ],
+        "requiredEquipment": [
+          "cones"
+        ],
+        "optionalEquipment": [
+          "video"
+        ],
+        "environment": {
+          "surface": "clean dry level high-traction non-slip floor or lane",
+          "space": "one marked step-in and finish station with clear entry and exit",
+          "stationCapacity": 1,
+          "inspection": [
+            "surface, footwear, marker visibility, clearance, and stop signal",
+            "coach sightline to foot contact, knee, hip, trunk, and terminal hold"
+          ],
+          "changeRule": "Changing direction, lead side, entry speed, support, finish, hold, surface, cue, dose, symptoms, or substitute requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "pain-free walking and controlled split/athletic stance",
+            "can follow a one-step stop, terminal hold, and stop signal",
+            "safe station and session braking, lower-body, technical-fatigue, logistics, and duration budgets fit"
+          ],
+          "excludeOrEscalate": [
+            "pain, giving way, slip, unsafe surface, line miss, foot slide, collapse, unplanned recovery step, imbalance, or communication conflict",
+            "new neurologic, circulation, breathing, chest, balance, or coordination concern",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "universal direction, entry speed, hold, dose, recovery, readiness threshold, clinical clearance, or outcome"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            223
+          ],
+          "identityAuthority": "Landing/braking progressions packet: the stable identity is a low-speed one-step horizontal brake into a terminal stick. Direction is delivery-specific; support and jogging change variants, while a box step-down is a separate vertical strength/control task.",
+          "canonicalAuthoredFromResearch": true,
+          "primaryIdentitySource": "https://pubmed.ncbi.nlm.nih.gov/33217086/",
+          "primaryIdentitySourceStatus": "candidate_research_evidence_unreviewed",
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": false,
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteal_complex",
+            "soleus",
+            "hamstring_complex"
+          ],
+          "secondaryMuscles": [
+            "gastrocnemius",
+            "gluteus_medius",
+            "hip_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "metatarsophalangeal",
+            "talocrural_ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "thoracolumbar_spine"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "single_step_braking_to_terminal_stance"
+          ],
+          "planes": [
+            "sagittal_step_in_and_stop",
+            "frontal_terminal_stance_stabilization"
+          ],
+          "laterality": "record lead/braking side and direction; program both sides when the delivery context requires it, without assigning athlete skill labels",
+          "claimsBoundary": "Describes task mechanics and plausible loading sites only; it does not diagnose, treat, prevent injury, establish readiness, or guarantee transfer."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate practice for one controlled low-speed braking contact and terminal stance only when the exact direction, marker, surface, and session budget fit.",
+          "primaryCue": "Step to the marker, lower into the stop, and freeze without another step.",
+          "secondaryCues": [
+            "put pressure through the whole foot",
+            "let ankle, knee, and hip share the braking",
+            "keep the knee tracking over the middle toes",
+            "hold, reset, and report symptoms"
+          ],
+          "expectedSensations": [
+            "light-to-moderate front-thigh, hip, calf, foot, and trunk braking effort",
+            "attention to one clean step and terminal balance"
+          ],
+          "unexpectedSensations": [
+            "pain, giving way, slip, foot slide, knee/trunk collapse, dizziness, or inability to hold"
+          ],
+          "painGuidance": "Stop rather than forcing a step, range, or hold through pain, instability, dizziness, or another concerning symptom; report it and follow facility escalation policy.",
+          "selfChecks": [
+            "one planned step reached the marker",
+            "the contact lowered into the stop rather than reached stiffly",
+            "the terminal position held without a recovery step",
+            "no box, jogging approach, cut, or reacceleration was added",
+            "no stop rule occurred"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          },
+          "mediaAlternatives": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true,
+            "humanReviewRequired": true,
+            "approvedMediaAvailable": false
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact entry direction, lead side, marker, no-box/no-running boundary, surface, and hold",
+            "foot placement, whole-foot pressure, knee/trunk control, terminal balance, and side asymmetry",
+            "valid repetitions, first fault, symptoms, rest, and downstream braking exposure"
+          ],
+          "faultCorrections": {
+            "reaching_or_slide": "shorten the step and restore whole-foot controlled contact",
+            "upright_stiff_contact": "slow the entry and restore ankle-knee-hip lowering",
+            "collapse": "reduce demand only if alignment returns; otherwise stop and revalidate another reviewed task",
+            "recovery_step": "reduce entry speed and restore the terminal hold before counting repetitions"
+          },
+          "demonstrationPlan": [
+            "show marker, one purposeful step, lowering, terminal hold, reset, and stop signal",
+            "show valid whole-foot contact and no recovery step",
+            "show invalid box step-down, jog entry, stiff reach, collapse, and extra step",
+            "confirm the athlete can state the marker, hold, and stop signal"
+          ],
+          "groupManagement": [
+            "use one visible station per athlete with clear entry/exit",
+            "stagger starts so foot contact and terminal hold remain observable",
+            "record lead side, direction, valid repetitions, first fault, symptoms, rest, and braking exposure"
+          ],
+          "modificationDecisionTree": [
+            "if pain, giving way, slip, dizziness, unsafe floor, or communication failure occurs, stop and escalate under facility policy",
+            "if one-step control cannot be restored, shorten or slow the entry only if quality returns",
+            "if support, jogging, cut, reacceleration, or box height is required, select a separately reviewed exact task and rerun validation",
+            "do not automatically substitute a box step-down or jog-to-stick"
+          ],
+          "doNotUseWhen": [
+            "the intended task is box step-down strength, running deceleration, cut/reacceleration, assessment, or conditioning",
+            "surface, symptoms, terminal control, supervision, or communication is inadequate"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "surface_or_space",
+            "step_or_marker",
+            "braking_or_terminal_hold",
+            "fatigue_or_exposure",
+            "symptom_or_stop_event",
+            "dose_or_duration",
+            "substitution"
+          ],
+          "supportEscalation": "Stop and escalate unresolved symptoms, unsafe setup, repeated slide/collapse/recovery steps, or a mismatch between the requested task and this exact single-step brake-to-stick contract.",
+          "retentionPolicy": "Persist versioned definition and exact variant, direction, lead side, valid repetitions, first fault, terminal hold, symptoms, rest, substitution, stop reason, and generator/rendering versions under facility policy.",
+          "changeImpactPolicy": "Any change to direction, lead side, entry speed, support, finish, hold, surface, cue, dose, or substitute reruns selection, fatigue, impact, logistics, duration, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "identity-quarantine-source-223",
+        "archiveKey": "source-223-step-in-legacy-skeleton",
+        "displayName": "Step-In to Stick Legacy Skeleton — Source 223",
+        "archiveReason": "The source lacks exact direction, lead side, entry, terminal hold, load, fatigue, delivery, alternate, support, and review contracts."
+      },
+      "legacy": {
+        "preserveArchived": true,
+        "description": "Take one controlled step into the marker, lower into a stable stop, hold, then reset.",
+        "defaultSets": 2,
+        "defaultReps": 3,
+        "defaultWorkSeconds": 6,
+        "defaultRestSeconds": 45,
+        "tempo": "one planned step; lower through contact; two-second terminal stick; reset",
+        "loadNote": "Low bodyweight horizontal braking. Exact direction, lead side, entry, hold, rest, and lower-body overlap are delivery-profile specific.",
+        "estimatedSecondsPerSet": 70,
+        "cardSummary": "Candidate one-step horizontal deceleration card with explicit no-box, no-running, terminal-hold, and stop boundaries.",
+        "coachLanguage": "Count only one-step controlled stops that own the terminal position.",
+        "athleteLanguage": "Step to the marker, lower into the stop, freeze, reset, and report symptoms.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "direction",
+          "lead_side",
+          "entry_speed",
+          "hold_seconds",
+          "repetitions",
+          "sets",
+          "rest",
+          "surface",
+          "feedback"
+        ]
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact single step, direction, terminal stance, surface, symptom, supervision, and fatigue context—not a participant classification.",
+        "readinessChecks": [
+          "pain-free walking and controlled split/athletic stance",
+          "one controlled stop without a recovery step",
+          "clear dry high-traction station and known stop signal",
+          "session braking and technical-fatigue budgets fit"
+        ],
+        "stopSigns": [
+          "pain, giving way, slip, foot slide, line miss, repeated collapse, unplanned recovery step, unsafe station, or participant stop request",
+          "inability to restore a controlled one-step terminal hold after rest"
+        ],
+        "contraindications": [
+          "symptom, unsafe surface, inadequate one-step braking control, supervision, or communication",
+          "box step-down, jogging entry, cut, reacceleration, or testing intent without a separately reviewed contract"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed task only after full revalidation.",
+          "Do not automatically substitute a box step-down or jog-to-stick."
+        ]
+      },
+      "score": {
+        "exerciseScoresDescribeTaskOnly": true,
+        "difficultyRationale": "The score describes task complexity and physical difficulty for one low-speed horizontal step-in brake-to-stick only, not participant ability, experience, age, or readiness. One-step timing, posture, force attenuation, and terminal control exceed its low physical demand.",
+        "difficultyProfile": {
+          "technical": 4.2,
+          "complexity": 4.2,
+          "load": 1.0,
+          "overall": 4.2,
+          "attentionDemand": "moderate",
+          "notes": "Exact one-step horizontal braking contact and terminal hold; no box, running, cut, or reacceleration."
+        }
+      },
+      "variants": [
+        {
+          "id": "22300000-0000-4000-8000-000000000001",
+          "key": "low_speed_single_step_horizontal_deceleration_to_terminal_stick",
+          "displayName": "Low-Speed Single-Step Horizontal Deceleration to Terminal Stick",
+          "modifierKeys": [
+            "single_step",
+            "low_speed",
+            "horizontal",
+            "terminal_stick"
+          ],
+          "difficulty": {
+            "technicalComplexity": 42,
+            "absoluteLoadDemand": 10,
+            "physicalDifficulty": 10,
+            "coordinationDemand": 46,
+            "supervisionDemand": 35,
+            "failureConsequence": 40,
+            "impact": 24,
+            "workCapacityDemand": 15,
+            "baseOverallDifficulty": 42
+          },
+          "requirements": {
+            "equipment": [
+              "cones"
+            ],
+            "entry": "walking_to_submaximal_single_step",
+            "finish": "controlled_split_or_athletic_terminal_stick",
+            "prohibited": [
+              "box_step_down",
+              "jog_entry",
+              "cut",
+              "reacceleration",
+              "recovery_step"
+            ]
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_low_speed_single_step_horizontal_braking_to_terminal_stance",
+            "impactClass": "low",
+            "landingContactsPerRep": 1,
+            "gripDemand": 1,
+            "spinalLoading": 8,
+            "eccentricStress": 24,
+            "primaryExposure": [
+              "single_step_braking",
+              "knee_hip_eccentric_control",
+              "ankle_foot_braking",
+              "terminal_stance_control"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 14,
+            "gripFatigue": 1,
+            "technicalFatigueSensitivity": 52,
+            "impactAccumulation": 16,
+            "recoveryHours": 8,
+            "recoveryHoursPlanningEstimate": 8,
+            "cumulativeBudget": {
+              "single_step_braking_contacts": 60,
+              "lower_body_eccentric_exposure": 28,
+              "impact": 16
+            },
+            "tracking": [
+              "direction",
+              "leadSide",
+              "validRepetitions",
+              "firstFault",
+              "terminalHold",
+              "symptoms",
+              "rest"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "single_step_horizontal_braking",
+              "terminal_stance_control"
+            ],
+            "stimulusDose": "quality_limited_low_speed_single_step_brake_to_stick_repetitions",
+            "weeklyExposure": "candidate_review_required; program from current braking exposure rather than a universal frequency",
+            "prerequisites": [
+              "pain-free walking",
+              "controlled single-step stop",
+              "safe marked station"
+            ],
+            "completionCriteria": "each repetition uses one planned braking step, reaches the marker, owns the terminal hold, and has no stop event",
+            "sequenceRules": "Place before jog-to-stick or higher-momentum braking when one-step position and force-attenuation quality are the priority.",
+            "pairingCompatibility": "May pair with mobility, trunk control, or noncompeting upper-body work when station, recovery, and total lower-body exposure remain valid.",
+            "interferenceRules": "Do not stack with high-speed deceleration, cutting, high-impact jumps, exhaustive lower-body work, or testing when terminal quality degrades.",
+            "uncertaintyPolicy": "Scores, dose, recovery, and progression are candidate planning estimates; require human review and rerun validation after any change.",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "movement-intelligence",
+              "phase": "movement_intelligence",
+              "role": "primary",
+              "purpose": "Rehearse one controlled low-speed braking contact and terminal stance without running momentum.",
+              "suitability": 84,
+              "methodologyAlignment": 82,
+              "objectiveRelevance": {
+                "braking_control": 88,
+                "low_impact_preparation": 82
+              },
+              "dosage": {
+                "sets": "2-3",
+                "repetitions": "3-5 valid stops per declared side/direction",
+                "restSeconds": "30-60",
+                "intensity": "walking to submaximal single-step speed"
+              },
+              "qualityGate": "One planned step reaches the marker, lowers under control, holds without recovery step, and has no stop event.",
+              "stopRules": [
+                "pain, instability, slip, unsafe station, or participant request",
+                "slide, collapse, line miss, recovery step, or inability to hold"
+              ],
+              "coachInstructions": "Declare side, direction, marker, and hold. Observe the contact and count only controlled terminal stops.",
+              "athleteInstructions": "Step to the marker, lower as the foot lands, freeze without another step, then reset.",
+              "expectedAdaptation": "Task-specific one-step horizontal braking rehearsal; no universal outcome is claimed.",
+              "equipmentRequired": [
+                "cones"
+              ],
+              "logistics": {
+                "station": "one clear marked floor station",
+                "durationFormula": "setup plus valid repetitions, rest, restarts, recording, and reset"
+              },
+              "timeModel": {
+                "setupSeconds": 30,
+                "effortSeconds": 4,
+                "restRangeSeconds": [
+                  30,
+                  60
+                ],
+                "recomputeAfterSubstitution": true
+              },
+              "doseScaling": {
+                "entry": "slow the step before adding repetitions",
+                "volume": "add only while every terminal hold remains controlled"
+              },
+              "measurement": {
+                "validRepetitions": true,
+                "firstFault": true,
+                "terminalHold": true,
+                "symptoms": true,
+                "leadSide": true
+              },
+              "supportPrompts": {
+                "athlete": "One step, lower, freeze.",
+                "coach": "Control the stop; do not turn it into a run."
+              }
+            }
+          ]
+        }
+      ],
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

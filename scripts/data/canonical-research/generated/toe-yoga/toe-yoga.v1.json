@@ -1,0 +1,767 @@
+{
+  "facilityId": 1,
+  "slug": "toe-yoga",
+  "researchVersion": "2026-08-09.112",
+  "assessmentSummary": {
+    "identity": "One Toe Yoga repetition is performed on one target foot. Begin with the target heel, first metatarsal head, fifth metatarsal head, and all relaxed toes supported. Lift only the great toe while toes two through five remain long and down, then return the great toe. Keep the great toe and first metatarsal head down while lifting toes two through five, then return all toes to the same start. That complete great-toe phase plus lesser-toe phase is one target-foot repetition. Record left and right separately. Standing hands-free, standing light wall-touch, and seated stable-bench support are explicit variants. Comfortable range, tempo, a brief untimed observation checkpoint, breathing, cycles per side, sets, rest, foot order, and delivery context are annotations. Simultaneous feet, manual assistance, resistance, sustained holds, single-leg or unstable support, toe spreading, toe curling, short-foot doming, whole-foot pressure shifts, compound actions, maximal assessment, and clinical treatment change the variant or definition.",
+    "currentCardFindings": [
+      "Sources 45 and 524 execute the same great-toe then lesser-toe selective-extension sequence. Source 524's tripod, balance, and resilience language changes delivery context but not exercise identity, so it is a direct duplicate rather than a separate exercise.",
+      "The legacy cards do not define target-foot laterality, a complete two-phase repetition endpoint, side-specific counting, exact support variants, load and fatigue accounting, substitutions, persistence, or operational support. The canonical version supplies these without treating a participant label as an exercise property.",
+      "Direct activation research performed first-toe and lesser-toe extension seated and one foot at a time. Newer kinematic work also uses one target foot and documents unintended inter-toe coupling, so the card does not fabricate simultaneous bilateral mechanics or require forced perfect isolation.",
+      "Five YouTube candidates returned healthy oEmbed metadata. No candidate has been watched in full, assigned to an exact support variant, or approved for sequence, contacts, count, captions, accessibility, cue quality, safety, or card-version match."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "support": "one_target_foot_flat_with_standing_hands_free_standing_wall_touch_or_seated_bench_support",
+      "laterality": "one_target_foot_per_repetition_left_and_right_recorded_separately",
+      "planes": [
+        "sagittal_digit_motion",
+        "frontal_stabilization",
+        "transverse_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "wall",
+        "bench"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 42,
+      "absoluteLoadDemand": 8,
+      "physicalDifficulty": 8,
+      "coordinationDemand": 44,
+      "supervisionDemand": 10,
+      "failureConsequence": 6,
+      "impact": 1,
+      "workCapacityDemand": 7,
+      "baseOverallDifficulty": 42,
+      "variantScores": {
+        "standingHandsFree": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 8,
+          "physicalDifficulty": 8,
+          "coordinationDemand": 44,
+          "supervisionDemand": 10,
+          "failureConsequence": 6,
+          "impact": 1,
+          "workCapacityDemand": 7,
+          "baseOverallDifficulty": 42
+        },
+        "standingWallTouch": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 7,
+          "physicalDifficulty": 7,
+          "coordinationDemand": 40,
+          "supervisionDemand": 9,
+          "failureConsequence": 5,
+          "impact": 1,
+          "workCapacityDemand": 6,
+          "baseOverallDifficulty": 38
+        },
+        "seatedBench": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 5,
+          "physicalDifficulty": 5,
+          "coordinationDemand": 36,
+          "supervisionDemand": 8,
+          "failureConsequence": 4,
+          "impact": 1,
+          "workCapacityDemand": 5,
+          "baseOverallDifficulty": 34
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "active_target_toe_motion_with_no_added_resistance_and_support_position_specific_weight_bearing",
+      "impactClass": "none",
+      "primaryExposure": [
+        "selective_hallux_extension",
+        "selective_lesser_toe_extension",
+        "non_target_toe_ground_contact",
+        "intrinsic_and_extrinsic_foot_stabilization",
+        "toe_motor_coordination"
+      ],
+      "recovery": "6_hours_planning_estimate_with_2_to_12_hour_review_range"
+    },
+    "proposedDosage": {
+      "prepare": "1-2_sets_of_4-8_complete_cycles_per_side_at_low_effort",
+      "resilience": "1-3_sets_of_4-10_complete_cycles_per_side_without_chasing_fatigue",
+      "tempo": "about_1-3_seconds_per_lift_and_controlled_return_with_all_toes_down_between_phases",
+      "rest": "15-60_seconds_or_as_needed_to_restore_selective_contact_long_toes_body_control_breathing_and_symptom_rules",
+      "durationRule": "surface_hygiene_equipment_and_body_setup_plus_actual_valid_cycles_by_side_plus_side_switch_rest_invalid_partial_assisted_or_symptom_limited_attempts_substitution_cleaning_station_reset_and_exit"
+    },
+    "programmingDecision": "Select only when the exact target-foot cycle, support variant, target side order, clean dry nonslip foot-safe surface, hygiene, toe visibility, wall or bench requirements, comfortable active toe motion, symptoms, restrictions, dose, duration, and cumulative foot, toe, calf, balance, running, landing, jumping, agility, and lower-body budgets fit. Do not silently change support position, weight bearing, external hand support, target-foot sequence, simultaneous action, assistance, resistance, contraction mode, count, clinical scope, or task identity. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after every change.",
+    "calibrationEvidence": {
+      "basis": "Direct T2 MRI activation research, direct selective-toe-extension kinematics, a direct clinical sequence description used only for action wording, two intrinsic-foot training systematic reviews, a foot-strength exercise review, general supervised-exercise safeguards, the exact Source 45 and Source 524 contracts, five current YouTube oEmbed records, and comparison with short-foot, whole-foot pressure-shift, sustained hallux-press, toe-spread, toe-flexion, assessment, assisted, resisted, unstable, and compound neighbors",
+      "uncertainty": "Research does not validate one universal support position, range, tempo, dose, frequency, fatigue ceiling, recovery interval, warm-up effect, treatment, injury-prevention claim, balance or sport transfer, participant threshold, or Vortex difficulty score. Standing transfer is less directly studied than the seated target-foot tasks. No media candidate has been watched in full, and no relationship or score has qualified human approval.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration_for_three_variants",
+        "duplicate_and_variant_family_review",
+        "surface_hygiene_wall_bench_and_visibility_safety_review",
+        "anatomy_load_fatigue_and_recovery_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T18:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Place one target foot flat on a clean dry nonslip foot-safe surface with its heel, first metatarsal head, fifth metatarsal head, and relaxed toes in contact. Keep the heel and metatarsal heads down. Lift only the target-foot great toe while toes two through five remain long and in contact; lower the great toe to the same start. Then keep the great toe and first metatarsal head down while lifting toes two through five; lower them to the same all-toes-down start. One complete great-toe phase plus lesser-toe phase and both controlled returns on one target foot is one repetition. Record left- and right-foot repetitions separately. Comfortable active range, tempo, a brief untimed observation checkpoint, breathing, repetitions, sets, rest, foot order, and delivery context are annotations. Simultaneous two-foot action, toe spreading, toe curling or gripping, short-foot doming, sustained pressing or holding, manual assistance during a counted repetition, resistance, unstable or single-leg stance, locomotion, compound actions, maximal assessment, or clinical treatment require a separately reviewed variant or definition.",
+      "familyKey": "selective_toe_extension_cycle",
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "wall",
+        "bench"
+      ],
+      "variantKey": "standing-hands-free-single-target-foot-cycle",
+      "environment": {
+        "space": "one seated or standing foot-control station with visible toes clear entry exit and no cross traffic",
+        "hygiene": "follow facility barefoot surface cleaning skin-integrity and shared-station policy",
+        "surface": "clean dry level stable nonslip foot-safe floor suitable for the facility barefoot or approved sock policy",
+        "changeRule": "Any support position target side weight bearing hand assistance footwear resistance action count dose symptom or downstream-demand change requires full revalidation.",
+        "inspection": [
+          "surface traction cleanliness temperature debris and skin-contact suitability",
+          "wall stability and contact area when used",
+          "bench stability height and clear foot placement when used",
+          "toe visibility and footwear or sock restrictions",
+          "station separation cross traffic entry exit communication and emergency route"
+        ],
+        "coachSightline": "front-quarter and top-oblique views of target toe groups metatarsal heads heel arch ankle knee support breathing and symptoms",
+        "stationCapacity": 1,
+        "requiredEquipmentByVariant": {
+          "seated": "bench",
+          "standingHandsFree": "none",
+          "standingWallTouch": "wall"
+        }
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night post-trauma sharp increasing or unfamiliar pain",
+          "new numbness tingling weakness altered circulation skin breakdown or loss of control",
+          "toe forefoot arch foot ankle calf knee hip or back symptoms preventing the exact task",
+          "painful current bunion toe deformity or joint irritation conflicting with contact or motion",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness disorientation or inability to communicate",
+          "clinical restriction conflicting with active selective toe extension",
+          "unsafe surface hygiene wall bench space traffic sightline or emergency route",
+          "participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "clean dry stable nonslip foot-safe surface and compliant hygiene setup",
+          "comfortable target-foot flat contact and visible toes",
+          "comfortable active great-toe and lesser-toe extension without forced range",
+          "can maintain heel and metatarsal-head contacts for the selected support variant",
+          "understands the two-phase target-foot cycle side-specific count and stop signal",
+          "standing variants require safe standing and optional wall approach while seated requires a stable bench",
+          "same-session foot toe calf balance running landing jumping and lower-body budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility support position range tempo dose frequency fatigue ceiling recovery progression or outcome",
+          "diagnosis treatment prevention correction readiness clearance or clinical threshold",
+          "isolated intrinsic foot muscle activation or strength",
+          "guaranteed arch balance gait running jumping landing or injury-prevention transfer",
+          "age floor or participant classification"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {
+        "impact": 1,
+        "overallFormula": "max(exercise_complexity,physical_difficulty)",
+        "supervisionDemand": 10,
+        "absoluteLoadDemand": 8,
+        "coordinationDemand": 44,
+        "failureConsequence": 6,
+        "physicalDifficulty": 8,
+        "workCapacityDemand": 7,
+        "humanReviewRequired": true,
+        "technicalComplexity": 42,
+        "baseOverallDifficulty": 42,
+        "candidateCalibrationOnly": true,
+        "exerciseDifficultyDescribesTaskOnly": true
+      },
+      "loadProfile": {
+        "tracking": [
+          "definition_variant_profile_and_card_version",
+          "target_side_and_support_position",
+          "surface_hygiene_wall_bench_foot_covering_and_station",
+          "planned_and_actual_valid_cycles_per_side",
+          "comfortable_range_tempo_effort_and_rest",
+          "valid_invalid_partial_assisted_and_symptom_limited_attempts",
+          "toe_contact_curl_arch_ankle_knee_and_body_faults",
+          "first_fault",
+          "symptoms",
+          "duration",
+          "same_session_foot_toe_calf_balance_running_landing_jumping_and_lower_body_exposure"
+        ],
+        "gripDemand": 1,
+        "impactClass": "none",
+        "jointStress": 9,
+        "loadingType": "low_external_load_standing_selective_toe_cycle",
+        "spinalLoading": 3,
+        "eccentricStress": 4,
+        "primaryExposure": [
+          "selective_hallux_extension",
+          "selective_lesser_toe_extension",
+          "non_target_toe_ground_contact",
+          "intrinsic_and_extrinsic_foot_stabilization",
+          "metatarsal_head_and_heel_contact",
+          "toe_motor_coordination"
+        ],
+        "externalLoadMethod": "bodyweight standing with both feet supported and no added resistance",
+        "landingContactsPerRep": 0,
+        "handImpactContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 1,
+        "interference": [
+          "later_priority_balance_running_landing_jumping_or_agility_work",
+          "same_session_foot_toe_calf_or_lower_leg_loading",
+          "fatigue_or_cramping_that_changes_selective_contact_arch_ankle_or_knee_control"
+        ],
+        "recoveryHours": 6,
+        "cumulativeBudget": {
+          "impact": 0,
+          "footToeLoad": 18,
+          "activeWorkSeconds": 480,
+          "validCyclesPerFoot": 48,
+          "technicalSensitivity": 30
+        },
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 11,
+        "recoveryRangeHours": [
+          2,
+          12
+        ],
+        "primaryFatigueSites": [
+          "toe_extensors",
+          "plantar_intrinsic_foot_muscles",
+          "toe_flexor_stabilizers",
+          "foot_motor_control"
+        ],
+        "recoveryIsPlanningEstimate": true,
+        "technicalFatigueSensitivity": 30,
+        "tissueThresholdNotEstablished": true
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "sourceTitle": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "First-toe extension with toes two through five down and lesser-toe extension with the great toe down are distinguishable one-foot actions.",
+        "The exact combined two-phase cycle, support variants, side-specific count, and publication rules are Vortex specifications bounded by Sources 45 and 524."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Selective hallux extension and selective four-toe extension are active digit-motion tasks with explicit non-target ground-contact constraints.",
+        "The controlled taxonomy records a stationary braced foot-control task rather than locomotion, landing, toe flexion, or whole-foot pressure shifting."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "sourceTitle": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Both selective toe-extension tasks increased activation across all measured plantar intrinsic foot muscles rather than isolating a single intrinsic muscle.",
+        "The card records toe extensors, plantar intrinsic and extrinsic stabilizers, MTP and interphalangeal joints, planes, target-foot laterality, contacts, and stabilization without promising isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Non-target toe contact and unintended inter-toe motion are measurable features of selective hallux and four-toe extension.",
+        "The card permits comfortable active range and stops forced isolation, toe pinning, or compensatory foot and body motion."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "sourceTitle": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The activation study could not infer individual task difficulty or muscle force from T2 change, while the actions require selective motor control.",
+        "The 42/8/42 standing hands-free projection and separate wall-touch and seated scores describe exercise complexity and physical difficulty only and remain queued for independent calibration."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "sourceTitle": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Forty metronome-paced repetitions per foot produced measurable activation in a small healthy-athlete sample.",
+        "That laboratory exposure is not a universal workout dose; Vortex tracks actual cycles by side, active time, support, range, faults, symptoms, and overlapping foot exposure while recovery remains an estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The studied tasks used one flat target foot, seated support, visible ground-contact constraints, and explicit non-target toe contact.",
+        "Vortex adds support-specific surface, hygiene, wall, bench, toe-visibility, symptom, communication, space, and exit constraints without turning demographics into exercise properties."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35724360/",
+      "sourceTitle": "Evidence for Intrinsic Foot Muscle Training in Improving Foot Function: A Systematic Review and Meta-Analysis",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Intrinsic-foot training studies use varied interventions and outcomes rather than one universal dose.",
+        "Prepare and resilience ranges are quarantined examples and end before selective contact, toe length, arch, ankle, knee, body control, breathing, or symptoms degrade."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11911532/",
+      "sourceTitle": "Non-Operative Management of Symptomatic Hallux Limitus: A Novel Approach of Foot Core Stabilization and Extracorporeal Shockwave Therapy",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 74,
+      "claims": [
+        "Toe yoga is described as great-toe extension with lesser toes grounded followed by the reverse action with the great toe grounded.",
+        "Vortex adds exact target-foot start, controlled returns, support variants, complete-cycle endpoint, side-specific count, faults, and stop rules without adopting treatment claims."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "General exercise safeguards emphasize qualified instruction, safe equipment and environment, appropriate progression, and technique supervision.",
+        "No participant or age floor is inferred; symptoms, exact-task control, surface hygiene, toe visibility, support equipment, communication, cumulative exposure, and facility escalation policy govern selection."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35442981/",
+      "sourceTitle": "Effect of intrinsic foot muscles training on foot function and dynamic postural balance: A systematic review and meta-analysis",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Intrinsic-foot training may influence some foot and dynamic-balance outcomes across heterogeneous programs.",
+        "The exact cycle can serve preparation or standing-control context only when purpose and fatigue budgets fit; no universal balance, gait, sport, treatment, or prevention outcome is promised."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Selective tasks can show incomplete range and unintended non-target movement.",
+        "Athlete support emphasizes a small comfortable range, long toes, complete returns, quiet target-foot contacts, side-specific counting, and symptom checks instead of maximal or forced separation."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Ground contact and unintended motion of non-target toes can be observed during selective toe-extension tasks.",
+        "Coaches record support, side, target contacts, toe curl, phase order, complete returns, first fault, actual exposure, symptoms, and duration without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "sourceTitle": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Seated support reduces whole-body balance demand and focuses observation on toe control in the studied task.",
+        "The seated variant, visible phase cards, written sequence, smaller range, fewer cycles, more rest, captions, transcript, still images, or live instruction can improve access; assisted repetitions remain a separate variant."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739583/",
+      "sourceTitle": "How to Evaluate and Improve Foot Strength in Athletes: An Update",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "First-toe extension, lesser-toe extension, toe-spread-out, short-foot, and toe-flexion exercises have different action contracts.",
+        "Support positions are exact variants; simultaneous, assisted, resisted, hold, unstable, single-leg, alternating-foot, split-stance, toe-spread, toe-flexion, short-foot, pressure-shift, assessment, and compound tasks retain explicit boundaries."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact support variant, target-foot sequence, contacts, returns, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=SbQ2RYxbppE",
+      "title": "Toe Yoga Exercise for Plantar Fasciitis",
+      "channelName": "Sharp HealthCare",
+      "sourceQuery": "Toe Yoga candidate; clinical framing and exact variant require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:00:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support variant, side-specific count, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QVZpBSVV9js",
+      "title": "How to Do a Toe Yoga Exercise: A Guide from Physical Therapists",
+      "channelName": "Hinge Health",
+      "sourceQuery": "Toe Yoga guide candidate; exact support and sequence require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:00:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support variant, side-specific count, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=bUoTjK0tQEw",
+      "title": "Toe Yoga?  A Physical Therapist Explains and Demonstrates",
+      "channelName": "Congruency Therapy & Wellness",
+      "sourceQuery": "Toe Yoga demonstration candidate; full exact review pending",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:00:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support variant, side-specific count, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SkFZ5zVXGEo",
+      "title": "Toe Yoga aka Intrinsic Foot Strengthening",
+      "channelName": "Reclaim Restore Health by Nicole Paine",
+      "sourceQuery": "Toe Yoga candidate; strength framing and exact mechanics require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:00:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support variant, side-specific count, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kp8QI1Uj59Q",
+      "title": "Toe Yoga",
+      "channelName": "MOBO",
+      "sourceQuery": "Toe Yoga coordination candidate; full exact review pending",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:00:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support variant, side-specific count, captions, accessibility, safety, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Hands-Free Single-Target-Foot Toe Yoga",
+      "classification": "same_identity",
+      "rationale": "Authored exact standing hands-free variant of the same cycle.",
+      "distinguishingDimensions": {
+        "support": "standing_hands_free",
+        "status": "authored_review_variant"
+      }
+    },
+    {
+      "name": "Standing Wall-Touch Single-Target-Foot Toe Yoga",
+      "classification": "same_identity",
+      "rationale": "Authored exact light wall-touch variant of the same cycle.",
+      "distinguishingDimensions": {
+        "support": "standing_wall_touch",
+        "status": "authored_review_variant"
+      }
+    },
+    {
+      "name": "Seated Single-Target-Foot Toe Yoga",
+      "classification": "same_identity",
+      "rationale": "Authored exact stable-bench seated variant of the same cycle.",
+      "distinguishingDimensions": {
+        "support": "seated_bench",
+        "status": "authored_review_variant"
+      }
+    },
+    {
+      "name": "Toe-Yoga Tripod Balance",
+      "classification": "same_identity",
+      "rationale": "Source 524 preserves the same toe sequence; tripod and balance language is delivery context.",
+      "distinguishingDimensions": {
+        "source": 524,
+        "resolution": "duplicate_consolidated"
+      }
+    },
+    {
+      "name": "Left Foot First or Right Foot First",
+      "classification": "modifier_annotation",
+      "rationale": "Foot order does not change identity when sides are recorded separately.",
+      "distinguishingDimensions": {
+        "annotation": "target_side_order"
+      }
+    },
+    {
+      "name": "Comfortable Smaller Toe-Lift Range",
+      "classification": "modifier_annotation",
+      "rationale": "Comfortable range can change while contacts, order, returns, and count remain intact.",
+      "distinguishingDimensions": {
+        "annotation": "comfortable_active_range"
+      }
+    },
+    {
+      "name": "Slower Toe Yoga Tempo",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo can vary without creating a prescribed hold.",
+      "distinguishingDimensions": {
+        "annotation": "tempo"
+      }
+    },
+    {
+      "name": "Brief Toe-Group Observation Checkpoint",
+      "classification": "modifier_annotation",
+      "rationale": "A brief untimed observation point is not a sustained isometric dose.",
+      "distinguishingDimensions": {
+        "annotation": "brief_untimed_checkpoint"
+      }
+    },
+    {
+      "name": "Toe Yoga Repetition Set and Rest Changes",
+      "classification": "modifier_annotation",
+      "rationale": "Cycles, sets, and rest are profile dosage fields.",
+      "distinguishingDimensions": {
+        "annotation": "dose"
+      }
+    },
+    {
+      "name": "Prepare versus Resilience Toe Yoga Context",
+      "classification": "modifier_annotation",
+      "rationale": "Delivery phase changes purpose and dose, not executable identity.",
+      "distinguishingDimensions": {
+        "annotation": "delivery_context"
+      }
+    },
+    {
+      "name": "Barefoot versus Approved Thin Sock",
+      "classification": "modifier_annotation",
+      "rationale": "Foot covering is an annotation only when visibility, traction, hygiene, and comfort remain adequate.",
+      "distinguishingDimensions": {
+        "annotation": "foot_covering"
+      }
+    },
+    {
+      "name": "Standing Stance Width Adjustment",
+      "classification": "modifier_annotation",
+      "rationale": "Small stance changes are annotations when target-foot mechanics remain exact.",
+      "distinguishingDimensions": {
+        "annotation": "stance_width"
+      }
+    },
+    {
+      "name": "Simultaneous Bilateral Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Moving both feet together changes laterality, observation, count, and balance demand.",
+      "distinguishingDimensions": {
+        "variant": "bilateral_simultaneous"
+      }
+    },
+    {
+      "name": "Manually Assisted Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Holding or guiding toes changes assistance, consent, motor-control demand, and validity.",
+      "distinguishingDimensions": {
+        "variant": "manual_assistance"
+      }
+    },
+    {
+      "name": "Banded Resisted Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Resistance changes equipment, load, setup, and fatigue.",
+      "distinguishingDimensions": {
+        "variant": "external_resistance"
+      }
+    },
+    {
+      "name": "Toe Yoga Sustained Top Hold",
+      "classification": "new_variant",
+      "rationale": "A sustained hold changes contraction mode, dose unit, fatigue, and count.",
+      "distinguishingDimensions": {
+        "variant": "sustained_isometric"
+      }
+    },
+    {
+      "name": "Single-Leg Stance Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Single-leg support changes loading, balance, failure consequence, and stop rules.",
+      "distinguishingDimensions": {
+        "variant": "single_leg"
+      }
+    },
+    {
+      "name": "Unstable-Surface Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "An unstable surface changes support, balance, logistics, and failure behavior.",
+      "distinguishingDimensions": {
+        "variant": "unstable_surface"
+      }
+    },
+    {
+      "name": "Eyes-Closed Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Removing vision changes sensory demand, balance risk, and supervision.",
+      "distinguishingDimensions": {
+        "variant": "eyes_closed"
+      }
+    },
+    {
+      "name": "Alternating Feet Every Repetition",
+      "classification": "new_variant",
+      "rationale": "Switching feet each repetition changes sequencing, duration, transition, and count.",
+      "distinguishingDimensions": {
+        "variant": "alternating_feet"
+      }
+    },
+    {
+      "name": "Split-Stance Toe Yoga",
+      "classification": "new_variant",
+      "rationale": "Split stance changes support geometry, weight distribution, and target-foot loading.",
+      "distinguishingDimensions": {
+        "variant": "split_stance"
+      }
+    },
+    {
+      "name": "Toe Spread-Out Exercise",
+      "classification": "new_definition",
+      "rationale": "Toe spreading uses multi-direction extension and abduction rather than the selective two-phase cycle.",
+      "distinguishingDimensions": {
+        "definition": "toe_spread_out"
+      }
+    },
+    {
+      "name": "Short-Foot Drill",
+      "classification": "new_definition",
+      "rationale": "Short-foot shortens and raises the arch without selective toe extension.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "f8e6217e-1f08-465c-b533-308316c8602e"
+      }
+    },
+    {
+      "name": "Foot Tripod Weight Shifts",
+      "classification": "new_definition",
+      "rationale": "Pressure shifts move whole-foot load rather than alternate toe groups.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "3370a943-9672-49da-b28c-3940470091e1"
+      }
+    },
+    {
+      "name": "Big Toe Press Iso Hold",
+      "classification": "new_definition",
+      "rationale": "A sustained hallux press uses time-based isometric dose rather than a two-phase cycle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "285b2fe4-707c-41af-9382-08597788407f"
+      }
+    },
+    {
+      "name": "Towel Curl or Toe-Grip Exercise",
+      "classification": "new_definition",
+      "rationale": "Toe flexion and gripping reverse the action and add implement interaction.",
+      "distinguishingDimensions": {
+        "definition": "toe_flexion_grip"
+      }
+    },
+    {
+      "name": "Maximal Selective Toe-Extension Assessment",
+      "classification": "new_definition",
+      "rationale": "Maximal measurement changes purpose, effort, validity, instrumentation, and clinical interpretation.",
+      "distinguishingDimensions": {
+        "definition": "maximal_assessment"
+      }
+    },
+    {
+      "name": "Short Foot to Calf Raise",
+      "classification": "new_definition",
+      "rationale": "Arch activation plus plantarflexion raise is a compound sequence.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "a1f96711-3528-4b38-b51a-9f087caa9735"
+      }
+    }
+  ]
+}

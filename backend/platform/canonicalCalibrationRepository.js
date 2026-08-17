@@ -119,7 +119,7 @@ export async function reviewCanonicalCalibration(pool, facilityId, calibrationId
   const decision = String(raw.decision || '')
   const notes = String(raw.notes || '').trim()
   if (!['approved', 'rejected'].includes(decision)) throw new RangeError('Decision must be approved or rejected.')
-  if (notes.length < 10 || notes.length > 2000) throw new RangeError('Review notes must contain 10 to 2000 characters.')
+  if (notes.length < 20 || notes.length > 2000) throw new RangeError('Review notes must contain 20 to 2000 characters.')
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

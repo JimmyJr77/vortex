@@ -1,5 +1,40 @@
 export type CanonicalCardStatus = 'draft' | 'review' | 'published' | 'deprecated' | 'archived'
 
+export interface CanonicalTaxonomyV2Assignment {
+  id?: string
+  termId?: number
+  facetType: string
+  key: string
+  name?: string
+  domain?: string | null
+  scope: 'definition' | 'variant' | 'delivery_profile'
+  role: 'primary' | 'secondary' | 'compatible' | 'incompatible' | 'default'
+  weight: number
+  confidence: number
+  reviewStatus: 'suggested' | 'review' | 'approved' | 'rejected'
+  reviewedBy?: number | null
+  reviewedAt?: string | null
+  provenance?: Record<string, unknown>
+}
+
+export interface CanonicalTaxonomyV2Decision {
+  id?: string
+  facetType: string
+  scope: 'definition' | 'variant' | 'delivery_profile'
+  decision: 'classified' | 'not_applicable'
+  rationale?: string | null
+  confidence: number
+  reviewStatus: 'suggested' | 'review' | 'approved' | 'rejected'
+  reviewedBy?: number | null
+  reviewedAt?: string | null
+  provenance?: Record<string, unknown>
+}
+
+export interface CanonicalTaxonomyV2Block {
+  assignments: CanonicalTaxonomyV2Assignment[]
+  decisions: CanonicalTaxonomyV2Decision[]
+}
+
 export interface CanonicalDeliveryProfile {
   id?: string | null
   profileKey: string
@@ -21,6 +56,7 @@ export interface CanonicalDeliveryProfile {
   doseScaling: Record<string, unknown>
   measurement: Record<string, unknown>
   supportPrompts: Record<string, unknown>
+  taxonomyV2?: CanonicalTaxonomyV2Block | null
 }
 
 export interface CanonicalVariant {
@@ -29,6 +65,43 @@ export interface CanonicalVariant {
   displayName: string
   modifierKeys: string[]
   difficulty: Record<string, number>
+  movementGeometry: {
+    planes: string[]
+    projections: string[]
+    directions: string[]
+    supports: string[]
+    stances: string[]
+    limbRelationships: string[]
+  }
+  anatomyProfile: {
+    assignments: Array<{
+      key: string
+      kind: 'body_region' | 'joint' | 'muscle' | 'tissue' | 'joint_action' | 'muscle_action'
+      role: 'primary_target' | 'secondary_target' | 'stabilizer' | 'mobility_target' | 'stress_exposure'
+    }>
+  }
+  equipmentRoles: Array<{
+    key: string
+    role: 'required' | 'optional' | 'substitute' | 'measurement' | 'safety_support'
+    quantityPerStation: number | null
+    conditions: Record<string, unknown>
+  }>
+  taskDemands: Record<string, number | null>
+  stressProfile: Record<string, number | string[] | null>
+  scalingHandles: Array<{
+    dimension: string
+    boundary: 'prescription' | 'delivery_profile' | 'exact_variant' | 'exercise_definition'
+    easier: string | null
+    harder: string | null
+    limits: Record<string, unknown>
+  }>
+  compositionProfile: Record<string, unknown>
+  structuredProfileReview: {
+    reviewStatus: 'suggested' | 'review' | 'approved' | 'rejected'
+    provenance: Record<string, unknown>
+    reviewedBy?: number | null
+    reviewedAt?: string | null
+  }
   loadProfile: {
     gripDemand: number
     spinalLoading: number
@@ -45,6 +118,7 @@ export interface CanonicalVariant {
   }
   requirements: Record<string, unknown>
   programming: Record<string, unknown>
+  taxonomyV2?: CanonicalTaxonomyV2Block | null
   profiles: CanonicalDeliveryProfile[]
 }
 
@@ -79,6 +153,7 @@ export interface CanonicalCard {
     laterality: string
   }
   approvedVideoUrl: string | null
+  taxonomyV2?: CanonicalTaxonomyV2Block | null
   createdBy?: number | null
   updatedAt?: string
   variants: CanonicalVariant[]
@@ -88,6 +163,13 @@ export interface CanonicalCard {
     demonstrationQualityScore: number | null
     linkStatus: 'pending' | 'healthy' | 'broken' | 'mismatched'
     notes?: string | null
+    reviewBasis?: {
+      reviewMethod?: 'manual_playback'
+      playbackReviewed?: boolean
+      exactVariantCompared?: boolean
+      linkChecked?: boolean
+      accessibilityChecked?: boolean
+    }
   } | null
   readiness?: {
     ready: boolean

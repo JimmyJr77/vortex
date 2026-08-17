@@ -1,0 +1,723 @@
+{
+  "facilityId": 1,
+  "slug": "half-kneeling-ankle-dorsiflexion-pulse",
+  "researchVersion": "2026-08-09.108",
+  "assessmentSummary": {
+    "identity": "One Half-Kneeling Ankle Dorsiflexion Pulse starts with the rear knee and lower leg supported on a pad and the target-side front foot planted through the heel, first metatarsal head, and fifth metatarsal head. Establish a comfortable forward knee-over-middle-toes endpoint without lifting or spinning the target foot. The initial move to that endpoint is setup, not a repetition. Retreat the knee only a small declared distance without returning to the upright half-kneeling start, then re-advance to the same comfortable endpoint. One partial retreat-and-re-advance is one pulse. Front-foot distance, comfortable endpoint, partial-retreat distance, mat thickness, light fingertips on the front thigh without unloading the target foot, visual knee-path target, tempo, breathing prompt, pulse count, sets, rest, and workout context are annotations. A full return to the upright start, standing support, hand-loaded wall support, an isometric hold, resistance band, external load, elevated front foot, active dorsiflexor lift, clinician assistance, calf raise, clinical measurement, or added sport action changes the task.",
+    "currentCardFindings": [
+      "Source 41 is not a direct duplicate of Sources 40, 875, or 1359: rear-knee floor contact changes the support base, balance demand, logistics, duration, comfort constraints, and exact repetition contract.",
+      "The current canonical definition and baseline variant are skeletal: anatomy, controlled support contacts, load, fatigue, recovery, environment, population constraints, exact pulse endpoints and count, duration, substitutions, coach support, athlete support, persistence, evidence, calibration, and automated test gates are absent.",
+      "The legacy prose says pulse in and out of end range but does not define whether the first advance counts or whether the knee returns to the upright start. The Vortex exact contract treats the first advance as setup and counts one small retreat-and-re-advance while remaining near end range; this candidate definition requires qualified human review.",
+      "The legacy age floor, publication state, generic 1 x 10 dose, 20/10/20 scores, and three media IDs lack exact-card calibration, full playback, exactness, captions, accessibility, cue-quality, safety, reviewer, and approval evidence. The kettlebell and active-dorsiflexor video titles indicate adjacent variants and remain quarantined candidates."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "squat",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "support": "half_kneeling_rear_knee_and_lower_leg_padded_front_target_foot_tripod_fixed",
+      "laterality": "unilateral_target_ankle_with_contralateral_rear_knee_support",
+      "planes": [
+        "sagittal",
+        "multiplanar_stabilization"
+      ],
+      "equipment": [
+        "mat"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 22,
+      "absoluteLoadDemand": 14,
+      "physicalDifficulty": 14,
+      "coordinationDemand": 20,
+      "supervisionDemand": 14,
+      "failureConsequence": 14,
+      "impact": 1,
+      "workCapacityDemand": 14,
+      "baseOverallDifficulty": 22,
+      "variantScores": {
+        "halfKneelingEndRangePulse": {
+          "technicalComplexity": 22,
+          "absoluteLoadDemand": 14,
+          "physicalDifficulty": 14,
+          "coordinationDemand": 20,
+          "supervisionDemand": 14,
+          "failureConsequence": 14,
+          "impact": 1,
+          "workCapacityDemand": 14,
+          "baseOverallDifficulty": 22
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "unloaded_bodyweight_shift_through_front_target_foot_with_rear_knee_and_lower_leg_support",
+      "impactClass": "none",
+      "primaryExposure": [
+        "target_ankle_weight_bearing_dorsiflexion_near_comfortable_end_range",
+        "target_foot_tripod_support",
+        "target_knee_flexion_and_tracking",
+        "rear_knee_and_lower_leg_floor_contact",
+        "controlled_small_amplitude_tibial_progression"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "pulsesPerSide": "4-10",
+      "secondsPerPulse": "2-5",
+      "rest": "15-45_seconds_or_as_needed_to_preserve_front_heel_and_tripod_rear_knee_comfort_partial_retreat_exact_endpoint_knee_path_breathing_and_symptom_rules",
+      "durationRule": "setup_and_pad_adjustment_plus_initial_uncounted_endpoint_advance_plus_actual_valid_pulse_seconds_plus_side_change_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit"
+    },
+    "programmingDecision": "Select only when a clean mat, nonslip floor, sufficient half-kneeling space, comfortable rear-knee and lower-leg support, comfortable target-foot loading, heel and tripod contact, exact small partial-retreat pulse comprehension, symptoms, dose, duration, and cumulative foot, ankle, Achilles, calf, knee, kneeling, lunge, squat, landing, sprint, cutting, kicking, and balance budgets fit. Do not silently return to the upright start, stand, add loaded hand support, force range, chase a diagnostic threshold, lift or spin the target foot, add a band, kettlebell, elevation, active dorsiflexor lift, isometric hold, calf raise, clinician-applied force, or claim the pulse proves readiness or changes performance. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Peer-reviewed half-kneeling closed-chain dorsiflexion measurement, weight-bearing lunge reliability and radiographic-validity research, randomized self-mobilization research, current YouTube oEmbed metadata, and exact comparison with standing rocker, isometric press, ankle CAR, calf-strength, calf-pulse, banded, loaded, elevated, activation, and clinical-test neighbors",
+      "uncertainty": "The evidence evaluates half-kneeling measurement, clinical populations, standing lunges, banded or loaded mobilizations, or multimodal interventions; none validates the complete unloaded Vortex end-range pulse contract, count, universal support geometry, range, alignment, dose, frequency, fatigue ceiling, recovery interval, progression order, population eligibility, warm-up outcome, injury-prevention effect, or Vortex score. No media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "pulse_endpoint_and_count_contract_review",
+        "ankle_foot_knee_and_rear_knee_anatomy_load_review",
+        "mat_kneeling_and_floor_safety_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T13:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Place the rear knee and lower leg on a pad and plant the target-side front foot through the heel, first metatarsal head, and fifth metatarsal head. Advance the front knee over the middle toes to a comfortable endpoint without lifting or spinning the foot; this first advance is setup, not a repetition. Retreat only a small declared distance without returning to the upright half-kneeling start, then re-advance to the same endpoint. Count one partial retreat-and-re-advance as one pulse. Foot placement, comfortable endpoint, retreat distance, pad thickness, light fingertips on the front thigh without unloading the foot, visual target, tempo, breathing, dose, rest, and workout context are annotations. Full return, standing, loaded hand support, a hold, band, weight, elevation, active dorsiflexor lift, clinician force, calf raise, clinical measurement, or added sport action changes the task.",
+      "familyKey": "half_kneeling_ankle_dorsiflexion_end_range_pulse",
+      "movementPatterns": [
+        "squat",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "mat"
+      ],
+      "optionalEquipment": [
+        "none"
+      ],
+      "variantKey": "rear-knee-supported-end-range-pulse",
+      "environment": {
+        "space": "one half-kneeling station with front-foot pulse side-change entry and exit clearance no cross traffic and a clear controlled exit route",
+        "surface": "clean flat dry stable nonslip floor with an intact clean mat under the rear knee and lower leg",
+        "changeRule": "Any support contact pad surface hand loading external force load action endpoint count dose symptom space or downstream-demand change requires full revalidation.",
+        "inspection": [
+          "mat integrity cleanliness thickness traction and placement",
+          "floor traction cleanliness and debris",
+          "front-foot and footwear compatibility",
+          "neighbor and cross-traffic separation",
+          "entry side-change exit sightline communication and emergency route"
+        ],
+        "equipmentKey": "mat",
+        "coachSightline": "front-quarter and side views of pad rear knee and lower leg front heel tripod knee path endpoints pelvis trunk breathing and symptoms",
+        "stationCapacity": 1,
+        "optionalEquipment": [
+          "none"
+        ]
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night post-trauma sharp increasing or unfamiliar pain",
+          "new numbness tingling weakness altered circulation or loss of control",
+          "front foot ankle Achilles calf knee rear knee hip or back symptoms preventing exact task",
+          "inability to kneel change sides rise or exit safely",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness disorientation or inability to communicate",
+          "clinical restriction conflicting with weight-bearing dorsiflexion or kneeling",
+          "unsafe mat floor footwear space traffic sightline or emergency route",
+          "participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe controlled kneeling entry side change and exit",
+          "clean intact stable mat and nonslip floor",
+          "comfortable rear-knee and lower-leg support",
+          "comfortable front-foot loading with heel and tripod contact",
+          "comfortable front-knee progression and small partial retreat and re-advance",
+          "understands initial setup is uncounted exact pulse count and stop signal",
+          "same-session foot ankle Achilles calf knee kneeling lunge squat landing sprint cutting kicking and balance budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility normal range ideal alignment foot position retreat amplitude or joint contribution",
+          "diagnosis treatment prevention correction readiness clearance or clinical threshold",
+          "isolated tissue or talocrural motion",
+          "one universal dose frequency fatigue ceiling recovery progression or warm-up outcome",
+          "guaranteed squat landing sprint cutting or kicking transfer",
+          "age floor or participant classification"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {
+        "impact": 1,
+        "scoringScope": "exact_rear_knee_supported_unloaded_end_range_pulse",
+        "overallFormula": "max_exercise_complexity_physical_difficulty",
+        "supervisionDemand": 14,
+        "absoluteLoadDemand": 14,
+        "coordinationDemand": 20,
+        "failureConsequence": 14,
+        "physicalDifficulty": 14,
+        "workCapacityDemand": 14,
+        "humanReviewRequired": true,
+        "technicalComplexity": 22,
+        "baseOverallDifficulty": 22,
+        "exerciseScoresDescribeTaskOnly": true,
+        "independentCalibrationRequired": true,
+        "participantClassificationAbsent": true
+      },
+      "loadProfile": {
+        "tracking": [
+          "variant_and_profile",
+          "mat_floor_and_footwear",
+          "side_and_side_order",
+          "planned_and_actual_valid_pulses",
+          "initial_endpoint_front_foot_position_and_retreat_amplitude",
+          "tempo_and_pauses",
+          "valid_invalid_partial_and_symptom_limited_attempts",
+          "rear_knee_heel_tripod_foot_rotation_knee_path_endpoint_and_count_faults",
+          "first_fault",
+          "symptoms",
+          "rest",
+          "duration",
+          "same_session_ankle_lower_leg_kneeling_lower_body_and_sport_exposure"
+        ],
+        "gripDemand": 1,
+        "impactClass": "none",
+        "jointStress": 14,
+        "loadingType": "unloaded_bodyweight_closed_chain_unilateral_target_ankle_small_amplitude_weight_shift_with_rear_knee_support",
+        "spinalLoading": 4,
+        "eccentricStress": 8,
+        "primaryExposure": [
+          "target_ankle_weight_bearing_dorsiflexion_near_comfortable_endpoint",
+          "target_foot_tripod_support",
+          "front_knee_small_flexion_and_extension",
+          "rear_knee_and_lower_leg_floor_support",
+          "small_amplitude_tibial_progression"
+        ],
+        "externalLoadMethod": "none_body_mass_through_front_target_foot_and_padded_rear_knee_support",
+        "landingContactsPerRep": 0,
+        "handImpactContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 1,
+        "interference": [
+          "later_high_priority_landing_sprint_cutting_kicking_squat_or_ankle_work",
+          "same_session_foot_ankle_Achilles_calf_knee_kneeling_or_balance_loading",
+          "fatigue_that_changes_pad_support_heel_tripod_knee_path_endpoint_retreat_readvance_or_count"
+        ],
+        "recoveryHours": 8,
+        "cumulativeBudget": {
+          "impact": 0,
+          "pulsesPerSide": 30,
+          "ankleMobilityLoad": 26,
+          "calfAchillesExposure": 24,
+          "technicalSensitivity": 22,
+          "kneelingSecondsPerSide": 240,
+          "weightBearingDorsiflexionSecondsPerSide": 180
+        },
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 14,
+        "recoveryRangeHours": [
+          4,
+          18
+        ],
+        "primaryFatigueSites": [
+          "target_foot_and_ankle_stabilizers",
+          "soleus_and_calf",
+          "front_quadriceps",
+          "rear_knee_and_hip_support",
+          "hip_and_trunk_stabilizers",
+          "attention_to_endpoint_and_count"
+        ],
+        "recoveryIsPlanningEstimate": true,
+        "technicalFatigueSensitivity": 22,
+        "tissueThresholdNotEstablished": true
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "sourceTitle": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The study describes a closed-chain half-kneeling position with the target foot forward, body weight moving forward, and the heel kept down.",
+        "It does not define repeated end-range pulses, so Vortex's rear-knee support, partial-retreat endpoint, and count are an explicit candidate contract requiring review."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23997389/",
+      "sourceTitle": "Reliability and validity of a weight-bearing measure of ankle dorsiflexion range of motion",
+      "sourcePublisher": "Physiotherapy Canada",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Weight-bearing dorsiflexion uses a planted target foot and forward tibial progression rather than ankle circumduction, calf raising, or impact.",
+        "Half-kneeling support and an end-range pulse are controlled task dimensions; they do not classify participant skill or proficiency."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31337266/",
+      "sourceTitle": "How Much Does the Talocrural Joint Contribute to Ankle Dorsiflexion Range of Motion During the Weight-Bearing Lunge Test? A Cross-sectional Radiographic Validity Study",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Weight-bearing lunge displacement reflects a multisegment task and is not an isolated talocrural measure.",
+        "The card tracks foot, ankle, calf, knee, hip, rear-knee support, and trunk stabilization while avoiding single-tissue or diagnostic claims."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "sourceTitle": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The published half-kneeling measure advances body weight over the forward foot while the heel remains down.",
+        "Vortex adds a fixed foot tripod, middle-toe corridor, comfortable endpoint, small partial retreat, re-advance, and no-upright-return boundary for a countable pulse."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23997389/",
+      "sourceTitle": "Reliability and validity of a weight-bearing measure of ankle dorsiflexion range of motion",
+      "sourcePublisher": "Physiotherapy Canada",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Repeatable planted-foot execution requires position and contact control but has low external load and no impact.",
+        "The 22/14/22 proposal describes exercise complexity and physical difficulty only, not participant skill, and remains queued for independent calibration."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31935136/",
+      "sourceTitle": "Ankle-Joint Self-Mobilization and CrossFit Training in Patients With Chronic Ankle Instability: A Randomized Controlled Trial",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "The trial combined multiple ankle self-mobilizations with CrossFit in participants with chronic ankle instability, including a loaded kneeling-lunge exercise.",
+        "That protocol cannot establish fatigue or recovery for this unloaded pulse; track actual pulses, range, contact, first fault, symptoms, kneeling time, and overlapping lower-leg work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/42486468/",
+      "sourceTitle": "Sensory-Mapping During the Weight-Bearing Lunge Test Across Chronic Ankle Instability, Copers, and Healthy Controls",
+      "sourcePublisher": "Journal of Sport Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sensation and pain reports during weight-bearing dorsiflexion vary across people and groups.",
+        "Selection therefore uses individual front-foot, ankle, calf, knee, rear-knee, kneeling, balance, surface, communication, and cumulative-work checks rather than a demographic or diagnostic threshold."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31935136/",
+      "sourceTitle": "Ankle-Joint Self-Mobilization and CrossFit Training in Patients With Chronic Ankle Instability: A Randomized Controlled Trial",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "The randomized protocol used three distinct self-mobilization tasks and a clinical population, so its dose is not transferable to an unloaded end-range pulse as a universal prescription.",
+        "Vortex's one to three sets of four to ten pulses per side is quarantined delivery guidance and must stop before contacts, endpoints, symptoms, or count degrade."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "sourceTitle": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct half-kneeling procedure supplies the forward-foot and heel-down setup.",
+        "Vortex adds rear-knee padding, tripod contact, initial uncounted endpoint setup, small retreat, same-endpoint re-advance, exact pulse count, side change, and stop and persistence rules."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/42486468/",
+      "sourceTitle": "Sensory-Mapping During the Weight-Bearing Lunge Test Across Chronic Ankle Instability, Copers, and Healthy Controls",
+      "sourcePublisher": "Journal of Sport Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Pain and sensation location during weight-bearing dorsiflexion are variable and cannot be assigned one universal normal interpretation.",
+        "Stop for sharp, increasing, unfamiliar, unstable, neurologic, circulatory, systemic, or rear-knee symptoms; lost contacts; unsafe mat or floor; or a participant request, then follow facility escalation rules."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39514236/",
+      "sourceTitle": "Effect duration of a self-applied talocrural joint mobilization on restricted dorsiflexion: a repeated measures design",
+      "sourcePublisher": "Journal of Manual & Manipulative Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "A banded self-mobilization changed static weight-bearing lunge dorsiflexion transiently but did not change dynamic forward-step-down dorsiflexion in the study.",
+        "This unloaded pulse may be used as preparation when constraints fit, but it cannot be claimed to guarantee transfer to squat, landing, sprint, cutting, or kicking tasks."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "sourceTitle": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Half-kneeling provides visible front-foot, heel, forward-knee, and rear-knee checkpoints.",
+        "Athlete support must also explain the uncounted first advance, small retreat, re-advance count, rear-knee comfort, permitted smaller range, unexpected symptoms, safe side change, and how to stop."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23997389/",
+      "sourceTitle": "Reliability and validity of a weight-bearing measure of ankle dorsiflexion range of motion",
+      "sourcePublisher": "Physiotherapy Canada",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Repeatable weight-bearing dorsiflexion measurement depends on standardized setup and contact observation.",
+        "Coach support must observe pad, rear-knee support, front heel and tripod, knee path, endpoints, range, foot rotation, trunk, breathing, first fault, actual exposure, symptoms, and downstream demands without diagnosing restriction."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "sourceTitle": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The half-kneeling position can be demonstrated through visible support and heel-contact landmarks.",
+        "A thicker pad, smaller comfortable endpoint, shorter retreat, slower tempo, fewer pulses, more rest, visual marks, still images, captions, or live instruction can preserve the task; standing, elevated, wall-loaded, or clinician-assisted support requires separate review."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31935136/",
+      "sourceTitle": "Ankle-Joint Self-Mobilization and CrossFit Training in Patients With Chronic Ankle Instability: A Randomized Controlled Trial",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "The trial distinguishes banded step-supported mobilization, kettlebell-loaded kneeling dorsiflexion, and seated band-pull tasks.",
+        "Standing rockers, full-return kneeling rockers, banded, loaded, elevated, isometric, active-lift, calf-strength, calf-pulse, ankle-CAR, and clinical-test tasks remain distinct alternatives."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-10.",
+        "oEmbed health does not prove playback, unloaded half-kneeling support, exact partial-retreat pulse, contacts, endpoints, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval; two titles explicitly indicate kettlebell load or active end-range activation."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Kn-TjcmuzYQ",
+      "title": "Half Kneeling Ankle Mobility - Kinetic U Exercise Series",
+      "channelName": "Tangelo - Seattle Chiropractor + Rehab",
+      "sourceQuery": "Source 41 legacy candidate checked by YouTube oEmbed; full exact-pulse review pending",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T13:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NrZ4NuSlJ88",
+      "title": "How to Do a Half Kneel Ankle Dorsiflexion Self-Mobilization Exercise | MedBridge",
+      "channelName": "Medbridge",
+      "sourceQuery": "Source 41 legacy candidate checked by YouTube oEmbed; full exact-pulse review pending",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T13:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=wIUdrQsqhKs",
+      "title": "Open Half Kneeling Ankle Mobility with KB",
+      "channelName": "The Setup - Golf Performance by Tiffany",
+      "sourceQuery": "Source 41 legacy candidate checked by YouTube oEmbed; title indicates a loaded adjacent variant",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T13:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yc27kCW8aco",
+      "title": "Half kneeling ankle mobilization",
+      "channelName": "Jakob Richloow",
+      "sourceQuery": "Half-kneeling ankle-mobilization candidate checked by YouTube oEmbed; full exact-pulse review pending",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T13:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1uk2j8TyHvk",
+      "title": "Half Kneeling Ankle Dorsiflexion with End Range Activation",
+      "channelName": "Keep It Moving Physical Therapy & Wellness",
+      "sourceQuery": "Half-kneeling candidate checked by YouTube oEmbed; title and public description indicate an active end-range lift adjacent variant",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T13:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Half-Kneeling Ankle Dorsiflexion Pulse",
+      "classification": "same_identity",
+      "rationale": "Source 41's name matches the rear-knee-supported, planted-front-foot end-range pulse contract.",
+      "distinguishingDimensions": {
+        "legacySourceId": 41
+      }
+    },
+    {
+      "name": "Half-Kneeling End-Range Ankle Pulse",
+      "classification": "same_identity",
+      "rationale": "This alias preserves support, contacts, partial retreat, re-advance, and count.",
+      "distinguishingDimensions": {
+        "alias": true
+      }
+    },
+    {
+      "name": "Comfortable Forward Endpoint",
+      "classification": "modifier_annotation",
+      "rationale": "A smaller symptom-free endpoint changes amplitude without changing support, pulse action, or count.",
+      "distinguishingDimensions": {
+        "modifier": "range"
+      }
+    },
+    {
+      "name": "Declared Partial-Retreat Distance",
+      "classification": "modifier_annotation",
+      "rationale": "A small retreat distance is a pulse parameter while the knee remains near end range and returns to the same endpoint.",
+      "distinguishingDimensions": {
+        "modifier": "pulse_amplitude"
+      }
+    },
+    {
+      "name": "Front-Foot Placement",
+      "classification": "modifier_annotation",
+      "rationale": "Declared foot placement is a setup parameter when contacts and the pulse contract remain fixed.",
+      "distinguishingDimensions": {
+        "modifier": "foot_position"
+      }
+    },
+    {
+      "name": "Light Fingertips on Front Thigh",
+      "classification": "modifier_annotation",
+      "rationale": "Light non-unloading contact may support orientation while preserving front-foot and rear-knee loading.",
+      "distinguishingDimensions": {
+        "modifier": "orientation_support"
+      }
+    },
+    {
+      "name": "Mat Thickness or Rear-Knee Padding",
+      "classification": "modifier_annotation",
+      "rationale": "Approved padding changes comfort but not the rear-knee support identity.",
+      "distinguishingDimensions": {
+        "modifier": "padding"
+      }
+    },
+    {
+      "name": "Controlled Tempo or Brief Endpoint Pause",
+      "classification": "modifier_annotation",
+      "rationale": "Pace and a brief pause change exposure time while preserving the pulse sequence.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "tempo",
+          "pause"
+        ]
+      }
+    },
+    {
+      "name": "Pulse Count Sets Rest or Side Order",
+      "classification": "modifier_annotation",
+      "rationale": "Volume, recovery, and side sequence change delivery rather than identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "pulses",
+          "sets",
+          "rest",
+          "side_order"
+        ]
+      }
+    },
+    {
+      "name": "Visual Knee Target or Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Non-contact visual and breathing prompts clarify execution without adding an action.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "visual_target",
+          "breathing_prompt"
+        ]
+      }
+    },
+    {
+      "name": "Half-Kneeling Full-Return Ankle Rocker",
+      "classification": "new_variant",
+      "rationale": "Returning to the upright half-kneeling start changes the endpoint and repetition count.",
+      "distinguishingDimensions": {
+        "return": "upright_start"
+      }
+    },
+    {
+      "name": "Wall-Supported Half-Kneeling Ankle Pulse",
+      "classification": "new_variant",
+      "rationale": "Meaningful hand loading on a wall changes support, load distribution, station needs, and balance demand.",
+      "distinguishingDimensions": {
+        "support": "wall_hand_load"
+      }
+    },
+    {
+      "name": "Band-Assisted Half-Kneeling Talocrural Mobilization",
+      "classification": "new_variant",
+      "rationale": "External band force changes equipment, anchor safety, force direction, setup, and clinical scope.",
+      "distinguishingDimensions": {
+        "externalForce": "resistance_band"
+      }
+    },
+    {
+      "name": "Kettlebell-Loaded Half-Kneeling Dorsiflexion",
+      "classification": "new_variant",
+      "rationale": "A kettlebell on the front knee changes load, physical difficulty, balance, failure consequences, and supervision.",
+      "distinguishingDimensions": {
+        "externalLoad": "kettlebell"
+      }
+    },
+    {
+      "name": "Elevated-Front-Foot Half-Kneeling Mobilization",
+      "classification": "new_variant",
+      "rationale": "A step or box changes support geometry, equipment, range interpretation, and fall exposure.",
+      "distinguishingDimensions": {
+        "supportSurface": "elevated"
+      }
+    },
+    {
+      "name": "Half-Kneeling Dorsiflexion with End-Range Activation",
+      "classification": "new_variant",
+      "rationale": "Actively lifting the forefoot at end range adds dorsiflexor contraction and a timed activation action.",
+      "distinguishingDimensions": {
+        "addedAction": "active_dorsiflexor_lift"
+      }
+    },
+    {
+      "name": "Clinician-Assisted Half-Kneeling Mobilization",
+      "classification": "new_variant",
+      "rationale": "Manual force, clinical interpretation, consent, provider scope, and documentation change the task and service.",
+      "distinguishingDimensions": {
+        "externalForce": "clinician_applied"
+      }
+    },
+    {
+      "name": "Standing Knee-to-Wall Ankle Rocker",
+      "classification": "new_definition",
+      "rationale": "Source 40 uses staggered standing bilateral-foot support and a complete forward-and-return cycle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c12b9ae2-11a4-4cdf-96dd-280b291ca71c"
+      }
+    },
+    {
+      "name": "Wall Ankle Dorsiflexion Iso Press",
+      "classification": "new_definition",
+      "rationale": "Source 844 sustains an isometric press rather than repeating a small dynamic pulse.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "125efcdf-97fd-46e1-8a77-acaa666059ed"
+      }
+    },
+    {
+      "name": "Ankle CARs",
+      "classification": "new_definition",
+      "rationale": "Source 42 uses controlled ankle circumduction rather than weight-bearing sagittal pulsing.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "2157c8df-d013-4946-a6dd-2e0dedc3fe42"
+      }
+    },
+    {
+      "name": "Wall Lean Calf-Soleus Pulse",
+      "classification": "new_definition",
+      "rationale": "Source 1364 uses standing wall-lean support and a plantarflexor lower-leg pulse rather than rear-knee-supported dorsiflexion.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "a6e3e835-2c13-4ce0-8d12-242904317c9d"
+      }
+    },
+    {
+      "name": "Calf Raise to Controlled Heel Drop",
+      "classification": "new_definition",
+      "rationale": "Source 44 lifts and lowers the heel through plantarflexion and eccentric return.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "292eabbb-1676-4d7f-9eed-147f6adcf8f4"
+      }
+    },
+    {
+      "name": "Clinical Half-Kneeling Dorsiflexion Test",
+      "classification": "new_definition",
+      "rationale": "A standardized maximal measurement adds interpretation, comparison, documentation, consent, and clinical scope.",
+      "distinguishingDimensions": {
+        "scope": "clinical_measurement"
+      }
+    },
+    {
+      "name": "Static Bent-Knee Calf or Soleus Stretch",
+      "classification": "new_definition",
+      "rationale": "A sustained stretch has a hold duration and tissue-bias contract rather than repeated retreat-and-re-advance pulses.",
+      "distinguishingDimensions": {
+        "action": "static_hold"
+      }
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "batchKey": "knee-to-wall-ankle-rocker-v1",
+  "researchVersion": "2026-08-09.107",
+  "snapshotAt": "2026-08-10T04:05:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/knee-to-wall-ankle-rockers",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "knee-to-wall-ankle-rockers",
+      "assessmentSummary": {
+        "identity": "One standing Knee-to-Wall Ankle Rocker uses a staggered stance facing a stable wall or upright target. The target-side foot stays flat with heel, first metatarsal head, and fifth metatarsal head supported while the rear foot provides balance. Move the target-side knee forward toward the wall over the middle toes through a comfortable range without lifting the heel, then return the knee to the declared start while both feet remain planted. One complete forward-and-return cycle is one repetition. Foot-to-wall distance, comfortable range, light fingertip balance support, knee target, tempo, pause, breathing prompt, repetitions, sets, rest, and kicking, landing, squat, or sprint context are annotations when they add no action. Half-kneeling support, a straight-knee calf-stretch contract, a sustained isometric press, added band force, heel or forefoot elevation, loaded resistance, rotation, a calf raise, a clinical measurement protocol, or failure to return changes the task.",
+        "currentCardFindings": [
+          "Source 40 and Source 875 already share one name-level canonical definition, but two skeletal variants remain selectable and neither encodes exact standing support, planted-foot contacts, forward and return endpoints, count, anatomy, load, fatigue, duration, substitution, persistence, coach, athlete, accessibility, or stop-rule contracts.",
+          "Source 1359 Ankle Knee-to-Wall Mobilization describes the same standing support-foot dorsiflexion rocker and adds only kicking plant and pivot context. Sport-transfer wording is a delivery profile, not a distinct exercise identity, when it adds no pivot, kick, strike, load, or balance action.",
+          "Source 41 Half-Kneeling Ankle Dorsiflexion Pulse changes the support base and contact contract; Source 844 Wall Ankle Dorsiflexion Iso Press changes the dynamic forward-and-return cycle to a sustained isometric action. They remain separate.",
+          "The legacy age floors, publication state, generic dose, 20/10/20 scores, and media links lack exact-card calibration, playback, exactness, captions, accessibility, cue-quality, safety, reviewer, and approval evidence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["squat", "brace"],
+          "bodyRegions": ["foot", "ankle", "lower_leg", "knee", "hip", "core"],
+          "support": "standing_staggered_bilateral_foot_support_with_target_foot_tripod_fixed",
+          "laterality": "unilateral_target_side_with_bilateral_stance_support",
+          "planes": ["sagittal", "multiplanar_stabilization"],
+          "equipment": ["wall_or_stable_upright_target"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 18,
+          "absoluteLoadDemand": 12,
+          "physicalDifficulty": 12,
+          "coordinationDemand": 16,
+          "supervisionDemand": 12,
+          "failureConsequence": 12,
+          "impact": 1,
+          "workCapacityDemand": 12,
+          "baseOverallDifficulty": 18,
+          "variantScores": {
+            "standingKneeToWallRocker": {"technicalComplexity": 18, "absoluteLoadDemand": 12, "physicalDifficulty": 12, "coordinationDemand": 16, "supervisionDemand": 12, "failureConsequence": 12, "impact": 1, "workCapacityDemand": 12, "baseOverallDifficulty": 18}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_through_bilateral_feet_with_target_ankle_forward_tibial_progression",
+          "impactClass": "none",
+          "primaryExposure": ["target_ankle_weight_bearing_dorsiflexion", "target_foot_tripod_support", "target_knee_flexion_and_tracking", "rear_foot_balance_support", "controlled_forward_and_backward_center_of_mass_shift"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "completeCyclesPerSide": "4-10",
+          "secondsPerCycle": "3-8",
+          "rest": "15-45_seconds_or_as_needed_to_preserve_planted_target_heel_and_tripod_clean_knee_path_controlled_return_balance_breathing_and_symptom_rules",
+          "durationRule": "setup_and_side_change_plus_actual_valid_cycle_seconds_plus_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit"
+        },
+        "programmingDecision": "Select only when a stable wall or upright, nonslip floor, sufficient staggered-stance space, safe standing balance, comfortable target-foot loading, heel and tripod contact, controlled forward knee path and return, symptoms, dose, duration, and cumulative foot, ankle, Achilles, calf, knee, lunge, squat, landing, sprint, cutting, kicking, and balance budgets fit. Do not silently kneel, add a band, force knee-to-wall contact, chase a diagnostic threshold, lift the heel, collapse or rotate the foot, add a calf raise, convert the rep to an isometric hold, or claim the drill proves readiness or changes performance. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Peer-reviewed weight-bearing lunge protocols and reliability, radiographic-validity, symptom-mapping, and intervention studies; current YouTube oEmbed metadata; and exact comparison across Sources 40, 875, and 1359 plus the half-kneeling pulse, isometric press, Ankle CAR, foot-control, calf-strength, and impact neighbors",
+          "uncertainty": "The studies primarily evaluate or use a weight-bearing lunge test or combine other interventions; none validates the complete Vortex repetition contract, universal stance, foot distance, knee target, range, alignment, dose, frequency, fatigue ceiling, recovery interval, progression order, population eligibility, warm-up outcome, injury-prevention effect, kicking transfer, or Vortex score. Talocrural motion is not the only contributor to the measured lunge, and no media candidate has been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "three_source_identity_consolidation_review", "ankle_foot_knee_anatomy_and_load_review", "standing_balance_and_wall_station_safety_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"weight_bearing_lunge_knee_to_wall_protocol_2020","claims":["The published knee-to-wall protocol uses a standing lunge, second toe and heel aligned perpendicular to the wall, knee flexion to wall contact, planted heel, and controlled foot progression away from the wall.","Vortex uses the observable standing support, planted target foot, forward knee travel, and return cycle for exercise identity while separating clinical measurement and forced maximal range."]},
+        {"sectionKey":"taxonomy","sourceKey":"weight_bearing_lunge_reliability_validity_2012","claims":["The lunge test is a weight-bearing measure of ankle dorsiflexion with the target foot maintained against the ground while the knee advances toward the wall.","Lunge, ankle dorsiflexion, and balance are controlled workout-planning keys, not participant classifications or guarantees of a particular joint contribution."]},
+        {"sectionKey":"anatomy","sourceKey":"weight_bearing_lunge_radiographic_validity_2019","claims":["The radiographic study examined how much talocrural motion contributes to the horizontal knee travel or tibial inclination measured during the weight-bearing lunge.","The card therefore tracks ankle, foot, knee, and whole-chain stabilization without claiming that measured range isolates the talocrural joint or a single tissue."]},
+        {"sectionKey":"biomechanics","sourceKey":"weight_bearing_lunge_knee_to_wall_protocol_2020","claims":["The protocol monitors heel contact plus foot pronation and supination while the knee advances in a primarily sagittal-plane lunge.","Vortex makes the forward endpoint, planted-foot contacts, controlled return, no forced wall contact, and rotation and collapse boundaries explicit."]},
+        {"sectionKey":"difficulty","sourceKey":"weight_bearing_lunge_reliability_validity_2012","claims":["Reliable execution requires a repeatable planted-foot lunge and observable knee-to-wall relationship but uses low external load and no impact.","The 18/12/18 proposal describes exercise complexity and physical difficulty only and requires independent calibration; it does not classify the participant."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"weight_bearing_anterior_leg_rotation_intervention_2022","claims":["The randomized trial measured weight-bearing anterior leg rotation and reported task-specific changes after combined self-massage, stretching, and optional gastrocnemius exercise.","Track valid cycles, range, stance support, first fault, symptoms, and overlapping ankle and lower-leg work; exact fatigue ceilings and recovery hours remain planning estimates and intervention effects cannot be assigned to this rocker alone."]},
+        {"sectionKey":"constraints","sourceKey":"weight_bearing_lunge_sensation_mapping_2026","claims":["Active adults with chronic ankle instability reported pain more often than controls during the weight-bearing lunge, while stretching was common across groups and sensation location varied.","Selection must use individual symptom, balance, loading, footwear, surface, wall, communication, and cumulative-work checks rather than interpreting one sensation or demographic as clearance."]},
+        {"sectionKey":"dosage","sourceKey":"weight_bearing_lunge_reliability_validity_2012","claims":["A single measurement series was reliable in the studied clinical sample, but the study did not validate exercise repetitions, training sets, frequency, fatigue, recovery, or outcomes.","Vortex's one to three sets of four to ten controlled cycles per side is quarantined delivery guidance requiring coach and calibration review."]},
+        {"sectionKey":"instructions","sourceKey":"weight_bearing_lunge_knee_to_wall_protocol_2020","claims":["The direct protocol supplies observable second-toe and heel alignment, planted heel, knee-to-wall lunge, and foot-pronation or supination monitoring.","Vortex adds a declared start, comfortable rather than maximal range, foot-tripod language, complete forward-and-return count, side-change, stop, persistence, and actual-duration rules."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"weight_bearing_lunge_sensation_mapping_2026","claims":["Pain and sensation location differed among chronic ankle-instability, coper, and control groups during the lunge, so sensation cannot be treated as a universal normal or abnormal response.","Stop for sharp, increasing, unfamiliar, unstable, neurologic, circulatory, or systemic symptoms, loss of safe balance or contact, unsafe equipment or space, or a participant request; follow facility escalation rules."]},
+        {"sectionKey":"programming","sourceKey":"weight_bearing_anterior_leg_rotation_intervention_2022","claims":["Measured weight-bearing lunge changes after a combined intervention did not automatically transfer to the partial-squat measure in that trial.","The rocker may be delivered before lower-body work when its exact constraints fit, but must not be claimed to guarantee squat, landing, sprint, cutting, or kicking performance."]},
+        {"sectionKey":"athlete_support","sourceKey":"weight_bearing_lunge_knee_to_wall_protocol_2020","claims":["The knee-to-wall setup offers visible foot alignment, heel contact, knee travel, wall target, and return checkpoints.","Athlete support must also explain expected calf or ankle effort, permitted smaller range, unexpected symptoms, a complete counted cycle, safe side change, and how to stop and ask for help."]},
+        {"sectionKey":"coach_support","sourceKey":"weight_bearing_lunge_reliability_validity_2012","claims":["Repeatable measurement depends on standardized execution and contact observation.","Coach support must observe stance, heel and tripod contact, knee path, foot rotation, balance, range, return, first fault, actual exposure, symptoms, downstream demands, and station reset without diagnosing restriction or pathology."]},
+        {"sectionKey":"accessibility","sourceKey":"weight_bearing_lunge_reliability_validity_2012","claims":["The test can be observed with a wall target and distance relationship rather than requiring complex equipment.","A closer foot position, smaller comfortable range, slower tempo, fewer cycles, more rest, light fingertip balance support, visual floor marks, still images, or live instruction can preserve the exact standing task; kneeling, elevated, or externally assisted support requires separate review."]},
+        {"sectionKey":"alternates","sourceKey":"weight_bearing_lunge_radiographic_validity_2019","claims":["Horizontal knee travel and tibial inclination during the weight-bearing lunge reflect a multisegment task and are not interchangeable with every ankle mobility or calf exercise.","Half-kneeling pulses, isometric presses, straight-knee stretches, band mobilizations, calf raises, Ankle CARs, foot-control drills, impact work, and clinical tests remain distinct alternatives."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.","oEmbed health does not prove playback, standing rather than kneeling support, exact contacts, action, return count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=33-GE3x-xQM","title":"Ankle Mobility Series: Kneeling Ankle Rockers","channelName":"DSTperformance","sourceQuery":"Source 40 existing candidate checked by YouTube oEmbed; title suggests a possible support-position mismatch requiring full human review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T03:45:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=ElrpduJn92Y","title":"Knee To Wall Exercise for Ankle Mobility","channelName":"Dr. Jess Harvey, Osteopath & Health Coach","sourceQuery":"Source 40 existing candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T03:45:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=Y1IZXkdPPdw","title":"Knee to Wall Ankle Mobility Drill","channelName":"Nick Brattain","sourceQuery":"Source 40 existing candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T03:45:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=qjrNGnubve4","title":"How To Do Ankle Rockers - Tangelo Health","channelName":"Tangelo - Seattle Chiropractor + Rehab","sourceQuery":"Source 40 existing candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T03:45:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=YH7xjrkq7ic","title":"Improve your Ankle Mobility: Knee to Wall","channelName":"The Basketball Doctors","sourceQuery":"Knee-to-wall candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T03:45:00.000Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Standing Knee-to-Wall Ankle Rocker","classification":"same_identity","rationale":"The descriptive name preserves staggered standing support, planted target-foot contacts, forward knee travel, and return.","distinguishingDimensions":{"variant":"standing_knee_to_wall_rocker"}},
+        {"name":"Knee-to-Wall Ankle Rockers","classification":"same_identity","rationale":"Source 40's plural display name describes repetitions of the same exact cycle.","distinguishingDimensions":{"legacySourceId":40}},
+        {"name":"Ankle Knee-to-Wall Rocker","classification":"same_identity","rationale":"Source 875 changes only word order while preserving the same standing knee-to-wall cycle.","distinguishingDimensions":{"legacySourceId":875}},
+        {"name":"Ankle Knee-to-Wall Mobilization","classification":"same_identity","rationale":"Source 1359 adds kicking plant and pivot context but no required pivot, kick, load, or action.","distinguishingDimensions":{"legacySourceId":1359,"deliveryContext":"kicking_plant_and_pivot_prepare"}},
+        {"name":"Comfortable Forward Range","classification":"modifier_annotation","rationale":"A smaller symptom-free knee excursion changes amplitude without changing contacts, action, or count.","distinguishingDimensions":{"modifier":"range"}},
+        {"name":"Foot-to-Wall Distance","classification":"modifier_annotation","rationale":"Declared distance is a setup and range parameter when the rep is not converted to a maximal clinical test.","distinguishingDimensions":{"modifier":"target_distance"}},
+        {"name":"Middle-Toe Visual Knee Target","classification":"modifier_annotation","rationale":"A non-contact visual target clarifies direction without adding an action.","distinguishingDimensions":{"modifier":"knee_path_target"}},
+        {"name":"Light Fingertip Balance Support","classification":"modifier_annotation","rationale":"Non-weight-bearing fingertip contact can support orientation while preserving bilateral foot loading and the ankle action.","distinguishingDimensions":{"modifier":"balance_cue"}},
+        {"name":"Controlled Tempo or Brief Forward Pause","classification":"modifier_annotation","rationale":"Pace and a short pause alter exposure time while preserving the complete cycle.","distinguishingDimensions":{"modifiers":["tempo","pause"]}},
+        {"name":"Repetitions Sets Rest or Side Order","classification":"modifier_annotation","rationale":"Volume, recovery, and side sequence change delivery rather than identity.","distinguishingDimensions":{"modifiers":["repetitions","sets","rest","side_order"]}},
+        {"name":"Squat Landing Sprint Cutting or Kicking Context","classification":"modifier_annotation","rationale":"Session intent is a delivery profile unless another sport action is physically added.","distinguishingDimensions":{"modifier":"delivery_context"}},
+        {"name":"Half-Kneeling Ankle Dorsiflexion Pulse","classification":"new_variant","rationale":"Source 41 adds rear-knee floor contact and a different base and pulse contract.","distinguishingDimensions":{"targetDefinitionId":"ab9faf95-7a17-4c30-ad90-a087ae774b5e","support":"half_kneeling"}},
+        {"name":"Straight-Knee Knee-to-Wall Calf Bias","classification":"new_variant","rationale":"Required knee extension changes the posture, available range, tissue emphasis, and valid endpoint.","distinguishingDimensions":{"knee_position":"extended"}},
+        {"name":"Band-Assisted Talocrural Mobilization","classification":"new_variant","rationale":"External band force changes equipment, force direction, anchor safety, setup, and clinical scope.","distinguishingDimensions":{"external_force":"resistance_band"}},
+        {"name":"Loaded Knee-to-Wall Rocker","classification":"new_variant","rationale":"An external weight changes physical demand, balance, failure consequences, dose, and supervision.","distinguishingDimensions":{"external_load":"weight"}},
+        {"name":"Elevated-Heel or Elevated-Forefoot Rocker","classification":"new_variant","rationale":"A wedge or plate changes support geometry, joint position, equipment, and range interpretation.","distinguishingDimensions":{"support_surface":"inclined_or_elevated"}},
+        {"name":"Wall Ankle Dorsiflexion Iso Press","classification":"new_definition","rationale":"Source 844 sustains an isometric press rather than completing forward-and-return repetitions.","distinguishingDimensions":{"targetDefinitionId":"125efcdf-97fd-46e1-8a77-acaa666059ed","action":"isometric_press"}},
+        {"name":"Ankle CARs","classification":"new_definition","rationale":"Source 42 moves the ankle through a controlled circumduction sequence rather than a weight-bearing sagittal lunge.","distinguishingDimensions":{"targetDefinitionId":"2157c8df-d013-4946-a6dd-2e0dedc3fe42","action":"ankle_circumduction"}},
+        {"name":"Calf Raise to Controlled Heel Drop","classification":"new_definition","rationale":"Source 44 raises and lowers the heel through plantarflexion and eccentric return rather than keeping it planted.","distinguishingDimensions":{"targetDefinitionId":"292eabbb-1676-4d7f-9eed-147f6adcf8f4","action":"calf_raise_and_lower"}},
+        {"name":"Foot Tripod Weight Shifts","classification":"new_definition","rationale":"Source 47 shifts pressure over the foot without the knee-to-wall endpoint and exact dorsiflexion cycle.","distinguishingDimensions":{"targetDefinitionId":"3370a943-9672-49da-b28c-3940470091e1","action":"foot_pressure_shift"}},
+        {"name":"Static Wall Calf Stretch","classification":"new_definition","rationale":"A sustained calf stretch has a hold endpoint and usually a straight-knee or bent-knee tissue-bias contract rather than repeated forward and return cycles.","distinguishingDimensions":{"action":"static_hold"}},
+        {"name":"Ankle Pogo in Place","classification":"new_definition","rationale":"Source 974 adds repeated impact, rebound, plantarflexor stiffness, flight, landing, and contact counting.","distinguishingDimensions":{"targetDefinitionId":"cf96f21f-d3b6-4c3b-a31f-98e5f3a392af","action":"repeated_impact_rebound"}},
+        {"name":"Clinical Weight-Bearing Lunge Test","classification":"new_definition","rationale":"A clinical test adds standardized maximal measurement, interpretation, comparison, documentation, consent, and referral scope beyond a workout repetition.","distinguishingDimensions":{"scope":"clinical_measurement"}},
+        {"name":"Ankle Pain Impingement or Instability Assessment","classification":"new_definition","rationale":"Assessment of pain, impingement, instability, or pathology requires clinical authority and cannot be inferred from exercise response.","distinguishingDimensions":{"scope":"clinical_assessment"}}
+      ]
+    }
+  ]
+}

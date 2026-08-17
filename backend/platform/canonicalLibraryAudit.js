@@ -26,6 +26,22 @@ function hasKeys(value) {
   return Object.keys(asObject(value)).length > 0
 }
 
+function hasContactEstimate(variant) {
+  const fixedContacts = variant.loadProfile?.landingContactsPerRep
+  if (Number.isInteger(fixedContacts) && fixedContacts >= 0) return true
+  const model = asObject(variant.loadProfile?.contactExposureModel)
+  const minimum = Number(model.minimumContactsPerSet)
+  const planningDefault = Number(model.planningDefaultContactsPerSet)
+  const maximum = Number(model.maximumContactsPerSet)
+  return model.model === 'per_set_range'
+    && Number.isInteger(minimum)
+    && Number.isInteger(planningDefault)
+    && Number.isInteger(maximum)
+    && minimum >= 0
+    && planningDefault >= minimum
+    && maximum >= planningDefault
+}
+
 function rowToCard(definition, variants, profilesByVariant) {
   return {
     id: String(definition.id),
@@ -62,6 +78,19 @@ function rowToCard(definition, variants, profilesByVariant) {
       programming: asObject(variant.programming_profile_json),
       loadProfile: asObject(variant.load_profile_json),
       fatigueProfile: asObject(variant.fatigue_profile_json),
+      movementGeometry: asObject(variant.movement_geometry_json),
+      anatomyProfile: asObject(variant.anatomy_profile_json),
+      equipmentRoles: asArray(variant.equipment_roles_json),
+      taskDemands: asObject(variant.task_demands_json),
+      stressProfile: asObject(variant.stress_profile_json),
+      scalingHandles: asArray(variant.scaling_handles_json),
+      compositionProfile: asObject(variant.composition_profile_json),
+      structuredProfileReview: {
+        reviewStatus: variant.structured_profile_review_status,
+        provenance: asObject(variant.structured_profile_provenance_json),
+        reviewedBy: variant.structured_profile_reviewed_by,
+        reviewedAt: variant.structured_profile_reviewed_at,
+      },
       status: variant.status,
       profiles: asArray(profilesByVariant.get(String(variant.id))).map((profile) => ({
         id: String(profile.id),
@@ -176,10 +205,12 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
       category: 'load_profile',
       priority: 'P1',
       status: variants.length > 0 && variants.every((variant) => (
-        requiredLoad.every((field) => variant.loadProfile?.[field] != null)
+        requiredLoad.filter((field) => field !== 'landingContactsPerRep')
+          .every((field) => variant.loadProfile?.[field] != null)
+        && hasContactEstimate(variant)
       )) ? 'passed' : 'failed',
-      evidence: { requiredFields: requiredLoad },
-      message: 'Every variant has a complete loading profile.',
+      evidence: { requiredFields: requiredLoad, contactAlternative: 'contactExposureModel.per_set_range' },
+      message: 'Every variant has a complete loading profile with fixed per-rep or bounded per-set contact exposure.',
     },
     {
       id: 'CARD-FATIGUE-01',
@@ -496,6 +527,7 @@ export async function auditCanonicalExerciseLibrary(pool, {
       exactVariantMatch: media.exact_variant_match,
       demonstrationQualityScore: media.demonstration_quality_score,
       linkStatus: media.link_status,
+      reviewBasis: media.review_basis_json ?? {},
     } : null
     const invalidTaxonomyKeys = [
       ...card.movementPatterns.filter((key) => !taxonomy.get('movementPatterns')?.has(key))
@@ -517,12 +549,31 @@ export async function auditCanonicalExerciseLibrary(pool, {
     const unresolvedDuplicates = duplicates.filter((duplicate) => (
       !RESOLVED_IDENTITY_DECISIONS.has(duplicate.identityResolution?.decision)
     ))
-    const basePacket = buildCanonicalCardTestPacket(card, {
-      mediaReview,
-      invalidTaxonomyKeys,
-      duplicates: unresolvedDuplicates,
-      relationships,
-    })
+    let basePacket
+    try {
+      basePacket = buildCanonicalCardTestPacket(card, {
+        mediaReview,
+        invalidTaxonomyKeys,
+        duplicates: unresolvedDuplicates,
+        relationships,
+      })
+    } catch (error) {
+      // The audit must report every active card even while a legacy or draft
+      // row cannot satisfy the strict canonical contract. Treat that row as a
+      // P0 quarantine finding; do not let it hide the rest of the library.
+      basePacket = {
+        checks: [{
+          id: 'CARD-CANONICAL-CONTRACT-01',
+          category: 'canonical_contract',
+          priority: 'P0',
+          status: 'failed',
+          evidence: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+          message: 'The card cannot be normalized against the strict canonical contract.',
+        }],
+      }
+    }
     const checks = [
       ...basePacket.checks,
       ...additionalChecks({

@@ -1,0 +1,14 @@
+{
+  "migrationKey": "739_coaching_shin_box_get_up_data_contract_completion",
+  "researchVersion": "2026-08-10.119",
+  "generatedAt": "2026-08-02T18:30:00.000Z",
+  "cards": [
+    {
+      "slug": "shin-box-get-up",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 5
+    }
+  ]
+}

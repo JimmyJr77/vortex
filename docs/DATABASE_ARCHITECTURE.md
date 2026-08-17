@@ -195,7 +195,10 @@ as an aggregate (MIN start / MAX end, or null end if any group is evergreen) via
 [483_class_active_dates_from_offerings.sql](../backend/migrations/483_class_active_dates_from_offerings.sql)
 backfilled form + slot dates from offerings; [488_scheduling_slot_query_indexes.sql](../backend/migrations/488_scheduling_slot_query_indexes.sql)
 indexes Active dates, day-of-week, specific date, and capacity for class lookup without an
-offerings parent. UI edits Active dates inside the timeslot builder (not a separate card).
+offerings parent. [489_scheduling_signup_admin_query_indexes.sql](../backend/migrations/489_scheduling_signup_admin_query_indexes.sql)
+adds covering indexes for active (non-orphaned/non-archived) signup lookups by form/slot/status
+and cancel-effective-date jobs (boot-applied from [scheduling/initTables.js](../backend/scheduling/initTables.js)).
+UI edits Active dates inside the timeslot builder (not a separate card).
 See §10 for the `scheduling_offering` entity as an Active (legacy) removal candidate.
 
 ### 4.5 Coaching graph (see [COACHING_CORNER_ROADMAP.md](COACHING_CORNER_ROADMAP.md) Part 5)

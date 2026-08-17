@@ -1,0 +1,526 @@
+{
+  "facilityId": 1,
+  "slug": "ankle-pogo-in-place",
+  "researchVersion": "2026-07-25.7",
+  "assessmentSummary": {
+    "identity": "Stationary bilateral low-amplitude vertical hops produced predominantly through coordinated foot and ankle spring behavior, with small natural knee and hip motion and continuous quiet contacts.",
+    "currentCardFindings": [
+      "The description and summary contain broken generated grammar and overstate direct jump-height transfer.",
+      "Two baseline variants prescribe conflicting doses of 3 contacts versus 20 contacts, so the current repetition unit is unsafe and ambiguous.",
+      "The identity duplicates Low Pogos and probably Ankling Pogo Hop; anatomy, load, fatigue, surface, and population constraints need explicit treatment."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "stationary_bilateral_low_pogo",
+        "vertical_repeated_stretch_shortening_cycle"
+      ],
+      "jointActions": [
+        "metatarsophalangeal_extension",
+        "ankle_dorsiflexion",
+        "ankle_plantarflexion",
+        "small_knee_and_hip_flexion_extension"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral_synchronous",
+      "intent": "repeatable_low_amplitude_contacts_without_squat_strategy"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "soleus",
+        "gastrocnemius",
+        "intrinsic_foot"
+      ],
+      "secondaryMuscles": [
+        "tibialis_anterior",
+        "quadriceps",
+        "gluteus_maximus",
+        "lumbopelvic_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 22,
+      "coordinationDemand": 32,
+      "supervisionDemand": 24,
+      "failureConsequence": 30,
+      "impact": 31,
+      "workCapacityDemand": 25,
+      "baseOverallDifficulty": 28
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_bilateral_repeated_low_amplitude_plyometric",
+      "impactClass": "low_to_moderate_by_amplitude_surface_and_contact_count",
+      "landingContactsPerRep": "one_contact_per_hop; prescribe_total_contacts_or_seconds",
+      "primaryStress": [
+        "foot_intrinsic_load",
+        "plantar_flexor_force",
+        "achilles_tendon_cycling"
+      ],
+      "fatigueSensitivity": "contact_sound_amplitude_knee_dominance_cadence_and_symptom_response"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_level_non_slip_surface"
+      ],
+      "optionalEquipment": [
+        "contact_counter",
+        "metronome",
+        "video"
+      ],
+      "environment": [
+        "forgiving_surface",
+        "adequate_ceiling",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "pain_free_bilateral_calf_raise",
+        "tolerates_low_hops",
+        "can_stop_on_command"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "1-4",
+      "contactsPerSet": "8-20_or_5-15_seconds",
+      "restSeconds": "30-90_by_intent",
+      "intensity": "low_amplitude_submaximal",
+      "progressWhen": "contacts stay quiet, vertical, symmetric, pain-free, and cadence does not decay"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Stay tall",
+        "Small quiet bounces",
+        "Spring through the whole foot",
+        "Keep the knees soft, not locked"
+      ],
+      "athleteInstructions": [
+        "Bounce in place at low height and stop while every contact still feels quick"
+      ],
+      "commonFaults": [
+        "turning_into_squat_jumps",
+        "forced_tiptoe_position",
+        "heel_slamming",
+        "locked_knees",
+        "fatigue_chasing"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_calf_raise",
+        "controlled_bilateral_landing",
+        "safe_surface"
+      ],
+      "stopRules": [
+        "pain",
+        "asymmetry",
+        "loud_contacts",
+        "amplitude_or_cadence_drop",
+        "excessive_knee_bend",
+        "loss_of_balance"
+      ]
+    },
+    "programmingDecision": "Retain as the stable stationary bilateral low-pogo identity, consolidate Low Pogos as an alias or phase-specific delivery profile, resolve the duplicate baseline dose, and quarantine Ankling Pogo Hop until its contact pattern is confirmed.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:10:00.000Z",
+      "cardVersion": 4,
+      "status": "review",
+      "description": "From a tall stationary bilateral stance on a clear, level, non-slip surface, make repeated low-amplitude vertical hops with simultaneous two-foot takeoff and landing. Contacts remain quiet, centred, and spring-like; the ankles and feet provide the visible primary motion while the knees and hips remain softly available rather than locked. One hop is one takeoff and one bilateral landing. This excludes travel, unilateral or alternating contacts, a rope, obstacle clearance, high-amplitude jumping, a squat-jump strategy, a sprint drill, and an assessment.",
+      "familyKey": "stationary_bilateral_ankle_pogo",
+      "movementPatterns": [
+        "bilateral_bounce_contact",
+        "vertical_rebound",
+        "short_ground_contact"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "timer",
+        "video"
+      ],
+      "variantKey": "stationary-bilateral-low-amplitude-ankle-pogo",
+      "environment": {
+        "surface": "clear, level, dry, non-slip, impact-appropriate surface",
+        "space": "one protected stationary landing station with adequate overhead clearance and no cross traffic",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface traction, debris, moisture, and clearance",
+          "footwear or facility foot-covering policy",
+          "visible landing area, entry, exit, and coach sightline"
+        ],
+        "changeRule": "Changing amplitude, contact pattern, displacement, cadence, surface, footwear, support, load, obstacle, cue, intent, dose, or symptoms requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe surface and stationary landing area",
+          "comfortable controlled bilateral low-amplitude hop and reset",
+          "understands the contact count, stop signal, and exit",
+          "session foot, calf, impact, landing, and technical-fatigue budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "pain, symptoms, restriction, unsafe surface, balance loss, or communication conflict",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or coordination concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal amplitude, cadence, contact cap, dose, recovery, performance outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 28,
+        "absoluteLoadDemand": 22,
+        "physicalDifficulty": 22,
+        "coordinationDemand": 32,
+        "supervisionDemand": 24,
+        "failureConsequence": 30,
+        "impact": 31,
+        "workCapacityDemand": 25,
+        "baseOverallDifficulty": 28
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_stationary_bilateral_repeated_low_amplitude_vertical_contacts",
+        "impactClass": "low_to_moderate_repeated_landing_contacts",
+        "landingContactsPerRep": 1,
+        "gripDemand": 1,
+        "spinalLoading": 6,
+        "eccentricStress": 28,
+        "primaryExposure": [
+          "foot_ankle_rebound_contacts",
+          "plantar_flexor_cycling",
+          "bilateral_landing_control",
+          "trunk_pelvis_stabilization"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 22,
+        "gripFatigue": 1,
+        "technicalFatigueSensitivity": 48,
+        "impactAccumulation": 32,
+        "recoveryHours": 12,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "bilateral_landing_contacts": 60,
+          "foot_calf_repeated_contacts": 60,
+          "low_amplitude_plyometric_contacts": 60
+        },
+        "tracking": [
+          "validContacts",
+          "sets",
+          "amplitude",
+          "cadence",
+          "contactSound",
+          "symmetry",
+          "surface",
+          "symptoms",
+          "rest"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics describes ankling as a progressive running drill that begins with learning a toe-to-ground loading action and then increases cadence.",
+        "Stationary Bilateral Ankle Pogo must state whether it is stationary or traveling, bilateral or alternating, walking, marching, dribbling, hopping, or bounding, its knee strategy, contact sequence, displacement, cadence, and terminal transition; spring or stiffness alone does not define identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "World Athletics treats straight-leg shuffle into sprinting as a drill progression that can be combined into a movement pattern congruent with the technical model.",
+        "Stationary Bilateral Ankle Pogo belongs to either low-amplitude cyclic plyometrics, sprint-mechanics locomotion, straight-leg shuffle or bound mechanics, or a compound transition; those categories must not be merged into one undifferentiated exercise."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The ankle and plantar-flexor muscle-tendon units make phase-specific contributions to sprinting, with distinct roles for soleus and gastrocnemius and important energy transfer at maximum velocity.",
+        "The card should identify intrinsic foot, plantar-flexor, tibialis-anterior, knee-extensor, hamstring, hip-flexor and extensor, lumbopelvic, and arm-action roles according to the actual drill rather than labeling every drill ankle-only."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Active foot contact with backswing velocity, small horizontal foot distance from the center of mass at contact, hip-extension velocity, and controlled support-leg flexion may help minimize braking during maximal sprinting.",
+        "Stationary Bilateral Ankle Pogo should cue contact close to the projected center of mass and observable rhythm without claiming that an isolated drill automatically reproduces or improves full-speed sprint mechanics."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Mechanical stiffness is task- and velocity-dependent, changes with fatigue, and represents coordinated whole-limb behavior rather than a fixed athlete trait.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience labels are not part of exercise difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric training can change tendon stiffness and performance, so low-amplitude contacts still require progressive exposure and contact-volume accounting.",
+        "Stationary Bilateral Ankle Pogo needs total and per-leg contacts, lane distance, surface, footwear, amplitude, cadence or velocity, approach and transition distance, technical-fatigue markers, between-attempt recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and sprint drills require progressive preparation, safe surfaces and lanes, suitable footwear, spacing, recovery, and supervision matched to intensity and complexity.",
+        "The card should require a level, dry, non-slip lane with a deceleration zone when traveling; a secured ladder only for the ladder variant; and an athlete who can tolerate the selected contact amplitude without pain or compensatory mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives an example of two passes over 10 to 20 metres for ankling and related running drills, while instructing athletes to learn the movement before increasing pace.",
+        "Use passes, metres, seconds, and explicit contacts rather than ambiguous repetitions; low-skill learning passes may use walk-back recovery, while bounds and bound-to-sprint transitions need fuller recovery and immediate quality stops."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Sprint-contact instruction should prioritize observable contact placement, active downward and backward foot velocity, posture, and rhythm rather than an unsupported promise of ideal technique.",
+        "Use a small task-specific cue set: stay stacked, keep steps short for ankling, contact close to the hips, preserve dorsiflexion without forcing a forefoot strike, let the heel behave naturally, and transition without reaching or locking the knee."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Sprint plantar-flexor demand changes across start, acceleration, and maximum-velocity phases and should not be represented as uniformly low load.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; loss of balance; repeated reaching or hard heel strike; locked-knee braking; loud or lengthening contacts; cadence drop; asymmetry; ladder displacement; or an unsafe sprint transition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Sprint drills can progress from simpler to more complex tasks and combine into a sprint transition when the movement time and pattern fit the intended technical model.",
+        "Stationary Bilateral Ankle Pogo belongs after temperature and tissue preparation and before high-speed sprinting or high-output jumping; use learning versions in a mechanics block and bound or sprint-transition versions in a fresh output block."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "Athlete support should show the exact movement at learning and performance cadence, the lane, contact sound, heel behavior, arm action, finish, and how a successful pass differs from merely moving the feet quickly.",
+        "Explain that stiffness means controlled resistance to collapse, not locking the knees or forcing the ankle, and show a lower-amplitude or slower-cadence option that preserves the identity."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Stiffness measures vary by task, speed, fatigue, maturity, and method, so coaches should not infer tendon or joint stiffness from appearance alone.",
+        "Provide side and rear observation, contact and distance counts, cadence or timing only when reliably measured, left-right comparison, surface and lane setup, phase placement, regression and progression rules, and a distinction between technical cueing and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, slower cadence, supported ankle loading, no-flight ankling, fewer contacts, visual floor marks instead of a raised ladder, quieter settings, extra demonstration, and longer recovery without converting audience context into an exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "A straight-leg shuffle into sprint is a compound drill progression, not merely a renamed stationary ankle hop.",
+        "Cadence, pass length, contact cap, and coaching intent are delivery annotations; stationary versus traveling, bilateral versus alternating, flight versus no flight, straight-leg bound versus march, ladder constraint, and a terminal sprint may require a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Stationary Bilateral Ankle Pogo were discovered through visible YouTube search; current availability and embedding, exact movement identity and variant match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=wa1ClvLqSHo",
+      "title": "Ankle Pogo Jumps",
+      "channelName": "Hockey Training Exercise Demonstrations",
+      "sourceQuery": "low pogo jump ankle stiffness drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=j0nl5dWuqN4",
+      "title": "Pogo Jumps Tutorial - Proper Form and Technique",
+      "channelName": "Runna",
+      "sourceQuery": "low pogo jump ankle stiffness drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W0nK_eBArXM",
+      "title": "Low Pogo Jumps",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "low pogo jump ankle stiffness drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-BT77h5qPbU",
+      "title": "Pogo Jumps | Build Reactive Strength & Ankle Stiffness",
+      "channelName": "GRIT LAB",
+      "sourceQuery": "low pogo jump ankle stiffness drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=L_khHgMz9uU",
+      "title": "Pogo Jumps",
+      "channelName": "Unapproved visible-search candidate",
+      "sourceQuery": "low pogo jump ankle stiffness drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Low Pogos",
+      "classification": "same_identity",
+      "rationale": "The current card describes the same stationary bilateral low-amplitude ankle-dominant contacts.",
+      "distinguishingDimensions": {
+        "phasePlacement": "prepare_or_output_by_intensity"
+      }
+    },
+    {
+      "name": "Ankling Pogo Hop",
+      "classification": "reject",
+      "rationale": "The current card does not state whether contacts are bilateral, alternating, stationary, or traveling; reject until human identity review resolves the movement.",
+      "distinguishingDimensions": {
+        "contactSequence": "unresolved"
+      }
+    },
+    {
+      "name": "High Pogo",
+      "classification": "new_variant",
+      "rationale": "Higher amplitude materially increases impact and whole-limb contribution.",
+      "distinguishingDimensions": {
+        "amplitude": "high"
+      }
+    },
+    {
+      "name": "Single-Leg Pogo in Place",
+      "classification": "new_definition",
+      "rationale": "Unilateral repeated contacts materially change laterality and tissue demand.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Forward Low Pogo",
+      "classification": "new_variant",
+      "rationale": "Travel and horizontal braking change execution and lane requirements.",
+      "distinguishingDimensions": {
+        "displacement": "forward"
+      }
+    }
+  ]
+}

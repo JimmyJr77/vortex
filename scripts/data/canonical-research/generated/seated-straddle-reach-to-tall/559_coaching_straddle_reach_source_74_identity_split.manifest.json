@@ -1,0 +1,14 @@
+{
+  "migrationKey": "559_coaching_straddle_reach_source_74_identity_split",
+  "researchVersion": "2026-08-10.120",
+  "generatedAt": "2026-08-10T03:30:00.000Z",
+  "cards": [
+    {
+      "slug": "seated-straddle-reach-to-tall-cycle",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 8,
+      "cardVersion": 2
+    }
+  ]
+}

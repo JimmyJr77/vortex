@@ -10,29 +10,63 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '478_coaching_cartwheel_hand_placement_line_drill_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.83';
-  canonical_definition CONSTANT UUID := '847bebc6-1eb0-4a61-835d-56ea156b4fca';
+  canonical_definition UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[15];
-  source_variant CONSTANT UUID := 'b6c55d93-4ad8-4be1-aa08-2d31978dac0b';
-  standing_variant CONSTANT UUID := 'db4013cd-9047-498b-be80-48e89e1c285f';
-  half_kneeling_variant CONSTANT UUID := 'ce85fdb7-ca80-49b6-9408-48d9cb879ebd';
-  wall_assisted_variant CONSTANT UUID := '77548a95-23b7-4dcb-bd4f-75239739ca8f';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    standing_variant,half_kneeling_variant,wall_assisted_variant];
-  step_over_definition CONSTANT UUID := '4d7b5337-24a5-43d4-8e8f-ebabd07d1a8b';
-  finish_lunge_definition CONSTANT UUID := '18c670ef-ce08-443e-a6d8-541413d7853d';
-  power_hurdle_definition CONSTANT UUID := '807c7a91-e022-4631-886d-b4d9a04ee091';
-  roundoff_definition CONSTANT UUID := '60f5b21a-991c-4ce8-9068-3c42b2043021';
-  free_handstand_definition CONSTANT UUID := '74ff4c17-2a19-4ae4-8f0b-320eac87c3f3';
-  wall_handstand_definition CONSTANT UUID := '8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f';
-  donkey_kick_definition CONSTANT UUID := '4f36930b-a3db-429d-9c65-21dab2760527';
-  neighbor_definition_ids CONSTANT UUID[] := ARRAY[
-    step_over_definition,finish_lunge_definition,power_hurdle_definition,
-    roundoff_definition,free_handstand_definition,wall_handstand_definition,
-    donkey_kick_definition];
+  source_variant UUID;
+  standing_variant UUID := gen_random_uuid();
+  half_kneeling_variant UUID := gen_random_uuid();
+  wall_assisted_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  step_over_definition UUID;
+  finish_lunge_definition UUID;
+  power_hurdle_definition UUID;
+  roundoff_definition UUID;
+  free_handstand_definition UUID;
+  wall_handstand_definition UUID;
+  donkey_kick_definition UUID;
+  step_over_variant UUID;
+  finish_lunge_variant UUID;
+  roundoff_variant UUID;
+  donkey_kick_variant UUID;
+  neighbor_definition_ids UUID[];
   video_ids CONSTANT TEXT[] := ARRAY[
     'J4DISL56-kI','tc6EYwsUaws','kdPlscoyYO8','dFkTY-ZOSpU','CZb-afEMaIc'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=15;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO step_over_definition FROM coaching.exercise_definition_v1
+  WHERE slug='cartwheel-step-over' AND status<>'archived';
+  SELECT id INTO finish_lunge_definition FROM coaching.exercise_definition_v1
+  WHERE slug='cartwheel-finish-lunge' AND status<>'archived';
+  SELECT id INTO power_hurdle_definition FROM coaching.exercise_definition_v1
+  WHERE slug='power-hurdle-to-cartwheel-round-off-entry' AND status<>'archived';
+  SELECT id INTO roundoff_definition FROM coaching.exercise_definition_v1
+  WHERE slug='round-off' AND status<>'archived';
+  SELECT id INTO free_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-hold' AND status<>'archived';
+  SELECT id INTO wall_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-hold' AND status<>'archived';
+  SELECT id INTO donkey_kick_definition FROM coaching.exercise_definition_v1
+  WHERE slug='donkey-kick' AND status<>'archived';
+  SELECT id INTO step_over_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=step_over_definition AND variant_key='baseline';
+  SELECT id INTO finish_lunge_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=finish_lunge_definition AND variant_key='baseline';
+  SELECT id INTO roundoff_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=roundoff_definition AND variant_key='baseline';
+  SELECT id INTO donkey_kick_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=donkey_kick_definition AND variant_key='baseline';
+  active_variant_ids := ARRAY[
+    standing_variant,half_kneeling_variant,wall_assisted_variant];
+  neighbor_definition_ids := ARRAY[
+    step_over_definition,finish_lunge_definition,power_hurdle_definition,
+    roundoff_definition,free_handstand_definition,wall_handstand_definition,
+    donkey_kick_definition];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1
@@ -581,10 +615,10 @@ BEGIN
     (standing_variant,half_kneeling_variant,'regression',76,ARRAY['stability','complexity']::TEXT[],'Half-kneeling can reduce entry demand while retaining exact marks and contact order, but side and finish must be revalidated.'),
     (wall_assisted_variant,standing_variant,'progression',70,ARRAY['stability','complexity','decision_demand']::TEXT[],'Removing declared wall contact increases independent turnover and lane control; readiness is not inferred from exercise difficulty.'),
     (standing_variant,wall_assisted_variant,'regression',70,ARRAY['stability','complexity','decision_demand']::TEXT[],'Adding exact temporary wall contact can reduce one control demand while changing support, timing, station, and exit.'),
-    (half_kneeling_variant,'47cf94b0-cb7a-4153-98df-80fd2c17cc1a'::UUID,'regression',58,ARRAY['range','complexity','impact']::TEXT[],'Donkey Kick may reduce rotational sequence and terminal-lunge demand but is a distinct task requiring full revalidation.'),
-    (standing_variant,'6728212d-ae9e-4831-9a07-ad5f8264102f'::UUID,'lateral_substitution',60,ARRAY['range','stability','complexity']::TEXT[],'Panel-mat step-over changes obstacle, support height, leg path, and logistics; substitute only after exact objective and station review.'),
-    (standing_variant,'064e650c-28e8-4820-b0da-7043bb509c2c'::UUID,'progression',52,ARRAY['speed','complexity','impact']::TEXT[],'Round-Off snap-down adds leg closure, feet-together landing, speed, and rebound demands; no automatic skill progression is authorized.'),
-    (standing_variant,'128281fa-0f87-4722-b7c4-acd86c455cdb'::UUID,'lateral_substitution',56,ARRAY['range','complexity','decision_demand']::TEXT[],'Finish Lunge isolates a different phase and can replace the drill only when the session objective is explicitly changed and revalidated.')
+    (half_kneeling_variant,donkey_kick_variant,'regression',58,ARRAY['range','complexity','impact']::TEXT[],'Donkey Kick may reduce rotational sequence and terminal-lunge demand but is a distinct task requiring full revalidation.'),
+    (standing_variant,step_over_variant,'lateral_substitution',60,ARRAY['range','stability','complexity']::TEXT[],'Panel-mat step-over changes obstacle, support height, leg path, and logistics; substitute only after exact objective and station review.'),
+    (standing_variant,roundoff_variant,'progression',52,ARRAY['speed','complexity','impact']::TEXT[],'Round-Off snap-down adds leg closure, feet-together landing, speed, and rebound demands; no automatic skill progression is authorized.'),
+    (standing_variant,finish_lunge_variant,'lateral_substitution',56,ARRAY['range','complexity','decision_demand']::TEXT[],'Finish Lunge isolates a different phase and can replace the drill only when the session objective is explicitly changed and revalidated.')
   ) r(from_id,to_id,relationship,similarity,dimensions,reason)
   ON CONFLICT(from_variant_id,to_variant_id,relationship) DO UPDATE SET
     similarity_score=EXCLUDED.similarity_score,dimensions=EXCLUDED.dimensions,

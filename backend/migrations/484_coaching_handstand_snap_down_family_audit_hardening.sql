@@ -9,24 +9,56 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '484_coaching_handstand_snap_down_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.86';
-  canonical_definition CONSTANT UUID := '60f5b21a-991c-4ce8-9068-3c42b2043021';
-  source_variant CONSTANT UUID := '064e650c-28e8-4820-b0da-7043bb509c2c';
-  wall_variant CONSTANT UUID := '68c16da0-414f-4932-97f4-1d8b236af8dd';
-  independent_variant CONSTANT UUID := '68a0499b-34b0-4621-b798-b49ffd8ed1a1';
-  active_variant_ids CONSTANT UUID[] := ARRAY[wall_variant,independent_variant];
-  roundoff_rebound_definition CONSTANT UUID := '607219c8-5da7-46e2-841a-5f5ab9a7a592';
-  power_hurdle_definition CONSTANT UUID := '807c7a91-e022-4631-886d-b4d9a04ee091';
-  cartwheel_definition CONSTANT UUID := '847bebc6-1eb0-4a61-835d-56ea156b4fca';
-  freestanding_handstand_definition CONSTANT UUID := '74ff4c17-2a19-4ae4-8f0b-320eac87c3f3';
-  wall_handstand_definition CONSTANT UUID := '8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f';
-  handstand_kickup_definition CONSTANT UUID := '2e89b7eb-19f8-42cb-9608-8227b070bccf';
-  standing_snapdown_definition CONSTANT UUID := 'b080c83a-b2c2-42a8-a62c-fe4f0df42980';
-  donkey_kick_definition CONSTANT UUID := '4f36930b-a3db-429d-9c65-21dab2760527';
-  cartwheel_variant CONSTANT UUID := 'db4013cd-9047-498b-be80-48e89e1c285f';
-  freestanding_handstand_variant CONSTANT UUID := '69f6f7a0-93eb-4cc8-b072-520aa991c720';
-  back_to_wall_handstand_variant CONSTANT UUID := 'bf745356-095d-43a1-8a42-8157069edffb';
+  canonical_definition UUID;
+  source_variant UUID;
+  wall_variant UUID := gen_random_uuid();
+  independent_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  roundoff_rebound_definition UUID;
+  power_hurdle_definition UUID;
+  cartwheel_definition UUID;
+  freestanding_handstand_definition UUID;
+  wall_handstand_definition UUID;
+  handstand_kickup_definition UUID;
+  standing_snapdown_definition UUID;
+  donkey_kick_definition UUID;
+  cartwheel_variant UUID;
+  freestanding_handstand_variant UUID;
+  back_to_wall_handstand_variant UUID;
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=18;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO roundoff_rebound_definition FROM coaching.exercise_definition_v1
+  WHERE slug='round-off-rebound-snap-down-to-stick' AND status<>'archived';
+  SELECT id INTO power_hurdle_definition FROM coaching.exercise_definition_v1
+  WHERE slug='power-hurdle-to-cartwheel-round-off-entry' AND status<>'archived';
+  SELECT id INTO cartwheel_definition FROM coaching.exercise_definition_v1
+  WHERE slug='cartwheel-hand-placement-line-drill' AND status<>'archived';
+  SELECT id INTO freestanding_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-hold' AND status<>'archived';
+  SELECT id INTO wall_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-hold' AND status<>'archived';
+  SELECT id INTO handstand_kickup_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-kick-up-wall' AND status<>'archived';
+  SELECT id INTO standing_snapdown_definition FROM coaching.exercise_definition_v1
+  WHERE slug='snap-down-to-stick' AND status<>'archived';
+  SELECT id INTO donkey_kick_definition FROM coaching.exercise_definition_v1
+  WHERE slug='donkey-kick' AND status<>'archived';
+  SELECT id INTO cartwheel_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=cartwheel_definition
+    AND variant_key='standing-t-shape-marked-line-four-contact';
+  SELECT id INTO freestanding_handstand_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=freestanding_handstand_definition
+    AND variant_key='freestanding-floor-straight-line';
+  SELECT id INTO back_to_wall_handstand_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=wall_handstand_definition
+    AND variant_key='back-to-wall-straight-line';
+  active_variant_ids := ARRAY[wall_variant,independent_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1

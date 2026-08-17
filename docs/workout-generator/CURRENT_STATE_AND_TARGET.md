@@ -1,6 +1,19 @@
 # Vortex workout generator: current state and target
 
-Status: audit baseline and first reversible canonical slice (2026-07-25).
+> Historical baseline (2026-07-25), retained for migration rationale only.
+> Do not use this document for current implementation or rollout status.
+> Current authority is:
+>
+> - [`TAXONOMY_V2_ARCHITECTURE.md`](./TAXONOMY_V2_ARCHITECTURE.md) for the
+>   normative v2 architecture and current implementation state;
+> - [`PRODUCTION_ROLLOUT.md`](./PRODUCTION_ROLLOUT.md) for current release
+>   evidence and the intentionally unmet human rollout gates;
+> - [`COMPLETION_AUDIT.md`](./COMPLETION_AUDIT.md) for chronological migration
+>   evidence; and
+> - [`FUTURE_DIRECTION.md`](./FUTURE_DIRECTION.md) for deferred roadmap work.
+
+Status at this historical point: audit baseline and first reversible canonical
+slice (2026-07-25).
 
 ## Current architecture
 

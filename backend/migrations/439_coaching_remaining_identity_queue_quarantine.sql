@@ -9,35 +9,9 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
     '439_coaching_remaining_identity_queue_quarantine';
-  landmine_split_id CONSTANT UUID :=
-    '0e88d785-78d0-4a0f-97f7-e0811a9d75a4';
-  split_squat_id CONSTANT UUID :=
-    '5ffbb327-0143-4d44-9230-89b0e0bc0577';
-  target_ids CONSTANT UUID[] := ARRAY[
-    '9652daf0-4093-448f-808b-f46f88edd002'::UUID,
-    'cd34dd6b-808e-47a0-86ee-c050f5bd5997'::UUID,
-    '30d0b69b-42fb-4b5f-afbd-28e472221270'::UUID,
-    '883769ae-18db-4be2-9b73-ba4f025f29fc'::UUID,
-    '3106a8a9-3ba8-4fc7-958e-95562ea30e0c'::UUID,
-    '1b6a0161-bf65-4ecd-8e2a-0e2ba824d020'::UUID,
-    '6e32ac97-6759-4c5a-8a19-102c5f079002'::UUID,
-    'cd5f0df3-c10c-44a4-8513-7fd92ce3f074'::UUID,
-    '82a46e38-90d7-47f4-8eea-d45401302b42'::UUID,
-    '1e99f726-ac34-446b-9bb6-8a47e7ed9d3e'::UUID,
-    '1bb5268f-a8c3-44e8-a52a-ab89153bf4d1'::UUID,
-    '682a846d-5476-497d-8ffd-36c2379d53e2'::UUID,
-    '42d4bd23-5907-4b04-a6d3-689a573e1fb6'::UUID,
-    '4686517f-e94f-4738-adff-6da9a1ff859d'::UUID,
-    'e8924419-0e6e-4564-850d-059e7bd9ff1f'::UUID,
-    '2705cb94-1507-489d-a565-06256c010f4d'::UUID,
-    'a9217009-8ae8-46c1-b657-94cd6bfa0bde'::UUID,
-    'ae0777af-7ca5-452d-8820-26174891baa9'::UUID,
-    '4671c046-b9d2-4f37-8c3d-4bca0b2a653c'::UUID,
-    'f4be344f-2ff6-4d63-9f10-2e216f5f367f'::UUID,
-    '0c765ce3-152e-4847-acb4-316fd4d89363'::UUID,
-    '7e6c630a-0f99-4ae6-9a0c-569393012679'::UUID,
-    'a4602342-8bc5-4ff8-88e6-4373e96a22dc'::UUID
-  ];
+  landmine_split_id UUID;
+  split_squat_id UUID;
+  target_ids UUID[];
   source_ids CONSTANT INTEGER[] := ARRAY[
     982,840,1088,1571,1567,1062,430,963,956,1133,994,627,1469,
     1573,1090,1451,1107,1506,202,1348,1669,1103,1539
@@ -46,6 +20,18 @@ DECLARE
   completed_count INTEGER;
   retired RECORD;
 BEGIN
+  SELECT id INTO landmine_split_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='landmine-split-squat';
+
+  SELECT id INTO split_squat_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='split-squat';
+
+  SELECT array_agg(id ORDER BY legacy_exercise_id) INTO target_ids
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=ANY(source_ids);
+
   IF(SELECT count(*) FROM coaching.exercise_definition_v1
      WHERE facility_id=1 AND id=ANY(target_ids))<>23
     OR(SELECT count(*) FROM coaching.exercise
@@ -166,7 +152,10 @@ BEGIN
   WHERE definition_id=ANY(target_ids);
 
   FOR retired IN
-    SELECT * FROM(VALUES
+    SELECT definition.id AS definition_id,retired_values.source_id,
+      retired_values.target_card_version,retired_values.missing_facts,
+      retired_values.reason
+    FROM(VALUES
       ('9652daf0-4093-448f-808b-f46f88edd002'::UUID,982,3,
         ARRAY['added_pogo_contact_or_cue','exact_contact_order','repetition_boundary','landing_contact_count','terminal_action']::TEXT[],
         'The source does not establish whether pogo is only a springy-contact cue or an added same-leg contact inside the A-Skip sequence.'),
@@ -237,7 +226,10 @@ BEGIN
         ARRAY['band_anchor','assistance_or_resistance_direction','contact_count','rebound_sequence','terminal_landing','release_policy']::TEXT[],
         'The source combines resisted and assisted language without declaring anchor, force direction, rebound contacts, release, or finish.')
     ) retired_values(
-      definition_id,source_id,target_card_version,missing_facts,reason)
+      legacy_definition_id,source_id,target_card_version,missing_facts,reason)
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id=1
+      AND definition.legacy_exercise_id=retired_values.source_id
   LOOP
     UPDATE coaching.exercise_definition_v1 definition
     SET canonical_name=regexp_replace(definition.canonical_name,

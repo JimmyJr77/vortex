@@ -58,6 +58,13 @@ const INSERTED_AFTER = {
   '087_coaching_phase_order_slot_education.sql': [
     'add_program_pricing_defaults.sql',
   ],
+  // The active-signup indexes introduced at 489 reference orphaned_at. The
+  // add-on migrations own that column and archived_at and must run before the
+  // numbered index migration on a fresh database.
+  '488_scheduling_slot_query_indexes.sql': [
+    'add_scheduling_signup_archived.sql',
+    'add_scheduling_orphaned_signups.sql',
+  ],
 }
 
 const ADDON_MIGRATION_ORDER = [
@@ -86,6 +93,8 @@ const ADDON_MIGRATION_ORDER = [
   'patch_discount_rule_legacy_columns.sql',
   'remove_baked_system_discount_rules.sql',
   'add_free_passes.sql',
+  'add_drop_in_entitlements.sql',
+  'add_drop_in_notification_tracking.sql',
   'add_free_pass_specific_date.sql',
   'add_pricing_benefit_selection.sql',
   'add_additional_fees.sql',

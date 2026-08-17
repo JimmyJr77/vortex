@@ -1,0 +1,14 @@
+{
+  "migrationKey": "529_coaching_leg_swings_lateral_source_53_candidate_materialization",
+  "researchVersion": "2026-08-09.115",
+  "generatedAt": "2026-08-10T02:00:00.000Z",
+  "cards": [
+    {
+      "slug": "leg-swings-lateral",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7,
+      "cardVersion": 2
+    }
+  ]
+}

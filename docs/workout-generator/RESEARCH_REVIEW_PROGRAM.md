@@ -2,6 +2,79 @@
 
 Status: active library-review program, 2026-07-26.
 
+## Current authoritative snapshot (2026-08-11)
+
+The historical batch notes below document prior migrations; they are not the
+current library count. The authoritative disposable-PostgreSQL audit reports
+1,676 legacy source rows mapped with complete migration coverage to 206 active
+canonical definitions, all in `review` and none published. There are 217
+name-similarity pairs: 216 adjudicated distinct, one low-score unresolved pair,
+and zero unresolved exact identity collisions.
+
+Every active review card has all 16 candidate research sections, at least one
+assessed alternate, complete candidate operational contracts, and a three-to-five
+candidate YouTube set; 99.51% currently have three to five healthy embeddable
+metadata records. These are discovery and research
+artifacts—not human approval. The review queue currently contains 206 cards,
+829 review-only graph relationships, and 1,380 candidate calibration records.
+
+Migration 748 reauthors Source 1170 as the distinct Medicine Ball Rebound Slam
+to Catch candidate. Its mandatory two-hand rebound catch is now consistently
+specified across identity, safety, load/fatigue, athlete, and coach contracts;
+dead-ball retrieval is an alternate task, not an in-card regression. The five
+candidate links have healthy oEmbed metadata only. Exact-match media, identity,
+graph, calibration, and publication decisions remain human-gated.
+
+Migration 747 reauthors Source 995 Uphill Bound as a short-duration,
+alternating, gentle-to-moderate uphill-bound candidate. Its grade, lane,
+traction, weather, walk-down recovery, and cumulative lower-limb exposure are
+explicit. Five links have healthy oEmbed metadata only; all identity, media,
+graph, calibration, and publication decisions remain human-gated.
+
+Migration 746 reauthors Source 1166's underspecified generic Kneeling Slam
+Ball Slam skeleton inside the existing Source 1320 Tall-Kneeling Overhead
+Medicine Ball Slam identity. Both legacy source IDs remain traceable. The
+candidate has 16 evidence sections and five healthy oEmbed records, while
+identity confirmation, media, graph, calibration, and publication remain
+explicit human gates; no candidate was approved.
+
+Migration 745 adds Source 1164 Slam Ball Scoop Slam as a provisional exact
+candidate with 16 evidence sections and five healthy oEmbed records. It retains
+explicit coach identity-confirmation, media, graph, calibration, and publication
+gates; no candidate was approved.
+
+Migration 743 reauthored Source 283 as the exact planned 45-Degree Cut and
+Reaccelerate candidate, retaining terminal-stick/90-degree/bound boundaries and
+all approvals in quarantine. Migration 742 reauthored Source 152 as the exact
+standing bilateral
+Medicine Ball Overhead Slam candidate. It retains Sources 1161 and 1167 as
+archived duplicate-source skeletons, adds 16 candidate evidence sections and
+five healthy oEmbed metadata records, and leaves all media, graph, calibration,
+and publication decisions quarantined for qualified human review.
+
+Migration 744 deterministically consolidates Source 710 Prone Pop-Up to Sprint
+into the existing Ground-Start Sprint fully-prone variant. It preserves the
+source lineage and duplicate-resolution record without creating a review,
+media, calibration, relationship, or publication approval.
+
+The alternate queue also contains 1,013 candidate `new_definition` decisions.
+Some carry an explicit target-definition reference; migration 704 labels those
+links as active or as archived/missing references requiring triage. The
+remaining decisions need an expert identity determination and a complete
+research/media packet before a new candidate card can be created. Do not
+bulk-create them from their names or promote an alternate classification to a
+verified exercise identity.
+
+Do not use the older card totals or coverage percentages in this document to
+make a release decision. Run `check-canonical-release-readiness.mjs` and the
+canonical audit against the target facility immediately before any rollout.
+
+Migration 749 records a reviewed disposition for the remaining archived source
+records whose legacy text explicitly leaves task-defining facts unresolved. The
+archived-source disposition coverage gap is now zero. These records remain
+nonselectable lineage and human-review work items; this backfill created no
+exercise, media, calibration, graph, or publication approval.
+
 ## Scope and current baseline
 
 Identity consolidation and distinct review-only additions leave 1,531 active
@@ -3340,6 +3413,44 @@ retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
 `CARD-PUBLISH-01` until qualified review. Separate content review and
 independent publication approval remain mandatory.
 
+## 2026-08-09 — Source 30 Wrist Rockers — Palms Down human-review packet
+
+Registry `2026-08-09.97` contains 409 sources. Sixteen candidate evidence
+applications use USA Gymnastics for the kneeling palms-on-floor forward rock,
+Prehab Guys for the quadruped fingers-forward controlled shoulder shift, wrist-
+loading biomechanics for adjacent support-condition context, and a systematic
+review for the limited-certainty wrist-pain/injury context in adolescent
+gymnastics. None approves a Vortex identity, score, universal eligibility,
+hand width, finger spread, range, pressure, dose, outcome, or publication
+claim.
+
+Watch all five candidates in full before changing any media state:
+
+- `9KYKYqoVBSA` — Tangelo, “How To Do The Wrist Rockers Mobility Exercise”;
+- `5mil82fqj30` — Matthew Stevens, “Wrist Rocks | Wrist Exercise”;
+- `54khDyn0qn8` — Dr. Jordan Weber, “Quadruped Wrist Extension Rocks”;
+- `O_S9TKHwnsE` — W10 Personal Training Gym, “Wrist rocks”;
+- `4dRox1rxhfU` — Caroline Juster, “Wrist Rockers”.
+
+For each candidate, record full playback; quadruped base; palms-down and
+fingers-forward orientation; whole-hand and knee contacts; controlled forward
+wrist-extension load; complete backward return; count rule; range; pace;
+breathing; any circles, palm lifts, holds, changed support, force, or other
+actions; stops; captions and accessibility; cue/demonstration quality; safety
+conflicts; reviewer; rationale; timestamp; and exact card-version match.
+oEmbed title, channel, thumbnail, and iframe health are not exactness or
+approval.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 4
+neighbor identity boundaries, 4 graph proposals, and both exercise-complexity/
+physical-difficulty anchors. Verify `22/16/22`, both delivery profiles,
+actual-duration and cumulative wrist/hand-support budgets, all coach/athlete/
+accessibility/support content, and every stop, incident, persistence, and
+substitution rule. The packet must retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review. Separate content review and independent publication approval remain
+mandatory.
+
 ## 2026-08-02 — Source 23 Full-Body Joint CARs human-review packet
 
 The registry is `2026-08-02.91` / 390 sources. Sixteen candidate evidence
@@ -3413,5 +3524,634 @@ segmental `34/10/34`, the 202- and 220-character athlete instructions,
 coach/athlete/accessibility/support content, cumulative budgets, every stop and
 incident rule, and complete substitution revalidation. The automated packet
 must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
+content review and independent publication approval remain mandatory.
+
+## Source 46 Short-Foot review queue
+
+Review the three exact Source 46 variants separately: standing hands-free,
+standing light wall touch, and seated stable-bench. Validate one target foot,
+heel/first-metatarsal-head/fifth-metatarsal-head/long-toe contacts,
+metatarsal-head-to-heel shortening, visible arch elevation, absence of toe
+curl or lift and ankle rotation, prescribed submaximal hold, breathing,
+controlled full relaxation, side-specific repetition and hold-second
+recording, first fault, symptoms, actual duration, station reset, and exit.
+
+Independently adjudicate all 16 evidence applications, 28 alternates, 5
+deterministic neighbor boundaries, 8 graph proposals, and 6 task-complexity
+or physical-difficulty anchors. Direct doming mechanics and learning evidence
+do not establish a universal workout dose, recovery interval, outcome,
+participant threshold, or Vortex score. Maximal strength testing and
+instrumented biofeedback are adjacent protocols, not automatic workout
+prescriptions.
+
+Five candidate videos have current YouTube oEmbed metadata only. A qualified
+human must watch each in full and record exact variant, support, contacts,
+arch action, toe behavior, hold, return, count, compensations, captions,
+accessibility, cue quality, safety conflicts, reviewer, rationale, timestamp,
+and card-version match. Retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until those separate human gates
+are complete.
+
+## Source 45 Toe Yoga qualified-review queue
+
+Qualified reviewers must watch `SbQ2RYxbppE`, `QVZpBSVV9js`,
+`bUoTjK0tQEw`, `SkFZ5zVXGEo`, and `kp8QI1Uj59Q` from start to finish and
+assign each supported clip to an exact standing hands-free, standing
+wall-touch, or seated-bench variant. Record playback, target-foot laterality,
+heel and metatarsal-head contacts, great-toe phase, lesser-toe phase,
+controlled returns, complete-cycle count, side-specific count, toe curling or
+non-target movement, body compensation, support contacts, captions,
+accessibility, cue quality, safety conflicts, reviewer, rationale, timestamp,
+and exact card-version match. Current oEmbed metadata proves none of those
+content properties and is not approval.
+
+Independently adjudicate all 16 evidence applications, 28 alternate
+assessments, 5 identity decisions, 8 graph proposals, and 6 difficulty
+anchors. Verify the standing hands-free `42/8/42`, wall-touch `38/7/38`, and
+seated `34/5/34` exercise-complexity / physical-difficulty / derived-overall
+contracts; all 4 contextual delivery profiles; dosage and actual-duration
+models; surface hygiene, toe visibility, wall and bench logistics; cumulative
+foot, toe, calf, balance, running, landing, jumping, agility, and lower-body
+budgets; substitutions; persistence; coach, athlete, accessibility, user-
+support, and operations content; clinical scope; and every quality gate and
+stop rule. These scores assess tasks only and must not become participant
+skill, proficiency, age, readiness, or eligibility labels.
+
+Retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review and separate publication approval
+are complete. Do not infer that the laboratory repetition exposure is a
+universal dose, that standing variants have the same evidence strength as the
+seated task, that perfect toe isolation is required, or that the exercise
+diagnoses, treats, prevents injury, or proves sport readiness.
+
+## Source 44 Standing Calf Raise qualified-review queue
+
+Review migration 520 and packet
+`scripts/data/canonical-research/generated/standing-calf-raise/standing-calf-raise.v1.json`
+against the exact Source 44 contract. Independently adjudicate the three
+duplicate-definition decisions and six distinct-neighbor decisions; all 16
+evidence applications; all 28 alternate classifications; both prepare and
+capacity profiles; task vector `22/32/32`; load, fatigue, recovery, cumulative
+budgets, duration, logistics, quality, stop, persistence, accessibility,
+athlete, coach, and support-operations fields; all four graph proposals; and
+both calibration anchors. Do not copy participant skill or proficiency
+metadata from legacy exercise rows or skill-library cards.
+
+Qualified reviewers must watch candidates `_B6o13eoAuU`, `88D6QOBlCWA`,
+`Dgf9hougTdc`, `CtpPV2FBkG4`, and `584joZQZvRg` from start to finish and record
+playback; stable wall and hand support; bilateral flat-floor stance; full-foot
+start and finish; forefoot pressure; mostly straight knees; simultaneous heel
+rise; comfortable height; brief untimed checkpoint; controlled return; exact
+count; all compensations; captions, transcript, still sequence, and audio-
+description suitability; cue and demonstration quality; safety and scope
+conflicts; reviewer identity; rationale; timestamp; and exact card-version
+match. The last candidate's osteoporosis framing requires explicit scope
+review. Current oEmbed records prove metadata and embedding availability only.
+Eccentric-only videos `XQACBWaIino` and `3tc0lN_bW5o` are adjacent candidates,
+not exact Source 44 media.
+
+The packet must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
+content review and independent publication approval remain mandatory.
+
+## Source 42 Ankle CARs qualified-review queue
+
+Review all five candidate videos in full: `BDNGAnp7u7s`, `fyShbLKXMkY`,
+`M2hhS_XJjww`, `IYdRxX95vNE`, and `gLtItpjgi3M`. Record playback; stable
+seated bench and target-thigh support; non-target-foot support; target-foot
+clearance; active rather than assisted motion; declared start; inversion,
+plantarflexion, eversion, and return order; reverse direction; quiet tibia,
+knee, pelvis, and trunk; exact count; pace; breathing; symptoms and stops;
+side change and transfer; captions; accessibility; cue and demonstration
+quality; safety; conflicts; reviewer identity; timestamp; card version; and
+approval rationale. oEmbed metadata is not playback or exactness review.
+
+Review the 16 evidence sections and explicitly preserve their limits. Active
+ankle ROM, ankle biomechanics, and general CAR instruction do not validate one
+universal seated geometry, range, path, knee angle, tempo, dose, frequency,
+fatigue ceiling, recovery interval, progression, eligibility rule, warm-up
+outcome, injury-prevention claim, performance transfer, or Vortex score.
+
+Adjudicate all 24 alternate assessments, seven distinct-identity decisions,
+four relationship proposals, and two calibration anchors. Confirm that Neck
+CARs and Standing Single-Arm Shoulder CAR are distinct by anatomical region
+and mechanics despite shared terminology. Retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review and separate publication approval are complete.
+
+## Source 41 Half-Kneeling Ankle Dorsiflexion Pulse qualified-review queue
+
+Qualified reviewers must watch all five candidates from start to finish:
+`Kn-TjcmuzYQ`, `NrZ4NuSlJ88`, `wIUdrQsqhKs`, `yc27kCW8aco`, and
+`1uk2j8TyHvk`. Record playback; unloaded half-kneeling support; rear-knee and
+lower-leg padding; front heel and tripod; knee path; initial uncounted advance;
+comfortable endpoint; small retreat; same-endpoint re-advance; exact pulse
+count; hand loading; pace; breathing; symptoms and stops; side change, rise,
+and exit; captions; accessibility; cue and demonstration quality; safety
+conflicts; reviewer; rationale; timestamp; and card-version match. The
+kettlebell title for `wIUdrQsqhKs` and active-lift title and public description
+for `1uk2j8TyHvk` are known adjacent-variant signals, not approvals. oEmbed
+metadata is not playback or exactness evidence.
+
+Independently adjudicate all 16 evidence applications, 24 alternates, 5
+identity decisions, 4 graph proposals, and both complexity/physical-difficulty
+anchors. Verify the `22/14/22` core vector and every normalized dimension; the
+Prepare & Access and Restore profiles; mat, floor, kneeling, side-change, rise,
+and exit logistics; actual-duration formulas; cumulative ankle, calf-Achilles,
+knee, kneeling, lower-body, landing, sprint, cut, and kick budgets;
+substitutions; persistence; coach/athlete/accessibility/support content;
+incident handling; and every quality and stop rule. Difficulty must remain an
+exercise assessment, never participant skill, proficiency, age, or readiness.
+
+The packet must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
+content review and independent publication approval remain mandatory.
+
+## Source 43 Wall-Supported Bilateral Tibialis Raise qualified-review queue
+
+Qualified reviewers must watch `RHWRxiBe1iU`, `VzIcGAgBiaM`,
+`psaTKDL1zUw`, `k9NvBCZfSWg`, and `0o2GAg2yX5M` from start to finish. For
+each candidate, record playback, back and pelvis wall contact, planted heels,
+foot position, mostly straight but unlocked knees, simultaneous bilateral
+forefoot lift, comfortable active dorsiflexion range, controlled quiet return
+to light floor contact, valid repetition count, pace, breathing, faults,
+symptoms and stops, captions, accessibility, cue and demonstration quality,
+safety conflicts, reviewer identity, rationale, timestamp, and exact card-
+version match. Current title, channel, thumbnail, iframe, and oEmbed health
+are not playback, exactness, accessibility, quality, safety, or approval.
+
+Independently adjudicate all 16 evidence applications, 26 alternate
+assessments, 6 deterministic distinct-task decisions, the ambiguous Sources
+214/1113/1399 identity, 4 graph proposals, and both exercise-complexity and
+physical-difficulty anchors. Verify the `18/24/24` task vector, Prepare &
+Access and Capacity profiles, actual-duration formulas, wall/floor/footwear
+and group logistics, cumulative lower-leg and downstream-demand budgets,
+substitution revalidation, persistence, coach/athlete/accessibility/support
+content, incident handling, and every quality gate and stop rule. Difficulty
+must remain an exercise assessment and never become participant skill,
+proficiency, age, readiness, or clinical metadata.
+
+Do not automatically merge or substitute unilateral, alternating, bent-knee,
+heel-elevated, unsupported, seated, banded, tib-bar, isometric-only,
+eccentric-only, heel-walk, ankle-pump, Toe Yoga, calf-raise, clinical, or
+sport-added tasks. Retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review and
+separate publication approval are complete.
+
+## Source 40 Knee-to-Wall Ankle Rocker qualified-review queue
+
+Qualified reviewers must watch all five current media candidates from start to
+finish: `33-GE3x-xQM`, `ElrpduJn92Y`, `Y1IZXkdPPdw`, `qjrNGnubve4`, and
+`YH7xjrkq7ic`. The first candidate's oEmbed title says kneeling and therefore
+requires explicit support-position rejection or confirmation. Record playback;
+standing staggered support; target heel and tripod contact; rear-foot support;
+knee path toward the wall; comfortable rather than forced endpoint; controlled
+return; exact repetition count; absence of an isometric press, band force,
+rotation, elevation, calf raise, clinical measurement, or added sport action;
+pace; breathing; symptoms and stops; entry, side change, and exit; captions;
+accessibility; cue and demonstration quality; safety conflicts; reviewer;
+rationale; timestamp; and exact card-version match. Current oEmbed metadata is
+not playback, exactness, accessibility, safety, or approval evidence.
+
+Independently adjudicate all 16 evidence applications, 24 alternates, 5
+identity decisions, 4 graph proposals, and both complexity/physical-difficulty
+anchors. Verify the complete `18/12/18` core task vector and additional
+normalized dimensions; both delivery profiles; wall and floor logistics;
+actual-duration formulas; cumulative foot, ankle, Achilles, calf, knee,
+balance, lunge, squat, landing, sprint, cut, kick, and lower-body budgets;
+substitutions; persistence; coach/athlete/accessibility/support content;
+incident handling; and every quality gate and stop rule. Difficulty must remain
+an exercise assessment and must not become participant skill, proficiency,
+age, readiness, or clinical metadata.
+
+The deterministic merge of Sources 40, 875, and 1359 does not approve the
+card. Confirm that kicking plant/pivot language is contextual unless a physical
+sport action is demonstrated, and preserve half-kneeling pulses, isometric
+presses, Ankle CARs, foot-tripod shifts, calf raises, band mobilizations, and
+clinical tests as separate tasks. Retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review and separate publication approval are complete.
+
+## Source 37 Shoulder CAR / Arm Circles qualified-review queue
+
+Qualified reviewers must watch the five Shoulder CAR and four Arm Circles
+candidates from start to finish. For Shoulder CAR, record fixed feet, one long
+active arm, start, full path, humeral rotation, same-start return, side and
+direction, momentum, scapular motion, trunk compensation, range, count,
+breathing, symptoms, and stops. For Arm Circles, record simultaneous bilateral
+action, declared comfortable height, long elbows, small diameter, direction,
+actual seconds or complete revolutions, arm drop, shrugging, trunk motion,
+breathing, symptoms, and stops. Also record playback, captions, accessibility,
+cue and demonstration quality, safety conflicts, reviewer, rationale,
+timestamp, and exact card-version match. oEmbed metadata is not approval.
+
+Independently adjudicate all 32 evidence applications, 43 alternates, 7
+identity decisions, 6 graph proposals, and 4 task-difficulty anchors. Verify
+Shoulder CAR `30/12/30` and Arm Circles `16/14/16`, all three delivery
+profiles, actual-duration formulas, cumulative shoulder/scapular/trunk and
+overhead budgets, logistics, substitutions, persistence, coach/athlete/
+accessibility/support content, incidents, and every quality and stop rule.
+Difficulty must remain an exercise assessment, never participant skill,
+proficiency, age, readiness, or clinical eligibility.
+
+Confirm the boundaries from bilateral small Arm Circles, Neck CARs, Quadruped
+Shoulder Circles, Full-Body Joint CARs, Dowel Pass-Through, Band External
+Rotation, wall slides, pendulums, arm swings, shoulder rolls, loaded/assisted
+variants, and clinical assessment. Each packet must retain exactly
+`CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review, comprehension testing, and separate
+publication approval are complete.
+
+## Source 36 Bilateral Band External Rotation qualified-review queue
+
+Qualified reviewers must watch all five current candidates from start to
+finish. Record playback; fixed-foot standing; unanchored band between both
+hands; elbows near 90 degrees; upper arms beside the ribs; grip and wrist
+organization; symmetric outward rotation; comfortable range; controlled
+return and exact count; trunk and shoulder compensation; band condition,
+release, recoil, and eye path; breathing; symptoms and stops; captions;
+accessibility; cue and demonstration quality; conflicts; reviewer; rationale;
+timestamp; and exact card-version match. Current oEmbed metadata is not
+playback, exactness, accessibility, safety, or approval evidence.
+
+Independently adjudicate all 16 evidence applications, 26 alternates, 4
+identity decisions, 4 graph proposals, and both exercise-complexity/physical-
+difficulty anchors. Verify `26/18/26`; Prepare & Access and Resilience
+profiles; band condition and release rules; actual cycles, range, tension,
+time under tension, duration, fatigue, recovery, and overlapping shoulder,
+rotator-cuff, scapular, grip, pulling, throwing, climbing, hanging, handstand,
+pressing, and overhead budgets; logistics; substitutions; persistence;
+coach/athlete/accessibility/support content; incidents; and every gate and stop
+rule. Difficulty must remain an exercise assessment, not participant skill,
+proficiency, or age metadata.
+
+Source 1348 Eccentric Band External Rotation must remain
+`needs_human_review` until elbow position, shoulder angle, start, working and
+assisted phases, and count are established. Retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review and separate publication approval are complete.
+
+## Source 35 Wall Slides with Lift-Off qualified-review queue
+
+Qualified reviewers must watch all five current candidates—`3blA9Ba2TFI`,
+`6fCDq1SMhsk`, `DwqcX8VVpkU`, `OKfgrx-Qeqk`, and `ykw9BWnZtlY`—from start to
+finish and match each separately against the exact base variant. Record the
+standing fixed-foot setup; vertical shoulder-width forearms; elbow start;
+continuous bilateral forearm-wall contact during ascent; comfortable overhead
+range; required terminal full-arm rather than hands-only lift-off; forearm
+replacement; return-to-start count; trunk and lumbar compensation; pace;
+breathing; symptoms and stops; captions and accessibility; demonstration and
+cue quality; safety conflicts; reviewer; rationale; timestamp; and exact card
+version. oEmbed title, channel, thumbnail, iframe, and embedding health are not
+playback, exactness, accessibility, content review, or approval evidence.
+
+Independently adjudicate all 16 evidence applications, 26 alternates, 4
+Source-35-owned identity decisions, 4 graph proposals, and both exercise-
+complexity/physical-difficulty anchors. Verify the `30/16/30` task-only
+difficulty vector; both Prepare & Access and Movement Intelligence profiles;
+full-cycle repetitions; arm elevation and wall-contact time; duration;
+fatigue, recovery, and overlapping overhead, shoulder, scapular, rotator-cuff,
+trunk, pressing, throwing, and handstand budgets; logistics; constraints;
+substitutions; persistence; coach, athlete, accessibility, and support content;
+incident handling; and every quality gate and stop rule. Difficulty must not
+be converted into participant skill, proficiency, or age metadata.
+
+Confirm Source 899 as an exact duplicate only against its full description.
+Keep Source 1309 quarantined unless a qualified reviewer establishes the
+missing wall contacts, path, terminal lift-off, return, and count contract.
+Bands, unilateral, half-kneeling, seated, and hands-only tasks require variant
+review. Supported no-lift-off reach, foam-roller slide, wall angel, wall
+push-up plus, prone Y raise, and clinical assessment remain distinct. Retain
+exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review and separate publication approval are
+complete.
+
+## 2026-08-09 — Source 26 Quadruped Spinal Circles human-review packet
+
+The registry is `2026-08-09.94` / 399 sources. Sixteen candidate evidence
+applications draw on GMB's direct Quadruped Spinal Circles instructions and
+context article, NAPA's adjacent quadruped exercise guidance, a thoracic-
+exercise systematic review, the Academy of Orthopaedic Physical Therapy low-
+back-pain guideline, and YouTube's embed documentation. Preserve scope: GMB
+supports the recognizable task and one example dose; NAPA supports support-
+change boundaries; the review supports explicit plane classification; and the
+guideline supplies clinical selection/red-flag context only. None establishes
+universal circle shape, required axial rotation, normal range, dose, frequency,
+recovery, eligibility, treatment, outcome, progression, prevention, or a
+Vortex score.
+
+Watch all five candidates in full before any media state changes:
+
+- `F8tiHAb_WQI` — ZOAR Fitness, “Quadruped Spine Circles”;
+- `LywxamPqa9k` — Matt Gray, “Quadruped Spine Circles”;
+- `b4fwyPYXFkY` — Functional Strength Training Centre, “Quadruped Spinal
+  Circles”;
+- `u2HkVRxxioA` — LL Calisthenics Coaching, “Quadruped Spine Circle”;
+- `vdgvP8CqwRw` — Nunn Performance, “Quadruped Spine Circles”.
+
+Current oEmbed title/channel/thumbnail/iframe health is not playback or
+exactness approval. Record full playback; fixed bilateral hand-and-knee
+contacts; rounded, named-side, arched, opposite-side, and counted-rounded
+checkpoints; both directions; range; pace; breathing; pelvic/scapular/head
+coupling; added axial rotation or other actions; dose; stops; captions;
+accessibility; cue and demonstration quality; safety; conflicts; reviewer
+identity; rationale; timestamp; and card-version match.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 4
+relevant identity boundaries, 4 graph proposals, and 2 complexity/physical-
+difficulty anchors. Verify `32/12/32`, the 219-character athlete instruction,
+coach/athlete/accessibility/support content, cumulative budgets, and every
+stop/incident/persistence rule. The automated packet must retain exactly
+`CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review. Separate content review and
+independent publication approval remain mandatory.
+
+## 2026-08-09 — Source 28 Side-Lying Open Book human-review packet
+
+The registry is `2026-08-09.95` / 402 sources. Sixteen candidate evidence
+applications use Leeds Teaching Hospitals NHS and Dynamic Health NHS for the
+recognizable Open Book setup and open-return action; a side-lying
+thoracolumbar-rotation reliability study for the warning that thoracic motion
+is difficult to isolate; a thoracic-exercise systematic review for adjacent
+task classification; the AOPT low-back-pain guideline for clinical scope and
+red-flag context; and YouTube embed documentation for metadata behavior only.
+None validates one universal leg angle, isolated thoracic motion, a hand-to-
+floor endpoint, cervical strategy, breathing phase, dose, frequency, recovery,
+treatment effect, eligibility, progression, prevention, or Vortex score.
+
+Watch all five candidates in full before any media state changes:
+
+- `gooXfQYTV-0` — Tony Gentilcore, “TonyGentilcore.com Side Lying Open Book”;
+- `Bik7s2SZo_U` — Brill Physical Therapy, “Side Lying Open Book”;
+- `xznlno1QVuU` — Proactive Pelvic Health Centre, “Thoracic Rotation Exercise
+  3: Side-lying Open Book”;
+- `3Cyd4iYLuKo` — Champion Physical Therapy and Performance, “Side Lying Open
+  Book”;
+- `DO94-QTeyrM` — Forté Sports Medicine and Orthopedics, “Side Lying Open Book
+  / Thoracic Rotation”.
+
+Current oEmbed title/channel/thumbnail/iframe health is not playback or
+exactness approval. Record full playback; side-lying base; bent stacked knees;
+straight forward-stacked arms; top-arm path; rib-cage/trunk action; comfortable
+range; pelvis and lower-body stability; hand-restack count; both sides; pace;
+breathing; gaze/head strategy; props; added actions; stops; captions;
+accessibility; cue and demonstration quality; safety; conflicts; reviewer;
+rationale; timestamp; and exact card-version match.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, both
+duplicate consolidations and all neighboring identity boundaries, 4 graph
+proposals, and 2 complexity/physical-difficulty anchors. Verify `22/10/22`,
+coach/athlete/accessibility/support content, actual-duration and cumulative
+budgets, every stop/incident/persistence rule, and full substitution
+revalidation. The packet must retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review. Separate content review and independent publication approval remain
+mandatory.
+
+## 2026-08-09 — Source 29 Inchworm Walkout human-review packet
+
+Registry `2026-08-09.96` contains 405 sources. Sixteen candidate evidence
+applications use ACE for a recognizable Inchworm sequence, added-push-up and
+traveling-return boundaries, and small-step/support cautions; Oxford Health NHS
+for a standing walk-out-to-plank sequence; Special Olympics for a hands-out/
+feet-in traveling example; peer-reviewed dynamic-stretching and low-back-pain
+guidance for limited programming and scope context; and YouTube documentation
+for metadata behavior only. None approves Vortex identity, score, universal
+dose, outcome, eligibility, cumulative budget, or publication claims.
+
+Watch all five candidates in full before changing any media state:
+
+- `BXRL_AC8om4` — Performance Course, “Inchworm Walkout”;
+- `ttxQ_UPOwWc` — Movement As Medicine, “Inchworm Walkout”;
+- `aFkv2m9FTGs` — PureGym, “How To Do Inch Worm Exercise”;
+- `-FW8DNKsAh8` — LivestrongWoman, “Walkout”;
+- `ZvhfaibmpwU` — Performance Course, “Inchworm Walkout”.
+
+For each candidate, record full playback; stationary or traveling return mode;
+standing start and finish; hinge/knee strategy; hand and foot sequence; high-
+plank checkpoint; whether a push-up, jump, pike, lunge, rotation, load, or other
+action is added; count rule; traction and lane safety; pace; breathing; stops;
+captions and accessibility; cue and demonstration quality; conflicts; reviewer;
+rationale; timestamp; and exact card-version match. oEmbed title, channel,
+thumbnail, and iframe health are not exactness or approval.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, both
+return-mode identities and all 5 neighboring boundaries, 5 graph proposals,
+and 4 exercise-complexity/physical-difficulty anchors. Verify stationary
+`30/24/30` and traveling `34/26/34`, all four profiles, actual-duration and
+cumulative budgets, coach/athlete/accessibility/support content, and every
+stop, incident, persistence, and substitution rule. The packet must retain
+exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review. Separate content review and
+independent publication approval remain mandatory.
+
+## 2026-08-09 — Source 31 Wrist Rockers — Backs of Hands Down / Wrist-Flexion Bias human-review packet
+
+Registry `2026-08-09.98` contains 410 sources. Sixteen candidate evidence
+applications use GMB's rear-facing palms-up wrist instructions and USA
+Gymnastics' back-of-hand kneeling rock for direct identity, setup, action,
+comfort, and stop context. Wrist-support biomechanics and the adolescent
+gymnastics wrist-injury review are adjacent loading, symptom, exposure, and
+evidence-certainty context only. None approves a Vortex identity, score,
+universal eligibility, range, pressure, dose, recovery, prevention, treatment,
+outcome, or publication claim.
+
+Watch all five current candidates in full before changing any media state:
+
+- `GYlgQSLqNRI` — Chris Gaines, “Wrist Prep, Palms up, Fingers facing
+  backwards”;
+- `MGmCC35rSB8` — its.maddymartinez, “Palms up Fingers Facing you Wrist
+  Stretch - Reduce Wrist and Forearm Pain!”;
+- `CjPVImbUXfA` — Flux, “Rear Facing Wrist.mp4”;
+- `M9UC3QezhCo` — McG, “Wrist Rocks - forward, backward, inside, palms up”;
+- `PNRoKMw96Ew` — Tangelo, “Wrist Prep Routine + Wrist Rockers - Kinetic
+  Sports Rehab”.
+
+For each candidate, record full playback; bilateral quadruped base; backs of
+hands down, palms up, and fingers toward knees; dorsal-hand and finger contact;
+very light pressure; backward shift and full forward return; comfortable
+wrist-flexion range; count rule; pace; breathing; any orientation change,
+circles, palm lifts, holds, raised support, load, or other action; stops;
+captions and accessibility; cue/demonstration quality; safety conflicts;
+reviewer; rationale; timestamp; and exact card-version match. Current oEmbed
+title, channel, thumbnail, and iframe metadata are not playback, exactness, or
+approval.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 4
+neighbor identity boundaries, 4 graph proposals, and both exercise-complexity/
+physical-difficulty anchors. Verify `26/18/26`, both delivery profiles,
+actual-duration and cumulative wrist/hand-support budgets, all coach/athlete/
+accessibility/support content, and every stop, incident, persistence, and
+substitution rule. The packet must retain exactly `CARD-MEDIA-01`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review. Separate content review and independent publication approval remain
+mandatory.
+
+## 2026-08-09 — Source 32 Finger Pulses / Palm Lifts human-review packet
+
+Registry `2026-08-09.99` contains 410 sources. Sixteen candidate evidence
+applications use GMB's separately numbered Finger Pulse and Palm Pulse tasks
+for the identity, contact, action, count, and limited dose context; USA
+Gymnastics for pain, form, and stop context; and wrist-support biomechanics and
+the adolescent gymnastics wrist-injury review as adjacent loading, symptom,
+exposure, and evidence-certainty context only. None approves a Vortex identity,
+score, universal eligibility, joint position, pressure, dose, recovery,
+prevention, treatment, outcome, or publication claim.
+
+Watch all four current candidates in full before changing any media state:
+
+- `TBvEMTrLLp8` — Swift Movement Academy, “How To Do Palm Lifts”;
+- `V9Lw__srIbM` — Dani Winks Flexibility, “Palm Pulses”;
+- `WTcreH1yVjU` — Portland State Campus Rec, “Upper Body Mobility: Palm Press
+  Finger Lifts”;
+- `nM7wB89NlwE` — OriGym, “How To Do Finger Pulses | Exercise Demo”.
+
+For each candidate, record full playback and which exact variant, if either, it
+shows. Verify quadruped base; bilateral knee, hand, finger, distal-palm, and
+palm-heel contacts; first-knuckle position; finger-pressure increase and
+release or palm-heel lift and lower; absence of bouncing or added action;
+comfortable range; count rule; pace; breathing; stops; captions and
+accessibility; cue and demonstration quality; safety conflicts; reviewer;
+rationale; timestamp; and exact card-version match. A palm-supported finger
+lift reverses the moving contact and is not an exact Palm Lift. Current oEmbed
+title, channel, thumbnail, and iframe metadata are not playback, exactness, or
+approval.
+
+Independently adjudicate all 16 evidence applications, 20 alternates, 5
+neighbor identity boundaries, 5 graph proposals, and all 4 exercise-
+complexity/physical-difficulty anchors. Verify Finger Pulses `24/18/24` and
+Palm Lifts `28/22/28`, all four delivery profiles, actual-duration and
+cumulative finger/hand/wrist/grip/support budgets, coach/athlete/accessibility/
+support content, and every stop, incident, persistence, and substitution rule.
+The packet must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
+content review and independent publication approval remain mandatory.
+
+## Source 39 Plank to Down Dog qualified-review queue
+
+Qualified reviewers must watch all five current media candidates from start
+to finish: `DP2fmagkrdg`, `WPmvODuVv14`, `u8eUdDxyAMg`, `vXqPc4Uu8X0`, and
+`0bzf7NKacXk`. Record playback; fixed bilateral palm and forefoot contacts;
+long arms; high-plank start and same-plank return with shoulders over wrists;
+comfortable inverted-V endpoint; whether knee bend and heel height are
+optional; whether wave wording is merely a cue or requires segmental spinal
+articulation; absence of a push-up, calf pedal, knee drive, step, limb lift,
+equipment, or undeclared hold; count; pace; breathing; symptoms and stops;
+floor entry and exit; captions; accessibility; cue and demonstration quality;
+safety conflicts; reviewer; rationale; timestamp; and exact card-version
+match. Current oEmbed title, channel, thumbnail, iframe, and embedding metadata
+are not playback, exactness, accessibility, safety, or approval evidence.
+
+Independently adjudicate all 16 evidence applications, 24 alternates, 5
+identity decisions, 4 graph proposals, and both exercise-complexity/physical-
+difficulty anchors. Verify the `30/28/30` task vector; Prepare & Access and
+Resilience profiles; floor-transfer and actual-duration formulas; cumulative
+palm, wrist, shoulder, trunk, hip, hamstring, calf, ankle, high-plank,
+head-below-heart, push, handstand, crawl, and floor-work budgets; logistics;
+substitutions; persistence; coach/athlete/accessibility/support content;
+incident handling; and every quality gate and stop rule. Difficulty must
+remain an exercise assessment and must not become participant skill,
+proficiency, age, readiness, or clinical metadata.
+
+The deterministic consolidation of Sources 39, 675, and 795 does not create
+human approval. Verify that pike and Down Dog name the same fixed-support
+endpoint in these source cards and that wave and rock are delivery cues unless
+an exact candidate demonstrates an added required action. Retain exactly
+`CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+`CARD-PUBLISH-01` until qualified review and separate publication approval are
+complete.
+
+## Source 38 Bear Crawl Rock-Back qualified-review queue
+
+Qualified reviewers must watch all five current media candidates from start
+to finish: `LAZ9HYjUwvk`, `X4eMdNmq0e8`, `YJ05ptsucvY`, `s4MQVrvrXBU`, and
+`b9fsav8zSm4`. Record playback, fixed bilateral palm and forefoot contacts,
+continuous knee clearance, hand-under-shoulder and knee-under-hip start, long
+arms, active palm pressure, level pelvis, organized trunk, backward hip path,
+comfortable endpoint, forward return, valid repetition, pace, breathing,
+symptoms and stops, floor entry and exit, captions, accessibility, cue and
+demonstration quality, safety conflicts, reviewer, rationale, timestamp, and
+exact card-version match. Current oEmbed title, channel, thumbnail, iframe,
+and embedding metadata are not playback, exactness, accessibility, safety, or
+approval evidence.
+
+Independently adjudicate all 16 evidence applications, 24 alternates, 5
+identity decisions, 4 graph proposals, and both exercise-complexity/physical-
+difficulty anchors. Verify the exact `30/24/30` task vector; both Prepare &
+Access and Movement Intelligence profiles; floor-transfer and actual-duration
+formulas; cumulative palm, wrist, shoulder, trunk, hip, knee, ankle, forefoot,
+hover, crawl, plank, push, handstand, and floor-work budgets; logistics;
+substitutions; persistence; coach/athlete/accessibility/support content;
+incident handling; and every quality gate and stop rule. Difficulty must
+remain an exercise assessment and must not become participant skill,
+proficiency, age, readiness, or clinical metadata.
+
+Source 912 requires a separate identity decision. Determine its exact start,
+whether knee contact is permitted or required, support continuity, endpoint,
+return, and count before approving duplicate, variant, or distinct-definition
+status. Do not automatically substitute holds, shoulder taps, crawls, crawl
+prep, knees-down rock-backs, adductor or frog rock-backs, loaded variants, or
+clinical assessments. Retain `CARD-MEDIA-01`, `CARD-IDENTITY-02`,
+`CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified
+review and separate publication approval are complete.
+
+## Source 34 Quadruped Shoulder Circles qualified-review queue
+
+Qualified reviewers must watch all five current media candidates from start to
+finish and record playback result, fixed palm and knee contacts, elbow
+extension, scapular rather than humeral or spinal motion, the declared initial
+vertical direction, all four checkpoints, return-to-start count, both
+directions, range, pace, breathing, trunk compensation, symptoms and stops,
+captions, accessibility, cue and demonstration quality, safety conflicts,
+reviewer identity, rationale, timestamp, and exact card-version match. Current
+oEmbed title, channel, thumbnail, iframe, and embedding metadata are not
+playback, exactness, accessibility, safety, or approval evidence.
+
+Independently adjudicate all 16 evidence applications, 22 alternates, 4
+Source-34-owned identity decisions, 4 graph proposals, and both exercise-
+complexity/physical-difficulty anchors. Verify the exact `30/18/30` exercise
+difficulty vector; both Prepare & Access and Movement Intelligence delivery
+profiles; actual-circle, direction, support-time, duration, fatigue, recovery,
+and overlapping wrist/shoulder/scapular/trunk-support accounting; logistics;
+constraints; substitutions; persistence; coach/athlete/accessibility/support
+content; incident handling; and every quality gate and stop rule. Difficulty
+must remain an exercise assessment and must not be converted into participant
+skill, proficiency, or age metadata.
+
+Wall, raised-support, high-plank, hover, unilateral, resisted, and unstable
+versions require separate variant review. Arm Circles/Shoulder CARs,
+Quadruped Spinal Circles, Scapular Push-Ups, clinical assessment, and the
+incompletely specified Source 1311 Quadruped Scapular Clock must remain
+distinct unless later exact mechanics justify a different human-reviewed
+decision. Retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+`CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review and
+separate publication approval are complete.
+
+## Source 33 Scapular Push-Up qualified-review queue
+
+Qualified reviewers must watch all five current media candidates from start to
+finish and separately match each against an exact variant. Record base
+contacts; elbow extension; scapular retraction/protraction or maintained
+protraction; body-line, trunk, head, and shoulder organization; absence of a
+full push-up, shrug, winging, lumbar motion, added instability, or undeclared
+support; range; count or actual-valid-seconds rule; pace; breathing; symptoms
+and stops; captions/accessibility; demonstration and cue quality; safety
+conflicts; reviewer; rationale; timestamp; and exact card-version match.
+Current oEmbed title, channel, thumbnail, and iframe metadata are not playback,
+exactness, content review, or approval.
+
+Independently adjudicate all 16 evidence applications, 24 alternates, 6
+identity decisions, 6 graph proposals, and 8 exercise-complexity/physical-
+difficulty anchors. Verify the quadruped dynamic `24/18/24`, high-plank
+dynamic `32/30/32`, quadruped hold `22/18/22`, and high-plank hold `28/30/30`
+contracts; all 8 delivery profiles; actual-duration formulas; cumulative
+hand/wrist/shoulder/scapular/trunk-support budgets; logistics; substitutions;
+coach/athlete/accessibility/support content; incidents; persistence; and every
+quality and stop rule. Source 900's exact-duplicate consolidation and removal
+of unrelated PMID 32707142 from current provenance are deterministic audit
+actions, not qualified human review.
+
+The packet must retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
 `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01` until qualified review. Separate
 content review and independent publication approval remain mandatory.

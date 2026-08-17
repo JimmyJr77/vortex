@@ -26,7 +26,7 @@ const CATEGORY_OPTIONS = [
   'Density Blocks',
   'Tempo Conditioning',
   'Repeat Sprint / Shuttle',
-  'Aerobic Base / Zone 2',
+  'Aerobic Conditioning (Zones 1-5)',
   'Mixed-Modal Conditioning',
   'Partner / Team Relay',
   'Game-Based Conditioning',
@@ -88,7 +88,7 @@ export default function ProgrammingLibraryPanel() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Programming Methods</h2>
-          <p className="text-sm text-gray-500">Reusable formats for organizing work — EMOM, intervals, circuits, density, repeat sprints, and more. These define HOW training is structured, not which movements to use.</p>
+          <p className="text-sm text-gray-500">Reusable set, clock, and conditioning structures — including aerobic work across Zones 1–5. Audience profiles use training experience, never Skill Library proficiency levels.</p>
         </div>
         <LibraryExportControls
           disabled={loading || methods.length === 0}

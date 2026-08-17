@@ -10,35 +10,28 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '490_coaching_9090_breathing_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.89';
-  reach_definition CONSTANT UUID := '0ac22398-2eed-482a-aae8-8d26ba888eaf';
-  source_656_definition CONSTANT UUID := '3cc260a4-c61c-43bf-abbe-167db83f8814';
-  source_1404_definition CONSTANT UUID := 'd65d13d0-135c-4593-8de1-fdcd9e057dc0';
-  lateral_definition CONSTANT UUID := 'b366c4d4-d75e-4902-915c-4b363e6b6238';
-  balloon_definition CONSTANT UUID := '96d4d5fe-1ad1-4930-9c74-2054764d0c6c';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[
-    reach_definition,source_656_definition,source_1404_definition,
-    lateral_definition,balloon_definition];
+  reach_definition UUID;
+  source_656_definition UUID;
+  source_1404_definition UUID;
+  lateral_definition UUID;
+  balloon_definition UUID;
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[21,656,1404];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'cb077d9c-261b-4944-8f3e-6109491c73cd'::UUID,
-    '329f2581-c1b7-4c2b-8a71-8c5c34a59cb1'::UUID,
-    '4276c5c7-19d9-4cfc-830f-fb6482b3430c'::UUID];
-  reach_wall_variant CONSTANT UUID := '4193b7da-09de-4558-b7a1-1ac9440d19eb';
-  reach_support_variant CONSTANT UUID := 'e9384c20-f26f-4a12-b9ba-913be80b2d82';
-  lateral_wall_variant CONSTANT UUID := 'b5719ed0-5d31-4030-9c11-7ea81aabe254';
-  balloon_variant CONSTANT UUID := 'd4393550-a0b4-485a-8b99-e6bb1b7e71f3';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    reach_wall_variant,reach_support_variant,lateral_wall_variant,
-    balloon_variant];
-  hip_switch_definition CONSTANT UUID := 'ea0862ed-f2e8-4976-b1ca-8fbfb310b50f';
-  hip_switch_variant CONSTANT UUID := 'e2371deb-d401-4eb0-be8e-3670e716f759';
-  crocodile_definition CONSTANT UUID := '2e308a8e-6a1d-48d4-b095-fe3dd18803d8';
-  crocodile_variant CONSTANT UUID := '42909b84-690a-45b5-908a-c085196d1141';
-  dead_bug_definition CONSTANT UUID := '2a07d4d4-5012-420c-9549-8bdbc64ec675';
-  dead_bug_variant CONSTANT UUID := '9e6cb14d-85d8-4d7e-8f24-81d4c6b72b40';
-  box_breath_definition CONSTANT UUID := '4d4aba1c-c4b5-4915-a85d-fd943acd1e91';
-  med_ball_breath_definition CONSTANT UUID := 'ae51bba4-1fd3-4492-b515-b3cf26327089';
-  med_ball_breath_variant CONSTANT UUID := 'fdaf9145-c7ef-4aef-8645-09475e4d1e13';
+  source_variant_ids UUID[];
+  reach_wall_variant UUID;
+  reach_support_variant UUID;
+  lateral_wall_variant UUID;
+  balloon_variant UUID;
+  active_variant_ids UUID[];
+  hip_switch_definition UUID;
+  hip_switch_variant UUID;
+  crocodile_definition UUID;
+  crocodile_variant UUID;
+  dead_bug_definition UUID;
+  dead_bug_variant UUID;
+  box_breath_definition UUID;
+  med_ball_breath_definition UUID;
+  med_ball_breath_variant UUID;
   shared_population JSONB := jsonb_build_object(
     'individualizationRequired',TRUE,
     'notClinicalClearance',TRUE,
@@ -88,6 +81,56 @@ DECLARE
     'relationshipReviewRequired',TRUE,'calibrationReviewRequired',TRUE);
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO reach_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=21;
+  SELECT id INTO source_656_definition FROM coaching.exercise_definition_v1
+  WHERE legacy_exercise_id=656;
+  SELECT id INTO source_1404_definition FROM coaching.exercise_definition_v1
+  WHERE legacy_exercise_id=1404;
+  SELECT id INTO lateral_definition FROM coaching.exercise_definition_v1
+  WHERE slug='9090-wall-supported-breathing-with-lateral-expansion';
+  lateral_definition := coalesce(lateral_definition,gen_random_uuid());
+  SELECT id INTO balloon_definition FROM coaching.exercise_definition_v1
+  WHERE slug='9090-hip-lift-with-ball-and-balloon';
+  balloon_definition := coalesce(balloon_definition,gen_random_uuid());
+  SELECT id INTO reach_wall_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=reach_definition AND variant_key='wall-supported-bilateral-reach';
+  reach_wall_variant := coalesce(reach_wall_variant,gen_random_uuid());
+  SELECT id INTO reach_support_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=reach_definition AND variant_key='lower-leg-supported-bilateral-reach';
+  reach_support_variant := coalesce(reach_support_variant,gen_random_uuid());
+  SELECT id INTO lateral_wall_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lateral_definition AND variant_key='wall-supported-hands-on-lateral-ribs';
+  lateral_wall_variant := coalesce(lateral_wall_variant,gen_random_uuid());
+  SELECT id INTO balloon_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=balloon_definition AND variant_key='right-arm-overhead-left-hand-balloon';
+  balloon_variant := coalesce(balloon_variant,gen_random_uuid());
+  SELECT id INTO hip_switch_definition FROM coaching.exercise_definition_v1
+  WHERE slug='9090-hip-switch';
+  SELECT id INTO hip_switch_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=hip_switch_definition AND variant_key='baseline';
+  SELECT id INTO crocodile_definition FROM coaching.exercise_definition_v1
+  WHERE slug='crocodile-breathing';
+  SELECT id INTO crocodile_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=crocodile_definition AND variant_key='baseline';
+  SELECT id INTO dead_bug_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug';
+  SELECT id INTO dead_bug_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=dead_bug_definition AND variant_key='bent-knee-contralateral-arm-heel-tap';
+  SELECT id INTO box_breath_definition FROM coaching.exercise_definition_v1
+  WHERE slug='box-breathing-hold-restore';
+  SELECT id INTO med_ball_breath_definition FROM coaching.exercise_definition_v1
+  WHERE slug='med-ball-belly-breathing-restore';
+  SELECT id INTO med_ball_breath_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=med_ball_breath_definition AND variant_key='baseline';
+  affected_definition_ids := ARRAY[reach_definition,source_656_definition,
+    source_1404_definition,lateral_definition,balloon_definition];
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=reach_definition AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=reach_definition AND variant_key='baseline-source-656'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=reach_definition AND variant_key='baseline-source-1404')];
+  active_variant_ids := ARRAY[reach_wall_variant,reach_support_variant,
+    lateral_wall_variant,balloon_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=reach_definition AND slug='9090-breathing-with-reach'
         AND status<>'archived')

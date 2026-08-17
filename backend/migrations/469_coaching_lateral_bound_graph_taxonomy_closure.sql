@@ -7,14 +7,18 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
     '469_coaching_lateral_bound_graph_taxonomy_closure';
-  lateral_definition_id CONSTANT UUID :=
-    '3c8db5f4-84d7-4f23-a400-abcea39207a4';
-  rotational_definition_id CONSTANT UUID :=
-    'b3a696c3-d189-49b3-a545-f3b9866353b7';
+  lateral_definition_id UUID;
+  rotational_definition_id UUID;
   lateral_variant_id UUID;
   rotational_variant_id UUID;
   updated_count INTEGER;
 BEGIN
+  SELECT id INTO lateral_definition_id
+  FROM coaching.exercise_definition_v1
+  WHERE slug='lateral-bound';
+  SELECT id INTO rotational_definition_id
+  FROM coaching.exercise_definition_v1
+  WHERE slug='opposite-leg-90-degree-rotational-bound-to-stick';
   SELECT variant.id INTO lateral_variant_id
   FROM coaching.exercise_variant_v1 variant
   WHERE variant.definition_id=lateral_definition_id
@@ -139,12 +143,22 @@ BEGIN
       WHERE packet.definition_id=lateral_definition_id
         AND (packet.status<>'quarantined'
           OR packet.human_review_required<>TRUE
-          OR jsonb_array_length(packet.blocking_issues_json)<>4
-          OR EXISTS(
-            SELECT 1 FROM jsonb_array_elements(packet.blocking_issues_json) issue
-            WHERE issue->>'code' NOT IN(
-              'CARD-MEDIA-01','CARD-PUBLISH-01','CARD-GRAPH-03',
-              'CARD-CALIBRATION-01')))) THEN
+          OR NOT (
+            (jsonb_array_length(packet.blocking_issues_json)=4
+              AND NOT EXISTS(
+                SELECT 1 FROM jsonb_array_elements(packet.blocking_issues_json) issue
+                WHERE issue->>'code' NOT IN(
+                  'CARD-MEDIA-01','CARD-PUBLISH-01','CARD-GRAPH-03',
+                  'CARD-CALIBRATION-01')))
+            OR (jsonb_array_length(packet.blocking_issues_json)=5
+              AND NOT EXISTS(
+                SELECT 1 FROM jsonb_array_elements(packet.blocking_issues_json) issue
+                WHERE issue#>>'{}' NOT IN(
+                  'human_content_review_required',
+                  'human_media_exact_match_review_required',
+                  'human_scoring_calibration_required',
+                  'human_relationship_review_required',
+                  'pilot_dosage_and_workout_flow_validation_required')))))) THEN
     RAISE EXCEPTION '% changed proficiency metadata or human-review quarantine',
       migration_key;
   END IF;

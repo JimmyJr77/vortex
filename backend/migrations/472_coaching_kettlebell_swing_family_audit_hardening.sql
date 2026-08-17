@@ -7,31 +7,59 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '472_coaching_kettlebell_swing_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.79';
-  swing_definition CONSTANT UUID := 'f0f47f37-e892-4689-99a0-16cba58a3f40';
-  overhead_definition CONSTANT UUID := '5c671a58-1beb-44db-9d5b-a0951630fc6f';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[swing_definition,overhead_definition];
+  swing_definition UUID;
+  overhead_definition UUID := gen_random_uuid();
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[11];
-  source_variant CONSTANT UUID := '7553cf88-659b-4764-9eb0-45d6312f302e';
-  swing_two_hand CONSTANT UUID := '1be2ece4-6718-4924-bfdd-0e7ecd65f9b4';
-  swing_one_hand CONSTANT UUID := '08c0ccc0-9233-4fb0-a00e-2393a2f70d81';
-  overhead_two_hand CONSTANT UUID := '0d92742a-4547-46ef-8bfc-9e5b840a81da';
-  overhead_one_hand CONSTANT UUID := 'b8819b4c-9e8a-4ebd-ab03-446205178435';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    swing_two_hand,swing_one_hand,overhead_two_hand,overhead_one_hand];
-  all_family_variant_ids CONSTANT UUID[] := ARRAY[
-    source_variant,swing_two_hand,swing_one_hand,overhead_two_hand,overhead_one_hand];
-  deadlift_definition CONSTANT UUID := '4ac8180f-9fb3-4a9d-bb93-5637eddff0cb';
-  deadlift_variant CONSTANT UUID := '9188d364-f772-4475-bcce-44890fb4488d';
-  rdl_definition CONSTANT UUID := 'ff9573b2-903c-46ea-ab71-3211f2350240';
-  rdl_variant CONSTANT UUID := '6f45b061-f580-4c27-b516-5d191c9fed46';
-  overhead_carry_definition CONSTANT UUID := '27c37f4e-0058-47af-a335-2350775ab713';
-  strict_press_definition CONSTANT UUID := '318d63d5-274c-4810-b70e-786c78a7d4f5';
+  source_variant UUID;
+  swing_two_hand UUID := gen_random_uuid();
+  swing_one_hand UUID := gen_random_uuid();
+  overhead_two_hand UUID := gen_random_uuid();
+  overhead_one_hand UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  all_family_variant_ids UUID[];
+  deadlift_definition UUID;
+  deadlift_variant UUID;
+  rdl_definition UUID;
+  rdl_variant UUID;
+  overhead_carry_definition UUID;
+  strict_press_definition UUID;
   swing_video_ids CONSTANT TEXT[] := ARRAY[
     'IW979LifpGo','PAhDt_0PjP4','fvQoQsDk40M','yHxcTn1UeAc'];
   overhead_video_ids CONSTANT TEXT[] := ARRAY[
     'MjZgWEr7dn8','d94xX-AQZ0A','dUlk6ZmFtAU','mKDIuUbH94Q'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO swing_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=11;
+
+  SELECT id INTO source_variant
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=swing_definition AND variant_key='baseline';
+
+  SELECT id INTO deadlift_definition FROM coaching.exercise_definition_v1
+  WHERE slug='kettlebell-deadlift' AND status<>'archived';
+  SELECT id INTO deadlift_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=deadlift_definition AND variant_key='baseline' AND status<>'archived';
+
+  SELECT id INTO rdl_definition FROM coaching.exercise_definition_v1
+  WHERE slug='romanian-deadlift' AND status<>'archived';
+  SELECT id INTO rdl_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=rdl_definition AND variant_key='single-kettlebell-standard-tempo'
+    AND status<>'archived';
+
+  SELECT id INTO overhead_carry_definition FROM coaching.exercise_definition_v1
+  WHERE slug='overhead-carry' AND status<>'archived';
+  SELECT id INTO strict_press_definition FROM coaching.exercise_definition_v1
+  WHERE slug='strict-overhead-press' AND status<>'archived';
+
+  affected_definition_ids := ARRAY[swing_definition,overhead_definition];
+  active_variant_ids := ARRAY[
+    swing_two_hand,swing_one_hand,overhead_two_hand,overhead_one_hand];
+  all_family_variant_ids := ARRAY[
+    source_variant,swing_two_hand,swing_one_hand,overhead_two_hand,overhead_one_hand];
+
   IF NOT EXISTS(
       SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=swing_definition AND slug='kettlebell-swing' AND status<>'archived')

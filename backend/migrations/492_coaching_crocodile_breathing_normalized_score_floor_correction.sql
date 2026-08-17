@@ -5,13 +5,17 @@
 DO $$
 DECLARE
   migration_key CONSTANT TEXT := '492_coaching_crocodile_breathing_normalized_score_floor_correction';
-  canonical_definition CONSTANT UUID := '2e308a8e-6a1d-48d4-b095-fe3dd18803d8';
-  variant_ids CONSTANT UUID[] := ARRAY[
-    'a041a9a6-a61a-4d14-9969-5eba23fe94fb'::UUID,
-    'd729bed4-7a61-401e-9e0d-cc0da73cd35e'::UUID,
-    '08396682-5289-4b8c-a9f1-715a56681198'::UUID
-  ];
+  canonical_definition UUID;
+  variant_ids UUID[];
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=22;
+  SELECT array_agg(id ORDER BY variant_key) INTO variant_ids
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key IN(
+    'flat-prone-stacked-hands','lower-leg-bolster-support',
+    'light-elastic-band-lateral-feedback');
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND card_version=2 AND status='review')
     OR (SELECT count(*) FROM coaching.exercise_variant_v1

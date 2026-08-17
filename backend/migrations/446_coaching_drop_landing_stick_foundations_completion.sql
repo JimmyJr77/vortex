@@ -5,17 +5,23 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '446_coaching_drop_landing_stick_foundations_completion';
   research_version CONSTANT TEXT := '2026-08-02.18';
-  bilateral_id CONSTANT UUID := 'af7d8a04-779b-4ea9-bd83-cd2395a74add';
-  single_id CONSTANT UUID := '7df94807-e1d3-4072-ad7a-cf3241dae0f1';
-  bilateral_variant_id CONSTANT UUID := 'c709dc59-1ef1-47f6-bba8-44041384c326';
-  bilateral_duplicate_variant_id CONSTANT UUID := '66ed52af-e875-416e-af77-ff418ac83dec';
-  single_variant_id CONSTANT UUID := '79a80c6b-3516-4837-8b0c-4c55fed20157';
-  single_duplicate_variant_id CONSTANT UUID := 'a6347125-c783-4682-903d-f97203c1a7d3';
-  snap_variant_id CONSTANT UUID := 'dfcdbf87-c99a-4ab4-ae71-5673be4f4c9c';
-  single_snap_variant_id CONSTANT UUID := '7b5d597a-67a9-4454-a87c-093a6011d1f0';
-  drop_jump_variant_id CONSTANT UUID := '383a8f53-3525-46e6-a07b-1562e2954f33';
-  definition_ids CONSTANT UUID[] := ARRAY[bilateral_id,single_id];
-  variant_ids CONSTANT UUID[] := ARRAY[bilateral_variant_id,single_variant_id];
+  bilateral_id UUID;
+  single_id UUID;
+  bilateral_variant_id UUID;
+  bilateral_duplicate_variant_id UUID;
+  single_variant_id UUID;
+  single_duplicate_variant_id UUID;
+  snap_variant_id UUID;
+  single_snap_variant_id UUID;
+  drop_jump_variant_id UUID;
+  snap_definition_id UUID;
+  drop_jump_definition_id UUID;
+  lateral_drop_id UUID;
+  bilateral_lateral_jump_id UUID;
+  kick_landing_id UUID;
+  single_snap_definition_id UUID;
+  definition_ids UUID[];
+  variant_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[141,219,274,782,970,1106,1108,1494,1542];
   evidence_payload JSONB := $json$
   [
@@ -66,6 +72,68 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT definition.id,variant.id INTO bilateral_id,bilateral_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='drop-landing-to-stick'
+    AND variant.variant_key='baseline';
+
+  SELECT id INTO bilateral_duplicate_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=bilateral_id AND variant_key='baseline-source-1106';
+
+  SELECT id INTO single_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-depth-drop-to-stick';
+
+  SELECT id INTO single_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=bilateral_id
+    AND variant_key='legacy-source-1542-baseline';
+
+  SELECT id INTO single_duplicate_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=bilateral_id
+    AND variant_key='legacy-source-1542-legacy-source-1494-baseline';
+
+  SELECT definition.id,variant.id INTO snap_definition_id,snap_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='snap-down-to-stick'
+    AND variant.variant_key='bilateral-tall-reach-stick';
+
+  SELECT variant.id INTO single_snap_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='single-leg-snap-down-stick'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO drop_jump_definition_id,drop_jump_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='drop-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT id INTO lateral_drop_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='drop-landing-to-lateral-stick';
+
+  SELECT id INTO bilateral_lateral_jump_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='lateral-hop-to-stick';
+
+  SELECT id INTO kick_landing_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='kick-to-landing-stick';
+
+  SELECT definition.id INTO single_snap_definition_id
+  FROM coaching.exercise_definition_v1 definition
+  WHERE definition.facility_id=1
+    AND definition.slug='single-leg-snap-down-stick';
+
+  definition_ids:=ARRAY[bilateral_id,single_id];
+  variant_ids:=ARRAY[bilateral_variant_id,single_variant_id];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(definition_ids)
         AND provenance_json->>'dropLandingStickCompletionMigration'=migration_key)=2 THEN
@@ -79,15 +147,15 @@ BEGIN
       facility_id,survivor_definition_id,resolved_definition_id,decision,
       rationale,evidence_json,resolution_source,reviewed_by)
     VALUES
-      (1,single_id,'7a79be6e-ac0d-4a6d-a8b6-e99907eabea6','distinct_exercises',
+      (1,single_id,lateral_drop_id,'distinct_exercises',
         'The terminal-stick drop landing has vertical step-off flight and no intentional lateral travel; the lateral-stick card prescribes lateral displacement.',
         $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"vertical_elevated_drop_vs_lateral_displacement_landing","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
         'deterministic_identity_equivalence',NULL),
-      (1,bilateral_id,'17ba05de-abea-4b9f-b117-a4f12cfadc6f','distinct_exercises',
+      (1,bilateral_id,bilateral_lateral_jump_id,'distinct_exercises',
         'The drop landing begins from a secured elevated platform and absorbs passive flight; the bilateral lateral jump is self-propelled lateral projection.',
         $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"elevated_passive_drop_vs_self_propelled_lateral_jump","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
         'deterministic_identity_equivalence',NULL),
-      (1,single_id,'2071e738-6e13-4af8-a59c-24c6cc19aec5','distinct_exercises',
+      (1,single_id,kick_landing_id,'distinct_exercises',
         'The unilateral drop landing begins with an elevated step-off; Kick-to-Landing Stick begins with a sport-specific kicking action and recovery landing.',
         $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"elevated_drop_vs_kick_recovery_landing","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
         'deterministic_identity_equivalence',NULL),
@@ -453,27 +521,27 @@ BEGIN
       'Bilateral and unilateral terminal support produce materially different mechanics, loading, balance, side accounting, and failure consequence.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"bilateral_vs_unilateral_terminal_drop_landing","priorDeterministicConsolidationSuperseded":true,"humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,bilateral_id,'b080c83a-b2c2-42a8-a62c-fe4f0df42980','distinct_exercises',
+    (1,bilateral_id,snap_definition_id,'distinct_exercises',
       'Drop Landing has an elevated departure and flight; Snap-Down has no required flight or platform.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"elevated_one_flight_vs_no_flight_position_acquisition","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,bilateral_id,'33d62763-a7e1-4f99-b4ab-d345f72dc1d0','distinct_exercises',
+    (1,bilateral_id,drop_jump_definition_id,'distinct_exercises',
       'Drop Landing holds the first contact; Drop Jump rebounds immediately and has a second flight and landing.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"first_contact_stick_vs_immediate_rebound","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,single_id,'0068b1ba-51c3-4bb6-978c-1bfdf49d1550','distinct_exercises',
+    (1,single_id,single_snap_definition_id,'distinct_exercises',
       'Single-Leg Drop Landing includes elevated departure and flight; Single-Leg Snap-Down is no-flight position acquisition.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"unilateral_elevated_flight_vs_unilateral_no_flight","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,single_id,'7a79be6e-ac0d-4a6d-a8b6-e99907eabea6','distinct_exercises',
+    (1,single_id,lateral_drop_id,'distinct_exercises',
       'The terminal-stick drop landing has vertical step-off flight and no intentional lateral travel; the lateral-stick card prescribes lateral displacement.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"vertical_elevated_drop_vs_lateral_displacement_landing","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,bilateral_id,'17ba05de-abea-4b9f-b117-a4f12cfadc6f','distinct_exercises',
+    (1,bilateral_id,bilateral_lateral_jump_id,'distinct_exercises',
       'The drop landing begins from a secured elevated platform and absorbs passive flight; the bilateral lateral jump is self-propelled lateral projection.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"elevated_passive_drop_vs_self_propelled_lateral_jump","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),
-    (1,single_id,'2071e738-6e13-4af8-a59c-24c6cc19aec5','distinct_exercises',
+    (1,single_id,kick_landing_id,'distinct_exercises',
       'The unilateral drop landing begins with an elevated step-off; Kick-to-Landing Stick begins with a sport-specific kicking action and recovery landing.',
       $json$ {"migration":"446_coaching_drop_landing_stick_foundations_completion","identityBoundary":"elevated_drop_vs_kick_recovery_landing","humanReviewRequired":true,"approvalsCreated":false}$json$::JSONB,
       'deterministic_identity_equivalence',NULL),

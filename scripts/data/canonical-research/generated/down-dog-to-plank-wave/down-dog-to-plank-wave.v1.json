@@ -1,0 +1,648 @@
+{
+  "facilityId": 1,
+  "slug": "down-dog-to-plank-wave",
+  "researchVersion": "2026-08-09.106",
+  "assessmentSummary": {
+    "identity": "One Plank-to-Down-Dog cycle starts in a high plank on both palms and forefeet with long arms, shoulders over the wrists, and an organized trunk and pelvis. Keep both hands and feet fixed, press through the palms, and move the hips upward and backward into a comfortable inverted-V pike or Down-Dog shape. Return forward under control until the shoulders are again over the wrists and the high-plank line is restored. One complete plank-to-inverted-V-to-same-plank return is one repetition. Comfortable pike range, knee bend, heel height, stance, tempo, pauses, breathing prompt, repetitions, sets, rest, and the words wave or rock are annotations when they do not add another required action. Deliberate segment-by-segment spinal articulation, a push-up, calf pedal, knee drive, step, limb lift, changed hand support, external equipment, or a hold-only task changes the variant or definition.",
+    "currentCardFindings": [
+      "Source 39 and Source 795 already share one canonical definition, but its baseline remains a skeletal name-level consolidation without exact contacts, endpoints, count, anatomy, load, fatigue, duration, substitutions, persistence, coach, athlete, accessibility, or stop-rule contracts.",
+      "Source 675 Plank to Pike uses the same fixed-support tall-plank to pike and back cycle. Pike versus Down Dog, preparation versus resilience intent, and wave or rock wording do not change the required contacts, endpoints, action, or count, so it is a direct duplicate that belongs under the same definition and separate delivery profiles.",
+      "Plank Hold, Down Dog Calf Pedal, Pike Push-Up, Inchworm Walkout, push-up-to-Down-Dog, forearm or elevated-hand versions, suspension or ball pikes, and deliberate spinal-wave variants change action, contacts, equipment, range contract, or count and cannot be automatic substitutes.",
+      "The legacy age floors, publication state, generic dose, 20/20/20 score, and media links lack exact-card calibration, playback, captions, accessibility, cue-quality, safety, reviewer, and approval evidence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "push",
+        "hinge"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "support": "bilateral_palms_and_forefeet_fixed",
+      "laterality": "bilateral",
+      "planes": [
+        "sagittal",
+        "multiplanar_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 28,
+      "physicalDifficulty": 28,
+      "baseOverallDifficulty": 30,
+      "variantScores": {
+        "fixedSupportPlankToDownDogCycle": {
+          "technicalComplexity": 30,
+          "absoluteLoadDemand": 28,
+          "physicalDifficulty": 28,
+          "baseOverallDifficulty": 30
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_shared_across_bilateral_palms_and_forefeet",
+      "impactClass": "none",
+      "primaryExposure": [
+        "closed_chain_upper_extremity_support",
+        "dynamic_anteroposterior_weight_shift",
+        "high_plank_anti_extension",
+        "pike_hip_flexion",
+        "shoulder_and_scapular_stabilization",
+        "wrist_extension_and_forefoot_support"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "completeCycles": "3-8",
+      "secondsPerCycle": "4-10",
+      "rest": "20-60_seconds_or_as_needed_to_preserve_fixed_contacts_long_arms_high_plank_and_inverted_v_endpoints_controlled_return_breathing_and_symptom_rules",
+      "durationRule": "setup_and_floor_transfer_plus_actual_valid_cycle_seconds_plus_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit_transfer"
+    },
+    "programmingDecision": "Select only when a clean stable floor station, safe floor transfer, comfortable bilateral palm and forefoot support, tolerated head-below-heart position, long-arm shoulder support, controlled high-plank and inverted-V endpoints, exact return count, symptoms, dose, duration, and cumulative wrist, hand, elbow, shoulder, scapular, trunk, hip, hamstring, calf, ankle, plank, push, handstand, crawling, and floor-work budgets fit. Do not silently add a push-up, calf pedal, knee drive, step, limb lift, forced heel contact, required spinal articulation, changed support, or equipment. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct American Council on Exercise instructions for high-plank to inverted-V and return cycles, peer-reviewed high-plank and yoga-posture muscle-activity studies used only as adjacent load context, current YouTube oEmbed metadata, and exact comparison across Sources 39, 675, and 795 and neighboring holds, calf pedals, pike push-ups, and walkouts",
+      "uncertainty": "No study directly validates the complete Vortex cycle, one universal hand or foot spacing, pike range, knee position, heel position, spinal shape, muscle activation target, dose, frequency, fatigue ceiling, recovery interval, progression order, population eligibility, warm-up benefit, injury-prevention result, or Vortex score. The studies tested held positions or other tasks and no media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "three_source_identity_consolidation_review",
+        "anatomy_and_load_review",
+        "wrist_shoulder_inversion_and_floor_transfer_safety_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T02:20:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Start in a high plank on both palms and forefeet with long arms, shoulders over wrists, and an organized trunk and pelvis. Keep both hands and feet fixed, press through the palms, and move the hips upward and backward into a comfortable inverted-V pike or Down-Dog shape. Return forward under control until the shoulders are over the wrists and the same high-plank line is restored. Count one complete plank-to-inverted-V-to-plank return as one repetition. Comfortable pike range, knee bend, heel height, stance, tempo, pauses, breathing prompts, repetitions, sets, rest, and wave or rock wording are annotations when they add no required action. Deliberate spinal articulation, a push-up, calf pedal, knee drive, step, limb lift, changed support, equipment, or hold-only execution changes the task.",
+      "familyKey": "fixed_support_plank_to_inverted_v_cycle",
+      "movementPatterns": [
+        "brace",
+        "push",
+        "hinge"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "environment": {
+        "space": "one floor station with full plank and backward pike clearance no cross traffic and a clear controlled exit route",
+        "surface": "clean flat dry stable nonslip floor suitable for palms and forefeet",
+        "changeRule": "Any support surface contact base limb action equipment path dose symptom space or downstream-demand change requires full revalidation.",
+        "inspection": [
+          "floor traction cleanliness temperature and debris",
+          "hand and forefoot clearance",
+          "backward hip and heel clearance",
+          "neighbor and cross-traffic separation",
+          "entry exit sightline communication and emergency route"
+        ],
+        "equipmentKey": "none",
+        "coachSightline": "side and front-quarter views of contacts wrists shoulders arms trunk pelvis hip path knees heels breathing symptoms and head position",
+        "stationCapacity": 1,
+        "optionalEquipment": [
+          "mat_optional"
+        ]
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night post-trauma sharp increasing or unfamiliar pain",
+          "new numbness tingling weakness altered circulation or loss of control",
+          "wrist hand elbow shoulder neck back hip knee ankle or foot symptoms preventing exact task",
+          "instability uncontrolled collapse or inability to exit safely",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness disorientation or inability to communicate",
+          "clinical restriction conflicting with loaded floor support or head-below-heart position",
+          "unsafe floor space traffic sightline or emergency route",
+          "participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe controlled floor transfer and exit",
+          "comfortable bilateral palm and forefoot support",
+          "tolerates the declared head-below-heart position",
+          "comfortable long-arm closed-chain shoulder support",
+          "can organize high-plank and comfortable inverted-V endpoints",
+          "understands fixed contacts return count and stop signal",
+          "same-session upper-limb trunk hip knee ankle plank push handstand crawling and floor-work budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility ideal spine shape heel contact straight knees or pike range",
+          "diagnosis treatment prevention correction readiness or clearance",
+          "isolated muscle activation",
+          "one universal dose frequency fatigue ceiling recovery progression or warm-up outcome",
+          "performance transfer age floor or participant skill level"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE describes a push-up or high-plank start, fixed palm and foot support, a backward and upward hip shift into an inverted-V, and return to the starting push-up position.",
+        "This supports one fixed-support plank-to-inverted-V-to-plank cycle; Vortex makes exact endpoints, valid return, count, and identity boundaries explicit."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/blog/6106/a-yoga-routine-to-energize-your-morning-no-coffee",
+      "sourceTitle": "Plank-to-Downward Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct sequence alternates high plank and Downward-Facing Dog under controlled breathing.",
+        "Brace, push, and hinge are controlled workout-planning keys rather than participant-skill, age, readiness, or outcome classifications."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37949547/",
+      "sourceTitle": "Electromyographic analysis of trunk and hip muscles during Yoga poses prescribed for treating chronic low back pain",
+      "sourcePublisher": "Journal of Bodywork and Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "A study of twenty-two healthy yoga-trained adults measured position-dependent trunk and hip muscle activity and reported higher trunk-flexor activation in plank than in Downward Dog.",
+        "This is adjacent anatomy context only and does not establish exact transition activation, isolation, treatment, or outcome claims."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE describes long arms and legs, a backward and upward hip shift, an inverted-V endpoint, and controlled return to the starting push-up position.",
+        "Vortex permits comfortable knee bend and heel height and does not claim one universal spine, hamstring, calf, or shoulder range."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-plank elbow position and body-weight-bearing configuration alter shoulder and scapular muscle activation in healthy young men.",
+        "The 30/28/30 proposal describes exercise complexity and physical difficulty only and requires independent calibration; it is not participant proficiency, age, readiness, or skill."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39593551/",
+      "sourceTitle": "Characteristics of electromyographic activity during yoga-applied stabilization exercises",
+      "sourcePublisher": "Journal of Bodywork and Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Fourteen healthy men showed posture-dependent trunk, shoulder, and lower-limb activity across high-plank and Down-Dog conditions.",
+        "Track valid cycles, support seconds, endpoint seconds, range, tempo, first fault, symptoms, and overlapping closed-chain work; exact fatigue ceilings and recovery hours remain planning estimates."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-plank loading changes with support configuration and was studied in a limited healthy male sample.",
+        "Selection requires individual floor-transfer, hand, wrist, shoulder, head-below-heart, trunk, hip, knee, ankle, symptom, space, communication, and cumulative-load checks rather than demographic or proficiency labels."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/blog/6106/a-yoga-routine-to-energize-your-morning-no-coffee",
+      "sourceTitle": "Plank-to-Downward Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "ACE gives one context-specific example of four slow breath cycles.",
+        "Vortex's one to three sets of three to eight cycles is a quarantined delivery proposal, not a universal validated prescription, frequency, recovery interval, or outcome claim."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE supplies observable high-plank alignment, backward and upward hip shift, inverted-V, long-arm, neutral-head, comfortable-knee-bend, and return checkpoints.",
+        "Vortex adds fixed-contact, same-start return, valid-repetition, stop, persistence, and actual-duration rules without presenting them as research-validated treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39593551/",
+      "sourceTitle": "Characteristics of electromyographic activity during yoga-applied stabilization exercises",
+      "sourcePublisher": "Journal of Bodywork and Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "High plank and Down Dog impose posture-specific muscular demands in the studied healthy sample.",
+        "Stop for unsafe floor transfer, loss of support, uncontrolled collapse, sharp or increasing pain, wrist or shoulder intolerance, neurologic or systemic symptoms, dizziness in the head-below-heart position, space hazards, or participant request; use facility escalation rules."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.acefitness.org/blog/6106/a-yoga-routine-to-energize-your-morning-no-coffee",
+      "sourceTitle": "Plank-to-Downward Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 84,
+      "claims": [
+        "ACE presents the cycle inside a short yoga routine with slow breathing.",
+        "That context supports a preparation profile but does not validate readiness, resilience outcomes, universal dose, or interference rules."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "The direct instruction offers visible plank, hip-up-and-back, inverted-V, knee-bend, heel-direction, and return checkpoints.",
+        "Athlete support must also explain expected hand-support effort, permitted smaller range, unexpected symptoms, a valid complete cycle, controlled exit, and how to stop and ask for help."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shoulder and scapular recruitment changes across plank configurations.",
+        "Coach support must observe contacts, long arms, shoulder organization, high-plank line, pike range, first fault, actual exposure, symptoms, downstream load, and safe entry and exit without diagnosing pathology."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE permits a slight knee bend to obtain the inverted-V shape rather than forcing full knee extension or heel contact.",
+        "Slower tempo, fewer cycles, more rest, smaller comfortable range, visual targets, still images, or live instruction are annotations; changing support surface or height requires a separately reviewed task."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "The direct task returns from Downward Dog to the starting push-up position without a push-up, step, calf pedal, knee drive, or equipment.",
+        "Hold-only, added-action, locomotor, forearm, elevated, suspension, ball, and clinical alternatives remain distinct and are not automatic substitutions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact contacts, endpoints, action, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=DP2fmagkrdg",
+      "title": "How to: down dog to plank in a wave",
+      "channelName": "YAY!YOGA",
+      "sourceQuery": "Source 39 existing candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=WPmvODuVv14",
+      "title": "Spinal Wave Tutorial | Downdog To Plank",
+      "channelName": "Move With Katharine",
+      "sourceQuery": "Source 39 existing candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=u8eUdDxyAMg",
+      "title": "Downward Dog to Plank",
+      "channelName": "React Physical Therapy",
+      "sourceQuery": "Source 39 existing candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vXqPc4Uu8X0",
+      "title": "Plank to Down Dog",
+      "channelName": "Mobility Doc",
+      "sourceQuery": "Plank to Down Dog candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0bzf7NKacXk",
+      "title": "How to go from Plank to Down Dog",
+      "channelName": "Charlie Follows",
+      "sourceQuery": "Plank to Down Dog candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:05:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Plank to Down Dog",
+      "classification": "same_identity",
+      "rationale": "The concise name preserves the fixed palm and forefoot support, high-plank start, inverted-V endpoint, and same-plank return.",
+      "distinguishingDimensions": {
+        "variant": "fixed_support_plank_to_down_dog_cycle"
+      }
+    },
+    {
+      "name": "Down Dog to Plank Wave",
+      "classification": "same_identity",
+      "rationale": "Source 39's name preserves the same cycle when wave is a non-binding cue and no required spinal articulation is added.",
+      "distinguishingDimensions": {
+        "legacySourceId": 39
+      }
+    },
+    {
+      "name": "Rocking Plank to Down Dog",
+      "classification": "same_identity",
+      "rationale": "Source 795 describes the same tall-plank to Down-Dog and return cycle.",
+      "distinguishingDimensions": {
+        "legacySourceId": 795
+      }
+    },
+    {
+      "name": "Plank to Pike",
+      "classification": "same_identity",
+      "rationale": "Source 675 uses pike for the same fixed-support inverted-V endpoint and return.",
+      "distinguishingDimensions": {
+        "legacySourceId": 675
+      }
+    },
+    {
+      "name": "Comfortable Pike Range",
+      "classification": "modifier_annotation",
+      "rationale": "A smaller symptom-free hip shift changes amplitude without changing support, endpoints, action, or count.",
+      "distinguishingDimensions": {
+        "modifier": "range"
+      }
+    },
+    {
+      "name": "Soft-Knee or Straighter-Knee Down Dog",
+      "classification": "modifier_annotation",
+      "rationale": "Declared comfortable knee position changes range and tissue sensation while preserving the cycle.",
+      "distinguishingDimensions": {
+        "modifier": "knee_position"
+      }
+    },
+    {
+      "name": "Heel Height or Foot Stance",
+      "classification": "modifier_annotation",
+      "rationale": "Heel height and comfortable stance alter endpoint presentation without adding contacts or action.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "heel_height",
+          "foot_stance"
+        ]
+      }
+    },
+    {
+      "name": "Controlled Tempo or Endpoint Pause",
+      "classification": "modifier_annotation",
+      "rationale": "Pace and a short pause alter time under tension but preserve the cycle.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "tempo",
+          "pause"
+        ]
+      }
+    },
+    {
+      "name": "Repetitions Sets or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and rest change dosage rather than identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "repetitions",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Wave or Rock Cue",
+      "classification": "modifier_annotation",
+      "rationale": "The cue remains an annotation only when it does not require a different spinal sequence or extra action.",
+      "distinguishingDimensions": {
+        "modifier": "movement_cue"
+      }
+    },
+    {
+      "name": "Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Continuous-breathing or phase-specific inhale and exhale cues change delivery without changing mechanics.",
+      "distinguishingDimensions": {
+        "modifier": "breathing_prompt"
+      }
+    },
+    {
+      "name": "Hands-Elevated Plank to Down Dog",
+      "classification": "new_variant",
+      "rationale": "A bench, box, or wall changes support height, loading, clearance, equipment, and failure consequences.",
+      "distinguishingDimensions": {
+        "hand_support": "elevated"
+      }
+    },
+    {
+      "name": "Forearm Plank to Dolphin",
+      "classification": "new_variant",
+      "rationale": "Forearm support removes palm loading and changes shoulder angle, leverage, base, and endpoint.",
+      "distinguishingDimensions": {
+        "upper_support": "forearms"
+      }
+    },
+    {
+      "name": "TRX or Slider Plank to Pike",
+      "classification": "new_variant",
+      "rationale": "Suspension or sliding equipment changes foot support, instability, load, setup, and failure risk.",
+      "distinguishingDimensions": {
+        "equipment": [
+          "suspension_trainer",
+          "sliders"
+        ]
+      }
+    },
+    {
+      "name": "Stability-Ball Plank to Pike",
+      "classification": "new_variant",
+      "rationale": "An unstable ball support changes contact, balance, load, equipment, and exit risk.",
+      "distinguishingDimensions": {
+        "equipment": "stability_ball"
+      }
+    },
+    {
+      "name": "Deliberate Segmental Spinal Wave",
+      "classification": "new_variant",
+      "rationale": "Required segment-by-segment spinal articulation changes the action path, faults, purpose, and count contract.",
+      "distinguishingDimensions": {
+        "action": "segmental_spinal_articulation"
+      }
+    },
+    {
+      "name": "Push-Up to Down Dog",
+      "classification": "new_definition",
+      "rationale": "Required elbow flexion and pressing adds a push-up action, loading phase, validity rule, and count.",
+      "distinguishingDimensions": {
+        "action": "push_up_plus_down_dog"
+      }
+    },
+    {
+      "name": "Down Dog Calf Pedal",
+      "classification": "new_definition",
+      "rationale": "Alternating knee flexion and heel pressing adds unilateral lower-limb actions and a different count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 876
+      }
+    },
+    {
+      "name": "Plank Hold or Down Dog Hold",
+      "classification": "new_definition",
+      "rationale": "A static hold does not complete the declared two-endpoint return cycle.",
+      "distinguishingDimensions": {
+        "action": "isometric_hold"
+      }
+    },
+    {
+      "name": "Pike Push-Up",
+      "classification": "new_definition",
+      "rationale": "Elbow flexion and extension with the hips held high changes the primary action, load, endpoint, and count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseIds": [
+          191,
+          586
+        ]
+      }
+    },
+    {
+      "name": "Inchworm Walkout",
+      "classification": "new_definition",
+      "rationale": "A standing-to-floor walkout uses hand or foot steps and high plank as a checkpoint rather than cycling to an inverted-V endpoint.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 29
+      }
+    },
+    {
+      "name": "Down Dog Knee Drive or Mountain Climber",
+      "classification": "new_definition",
+      "rationale": "A unilateral knee drive removes or redistributes support and adds a distinct action and count.",
+      "distinguishingDimensions": {
+        "action": "unilateral_knee_drive"
+      }
+    },
+    {
+      "name": "Three-Legged Down Dog to Plank",
+      "classification": "new_definition",
+      "rationale": "Lifting one leg changes laterality, support, balance, loading, and transition mechanics.",
+      "distinguishingDimensions": {
+        "support": "three_point"
+      }
+    },
+    {
+      "name": "Clinical Shoulder Wrist Spine or Hamstring Assessment",
+      "classification": "new_definition",
+      "rationale": "Assessment adds standardized measurement, interpretation, consent, and clinical escalation beyond a workout card.",
+      "distinguishingDimensions": {
+        "scope": "clinical_assessment"
+      }
+    }
+  ]
+}

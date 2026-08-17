@@ -1,0 +1,14 @@
+{
+  "migrationKey": "708_coaching_partner_point_reactive_sprint_source_938_candidate_materialization",
+  "researchVersion": "2026-07-25.17",
+  "generatedAt": "2026-07-26T10:25:00.000Z",
+  "cards": [
+    {
+      "slug": "partner-point-reactive-sprint-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 3
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "migrationKey": "715_coaching_a_march_source_69_candidate_materialization",
+  "researchVersion": "2026-07-25.9",
+  "generatedAt": "2026-07-26T04:35:00.000Z",
+  "cards": [
+    {
+      "slug": "a-march",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 4
+    }
+  ]
+}

@@ -9,43 +9,75 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '477_coaching_handstand_hold_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.82';
-  free_definition CONSTANT UUID := '74ff4c17-2a19-4ae4-8f0b-320eac87c3f3';
-  wall_definition CONSTANT UUID := '8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[free_definition,wall_definition];
+  free_definition UUID;
+  wall_definition UUID;
+  affected_definition_ids UUID[];
   free_source_ids CONSTANT BIGINT[] := ARRAY[14];
   wall_source_ids CONSTANT BIGINT[] := ARRAY[252,589,806,858];
   source_ids CONSTANT BIGINT[] := free_source_ids||wall_source_ids;
-  free_source_variants CONSTANT UUID[] := ARRAY[
-    '95622e46-7f93-4a6f-8d17-cd3cd99a0c73'::UUID];
-  wall_source_variants CONSTANT UUID[] := ARRAY[
-    'ecf82a2b-0b9d-4638-89ac-cdbe9db734da'::UUID,
-    'd21d1311-9588-45b5-9d9a-719f235cdc57'::UUID,
-    '4c8dfdeb-4ce3-461c-b724-0ddf209d546f'::UUID,
-    'eb977f34-90a9-4cfd-a7e3-ec2515c1c13e'::UUID];
-  source_variant_ids CONSTANT UUID[] := free_source_variants||wall_source_variants;
-  free_floor_variant CONSTANT UUID := '69f6f7a0-93eb-4cc8-b072-520aa991c720';
-  free_parallette_variant CONSTANT UUID := '3afc1b32-d71e-4e4b-bd43-c4b4d9f8eb28';
-  wall_chest_variant CONSTANT UUID := '192da1d5-e16f-4d59-82c0-b98a144d495f';
-  wall_back_variant CONSTANT UUID := 'bf745356-095d-43a1-8a42-8157069edffb';
-  free_variant_ids CONSTANT UUID[] := ARRAY[free_floor_variant,free_parallette_variant];
-  wall_variant_ids CONSTANT UUID[] := ARRAY[wall_chest_variant,wall_back_variant];
-  active_variant_ids CONSTANT UUID[] := free_variant_ids||wall_variant_ids;
-  kickup_definition CONSTANT UUID := '2e89b7eb-19f8-42cb-9608-8227b070bccf';
-  wall_walk_definition CONSTANT UUID := 'e8c6b521-e887-481b-89c0-0a0799b9edc8';
-  wall_line_walk_definition CONSTANT UUID := '05f81ffb-5447-411f-8afc-d908c539128a';
-  toe_pull_definition CONSTANT UUID := 'f8d9024a-6707-41ff-a534-b6727c0fa2c0';
-  shrug_definition CONSTANT UUID := '46315525-232d-4240-a2fe-8e32ab8c0c94';
-  pushup_definition CONSTANT UUID := '1f09cbc7-18ed-4ff6-9355-b1a2fca9fe32';
-  negative_definition CONSTANT UUID := 'c6e9519d-a10d-4824-9227-4bd5204453f5';
-  neighbor_definition_ids CONSTANT UUID[] := ARRAY[
-    kickup_definition,wall_walk_definition,wall_line_walk_definition,
-    toe_pull_definition,shrug_definition,pushup_definition,negative_definition];
+  free_source_variants UUID[];
+  wall_source_variants UUID[];
+  source_variant_ids UUID[];
+  free_floor_variant UUID := gen_random_uuid();
+  free_parallette_variant UUID := gen_random_uuid();
+  wall_chest_variant UUID := gen_random_uuid();
+  wall_back_variant UUID := gen_random_uuid();
+  free_variant_ids UUID[];
+  wall_variant_ids UUID[];
+  active_variant_ids UUID[];
+  kickup_definition UUID;
+  wall_walk_definition UUID;
+  wall_line_walk_definition UUID;
+  toe_pull_definition UUID;
+  shrug_definition UUID;
+  pushup_definition UUID;
+  negative_definition UUID;
+  neighbor_definition_ids UUID[];
   free_video_ids CONSTANT TEXT[] := ARRAY[
     'nDY1jlI8k6U','XtQC5F2dY1s','d6_lcWtQDxw','jmF7prkqDho','GamQNn1Avs0'];
   wall_video_ids CONSTANT TEXT[] := ARRAY[
     '2v1YDTzMcO8','H3JRaep2lUE','hLYXOP-rFk8','yvr4Nbba6Zk','vNhVZcGZK7I'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO free_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=14;
+  SELECT definition_id INTO wall_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=252;
+  SELECT id INTO kickup_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-kick-up-wall' AND status<>'archived';
+  SELECT id INTO wall_walk_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-walk' AND status<>'archived';
+  SELECT id INTO wall_line_walk_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-walk-handstand-line' AND status<>'archived';
+  SELECT id INTO toe_pull_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-facing-handstand-toe-pull' AND status<>'archived';
+  SELECT id INTO shrug_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-shoulder-shrug' AND status<>'archived';
+  SELECT id INTO pushup_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-push-up' AND status<>'archived';
+  SELECT id INTO negative_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-negative-to-box' AND status<>'archived';
+
+  free_source_variants := ARRAY[(SELECT id FROM coaching.exercise_variant_v1
+    WHERE definition_id=free_definition AND variant_key='baseline')];
+  wall_source_variants := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=wall_definition AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=wall_definition AND variant_key='legacy-source-252-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=wall_definition AND variant_key='legacy-source-589-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=wall_definition AND variant_key='legacy-source-806-baseline')];
+  affected_definition_ids := ARRAY[free_definition,wall_definition];
+  source_variant_ids := free_source_variants||wall_source_variants;
+  free_variant_ids := ARRAY[free_floor_variant,free_parallette_variant];
+  wall_variant_ids := ARRAY[wall_chest_variant,wall_back_variant];
+  active_variant_ids := free_variant_ids||wall_variant_ids;
+  neighbor_definition_ids := ARRAY[
+    kickup_definition,wall_walk_definition,wall_line_walk_definition,
+    toe_pull_definition,shrug_definition,pushup_definition,negative_definition];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(affected_definition_ids) AND status<>'archived')<>2
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1

@@ -44,6 +44,7 @@ test('intent normalization rejects contradictions and preserves deterministic se
     randomSeed: 'golden-1',
   })
   assert.equal(intent.randomSeed, 'golden-1')
+  assert.deepEqual(intent.equipmentAvailable, ['none'])
   assert.equal(intent.maxDifficulty, 60)
   assert.equal(intent.trainingExperience, 'beginner')
   assert.equal(Object.hasOwn(intent, 'skillLevel'), false)
@@ -54,6 +55,68 @@ test('intent normalization rejects contradictions and preserves deterministic se
     durationMinutes: 60, athleteCount: 1, coachCount: 1, ageMin: 8, ageMax: 10,
     equipmentRequired: ['barbell'], equipmentAvoid: ['barbell'],
   }), /both required and avoided/)
+})
+
+test('intent v2 normalizes phase emphasis and controlled scoped focuses', () => {
+  const intent = normalizeWorkoutIntent({
+    durationMinutes: 60,
+    athleteCount: 12,
+    coachCount: 1,
+    ageMin: 8,
+    ageMax: 10,
+    phaseEmphasis: { output: 100, capacity: 40 },
+    focuses: [{
+      facet: 'training_family',
+      value: 'olympic_weightlifting',
+      scope: ['movement_intelligence', 'output', 'capacity'],
+      strength: 'required',
+      weight: 100,
+    }],
+  })
+  assert.deepEqual(intent.phaseEmphasis, { output: 100, capacity: 40 })
+  assert.deepEqual(intent.focuses[0].scopes, ['movement_intelligence', 'output', 'capacity'])
+  assert.equal(intent.focuses[0].preserveOnSubstitution, true)
+  assert.throws(() => normalizeWorkoutIntent({
+    durationMinutes: 60, athleteCount: 1, coachCount: 1, ageMin: 8, ageMax: 10,
+    focuses: [{ facet: 'training_family', value: 'invented_family' }],
+  }), /Unknown Taxonomy v2 focus/)
+})
+
+test('intent rejects unknown equipment keys and quantities for unavailable equipment', () => {
+  const base = {
+    durationMinutes: 60,
+    athleteCount: 8,
+    coachCount: 1,
+    ageMin: 8,
+    ageMax: 10,
+    equipmentAvailable: ['bodyweight'],
+  }
+  assert.throws(() => normalizeWorkoutIntent({
+    ...base,
+    equipmentAvailable: ['mystery_implement'],
+  }), /unknown controlled equipment keys/)
+  assert.throws(() => normalizeWorkoutIntent({
+    ...base,
+    equipmentQuantities: { dumbbell: 8 },
+  }), /quantity was supplied for unavailable equipment/)
+})
+
+test('intent normalizes direct controlled equipment aliases without accepting ambiguous labels', () => {
+  const intent = normalizeWorkoutIntent({
+    durationMinutes: 60,
+    athleteCount: 8,
+    coachCount: 1,
+    ageMin: 8,
+    ageMax: 10,
+    equipmentAvailable: ['bodyweight', 'cone'],
+    equipmentQuantities: { cone: 8 },
+  })
+  assert.deepEqual(intent.equipmentAvailable, ['none', 'cones'])
+  assert.deepEqual(intent.equipmentQuantities, { cones: 8 })
+  assert.throws(() => normalizeWorkoutIntent({
+    durationMinutes: 60, athleteCount: 8, coachCount: 1, ageMin: 8, ageMax: 10,
+    equipmentAvailable: ['rope'],
+  }), /unknown controlled equipment keys/)
 })
 
 test('canonical phase order allows omissions but not reordering', () => {

@@ -28,7 +28,7 @@ import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
 export async function generateRecurringCharges(pool, { asOf = new Date(), maxCatchUpPerSub = 12 } = {}) {
   try {
     const { processDueEnrollmentCancellations } = await import('./memberEnrollmentCancel.js')
-    await processDueEnrollmentCancellations(pool)
+    await processDueEnrollmentCancellations(pool, { force: true })
   } catch (err) {
     console.warn('[billing] process due enrollment cancellations:', err?.message ?? err)
   }

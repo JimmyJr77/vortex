@@ -1,0 +1,633 @@
+{
+  "facilityId": 1,
+  "slug": "foot-tripod-weight-shifts",
+  "researchVersion": "2026-08-09.114",
+  "assessmentSummary": {
+    "identity": "One Foot Tripod Weight Shift repetition is a bilateral standing four-direction circuit. Start centered with both heels, first metatarsal heads, fifth metatarsal heads, and relaxed toes in contact on a clean dry level surface. Shift the body mass forward until pressure increases under the forefeet without either heel lifting, return to center, shift backward without either forefoot losing contact, return to center, shift left without stepping, return to center, then shift right without stepping and return to the same centered stance. Keep every tripod contact connected, toes relaxed, knees soft and body control quiet. One complete forward, backward, left, and right circuit with all four returns is one repetition. The wall-touch version is an exact support variant. Direction-only tasks, stepping, gait, single-leg support, reaching, ankle-only rocking, short-foot doming, toe pressing, heel raising, unstable surfaces, external load, biofeedback, maximal limits testing, or clinical treatment change the variant or definition.",
+    "currentCardFindings": [
+      "Source 47 has one stable legacy definition but its source variant is skeletal and does not define the four-direction sequence, center returns, contact validity, support option, pressure versus contact boundary, fatigue, duration, substitutions, or review state.",
+      "The task is not a short-foot, hallux-press, balance-hold, or heel-raise exercise. It deliberately changes pressure under a fixed bilateral base while preserving contacts and does not claim that contact means constant pressure.",
+      "Three legacy candidates returned current healthy YouTube oEmbed metadata. Two additional candidates are needed before a human can evaluate exact mechanics and accessibility; none is approved."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "weight_shift"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "support": "bilateral_standing_hands_free_or_light_wall_touch",
+      "laterality": "bilateral_base_with_left_and_right_directional_excursions_in_each_circuit",
+      "planes": [
+        "sagittal_weight_shift",
+        "frontal_weight_shift",
+        "transverse_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "wall"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 42,
+      "absoluteLoadDemand": 12,
+      "physicalDifficulty": 12,
+      "coordinationDemand": 44,
+      "supervisionDemand": 12,
+      "failureConsequence": 8,
+      "impact": 1,
+      "workCapacityDemand": 10,
+      "baseOverallDifficulty": 42,
+      "variantScores": {
+        "standingHandsFree": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 12,
+          "physicalDifficulty": 12,
+          "coordinationDemand": 44,
+          "supervisionDemand": 12,
+          "failureConsequence": 8,
+          "impact": 1,
+          "workCapacityDemand": 10,
+          "baseOverallDifficulty": 42
+        },
+        "standingWallTouch": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 10,
+          "physicalDifficulty": 10,
+          "coordinationDemand": 40,
+          "supervisionDemand": 10,
+          "failureConsequence": 6,
+          "impact": 1,
+          "workCapacityDemand": 9,
+          "baseOverallDifficulty": 38
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_center_of_pressure_excursion_inside_a_fixed_bilateral_foot_base_with_no_added_resistance",
+      "impactClass": "none",
+      "primaryExposure": [
+        "foot_pressure_control",
+        "ankle_strategy",
+        "bilateral_weight_transfer",
+        "standing_postural_control"
+      ],
+      "recovery": "6_hours_planning_estimate_with_2_to_12_hour_review_range"
+    },
+    "proposedDosage": {
+      "prepare": "1-2_sets_of_2-4_slow_clean_four-direction_circuits",
+      "resilience": "1-3_sets_of_3-6_clean_circuits_without_chasing_end_range_or_fatigue",
+      "tempo": "slow_shift_brief_center_check_slow_return_for_each_direction",
+      "rest": "15-60_seconds_or_until_contacts_body_control_breathing_and_symptom_rules_are_restored",
+      "durationRule": "setup_surface_hygiene_station_and_support_plus_valid_circuits_restarts_side_specific_observation_rest_substitution_cleaning_reset_and_exit"
+    },
+    "programmingDecision": "Select only when the fixed bilateral base, exact four-direction circuit, clean visible foot-safe surface, selected support, symptom and restriction screen, planned range and dose, logistics, duration, and cumulative foot, calf, balance, running, landing, jumping, agility, and lower-body budgets fit. Do not silently turn pressure shifting into a balance hold, step, gait drill, arch dome, toe press, heel raise, unstable-surface task, maximal limit test, or clinical intervention. Recompute selection, fatigue, impact, duration, logistics, substitutions, persistence, and coach and athlete rendering after every change.",
+    "calibrationEvidence": {
+      "basis": "Voluntary anteroposterior and mediolateral center-of-pressure research, visually guided mediolateral weight-shift research, hallux-contact limits-of-stability evidence, short-foot and hallux task mechanics, general supervised-exercise safeguards, Source 47 legacy context, and neighborhood comparison with Short-Foot Drill, Big Toe Press Iso Hold, Single-Leg Tripod Balance, and Short Foot to Calf Raise.",
+      "uncertainty": "The literature does not establish a universal excursion, circuit cadence, support position, dose, recovery interval, participant threshold, outcome, or Vortex score. Center-of-pressure studies and balance tests are not universal workout prescriptions. Human review is required for every score, relationship, and video.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "surface_hygiene_visibility_and_support_review",
+        "load_fatigue_recovery_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T22:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand on a clean dry level surface with both heels, first metatarsal heads, fifth metatarsal heads, and relaxed toes in contact. Shift pressure forward, return to center, backward, return to center, left, return to center, then right and return to the same centered bilateral stance without stepping. Keep the contacts connected while pressure changes, keep toes relaxed, and use the selected hands-free or light wall-touch support. One full four-direction circuit is one repetition.",
+      "familyKey": "Foot Tripod Pressure Control",
+      "movementPatterns": [
+        "weight_shift"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "wall"
+      ],
+      "variantKey": "bilateral-standing-hands-free-four-direction-tripod-weight-shift-circuit",
+      "environment": {
+        "surface": "clean dry level stable nonslip foot-safe floor",
+        "space": "one visible standing station with clear entry and exit",
+        "stationCapacity": 1,
+        "hygiene": "follow facility barefoot or approved-foot-covering and shared-surface policy",
+        "coachSightline": "front and side views of feet, knees, pelvis, trunk, contact retention, stepping, breathing, and symptoms",
+        "changeRule": "A change to direction path, base, support, stepping, surface, resistance, feedback, dose, symptoms, or downstream demand requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe visible station and selected support",
+          "comfortable bilateral foot contact and small voluntary shifts",
+          "understands four directions, center returns, no-step rule, stop signal, and exit",
+          "same-session foot, calf, balance, and lower-body budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "current symptoms or restriction conflicting with exact standing weight shift",
+          "sharp or increasing pain, new neurologic, circulation, or skin concern",
+          "dizziness, faintness, chest pain, unusual breathlessness, disorientation, or inability to communicate",
+          "unsafe surface, hygiene, visibility, space, traffic, support, or exit"
+        ],
+        "notEstablishedByEvidence": [
+          "universal excursion, dose, frequency, recovery, or outcome",
+          "diagnosis, treatment, clearance, or maximal balance testing",
+          "participant classification or age threshold"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 42,
+        "absoluteLoadDemand": 12,
+        "physicalDifficulty": 12,
+        "coordinationDemand": 44,
+        "supervisionDemand": 12,
+        "failureConsequence": 8,
+        "impact": 1,
+        "workCapacityDemand": 10,
+        "baseOverallDifficulty": 42
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_center_of_pressure_excursion_within_fixed_bilateral_base",
+        "impactClass": "none",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "foot_pressure_control",
+          "ankle_strategy",
+          "bilateral_weight_transfer",
+          "standing_postural_control"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 6,
+        "technicalFatigueSensitivity": 20,
+        "impactAccumulation": 1,
+        "recoveryHoursPlanningEstimate": 6,
+        "cumulativeBudget": {
+          "foot": 14,
+          "calf": 8,
+          "balance": 18,
+          "impact": 0
+        },
+        "tracking": [
+          "validCircuits",
+          "range",
+          "support",
+          "contactLoss",
+          "stepping",
+          "symptoms",
+          "downstreamLowerBodyExposure"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/8317244/",
+      "sourceTitle": "Evaluation of the postural stability in man: movement and posture interaction",
+      "sourcePublisher": "Acta Neurobiologiae Experimentalis",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "The study measured deliberate anteroposterior and mediolateral pressure excursions during standing tasks.",
+        "Vortex defines a fixed-base four-direction shift with an explicit center return after each excursion; it does not label it an arch dome or balance hold."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26991996/",
+      "sourceTitle": "Effects of Filtering the Center of Pressure Feedback Provided in Visually Guided Mediolateral Weight Shifting",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Mediolateral weight shifting is a distinct center-of-pressure task.",
+        "Directional pressure shifts, stepping, gait, and unilateral balance remain separate movement contracts."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Standing foot tasks involve intrinsic and extrinsic foot contributors within whole-body postural control.",
+        "The card records foot, ankle, calf, knee, hip, and trunk roles without claiming isolated muscle action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26991996/",
+      "sourceTitle": "Effects of Filtering the Center of Pressure Feedback Provided in Visually Guided Mediolateral Weight Shifting",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Center-of-pressure motion can precede and guide a mediolateral body-weight transfer.",
+        "Contact retention is not a claim of constant pressure; the task uses controlled pressure redistribution within a fixed bilateral base."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/8317244/",
+      "sourceTitle": "Evaluation of the postural stability in man: movement and posture interaction",
+      "sourcePublisher": "Acta Neurobiologiae Experimentalis",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Voluntary sway requires precise control of body position in both sagittal and frontal directions.",
+        "Candidate scores describe task complexity and physical demand only; they do not classify people."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Body posture changes activation and force behavior during weightbearing foot tasks.",
+        "Acute laboratory observations do not establish workout fatigue or recovery, so Vortex tracks valid circuits, range, support, faults, symptoms, and overlapping lower-body exposure."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "General training safeguards require safe environments, progressive exposure, instruction, and supervision appropriate to the task.",
+        "Vortex requires a clean dry level surface, toe and foot visibility, adequate space, selected support, communication, and exit conditions without demographic classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/8317244/",
+      "sourceTitle": "Evaluation of the postural stability in man: movement and posture interaction",
+      "sourcePublisher": "Acta Neurobiologiae Experimentalis",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "The research uses controlled task trials rather than a universal workout protocol.",
+        "Candidate circuit ranges are planning proposals and stop before contact, balance, breathing, or symptom quality degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26991996/",
+      "sourceTitle": "Effects of Filtering the Center of Pressure Feedback Provided in Visually Guided Mediolateral Weight Shifting",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Visualized targets can direct a mediolateral center-of-pressure shift.",
+        "Vortex uses observable direction, center return, no-step, retained-contact, and calm-body cues without requiring instrumented feedback."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39764301/",
+      "sourceTitle": "Noncontact of the unilateral hallux with the ground reduces forward limits of stability while standing",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hallux contact affected forward limits of stability in the study conditions.",
+        "Stop if contacts, balance, control, symptoms, or the safe station cannot be restored; do not force an end-range shift."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35442981/",
+      "sourceTitle": "Effect of intrinsic foot muscles training on foot function and dynamic postural balance: A systematic review and meta-analysis",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Intrinsic-foot intervention studies are heterogeneous in exercise selection and outcome measures.",
+        "The task can serve preparation or low-fatigue control only when purpose and downstream balance and lower-body budgets fit; no universal transfer is promised."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26991996/",
+      "sourceTitle": "Effects of Filtering the Center of Pressure Feedback Provided in Visually Guided Mediolateral Weight Shifting",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "A left-right target can make the shift direction observable.",
+        "Athlete support uses one direction at a time, a small smooth shift, a center reset, relaxed toes, and a stop-before-loss rule."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/8317244/",
+      "sourceTitle": "Evaluation of the postural stability in man: movement and posture interaction",
+      "sourcePublisher": "Acta Neurobiologiae Experimentalis",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Anteroposterior and mediolateral excursions can be observed as distinct tasks.",
+        "Coaches record direction, center return, contacts, stepping, toe gripping, body strategy, support, first fault, symptoms, and actual dose without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction, environment, progression, and supervision should be matched to the actual task and setting.",
+        "Smaller excursion, wall-touch, fewer circuits, longer rest, clear directional markers, captions, stills, transcript, and live verbal instruction can improve access while preserving the contract."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Short-foot, hallux-flexion, and heel-raise tasks are separately described in the study protocol.",
+        "Pressure shifts, arch shortening, hallux pressing, and heel raises have explicit boundaries; support and direction changes are assessed rather than silently collapsed."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports embedded playback subject to video and platform state.",
+        "Three legacy candidates returned healthy oEmbed metadata on 2026-08-09; additional candidates and complete mechanics, accessibility, quality, and approval review remain pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=A4M39vPEMm8",
+      "title": "Improve Your Squat | Tripod stand",
+      "channelName": "Muscle & Motion",
+      "sourceQuery": "legacy Source 47 candidate; squat framing and exact four-direction circuit require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact circuit, contact behavior, captions, accessibility, cue quality, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=F6jsi7GB1Ow",
+      "title": "Foot Tripod",
+      "channelName": "RunDNA",
+      "sourceQuery": "legacy Source 47 candidate; exact pressure path and support require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact circuit, contact behavior, captions, accessibility, cue quality, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LI1b1t4JUvc",
+      "title": "Balance Tip Tripod foot",
+      "channelName": "Feldenkrais with Taro Iwamoto",
+      "sourceQuery": "legacy Source 47 candidate; balance framing and exact four-direction circuit require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact circuit, contact behavior, captions, accessibility, cue quality, safety, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bilateral Hands-Free Four-Direction Foot Tripod Weight Shift",
+      "classification": "same_identity",
+      "rationale": "Authored exact source circuit with a fixed bilateral base and all four center returns.",
+      "distinguishingDimensions": {
+        "support": "hands_free",
+        "sequence": "forward_backward_left_right_with_center_returns"
+      }
+    },
+    {
+      "name": "Wall-Touch Four-Direction Foot Tripod Weight Shift",
+      "classification": "same_identity",
+      "rationale": "Light wall contact changes support while preserving the same fixed-base circuit.",
+      "distinguishingDimensions": {
+        "support": "light_wall_touch"
+      }
+    },
+    {
+      "name": "Smaller Comfortable Weight Shift",
+      "classification": "modifier_annotation",
+      "rationale": "Excursion amplitude is dosage while direction, contacts, base, and sequence remain intact.",
+      "distinguishingDimensions": {
+        "annotation": "comfortable_excursion"
+      }
+    },
+    {
+      "name": "Slower or Faster Clean Circuit Tempo",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo changes exposure but not the four-direction return contract.",
+      "distinguishingDimensions": {
+        "annotation": "tempo"
+      }
+    },
+    {
+      "name": "Directional Cue Marker Change",
+      "classification": "modifier_annotation",
+      "rationale": "A visual or verbal direction cue does not change the physical task.",
+      "distinguishingDimensions": {
+        "annotation": "cue_format"
+      }
+    },
+    {
+      "name": "Circuit Repetition Set or Rest Change",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and recovery are delivery fields.",
+      "distinguishingDimensions": {
+        "annotation": "dose"
+      }
+    },
+    {
+      "name": "Comfortable Stance Width",
+      "classification": "modifier_annotation",
+      "rationale": "A small stance-width adjustment is an annotation when no stepping or support change occurs.",
+      "distinguishingDimensions": {
+        "annotation": "stance_width"
+      }
+    },
+    {
+      "name": "Footwear Within Approved Traction and Visibility Rules",
+      "classification": "modifier_annotation",
+      "rationale": "Foot covering is operational when contact observation and traction remain adequate.",
+      "distinguishingDimensions": {
+        "annotation": "foot_covering"
+      }
+    },
+    {
+      "name": "Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Breathing cues do not change identity unless breath control becomes the task.",
+      "distinguishingDimensions": {
+        "annotation": "breathing"
+      }
+    },
+    {
+      "name": "Forward-Backward Foot Tripod Weight Shift Only",
+      "classification": "new_variant",
+      "rationale": "Removing mediolateral excursions changes sequence, dose, and observation.",
+      "distinguishingDimensions": {
+        "direction": "anteroposterior_only"
+      }
+    },
+    {
+      "name": "Left-Right Foot Tripod Weight Shift Only",
+      "classification": "new_variant",
+      "rationale": "Removing sagittal excursions changes sequence, dose, and observation.",
+      "distinguishingDimensions": {
+        "direction": "mediolateral_only"
+      }
+    },
+    {
+      "name": "Circular Foot Tripod Weight Shift",
+      "classification": "new_variant",
+      "rationale": "A circular trajectory changes sequence and center-return criteria.",
+      "distinguishingDimensions": {
+        "path": "circular"
+      }
+    },
+    {
+      "name": "Single-Leg Tripod Weight Shift",
+      "classification": "new_variant",
+      "rationale": "Unilateral support changes load, balance, fall response, and count.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Split-Stance Weight Shift",
+      "classification": "new_variant",
+      "rationale": "Split stance changes base geometry and directional interpretation.",
+      "distinguishingDimensions": {
+        "stance": "split"
+      }
+    },
+    {
+      "name": "Stepping Weight Shift",
+      "classification": "new_variant",
+      "rationale": "A step changes base, locomotion, contacts, and count.",
+      "distinguishingDimensions": {
+        "locomotion": "step"
+      }
+    },
+    {
+      "name": "Unstable-Surface Weight Shift",
+      "classification": "new_variant",
+      "rationale": "Surface compliance changes balance, logistics, and failure behavior.",
+      "distinguishingDimensions": {
+        "surface": "unstable"
+      }
+    },
+    {
+      "name": "Externally Loaded Weight Shift",
+      "classification": "new_variant",
+      "rationale": "External resistance changes force path, handling, and fatigue.",
+      "distinguishingDimensions": {
+        "externalLoad": true
+      }
+    },
+    {
+      "name": "Short-Foot Drill",
+      "classification": "new_definition",
+      "rationale": "Arch shortening and an isometric hold are a different primary action.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "f8e6217e-1f08-465c-b533-308316c8602e"
+      }
+    },
+    {
+      "name": "Big Toe Press Iso Hold",
+      "classification": "new_definition",
+      "rationale": "A sustained hallux press is not a whole-foot pressure circuit.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "285b2fe4-707c-41af-9382-08597788407f"
+      }
+    },
+    {
+      "name": "Toe Yoga",
+      "classification": "new_definition",
+      "rationale": "Selective toe extension is not whole-foot pressure transfer.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "18cec0fe-4ea4-4e28-9f75-41f192f94005"
+      }
+    },
+    {
+      "name": "Single-Leg Tripod Balance",
+      "classification": "new_definition",
+      "rationale": "A static unilateral hold has a different base, action, and count.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "b7d5bc5d-205f-4c7e-b7c0-f93550778641"
+      }
+    },
+    {
+      "name": "Short Foot to Calf Raise",
+      "classification": "new_definition",
+      "rationale": "An arch action followed by bilateral plantarflexion is a compound sequence.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "a1f96711-3528-4b38-b51a-9f087caa9735"
+      }
+    },
+    {
+      "name": "Knee-to-Wall Ankle Rocker",
+      "classification": "new_definition",
+      "rationale": "Knee-forward dorsiflexion uses a different action and endpoint.",
+      "distinguishingDimensions": {
+        "action": "knee_forward_dorsiflexion"
+      }
+    },
+    {
+      "name": "Limits-of-Stability Assessment",
+      "classification": "new_definition",
+      "rationale": "Maximal excursion testing changes intent, measurement, risk, and stop rules.",
+      "distinguishingDimensions": {
+        "intent": "assessment"
+      }
+    }
+  ]
+}

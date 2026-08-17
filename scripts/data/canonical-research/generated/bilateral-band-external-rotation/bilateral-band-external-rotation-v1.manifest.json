@@ -1,0 +1,13 @@
+{
+  "batchKey": "bilateral-band-external-rotation-v1",
+  "researchVersion": "2026-08-09.103",
+  "generatedAt": "2026-08-09T21:45:00.000Z",
+  "cards": [
+    {
+      "slug": "band-external-rotation",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 26
+    }
+  ]
+}

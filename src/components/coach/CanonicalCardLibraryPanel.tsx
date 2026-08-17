@@ -4,18 +4,20 @@ import { coachFetch } from '../../coach/api'
 import { CanonicalCardEditor } from './CanonicalCardEditor'
 import { CanonicalRelationshipPanel } from './CanonicalRelationshipPanel'
 import { CanonicalCalibrationWorkspace } from './CanonicalCalibrationWorkspace'
+import { CanonicalTaxonomyGovernance } from './CanonicalTaxonomyGovernance'
 import type { CanonicalCard, CanonicalCardStatus, CanonicalCardSummary } from './canonicalCardTypes'
 
 const STATUSES: Array<CanonicalCardStatus | 'all'> = ['all', 'draft', 'review', 'published', 'deprecated', 'archived']
 
 export function CanonicalCardLibraryPanel() {
-  const [workspace, setWorkspace] = useState<'cards' | 'calibration'>('cards')
+  const [workspace, setWorkspace] = useState<'cards' | 'taxonomy' | 'calibration'>('cards')
   const [cards, setCards] = useState<CanonicalCardSummary[]>([])
   const [status, setStatus] = useState<CanonicalCardStatus | 'all'>('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editorCard, setEditorCard] = useState<CanonicalCard | null | undefined>(undefined)
+  const [editorVariantId, setEditorVariantId] = useState<string | null>(null)
   const [aiNotes, setAiNotes] = useState('')
   const [aiDrafting, setAiDrafting] = useState(false)
 
@@ -40,9 +42,10 @@ export function CanonicalCardLibraryPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status])
 
-  const edit = async (id: string) => {
+  const edit = async (id: string, initialVariantId: string | null = null) => {
     setLoading(true)
     setError(null)
+    setEditorVariantId(initialVariantId)
     try {
       setEditorCard(await coachFetch<CanonicalCard>(`/api/coach/canonical/cards/${id}`))
     } catch (caught) {
@@ -74,9 +77,10 @@ export function CanonicalCardLibraryPanel() {
     <div className="space-y-5">
       <div className="flex gap-2 border-b border-gray-200">
         <button type="button" onClick={() => setWorkspace('cards')} className={`border-b-2 px-2 py-2 text-sm font-semibold ${workspace === 'cards' ? 'border-indigo-700 text-indigo-700' : 'border-transparent text-gray-500'}`}>Card governance</button>
+        <button type="button" onClick={() => setWorkspace('taxonomy')} className={`border-b-2 px-2 py-2 text-sm font-semibold ${workspace === 'taxonomy' ? 'border-indigo-700 text-indigo-700' : 'border-transparent text-gray-500'}`}>Taxonomy coverage</button>
         <button type="button" onClick={() => setWorkspace('calibration')} className={`border-b-2 px-2 py-2 text-sm font-semibold ${workspace === 'calibration' ? 'border-indigo-700 text-indigo-700' : 'border-transparent text-gray-500'}`}>Score calibration</button>
       </div>
-      {workspace === 'calibration' ? <CanonicalCalibrationWorkspace /> : (
+      {workspace === 'calibration' ? <CanonicalCalibrationWorkspace /> : workspace === 'taxonomy' ? <CanonicalTaxonomyGovernance onOpenCard={(definitionId, variantId) => { setWorkspace('cards'); void edit(definitionId, variantId) }} /> : (
         <>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -137,7 +141,8 @@ export function CanonicalCardLibraryPanel() {
       {editorCard !== undefined && (
         <CanonicalCardEditor
           source={editorCard}
-          onClose={() => setEditorCard(undefined)}
+          initialVariantId={editorVariantId}
+          onClose={() => { setEditorCard(undefined); setEditorVariantId(null) }}
           onSaved={(saved) => {
             setEditorCard(saved)
             void load()

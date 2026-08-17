@@ -1,0 +1,492 @@
+{
+  "facilityId": 1,
+  "slug": "hollow-to-arch-roll",
+  "researchVersion": "2026-08-10.117",
+  "assessmentSummary": {
+    "identity": "Hollow-to-Arch Roll is one complete controlled floor cycle: begin in a declared supine hollow shape, roll as one long body without hand or foot push-off to a declared prone arch shape, then return through the same controlled whole-body roll to the declared supine hollow start. A cycle is not a static hold, a rock, a log roll, a tuck roll, a forward/backward roll, a shoulder roll, an arch rock, a bridge, or a multi-cycle conditioning drill.",
+    "currentCardFindings": [
+      "Source 71 names a hollow-to-arch roll but does not define the start/finish shapes, side rule, contact boundary, count unit, surface, exit, dose, fatigue, relationships, evidence, or candidate review state.",
+      "The existing hollow-family audit correctly distinguishes this orientation-changing roll from static hollow holds. The card must retain that distinction rather than silently treating a roll, rock, partial turn, or static shape as interchangeable.",
+      "Three direct URLs inherited from Source 71 are traceable candidates only; no playback, availability, embedding, exact match, captions, accessibility, safety, quality, reviewer, or approval conclusion is inferred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "neck",
+        "spine",
+        "thoracic_spine",
+        "core",
+        "shoulder",
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "support": "alternating_supine_and_prone_full_body_floor_contact",
+      "laterality": "bilateral_body_shape_with_declared_same_side_or_alternating_side_roll",
+      "planes": [
+        "transverse_roll_primary",
+        "sagittal_hollow_arch_shape",
+        "frontal_line_control"
+      ],
+      "equipment": [
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 50,
+      "absoluteLoadDemand": 22,
+      "physicalDifficulty": 22,
+      "coordinationDemand": 56,
+      "supervisionDemand": 30,
+      "failureConsequence": 26,
+      "impact": 2,
+      "workCapacityDemand": 20,
+      "baseOverallDifficulty": 50,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_floor_roll_between_supine_hollow_and_prone_arch_shapes",
+      "impactClass": "low_speed_floor_contact_transition",
+      "primaryExposure": [
+        "trunk_shape_control",
+        "shoulder_and_hip_positioning",
+        "repeated_floor_contact",
+        "vestibular_orientation_change"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual cycles, direction, surface, symptoms, pace, and overlapping trunk, shoulder, hip, or rotational work"
+    },
+    "proposedDosage": {
+      "prepare": "1-3 short quality-limited sets of complete cycles, with reset between sides or cycles",
+      "tempo": "slow enough to preserve both shapes and avoid push-off",
+      "rest": "restore orientation, breathing, shape control, and absence of symptoms before the next set",
+      "durationRule": "include mat setup, direction assignment, complete cycles, resets, rest, substitutions, cleaning, and exit"
+    },
+    "programmingDecision": "Select only when the exact hollow-to-arch-to-hollow contract, surface, direction rule, communication, positional tolerance, fatigue budget, and downstream work fit. Changing start/end shapes, support, direction, range, pace, cycle count, external load, intent, or substitution reruns selection, logistics, duration, fatigue, relationships, and validation.",
+    "calibrationEvidence": {
+      "basis": "Existing hollow-family identity audit, CrossFit gymnastics instruction that distinguishes static hollow, rocks, and hollow-to-arch transitions, trunk-control evidence, Source 71 lineage, and comparison with log/tuck/shoulder/forward/backward rolls and static shape work.",
+      "uncertainty": "The evidence does not establish universal cycle count, direction balance, pace, recovery, readiness, safety threshold, transfer, outcome, or Vortex score. Independent human calibration remains required.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "direction_and_surface_review",
+        "load_fatigue_recovery_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T00:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Start in a declared supine hollow shape on a clean stable mat or floor. Roll as one long body without hand or foot push-off to a declared prone arch shape, then return through the same controlled whole-body roll to the declared hollow start. One full hollow-to-arch-to-hollow return is one cycle. Pause and reset between cycles as needed. Record direction, cycles, surface, pace, shape quality, orientation response, symptoms, and rest. Static holds, rocks, log/tuck/shoulder/forward/backward rolls, bridges, loaded rolling, assessments, and other changed tasks require their own reviewed variant or definition.",
+      "familyKey": "hollow_arch_floor_roll_transition",
+      "movementPatterns": [
+        "brace",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "neck",
+        "spine",
+        "thoracic_spine",
+        "core",
+        "shoulder",
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "variantKey": "supine-prone-long-body-roll-cycle",
+      "environment": {
+        "surface": "clean, stable, level mat or floor with appropriate lateral roll space",
+        "space": "clear lateral space for the complete roll and an unobstructed exit",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface/mat condition and traction",
+          "clear roll path and exit",
+          "assigned direction and communication",
+          "no obstructed limb or head path"
+        ],
+        "changeRule": "Changing the start/end shape, support, direction, range, pace, cycle count, surface, external load, intent, symptoms, or substitution requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe rolling station and exit",
+          "understands the exact start, prone checkpoint, return, and stop signal",
+          "can complete a slow controlled cycle without symptoms or push-off",
+          "current trunk, shoulder, hip, and positional-orientation budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms or restrictions conflicting with rolling or floor access",
+          "sharp, increasing, unfamiliar, neurologic, circulation, skin, breathing, chest, balance, or communication concern",
+          "unsafe surface, obstructed exit, inadequate supervision, or inability to communicate",
+          "participant request to stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal cycle count, direction balance, pace, dose, recovery, readiness threshold, clinical clearance, outcome, or transfer"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 50,
+        "absoluteLoadDemand": 22,
+        "physicalDifficulty": 22,
+        "coordinationDemand": 56,
+        "supervisionDemand": 30,
+        "failureConsequence": 26,
+        "impact": 2,
+        "workCapacityDemand": 20,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_floor_roll_between_supine_hollow_and_prone_arch_shapes",
+        "impactClass": "low_speed_floor_contact_transition",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "trunk_shape_control",
+          "shoulder_hip_positioning",
+          "floor_contact",
+          "vestibular_orientation"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 20,
+        "technicalFatigueSensitivity": 46,
+        "impactAccumulation": 2,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "trunk_shape_control": 28,
+          "shoulder_position": 16,
+          "hip_position": 16,
+          "floor_orientation": 22
+        },
+        "tracking": [
+          "cycles",
+          "direction",
+          "pace",
+          "shapeQuality",
+          "orientationResponse",
+          "surface",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The guide distinguishes hollow holds, hollow rocks, and hollow-to-arch transitions as separate drills.",
+        "This candidate is one complete supine hollow to prone arch and return cycle only."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Static shape work and dynamic transitions have separate task boundaries.",
+        "Rolling orientation, fixed long-body shape, direction rule, and a completed return cycle are explicit dimensions rather than participant labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/15085209/",
+      "sourceTitle": "Surface Electromyographic Activity of the Abdominal Muscles During Pelvic-Tilt and Abdominal-Hollowing Exercises",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Trunk-control exercises involve abdominal and pelvic-position demands that vary by task.",
+        "The card records trunk, shoulder, hip, knee, ankle, and neck roles as task anatomy without claiming isolated activation or diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-mastering-gymnastics",
+      "sourceTitle": "Mastering CrossFit Gymnastics: How to Build Strength, Stability, and Confidence",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "Hollow and arch shape control are taught as distinct body positions before dynamic motion.",
+        "The exact candidate rolls between declared shapes without hand or foot push-off; static holds, rocks, and incomplete turns do not satisfy the cycle contract."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Dynamic hollow-to-arch transitions are distinct from static hollow and arch work.",
+        "Candidate scores describe task complexity and physical demand only, never participant proficiency, age, or classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/15085209/",
+      "sourceTitle": "Surface Electromyographic Activity of the Abdominal Muscles During Pelvic-Tilt and Abdominal-Hollowing Exercises",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Trunk muscle activity depends on the exercise condition and unsupported limb demands.",
+        "Track complete cycles, direction, pace, shape quality, floor contact, symptoms, and overlapping trunk/shoulder/hip work instead of claiming a universal recovery interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics instruction should account for safe environment, progression, and supervision.",
+        "Use a clean stable mat or appropriate floor, clear lateral roll space, assigned direction, communication, and an unobstructed exit; the card does not classify people."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-mastering-gymnastics",
+      "sourceTitle": "Mastering CrossFit Gymnastics: How to Build Strength, Stability, and Confidence",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "Static shape control is presented before dynamic work.",
+        "Candidate cycles and rest are quality-limited and review-only; no universal repetition, cycle, side-balance, or recovery dose is claimed."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The guide distinguishes hollow and arch positions from dynamic drills.",
+        "Instructions explicitly define the supine hollow start, one-piece roll, prone arch checkpoint, return roll, controlled finish, direction rule, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe gymnastics instruction depends on conditions, progressive teaching, and supervision.",
+        "Stop for sharp or increasing pain, new neurologic/circulation/breathing/dizziness symptoms, disorientation, unsafe surface, loss of controlled shape, repeated push-off, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-mastering-gymnastics",
+      "sourceTitle": "Mastering CrossFit Gymnastics: How to Build Strength, Stability, and Confidence",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "Hollow and arch control can be preparation for later dynamic gymnastics work but are not interchangeable with all rolling tasks.",
+        "Use the exact candidate only when current objective, floor logistics, orientation tolerance, fatigue, and downstream demands fit; it makes no transfer, prevention, or treatment promise."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Separate shape and dynamic drills require an explicit visual and verbal distinction.",
+        "Athlete support must show start, direction, whole-body roll, prone checkpoint, return, self-check, and stop prompt in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics teaching requires task-specific safety and progression decisions.",
+        "Coaches should observe exact start and finish shape, direction, hand/foot push-off, contact boundary, breath, orientation response, cycle count, symptoms, and first quality loss without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Teaching conditions and progressions must be matched to the task.",
+        "Candidate supports include matting, visual direction markers, still sequence, captions, transcript, audio description, verbal cueing, and another reviewed task if floor rolling is unsuitable; they do not establish readiness."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hollow hold, hollow rock, and hollow-to-arch transition are different drills.",
+        "The alternate review separates static shapes, partial rolls, repeated rocks, log/tuck/shoulder/forward/backward rolls, direction, and a true completed hollow-to-arch-to-hollow cycle."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Three Source 71 YouTube URLs are preserved solely as unverified candidates.",
+        "Embed URLs can be generated for human review, but no playback, exact-match, embedding, caption, accessibility, quality, reviewer, or approval result is claimed."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Ak3CYA9bNx0",
+      "title": "Legacy Hollow-to-Arch Roll candidate 1 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 71 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate; availability, embedding, exact cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iTumBpjs3fk",
+      "title": "Legacy Hollow-to-Arch Roll candidate 2 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 71 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate; availability, embedding, exact cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=okkc07gIzOY",
+      "title": "Legacy Hollow-to-Arch Roll candidate 3 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 71 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate; availability, embedding, exact cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Supine-to-Prone Long-Body Hollow-to-Arch-to-Hollow Roll",
+      "classification": "same_identity",
+      "rationale": "This is the exact candidate cycle.",
+      "distinguishingDimensions": {
+        "orientation": "supine_to_prone_to_supine",
+        "action": "complete_roll_cycle"
+      }
+    },
+    {
+      "name": "Assigned Same-Side Hollow-to-Arch Roll",
+      "classification": "modifier_annotation",
+      "rationale": "Direction is a delivery annotation only when the complete long-body cycle and all checkpoints remain identical.",
+      "distinguishingDimensions": {
+        "direction": "declared_same_side"
+      }
+    },
+    {
+      "name": "Alternating-Side Hollow-to-Arch Roll",
+      "classification": "new_variant",
+      "rationale": "Alternating direction changes bilateral exposure accounting and ordered delivery requirements.",
+      "distinguishingDimensions": {
+        "direction": "alternating_sides"
+      }
+    },
+    {
+      "name": "Hollow Body Hold",
+      "classification": "new_definition",
+      "rationale": "A fixed supine position has no orientation-changing roll or prone arch checkpoint.",
+      "distinguishingDimensions": {
+        "action": "static_supine_hold"
+      }
+    },
+    {
+      "name": "Prone Long-Body Arch Hold",
+      "classification": "new_definition",
+      "rationale": "A fixed prone position has no supine hollow start, rolling transition, or return cycle.",
+      "distinguishingDimensions": {
+        "action": "static_prone_hold"
+      }
+    },
+    {
+      "name": "Hollow Rock",
+      "classification": "new_definition",
+      "rationale": "Repeated rocking does not require a prone arch checkpoint or orientation change.",
+      "distinguishingDimensions": {
+        "action": "repeated_supine_rock"
+      }
+    },
+    {
+      "name": "Log Roll",
+      "classification": "new_definition",
+      "rationale": "A lateral log roll has a different shape, direction, support sequence, and terminal rule.",
+      "distinguishingDimensions": {
+        "shape": "neutral_long_body",
+        "direction": "lateral"
+      }
+    },
+    {
+      "name": "Tuck Roll",
+      "classification": "new_definition",
+      "rationale": "Knee/hip flexion and compact shape change the task mechanics and contact sequence.",
+      "distinguishingDimensions": {
+        "shape": "tuck"
+      }
+    },
+    {
+      "name": "Shoulder Roll",
+      "classification": "new_definition",
+      "rationale": "Asymmetric shoulder pathway and protective head/neck route change the contact and safety contract.",
+      "distinguishingDimensions": {
+        "contactPath": "shoulder_diagonal"
+      }
+    },
+    {
+      "name": "Forward or Backward Roll",
+      "classification": "new_definition",
+      "rationale": "A sagittal roll with different terminal support and recovery rules is not an automatic substitution.",
+      "distinguishingDimensions": {
+        "direction": "sagittal"
+      }
+    }
+  ]
+}

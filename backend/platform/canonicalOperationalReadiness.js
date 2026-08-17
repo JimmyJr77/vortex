@@ -1,6 +1,10 @@
 const DEFAULT_THRESHOLDS = Object.freeze({
   minimumPublishedDefinitions: 25,
+  minimumPublishedCurrentCardReviewPercent: 100,
+  minimumPublishedVerifiedManualMediaPercent: 100,
   minimumPhaseDepth: 3,
+  minimumPublishedStructuredProfileCompletePercent: 100,
+  minimumPublishedStructuredProfileApprovedPercent: 100,
   minimumApprovedEdges: 10,
   minimumApprovedCalibrationAnchors: 3,
   minimumCoachReviews: 20,
@@ -14,19 +18,57 @@ function issue(code, message, evidence, humanGate = false) {
 }
 
 export function assessCanonicalOperationalReadiness(report, overrides = {}) {
-  const thresholds = { ...DEFAULT_THRESHOLDS, ...overrides }
+  const { requireCoachOptIn = false, ...thresholdOverrides } = overrides
+  const thresholds = { ...DEFAULT_THRESHOLDS, ...thresholdOverrides }
   const failures = []
   const coverage = report?.coverage ?? {}
   const governance = report?.governance ?? {}
   const graph = report?.graph ?? {}
   const pilot = report?.coachPilot ?? {}
   const phaseDepth = report?.poolDepthByPhase ?? {}
+  const rollout = report?.rollout ?? null
 
   if (Number(coverage.publishedDefinitions ?? 0) < thresholds.minimumPublishedDefinitions) {
     failures.push(issue('INSUFFICIENT_PUBLISHED_LIBRARY', 'Published library is below the release floor.', {
       actual: Number(coverage.publishedDefinitions ?? 0),
       required: thresholds.minimumPublishedDefinitions,
     }))
+  }
+  if (Number(coverage.publishedCurrentCardReviewPercent ?? 0)
+    < thresholds.minimumPublishedCurrentCardReviewPercent) {
+    failures.push(issue('PUBLISHED_CARD_REVIEW_UNVERIFIED',
+      'Every published card needs a current-version independent approval record.', {
+        actual: Number(coverage.publishedCurrentCardReviewPercent ?? 0),
+        required: thresholds.minimumPublishedCurrentCardReviewPercent,
+        publishedDefinitions: Number(coverage.publishedDefinitions ?? 0),
+      }, true))
+  }
+  if (Number(coverage.publishedVerifiedManualMediaPercent ?? 0)
+    < thresholds.minimumPublishedVerifiedManualMediaPercent) {
+    failures.push(issue('PUBLISHED_MEDIA_UNVERIFIED',
+      'Every published card needs a current-version manual-playback exact-match media review.', {
+        actual: Number(coverage.publishedVerifiedManualMediaPercent ?? 0),
+        required: thresholds.minimumPublishedVerifiedManualMediaPercent,
+        publishedDefinitions: Number(coverage.publishedDefinitions ?? 0),
+      }, true))
+  }
+  if (Number(coverage.publishedStructuredProfileCompletePercent ?? 0)
+    < thresholds.minimumPublishedStructuredProfileCompletePercent) {
+    failures.push(issue('PUBLISHED_STRUCTURED_PROFILES_INCOMPLETE',
+      'Every published exact variant needs a complete structured v2 profile.', {
+        actual: Number(coverage.publishedStructuredProfileCompletePercent ?? 0),
+        required: thresholds.minimumPublishedStructuredProfileCompletePercent,
+        publishedVariants: Number(coverage.publishedVariants ?? 0),
+      }))
+  }
+  if (Number(coverage.publishedStructuredProfileApprovedPercent ?? 0)
+    < thresholds.minimumPublishedStructuredProfileApprovedPercent) {
+    failures.push(issue('PUBLISHED_STRUCTURED_PROFILES_UNREVIEWED',
+      'Every published exact variant needs an independently reviewed structured v2 profile.', {
+        actual: Number(coverage.publishedStructuredProfileApprovedPercent ?? 0),
+        required: thresholds.minimumPublishedStructuredProfileApprovedPercent,
+        publishedVariants: Number(coverage.publishedVariants ?? 0),
+      }, true))
   }
   const shallowPhases = Object.entries(phaseDepth)
     .filter(([, count]) => Number(count) < thresholds.minimumPhaseDepth)
@@ -86,10 +128,17 @@ export function assessCanonicalOperationalReadiness(report, overrides = {}) {
     }
   }
 
+  if (requireCoachOptIn && rollout?.status !== 'valid') {
+    failures.push(issue('FACILITY_ROLLOUT_NOT_READY', 'The facility is not explicitly configured for coach generation.', {
+      rollout,
+    }))
+  }
+
   return {
     status: failures.length === 0 ? 'ready' : 'blocked',
     evaluatedAt: new Date().toISOString(),
     thresholds,
+    rollout,
     failures,
     humanGates: failures.filter((item) => item.humanGate),
   }

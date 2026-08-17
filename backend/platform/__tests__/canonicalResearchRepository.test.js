@@ -5,6 +5,7 @@ import {
   reviewCanonicalAlternateAssessment,
   reviewCanonicalMediaCandidate,
   reviewCanonicalSectionEvidence,
+  summarizeCanonicalResearchReview,
 } from '../canonicalResearchRepository.js'
 
 const IDS = {
@@ -58,4 +59,39 @@ test('stale or cross-facility review targets fail closed as not found', async ()
     ),
     (error) => error.status === 404,
   )
+})
+
+test('review checklist exposes pending human work without promoting candidates', () => {
+  const checklist = summarizeCanonicalResearchReview({
+    evidence: [{ section_key: 'identity', review_status: 'reviewed' }],
+    mediaCandidates: [{
+      review_status: 'candidate',
+      link_status: 'healthy',
+      embedding_allowed: true,
+      exact_variant_match: null,
+      demonstration_quality_score: null,
+      captions_available: null,
+    }],
+    alternateAssessments: [{
+      review_status: 'candidate',
+      classification: 'new_definition',
+      distinguishing_dimensions: {
+        targetDefinitionId: IDS.definition,
+        targetDefinitionResolution: 'missing_requires_human_triage',
+      },
+    }],
+  })
+  assert.equal(checklist.humanReviewRequired, true)
+  assert.equal(checklist.readyForPublication, false)
+  assert.equal(checklist.evidence.reviewedSections, 1)
+  assert.equal(checklist.media.approvedCount, 0)
+  assert.equal(checklist.media.accessibilityMetadataPendingCount, 1)
+  assert.equal(checklist.alternates.pendingReviewCount, 1)
+  assert.equal(checklist.alternates.proposedNewDefinitionCount, 1)
+  assert.equal(checklist.alternates.newDefinitionWithDirectPlanCount, 1)
+  assert.equal(checklist.alternates.newDefinitionWithoutCardPlanCount, 0)
+  assert.equal(checklist.alternates.unresolvedTargetReferenceCount, 1)
+  assert.ok(checklist.blockers.some((item) => item.code === 'EXACT_MEDIA_REVIEW_PENDING'))
+  assert.ok(checklist.blockers.some((item) => item.code === 'MEDIA_ACCESSIBILITY_METADATA_PENDING'))
+  assert.ok(checklist.blockers.some((item) => item.code === 'NEW_DEFINITION_TRIAGE_PENDING'))
 })

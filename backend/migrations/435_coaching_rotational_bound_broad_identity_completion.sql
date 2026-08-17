@@ -11,10 +11,8 @@ DECLARE
     '435_coaching_rotational_bound_broad_identity_completion';
   research_batch CONSTANT TEXT := 'rotational-bound-broad-identity-v1';
   research_version CONSTANT TEXT := '2026-08-02.13';
-  source_bound_id CONSTANT UUID :=
-    '0736f4d7-dbdc-4ad5-b8e0-05293377a67c';
-  source_broad_id CONSTANT UUID :=
-    'df9da866-ee1f-478e-ae31-6978d972cc4b';
+  source_bound_id UUID;
+  source_broad_id UUID;
   exact_bound_id CONSTANT UUID :=
     'b3a696c3-d189-49b3-a545-f3b9866353b7';
   exact_broad_id CONSTANT UUID :=
@@ -23,20 +21,14 @@ DECLARE
     '9220642e-2b6c-4779-9c21-171fcf02e456';
   exact_broad_variant_id CONSTANT UUID :=
     '1f49a1bd-cc33-420e-9c86-b48e1224594e';
-  lateral_bound_id CONSTANT UUID :=
-    '3c8db5f4-84d7-4f23-a400-abcea39207a4';
-  lateral_bound_variant_id CONSTANT UUID :=
-    'be8814d6-0a37-41b0-b513-e0c44a7c9600';
-  broad_jump_id CONSTANT UUID :=
-    '1260d75e-6807-4c91-859d-7d561a9160a3';
-  broad_jump_variant_id CONSTANT UUID :=
-    '962d4295-1d84-400f-af24-53ff25813f96';
-  all_ids CONSTANT UUID[] := ARRAY[
-    source_bound_id,source_broad_id,exact_bound_id,exact_broad_id];
-  exact_ids CONSTANT UUID[] := ARRAY[exact_bound_id,exact_broad_id];
-  source_ids CONSTANT UUID[] := ARRAY[source_bound_id,source_broad_id];
-  exact_variant_ids CONSTANT UUID[] :=
-    ARRAY[exact_bound_variant_id,exact_broad_variant_id];
+  lateral_bound_id UUID;
+  lateral_bound_variant_id UUID;
+  broad_jump_id UUID;
+  broad_jump_variant_id UUID;
+  all_ids UUID[];
+  exact_ids UUID[];
+  source_ids UUID[];
+  exact_variant_ids UUID[];
   applied_count INTEGER;
   protected_count INTEGER;
   current_definition_id UUID;
@@ -118,6 +110,29 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT id INTO source_bound_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='rotational-bound-to-stick';
+  SELECT id INTO source_broad_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='rotational-broad-jump-to-stick';
+  SELECT definition.id, variant.id
+    INTO lateral_bound_id,lateral_bound_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='lateral-bound'
+    AND variant.variant_key='baseline';
+  SELECT definition.id, variant.id
+    INTO broad_jump_id,broad_jump_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='broad-jump-to-stick'
+    AND variant.variant_key='baseline';
+  all_ids := ARRAY[source_bound_id,source_broad_id,exact_bound_id,exact_broad_id];
+  exact_ids := ARRAY[exact_bound_id,exact_broad_id];
+  source_ids := ARRAY[source_bound_id,source_broad_id];
+  exact_variant_ids := ARRAY[exact_bound_variant_id,exact_broad_variant_id];
+
   IF NOT EXISTS(
     SELECT 1 FROM coaching.exercise_definition_v1
     WHERE id=source_bound_id AND facility_id=1

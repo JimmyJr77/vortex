@@ -28,6 +28,16 @@ export default function ExerciseLibraryCard({
   const tenets = exerciseTenetLabels(exercise, tenetName)
   const methodologies = exerciseFacetLabels(exercise, 'methodology', facetName, 2)
   const physiology = exerciseFacetLabels(exercise, 'physiology', facetName, 2)
+  const v2 = exercise.taxonomy_v2 ?? []
+  const v2Labels = (facetType: string, limit = 3) => v2
+    .filter((entry) => entry.facetType === facetType)
+    .sort((left, right) => right.weight - left.weight)
+    .slice(0, limit)
+    .map((entry) => `${entry.name}${entry.reviewStatus === 'approved' ? '' : ' · review'}`)
+  const trainingFamilies = v2Labels('training_family')
+  const athleticNiches = v2Labels('athletic_niche')
+  const v2Methodologies = v2Labels('methodology')
+  const movementCharacters = v2Labels('movement_character')
   const identityLine = exerciseIdentityLine(exercise, taxonomy ?? undefined)
   const reqChips = exerciseRequirementChips(exercise)
   const programmingNote = whyPreview(exercise.why)
@@ -73,6 +83,8 @@ export default function ExerciseLibraryCard({
   }
 
   const hasClassification = tenets.length > 0 || methodologies.length > 0 || physiology.length > 0
+    || trainingFamilies.length > 0 || athleticNiches.length > 0
+    || v2Methodologies.length > 0 || movementCharacters.length > 0
   const hasRequirements = reqChips.length > 0
   const hasFlags = programmingFlags.length > 0
   const hasTaxonomySection = hasClassification || hasRequirements || hasFlags
@@ -119,11 +131,31 @@ export default function ExerciseLibraryCard({
                   ))}
                 </LibraryTagGroup>
               )}
-              {methodologies.length > 0 && (
+              {trainingFamilies.length > 0 && (
+                <LibraryTagGroup label="Training family" className="min-w-0 flex-1 sm:min-w-[8rem]">
+                  {trainingFamilies.map((label) => <LibraryTag key={label} variant="methodology">{label}</LibraryTag>)}
+                </LibraryTagGroup>
+              )}
+              {athleticNiches.length > 0 && (
+                <LibraryTagGroup label="Athletic niche" className="min-w-0 flex-1 sm:min-w-[8rem]">
+                  {athleticNiches.map((label) => <LibraryTag key={label} variant="tenet">{label}</LibraryTag>)}
+                </LibraryTagGroup>
+              )}
+              {v2Methodologies.length > 0 && (
                 <LibraryTagGroup label="Method" className="min-w-0 flex-1 sm:min-w-[8rem]">
-                  {methodologies.map((label) => (
+                  {v2Methodologies.map((label) => (
                     <LibraryTag key={label} variant="methodology">{label}</LibraryTag>
                   ))}
+                </LibraryTagGroup>
+              )}
+              {v2Methodologies.length === 0 && methodologies.length > 0 && (
+                <LibraryTagGroup label="Legacy method" className="min-w-0 flex-1 sm:min-w-[8rem]">
+                  {methodologies.map((label) => <LibraryTag key={label} variant="methodology">{label}</LibraryTag>)}
+                </LibraryTagGroup>
+              )}
+              {movementCharacters.length > 0 && (
+                <LibraryTagGroup label="Movement character" className="min-w-0 flex-1 sm:min-w-[8rem]">
+                  {movementCharacters.map((label) => <LibraryTag key={label} variant="requirement">{label}</LibraryTag>)}
                 </LibraryTagGroup>
               )}
               {physiology.length > 0 && (

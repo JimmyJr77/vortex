@@ -5,13 +5,17 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
     '466_coaching_nordic_hamstring_machine_gate_completion';
-  canonical_id CONSTANT UUID := '03894b45-360d-444b-a142-6771ce6df7dd';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    '12796771-cd0b-4344-ab3b-e91f579b5473'::UUID,
-    'a4e727f1-6e9b-41d5-aa10-88a9a15a3a2c'::UUID,
-    '8d3befd9-33a1-4686-a421-9d766c540df9'::UUID,
-    'ee63d821-8e03-4402-b1a5-355705ce43fc'::UUID];
+  canonical_id UUID;
+  active_variant_ids UUID[];
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=4;
+  SELECT array_agg(id ORDER BY variant_key) INTO active_variant_ids
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key IN (
+    'eccentric-five-second-catch-reset',
+    'band-assisted-declared-range-full-cycle',
+    'unassisted-declared-range-full-cycle',
+    'incline-30-k30-h0-five-second-hold-catch-reset');
   IF (SELECT count(*) FROM coaching.exercise_variant_v1
       WHERE definition_id=canonical_id AND id=ANY(active_variant_ids)
         AND status='review')<>4 THEN

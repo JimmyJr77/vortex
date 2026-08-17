@@ -7,13 +7,10 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '450_coaching_cossack_squat_audit_completion';
   research_version CONSTANT TEXT := '2026-08-02.64';
-  canonical_id CONSTANT UUID := '40f08f99-5977-4e49-8907-02d80330d422';
-  baseline_variant CONSTANT UUID := '5a64974c-9f85-4671-ba5e-04f6e04d8621';
-  supported_variant CONSTANT UUID := 'c054800a-64e9-4fc0-8c2b-f9b8c0a0f450';
-  unresolved_variant_ids CONSTANT UUID[] := ARRAY[
-    '8370db2e-90e5-46f4-8e0d-bf58f5ddfd7c'::UUID,
-    '9e2668ab-877e-4e24-b1e4-fb91a59e7f0d'::UUID
-  ];
+  canonical_id UUID;
+  baseline_variant UUID;
+  supported_variant UUID;
+  unresolved_variant_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[
     60,175,259,467,529,751,812,835,885,1012,1362,1386,1422,1460
   ];
@@ -21,6 +18,30 @@ DECLARE
     'tpczTeSkHz0','iPZNB5GsOnM','nLNqEQ4B6XI','Zi_x6s6YXHo','usfu415_0AI'
   ];
 BEGIN
+  -- Resolve the identity graph by its controlled keys. Earlier migration runs
+  -- created equivalent Cossack cards with different UUIDs, so hard-coded IDs
+  -- make a clean bootstrap fail despite the protected survivor being present.
+  SELECT id INTO canonical_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='cossack-squat';
+
+  SELECT id INTO baseline_variant
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='baseline';
+
+  SELECT array_agg(id ORDER BY variant_key) INTO unresolved_variant_ids
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id
+    AND variant_key IN ('loaded-unspecified-implement','reach-overlay');
+
+  SELECT id INTO supported_variant
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='stable-hand-supported';
+
+  IF supported_variant IS NULL THEN
+    supported_variant:=gen_random_uuid();
+  END IF;
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND facility_id=1 AND slug='cossack-squat')<>1
     OR (SELECT count(*) FROM coaching.exercise_variant_v1

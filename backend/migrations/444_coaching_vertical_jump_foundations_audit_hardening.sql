@@ -8,15 +8,41 @@ DECLARE
     '444_coaching_vertical_jump_foundations_audit_hardening';
   completion_key CONSTANT TEXT :=
     '443_coaching_vertical_jump_foundations_completion';
-  cmj_id CONSTANT UUID := 'd404c234-4aba-4865-b4a2-3db6e7714a47';
-  rebound_id CONSTANT UUID := '51a6a26f-bbc2-4ab7-b9c7-ed116a32a25f';
-  squat_id CONSTANT UUID := '91c2fab1-0fc9-4d68-88b8-75b7ba2b06c9';
-  cmj_variant_id CONSTANT UUID := '48e6ea38-e560-481f-bf99-32edfd5021b4';
-  rebound_variant_id CONSTANT UUID := '9069f6fc-4867-4a0a-a671-1ac2a5245996';
-  squat_variant_id CONSTANT UUID := 'cc3c51dd-2795-4ac6-a57a-dcfdf023e838';
-  box_variant_id CONSTANT UUID := 'bda03e2a-caa6-4f12-8afd-37ed0d7d315b';
-  definition_ids CONSTANT UUID[] := ARRAY[cmj_id,rebound_id,squat_id];
+  cmj_id UUID;
+  rebound_id UUID;
+  squat_id UUID;
+  cmj_variant_id UUID;
+  rebound_variant_id UUID;
+  squat_variant_id UUID;
+  box_variant_id UUID;
+  definition_ids UUID[];
 BEGIN
+  SELECT definition.id,variant.id INTO cmj_id,cmj_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='countermovement-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO rebound_id,rebound_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='countermovement-jump-rebound'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO squat_id,squat_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='squat-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT variant.id INTO box_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='box-jump'
+    AND variant.variant_key='baseline';
+
+  definition_ids:=ARRAY[cmj_id,rebound_id,squat_id];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(definition_ids)
         AND provenance_json->>'verticalJumpFoundationsAuditHardeningMigration'=migration_key)=3 THEN

@@ -76,7 +76,7 @@ test('calibration review enforces two-person control and supersedes prior anchor
   await assert.rejects(
     reviewCanonicalCalibration(selfReview.pool, 7, 'calibration-1', 11, {
       decision: 'approved',
-      notes: 'Evidence agrees.',
+      notes: 'The observed comparison evidence agrees with the proposed calibration anchor.',
     }),
     /independent reviewer/,
   )
@@ -100,4 +100,13 @@ test('calibration review enforces two-person control and supersedes prior anchor
   })
   assert.equal(result.status, 'approved')
   assert.ok(approved.queries.some(({ sql }) => sql.includes("SET status='superseded'")))
+})
+
+test('calibration review requires substantive observed evidence', async () => {
+  await assert.rejects(
+    reviewCanonicalCalibration({ async connect() { assert.fail('validation should precede the transaction') } }, 7, 'calibration-1', 12, {
+      decision: 'approved', notes: 'looks good',
+    }),
+    /20 to 2000 characters/,
+  )
 })

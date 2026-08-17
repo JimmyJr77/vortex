@@ -1,0 +1,577 @@
+{
+  "facilityId": 1,
+  "slug": "hip-cars",
+  "researchVersion": "2026-08-09.116",
+  "assessmentSummary": {
+    "identity": "Hip CARs are slow, active, unilateral controlled circles of the moving hip through a comfortable available range while the assigned base limits compensation. Standing with a stable hand support and quadruped are distinct support/base variants of the same hip-circle task; neither is a leg swing, hip airplane, donkey kick, or a diagnostic assessment.",
+    "currentCardFindings": [
+      "Source 57 conflates standing and quadruped bases, leaving balance, upper-limb support, range, rep boundary, fatigue, substitutions, and media review unspecified.",
+      "Standing changes single-leg balance and support demand; quadruped changes hand/wrist/shoulder support and reduces balance demand. Both require separate exact variants.",
+      "Legacy low scores lack a task-only calibration basis; candidate values separate technical complexity from physical difficulty and remain human-calibration gated."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "hip_controlled_rotation",
+        "unilateral_active_joint_circle"
+      ],
+      "jointActions": [
+        "hip_flexion",
+        "hip_abduction",
+        "hip_external_rotation",
+        "hip_extension",
+        "hip_adduction",
+        "hip_internal_rotation",
+        "trunk_pelvis_stabilization"
+      ],
+      "planes": [
+        "multi_planar_hip_circumduction",
+        "frontal_and_transverse_trunk_control"
+      ],
+      "laterality": "unilateral_alternating",
+      "intent": "slow_active_hip_range_and_motor_control_without_compensatory_pelvis_or_spine_motion"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hip_rotator_complex",
+        "gluteus_medius_and_minimus",
+        "gluteus_maximus",
+        "iliopsoas"
+      ],
+      "secondaryMuscles": [
+        "adductors",
+        "hamstrings",
+        "abdominal_wall",
+        "spinal_stabilizers",
+        "stance_leg_or_upper_limb_support_muscles_by_variant"
+      ],
+      "joints": [
+        "hip",
+        "pelvis",
+        "lumbar_and_thoracic_spine",
+        "knee",
+        "ankle_and_foot_when_standing",
+        "shoulder_elbow_wrist_and_hand_when_quadruped"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 12,
+      "physicalDifficulty": 12,
+      "coordinationDemand": 30,
+      "supervisionDemand": 14,
+      "failureConsequence": 12,
+      "impact": 1,
+      "workCapacityDemand": 8,
+      "baseOverallDifficulty": 28,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "loadingType": "low_load_active_unilateral_hip_control",
+      "impactClass": "none",
+      "externalLoadMethod": "bodyweight_only_for_baseline",
+      "primaryStress": [
+        "active_hip_range",
+        "pelvis_trunk_control",
+        "single_leg_balance_or_upper_limb_support_by_variant"
+      ],
+      "fatigueProfile": [
+        "pelvic_or_spinal_compensation",
+        "stance_balance_loss",
+        "upper_limb_support_fatigue",
+        "rushed_circle",
+        "symptom_or_range_asymmetry"
+      ],
+      "recoveryHours": "minimal_when_low_dose_and_quality_limited"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_non_slip_floor"
+      ],
+      "optionalEquipment": [
+        "stable_hand_support",
+        "mat_or_knee_padding",
+        "visual_sequence_card"
+      ],
+      "environment": [
+        "clear_leg_circle_space",
+        "stable_support_when_assigned",
+        "coach_sightline_for_pelvis_and_trunk"
+      ],
+      "population": [
+        "can_use_the_assigned_standing_or_quadruped_base",
+        "can_control_the_assigned_support_and_range_without_symptom_escalation"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "1-3_sets_of_2-5_controlled_circles_per_direction_per_side",
+      "tempo": "slow_enough_to_keep_the_assigned_base_and_pelvis_quiet",
+      "restSeconds": "15-60_as_needed_to_restore_quality",
+      "intensity": "low_effort_bodyweight_control_not_maximal_end_range",
+      "measurement": "side_direction_base_support_range_compensation_and_symptoms",
+      "progressWhen": "both directions and sides remain controlled without compensation or symptoms at the assigned base"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Choose the assigned base before moving",
+        "Brace lightly and keep the pelvis as quiet as the task allows",
+        "Make one slow circle with the knee",
+        "Use a smaller circle before forcing range",
+        "Reverse direction and reset"
+      ],
+      "athleteInstructions": [
+        "Set up in the assigned standing-supported or quadruped position",
+        "Lift the moving knee without rushing",
+        "Draw a slow circle from the hip",
+        "Keep the rest of your body as still as you can",
+        "Return, reverse direction, and switch sides"
+      ],
+      "commonFaults": [
+        "turning_the_circle_into_a_leg_swing",
+        "pelvic_hike_or_rotation",
+        "lumbar_extension_or_side_bend",
+        "stance_knee_collapse",
+        "shoulder_wrist_or_hand_collapse_in_quadruped",
+        "forcing_a_pinching_range"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable_assigned_base",
+        "clear_floor_and_leg_path",
+        "comfortable_active_hip_range",
+        "understood_stop_signal"
+      ],
+      "qualityGates": [
+        "assigned_base_is_preserved",
+        "circle_is_slow_and_active",
+        "pelvis_and_spine_compensation_is_not_driving_range",
+        "both_directions_are_controlled",
+        "no_stop_symptom"
+      ],
+      "stopRules": [
+        "sharp_or_increasing_hip_groin_knee_back_wrist_or_shoulder_pain",
+        "numbness_tingling_dizziness_or_unusual_symptoms",
+        "loss_of_balance_or_support_stability",
+        "repeated_compensation_that_does_not_resolve_with_smaller_range_or_rest"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access",
+        "dose": "1-2_sets_of_2-3_circles_each_direction_per_side",
+        "purpose": "low-dose_active_hip_control_and_range_observation"
+      },
+      {
+        "context": "restore_or_control",
+        "dose": "1-3_sets_of_3-5_circles_each_direction_per_side_with_quality_limited_rest",
+        "purpose": "repeatable_active_hip_control_without_turning_the_task_into_fatigue_work"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "quadruped_hip_car_with_smaller_range",
+        "standing_hip_car_with_stable_hand_support"
+      ],
+      "progressions": [
+        "standing_hip_car_with_less_support",
+        "controlled_end_range_pauses_after_review"
+      ],
+      "substitutions": [
+        "reviewed_active_hip_control_task_with_matching_base_and_constraints"
+      ],
+      "doNotSubstitute": [
+        "leg_swings",
+        "hip_airplane",
+        "donkey_kick",
+        "9090_hip_switch",
+        "hip_diagnostic_assessment"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "standing_and_quadruped_base_badges",
+        "front_and_side_still_sequence",
+        "direction_and_side_counter",
+        "smaller_range_and_stop_prompt"
+      ],
+      "coach": [
+        "assigned_base_check",
+        "pelvis_spine_and_support_observation_rubric",
+        "side_direction_and_compensation_log",
+        "substitution_revalidation_prompt"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "hip rotation biomechanics, safe progressive-training guidance, legacy-card comparison, and metadata-only direct media candidates",
+      "uncertainty": "No trial establishes a unique Hip CAR difficulty score, dose, clinical outcome, or transfer effect for either exact base.",
+      "reviewNeeded": [
+        "qualified_coach_or_clinician_content_review",
+        "difficulty_anchor_comparison",
+        "standing_and_quadruped_accessibility_test",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Retain one Hip CAR definition with standing stable-support and quadruped exact variants. Treat range, direction, tempo, and assigned support as delivery dimensions. Keep hip airplanes, leg swings, donkey kicks, isolated hip rotation, and diagnostic use as separate tasks or prohibited automatic substitutions.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T12:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Perform a slow active unilateral hip circle through a comfortable range while preserving the assigned base and limiting compensatory pelvis and spine motion. Standing with stable hand support and quadruped are exact variants. One repetition is one controlled circle in one assigned direction; this excludes a dynamic leg swing, hip airplane, donkey kick, diagnostic assessment, or forced end range.",
+      "familyKey": "hip_controlled_rotation",
+      "movementPatterns": [
+        "rotate",
+        "brace"
+      ],
+      "bodyRegions": [
+        "hip",
+        "knee",
+        "ankle",
+        "spine",
+        "core",
+        "shoulder",
+        "wrist"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "stable_hand_support",
+        "floor_mat",
+        "knee_padding"
+      ],
+      "variantKey": "standing-stable-support-hip-car",
+      "environment": {
+        "surface": "clear non-slip floor",
+        "space": "room for the full leg circle and an unobstructed support position",
+        "stationCapacity": 1,
+        "inspection": [
+          "floor traction",
+          "clear leg path",
+          "stable support if assigned",
+          "communication and exit route"
+        ],
+        "changeRule": "Changing base, support, range, direction, tempo, load, surface, or dose requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "can use the assigned standing-supported or quadruped base",
+          "clear stable surface and support where assigned",
+          "can make a small controlled hip circle without symptom escalation",
+          "understands the stop signal and session logistics fit"
+        ],
+        "excludeOrEscalate": [
+          "symptom, restriction, unsafe base, surface, support, or communication conflict",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal range, circle size, support, dose, recovery, outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 28,
+        "absoluteLoadDemand": 12,
+        "physicalDifficulty": 12,
+        "coordinationDemand": 30,
+        "supervisionDemand": 14,
+        "failureConsequence": 12,
+        "impact": 1,
+        "workCapacityDemand": 8,
+        "baseOverallDifficulty": 28
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_standing_single_leg_active_hip_circle",
+        "impactClass": "none_no_flight",
+        "primaryExposure": [
+          "active_hip_range_and_control",
+          "single_leg_balance",
+          "trunk_pelvis_organization"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 8,
+        "technicalFatigueSensitivity": 18,
+        "impactAccumulation": 1,
+        "recoveryHoursPlanningEstimate": 2,
+        "cumulativeBudget": {
+          "hip_control": 12,
+          "single_leg_balance": 10,
+          "trunk_control": 6
+        },
+        "tracking": [
+          "circles",
+          "side",
+          "direction",
+          "support",
+          "range",
+          "compensation",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hip rotational capacity changes with hip position; Hip CARs must name its body base and use a comfortable active path rather than a universal endpoint."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "The standing supported and quadruped bases preserve the same controlled hip-circle task but change support, balance, and trunk constraints; record them as exact variants rather than silently merging delivery conditions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hip rotation is position-dependent and cannot be reduced to one muscle. Describe the hip rotator complex, gluteals, hip flexors, adductors, trunk stabilizers, and supporting limbs as task contributors rather than diagnostic findings."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A controlled hip circle combines flexion, abduction, external and internal rotation, extension, and adduction while the trunk and pelvis are managed according to the assigned base. Do not count compensatory lumbar or pelvic motion as hip range."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Support and body base alter task complexity and coordination demand. Difficulty fields describe the exercise task only, not participant skill or proficiency."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Technique-appropriate, progressively dosed movement requires monitoring of form and fatigue. Track sides, direction, support, range, cadence, symptoms, and compensation rather than assigning a universal recovery claim."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Use a stable surface, clear space, and stable support where assigned. Selection requires a safe base and communication of a stop rule, not an exercise-card participant classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "No source establishes a universal dose for this exact drill. Use a conservative, quality-limited candidate dose and progress only when the assigned base, trunk, pelvis, and hip path remain repeatable."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Instructions must identify the exact base, support, leg, circle direction, quiet-trunk rule, range boundary, and reset. A completed repetition is one controlled circle in the assigned direction, not an uncontrolled leg swing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Stop for sharp or increasing hip, groin, knee, back, wrist, shoulder, neurologic, balance, or other concerning symptoms; stop if the support, surface, or controlled path cannot be restored."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Use Hip CARs only when the exact active hip-control task fits the session objective and downstream demands. Do not promise injury prevention, structural change, treatment, or automatic transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete support must show the exact assigned base, leg path, quiet-trunk boundary, comfortable range option, direction change, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Coach support should include an assigned-base check, front and side observation, support and floor check, side/direction log, compensation threshold, and escalation rule."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Accessibility must distinguish stable hand support, quadruped tolerance, optional padding, visual demonstration, plain-language cues, and stopping or substituting when the assigned base is inaccessible."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A standing base, quadruped base, stable hand support, range, tempo, and direction are explicit variant dimensions. A hip airplane, donkey kick, leg swing, or isolated rotation is a different primary task and must not be silently substituted."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com. Candidate media requires human review for exact variant, playback, safety, accessibility, captions, and demonstration quality before approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=5kM-o61Z14I",
+      "title": "Controlled Articular Rotations (CARs) - Hips",
+      "channelName": "Tangelo - Seattle Chiropractor + Rehab",
+      "sourceQuery": "web search metadata; demonstrates quadruped and standing variants",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "web_search_metadata",
+        "verifiedAt": "2026-08-09T12:00:00Z",
+        "scope": "URL, title, and search transcript only; no playback or embed verification"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pjLS-Cr0oII",
+      "title": "Standing Hip CARs - Controlled Articular Rotations",
+      "channelName": "Coach Rich Thurman",
+      "sourceQuery": "web search metadata",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "web_search_metadata",
+        "verifiedAt": "2026-08-09T12:00:00Z",
+        "scope": "URL and title only; no playback or embed verification"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-zVPL8WPdaE",
+      "title": "Quadruped Hip CARs (Controlled Articular Rotations)",
+      "channelName": "Momenta Chiropractic",
+      "sourceQuery": "web search metadata",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "web_search_metadata",
+        "verifiedAt": "2026-08-09T12:00:00Z",
+        "scope": "URL and title only; no playback or embed verification"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Stable-Support Hip CAR",
+      "classification": "new_variant",
+      "rationale": "Stable hand support changes balance and support requirements while preserving the active hip-circle task.",
+      "distinguishingDimensions": {
+        "base": "standing_single_leg_with_stable_hand_support"
+      }
+    },
+    {
+      "name": "Quadruped Hip CAR",
+      "classification": "new_variant",
+      "rationale": "Quadruped changes upper-limb support and balance demands while preserving the active hip-circle task.",
+      "distinguishingDimensions": {
+        "base": "quadruped"
+      }
+    },
+    {
+      "name": "Hip CAR with End-Range Pause",
+      "classification": "modifier_annotation",
+      "rationale": "A brief assigned pause changes delivery only when the exact base and circle remain unchanged.",
+      "distinguishingDimensions": {
+        "tempo": "controlled_pause"
+      }
+    },
+    {
+      "name": "Hip Airplane",
+      "classification": "new_definition",
+      "rationale": "A single-leg hinge with pelvic rotation is a different primary movement and training stimulus.",
+      "distinguishingDimensions": {
+        "movementPattern": "single_leg_hinge_with_pelvic_rotation"
+      }
+    },
+    {
+      "name": "Leg Swing",
+      "classification": "new_definition",
+      "rationale": "A pendular dynamic swing has a different tempo, balance, and primary task.",
+      "distinguishingDimensions": {
+        "primaryTask": "dynamic_pendular_leg_swing"
+      }
+    }
+  ]
+}

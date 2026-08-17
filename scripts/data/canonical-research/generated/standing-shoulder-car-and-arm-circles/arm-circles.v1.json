@@ -1,0 +1,607 @@
+{
+  "facilityId": 1,
+  "slug": "arm-circles",
+  "researchVersion": "2026-08-09.104",
+  "assessmentSummary": {
+    "identity": "One unilateral standing Shoulder Controlled Articular Rotation uses a fixed-foot upright base, one long active arm beginning beside the body, deliberate active shoulder motion without momentum, and a controlled largest-comfortable circumduction path. The arm travels forward and overhead, changes humeral rotation as needed to continue behind and down, and returns to the same start; the reverse direction is delivered and recorded separately. One complete return-to-start loop in one declared direction is one repetition. Side, direction, comfortable range, hand orientation, tempo, brief pauses, breathing prompts, repetitions, sets, rest, and an opposite-hand rib or pelvis feedback contact are annotations. Changing to bilateral shoulder-height repeated circles, a seated or quadruped base, external load, passive assistance, a pendulum, a dowel pass-through, a multi-joint CAR flow, or an assessment or treatment protocol changes the task.",
+    "currentCardFindings": [
+      "Source 37's legacy slash label conflates generic Arm Circles with a Shoulder CAR, but its detailed description specifies one slow arm, intentional rotation, full available range, quiet ribs, spine and pelvis, and a reverse direction; that evidence supports the Shoulder CAR identity.",
+      "The version-1 definition and baseline variant do not define exact start, side, direction, path, axial rotation, count, valid completion, anatomy, load, fatigue, duration, selection, substitution, persistence, coach support, athlete support, or accessibility contracts.",
+      "Generic bilateral Arm Circles are independently documented as a repeated shoulder-height small-circle warm-up and require a separate canonical definition rather than a coaching annotation.",
+      "The legacy age floor of four, publication state, generic dose, score, and four video links lack Source-37-specific calibration, playback, exactness, captions, accessibility, quality, safety, reviewer, and approval evidence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "reach",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "shoulder",
+        "scapula",
+        "thoracic_spine",
+        "core"
+      ],
+      "support": "unilateral_standing_fixed_foot_active_full_range_shoulder_circumduction",
+      "laterality": "unilateral_side_recorded",
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse"
+      ],
+      "equipment": [
+        "none"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 12,
+      "physicalDifficulty": 12,
+      "baseOverallDifficulty": 30,
+      "variantScores": {
+        "standingSingleArmShoulderCar": {
+          "technicalComplexity": 30,
+          "absoluteLoadDemand": 12,
+          "physicalDifficulty": 12,
+          "baseOverallDifficulty": 30
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "none_active_arm_mass_and_gravity_only",
+      "impactClass": "none",
+      "primaryExposure": [
+        "active_multiplanar_shoulder_circumduction",
+        "glenohumeral_and_scapular_coordination",
+        "deltoid_rotator_cuff_and_scapular_muscle_coordination",
+        "arm_lever_end_range_control",
+        "trunk_anti_compensation"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "completeLoopsPerSidePerDirection": "1-5",
+      "secondsPerLoop": "5-15",
+      "rest": "15-45_seconds_or_as_needed_to_preserve_slow_momentum_free_motion_comfortable_range_quiet_trunk_and_symptom_rules",
+      "durationRule": "setup_plus_actual_valid_loop_seconds_plus_side_and_direction_change_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+    },
+    "programmingDecision": "Select only when unsupported standing, clear arm-sweep space, one-arm active comfortable shoulder motion, trunk control, current symptoms, exact side and direction dose, duration, and cumulative shoulder, scapular, trunk, pressing, pulling, throwing, climbing, hanging, handstand and overhead budgets fit. Do not silently convert it into bilateral shoulder-height Arm Circles, force range, add load, use momentum or passive assistance, lock the scapula, prescribe a pendulum, or infer diagnosis, structural correction, readiness, or clinical clearance. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct ACE CAR principles and Mind Body Spine Shoulder CAR instructions, University of Missouri's distinct Arm Circles contract, peer-reviewed scapular-kinematics, active-versus-passive elevation, unconstrained reaching and multi-planar shoulder EMG evidence, the 2025 rotator-cuff-tendinopathy clinical-practice scope boundary, current YouTube oEmbed metadata, and comparison with exact full-body CAR, quadruped shoulder-circle, wall-slide, dowel pass-through, band-rotation and generic Arm Circle neighbors",
+      "uncertainty": "No source validates one universal path, maximal range, humeral-rotation timing, speed, muscle activation target, dose, frequency, recovery interval, screening interpretation, injury-prevention result, progression order, population eligibility, or Vortex score. Elevation and EMG studies are not direct trials of this exact CAR, and no media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "identity_boundary_review",
+        "anatomy_and_load_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T23:15:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand with both feet fixed and one long active arm beside the body. Without momentum, move that arm forward and overhead through the largest comfortable controlled path, changing humeral and hand orientation as needed to continue behind and down to the same start. Keep the other arm and the ribs, spine and pelvis comparatively quiet without trying to freeze normal scapular motion. Complete the reverse direction separately. One complete return-to-start loop in one declared direction is one repetition. Side, direction, comfortable range, hand orientation, tempo, pauses, breathing, dose, rest and opposite-hand self-feedback are annotations; changing base, laterality, assistance, load, path, multi-joint sequence or clinical scope changes the task.",
+      "familyKey": "standing_single_arm_shoulder_car",
+      "movementPatterns": [
+        "brace",
+        "reach",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "shoulder",
+        "scapula",
+        "thoracic_spine",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {
+        "space": "one standing station with complete unilateral arm-sweep clearance in front overhead behind and to the side and no cross traffic",
+        "surface": "flat dry stable nonslip standing surface",
+        "changeRule": "Any base laterality assistance load path sequence purpose dose symptom space or downstream-demand change requires complete revalidation.",
+        "inspection": [
+          "floor traction and clutter",
+          "full arm path and ceiling clearance",
+          "neighbor and cross-traffic separation",
+          "coach sightline and communication",
+          "safe stop and emergency route"
+        ],
+        "equipmentKey": "none",
+        "coachSightline": "front-quarter and side views of feet active arm hand shoulder scapula ribs spine pelvis breathing range and symptoms",
+        "stationCapacity": 1
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night or post-trauma pain",
+          "sharp increasing or unfamiliar pain pinching catching or recurrent instability",
+          "new numbness tingling weakness altered circulation or loss of control",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness or inability to communicate",
+          "standing balance neck back elbow wrist or hand symptoms preventing exact task",
+          "clinical restriction conflicting with active shoulder motion",
+          "unsafe arm-sweep space or participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe unsupported standing",
+          "clear full unilateral arm path",
+          "comfortable active shoulder motion in the declared direction",
+          "understands same-start loop count and stop signal",
+          "can avoid momentum and excessive trunk compensation",
+          "same-session shoulder scapular trunk and overhead budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal normal path range or scapular rhythm",
+          "injury prevention diagnosis treatment structural correction readiness or clearance",
+          "isolated muscle activation",
+          "one universal dose frequency recovery or progression",
+          "performance transfer or participant skill level"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "sourceTitle": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "sourcePublisher": "Mind Body Spine",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The direct instruction starts standing with one arm beside the body, moves slowly overhead, intentionally changes hand orientation to continue behind and down, returns to start, reverses direction, and repeats on the other side.",
+        "Vortex makes fixed feet, active momentum-free motion, same-start completion, side and direction logging, compensation, and count rules explicit without claiming one universal path."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE distinguishes slow deliberate controlled joint rotation through pain-free multidirectional range from momentum-driven arm circles.",
+        "Brace, reach, and rotate are controlled planning keys rather than outcome guarantees."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6368381/",
+      "sourceTitle": "Patterns of muscle coordination during dynamic glenohumeral joint elevation: An EMG study",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Healthy adults showed coordinated rotator-cuff, deltoid, and scapulothoracic muscle activity across multiple planes of shoulder elevation.",
+        "The study supports coordinated shoulder-complex demand but not isolation, exact CAR activation, or universal technique."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12398250/",
+      "sourceTitle": "Scapular kinematics variability in individuals with and without rotator cuff-related shoulder pain: A systematic review with multilevel meta-regression",
+      "sourcePublisher": "Brazilian Journal of Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "The systematic review found scapular upward rotation and posterior tilt during arm elevation with substantial normal variability and no fixed setting phase.",
+        "The scapula should not be prescribed as immobile; Vortex instead constrains excessive trunk compensation while allowing coordinated shoulder-complex motion."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "A CAR deliberately removes momentum and coordinates intentional motion across the joint's available planes.",
+        "The 30/12/30 proposal describes exercise complexity and physical difficulty only and requires independent calibration; it is not participant skill, age, or readiness."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4932079/",
+      "sourceTitle": "Analysis of scapular kinematics during active and passive arm elevation",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Active and passive elevation produced different scapular motion and muscle-activity contexts in healthy participants.",
+        "Track active loops, side, direction, range, lever, tempo, faults, symptoms and overlapping shoulder work; fatigue limits and recovery hours remain planning estimates."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40165544/",
+      "sourceTitle": "Rotator Cuff Tendinopathy Diagnosis, Nonsurgical Medical Care, and Rehabilitation: A Clinical Practice Guideline",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "The clinical guideline addresses diagnosis, rehabilitation, prognosis and return to function for adults with suspected rotator-cuff tendinopathy.",
+        "A workout card cannot diagnose, treat, interpret a screen, clear return to sport, or replace individualized clinical care."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "sourceTitle": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "sourcePublisher": "Mind Body Spine",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The direct instruction prescribes slow comfortable motion in both directions and on both shoulders but does not establish a universal set or repetition dose.",
+        "Vortex's 1-2 sets and 1-5 loops per side per direction are review-only delivery ranges, not validated prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "sourceTitle": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "sourcePublisher": "Mind Body Spine",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The direct sequence describes forward and overhead travel, intentional palm rotation, continued backward and downward travel, same-start return, reverse direction and both sides.",
+        "Vortex adds exact base, long-arm, trunk, counting, stop, persistence and actual-duration rules without claiming treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/october-2024/8725/controlled-articular-rotations-shifting-mobility-into-high-gear/",
+      "sourceTitle": "Controlled Articular Rotations: Shifting Mobility into High Gear",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE describes CARs as controlled and pain-free and separates basic exercise use from individualized assessment and treatment scope.",
+        "Stop or reduce range for pain, pinching, catching, instability, neurologic symptoms, systemic symptoms, uncontrolled compensation or unsafe space, and follow facility escalation rules."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2841046/",
+      "sourceTitle": "In vivo assessment of scapulohumeral rhythm during unconstrained overhead reaching in asymptomatic subjects",
+      "sourcePublisher": "Journal of Shoulder and Elbow Surgery",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Bone-fixed measurements show coordinated glenohumeral and scapular motion during active raising and lowering and differences between directions.",
+        "This supports direction-specific active exposure tracking but not a universal CAR outcome, dose, or readiness inference."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "sourceTitle": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "sourcePublisher": "Mind Body Spine",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The direct instruction provides understandable start, path, hand-turn, comfort, reverse-direction and other-side checkpoints.",
+        "Athlete support must also explain expected active effort, permitted smaller range, unexpected symptoms, valid completion and how to stop and ask for help."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12398250/",
+      "sourceTitle": "Scapular kinematics variability in individuals with and without rotator cuff-related shoulder pain: A systematic review with multilevel meta-regression",
+      "sourcePublisher": "Brazilian Journal of Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "Healthy scapular kinematics vary substantially and do not support one rigid normal-motion template.",
+        "Coach support should observe task identity, trunk compensation, smooth shoulder-complex coordination, range, symptoms and exposure without diagnosing dyskinesis or forcing scapular position."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "sourceTitle": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "sourcePublisher": "Mind Body Spine",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The task can be explained with start, overhead, rotate, sweep behind, return and reverse checkpoints while range stays comfortable.",
+        "Smaller range, slower pace, fewer loops, visual path markers, tactile feedback from the opposite hand and written or live instruction are annotations; changing base or assistance needs another card."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "sourceTitle": "Physical Activity Cards: Arm Circles",
+      "sourcePublisher": "University of Missouri Extension",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Missouri's Arm Circles use both arms held in a T and repeated small forward then backward circles for time.",
+        "That bilateral shoulder-height repeated-circle contract is distinct from one long arm tracing a slow full-range CAR loop with intentional axial rotation."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five Shoulder CAR candidates returned current YouTube oEmbed title, channel, thumbnail and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact setup, path, axial rotation, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=2hyNG1U5wYs",
+      "title": "How To Do Shoulder CARS (Controlled Articular Rotations) | Movement Breakdown",
+      "channelName": "LivingFit",
+      "sourceQuery": "Source 37 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=898QrvpmRWc",
+      "title": "Functional Range Conditioning - Shoulder CARs",
+      "channelName": "Melissa Ray Fitness",
+      "sourceQuery": "Source 37 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CLWFwun1BfQ",
+      "title": "Controlled Articular Rotations (CARs) - Shoulder",
+      "channelName": "Tangelo - Seattle Chiropractor + Rehab",
+      "sourceQuery": "Source 37 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=P6p0IamojmE",
+      "title": "Standing Shoulder CARs",
+      "channelName": "Functional Bodybuilding",
+      "sourceQuery": "Source 37 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Ag1yVYbPXeg",
+      "title": "Shoulder CAR (Controlled Articular Rotations)",
+      "channelName": "Dr. Beau Beard",
+      "sourceQuery": "Source 37 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:15:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Single-Arm Shoulder CAR",
+      "classification": "same_identity",
+      "rationale": "This descriptive label states the exact unilateral fixed-foot slow active full-range shoulder loop.",
+      "distinguishingDimensions": {
+        "variant": "standing_single_arm_shoulder_car"
+      }
+    },
+    {
+      "name": "Standing Shoulder Controlled Articular Rotation",
+      "classification": "same_identity",
+      "rationale": "The expanded name preserves the same base, side, path, control and count.",
+      "distinguishingDimensions": {
+        "variant": "standing_single_arm_shoulder_car"
+      }
+    },
+    {
+      "name": "Shoulder CAR",
+      "classification": "same_identity",
+      "rationale": "The short alias is safe only when the exact standing unilateral active loop is declared.",
+      "distinguishingDimensions": {
+        "variant": "standing_single_arm_shoulder_car"
+      }
+    },
+    {
+      "name": "Left or Right Side",
+      "classification": "modifier_annotation",
+      "rationale": "Side is recorded separately while the unilateral task remains unchanged.",
+      "distinguishingDimensions": {
+        "modifier": "side"
+      }
+    },
+    {
+      "name": "Forward-First or Reverse-First",
+      "classification": "modifier_annotation",
+      "rationale": "Direction order changes delivery and logging rather than the complete loop identity.",
+      "distinguishingDimensions": {
+        "modifier": "direction_order"
+      }
+    },
+    {
+      "name": "Comfortable Active Range",
+      "classification": "modifier_annotation",
+      "rationale": "Range changes amplitude while the active loop, base and count remain exact.",
+      "distinguishingDimensions": {
+        "modifier": "range"
+      }
+    },
+    {
+      "name": "Hand or Palm Orientation",
+      "classification": "modifier_annotation",
+      "rationale": "Hand orientation is logged to describe humeral-rotation timing without changing the required controlled loop.",
+      "distinguishingDimensions": {
+        "modifier": "hand_orientation"
+      }
+    },
+    {
+      "name": "Tempo and Brief Pause",
+      "classification": "modifier_annotation",
+      "rationale": "Speed and short checkpoints change dose without changing identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "tempo",
+          "pause"
+        ]
+      }
+    },
+    {
+      "name": "Opposite Hand on Ribs or Pelvis",
+      "classification": "modifier_annotation",
+      "rationale": "A self-feedback contact monitors compensation but provides no external assistance.",
+      "distinguishingDimensions": {
+        "modifier": "tactile_feedback"
+      }
+    },
+    {
+      "name": "Repetitions Sets Rest or Breathing Cue",
+      "classification": "modifier_annotation",
+      "rationale": "These are delivery variables when the task remains active, controlled and symptom-limited.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "repetitions",
+          "sets",
+          "rest",
+          "breathing"
+        ]
+      }
+    },
+    {
+      "name": "Seated Single-Arm Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "Seated support changes base, transfer, balance, trunk demand, station and accessibility.",
+      "distinguishingDimensions": {
+        "base": "seated"
+      }
+    },
+    {
+      "name": "Half-Kneeling Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "Half-kneeling changes floor transfer, base laterality, hip and trunk demand and logistics.",
+      "distinguishingDimensions": {
+        "base": "half_kneeling"
+      }
+    },
+    {
+      "name": "Quadruped Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "Hand-and-knee support and one moving arm change load distribution, orientation and trunk-control demand.",
+      "distinguishingDimensions": {
+        "base": "quadruped"
+      }
+    },
+    {
+      "name": "Wall-Supported Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "Wall contact changes support, feedback, clearance and valid compensation rules.",
+      "distinguishingDimensions": {
+        "support": "wall"
+      }
+    },
+    {
+      "name": "Weighted Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "External load changes lever stress, fatigue, stop rules and dose.",
+      "distinguishingDimensions": {
+        "load": "external"
+      }
+    },
+    {
+      "name": "Assisted Shoulder CAR",
+      "classification": "new_variant",
+      "rationale": "External or contralateral assistance changes active demand, contact and purpose.",
+      "distinguishingDimensions": {
+        "assistance": "active_assisted"
+      }
+    },
+    {
+      "name": "Standing Bilateral Arm Circles",
+      "classification": "new_definition",
+      "rationale": "Both arms held near shoulder height and repeated small circles for time differ from a unilateral full-range return-to-start CAR.",
+      "distinguishingDimensions": {
+        "targetDefinition": "standing_bilateral_arm_circles"
+      }
+    },
+    {
+      "name": "Neck CARs",
+      "classification": "new_definition",
+      "rationale": "Head and cervical-spine motion through a complete neck path is not long-arm shoulder-complex circumduction.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "ee59b220-042c-482a-b7b5-5923d644c800"
+      }
+    },
+    {
+      "name": "Quadruped Shoulder Circles",
+      "classification": "new_definition",
+      "rationale": "Closed-chain bilateral hand support and scapular or humeral circle rules change orientation, loading and count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 34
+      }
+    },
+    {
+      "name": "Full-Body Joint CARs Flow",
+      "classification": "new_definition",
+      "rationale": "An ordered multi-region flow cannot be substituted for one shoulder loop without changing sequence and duration.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3"
+      }
+    },
+    {
+      "name": "Dowel Shoulder Pass-Through",
+      "classification": "new_definition",
+      "rationale": "Bilateral dowel grip and pass-through arc change equipment, laterality, path, range constraint and count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 902
+      }
+    },
+    {
+      "name": "Codman or Shoulder Pendulum",
+      "classification": "new_definition",
+      "rationale": "A supported hinge and largely passive momentum-driven hanging-arm circle have a different base, load and clinical context.",
+      "distinguishingDimensions": {
+        "action": "passive_pendulum"
+      }
+    },
+    {
+      "name": "Clinical Shoulder CAR Assessment",
+      "classification": "new_definition",
+      "rationale": "Standardized observation, measurement, interpretation, consent and escalation create an assessment rather than a workout exercise.",
+      "distinguishingDimensions": {
+        "scope": "clinical_assessment"
+      }
+    }
+  ]
+}

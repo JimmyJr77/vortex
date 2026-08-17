@@ -12,6 +12,7 @@ import {
   findPotentialCanonicalDuplicates,
   findPotentialCanonicalDuplicatesFromIndex,
   normalizeCanonicalCardDraft,
+  normalizeMediaReviewBasis,
   validateCanonicalCardDraft,
   validateCanonicalRelationship,
 } from '../canonicalCardAuthoring.js'
@@ -22,6 +23,22 @@ function publishableCard() {
   card.approvedVideoUrl = 'https://media.example/incline-push-up'
   card.mediaConfidence = 100
   return card
+}
+
+function verifiedMediaReview(url) {
+  return {
+    url,
+    linkStatus: 'healthy',
+    exactVariantMatch: true,
+    demonstrationQualityScore: 90,
+    reviewBasis: {
+      reviewMethod: 'manual_playback',
+      playbackReviewed: true,
+      exactVariantCompared: true,
+      linkChecked: true,
+      accessibilityChecked: true,
+    },
+  }
 }
 
 test('normalization deduplicates controlled lists and canonicalizes slug', () => {
@@ -49,6 +66,39 @@ test('normalization clears legacy overall when a core difficulty dimension is mi
   card.variants[0].difficulty.baseOverallDifficulty = 72
   const normalized = normalizeCanonicalCardDraft(card)
   assert.equal(normalized.variants[0].difficulty.baseOverallDifficulty, null)
+})
+
+test('normalization permits zero impact accumulation for non-impact exercise variants', () => {
+  const card = publishableCard()
+  card.variants[0].fatigueProfile.impactAccumulation = 0
+  const normalized = normalizeCanonicalCardDraft(card)
+  assert.equal(normalized.variants[0].fatigueProfile.impactAccumulation, 0)
+})
+
+test('normalization permits zero grip demand and fatigue when grip is not part of the task', () => {
+  const card = publishableCard()
+  card.variants[0].loadProfile.gripDemand = 0
+  card.variants[0].fatigueProfile.gripFatigue = 0
+  const normalized = normalizeCanonicalCardDraft(card)
+  assert.equal(normalized.variants[0].loadProfile.gripDemand, 0)
+  assert.equal(normalized.variants[0].fatigueProfile.gripFatigue, 0)
+})
+
+test('authoring accepts bounded contact exposure only when the planning range is valid', () => {
+  const card = publishableCard()
+  delete card.variants[0].loadProfile.landingContactsPerRep
+  card.variants[0].loadProfile.contactExposureModel = {
+    model: 'per_set_range',
+    minimumContactsPerSet: 8,
+    planningDefaultContactsPerSet: 12,
+    maximumContactsPerSet: 16,
+  }
+  assert.equal(validateCanonicalCardDraft(card).valid, true)
+
+  card.variants[0].loadProfile.contactExposureModel.maximumContactsPerSet = 10
+  const invalid = validateCanonicalCardDraft(card)
+  assert.equal(invalid.valid, false)
+  assert.ok(invalid.errors.some((error) => error.includes('contactExposureModel')))
 })
 
 test('exercise-card authoring rejects skill or proficiency levels at any JSON depth', () => {
@@ -132,27 +182,24 @@ test('publication readiness requires reviewed exact-match healthy media', () => 
   assert.ok(withoutReview.issues.some((issue) => issue.code === 'media_review'))
 
   const ready = evaluateCanonicalCardReadiness(publishableCard(), {
-    mediaReview: {
-      url: 'https://media.example/incline-push-up',
-      linkStatus: 'healthy',
-      exactVariantMatch: true,
-      demonstrationQualityScore: 90,
-    },
+    mediaReview: verifiedMediaReview('https://media.example/incline-push-up'),
   })
   assert.equal(ready.ready, true)
   assert.deepEqual(ready.issues, [])
+
+  const unverifiedBasis = evaluateCanonicalCardReadiness(publishableCard(), {
+    mediaReview: { ...verifiedMediaReview('https://media.example/incline-push-up'), reviewBasis: {} },
+  })
+  assert.equal(unverifiedBasis.ready, false)
+  assert.ok(unverifiedBasis.issues.some((issue) => issue.code === 'media_review'))
+  assert.throws(() => normalizeMediaReviewBasis({ reviewMethod: 'manual_playback', playbackReviewed: true }), /exactVariantCompared/)
 })
 
 test('publication readiness requires physical difficulty on every variant', () => {
   const card = publishableCard()
   delete card.variants[0].difficulty.absoluteLoadDemand
   const result = evaluateCanonicalCardReadiness(card, {
-    mediaReview: {
-      url: card.approvedVideoUrl,
-      linkStatus: 'healthy',
-      exactVariantMatch: true,
-      demonstrationQualityScore: 90,
-    },
+    mediaReview: verifiedMediaReview(card.approvedVideoUrl),
   })
   assert.equal(result.ready, false)
   assert.ok(result.issues.some((issue) => issue.path.endsWith('absoluteLoadDemand')))
@@ -163,12 +210,7 @@ test('publication readiness reports contextual profile omissions by path', () =>
   card.variants[0].profiles[0].athleteInstructions = ''
   card.variants[0].profiles[0].dosage = {}
   const result = evaluateCanonicalCardReadiness(card, {
-    mediaReview: {
-      url: card.approvedVideoUrl,
-      linkStatus: 'healthy',
-      exactVariantMatch: true,
-      demonstrationQualityScore: 90,
-    },
+    mediaReview: verifiedMediaReview(card.approvedVideoUrl),
   })
   assert.equal(result.ready, false)
   assert.ok(result.issues.some((issue) => issue.path.endsWith('athleteInstructions')))
@@ -179,12 +221,7 @@ test('publication readiness requires equipment on each exact variant profile', (
   const card = publishableCard()
   card.variants[0].profiles[0].equipmentRequired = []
   const result = evaluateCanonicalCardReadiness(card, {
-    mediaReview: {
-      url: card.approvedVideoUrl,
-      linkStatus: 'healthy',
-      exactVariantMatch: true,
-      demonstrationQualityScore: 90,
-    },
+    mediaReview: verifiedMediaReview(card.approvedVideoUrl),
   })
   assert.equal(result.ready, false)
   assert.ok(result.issues.some((issue) => issue.code === 'equipment_declaration'))
@@ -232,14 +269,21 @@ test('progression relationships require reviewed dimensions and reason', () => {
   assert.equal(valid.valid, true)
 })
 
+test('accepts controlled detailed candidate relationship dimensions without approving the edge', () => {
+  const result = validateCanonicalRelationship({
+    fromVariantId: 'from-variant',
+    toVariantId: 'to-variant',
+    relationship: 'regression',
+    similarityScore: 70,
+    dimensions: ['physical_difficulty', 'terminal_action', 'braking', 'recovery', 'turn_angle'],
+    reason: 'Candidate review relationship; human approval is still required.',
+  })
+  assert.equal(result.valid, true)
+})
+
 test('automated card packet reports named P0-P2 checks with evidence', () => {
   const card = publishableCard()
-  const mediaReview = {
-    url: card.approvedVideoUrl,
-    linkStatus: 'healthy',
-    exactVariantMatch: true,
-    demonstrationQualityScore: 90,
-  }
+  const mediaReview = verifiedMediaReview(card.approvedVideoUrl)
   const packet = buildCanonicalCardTestPacket(card, {
     mediaReview,
     duplicates: [],
@@ -247,8 +291,10 @@ test('automated card packet reports named P0-P2 checks with evidence', () => {
     relationships: [],
   })
   assert.equal(packet.status, 'passed')
-  assert.equal(packet.checks.length, 15)
+  assert.equal(packet.checks.length, 17)
   assert.equal(packet.summary.p0Failures, 0)
+  assert.ok(packet.checks.some((check) => check.id === 'CARD-TAXONOMY-V2-01' && check.status === 'passed'))
+  assert.ok(packet.checks.some((check) => check.id === 'CARD-STRUCTURED-PROFILE-V2-01' && check.status === 'passed'))
 
   const failed = buildCanonicalCardTestPacket(card, {
     mediaReview,

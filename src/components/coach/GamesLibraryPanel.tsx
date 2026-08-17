@@ -130,7 +130,7 @@ export default function GamesLibraryPanel() {
         <div>
           <h2 className="text-xl font-bold text-gray-900">Games & Competitions</h2>
           <p className="text-sm text-gray-500">
-            Play-based activities that grow athleticism through fun — filter by age bracket, group size, tenet, and game type.
+            Play-based activities that grow athleticism through fun. Games reuse shared tenets and logistics, while competition rules and scoring remain game-specific.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">

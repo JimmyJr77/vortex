@@ -1,0 +1,14 @@
+{
+  "migrationKey": "748_coaching_medicine_ball_rebound_slam_source_1170_candidate_materialization",
+  "researchVersion": "2026-08-10.123",
+  "generatedAt": "2026-07-26T02:15:00.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-rebound-slam-to-catch",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 2
+    }
+  ]
+}

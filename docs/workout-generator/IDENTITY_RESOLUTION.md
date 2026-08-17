@@ -2049,6 +2049,33 @@ score-72-or-higher pairs adjudicated across 1,047 active definitions, with zero
 unresolved pair and zero exact collision. No human identity, relationship, or
 publication approval is implied.
 
+## 2026-08-09 — Source 37 Shoulder CAR / Arm Circles identity split
+
+Source 37's slash label combined two tasks. Its detailed instruction supports
+a fixed-foot, unilateral, slow, active, momentum-free, full comfortable
+Shoulder CAR that returns to the same start. Generic Arm Circles instead use
+both long arms near shoulder height and repeated simultaneous small circles in
+a declared direction. Migration 509 retains stable definition
+`32610be3-19c7-4eed-8752-5f49bcbbf276` for Shoulder CAR and creates
+`047ab835-9ef2-49d0-810b-1652acb09677` for Arm Circles. The mixed skeleton is
+archived rather than selected.
+
+Shoulder CAR's 23 alternates comprise 3 same-identity aliases, 7 annotations,
+6 proposed variants, and 7 distinct definitions. Arm Circles' 20 alternates
+comprise 3 aliases, 6 annotations, 5 proposed variants, and 6 distinct
+definitions. Seven deterministic decisions record boundaries: Shoulder CAR
+versus Arm Circles, Neck CARs, Dowel Pass-Through, and Band External Rotation;
+and Arm Circles versus Quadruped Shoulder Circles, Wall Slides with Lift-Off,
+and Full-Body Joint CARs. Six graph proposals remain review-only and authorize
+no automatic substitution.
+
+The Shoulder CAR versus Neck CAR decision closes the name-similarity false
+positive introduced by the corrected name. The disposable queue reports 1,071
+active definitions, 631 raw pairs, 602 adjudicated-distinct pairs, 29
+unresolved score-72-or-higher pairs, and zero exact collision. No human
+identity, graph, media, calibration, content, or publication approval is
+implied.
+
 ## 2026-08-02 — Source 24 Neck CARs identity closure
 
 Source 24 `Neck CARs` remains the survivor at
@@ -2076,3 +2103,548 @@ After duplicate consolidation, the detector still has 628/628 surfaced
 score-72-or-higher pairs adjudicated, zero unresolved pair, and zero direct
 identity collision across 1,046 active definitions. These machine decisions do
 not constitute human identity, relationship, content, or publication approval.
+
+## 2026-08-09 — Source 26 Quadruped Spinal Circles identity closure
+
+Source 26 remains the stable `Quadruped Spinal Circles` definition at
+`c8a4e447-0b65-4c0b-985b-7f5466fc07ec`. Migration 497 archives the skeletal
+baseline and preserves one exact fixed-contact global circle variant at
+`a1fc7842-8a5c-4b87-aabc-75ff18086572`. One repetition retains bilateral hand
+and knee contacts through rounded, named-first-side lateral, arched,
+opposite-side lateral, and counted rounded checkpoints. Reverse direction is
+recorded separately. Neutral setup/exit, range, tempo, dose, rest, and optional
+mat are delivery facts rather than identities.
+
+Cat-Cow remains distinct because it is a sagittal flexion-extension cycle.
+Thread-the-Needle remains distinct because it changes a hand contact and uses
+arm-driven thoracic rotation. Quadruped Shoulder Circles changes the moving
+region; Full-Body Joint CARs changes base and multi-region sequence. Lateral-
+only tail wag, hip/pelvic or lumbar-only circles, hand-walk global CARs,
+non-quadruped bases, hover, limb lift, loading, external resistance, unstable
+support, and manual or clinical assistance change identity. Mandatory
+segmental-wave sequencing and neutral-wrist/elevated-hand support remain
+potential exact variants in human-review quarantine rather than selectable
+inventions.
+
+Migration 497 adds the survivor-owned Thread-the-Needle boundary and preserves
+the three incoming Cat-Cow, Quadruped Shoulder Circles, and Full-Body Joint
+CARs boundaries. Four adjacency rows remain review-only and authorize no
+automatic substitution. The disposable canonical audit reports zero exact
+identity collisions; no qualified human identity, graph, content, or
+publication approval is implied.
+
+## 2026-08-09 — Source 28 Side-Lying Open Book identity closure
+
+Source 28 remains the stable survivor at
+`73f542c1-d9b9-4f40-9427-7a2bd1918b1d`. Source 891 `Open Book Rotation`
+(`b9b90169-75c0-4862-b872-e1130e77bd31`) and Source 1306 `Open Book T-Spine
+Rotation` (`a7066739-637a-43f4-99d4-4b7fa6bf0435`) preserve the same side-
+lying bent-stacked-knee base, forward-stacked straight arms, top-arm opening
+with trunk rotation, and controlled hand-restack return. Migration 498 archives
+both duplicate definitions and all three skeletal variants, then moves their
+legacy source mappings and aliases to the survivor with explicit duplicate-
+consolidation provenance.
+
+The authored exact variant is
+`e64b6441-eb5f-4821-b914-26a0352347f1`, stacked-knee long-arm open and return.
+Side, comfortable range, tempo, repetitions, sets, rest, brief non-forced hold,
+gaze strategy, and stable comfort props do not change identity. Split-leg or
+roller-supported knee anchors change the support geometry and remain reviewed
+variant candidates. Mandatory windmills, bent-arm rib pulls, wall bases,
+resistance, manual assistance, clinical assessment, and combined stretch tasks
+are distinct definitions or quarantined proposals.
+
+Thread-the-Needle remains distinct because it uses quadruped support and a
+thread/open arm path. Cat-Cow is a sagittal quadruped flexion-extension cycle.
+Quadruped Spinal Circles retains four contacts and a multi-planar circular
+checkpoint path. Four graph edges are review-only and authorize no automatic
+substitution. The current disposable audit reports zero exact collision, 29
+unresolved score-72-or-higher similarity pairs, and no active consolidated
+pair. These machine decisions do not constitute qualified human identity,
+graph, content, media, or publication approval.
+
+## 2026-08-09 — Source 29 Inchworm Walkout identity closure
+
+Source 29 remains stable definition
+`abade5c1-6124-407b-894d-e803e3b63674`. Migration 499 archives its ambiguous
+skeletal variant and authors two exact variants: stationary hand return
+`4c0e8b1b-4df0-4bcb-9f43-1ca03d524fdd` and traveling feet-in return
+`59af8f44-6258-4f8b-89eb-1963e06bd5be`. Both begin standing, place the hands
+through a safe hinge or knee bend, walk the hands to controlled high plank, use
+the selected return, and finish standing without a push-up. Stationary keeps
+the feet at the start and walks the hands back; traveling plants the hands,
+steps the feet in, and finishes forward. Changing this return mode changes
+locomotion, space, contacts, count, logistics, and persistence, so it requires
+explicit variant selection.
+
+Inchworm to World's Greatest Stretch is distinct because it adds a lunge and
+rotation. Plank Hold is a static timed endpoint without the standing cycle.
+Plank to Down Dog adds a repeated pike phase. Slow Bear Crawl is continuous
+quadrupedal locomotion rather than standing-to-plank repetitions. After those
+four migration-499 decisions, the hidden alias `Walkout` exposed a score-75
+similarity pair with Pallof Step-Out. Migration 500 records that pair as
+distinct: unloaded standing bodyweight hand walk to high plank versus anchored
+lateral anti-rotation stepping. This is a deterministic queue boundary, not a
+human approval.
+
+Five graph relationships remain review-only and authorize no automatic
+substitution. The disposable identity queue now reports zero exact collision,
+29 unresolved score-72-or-higher similarity pairs, and no unresolved Source 29
+pair. No qualified human identity, graph, content, media, calibration, or
+publication approval is implied.
+
+## 2026-08-09 — Source 30 Wrist Rockers — Palms Down identity closure
+
+Source 30 remains stable definition
+`eaf703e4-1e0d-48ac-a1a3-9a3fe7d55122`. Migration 501 archives the inherited
+skeletal variant and authors one exact bilateral quadruped palms-down,
+fingers-forward, controlled forward-and-back variant at
+`166cdd2e-e50a-4e1d-821a-be9c5a88e4d6`. A complete forward shift to a
+comfortable wrist-extension/hand-loading endpoint and backward return is one
+repetition. Range, pace, brief comfortable pause, dose, rest, and knee
+cushioning remain delivery annotations.
+
+Source 31 palms-up rocking changes the hand surface and wrist action. Source 32
+Finger Pulses/Palm Lifts adds active hand-pressure action. Source 256 Wrist Lean
+Isometric/Rock Hold changes duration, base, leverage, or count. Source 796
+Pronation-Supination Shifts changes hand orientation during loading. Migration
+501 records all four as deterministic distinct identities and proposes only
+review-state relationships; none authorizes automatic substitution or human
+approval.
+
+The disposable identity queue reports zero exact collision and 29 unresolved
+score-72-or-higher similarity pairs, with no Source 30 pair. Palms-up,
+backs-of-hands, rear- or side-facing fingers, unilateral loading, circles, palm
+lifts, sustained holds, raised or tall-plank support, external force, and
+clinical assessment remain explicit variant/definition/research boundaries.
+No qualified human identity, graph, content, media, calibration, or publication
+approval is implied.
+
+## 2026-08-09 — Source 35 Wall Slides with Lift-Off identity boundary
+
+Source 35 remains stable definition
+`d073cdeb-c74b-4d1c-a7da-83ad75d8fa01`. Migration 507 archives the inherited
+source skeletons and authors one exact bilateral standing variant with fixed
+feet, vertical shoulder-width forearms, bilateral forearm contact throughout
+the upward slide, a required terminal full-arm lift-off, forearm replacement,
+and return to the same start. A complete slide, lift, replacement, and return
+is one repetition. Range, wall distance, lift amplitude, direction-neutral
+tempo, pauses, breathing, dose, rest, and fixed comfort padding do not change
+identity.
+
+Source 899's description establishes the same contacts and action cycle, so it
+is deterministically consolidated into the survivor and its old definition,
+variant, profile, and media are archived. Source 1309 `Wall Slide with Lift-Off
+— Throwing` is not merged by name: wall contacts, path, lift-off form, return,
+and count remain undefined, so its original definition is restored as an
+archived identity quarantine.
+
+The 26 alternate assessments classify 3 labels as same identity, 9 dimensions
+as annotations, 7 configurations as proposed variants, and 7 neighboring
+tasks as new definitions. Bands, unilateral execution, half-kneeling, seated,
+and hands-only lift-off are not silently selected as the exact base. A
+supported reach without lift-off, foam-roller wall slide, wall angel, wall
+push-up plus, prone Y raise, and clinical assessment change interface, action,
+support, path, or purpose.
+
+Four deterministic identity records capture one duplicate consolidation and
+three distinct boundaries against Source 905 Forearm Wall Slide with Reach,
+Source 1310 Serratus Foam-Roller Wall Slide, and Prone Y-T-W Raise. Four graph
+edges remain review-only and authorize no automatic substitution. The
+refreshed disposable queue reports 1,070 active definitions, 629 raw pairs,
+600 adjudicated-distinct pairs, 29 unresolved score-72-or-higher pairs, and
+zero exact collision. Source 35, 899, and 1309 are absent from the unresolved
+queue. No qualified human identity, graph, media, calibration, content, or
+publication approval is implied.
+
+## 2026-08-09 — Source 31 Wrist Rockers — Backs of Hands Down / Wrist-Flexion Bias identity closure
+
+Source 31 remains stable definition
+`97e7daff-8b45-4a6e-98a6-30e78d1092bb`. Migration 502 preserves the legacy
+`Wrist Rockers — Palms Up / Flexor Bias` label as an alias but removes its
+unsupported implication of an isolated muscle target from the display name.
+It archives skeletal variant `1a5a0618-cbea-4e89-aad1-c593864ce317` and authors
+exact variant `0dd6ea69-c786-424a-8d86-584ca35ea62a`: bilateral quadruped,
+backs of hands down, palms up, fingers toward knees, very light pressure,
+comfortable backward wrist-flexion loading, and complete forward return.
+
+Source 30 is distinct because palms remain down, fingers face forward, and the
+forward shift loads wrist extension through palmar contact. Source 32 Finger
+Pulses/Palm Lifts adds active finger pressure and palm lifting. Source 256
+Wrist Lean Isometric/Rock Hold changes hold duration, base, leverage, or count.
+Source 796 Pronation-Supination Shifts changes hand orientation during loading.
+Migration 502 records the three Source-31-owned decisions while preserving the
+incoming Source 30 decision, for four relevant deterministic boundaries. Four
+outbound relationships remain review-only and authorize no automatic
+substitution or human approval.
+
+The disposable identity queue reports zero exact collision and 29 unresolved
+score-72-or-higher similarity pairs, with no Source 31 pair. Side-facing,
+unilateral, padded, raised-support, non-quadruped, circular, tall-plank, banded,
+loaded, manually resisted, and clinical-assessment tasks remain explicit
+variant, distinct-definition, or research-review boundaries. No qualified
+human identity, graph, content, media, calibration, or publication approval is
+implied.
+
+## 2026-08-09 — Source 32 Finger Pulses / Palm Lifts identity closure
+
+Source 32 remains stable definition
+`5a8116cc-5cd4-4e2c-8396-0548ee96f167`, but its legacy combined skeleton is
+not selectable. Migration 503 authors two exact variants. Finger Pulses
+`9bb10693-04eb-4682-a608-df23aa9e601a` keep bilateral palms and fingers in
+quadruped contact while finger and flexed-first-knuckle pressure increases and
+releases without bouncing. Palm Lifts
+`c4f6e97e-caf1-4896-b4a3-8714514c46ee` keep fingers and distal palms in contact
+while both palm heels lift and lower. The moving contact, action, and count rule
+must be selected explicitly.
+
+Sources 30 and 31 remain distinct wrist-rocking definitions because the whole
+hand or dorsal hand stays supported while body mass travels through a declared
+wrist-extension or wrist-flexion path. Source 216 is a capacity series rather
+than one exact counted task. Source 256 changes the action to a sustained or
+rocking wrist-support hold. Source 796 changes hand orientation during support.
+Migration 503 records those five deterministic distinct-identity decisions,
+retargets the incoming Source 30 and Source 31 relationships to the exact
+Finger Pulse variant, and preserves four outbound relationships for each
+preceding source.
+
+Five Source-32-owned graph relationships remain review-only and authorize no
+automatic substitution. Seated, standing-fold, tall-plank, raised-support,
+unilateral, finger-lift, knuckle-roll, resisted, manually forced, and clinical
+assessment tasks remain explicit variant, distinct-definition, or research
+boundaries. The disposable identity queue reports zero exact collision and 29
+unresolved score-72-or-higher similarity pairs, with no unresolved Source 32
+pair. No qualified human identity, graph, content, media, calibration, or
+publication approval is implied.
+
+## 2026-08-09 — Source 33 Scapular Push-Up identity closure
+
+Source 33 remains stable definition
+`ae22d70e-e68f-4d40-9402-6dd39a6420f1`. Migration 504 replaces three
+inherited skeletons with four explicit variants: bilateral straight-arm
+quadruped or high-plank support crossed with a complete dynamic
+retraction-to-protraction cycle or measured protraction hold. Base contacts and
+contraction/count mode must be selected; elbow flexion, full push-up work,
+raised support, bear hover, unilateral or single-leg support, instability,
+resistance, perturbation, and clinical assessment remain variant,
+distinct-definition, or research boundaries.
+
+The global audit exposed Source 900 `Quadruped Scapular
+Protraction-Retraction` as a score-74 unresolved pair. Its description is the
+same hands-and-knees, straight-elbow, chest-toward/away scapular cycle.
+Migration 505 therefore records an exact-duplicate consolidation, maps legacy
+900 to the Source 33 stable definition and quadruped-dynamic variant, retains
+its label as an alias, archives its definition/variant/profile and five media
+candidates, and unpublishes the legacy row. This deterministic closure does not
+create human approval. It also removes unrelated PMID 32707142 from current
+identity research-source arrays while retaining an explicit correction
+record.
+
+Six Source-33 graph relationships remain review-only and authorize no
+automatic substitution. Six identity decisions define the consolidated
+duplicate and the neighboring task boundaries. The disposable queue reports
+zero exact collision and 29 unresolved score-72-or-higher pairs, with no
+unresolved Source 33 or Source 900 pair. No qualified human identity, graph,
+content, media, calibration, or publication approval is implied.
+
+## 2026-08-09 — Source 34 Quadruped Shoulder Circles identity boundary
+
+Source 34 remains stable definition
+`51ca966b-7d25-419a-8629-7961e45933c0`. Migration 506 archives the inherited
+skeleton and authors one exact bilateral, fixed-palm-and-knee, straight-arm,
+continuous scapular-circle variant. A counted repetition starts in
+protraction, passes the declared first vertical checkpoint, retraction, the
+opposite vertical checkpoint, and returns to protraction. Changing direction,
+comfortable range, tempo, pauses, dose, rest, or stable knee cushioning does
+not change identity.
+
+The 22 alternate assessments classify 3 labels as same identity, 7 dimensions
+as annotations, 7 support/loading configurations as proposed variants, and 5
+neighboring tasks as distinct definitions. Wall, raised-support, high-plank,
+hover, unilateral, resisted, and unstable versions are not silently selected
+as the exact base variant. Arm Circles/Shoulder CARs, Quadruped Spinal Circles,
+Scapular Push-Ups, and clinical assessment change the moving region, support,
+action, or purpose and remain distinct.
+
+Source 1311 Quadruped Scapular Clock remains separate and quarantined. Its
+current card does not establish which hand is planted or moving, whether the
+path is discrete or continuous, the required checkpoints, or the count rule;
+that uncertainty cannot be resolved by name similarity. Four deterministic
+Source-34-owned decisions record these neighboring boundaries, while four
+graph proposals remain review-only and authorize no automatic substitution.
+
+The Source 33 batch annotations were corrected to target actual legacy
+exercise 186 for Scapular Push-Up and 1311 for Quadruped Scapular Clock.
+Migration 504 already used the correct stable definitions and variants, so its
+receipt-locked SQL and migration 505 were unchanged. The refreshed disposable
+queue reports 1,070 active definitions, 29 unresolved score-72-or-higher pairs,
+and zero exact collision; Source 34 is absent from that unresolved queue. No
+qualified human identity, graph, media, calibration, content, or publication
+approval is implied.
+
+## 2026-08-09 — Source 36 Bilateral Band External Rotation identity boundary
+
+Source 36 remains stable definition
+`ad178aca-b009-4a28-9a5f-ca2695f42eba`. Migration 508 archives its inherited
+skeleton and authors exact variant `58581698-7741-42b0-bbc2-443128eb3eb8`:
+bilateral fixed-foot standing, one unanchored band between both hands, elbows
+near 90 degrees with upper arms beside the ribs, symmetric outward shoulder
+rotation, and controlled return to the same start. Grip, spacing, light
+tension, comfortable range, tempo, pause, breathing, dose, rest, and a fixed
+towel elbow checkpoint do not change identity.
+
+The 26 alternate assessments classify 3 names as the same identity, 9
+dimensions as annotations, 8 changed bases, attachments, contractions,
+actions, or shoulder angles as proposed variants, and 6 neighboring tasks as
+distinct definitions. The 90/90 neighbor changes shoulder-abduction angle;
+Face Pull to External Rotation adds an action; Wall Slides with Lift-Off
+changes interface and action sequence. Those three pairs are deterministic
+distinct exercises.
+
+Source 1348 Eccentric Band External Rotation remains the direct unresolved
+pair. Its current contract omits elbow position, shoulder angle, start,
+working phase, return assistance, and count, so migration 508 records
+`needs_human_review` rather than inferring identity from the name. Four graph
+proposals remain review-only and authorize no automatic substitution. The
+disposable queue reports 1,070 active definitions, 29 unresolved score-72-or-
+higher pairs, including Source 36 versus Source 1348 at 72, and zero exact
+collision. No human identity, graph, media, calibration, content, or
+publication approval is implied.
+
+## 2026-08-09 — Source 38 Bear Crawl Rock-Back identity correction
+
+Source 38 remains stable definition
+`9418c33f-80fa-40cb-97e0-f7c01c982b56`. Migration 510 archives its inherited
+skeleton and authors exact review variant
+`c18462d2-2384-4e10-8280-e9e67b4aef74`: both palms and forefeet remain fixed,
+both knees hover continuously, arms remain long, the hips shift backward
+toward the heels through comfortable range, and the body returns forward to
+the same organized start. One backward-and-forward return is one repetition.
+Hover height, stance, range, endpoint, tempo, pause, breathing, dose, rest,
+and a non-contact visual target are annotations.
+
+Source 912 is not an exact duplicate on the evidence available. Its text
+permits the knees to hover or rest lightly down and omits exact start,
+endpoint, contact continuity, and count. Migration 510 therefore restores its
+source mapping and archived variant to definition
+`9ee51bb0-c415-40de-8b29-3f3a55756c5a`, records
+`needs_human_review`, unpublishes it, and creates no replacement or approval.
+The Bear Plank Hold, Bear Plank Shoulder Tap, Slow Bear Crawl, and Bear Crawl
+Prep boundaries are deterministic distinct-task records because they change
+contraction, contacts, locomotion, or authored action.
+
+All four graph proposals remain review-only and authorize no automatic
+substitution. The refreshed queue still reports 29 unresolved score-72-or-
+higher pairs and zero exact collision; Source 38 itself does not introduce a
+new unresolved name-similarity pair. No human identity, graph, media,
+calibration, content, or publication approval is implied.
+
+## 2026-08-09 — Sources 39, 675, and 795 Plank-to-Down-Dog consolidation
+
+Migration 511 closes a missed direct collision. Source 39 Down Dog to Plank
+Wave, Source 675 Plank to Pike, and Source 795 Rocking Plank to Down Dog all
+keep both palms and forefeet fixed, move from high plank to a pike or Down-Dog
+inverted-V, and return to high plank. Pike versus Down Dog, wave versus rock,
+and preparation versus resilience purpose do not change those contacts,
+endpoints, action, or count. All three therefore map to definition
+`06a0ebad-8516-4197-9f14-4a398c5c3f1d`; Sources 675 and 795 are archived
+duplicate source cards and their names remain traceable aliases.
+
+The exact selectable review variant is
+`6b2fa8b8-6b50-4283-8a89-08b600b3e266`. Comfortable pike range, soft or
+straighter knees, heel height, stance, tempo, pauses, breathing, dose, and a
+non-binding wave or rock cue are annotations. Required segmental spinal
+articulation, a push-up, calf pedal, knee drive, step, limb lift, changed
+support, equipment, or a hold-only task changes the task. Plank Hold, Down Dog
+Calf Pedal, and Pike Push-Up have deterministic distinct-task decisions;
+Inchworm Walkout retains its earlier distinct boundary. No human approval is
+created.
+
+## 2026-08-09 — Sources 40, 875, and 1359 knee-to-wall consolidation
+
+Migration 512 resolves three labels to one observable action. Source 40
+`Knee-to-Wall Ankle Rockers`, Source 875 `Ankle Knee-to-Wall Rocker`, and
+Source 1359 `Ankle Knee-to-Wall Mobilization` all use standing staggered
+support, keep the target foot planted, move the target knee forward toward a
+wall through dorsiflexion, and return to the same start. Word order, plural
+repetitions, and kicking plant/pivot purpose do not alter those support
+contacts, endpoints, action, or count. All three therefore map to definition
+`c12b9ae2-11a4-4cdf-96dd-280b291ca71c`; Sources 875 and 1359 remain traceable
+archived duplicate cards.
+
+The exact selectable review variant is
+`52bdd7ff-7f6f-4be7-95ec-7ae4a28d1d89`. Foot distance, comfortable range,
+visual target, light fingertip balance support, tempo, pauses, breathing,
+dose, side order, and delivery purpose remain annotations. A rear-knee floor
+contact, isometric press, circular ankle action, foot-pressure shift, calf
+raise, external force or load, elevation, rotation, clinical measurement, or
+failure to return changes the exercise identity.
+
+Two duplicate-consolidation decisions and three deterministic distinct-task
+decisions create no human approval. The refreshed queue has 29 unresolved
+score-72-or-higher pairs and zero exact collision; Source 40 itself introduces
+no unresolved pair. Candidate graph relationships remain review-only and
+authorize no automatic substitution.
+
+## 2026-08-09 — Source 41 half-kneeling pulse identity boundary
+
+Migration 515 defines Source 41 by support, endpoints, action, and count: rear
+knee and lower leg supported on a pad; target front heel and tripod planted;
+an initial uncounted move to a comfortable knee-forward endpoint; then one
+small partial retreat and re-advance to that endpoint per pulse. The exact
+variant is `49e6b0fa-2091-4c06-b0b5-966107062876`.
+
+Five deterministic decisions keep the Standing Knee-to-Wall Ankle Rocker,
+Wall Ankle Dorsiflexion Iso Press, Ankle CARs, Wall Lean Calf-Soleus Pulse,
+and Calf Raise to Controlled Heel Drop distinct. The 24 alternate assessments
+also quarantine full-return, wall-supported, banded, kettlebell-loaded,
+elevated-foot, end-range-activation, clinician-assisted, static-stretch, and
+clinical-test tasks. None is an automatic substitution.
+
+The refreshed identity queue remains 29 unresolved score-72-or-higher pairs
+with zero exact collision. Source 41 introduces no unresolved direct identity
+collision, and all five decisions and four proposed relationships remain
+machine-authored review state with no approval.
+
+## 2026-08-09 — Source 42 Ankle CAR identity boundary
+
+Source 42 is one seated, target-thigh-supported, non-weight-bearing active
+ankle-joint-complex circuit. The target foot stays clear while the path runs
+from a declared dorsiflexed start through inversion, plantarflexion, eversion,
+and back to that start; reverse direction is counted separately. Standing,
+another body position, sensory removal, assistance, resistance, load,
+weight-bearing, different action sequences, and clinical measurement are not
+silently merged.
+
+Seven deterministic decisions separate the card from Full-Body Joint CARs
+Flow, Standing Knee-to-Wall Ankle Rocker, Tibialis Raises, Calf Raise to
+Controlled Heel Drop, Toe Yoga, Neck CARs, and Standing Single-Arm Shoulder
+CAR. The last two close the 86- and 78-score similarities created by shared
+`CAR` terminology; anatomical region, support, joints, path, risk, coaching,
+and stop rules establish distinct identities.
+
+After migration 517 the indexed audit has 633 raw score-72-or-higher pairs,
+604 adjudicated-distinct pairs, 29 unresolved pairs, and zero exact collision.
+No automatic substitution or human approval is created.
+
+## 2026-08-09 — Source 43 wall-supported tibialis-raise identity boundary
+
+Migration 519 defines Source 43 by observable support, contacts, action,
+endpoint, and count: back and pelvis on a stable wall, both heels planted,
+knees mostly straight without forced locking, simultaneous active forefoot
+lift through comfortable ankle dorsiflexion, and a controlled quiet return to
+light floor contact. The exact variant is
+`2da2a17b-bfc2-4049-93ad-f8cbde5bb053`.
+
+Wall distance, stance width and angle, comfortable range, tempo, a brief
+non-dose pause, breathing, footwear, repetitions, sets, rest, effort, and
+delivery context remain modifiers. Unilateral, alternating, bent-knee,
+heel-elevated, unsupported, seated, banded, tib-bar, isometric-only,
+eccentric-only, heel-walk, ankle-pump, toe-yoga, calf-raise, clinical, and
+sport-action tasks require a variant or distinct definition.
+
+Six deterministic decisions separate Source 43 from the isometric
+dorsiflexion press, eccentric dorsiflexion task, Ankle CAR, calf raise, Toe
+Yoga, and Foot Tripod tasks. Sources 214, 1113, and 1399 remain one archived
+ambiguous identity with a `needs_human_review` decision because wall contact,
+stance, laterality, start, endpoint, and count are absent. No equivalence or
+distinctness is inferred from sport context alone.
+
+The indexed audit remains at 633 raw pairs, 604 adjudicated-distinct pairs,
+29 unresolved score-72-or-higher pairs, and zero exact collision. The four
+proposed graph relationships remain review-only and authorize no automatic
+substitution.
+
+## 2026-08-09 — Source 44 standing-calf-raise identity boundary
+
+Migration 520 preserves the stable Standing Calf Raise definition UUID while
+consolidating the duplicate Source 44, Source 762 eccentric, and Sources
+841/1104 isometric definitions. The movement definition is the standing ankle-
+plantarflexion raise family; support, laterality, surface height, knee angle,
+contraction mode, return strategy, implement, external load, range, tempo,
+pause, rest, and dose are explicit variant dimensions. Earlier machine-only
+identity decisions remain traceable. Nine source variants are archived and
+only exact Source 44 variant `7219f09b-05ca-456e-ba2d-482f9440b893` is
+selectable in review.
+
+The exact Source 44 contract is wall-supported, bilateral, simultaneous, and
+flat-floor: full feet at start and finish, forefeet supported throughout,
+mostly straight knees, comfortable heel rise, a brief untimed checkpoint,
+and controlled return. Stance, foot angle, range, tempo, the brief checkpoint,
+breathing, footwear, dose, and context remain annotations. Step range,
+unilateral or alternating action, unsupported balance, external load,
+sustained isometrics, eccentric-only work, and elastic action are variants.
+
+Six deterministic decisions distinguish Bent-Knee Soleus Raise, Wall Calf
+Stretch Hold, Ankle Pogo, Walking Knee Hug to Calf Raise, Short Foot to Calf
+Raise, and Wall-Supported Tibialis Raise. These boundaries change knee angle,
+support, action, contraction, impact, locomotion, compound sequence, or ankle
+direction. All graph edges remain review-only and authorize no automatic
+substitution.
+
+After consolidation, the indexed audit reports 634 raw similarity pairs, 602
+adjudicated-distinct pairs, 32 unresolved lower-score pairs, zero unresolved
+exact collisions, and zero unresolved pairs at score 85 or higher. The
+remaining lower-score queue is not silently adjudicated by name similarity.
+
+## 2026-08-09 — Source 45 Toe Yoga identity boundary
+
+Migration 521 preserves stable Toe Yoga definition
+`18cec0fe-4ea4-4e28-9f75-41f192f94005` and consolidates Source 524
+Toe-Yoga Tripod Balance as a direct duplicate. Both sources prescribe the
+same great-toe lift-and-return followed by lesser-toe lift-and-return cycle;
+tripod, balance, and resilience language changes delivery context, not the
+executable identity. Both old source variants remain archived and traceable.
+
+One valid repetition belongs to one target foot: all toes start down with the
+heel and first and fifth metatarsal heads supported; the great toe lifts and
+returns while lesser toes remain long and down; then toes two through five
+lift and return while the great toe and first metatarsal head stay down. Left
+and right counts remain separate. Standing hands-free, standing light wall
+touch, and seated stable-bench support are exact review variants. Simultaneous
+bilateral action, assistance, resistance, sustained holds, unstable or
+single-leg support, toe spreading, toe flexion, short-foot doming, pressure
+shifting, assessment, and compound actions cross variant or definition
+boundaries.
+
+The five deterministic identity decisions comprise the direct Source 524
+consolidation plus four distinct-neighbor decisions for Short-Foot Drill, Foot
+Tripod Weight Shifts, Big Toe Press Iso Hold, and Short Foot to Calf Raise.
+The 28 alternate assessments further classify 4 same-identity cases, 8
+annotations, 9 new variants, and 7 distinct definitions. Eight proposed graph
+relationships remain review-only and authorize no automatic substitution.
+
+After consolidation, the indexed audit contains 1,065 active canonical
+definitions, 634 raw similarity pairs, 602 adjudicated-distinct pairs, 32
+unresolved score-72-or-higher pairs, zero exact collisions, and zero
+unresolved pairs at score 85 or higher. The direct Source 45/524 collision is
+closed without inventing human approval.
+
+## Source 46 — Short-Foot Drill
+
+Source 46 maps to stable definition `f8e6217e-1f08-465c-b533-308316c8602e`.
+It has no direct duplicate. Its identity is one target-foot arch-shortening
+repetition: supported heel, first and fifth metatarsal heads, and relaxed long
+toes; metatarsal heads draw toward the heel; the medial arch rises through a
+prescribed comfortable submaximal isometric hold; then the foot relaxes with
+control to the same start. Left and right repetitions and actual hold seconds
+remain separate.
+
+Standing hands-free, standing light wall touch, and seated stable-bench
+support are exact review variants. Hold time, comfortable range and effort,
+breathing, dose, side order, foot covering, and delivery context are
+annotations. Simultaneous bilateral action, single-leg or unstable support,
+manual assistance, resistance, biofeedback, dynamic-only or eccentric-only
+contraction, Toe Yoga, hallux pressing, whole-foot pressure shifting, toe
+curling, heel raising, maximal testing, and clinical treatment cross variant
+or definition boundaries.
+
+Five deterministic distinct-exercise decisions preserve the boundaries with
+Toe Yoga, Foot Tripod Weight Shifts, Big Toe Press Iso Hold, Short Foot to
+Calf Raise, and Single-Leg Tripod Balance. The 28 alternate assessments
+classify 3 exact identities, 9 annotations, 9 candidate variants, and 7
+distinct definitions. Eight proposed relationships remain review-only and
+authorize no automatic substitution. The refreshed queue remains at 1,065
+active definitions, 634 raw pairs, 602 adjudicated-distinct pairs, 32
+unresolved score-72-or-higher pairs, zero exact collisions, and zero
+unresolved score-85-or-higher pairs.

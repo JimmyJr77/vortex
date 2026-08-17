@@ -6,39 +6,23 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '457_coaching_lateral_lunge_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.70';
-  canonical_id CONSTANT UUID := '6a58d6cc-4a46-409a-9b89-c4330c3b8d6f';
-  cossack_id CONSTANT UUID := '40f08f99-5977-4e49-8907-02d80330d422';
-  bodyweight_variant CONSTANT UUID := '7090567a-5801-46d3-b404-76863d29a587';
-  cossack_low_amplitude CONSTANT UUID := '43cd4866-b6df-411d-b37c-f1f4574d66f1';
-  cossack_baseline CONSTANT UUID := '5a64974c-9f85-4671-ba5e-04f6e04d8621';
-  reverse_lunge_bodyweight CONSTANT UUID := '282a402b-5686-4d81-bd27-4f9e611e2780';
-  source_1328_ambiguous CONSTANT UUID := '8a75e862-c78a-4f41-aecb-0b67da494716';
-  source_63_ambiguous CONSTANT UUID := '125c3b91-7ec8-41b6-8852-2acbf58a8ddf';
-  source_174_ambiguous CONSTANT UUID := '1f079c9c-4c3a-4a8e-a170-2d5e017451ae';
-  source_385_ambiguous CONSTANT UUID := '8607698b-b3ad-4503-956b-32b40fe22f74';
-  source_475_ambiguous CONSTANT UUID := '6fcfe8d9-9257-4842-a8ec-f40d97566e7d';
-  source_1010_ambiguous CONSTANT UUID := '69c2bfb9-7e0f-40c2-be29-071e8137ab3a';
-  tempo_annotation CONSTANT UUID := '1797931f-fa0b-4c55-b8aa-926180980238';
-  moved_cossack_variant CONSTANT UUID := 'e9af3fd0-d798-4ceb-b1dc-4240c2f05cbc';
-  active_variant_ids CONSTANT UUID[] := ARRAY[bodyweight_variant];
-  ambiguous_variant_ids CONSTANT UUID[] := ARRAY[
-    source_1328_ambiguous,source_63_ambiguous,source_174_ambiguous,
-    source_385_ambiguous,source_475_ambiguous,source_1010_ambiguous];
+  canonical_id UUID;
+  cossack_id UUID;
+  bodyweight_variant UUID;
+  cossack_low_amplitude UUID;
+  cossack_baseline UUID;
+  reverse_lunge_bodyweight UUID;
+  source_63_ambiguous UUID;
+  source_174_ambiguous UUID;
+  source_385_ambiguous UUID;
+  source_475_ambiguous UUID;
+  source_1010_ambiguous UUID;
+  tempo_annotation UUID;
+  moved_cossack_variant UUID;
+  active_variant_ids UUID[];
+  ambiguous_variant_ids UUID[];
   lateral_source_ids CONSTANT BIGINT[] := ARRAY[63,174,385,475,752,1010,1328];
   all_source_ids CONSTANT BIGINT[] := ARRAY[63,174,385,475,752,1010,1055,1328];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '8401bc05-be9d-4aec-a393-1d654c8f477b'::UUID,
-    'a5972d5b-2073-4cf0-8d1c-079f00ee7102'::UUID,
-    '3f338a3f-9830-4ba1-80fa-85445339befc'::UUID,
-    'ff665cfa-6665-4787-8f27-07c4dca36e79'::UUID,
-    '08a2fae9-5ce1-4024-a3aa-fad5ad01bca7'::UUID,
-    '69864af2-9641-4874-9736-469acd011c23'::UUID];
-  ambiguous_definition_ids CONSTANT UUID[] := ARRAY[
-    '8401bc05-be9d-4aec-a393-1d654c8f477b'::UUID,
-    'a5972d5b-2073-4cf0-8d1c-079f00ee7102'::UUID,
-    '3f338a3f-9830-4ba1-80fa-85445339befc'::UUID,
-    'ff665cfa-6665-4787-8f27-07c4dca36e79'::UUID,
-    '69864af2-9641-4874-9736-469acd011c23'::UUID];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'tmhESsZcpDY','14JjPgcZAdI','ppcfjd9WVj0','vwOrd9umMOc','4m9R6PijpWI'];
   evidence_payload JSONB := $json$
@@ -93,20 +77,55 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Clean library bootstraps generate UUIDs. Resolve from immutable source
+  -- lineage and controlled keys rather than replaying historical UUIDs.
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=1328;
+  SELECT id INTO cossack_id FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='cossack-squat';
+  SELECT id INTO bodyweight_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO cossack_low_amplitude FROM coaching.exercise_variant_v1
+  WHERE definition_id=cossack_id AND variant_key='low-amplitude-shift';
+  SELECT id INTO cossack_baseline FROM coaching.exercise_variant_v1
+  WHERE definition_id=cossack_id AND variant_key='baseline';
+  SELECT variant.id INTO reverse_lunge_bodyweight FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.facility_id=1 AND definition.slug='reverse-lunge'
+    AND variant.variant_key='bodyweight-full-cycle';
+  SELECT id INTO source_63_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-63-baseline';
+  SELECT id INTO source_174_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-174-baseline';
+  SELECT id INTO source_385_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-385-baseline';
+  SELECT id INTO source_475_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-475-baseline';
+  SELECT id INTO source_1010_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-1010-baseline';
+  SELECT id INTO tempo_annotation FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-752-baseline';
+  SELECT id INTO moved_cossack_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-1055-baseline';
+  active_variant_ids := ARRAY[bodyweight_variant];
+  ambiguous_variant_ids := ARRAY[source_63_ambiguous,source_174_ambiguous,
+    source_385_ambiguous,source_475_ambiguous,source_1010_ambiguous];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND facility_id=1 AND slug='lateral-lunge')<>1
     OR (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=cossack_id AND facility_id=1 AND slug='cossack-squat')<>1
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(all_source_ids))<>8
+    OR canonical_id IS NULL OR cossack_id IS NULL OR reverse_lunge_bodyweight IS NULL
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(
-      ambiguous_variant_ids||ARRAY[tempo_annotation,moved_cossack_variant]))<>8
+      ambiguous_variant_ids||ARRAY[tempo_annotation,moved_cossack_variant]))<>7
     OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id IN (canonical_id,cossack_id) AND
         (reviewed_by IS NOT NULL OR approved_by IS NOT NULL OR last_reviewed_at IS NOT NULL))
     OR EXISTS(SELECT 1 FROM coaching.exercise_identity_resolution_v1
       WHERE reviewed_by IS NOT NULL AND
         (survivor_definition_id IN (canonical_id,cossack_id)
-          OR resolved_definition_id=ANY(archived_definition_ids||ARRAY['14a4a96d-a988-4d79-b6cb-c2e41beddc9d'::UUID]))) THEN
+          OR resolved_definition_id IN (canonical_id,cossack_id))) THEN
     RAISE EXCEPTION '% refuses missing lineage or human-reviewed state',migration_key;
   END IF;
 
@@ -437,37 +456,20 @@ BEGIN
   WHERE coaching.exercise_relationship_v1.reviewed_by IS NULL
     AND coaching.exercise_relationship_v1.review_status<>'approved';
 
-  UPDATE coaching.exercise_identity_resolution_v1 SET
-    survivor_definition_id=cossack_id,decision='duplicate_consolidated',
-    rationale='Legacy source 1055 is named Bodyweight Lateral Lunge, but its executable setup fixes a wide stance and shifts side to side without a lateral step-out and return. It belongs to the Cossack Squat low-amplitude-shift variant.',
-    evidence_json=jsonb_build_object('migration',migration_key,'sourceId',1055,
-      'sourceNameConflict',TRUE,'stance','fixed_wide','footSequence','no_step_out',
-      'representedByVariantId',cossack_low_amplitude,'humanReviewRequired',TRUE,
-      'approvalsCreated',FALSE),resolution_source='deterministic_identity_equivalence',
-    reviewed_by=NULL,resolved_at=now()
-  WHERE resolved_definition_id='14a4a96d-a988-4d79-b6cb-c2e41beddc9d'::UUID
-    AND reviewed_by IS NULL;
+  -- The legacy UUID-only resolution target is absent in a clean bootstrap.
+  -- Source 1055 is deterministically remapped above and its original variant
+  -- is archived under Cossack Squat without inventing a foreign-key target.
 
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,
-    CASE WHEN definition_id=ANY(ambiguous_definition_ids) THEN 'needs_human_review'
-      ELSE 'duplicate_consolidated' END,
-    CASE definition_id
-      WHEN '8401bc05-be9d-4aec-a393-1d654c8f477b'::UUID THEN 'Lateral Lunge Shift permits either a fixed wide-stance shift or a step-out lunge and cannot select one exact identity.'
-      WHEN 'a5972d5b-2073-4cf0-8d1c-079f00ee7102'::UUID THEN 'Loaded Lateral Lunge permits dumbbells at the chest or sides and omits implement count and load side.'
-      WHEN '3f338a3f-9830-4ba1-80fa-85445339befc'::UUID THEN 'Barbell Lateral Lunge omits the bar rack or carry position, rack sequence, and failure response.'
-      WHEN 'ff665cfa-6665-4787-8f27-07c4dca36e79'::UUID THEN 'Kettlebell Lateral Lunge omits implement count, carry or rack position, and load side.'
-      WHEN '69864af2-9641-4874-9736-469acd011c23'::UUID THEN 'Sandbag Lateral Lunge omits the exact hold and contains unresolved carry or drag steps that may not belong to the lunge repetition.'
-      ELSE 'Lateral Lunge Negative preserves the full step-out and return and is represented as a slow-eccentric dosage annotation.' END,
-    jsonb_build_object('migration',migration_key,
-      'identityBoundary',CASE WHEN definition_id=ANY(ambiguous_definition_ids)
-        THEN 'lateral_lunge_family_with_missing_exact_identity_or_load_position'
-        ELSE 'same_step_out_lateral_lunge_with_tempo_modifier' END,
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review',
+    'Historical UUID-only identity boundary is retained by quarantined source lineage; no foreign-key target is fabricated during clean bootstrap.',
+    jsonb_build_object('migration',migration_key,'historicalBoundaryNotReplayed',TRUE,
       'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,
@@ -553,7 +555,7 @@ BEGIN
         AND programming_profile_json<>'{}'::JSONB)<>1
     OR (SELECT count(*) FROM coaching.exercise_variant_v1
       WHERE id=ANY(ambiguous_variant_ids) AND status='archived'
-        AND requirements_json->>'representation'='identity_quarantine')<>6
+        AND requirements_json->>'representation'='identity_quarantine')<>5
     OR (SELECT count(*) FROM coaching.exercise_variant_v1
       WHERE id=tempo_annotation AND status='archived'
         AND requirements_json->>'representation'='modifier_annotation')<>1
@@ -590,13 +592,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
       WHERE variant_id=bodyweight_variant AND status='review'
         AND version=1 AND reviewed_by IS NULL)<>2
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(ambiguous_definition_ids)
-        AND decision='needs_human_review' AND reviewed_by IS NULL)<>5
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=cossack_id
-        AND resolved_definition_id='14a4a96d-a988-4d79-b6cb-c2e41beddc9d'::UUID
-        AND decision='duplicate_consolidated' AND reviewed_by IS NULL)<>1 THEN
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id=ANY(ARRAY[63,174,385,475,1010]::BIGINT[])
+        AND provenance_json->>'sourceDisposition' LIKE 'identity_quarantine_%')<>5 THEN
     RAISE EXCEPTION '% found incomplete graph, calibration, or identity correction',migration_key;
   END IF;
 

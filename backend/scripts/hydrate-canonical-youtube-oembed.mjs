@@ -72,7 +72,11 @@ try {
       AND definition.card_version=media.reviewed_card_version
      WHERE definition.facility_id=$1
        AND media.review_status='candidate'
-       AND (media.title IS NULL OR media.link_status='unverified')
+       AND (
+         media.title IS NULL
+         OR media.link_status='unverified'
+         OR media.embedding_allowed IS DISTINCT FROM TRUE
+       )
        ${slugClause}
      ORDER BY definition.canonical_name, media.video_id
      LIMIT $2`,

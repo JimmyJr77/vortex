@@ -1,0 +1,539 @@
+{
+  "facilityId": 1,
+  "slug": "a-skip",
+  "researchVersion": "2026-07-25.9",
+  "assessmentSummary": {
+    "identity": "Traveling alternating A-skip using a repeatable step-hop rhythm, brief flight, assigned thigh recovery, prepared ankle, contact near beneath the body, tall posture, and coordinated opposite arm action.",
+    "currentCardFindings": [
+      "The card names an elastic A-march progression but never defines the step-hop contact sequence that distinguishes skipping from marching or running.",
+      "A 20-second work interval can increase impact and degrade rhythm; distance and contacts per side are needed.",
+      "The generic difficulty score understates coordination and repeated-contact demands while its description overstates direct speed benefit."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "traveling_alternating_a_skip",
+        "alternating_step_hop_locomotion"
+      ],
+      "jointActions": [
+        "hip_flexion_extension",
+        "knee_flexion_extension",
+        "ankle_dorsiflexion_and_plantarflexion",
+        "contralateral_arm_swing"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_left_right_step_hop",
+      "intent": "repeatable_rhythm_posture_contact_and_arm_leg_coordination_with_brief_flight"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hip_flexors",
+        "gluteus_maximus",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "tibialis_anterior",
+        "intrinsic_foot",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 52,
+      "absoluteLoadDemand": 16,
+      "coordinationDemand": 62,
+      "supervisionDemand": 36,
+      "failureConsequence": 28,
+      "impact": 25,
+      "workCapacityDemand": 26,
+      "baseOverallDifficulty": 52
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_traveling_alternating_step_hop",
+      "impactClass": "low_to_moderate_by_amplitude_surface_and_contacts",
+      "landingContactsPerRep": "record_total_and_per_side_step_hop_contacts",
+      "primaryStress": [
+        "foot_and_plantar_flexor_cyclic_load",
+        "hip_recovery",
+        "single_leg_coordination",
+        "arm_leg_rhythm"
+      ],
+      "fatigueSensitivity": "rhythm_contact_sound_reach_posture_amplitude_and_relaxation"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_level_10_to_20_metre_lane",
+        "safe_finish_zone"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "video",
+        "cadence_feedback"
+      ],
+      "environment": [
+        "dry_non_slip_forgiving_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "pain_free_low_hop",
+        "owns_a_march",
+        "can_alternate_step_hop_rhythm"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4_passes",
+      "distancePerPass": "10-20_metres_or_6-12_contacts_per_side",
+      "restSeconds": "walk_back_or_30-90",
+      "intensity": "controlled_to_crisp_submaximal",
+      "progressWhen": "step-hop rhythm, contact placement, posture, and relaxation remain stable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Step-hop and alternate",
+        "Lift to the assigned landmark",
+        "Contact close beneath you",
+        "Stay tall and relaxed"
+      ],
+      "athleteInstructions": [
+        "Skip forward with the same step-hop rhythm on both sides and stop before contacts get loud or stretched"
+      ],
+      "commonFaults": [
+        "turning_into_high_knee_run",
+        "same_leg_repetition",
+        "overstriding",
+        "forced_forefoot",
+        "excessive_vertical_bounce",
+        "arm_tension"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_low_hop",
+        "owns_no_flight_a_march",
+        "safe_lane"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "rhythm_loss",
+        "loud_contacts",
+        "reaching",
+        "asymmetry",
+        "unsafe_finish"
+      ]
+    },
+    "programmingDecision": "Retain as the stable traveling A-skip identity. Use it for an explicit coordination or rhythm purpose without promising sprint improvement; treat punch, snap-down, and approach wording as cue or context annotations unless contact sequence changes.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T04:35:00.000Z",
+      "cardVersion": 4,
+      "status": "review",
+      "description": "Travel forward on a clear level lane through alternating step-hop cycles. Each side performs one supported step followed by a brief flight and landing before the opposite side repeats; recover the thigh toward the declared landmark, return the contact close beneath the body, stay tall, and coordinate opposite arm and leg. One cycle is one step-hop landing on each side. This excludes no-flight A-March, running, B-Skip, stationary skipping, wall support, resistance, obstacle spacing, a terminal sprint, and assessment.",
+      "familyKey": "traveling_alternating_a_skip",
+      "movementPatterns": [
+        "locomote",
+        "jump",
+        "land",
+        "sprint_contact_learning"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "thigh",
+        "hip",
+        "core",
+        "upper_arm"
+      ],
+      "requiredEquipment": [
+        "10_to_20_metre_clear_lane",
+        "safe_finish_zone"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "cadence_feedback",
+        "video"
+      ],
+      "variantKey": "traveling-alternating-step-hop-a-skip",
+      "environment": {
+        "surface": "clear, level, dry, non-slip, impact-appropriate lane",
+        "space": "one protected 10-20 metre lane with a safe finish zone and no cross traffic",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface traction, debris, moisture, and clearance",
+          "defined lane and finish zone",
+          "footwear, communication, entry, exit, and coach sightline"
+        ],
+        "changeRule": "Changing flight, step-hop contact sequence, support, travel, lane, thigh target, arm action, cadence, resistance, cue, dose, surface, footwear, intent, or symptoms requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe lane and comfortable pain-free low hop",
+          "can demonstrate controlled no-flight A-March before adding flight",
+          "understands alternating step-hop rhythm, contact count, stop signal, and exit",
+          "session foot, calf, landing, impact, and technical-fatigue budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "pain, limp, repeated rhythm loss, unsafe lane, or communication conflict",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or coordination concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal thigh height, cadence, lane length, contact cap, dose, recovery, sprint outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 52,
+        "absoluteLoadDemand": 16,
+        "physicalDifficulty": 16,
+        "coordinationDemand": 62,
+        "supervisionDemand": 36,
+        "failureConsequence": 28,
+        "impact": 25,
+        "workCapacityDemand": 26,
+        "baseOverallDifficulty": 52
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_traveling_alternating_step_hop_with_brief_flight",
+        "impactClass": "low_to_moderate_alternating_landing_contacts",
+        "landingContactsPerRep": 2,
+        "gripDemand": 1,
+        "spinalLoading": 8,
+        "eccentricStress": 24,
+        "primaryExposure": [
+          "alternating_foot_calf_landing_contacts",
+          "hip_recovery",
+          "single_support_coordination",
+          "arm_leg_rhythm"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 22,
+        "gripFatigue": 1,
+        "technicalFatigueSensitivity": 66,
+        "impactAccumulation": 28,
+        "recoveryHours": 12,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "alternating_landing_contacts": 80,
+          "foot_calf_repeated_contacts": 80,
+          "sprint_mechanics_step_hop": 60
+        },
+        "tracking": [
+          "contactsPerSide",
+          "distance",
+          "cadence",
+          "contactSound",
+          "contactReach",
+          "rhythmQuality",
+          "symptoms",
+          "rest"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A published running-drill test battery defines A-skip with observable arm action, thigh motion, support-leg behavior, contact location, foot direction, posture, and swing-path criteria.",
+        "A-Skip must state whether the task is a no-flight march, an alternating step-hop skip, a pogo skip, a constrained ladder or gate variant, or a compound transition; coaching words such as punch, snap, rhythm, projection, and mobility do not establish a separate identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint drills are commonly used as controllable, low-speed tasks for posture, limb configuration, rhythm, and proprioceptive emphasis, but their mechanics must resemble the intended target when transfer is claimed.",
+        "A-Skip belongs to no-flight alternating sprint-mechanics marching, alternating step-hop skipping, an external-spacing variant, or a separately defined compound progression; it is not itself sprinting, maximal-speed work, or a jump-height test."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28632055/",
+      "sourceTitle": "Muscle activity in sprinting: a review",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Sprint muscle activity is phase-specific and distributed across lower-limb and trunk musculature rather than isolated to a single high-knee muscle action.",
+        "The card should identify hip flexors, gluteus maximus, hamstrings, quadriceps, soleus, gastrocnemius, tibialis anterior, intrinsic foot, frontal-plane pelvic stabilizers, trunk, and shoulder-girdle roles in proportion to the actual march, skip, or constraint."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "During maximal sprinting, active foot velocity before contact, contact near the projected center of mass, hip-extension velocity, and controlled support-leg flexion can influence braking and contact behavior.",
+        "A march or skip can constrain posture, recovery, contact placement, and arm-leg timing, but visual similarity cannot prove sprint force, joint stiffness, or transfer; cue only observable execution of the drill."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Whole-limb stiffness changes with task, speed, maturity, fatigue, and measurement method and cannot be inferred as a fixed quality from a drill label.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete experience remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Repeated flight contacts can contribute meaningful muscle-tendon loading even when external load and amplitude are low.",
+        "A-Skip needs pass distance, total and per-leg contacts, flight or no-flight status, surface, footwear, spacing constraint, cadence or intent, technical-fatigue markers, recovery, and weekly impact accounting rather than an unqualified repetition or work interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed preparation requires suitable space, safe start and finish zones, progressive intensity, adequate recovery, and coaching matched to the intended movement quality.",
+        "Require a level, dry, non-slip lane, safe spacing and finish, suitable footwear, secured flat ladder or visible gates only when prescribed, and readiness for the contact amplitude and coordination actually used."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives two passes over 10 to 20 metres as an example for progressive running drills and directs athletes to learn the movement before increasing cadence.",
+        "Use short passes, metres, explicit contacts, cadence or execution intent, and recovery; no-flight marches may use walk-back recovery, while skips and compound transitions need impact-aware volume and enough rest to preserve rhythm."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Published A-skip criteria include relaxed arms and shoulders, coordinated arm action without excessive midline crossing, a defined thigh path, forward-facing feet, contact near the body's vertical projection, and completion of support-leg extension.",
+        "Use a small cue set: stay tall or use the explicitly assigned projection, lift to the assigned landmark, keep the ankle prepared without forcing the heel, step or skip close beneath the body, coordinate opposite arm and leg, and preserve the defined march or step-hop rhythm."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Foot and plantar-flexor demands differ across locomotor tasks and sprint phases, so repeated contacts should not be represented as uniformly negligible load.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; limping; loss of balance; repeated reaching; forced or painful foot strike; loud contacts; cadence or posture loss; ladder contact; displaced equipment; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The study found good overall inter-rater reliability for its A-skip scoring criteria but no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample.",
+        "A-Skip should be programmed as a fresh coordination, position, rhythm, or warm-up constraint with an explicit athlete-specific purpose; do not promise faster sprinting, better acceleration, jump height, or approach transfer from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Clear, criterion-referenced movement elements make drill execution more observable than vague labels or outcome promises.",
+        "Show side and rear views, flight or no-flight contacts, thigh landmark, foot path, arm action, pass distance, gate or ladder pattern, finish, and one regression; explain that higher knees and faster feet are not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A-skip ratings were more reliable for upper-extremity criteria than lower-extremity criteria, supporting explicit observation criteria and trained raters rather than a global visual impression.",
+        "Provide side and rear observation, pass and contact counts, left-right comparison, exact equipment spacing, optional slow-motion video, cue-response notes, and a distinction between a coached drill constraint and measured sprint biomechanics."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include in-place rehearsal, slower cadence, shorter passes, lower thigh target, marching instead of skipping, floor marks instead of a raised ladder, fewer contacts, longer recovery, quieter instruction, and additional demonstration."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint drills should be selected for a specific limiting factor and should not be assumed to transfer merely because they isolate one visible feature.",
+        "Lane length, cadence, arm cue, thigh target, and sport context are delivery annotations; flight versus no flight, step-hop versus running, external spacing, resistance, support, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for A-Skip were discovered through visible YouTube search; current availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=0fz4tO3IDzU",
+      "title": "How To A Skip",
+      "channelName": "Chari Hawkins",
+      "sourceQuery": "A skip sprint drill technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=A7r6yCpmSrA",
+      "title": "How to Do A-Skip - B-Skip with Proper Form",
+      "channelName": "Runify",
+      "sourceQuery": "A skip sprint drill technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xiYTMBLqp8c",
+      "title": "How To Get FASTER with DRILLS",
+      "channelName": "Noah Lyles, Olympian",
+      "sourceQuery": "A skip sprint drill technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qwcDGGB392g",
+      "title": "How to Improve Your Running Technique in 60 Seconds | A-Skip Tutorial",
+      "channelName": "Matthew Alty",
+      "sourceQuery": "A skip sprint drill technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Vu3eqv9lSZw",
+      "title": "Sprint Drills A Walk, A Skip, B Walk, B Skip",
+      "channelName": "ATHLETE.X",
+      "sourceQuery": "A skip sprint drill technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "A-Skip Rhythm Punch",
+      "classification": "same_identity",
+      "rationale": "Knee punch and rhythm are cues for the same step-hop A-skip described by the current card.",
+      "distinguishingDimensions": {
+        "cueEmphasis": "recovery_and_downstroke"
+      }
+    },
+    {
+      "name": "A-Skip Snap Down",
+      "classification": "same_identity",
+      "rationale": "A crisp downstroke is an execution cue unless a separate landing-and-hold action is specified.",
+      "distinguishingDimensions": {
+        "cueEmphasis": "downstroke"
+      }
+    },
+    {
+      "name": "In-Place A-Skip",
+      "classification": "new_variant",
+      "rationale": "Removing travel changes spacing and projection while preserving the alternating step-hop pattern.",
+      "distinguishingDimensions": {
+        "displacement": "stationary"
+      }
+    },
+    {
+      "name": "B-Skip",
+      "classification": "new_definition",
+      "rationale": "A deliberate lower-leg extension and recovery sequence changes the primary swing task.",
+      "distinguishingDimensions": {
+        "movementPattern": "b_skip"
+      }
+    },
+    {
+      "name": "A-Run",
+      "classification": "new_definition",
+      "rationale": "Running contacts replace the step-hop skipping gait and materially increase cadence.",
+      "distinguishingDimensions": {
+        "contactSequence": "running"
+      }
+    }
+  ]
+}

@@ -1,0 +1,647 @@
+{
+  "facilityId": 1,
+  "slug": "bear-crawl-rock-back",
+  "researchVersion": "2026-08-09.105",
+  "assessmentSummary": {
+    "identity": "One stationary Bear Crawl Rock-Back starts on both palms and forefeet with hands under shoulders, knees under hips, arms long, and both knees hovering about one to two inches above the floor. Without stepping either hand or foot or touching the knees down, press through the palms and shift the hips backward toward the heels through the declared comfortable range, then shift forward to the same organized bear-hover start. One complete backward-and-forward return is one repetition. Comfortable range, exact knee-hover height, foot stance, hip endpoint, tempo, pauses, breathing prompts, repetitions, sets, rest, and a visual hip target are annotations. Allowing knee contact, changing to hands-and-knees quadruped, adding locomotor steps, rotating or circling, lifting a limb, changing support equipment, or holding without rocking changes the task.",
+    "currentCardFindings": [
+      "Source 38 describes a stationary hands-and-toes bear hover with knees lifted, hips initially over knees, a backward hip shift toward the heels, active palm pressure, and return, but the version-1 canonical card does not encode its exact contact, endpoint, count, anatomy, load, fatigue, duration, selection, substitution, persistence, coach, athlete, accessibility, or stop-rule contract.",
+      "Source 912 was previously consolidated by name similarity even though it permits the knees to hover or rest lightly down and omits exact start, endpoint, contact continuity, and repetition rules. That evidence cannot prove exact identity and must return to its own archived definition as needs-human-review.",
+      "Bear Plank Hold, Bear Hover Hold, Bear Plank Shoulder Tap, Slow Bear Crawl, Bear Crawl Prep, Adductor Rockback, Frog Rockback, and quadruped mobility drills change action, support, locomotion, laterality, or purpose and cannot be automatic substitutes.",
+      "The legacy age floor of six, publication state, generic dose, 40/10/40 score, and five candidate videos lack Source-38-specific calibration, playback, exactness, captions, accessibility, cue-quality, safety, reviewer, and approval evidence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "push",
+        "squat"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "support": "bilateral_palms_and_forefeet_fixed_with_bilateral_knee_hover",
+      "laterality": "bilateral",
+      "planes": [
+        "sagittal",
+        "multiplanar_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 24,
+      "physicalDifficulty": 24,
+      "baseOverallDifficulty": 30,
+      "variantScores": {
+        "stationaryBearHoverRockBack": {
+          "technicalComplexity": 30,
+          "absoluteLoadDemand": 24,
+          "physicalDifficulty": 24,
+          "baseOverallDifficulty": 30
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_shared_across_bilateral_palms_and_forefeet_with_knees_hovering",
+      "impactClass": "none",
+      "primaryExposure": [
+        "closed_chain_upper_extremity_support",
+        "dynamic_anteroposterior_weight_shift",
+        "shoulder_and_scapular_stabilization",
+        "trunk_and_pelvic_anti_rotation_and_anti_extension",
+        "hip_and_knee_flexion_under_hover",
+        "wrist_extension_and_forefoot_support"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "completeRockBackCycles": "4-12",
+      "secondsPerCycle": "3-8",
+      "rest": "20-60_seconds_or_as_needed_to_preserve_fixed_contacts_continuous_knee_hover_long_arms_level_pelvis_controlled_range_breathing_and_symptom_rules",
+      "durationRule": "setup_and_floor_transfer_plus_actual_valid_cycle_seconds_plus_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit_transfer"
+    },
+    "programmingDecision": "Select only when a clean stable floor station, safe floor transfer, comfortable bilateral palm and forefoot support, sustained knee hover, long-arm closed-chain shoulder support, controlled sagittal hip shift, symptoms, dose, duration, and cumulative wrist, hand, elbow, shoulder, scapular, trunk, hip, knee, ankle, crawling, plank, push, hang, handstand, and floor-work budgets fit. Do not silently place the knees down, change to hands-and-knees quadruped, add steps, rotate or circle, lift a limb, force hips to heels, infer readiness or treatment, or count a partial shift as a complete cycle. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct Spooner Physical Therapy and Juggernaut Training Systems Bear Crawl Rock-Back instructions, peer-reviewed quadruped postural-demand and trunk-muscle studies, a human quadrupedal-locomotion study used only to distinguish stationary rocking from locomotion, current YouTube oEmbed metadata, and exact comparison with Bear Plank Hold, Bear Hover Hold, Bear Plank Shoulder Tap, Slow Bear Crawl, Bear Crawl Prep, Adductor Rockback, Frog Rockback, and Source 912",
+      "uncertainty": "No study directly validates the complete Source-38 hover-rock-back contract, universal hand or foot spacing, knee-hover height, hip endpoint, spinal shape, muscle activation target, dose, frequency, fatigue ceiling, recovery interval, progression order, population eligibility, warm-up benefit, injury-prevention result, or Vortex score. Quadruped and locomotion studies use different tasks and populations, and no media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "source_912_identity_review",
+        "anatomy_and_load_review",
+        "wrist_and_floor_transfer_safety_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T00:35:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Start on both palms and forefeet with hands under shoulders, knees under hips, arms long, and both knees hovering about one to two inches above the floor. Keep every contact fixed and, without touching the knees down, press through the palms and shift the hips backward toward the heels through a comfortable range. Shift forward to the same organized bear-hover start and count one complete backward-and-forward return as one repetition. Range, exact hover height, foot stance, hip endpoint, tempo, pauses, breathing prompts, repetitions, sets, rest, and a visual hip target are annotations. Knee contact, hands-and-knees support, steps, rotation, circles, limb lifts, changed support equipment, or hold-only execution changes the task.",
+      "familyKey": "stationary_bear_hover_rock_back",
+      "movementPatterns": [
+        "brace",
+        "push",
+        "squat"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "environment": {
+        "space": "one floor station with full backward hip-shift clearance no cross traffic and a clear controlled exit route",
+        "surface": "clean flat dry stable nonslip floor suitable for palms and forefeet",
+        "changeRule": "Any support surface contact base limb action load path dose symptom space or downstream-demand change requires full revalidation.",
+        "inspection": [
+          "floor traction cleanliness temperature and debris",
+          "hand and forefoot clearance",
+          "backward hip and heel clearance",
+          "neighbor and cross-traffic separation",
+          "entry exit sightline communication and emergency route"
+        ],
+        "equipmentKey": "none",
+        "coachSightline": "side and front-quarter views of contacts knee clearance shoulders arms trunk pelvis hip path breathing and symptoms",
+        "stationCapacity": 1,
+        "optionalEquipment": [
+          "mat_optional"
+        ]
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma surgery or procedure without applicable clearance",
+          "worsening night post-trauma sharp increasing or unfamiliar pain",
+          "new numbness tingling weakness altered circulation or loss of control",
+          "wrist hand elbow shoulder neck back hip knee ankle or foot symptoms preventing exact task",
+          "instability uncontrolled collapse or inability to exit safely",
+          "dizziness faintness nausea visual change chest pain unusual breathlessness disorientation or inability to communicate",
+          "clinical restriction conflicting with loaded floor support or knee hover",
+          "unsafe floor space traffic sightline or emergency route",
+          "participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe controlled floor transfer and exit",
+          "comfortable bilateral palm and forefoot support",
+          "can sustain the declared knee hover",
+          "comfortable long-arm closed-chain shoulder support",
+          "understands fixed contacts back-and-forward count and stop signal",
+          "same-session upper-limb trunk hip knee ankle crawling plank and floor-work budgets fit"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility normal range ideal spine shape or knee-hover height",
+          "diagnosis treatment prevention correction readiness or clearance",
+          "isolated muscle activation",
+          "one universal dose frequency fatigue ceiling recovery progression or warm-up outcome",
+          "performance transfer age floor or participant skill level"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.spoonerpt.com/spooner-blog/dynamic-warm-up-for-mountain-bikers/",
+      "sourceTitle": "Dynamic Warm-Up for Mountain Bikers: Bear Crawl Rock Backs",
+      "sourcePublisher": "Spooner Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "The direct instruction starts on hands and toes with knees hovering, hips over knees, then pushes the hips back over the heels while the hands press into the floor.",
+        "Vortex makes fixed contacts, one-to-two-inch continuous hover, long arms, same-start return, valid cycle, compensation, and count rules explicit without claiming one universal range."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.jtsstrength.com/7-step-low-back-warmup/",
+      "sourceTitle": "7 Step Lower Back Warmup: Bear Crawl Rock Backs",
+      "sourcePublisher": "Juggernaut Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "The direct task combines a bear-hover brace, active hand pressure, controlled backward weight shift, and return without locomotor steps.",
+        "Brace, push, and squat are controlled planning keys rather than participant-skill or outcome classifications."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "sourceTitle": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Thirty healthy women performing three quadruped postures showed task-dependent palmar center-of-pressure, perceived-exertion, and trunk-muscle activity profiles.",
+        "This supports distributed upper-limb support and trunk demand in quadruped but does not establish exact Bear Rock-Back activation, isolation, or treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.spoonerpt.com/spooner-blog/dynamic-warm-up-for-mountain-bikers/",
+      "sourceTitle": "Dynamic Warm-Up for Mountain Bikers: Bear Crawl Rock Backs",
+      "sourcePublisher": "Spooner Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "The documented setup keeps hands and toes as contacts, knees hovering, and hips initially over knees before the backward shift toward the heels.",
+        "Knee contact, stepping, limb lift, rotation, base change, or an isometric hold changes support, loading, or action and therefore requires another variant or definition."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.jtsstrength.com/7-step-low-back-warmup/",
+      "sourceTitle": "7 Step Lower Back Warmup: Bear Crawl Rock Backs",
+      "sourcePublisher": "Juggernaut Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "The instruction requires hands under shoulders, knees one inch off the floor, active hand pressure, level hips, and controlled forward and backward weight shift.",
+        "The 30/24/30 proposal describes exercise complexity and physical difficulty only and requires independent calibration; it is not participant proficiency, age, readiness, or skill."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10824310/",
+      "sourceTitle": "Trunk Muscle Thickness During Supine and Crawling Exercises",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Thirty-one healthy young men showed position-dependent trunk-muscle thickness changes across supine, heel-off, crawling-on-all-fours, and bird-dog conditions.",
+        "Track valid cycles, hover seconds, range, tempo, first fault, symptoms, and overlapping closed-chain work; exact fatigue ceilings and recovery hours remain planning estimates because the study did not test this task."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "sourceTitle": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Quadruped postures differ in perceived effort and postural demand, and the study sample was limited to sedentary healthy women.",
+        "Selection requires individual floor-transfer, hand, wrist, shoulder, trunk, hip, knee, ankle, symptom, space, communication, and cumulative-load checks rather than demographic or proficiency labels."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.spoonerpt.com/spooner-blog/dynamic-warm-up-for-mountain-bikers/",
+      "sourceTitle": "Dynamic Warm-Up for Mountain Bikers: Bear Crawl Rock Backs",
+      "sourcePublisher": "Spooner Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Spooner gives a context-specific warm-up example of ten to fifteen repetitions.",
+        "Vortex's one to three sets of four to twelve cycles is a quarantined delivery proposal, not a universal validated prescription, frequency, recovery interval, or outcome claim."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.jtsstrength.com/7-step-low-back-warmup/",
+      "sourceTitle": "7 Step Lower Back Warmup: Bear Crawl Rock Backs",
+      "sourcePublisher": "Juggernaut Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "The direct sequence specifies hands under shoulders, knees one inch off the ground, palms actively pressing, level hips, controlled intent, forward loading over the shoulders, backward rocking, and ten repetitions.",
+        "Vortex adds fixed contacts, return-to-start, long-arm, no-knee-contact, valid-repetition, stop, persistence, and actual-duration rules without presenting them as research-validated treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "sourceTitle": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Quadruped tasks impose measurable palmar postural demand and trunk-muscle activity in the studied healthy sample.",
+        "Stop for unsafe floor transfer, loss of support, uncontrolled collapse, sharp or increasing pain, wrist or hand intolerance, instability, neurologic or systemic symptoms, equipment or space hazards, or a participant request; use facility escalation rules."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24235984/",
+      "sourceTitle": "Are various forms of locomotion-speed diverse or unique performance quality?",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A study of forty-two male physical-education students found quadrupedal locomotion tests were activity-specific and used travel over distance.",
+        "That evidence supports treating stationary rocking as distinct from Slow Bear Crawl locomotion but does not validate Source-38 dosing, transfer, readiness, or outcomes."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.spoonerpt.com/spooner-blog/dynamic-warm-up-for-mountain-bikers/",
+      "sourceTitle": "Dynamic Warm-Up for Mountain Bikers: Bear Crawl Rock Backs",
+      "sourcePublisher": "Spooner Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "The direct instruction provides observable hand, toe, knee-hover, hip-start, backward-shift, heel-target, and palm-pressure checkpoints.",
+        "Athlete support must also explain expected distributed support effort, permitted smaller range, unexpected symptoms, a valid complete cycle, controlled exit, and how to stop and ask for help."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "sourceTitle": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Palmar postural demand, perceived effort, and trunk recruitment differ across quadruped postures.",
+        "Coach support must observe exact contacts, hover continuity, level pelvis, long arms, trunk control, range, first fault, actual exposure, symptoms, downstream load, and safe entry and exit without diagnosing pathology."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.jtsstrength.com/7-step-low-back-warmup/",
+      "sourceTitle": "7 Step Lower Back Warmup: Bear Crawl Rock Backs",
+      "sourcePublisher": "Juggernaut Training Systems",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "The task can be taught with concise hand, knee-height, palm-pressure, level-hip, forward, backward, and repetition checkpoints.",
+        "Slower tempo, fewer cycles, more rest, smaller comfortable range, visual hip targets, still images, or live instruction are annotations; changing support surface, knee contact, base, or assistance requires a separately reviewed task."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24235984/",
+      "sourceTitle": "Are various forms of locomotion-speed diverse or unique performance quality?",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quadrupedal locomotion is activity-specific and includes movement over distance, unlike a stationary return-to-start rock-back.",
+        "Hold-only, shoulder-tap, crawling, hands-and-knees rockback, adductor, frog, rotational, limb-lift, and externally loaded alternatives remain distinct and are not automatic substitutions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact fixed-contact hover setup, continuous knee clearance, action, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=LAZ9HYjUwvk",
+      "title": "DNS Quadruped & Bear Rocking Exercises",
+      "channelName": "REACH Rehab + Chiropractic Performance Center",
+      "sourceQuery": "Source 38 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:55:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=X4eMdNmq0e8",
+      "title": "Bear rocking exercise for more stable shoulders!",
+      "channelName": "REACH Rehab + Chiropractic Performance Center",
+      "sourceQuery": "Source 38 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:55:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YJ05ptsucvY",
+      "title": "Bear Crawl Rock Backs",
+      "channelName": "Segovia Strength",
+      "sourceQuery": "Source 38 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:55:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=s4MQVrvrXBU",
+      "title": "Bear Position Rocking",
+      "channelName": "E3 Rehab Exercise Library",
+      "sourceQuery": "Source 38 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:55:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b9fsav8zSm4",
+      "title": "Bear Crawl Rock Backs",
+      "channelName": "Competitive Female Training",
+      "sourceQuery": "Source 38 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:55:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Stationary Bear Crawl Rock-Back",
+      "classification": "same_identity",
+      "rationale": "The descriptive label preserves fixed palms and forefeet, continuous knee hover, backward shift, and same-start return without steps.",
+      "distinguishingDimensions": {
+        "variant": "stationary_bear_hover_rock_back"
+      }
+    },
+    {
+      "name": "Bear Hover Rock-Back",
+      "classification": "same_identity",
+      "rationale": "The short label is safe only when the exact fixed-contact hovering-knee cycle is declared.",
+      "distinguishingDimensions": {
+        "variant": "stationary_bear_hover_rock_back"
+      }
+    },
+    {
+      "name": "Bear Position Rocking",
+      "classification": "same_identity",
+      "rationale": "This alias preserves the same task only when knees remain hovering and one back-and-forward return is counted.",
+      "distinguishingDimensions": {
+        "variant": "stationary_bear_hover_rock_back"
+      }
+    },
+    {
+      "name": "Comfortable Backward Range",
+      "classification": "modifier_annotation",
+      "rationale": "A smaller symptom-free hip shift changes amplitude without changing support, action, or count.",
+      "distinguishingDimensions": {
+        "modifier": "range"
+      }
+    },
+    {
+      "name": "One- or Two-Inch Knee Hover",
+      "classification": "modifier_annotation",
+      "rationale": "Small declared clearance differences stay within the same continuous hover task.",
+      "distinguishingDimensions": {
+        "modifier": "hover_height"
+      }
+    },
+    {
+      "name": "Foot Stance Width",
+      "classification": "modifier_annotation",
+      "rationale": "A declared comfortable toe stance adjusts the base without adding or removing contacts.",
+      "distinguishingDimensions": {
+        "modifier": "foot_stance"
+      }
+    },
+    {
+      "name": "Controlled Tempo or Brief Endpoint Pause",
+      "classification": "modifier_annotation",
+      "rationale": "Pace and a short pause alter time under tension but preserve the cycle.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "tempo",
+          "pause"
+        ]
+      }
+    },
+    {
+      "name": "Repetitions Sets or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and rest change dosage rather than identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "repetitions",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Visual Hip Target",
+      "classification": "modifier_annotation",
+      "rationale": "A non-contact visual marker can cue range while contacts and action remain unchanged.",
+      "distinguishingDimensions": {
+        "modifier": "visual_feedback"
+      }
+    },
+    {
+      "name": "Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Continuous-breathing or exhale cues change delivery without changing mechanics.",
+      "distinguishingDimensions": {
+        "modifier": "breathing_prompt"
+      }
+    },
+    {
+      "name": "Padded Mat Under Hands or Feet",
+      "classification": "new_variant",
+      "rationale": "A support surface changes wrist, foot, traction, clearance, hygiene, and logistics and requires exact review.",
+      "distinguishingDimensions": {
+        "support_surface": "padded_mat"
+      }
+    },
+    {
+      "name": "Bear Rock-Back with Knee Tap",
+      "classification": "new_variant",
+      "rationale": "Deliberate or permitted knee contact changes support, load, fatigue, count, and floor-contact rules.",
+      "distinguishingDimensions": {
+        "knee_contact": "required_or_permitted"
+      }
+    },
+    {
+      "name": "Bear Rock-Back with Elevated Hands",
+      "classification": "new_variant",
+      "rationale": "A bench or box changes support height, loading, clearance, equipment, and failure consequences.",
+      "distinguishingDimensions": {
+        "hand_support": "elevated"
+      }
+    },
+    {
+      "name": "Bear Rock-Back with Resistance Band",
+      "classification": "new_variant",
+      "rationale": "External resistance changes force direction, setup, load, equipment failure risk, and dosage.",
+      "distinguishingDimensions": {
+        "external_load": "resistance_band"
+      }
+    },
+    {
+      "name": "Bear Rock-Back with Alternating Limb Lift",
+      "classification": "new_variant",
+      "rationale": "Removing a support contact changes laterality, balance, anti-rotation demand, and count.",
+      "distinguishingDimensions": {
+        "support": "three_point_alternating"
+      }
+    },
+    {
+      "name": "Bear Plank Hold or Bear Hover Hold",
+      "classification": "new_definition",
+      "rationale": "Sources 234 and 968 hold a fixed bear position rather than perform a backward-and-forward cycle.",
+      "distinguishingDimensions": {
+        "targetDefinitionIds": [
+          "66e36feb-e07b-4d62-994b-bb6f66dd82b3",
+          "93945677-f2a9-4ded-ae46-77aeac637d66"
+        ],
+        "action": "isometric_hold"
+      }
+    },
+    {
+      "name": "Bear Plank Shoulder Tap",
+      "classification": "new_definition",
+      "rationale": "Source 277 removes one hand at a time and taps the opposite shoulder, changing contacts, laterality, anti-rotation demand, and count.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c1536021-bc28-41e7-8395-cd43c1c882e6",
+        "action": "alternating_shoulder_tap"
+      }
+    },
+    {
+      "name": "Slow Bear Crawl",
+      "classification": "new_definition",
+      "rationale": "Source 488 travels through space with coordinated hand and foot steps rather than returning with fixed contacts.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c9c2c6f6-7075-4fee-bfa9-baad522c6758",
+        "action": "quadrupedal_locomotion"
+      }
+    },
+    {
+      "name": "Bear Crawl Prep",
+      "classification": "new_definition",
+      "rationale": "Source 915 has its own preparation contract and cannot be inferred to include this exact continuous-hover rocking cycle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "3bd678e4-a4a3-4209-99eb-0ec738aad83b",
+        "status": "separate_authored_contract"
+      }
+    },
+    {
+      "name": "Hands-and-Knees Quadruped Rock-Back",
+      "classification": "new_definition",
+      "rationale": "Knees remain supported throughout, changing contacts, upper-limb load, trunk demand, fatigue, accessibility, and count.",
+      "distinguishingDimensions": {
+        "support": "bilateral_palms_and_knees"
+      }
+    },
+    {
+      "name": "Adductor Rockback",
+      "classification": "new_definition",
+      "rationale": "The adductor task uses an extended or abducted leg and usually knee support, changing laterality, hip action, contacts, and purpose.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "544160c7-dac2-4949-a67c-6ee7dec47640"
+      }
+    },
+    {
+      "name": "Frog Rockback",
+      "classification": "new_definition",
+      "rationale": "The frog stance uses wide knees and supported lower legs, changing base, contacts, hip position, loading, and purpose.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "4a533968-0389-4de9-a60c-a3e0584153b3"
+      }
+    },
+    {
+      "name": "Source 912 Bear Crawl Rock-Back",
+      "classification": "new_definition",
+      "rationale": "Source 912 permits knees hovering or lightly down and omits exact start, endpoint, contact continuity, and count, so exact overlap cannot be inferred; it remains archived pending human identity review.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 912,
+        "targetDefinitionId": "9ee51bb0-c415-40de-8b29-3f3a55756c5a",
+        "status": "identity_contract_incomplete"
+      }
+    },
+    {
+      "name": "Clinical Wrist Shoulder or Spine Assessment in Quadruped",
+      "classification": "new_definition",
+      "rationale": "Assessment adds standardized positioning, measurement, interpretation, consent, and clinical escalation beyond a workout card.",
+      "distinguishingDimensions": {
+        "scope": "clinical_assessment"
+      }
+    }
+  ]
+}

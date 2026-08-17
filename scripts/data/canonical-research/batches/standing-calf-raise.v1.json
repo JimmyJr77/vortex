@@ -1,0 +1,299 @@
+{
+  "facilityId": 1,
+  "batchKey": "standing-calf-raise-v1",
+  "researchVersion": "2026-08-09.111",
+  "snapshotAt": "2026-08-09T20:00:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/standing-calf-raise",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "standing-calf-raise",
+      "assessmentSummary": {
+        "identity": "One exact Source 44 wall-supported bilateral flat-floor standing calf raise begins facing a stable wall with both hands in light continuous contact, both full feet planted about hip-width, and both knees mostly straight without forced locking. Press through both forefeet to raise both heels simultaneously through comfortable plantarflexion, reach a brief untimed top checkpoint, then lower both heels under control to the same full-foot floor contact. One complete rise-and-return cycle is one repetition. Stance width, small foot-angle changes, comfortable range, tempo, the brief non-dose checkpoint, breathing, repetitions, sets, rest, effort, footwear, and delivery context are annotations. Step range, unilateral or alternating action, unsupported balance, bent-knee delivery, external load, a sustained isometric hold, assisted-rise eccentric-only lowering, fast elastic action, locomotion, compound actions, clinical testing, or sport actions change the variant or definition.",
+        "currentCardFindings": [
+          "Source 44 and the older Standing Calf Raise survivor describe the same standing plantarflexion family, while the current rows conflict on slug, support, laterality, start, return, count, and publication semantics. Sources 762, 841, and 1104 are contraction-mode variants, not independent movement definitions.",
+          "Earlier automated consolidation correctly preserved several aliases but over-broadened the selectable baseline to unilateral, loaded, isometric, and eccentric names without exact variant contracts. The new survivor keeps those names traceable while selecting only Source 44's supported bilateral flat-floor full cycle.",
+          "The inherited participant skill labels, age metadata, publication state, generic performance claims, and old difficulty values are not card-specific approvals. Difficulty is reassessed as exercise complexity and physical difficulty only; participant readiness remains a workout input.",
+          "Five YouTube candidates returned healthy oEmbed metadata. No candidate has been watched in full or approved for exact wall support, laterality, floor contact, rise, checkpoint, controlled return, count, captions, accessibility, cue quality, safety, or card-version match."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace"],
+          "bodyRegions": ["foot", "ankle", "calf", "knee", "hip", "core"],
+          "support": "standing_facing_wall_bilateral_hands_supported_full_feet_flat_at_start_and_finish_forefeet_supported_throughout",
+          "laterality": "bilateral_simultaneous",
+          "planes": ["sagittal", "frontal_and_transverse_stabilization"],
+          "equipment": ["wall"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 22,
+          "absoluteLoadDemand": 32,
+          "physicalDifficulty": 32,
+          "coordinationDemand": 20,
+          "supervisionDemand": 12,
+          "failureConsequence": 10,
+          "impact": 1,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 32,
+          "variantScores": {
+            "wallSupportedBilateralStandingCalfRaise": {
+              "technicalComplexity": 22,
+              "absoluteLoadDemand": 32,
+              "physicalDifficulty": 32,
+              "coordinationDemand": 20,
+              "supervisionDemand": 12,
+              "failureConsequence": 10,
+              "impact": 1,
+              "workCapacityDemand": 30,
+              "baseOverallDifficulty": 32
+            }
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_shared_bilaterally_with_light_wall_balance_support_and_no_added_resistance",
+          "impactClass": "none",
+          "primaryExposure": [
+            "bilateral_ankle_plantarflexion",
+            "controlled_eccentric_plantarflexor_lowering",
+            "forefoot_pressure",
+            "calf_and_Achilles_loading",
+            "foot_ankle_alignment",
+            "wall_supported_body_line"
+          ],
+          "recovery": "24_hours_planning_estimate_with_12_to_36_hour_review_range"
+        },
+        "proposedDosage": {
+          "prepare": "1-2_sets_of_6-10_quality_repetitions_at_low_effort",
+          "capacity": "2-4_sets_of_8-15_quality_repetitions_at_moderate_effort",
+          "tempo": "about_1-2_seconds_rise_brief_untimed_checkpoint_and_2-4_seconds_controlled_return",
+          "rest": "20-120_seconds_or_as_needed_to_restore_height_alignment_bilateral_timing_breathing_and_symptom_rules",
+          "durationRule": "wall_floor_footwear_and_body_setup_plus_actual_valid_repetition_seconds_plus_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit"
+        },
+        "programmingDecision": "Select only when the exact wall-supported bilateral flat-floor cycle, stable wall and nonslip level floor, suitable footwear, forefoot pressure, mostly-straight-knee posture, comfortable plantarflexion and controlled return, symptoms, restrictions, dose, duration, and cumulative calf, Achilles, foot, ankle, running, landing, jumping, cutting, and lower-body budgets fit. Do not silently change support, laterality, surface height, knee angle, contraction mode, return strategy, implement, load, count, elastic intent, compound action, or clinical scope. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after every change.",
+        "calibrationEvidence": {
+          "basis": "Peer-reviewed bilateral heel-raise activity, standing heel-raise phase EMG, foot-position mechanics, Achilles-loading hierarchy, standing-versus-seated knee-position research, current resistance-training guidance, general supervised resistance-training safeguards, the exact Source 44 contract, five current YouTube oEmbed records, and comparison with bent-knee, seated, static-hold, tibialis, ankle-rocker, pogo, locomotor, compound, loaded, unilateral, isometric, eccentric-only, and clinical neighbors",
+          "uncertainty": "The research does not validate one wall geometry, stance, foot angle, height, tempo, checkpoint, dose, frequency, fatigue ceiling, recovery interval, warm-up effect, injury-prevention claim, sport transfer, population threshold, or Vortex difficulty score. No media candidate has been watched in full, and no relationship or score has qualified human approval.",
+          "reviewNeeded": [
+            "qualified_content_review",
+            "independent_difficulty_calibration",
+            "family_identity_and_variant_review",
+            "wall_floor_footwear_and_station_safety_review",
+            "anatomy_load_fatigue_and_recovery_review",
+            "clinical_scope_and_stop_rule_review",
+            "full_video_review",
+            "relationship_review",
+            "coach_and_athlete_comprehension_test"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "double_leg_heel_raise_activity_2015",
+          "claims": [
+            "A double-leg heel raise is a distinguishable bilateral plantarflexor task, and achieved heel height relates to plantarflexor activity in the studied protocol.",
+            "The exact Source 44 wall contact, flat-floor start and finish, simultaneous action, controlled return, count, and invalidation rules come from the legacy contract and Vortex specification rather than the study."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "standing_heel_raise_phase_emg_2021",
+          "claims": [
+            "Standing heel raise includes distinguishable concentric rising and eccentric lowering phases across the lower-leg system.",
+            "The controlled taxonomy records a stationary braced standing task rather than misclassifying it as locomotion or impact."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "standing_heel_raise_foot_position_2016",
+          "claims": [
+            "Straight-knee heel raising recruits the triceps surae while foot position can alter center-of-pressure and measured activation.",
+            "The card records gastrocnemius, soleus, Achilles loading, foot stabilizers, joints, planes, and stabilization without promising isolated-muscle loading."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "standing_heel_raise_phase_emg_2021",
+          "claims": [
+            "Concentric rising and eccentric lowering produce distinguishable activation patterns during standing heel raise.",
+            "Vortex specifies synchronized bilateral rise, a brief untimed checkpoint, and controlled return but does not infer an ideal universal height."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "double_leg_heel_raise_activity_2015",
+          "claims": [
+            "The bilateral heel raise deliberately loads plantarflexors more than ordinary walking in the studied comparison while remaining nonimpact and relatively low coordination.",
+            "The 22/32/32 proposal scores the exercise task only and remains queued for independent calibration."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "heel_raise_achilles_loading_hierarchy",
+          "claims": [
+            "Heel-raising and lowering configurations impose different Achilles loading and are not interchangeable.",
+            "Vortex tracks actual repetitions, active time, range, tempo, faults, symptoms, and overlapping lower-leg exposure; cumulative limits and recovery hours remain planning estimates."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "standing_heel_raise_foot_position_2016",
+          "claims": [
+            "Foot position changes center-of-pressure and muscle-activity observations, so stance and foot angle should be recorded rather than silently changed.",
+            "Stable wall support, a dry level nonslip floor, suitable footwear, comfortable forefoot pressure, and exact-task control are operational constraints, not demographic eligibility claims."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "acsm_resistance_training_position_stand_2026",
+          "claims": [
+            "Resistance-training sets, repetitions, effort, rest, frequency, and progression should match the intended adaptation and individual response.",
+            "Prepare and capacity ranges are quarantined examples, not universal prescriptions, and end before height, timing, forefoot pressure, return control, breathing, or symptoms degrade."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "standing_heel_raise_phase_emg_2021",
+          "claims": [
+            "A standing heel raise can be operationalized as a rising phase followed by a controlled lowering phase.",
+            "Vortex adds exact support contacts, bilateral timing, comfortable endpoint, brief non-dose checkpoint, same full-foot return, valid count, faults, and stop rules."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "General resistance-training safeguards emphasize qualified instruction, safe equipment and environment, appropriate progression, and technique supervision.",
+            "No participant skill or age floor is inferred; symptoms, restrictions, exact-task control, environment, communication, cumulative load, and facility escalation policy govern selection."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "bent_knee_calf_raise_hypertrophy_knee_position",
+          "claims": [
+            "Standing and seated calf-raise training are not interchangeable because knee position changes muscle-length and adaptation context.",
+            "The exact supported straight-knee task can serve preparation or capacity only when purpose and fatigue budgets fit; no universal transfer or outcome is promised."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "double_leg_heel_raise_activity_2015",
+          "claims": [
+            "Heel height is observable and relates to plantarflexor demand during double-leg heel raise.",
+            "Athlete support uses comfortable repeatable height, even forefoot pressure, synchronized rise, quiet return, breathing, and symptom checks rather than a maximal-height target."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "standing_heel_raise_foot_position_2016",
+          "claims": [
+            "Foot position materially affects observations and should be standardized when repetitions are compared.",
+            "Coaches record wall support, stance, foot angle, knee position, height, bilateral timing, return control, first fault, actual dose, symptoms, and downstream load without diagnosing."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Instruction, supervision, environment, and progression should fit the participant and exercise.",
+            "Written cues, visible counting, reduced comfortable range, fewer repetitions, more rest, captions, transcript, still images, or live instruction may preserve the exact task; changed support or action needs separate validation."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "heel_raise_achilles_loading_hierarchy",
+          "claims": [
+            "Support, laterality, rise assistance, lowering strategy, and exercise configuration change loading across heel-raise variants.",
+            "Step, unilateral, unsupported, loaded, isometric, eccentric-only, elastic, bent-knee, seated, compound, clinical, and sport tasks retain explicit variant or definition boundaries."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+            "oEmbed health does not prove playback, exact support and mechanics, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=_B6o13eoAuU",
+          "title": "Double Leg Calf Raise",
+          "channelName": "Elite Performance Institute",
+          "sourceQuery": "Double-leg calf-raise candidate checked by YouTube oEmbed; full exact review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-09T19:30:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=88D6QOBlCWA",
+          "title": "Standing Calf Raise Exercise Video",
+          "channelName": "This Is Living With Cancer™",
+          "sourceQuery": "Standing calf-raise candidate checked by YouTube oEmbed; full exact and scope review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-09T19:30:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Dgf9hougTdc",
+          "title": "Standing BW Calf Raise",
+          "channelName": "Conditioned by Kelly Tekin",
+          "sourceQuery": "Standing bodyweight calf-raise candidate checked by YouTube oEmbed; full exact review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-09T19:30:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=CtpPV2FBkG4",
+          "title": "Standing Calf Raises Bodyweight Tutorial | Calf Exercise | Proper Form Guide | Step by Step",
+          "channelName": "Lean Physique Lab",
+          "sourceQuery": "Standing bodyweight tutorial candidate checked by YouTube oEmbed; full exact review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-09T19:30:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=584joZQZvRg",
+          "title": "Calf Raise with Heel Drop | Osteoporosis Leg Exercises to Improve Bone Density | 4 Minutes",
+          "channelName": "Kaari",
+          "sourceQuery": "Calf raise with heel-drop candidate checked by YouTube oEmbed; title and population framing require full human scope review",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-09T19:30:00.000Z"}
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Calf Raise to Controlled Heel Drop", "classification": "same_identity", "rationale": "Source 44 names the exact supported bilateral flat-floor rise-and-return cycle.", "distinguishingDimensions": {"legacySourceId": 44}},
+        {"name": "Double-Leg Calf Raise", "classification": "same_identity", "rationale": "This is an alias only when support, simultaneous bilateral action, flat-floor start and finish, and full cycle are unchanged.", "distinguishingDimensions": {"laterality": "bilateral_simultaneous"}},
+        {"name": "Wall-Supported Bilateral Standing Calf Raise", "classification": "same_identity", "rationale": "This descriptive name makes support and laterality explicit without changing the task.", "distinguishingDimensions": {"alias": true}},
+        {"name": "Comfortable Stance Width", "classification": "modifier_annotation", "rationale": "Small stance-width adjustments preserve support, action, and count.", "distinguishingDimensions": {"modifier": "stance_width"}},
+        {"name": "Small Foot-Angle Adjustment", "classification": "modifier_annotation", "rationale": "Record a comfortable foot angle without turning it into a targeted or different exercise.", "distinguishingDimensions": {"modifier": "foot_angle"}},
+        {"name": "Comfortable Heel-Raise Height", "classification": "modifier_annotation", "rationale": "A smaller active range changes amplitude without changing the cycle.", "distinguishingDimensions": {"modifier": "active_range"}},
+        {"name": "Controlled Rise and Return Tempo", "classification": "modifier_annotation", "rationale": "Tempo changes exposure while preserving the complete cycle.", "distinguishingDimensions": {"modifier": "tempo"}},
+        {"name": "Brief Untimed Top Checkpoint", "classification": "modifier_annotation", "rationale": "A brief checkpoint is not an isometric task unless prescribed by time or effort.", "distinguishingDimensions": {"modifier": "brief_checkpoint"}},
+        {"name": "Breathing Prompt", "classification": "modifier_annotation", "rationale": "Breathing changes delivery rather than identity.", "distinguishingDimensions": {"modifier": "breathing"}},
+        {"name": "Repetitions Sets Rest or Effort Target", "classification": "modifier_annotation", "rationale": "Volume, recovery, and effort change dosage rather than identity.", "distinguishingDimensions": {"modifiers": ["repetitions", "sets", "rest", "effort"]}},
+        {"name": "Footwear or Approved Barefoot Context", "classification": "modifier_annotation", "rationale": "Footwear is an annotation only when traction, heel geometry, forefoot flexibility, range, and mechanics remain valid.", "distinguishingDimensions": {"modifier": "footwear"}},
+        {"name": "Preparation Capacity or General Context", "classification": "modifier_annotation", "rationale": "Workout context is a delivery profile unless a physical action is added.", "distinguishingDimensions": {"modifier": "delivery_context"}},
+        {"name": "Step Calf Raise Through Below-Neutral Range", "classification": "new_variant", "rationale": "A step adds below-neutral range, edge geometry, equipment, and fall consequences.", "distinguishingDimensions": {"surfaceHeight": "step"}},
+        {"name": "Single-Leg Standing Calf Raise", "classification": "new_variant", "rationale": "Unilateral loading changes force, balance, asymmetry, fatigue, failure, and count.", "distinguishingDimensions": {"laterality": "unilateral"}},
+        {"name": "Alternating Standing Calf Raise", "classification": "new_variant", "rationale": "Alternation changes timing, unilateral exposure, side order, and count.", "distinguishingDimensions": {"laterality": "alternating"}},
+        {"name": "Unsupported Standing Calf Raise", "classification": "new_variant", "rationale": "Removing wall support changes balance, failure consequence, and supervision.", "distinguishingDimensions": {"support": "unsupported"}},
+        {"name": "Externally Loaded Standing Calf Raise", "classification": "new_variant", "rationale": "External resistance changes implement handling, load path, setup, fatigue, and failure response.", "distinguishingDimensions": {"externalLoad": true}},
+        {"name": "Standing Calf Raise Sustained Top Hold", "classification": "new_variant", "rationale": "A prescribed hold changes contraction mode, endpoint, dose unit, fatigue, and count.", "distinguishingDimensions": {"contractionMode": "isometric"}},
+        {"name": "Assisted-Rise Eccentric-Only Standing Calf Lower", "classification": "new_variant", "rationale": "Assistance into the top and a prescribed negative change return strategy, tempo, load, and count.", "distinguishingDimensions": {"contractionMode": "eccentric_only"}},
+        {"name": "Fast Elastic Calf Raise or Rebound", "classification": "new_variant", "rationale": "Fast elastic intent changes stretch-shortening demand, contact behavior, impact, and stop rules.", "distinguishingDimensions": {"intent": "fast_elastic"}},
+        {"name": "Bent-Knee Soleus Raise", "classification": "new_definition", "rationale": "A materially bent knee changes support, muscle-length context, loading, and task contract.", "distinguishingDimensions": {"targetDefinitionId": "94737140-403a-4f82-8fc2-00f07543f8d6"}},
+        {"name": "Seated Soleus or Dumbbell Calf Raise", "classification": "new_definition", "rationale": "Seated knee-flexed support and thigh loading change the base, force path, balance, and logistics.", "distinguishingDimensions": {"support": "seated"}},
+        {"name": "Wall-Supported Tibialis Raise", "classification": "new_definition", "rationale": "The heels stay planted while the forefeet lift through dorsiflexion.", "distinguishingDimensions": {"targetDefinitionId": "17ea43fe-0d11-42b1-9be0-214bccd08616"}},
+        {"name": "Knee-to-Wall Ankle Rocker", "classification": "new_definition", "rationale": "The heel remains planted while the knee travels forward and returns through dorsiflexion.", "distinguishingDimensions": {"action": "knee_forward_return"}},
+        {"name": "Wall Calf Stretch Hold", "classification": "new_definition", "rationale": "A split-stance static lengthened-position hold uses time rather than bilateral repetitions.", "distinguishingDimensions": {"targetDefinitionId": "71a28386-6315-493d-927c-a6094a27b8f5"}},
+        {"name": "Ankle Pogo in Place", "classification": "new_definition", "rationale": "Pogos add elastic impact, rebound, possible flight, landing, and contact counting.", "distinguishingDimensions": {"targetDefinitionId": "cf96f21f-d3b6-4c3b-a31f-98e5f3a392af"}},
+        {"name": "Walking Knee Hug to Calf Raise", "classification": "new_definition", "rationale": "Walking, unilateral balance, knee-hug action, and calf raise form a compound locomotor sequence.", "distinguishingDimensions": {"targetDefinitionId": "0edb96e1-7822-4482-87f5-c925300c9ae0"}},
+        {"name": "Short Foot to Calf Raise", "classification": "new_definition", "rationale": "A separately cued foot-intrinsic action precedes the calf raise, creating a compound sequence.", "distinguishingDimensions": {"targetDefinitionId": "a1f96711-3528-4b38-b51a-9f087caa9735"}}
+      ]
+    }
+  ]
+}

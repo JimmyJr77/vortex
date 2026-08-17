@@ -14,6 +14,7 @@ test('repository groups published delivery profiles under a stable variant card'
       this.calls += 1
       assert.deepEqual(params, [9])
       if (sql.includes('exercise_relationship_v1')) {
+        assert.match(sql, /exercise_relationship_review_v2/)
         return {
           rows: [{
             id: 'edge-1',
@@ -27,7 +28,34 @@ test('repository groups published delivery profiles under a stable variant card'
           }],
         }
       }
+      if (sql.includes('SELECT a.subject_scope')) {
+        assert.match(sql, /exercise_taxonomy_review_v2/)
+        assert.match(sql, /length\(btrim\(review_evidence\.notes\)\) >= 20/)
+        return {
+          rows: [
+            {
+              subject_scope: 'definition', subject_id: 'def-1', facet_type: 'training_family',
+              term_key: 'calisthenics', assignment_role: 'primary', weight: 5,
+              confidence: 95, review_status: 'approved', reviewed_by: 5,
+              reviewed_at: '2026-08-01T00:00:00.000Z',
+            },
+            {
+              subject_scope: 'delivery_profile', subject_id: 'profile-1', facet_type: 'tenet',
+              term_key: 'strength', assignment_role: 'primary', weight: 5,
+              confidence: 95, review_status: 'approved', reviewed_by: 5,
+              reviewed_at: '2026-08-01T00:00:00.000Z',
+            },
+          ],
+        }
+      }
       assert.match(sql, /d\.status = 'published'/)
+      assert.match(sql, /exercise_card_review_v1 card_review/)
+      assert.match(sql, /length\(btrim\(card_review\.notes\)\) >= 20/)
+      assert.match(sql, /exercise_media_review_v1 media/)
+      assert.match(sql, /length\(btrim\(media\.notes\)\) >= 20/)
+      assert.match(sql, /review_basis_json @> jsonb_build_object/)
+      assert.match(sql, /exercise_structured_profile_review_v2 structured_evidence/)
+      assert.match(sql, /exercise_taxonomy_review_v2 taxonomy_evidence/)
       return {
         rows: [
           {
@@ -84,6 +112,8 @@ test('repository groups published delivery profiles under a stable variant card'
   assert.equal(cards[0].status, 'published')
   assert.deepEqual(cards[0].deliveryProfiles[0].substitutions, ['variant-2'])
   assert.equal(cards[0].relationships[0].similarityScore, 92)
+  assert.equal(cards[0].taxonomyV2.assignments[0].key, 'calisthenics')
+  assert.equal(cards[0].deliveryProfiles[0].taxonomyV2.assignments[0].key, 'strength')
 })
 
 test('release lookup and immutable workout persistence carry all versions', async () => {

@@ -1,0 +1,14 @@
+{
+  "migrationKey": "536_coaching_deep_squat_pry_source_61_candidate_materialization",
+  "researchVersion": "2026-08-10.118",
+  "generatedAt": "2026-08-10T06:00:00.000Z",
+  "cards": [
+    {
+      "slug": "deep-squat-pry",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7,
+      "cardVersion": 2
+    }
+  ]
+}

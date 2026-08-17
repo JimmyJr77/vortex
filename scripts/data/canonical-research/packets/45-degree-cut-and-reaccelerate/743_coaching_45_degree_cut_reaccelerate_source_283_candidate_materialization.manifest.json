@@ -1,0 +1,14 @@
+{
+  "migrationKey": "743_coaching_45_degree_cut_reaccelerate_source_283_candidate_materialization",
+  "researchVersion": "2026-08-10.123",
+  "generatedAt": "2026-07-26T05:00:00.000Z",
+  "cards": [
+    {
+      "slug": "45-degree-cut-and-reaccelerate",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 2
+    }
+  ]
+}

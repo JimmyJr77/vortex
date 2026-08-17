@@ -1,0 +1,68 @@
+{
+  "batchKey": "supine-tuck-hold-rock-source-72",
+  "facilityId": 1,
+  "researchVersion": "2026-08-10.119",
+  "sourceRegistry": "../source-registry.v1.json",
+  "snapshotAt": "2026-08-10T00:00:00.000Z",
+  "sharedEvidence": [
+    {"sectionKey":"taxonomy","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static shape work and dynamic rocking are distinct task types in gymnastics instruction.","The candidate records base, action, contact, start, finish, and non-equivalences as task taxonomy; it does not classify participants."]},
+    {"sectionKey":"anatomy","sourceKey":"pelvic_tilt_hollowing_unsupported_leg_emg","claims":["Trunk-control exercises change demand with task position and movement strategy.","The candidate records observable trunk, hip, knee, and floor-contact task roles without claiming diagnosis, isolated activation, prevention, or treatment."]},
+    {"sectionKey":"biomechanics","sourceKey":"pelvic_tilt_hollowing_unsupported_leg_emg","claims":["The cited study concerns related trunk-control positions, not the exact reviewed candidate.","The card therefore keeps its mechanical contract explicit and does not infer a universal posture, range, outcome, or transfer claim from that evidence."]},
+    {"sectionKey":"difficulty","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static position practice and dynamic rocking have different action demands.","Candidate difficulty scores describe only task complexity and physical demand; they are not athlete skill levels, readiness labels, or participant classifications."]},
+    {"sectionKey":"load_fatigue_recovery","sourceKey":"pelvic_tilt_hollowing_unsupported_leg_emg","claims":["Trunk-control demand varies with exercise position and strategy.","Candidate load, fatigue, and recovery values remain planning estimates that must be recomputed from the exact task, actual exposure, symptoms, and overlapping work; this evidence establishes no universal recovery interval."]},
+    {"sectionKey":"constraints","sourceKey":"safe_gymnastics_didactic_guidelines","claims":["Instruction, supervision, setting, communication, and progressive exposure are relevant safeguards for gymnastics activity.","Use a stable clear floor or mat station, exact-task check, communication, and stop rules; the card does not establish readiness or clearance."]},
+    {"sectionKey":"dosage","sourceKey":"crossfit_hollow_hold_programming","claims":["Controlled position practice precedes greater dynamic complexity in the cited instructional context.","Candidate dosage is quality-limited and review-only; no universal duration, repetitions, frequency, or recovery prescription is asserted."]},
+    {"sectionKey":"safety_stop_rules","sourceKey":"safe_gymnastics_didactic_guidelines","claims":["Appropriate supervision, instruction, environment, and progression are safeguards.","Stop for sharp or increasing pain, new concerning symptoms, unsafe station, loss of the exact contract, or participant request; the card does not diagnose symptoms."]},
+    {"sectionKey":"programming","sourceKey":"crossfit_hollow_hold_programming","claims":["Position practice and dynamic progressions should remain distinguishable in instruction.","Select only when exact mechanics, logistics, duration, fatigue, symptoms, and downstream work fit; changes require revalidation and no transfer or outcome is promised."]},
+    {"sectionKey":"athlete_support","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Gymnastics position instruction benefits from clear task boundaries.","Athlete support states the exact base, action, finish, self-checks, and stop prompt in plain language without representing a medical or readiness decision."]},
+    {"sectionKey":"coach_support","sourceKey":"safe_gymnastics_didactic_guidelines","claims":["Instruction and supervision are relevant to safe gymnastics delivery.","Coach support calls for observing exact action, contact, breathing, symptoms, and first quality loss without diagnosing or treating a condition."]},
+    {"sectionKey":"accessibility","sourceKey":"safe_gymnastics_didactic_guidelines","claims":["Instruction must account for the activity setting and learner communication.","Candidate support requires a clear verbal explanation and review of captions, transcript, still sequence, and audio description; accessibility and media adequacy still require human review."]},
+    {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["A direct YouTube link can be recorded as a candidate without an approval conclusion.","No playback, exact-variant match, embedding, captions, accessibility, demonstration quality, reviewer, or approval outcome is asserted by this candidate research packet."]}
+  ],
+  "cards": [
+    {
+      "slug": "static-supine-tuck-hold",
+      "assessmentSummary": {"identity":"A back-supported, hands-on-shins static supine tuck hold only; rocking, seated balance, tuck-ups, rolling, loading, and clinical tasks are separate.","uncertainty":"Existing sources support cautious candidate research framing, not universal dosage, recovery, readiness, clinical, transfer, media, or approval claims."},
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static shape work and rocking are distinguished task types in gymnastics instruction.","This candidate is a still, back-supported, hands-on-shins supine tuck hold only; dynamic rocks remain a separate definition."]},
+        {"sectionKey":"instructions","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Position work is taught through explicit setup and shape control.","Instructions specify supine start, knees toward chest, hands on shins, supported back, calm breathing, no rocking, deliberate release, and reset; no universal range is required."]},
+        {"sectionKey":"alternates","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static shape work and dynamic rocking are distinct task types.","Alternate assessment separates shorter delivery from dynamic rocking, seated balance, tuck-up support, and long-body hollow tasks rather than making automatic substitutions."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=h1SG1myb6sg","sourceQuery":"Source 72 static tuck hold candidate","notes":"Candidate only; exact assignment and human approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=sEx22JB1qlw","sourceQuery":"Source 72 static tuck hold candidate","notes":"Candidate only; exact assignment and human approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=YqlttpEWCmg","sourceQuery":"Source 72 static tuck hold candidate","notes":"Candidate only; exact assignment and human approval remain pending."}
+      ],
+      "alternateAssessments": [
+        {"name":"Static Supine Tuck Hold","classification":"same_identity","rationale":"Exact static candidate contract.","distinguishingDimensions":{"action":"static_hold","base":"supine"}},
+        {"name":"Shorter Static Tuck Hold","classification":"modifier_annotation","rationale":"Duration changes exposure, not identity, when the exact static task remains.","distinguishingDimensions":{"holdDuration":"shorter"}},
+        {"name":"Dynamic Supine Tuck Rock","classification":"new_definition","rationale":"A repeated orientation-changing rock has a different count unit, contact path, fatigue, and stop contract.","distinguishingDimensions":{"action":"dynamic_rock"}},
+        {"name":"Seated Tuck Balance Hold","classification":"new_definition","rationale":"Seated base and balance demand change support and task mechanics.","distinguishingDimensions":{"base":"seated_balance"}},
+        {"name":"Supine Tuck-Up Iso Hold","classification":"new_definition","rationale":"Shoulders-elevated tuck-up support and arm position differ from a back-supported shins-wrapped hold.","distinguishingDimensions":{"support":"shoulders_elevated"}},
+        {"name":"Hollow Body Hold","classification":"new_definition","rationale":"Long-body hollow shape changes limb position and task objective.","distinguishingDimensions":{"shape":"long_body_hollow"}}
+      ]
+    },
+    {
+      "slug": "dynamic-supine-tuck-rock",
+      "assessmentSummary": {"identity":"A controlled supine, hands-on-shins backward-and-forward tuck rock returning to the same tuck only; static holds, seated rocks, rolls-to-stand, loading, and clinical tasks are separate.","uncertainty":"Existing sources support cautious candidate research framing, not universal dosage, recovery, readiness, clinical, transfer, media, or approval claims."},
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static shape work and dynamic rocking are distinguished task types in gymnastics instruction.","This candidate is one controlled backward-and-forward supine tuck rock returning to the same start; static holding and roll-to-stand remain separate definitions."]},
+        {"sectionKey":"instructions","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Dynamic gymnastics actions require clear movement boundaries.","Instructions specify a supine tuck start, hands on shins, controlled back-and-forward rock, return to the same tuck, no hand push-off or head/neck loading, and reset between repetitions."]},
+        {"sectionKey":"alternates","sourceKey":"crossfit_gymnastics_hollow_body_guide","claims":["Static shape work and dynamic rocking are distinct task types.","Alternate assessment separates range as delivery from static holding, seated rocking, roll-to-stand, and forward or backward rolls as distinct tasks."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=h1SG1myb6sg","sourceQuery":"Source 72 dynamic tuck rock candidate","notes":"Candidate only; exact assignment and human approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=sEx22JB1qlw","sourceQuery":"Source 72 dynamic tuck rock candidate","notes":"Candidate only; exact assignment and human approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=YqlttpEWCmg","sourceQuery":"Source 72 dynamic tuck rock candidate","notes":"Candidate only; exact assignment and human approval remain pending."}
+      ],
+      "alternateAssessments": [
+        {"name":"Dynamic Supine Tuck Rock","classification":"same_identity","rationale":"Exact dynamic candidate contract.","distinguishingDimensions":{"action":"backward_forward_rock","base":"supine"}},
+        {"name":"Smaller-Range Dynamic Tuck Rock","classification":"modifier_annotation","rationale":"Range changes delivery only while the exact backward-forward return and contact boundary remain.","distinguishingDimensions":{"range":"smaller"}},
+        {"name":"Static Supine Tuck Hold","classification":"new_definition","rationale":"A static hold lacks the dynamic orientation-changing cycle and contact path.","distinguishingDimensions":{"action":"static_hold"}},
+        {"name":"Seated Tuck Rock","classification":"new_definition","rationale":"Seated base changes support and balance mechanics.","distinguishingDimensions":{"base":"seated"}},
+        {"name":"Rock-and-Roll to Stand","classification":"new_definition","rationale":"Standing terminal recovery changes action sequence, balance, and safety contract.","distinguishingDimensions":{"finish":"stand"}},
+        {"name":"Forward or Backward Roll","classification":"new_definition","rationale":"A roll uses a different path, terminal support, and head/neck safety contract.","distinguishingDimensions":{"action":"roll"}}
+      ]
+    }
+  ]
+}

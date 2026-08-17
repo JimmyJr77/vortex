@@ -1,0 +1,170 @@
+{
+  "batchKey": "finger-pulses-palm-lifts-v1",
+  "researchVersion": "2026-08-09.99",
+  "snapshotAt": "2026-08-09T23:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/finger-pulses-palm-lifts",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "gmb_wrist_strengthening_cheatsheet",
+      "claims": [
+        "GMB separately describes finger pressure with first knuckles bent and palm-heel lifting with fingers and the distal hand retained on the floor.",
+        "Model the observable hand contacts and actions; do not claim measured muscle activation, quantified force, one universal joint angle, or isolated tissue targeting."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "gmb_wrist_strengthening_cheatsheet",
+      "claims": [
+        "The two numbered tasks have different contact and action requirements but the source supplies no Vortex difficulty scores.",
+        "Finger Pulse 24/18/24 and Palm Lift 28/22/28 are review-only exercise-complexity, physical-difficulty, and derived-maximum proposals; they never classify a participant."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "gymnastics_wrist_guard_biomechanics",
+      "claims": [
+        "Gymnastics wrist angle and moment vary with hand-support conditions, but back-handspring findings cannot be converted into force or pressure values for these low-load actions.",
+        "Track exact repetitions, finger-pressure, palm-lift, wrist-support and hand-support seconds, required contacts, faults, symptoms, and overlapping same-session grip and hand-support work; recovery remains a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "adolescent_gymnastics_wrist_injury_review",
+      "claims": [
+        "The review reports substantial wrist-pain and injury burden in adolescent gymnastics with low-to-very-low certainty for available risk-factor evidence; it does not create an age rule or authorize exercise through symptoms.",
+        "Selection requires safe floor entry, comfortable selected hand contacts, clean stable surface, communication, symptom monitoring, and compatible finger, wrist, grip, and downstream hand-support exposure."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "usa_gymnastics_wrist_exercises",
+      "claims": [
+        "USA Gymnastics says to seek medical guidance when pain is present, discontinue exercises that cause pain, and reduce work when form breaks down.",
+        "Stop for pain, skin injury, neurologic or circulation symptoms, dizziness, worsening discomfort, required-contact loss, forced or bouncing action, unsafe surface, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "gmb_wrist_strengthening_cheatsheet",
+      "claims": [
+        "GMB places both tasks early in an optional wrist routine and says Finger Pulse repetitions depend on current feeling and upcoming work.",
+        "Use low-volume quality-first Prepare & Access or Movement Intelligence profiles and recompute hand, wrist, grip, duration, technical-fatigue, and downstream hand-support budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "gmb_wrist_strengthening_cheatsheet",
+      "claims": [
+        "GMB gives distinct short instructions for pressure through fingers without bouncing and for palm-heel lifting with fingers and distal hand retained down.",
+        "Athlete support must name one exact variant, show which contacts stay down, define one complete pressure-release or lift-lower count, and provide a clear stop and help signal."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "gmb_wrist_strengthening_cheatsheet",
+      "claims": [
+        "The GMB sheet pairs each numbered action with separate close hand images and concise text.",
+        "Provide close-up and side demonstrations, separate two-frame count cards, slower pace, fewer repetitions, more rest, optional stable knee cushioning, and a separately authored task when floor contact does not fit."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Four inherited candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact action, quadruped base, contacts, count, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all remain candidates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "finger-pulses",
+      "assessmentSummary": {
+        "identity": "A two-variant bilateral quadruped hand-pressure family requiring explicit variant selection. Finger Pulses keep both palms, fingers, and knees supported while pressure through the fingers and flexed first knuckles deliberately increases then releases without bouncing. Palm Lifts keep fingers, distal or top palms, and knees supported while both palm heels lift and lower under control. One complete pressure increase and release or palm-heel lift and lower is one repetition. Pace, comfortable range, body-mass distribution, repetitions, sets, rest, and stable knee cushioning are delivery annotations. Seated, standing-fold, tall-plank, raised-support, unilateral, finger-lift, knuckle-roll, wrist-rock, hold, loaded, manual, or clinical tasks require another reviewed identity.",
+        "currentCardFindings": [
+          "Source 32 has one combined skeletal variant and generic profile with empty controlled taxonomy, anatomy, load, fatigue, constraints, support, research, alternate, calibration, and exact media review data.",
+          "The legacy card combines Finger Pulses and Palm Lifts even though the direct source numbers and describes them as separate actions with different retained contacts.",
+          "Legacy age, publication, broad outcome, and reviewed-media implications are unsupported and must be cleared or quarantined."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "push"],
+          "bodyRegions": ["hand", "wrist", "elbow", "shoulder", "scapula", "core", "spine", "hip", "knee"],
+          "support": "bilateral_hands_and_knees_fixed_quadruped_support",
+          "laterality": "bilateral_synchronous_selected_hand_action",
+          "planes": ["sagittal_primary", "multiplanar_stabilization"],
+          "equipment": ["none"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 28,
+          "absoluteLoadDemand": 22,
+          "physicalDifficulty": 22,
+          "baseOverallDifficulty": 28,
+          "variantScores": {
+            "fingerPulse": {"technicalComplexity": 24, "absoluteLoadDemand": 18, "physicalDifficulty": 18, "baseOverallDifficulty": 24},
+            "palmLift": {"technicalComplexity": 28, "absoluteLoadDemand": 22, "physicalDifficulty": 22, "baseOverallDifficulty": 28}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "partial_bodyweight_bilateral_quadruped_hand_support",
+          "impactClass": "none",
+          "primaryExposure": ["finger_and_first_knuckle_pressure", "variant_specific_palmar_contact", "wrist_extension_support", "elbow_and_shoulder_closed_chain_support", "scapular_and_trunk_stabilization", "knee_and_shin_floor_contact"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2",
+          "completeRepetitions": "5-12",
+          "tempo": "controlled_one_to_three_seconds_per_complete_selected_action",
+          "rest": "30-75_seconds_or_as_needed_to_preserve_contact_pressure_support_and_symptom_free_control",
+          "durationRule": "setup_plus_actual_selected_action_and_return_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when one exact action, quadruped base, required hand and knee contacts, comfortable finger, knuckle, palm and wrist support, clean surface, low dose, duration, symptoms, and downstream finger, grip and hand-support budgets fit. Do not switch variants silently, force pressure or height, add a different base, finger lift, knuckle roll, wrist rock, hold, support height, resistance, or assessment. Choose a separately authored card when that changed task is intended.",
+        "calibrationEvidence": {
+          "basis": "GMB direct action descriptions, USA Gymnastics safety guidance, peer-reviewed gymnastics wrist biomechanics and injury synthesis, current oEmbed metadata, and comparison with neighboring Vortex wrist and hand-support cards",
+          "uncertainty": "No source validates one universal quadruped position, hand width, finger spread, first-knuckle angle, pressure, palm-heel height, dose, frequency, recovery interval, tissue-specific effect, treatment or prevention benefit, eligibility rule, progression order, or Vortex score. Existing media has not been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "identity_boundary_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"gmb_wrist_strengthening_cheatsheet","claims":["GMB numbers Finger Pulses and Palm Pulses as separate exercises and gives each a different action and contact description.","Source 32 remains a stable family wrapper but requires explicit exact variant selection; the combined baseline is not selectable."]},
+        {"sectionKey":"taxonomy","sourceKey":"gmb_wrist_strengthening_cheatsheet","claims":["Both tasks use supported hands and active pressure control rather than bodyweight wrist rocking.","Use controlled brace and push patterns; activation and preparation are contextual purposes rather than invented movement-pattern keys."]},
+        {"sectionKey":"biomechanics","sourceKey":"gymnastics_wrist_guard_biomechanics","claims":["Wrist angle and moment vary with gymnastics support conditions, demonstrating that exact contact and support details matter.","The study examines back handsprings, not these tasks, so the card records observable contacts, action, range, support time, and symptoms without importing force values."]},
+        {"sectionKey":"dosage","sourceKey":"gmb_wrist_strengthening_cheatsheet","claims":["GMB gives 10-30 Finger Pulse repetitions depending on current feeling and work ahead but supplies no Palm Pulse dose.","Use a conservative review-only one-to-two sets of five-to-twelve exact repetitions, calculate actual support time, and stop before contact, pressure, support, or symptom quality degrades."]},
+        {"sectionKey":"instructions","sourceKey":"gmb_wrist_strengthening_cheatsheet","claims":["GMB supports pressure through fingers with first knuckles bent without bouncing and separately supports palm lifting with fingers and the distal hand retained down.","The card adds exact quadruped base, bilateral contacts, complete-return counting, clean stable surface, symptom stops, and actual-dose recording."]},
+        {"sectionKey":"coach_support","sourceKey":"adolescent_gymnastics_wrist_injury_review","claims":["The systematic review supports taking gymnastics wrist symptoms and accumulated exposure seriously while emphasizing low certainty and absent training thresholds.","Coach support verifies selected action, floor entry, hand contacts, finger, palm and wrist tolerance, upper-body support, first fault, actual exposure, downstream demand, and escalation without diagnosis."]},
+        {"sectionKey":"alternates","sourceKey":"gmb_wrist_strengthening_cheatsheet","claims":["GMB separates Finger Pulses, Palm Pulses, Side-to-Side Palm Rotations, wrist stretches, and elbow rotations.","Keep changed bases, laterality, finger lifts, knuckle rolls, wrist rocks, holds, support heights, external force, manual work, and assessments outside the two exact variants until separately authored and reviewed."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=TBvEMTrLLp8","title":"How To Do Palm Lifts","channelName":"Swift Movement Academy","sourceQuery":"inherited palm-lift title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=V9Lw__srIbM","title":"Palm Pulses","channelName":"Dani Winks Flexibility","sourceQuery":"inherited palm-pulse title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=WTcreH1yVjU","title":"Upper Body Mobility: Palm Press Finger Lifts","channelName":"Portland State Campus Rec","sourceQuery":"inherited adjacent finger-lift title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=nM7wB89NlwE","title":"How To Do Finger Pulses | Exercise Demo","channelName":"OriGym","sourceQuery":"inherited finger-pulse title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Finger Pulses, Finger Pressure Pulses, or Quadruped Finger Pulses","classification":"same_identity","rationale":"Aliases fit only when bilateral quadruped whole-hand contact and one pressure increase and release are exact.","distinguishingDimensions":{"variant":"finger_pressure_pulse"}},
+        {"name":"Palm Pulses, Palm Lifts, or Palm-Heel Lifts","classification":"same_identity","rationale":"Aliases fit only when bilateral quadruped fingers and distal palms stay down during one palm-heel lift and lower.","distinguishingDimensions":{"variant":"palm_heel_lift_lower"}},
+        {"name":"Smaller Pressure or Palm-Heel Height","classification":"modifier_annotation","rationale":"Comfortable pressure or lift range changes dose while action, contacts, and return remain exact.","distinguishingDimensions":{"delivery":"pressure_or_lift_range"}},
+        {"name":"Tempo, Repetitions, Sets, or Rest","classification":"modifier_annotation","rationale":"Pace, volume, and recovery change dose rather than identity.","distinguishingDimensions":{"delivery":["tempo","repetitions","sets","rest"]}},
+        {"name":"Stable Knee Cushioning","classification":"modifier_annotation","rationale":"Knee cushioning changes comfort without changing hand contact, base, or action.","distinguishingDimensions":{"delivery":"knee_cushioning"}},
+        {"name":"Comfortable Hand Spacing or Finger Spread","classification":"modifier_annotation","rationale":"Spacing changes setup within comfort while forward orientation, action, contacts, and count remain exact.","distinguishingDimensions":{"delivery":["hand_spacing","finger_spread"]}},
+        {"name":"Body-Mass Shift Back Within Quadruped","classification":"modifier_annotation","rationale":"Shifting mass back reduces pressure only when knees, contacts, action, and count remain exact.","distinguishingDimensions":{"delivery":"body_mass_distribution"}},
+        {"name":"Seated Finger Pulses or Palm Lifts","classification":"new_variant","rationale":"Removing quadruped knee and trunk support changes bodyweight transfer, floor access, load, and setup.","distinguishingDimensions":{"base":"seated"}},
+        {"name":"Standing Forward-Fold Finger Pulses","classification":"new_variant","rationale":"Standing support changes balance, posterior-chain range, floor entry, load, and failure consequence.","distinguishingDimensions":{"base":"standing_fold"}},
+        {"name":"Tall-Plank Finger Pulses or Palm Lifts","classification":"new_variant","rationale":"Toe support and long leverage materially increase hand, wrist, shoulder, trunk, and fatigue demand.","distinguishingDimensions":{"base":"tall_plank"}},
+        {"name":"Raised-Support Finger Pulses or Palm Lifts","classification":"new_variant","rationale":"Raised support changes equipment, height, load, angles, station, and failure consequence.","distinguishingDimensions":{"supportHeight":"raised"}},
+        {"name":"Unilateral Finger Pulse or Palm Lift","classification":"new_variant","rationale":"One-hand emphasis changes laterality, load distribution, trunk demand, and failure consequence.","distinguishingDimensions":{"laterality":"unilateral"}},
+        {"name":"Side-to-Side Palm Rotations or Knuckle Rolls","classification":"new_definition","rationale":"Rolling pressure along the knuckles adds a lateral path, checkpoints, and asymmetrical contact.","distinguishingDimensions":{"path":"lateral_knuckle_roll"}},
+        {"name":"Palm Press Finger Lifts","classification":"new_definition","rationale":"Lifting fingers while the palm remains supported reverses the moving contact and changes action and loading.","distinguishingDimensions":{"action":"finger_lift"}},
+        {"name":"Wrist Rockers — Palms Down","classification":"new_definition","rationale":"Whole-palmar support with bodyweight rocking changes action, range, count, and loading direction.","distinguishingDimensions":{"targetLegacyExerciseId":30}},
+        {"name":"Wrist Rockers — Backs of Hands Down","classification":"new_definition","rationale":"Dorsal-hand support and wrist-flexion rocking change hand surface, action, range, and count.","distinguishingDimensions":{"targetLegacyExerciseId":31}},
+        {"name":"Wrist Lean Isometric or Wrist Support Rock Hold","classification":"new_definition","rationale":"A sustained endpoint or longer-lever support changes count, duration, load, purpose, and fatigue.","distinguishingDimensions":{"targetLegacyExerciseId":256}},
+        {"name":"Quadruped Wrist Pronation-Supination Shifts","classification":"new_definition","rationale":"Changing hand orientation adds forearm rotation and multiple directional exposures.","distinguishingDimensions":{"targetLegacyExerciseId":796}},
+        {"name":"Loaded, Banded, or Partner-Resisted Hand Pulses","classification":"new_definition","rationale":"External or manual force changes magnitude, direction, equipment, consent, failure risk, and scope.","distinguishingDimensions":{"externalOrManualForce":true}},
+        {"name":"Clinical Finger, Wrist, or Hand-Pressure Assessment","classification":"new_definition","rationale":"Measurement adds examiner protocol, clinical purpose, outcomes, consent, and different escalation.","distinguishingDimensions":{"assessment":true,"clinicalScope":true}}
+      ]
+    }
+  ]
+}

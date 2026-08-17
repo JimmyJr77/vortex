@@ -1,0 +1,672 @@
+{
+  "facilityId": 1,
+  "slug": "big-toe-press-iso-hold",
+  "researchVersion": "2026-08-09.114",
+  "assessmentSummary": {
+    "identity": "One Big Toe Press Iso Hold repetition is performed on one target foot. Start with the target heel, first and fifth metatarsal heads, relaxed hallux, and lesser toes supported on a clean dry level surface. Press the hallux plantarward into the surface to a comfortable prescribed submaximal effort without curling the lesser toes, lifting the heel or metatarsal heads, rolling the foot, or turning the task into an arch dome. Maintain the timed isometric press while breathing, then reduce pressure with control until the hallux returns to the same relaxed supported start. Record left and right repetitions and actual hold seconds separately. Standing hands-free, standing light wall-touch, and seated stable-bench support are exact variants. A press-and-lift sequence, lesser-toe action, toe yoga, short-foot doming, toe curl, dynamic repetitions, manual assistance, resistance, unstable or single-leg support, maximal force testing, or clinical treatment changes the variant or definition.",
+    "currentCardFindings": [
+      "Source 848 has a stable legacy definition but its only variant lacks exact target-foot setup, hallux-only action, full release endpoint, side count, support options, anatomy, load, fatigue, duration, relationship, and review contracts.",
+      "The identity is a submaximal sustained hallux plantarflexion press. Maximal laboratory contractions are adjacent evidence and are not adopted as a workout target.",
+      "All five legacy YouTube candidates returned healthy oEmbed metadata, but no candidate has been watched, mapped to an exact variant, checked for captions or safety, or approved."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "isometric"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "support": "one_target_foot_with_standing_hands_free_standing_wall_touch_or_seated_bench_support",
+      "laterality": "one_target_foot_per_repetition_left_and_right_recorded_separately",
+      "planes": [
+        "sagittal_hallux_plantarflexion",
+        "frontal_stabilization",
+        "transverse_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "wall",
+        "bench"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 40,
+      "absoluteLoadDemand": 14,
+      "physicalDifficulty": 14,
+      "coordinationDemand": 42,
+      "supervisionDemand": 12,
+      "failureConsequence": 7,
+      "impact": 1,
+      "workCapacityDemand": 12,
+      "baseOverallDifficulty": 40,
+      "variantScores": {
+        "standingHandsFree": {
+          "technicalComplexity": 40,
+          "absoluteLoadDemand": 14,
+          "physicalDifficulty": 14,
+          "coordinationDemand": 42,
+          "supervisionDemand": 12,
+          "failureConsequence": 7,
+          "impact": 1,
+          "workCapacityDemand": 12,
+          "baseOverallDifficulty": 40
+        },
+        "standingWallTouch": {
+          "technicalComplexity": 36,
+          "absoluteLoadDemand": 13,
+          "physicalDifficulty": 13,
+          "coordinationDemand": 38,
+          "supervisionDemand": 10,
+          "failureConsequence": 6,
+          "impact": 1,
+          "workCapacityDemand": 11,
+          "baseOverallDifficulty": 36
+        },
+        "seatedBench": {
+          "technicalComplexity": 32,
+          "absoluteLoadDemand": 10,
+          "physicalDifficulty": 10,
+          "coordinationDemand": 34,
+          "supervisionDemand": 9,
+          "failureConsequence": 5,
+          "impact": 1,
+          "workCapacityDemand": 9,
+          "baseOverallDifficulty": 32
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "submaximal_target_hallux_plantarflexion_isometric_press_against_the_floor_with_support_position_specific_weight_bearing_and_no_added_resistance",
+      "impactClass": "none",
+      "primaryExposure": [
+        "hallux_plantarflexion_force_control",
+        "first_ray_contact_control",
+        "toe_motor_coordination",
+        "foot_stabilization"
+      ],
+      "recovery": "6_hours_planning_estimate_with_2_to_12_hour_review_range"
+    },
+    "proposedDosage": {
+      "prepare": "1-2_sets_of_3-5_repetitions_per_side_with_3-5_second_comfortable_submaximal_holds",
+      "resilience": "1-3_sets_of_4-8_repetitions_per_side_with_3-8_second_holds_without_chasing_maximal_force",
+      "tempo": "controlled_press_prescribed_hold_and_controlled_full_release",
+      "rest": "15-60_seconds_or_as_needed_to_restore_hallux_contact_lesser_toe_relaxation_body_control_breathing_and_symptom_rules",
+      "durationRule": "surface_hygiene_equipment_and_body_setup_plus_valid_repetitions_and_hold_seconds_by_side_plus_side_switch_rest_invalid_partial_or_assisted_attempts_substitution_cleaning_reset_and_exit"
+    },
+    "programmingDecision": "Select only when the exact support variant, target side, foot-safe surface, hallux and forefoot contact, comfortable submaximal press, symptoms, restrictions, dose, duration, and cumulative toe, foot, calf, balance, running, landing, jumping, agility, and lower-body budgets fit. Do not silently change the hallux action, lesser-toe behavior, support, assistance, resistance, contraction mode, effort target, count, or clinical scope. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after every change.",
+    "calibrationEvidence": {
+      "basis": "Direct hallux-flexion task descriptions, hallux plantarflexion conditioning research, hallux-contact limits-of-stability research, short-foot and intrinsic-foot task mechanics, general supervised-exercise safeguards, Source 848 context, five oEmbed records, and comparison with Toe Yoga, Short-Foot Drill, Foot Tripod Weight Shifts, toe flexion, and compound heel raising.",
+      "uncertainty": "Research does not validate one universal effort, hold, support position, dose, frequency, fatigue ceiling, recovery interval, outcome, or Vortex score. Maximal contractions and clinical study protocols are not universal workout prescriptions. No media, relationship, or score has human approval.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration_for_three_variants",
+        "variant_family_review",
+        "surface_hygiene_wall_bench_and_visibility_safety_review",
+        "anatomy_load_fatigue_and_recovery_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T22:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "With one target foot supported on a clean dry level surface, press the hallux gently into the floor to the prescribed comfortable submaximal effort. Keep the heel and first and fifth metatarsal heads down, keep lesser toes relaxed, hold while breathing, then reduce pressure with control until the hallux returns to the same supported start. Record left and right repetitions and hold seconds separately. Standing hands-free, standing light wall-touch, and seated stable-bench support are exact variants.",
+      "familyKey": "Hallux Plantarflexion Isometric Control",
+      "movementPatterns": [
+        "plantar_flex"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "wall",
+        "bench"
+      ],
+      "variantKey": "standing-hands-free-single-target-hallux-plantarflexion-isometric-hold",
+      "environment": {
+        "surface": "clean dry level stable nonslip foot-safe floor",
+        "space": "one visible seated or standing foot-control station with clear entry and exit",
+        "stationCapacity": 1,
+        "hygiene": "follow facility foot-contact and shared-station policy",
+        "coachSightline": "top and front-quarter views of hallux, lesser toes, metatarsal heads, heel, arch, ankle, support, breathing, and symptoms",
+        "changeRule": "A change to target digit group, support, assistance, resistance, contraction mode, dose, symptoms, or downstream demand requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe visible station and exact selected support",
+          "comfortable hallux and forefoot contact without symptom provocation",
+          "understands hallux press, lesser-toe relaxation, hold, release, side-specific count, stop signal, and exit",
+          "same-session toe, foot, calf, balance, and lower-body budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "current symptom, restriction, trauma, procedure, skin issue, circulation, or neurologic concern conflicting with exact task",
+          "sharp or increasing pain, persistent cramp, new numbness, tingling, weakness, circulation or skin change",
+          "dizziness, faintness, chest pain, unusual breathlessness, disorientation, or inability to communicate",
+          "unsafe surface, hygiene, visibility, bench, wall, space, communication, or exit"
+        ],
+        "notEstablishedByEvidence": [
+          "universal effort, hold, dose, frequency, recovery, or outcome",
+          "diagnosis, treatment, clearance, maximal assessment, or isolated-muscle claim",
+          "participant classification or age threshold"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 40,
+        "absoluteLoadDemand": 14,
+        "physicalDifficulty": 14,
+        "coordinationDemand": 42,
+        "supervisionDemand": 12,
+        "failureConsequence": 7,
+        "impact": 1,
+        "workCapacityDemand": 12,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {
+        "externalLoadMethod": "submaximal_hallux_plantarflexion_isometric_press_against_floor",
+        "impactClass": "none",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "hallux_plantarflexion_force_control",
+          "first_ray_contact_control",
+          "toe_motor_coordination",
+          "standing_foot_stabilization"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 8,
+        "technicalFatigueSensitivity": 22,
+        "impactAccumulation": 1,
+        "recoveryHoursPlanningEstimate": 6,
+        "cumulativeBudget": {
+          "toe": 16,
+          "foot": 12,
+          "calf": 5,
+          "balance": 10,
+          "impact": 0
+        },
+        "tracking": [
+          "validRepetitionsPerFoot",
+          "isometricHoldSecondsPerFoot",
+          "effort",
+          "lesserToeCurl",
+          "contactLoss",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "The study instructed hallux flexion toward the ground as a distinct task.",
+        "Vortex defines a target-foot submaximal press, prescribed isometric hold, controlled release, and side-specific count."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "sourceTitle": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 79,
+      "claims": [
+        "Hallux plantar-flexion contractions and lesser-toe contractions were treated separately.",
+        "The card separates hallux press from toe yoga, toe curling, short-foot doming, and whole-foot weight shifting."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Hallux-flexion tasks were assessed with intrinsic and extrinsic foot muscle measures.",
+        "The card names contributors, joints, action, planes, contacts, and laterality without claiming isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "sourceTitle": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 79,
+      "claims": [
+        "The study used a standing hallux plantar-flexion isometric contraction with plantar-pressure feedback.",
+        "Vortex uses a submaximal floor press with no required feedback and rejects lesser-toe curl, heel lift, forefoot lift, foot roll, and missing release."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Task posture changes muscle activation and force behavior in common foot exercises.",
+        "Candidate scores describe exercise complexity and physical demand only; they do not classify people."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "sourceTitle": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 79,
+      "claims": [
+        "The study used brief maximal conditioning contractions, not a universal training dose.",
+        "Vortex tracks actual hold seconds, effort, support, side, faults, symptoms, and overlapping toe and foot exposure rather than treating research testing as a recovery prescription."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe exercise delivery requires appropriate instruction, environment, progression, and supervision.",
+        "Vortex requires a clean dry level surface, toe visibility, selected support, hygiene, communication, space, and exit conditions without demographic classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "sourceTitle": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 79,
+      "claims": [
+        "The study's six-second maximal contraction was an experimental conditioning protocol.",
+        "Candidate comfortable holds and repetition ranges remain quarantined and stop before contacts, toe relaxation, body control, or symptom quality degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A direct hallux-flexion instruction is to flex the big toe toward the ground.",
+        "Vortex adds supported start, lesser-toe relaxation, submaximal hold, full release, side count, and observable faults."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39764301/",
+      "sourceTitle": "Noncontact of the unilateral hallux with the ground reduces forward limits of stability while standing",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hallux ground contact influenced forward limits of stability in the study.",
+        "Stop for pain, neurologic or skin signs, lost contacts, toe cramp, unsafe setup, loss of control, or participant request; do not force a press."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35724360/",
+      "sourceTitle": "Evidence for Intrinsic Foot Muscle Training in Improving Foot Function: A Systematic Review and Meta-Analysis",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Intrinsic-foot programs vary in exercise selection, dose, and outcomes.",
+        "The hold may be selected for preparation or resilience only when purpose and cumulative foot and toe budgets fit; no universal outcome is promised."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "sourceTitle": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 79,
+      "claims": [
+        "The experimental task distinguished hallux from lesser-toe plantar-flexion effort.",
+        "Athlete support uses one big toe, a gentle press, quiet lesser toes, breathing, full release, and a stop-before-cramp rule."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Hallux flexion is a separately described common foot task.",
+        "Coaches record target side, support, hallux contact, lesser-toe curl, heel or metatarsal lift, foot roll, hold, release, first fault, symptoms, and actual exposure without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should fit the actual task, setting, and supervision.",
+        "Wall-touch or seated support, smaller effort, shorter holds, fewer repetitions, more rest, captions, transcript, stills, and clear side markers can improve access while preserving identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "sourceTitle": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Specific short-foot and selective-toe tasks are distinct exercises with different activation protocols.",
+        "Hallux pressing, selective extension, toe spreading, toe curling, short-foot doming, pressure shifting, and heel raising retain explicit boundaries."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports embedded playback subject to video and platform state.",
+        "Five candidates returned healthy YouTube oEmbed metadata on 2026-08-09, but full viewing, exact-variant assignment, accessibility, quality, safety, and approval are still pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=DImmuuSJtOA",
+      "title": "Big Toe Press",
+      "channelName": "Sandgate Physical Health Clinic",
+      "sourceQuery": "legacy Source 848 candidate; exact support and hold require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support, hold, release, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XPAlVb2NnJw",
+      "title": "Isometric Big Toe Press",
+      "channelName": "PhysioRun",
+      "sourceQuery": "legacy Source 848 candidate; exact support and effort require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support, hold, release, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Zr2VUQH2fQo",
+      "title": "Big Toe Press and Lift | B3 Physical Therapy",
+      "channelName": "Cara Giusti, PT, DPT",
+      "sourceQuery": "legacy Source 848 candidate; added lift may mismatch exact hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; title indicates a possible press-and-lift mismatch. Full review required; not approved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iaElVAi8o2Q",
+      "title": "Big Toe Press Downs | Alpha Project Phyzio & Performance",
+      "channelName": "Alpha Project Phyzio",
+      "sourceQuery": "legacy Source 848 candidate; exact support and hold require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support, hold, release, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=uBDLzJ9WIWg",
+      "title": "Big Toe Press",
+      "channelName": "Juniper Strength & Recovery Studio",
+      "sourceQuery": "legacy Source 848 candidate; exact support and hold require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact mechanics, support, hold, release, captions, accessibility, safety, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Hands-Free Single-Target-Foot Big Toe Press Iso Hold",
+      "classification": "same_identity",
+      "rationale": "Authored exact standing hands-free variant.",
+      "distinguishingDimensions": {
+        "support": "standing_hands_free"
+      }
+    },
+    {
+      "name": "Standing Wall-Touch Single-Target-Foot Big Toe Press Iso Hold",
+      "classification": "same_identity",
+      "rationale": "Light wall contact preserves the press-hold-release contract.",
+      "distinguishingDimensions": {
+        "support": "standing_wall_touch"
+      }
+    },
+    {
+      "name": "Seated Single-Target-Foot Big Toe Press Iso Hold",
+      "classification": "same_identity",
+      "rationale": "Stable-bench support preserves target hallux action and count.",
+      "distinguishingDimensions": {
+        "support": "seated_bench"
+      }
+    },
+    {
+      "name": "Left Foot First or Right Foot First",
+      "classification": "modifier_annotation",
+      "rationale": "Side order is an annotation when each side is recorded separately.",
+      "distinguishingDimensions": {
+        "annotation": "target_side_order"
+      }
+    },
+    {
+      "name": "Comfortable Submaximal Press Effort",
+      "classification": "modifier_annotation",
+      "rationale": "Effort changes dose while the same hold and release remain intact.",
+      "distinguishingDimensions": {
+        "annotation": "effort"
+      }
+    },
+    {
+      "name": "Three- to Eight-Second Hold",
+      "classification": "modifier_annotation",
+      "rationale": "Hold duration is dosage when the same press and release are retained.",
+      "distinguishingDimensions": {
+        "annotation": "hold_seconds"
+      }
+    },
+    {
+      "name": "Repetitions Sets or Rest Changes",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and recovery are delivery fields.",
+      "distinguishingDimensions": {
+        "annotation": "dose"
+      }
+    },
+    {
+      "name": "Comfortable Hallux Range",
+      "classification": "modifier_annotation",
+      "rationale": "A comfortable pre-press setup is an annotation when the press uses the same supported start.",
+      "distinguishingDimensions": {
+        "annotation": "comfortable_range"
+      }
+    },
+    {
+      "name": "Approved Foot Covering",
+      "classification": "modifier_annotation",
+      "rationale": "Foot covering is operational if traction and hallux observation remain adequate.",
+      "distinguishingDimensions": {
+        "annotation": "foot_covering"
+      }
+    },
+    {
+      "name": "Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Breathing cues are delivery annotations.",
+      "distinguishingDimensions": {
+        "annotation": "breathing"
+      }
+    },
+    {
+      "name": "Press-and-Lift Big Toe Drill",
+      "classification": "new_variant",
+      "rationale": "Adding a lift changes the sequence, action, count, and toe coordination.",
+      "distinguishingDimensions": {
+        "sequence": "press_and_lift"
+      }
+    },
+    {
+      "name": "Dynamic Big Toe Press Repetitions",
+      "classification": "new_variant",
+      "rationale": "Removing the prescribed isometric hold changes contraction mode and dose unit.",
+      "distinguishingDimensions": {
+        "contractionMode": "dynamic"
+      }
+    },
+    {
+      "name": "Maximal Big Toe Press Test",
+      "classification": "new_variant",
+      "rationale": "Maximal assessment changes intent, measurement, risk, and stop rules.",
+      "distinguishingDimensions": {
+        "intent": "maximal_assessment"
+      }
+    },
+    {
+      "name": "Manually Assisted Big Toe Press",
+      "classification": "new_variant",
+      "rationale": "Manual guidance changes assistance, consent, validity, and coach contact.",
+      "distinguishingDimensions": {
+        "assistance": "manual"
+      }
+    },
+    {
+      "name": "Banded Big Toe Press",
+      "classification": "new_variant",
+      "rationale": "Resistance changes load path, setup, fatigue, and failure behavior.",
+      "distinguishingDimensions": {
+        "externalLoad": "band"
+      }
+    },
+    {
+      "name": "Single-Leg Standing Big Toe Press",
+      "classification": "new_variant",
+      "rationale": "Removing the non-target support changes balance, load, consequence, and count.",
+      "distinguishingDimensions": {
+        "laterality": "single_leg"
+      }
+    },
+    {
+      "name": "Unstable-Surface Big Toe Press",
+      "classification": "new_variant",
+      "rationale": "Surface compliance changes balance, pressure, and logistics.",
+      "distinguishingDimensions": {
+        "surface": "unstable"
+      }
+    },
+    {
+      "name": "Instrumented Pressure-Feedback Big Toe Press",
+      "classification": "new_variant",
+      "rationale": "Feedback and measurement change equipment, validity, privacy, and delivery.",
+      "distinguishingDimensions": {
+        "instrumentation": "pressure_feedback"
+      }
+    },
+    {
+      "name": "Toe Yoga",
+      "classification": "new_definition",
+      "rationale": "Selective toe extension is a different primary action sequence.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "18cec0fe-4ea4-4e28-9f75-41f192f94005"
+      }
+    },
+    {
+      "name": "Short-Foot Drill",
+      "classification": "new_definition",
+      "rationale": "Arch shortening is not a hallux-only press hold.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "f8e6217e-1f08-465c-b533-308316c8602e"
+      }
+    },
+    {
+      "name": "Foot Tripod Weight Shifts",
+      "classification": "new_definition",
+      "rationale": "Whole-foot pressure transfer is not a target-hallux isometric task.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "3370a943-9672-49da-b28c-3940470091e1"
+      }
+    },
+    {
+      "name": "Lesser-Toe Press Iso Hold",
+      "classification": "new_definition",
+      "rationale": "The target digit group and coordination rules differ.",
+      "distinguishingDimensions": {
+        "target": "lesser_toes"
+      }
+    },
+    {
+      "name": "Toe Curl or Towel Scrunch",
+      "classification": "new_definition",
+      "rationale": "Interphalangeal flexion and object manipulation change action and equipment.",
+      "distinguishingDimensions": {
+        "action": "toe_curl"
+      }
+    },
+    {
+      "name": "Short Foot to Calf Raise",
+      "classification": "new_definition",
+      "rationale": "The compound arch-and-heel-raise sequence has different joints, load, and count.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "a1f96711-3528-4b38-b51a-9f087caa9735"
+      }
+    }
+  ]
+}

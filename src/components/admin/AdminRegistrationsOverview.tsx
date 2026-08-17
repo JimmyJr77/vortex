@@ -286,19 +286,11 @@ function AdminEnrollmentsByMemberView({ onRefresh }: { onRefresh: () => void }) 
       </div>
 
       {members.length === 0 ? (
-        <p className="text-gray-600 text-sm py-4">No active members on record.</p>
+        <p className="text-gray-600 text-sm py-4">No members with enrollments.</p>
       ) : (
         <div className="space-y-6">
           {members.map((member) => {
             const label = `${member.firstName} ${member.lastName}`.trim() || 'Member'
-            if (member.enrollments.length === 0) {
-              return (
-                <section key={member.id} className="border border-gray-200 rounded-xl bg-white px-4 py-4">
-                  <h3 className="text-lg font-bold text-black mb-1">{label}</h3>
-                  <p className="text-sm text-gray-500">No enrollments</p>
-                </section>
-              )
-            }
             return (
               <section key={member.id} className="border border-gray-200 rounded-xl bg-white px-4 py-4">
                 <h3 className="text-lg font-bold text-black mb-3">{label}</h3>

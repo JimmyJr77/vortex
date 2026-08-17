@@ -7,28 +7,30 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '463_coaching_depth_jump_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.75';
-  canonical_id CONSTANT UUID := 'fe5e8eb1-e783-4a37-a1b8-14d970ac1679';
+  canonical_id UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[3,725,1092];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    '39577893-f144-4747-81dd-d5cd2896aa67'::UUID,
-    '26279d6b-fc0d-44d0-a621-c2bb17a3b21b'::UUID,
-    'd60747a6-1319-42e4-b1b4-69ed7fdd340c'::UUID];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '8bd2e53c-59bd-48bb-8c63-fc5ccdb2e623'::UUID,
-    'b048dd4a-cbaa-4021-8116-88536e354021'::UUID];
-  hips_variant CONSTANT UUID := '69ba2339-0ed4-4181-a5c8-1dfd276c9619';
-  free_arms_variant CONSTANT UUID := '0f92e25c-51b8-45d3-8d62-b6acc2de0ee4';
-  active_variant_ids CONSTANT UUID[] := ARRAY[hips_variant,free_arms_variant];
-  drop_jump_variant CONSTANT UUID := '383a8f53-3525-46e6-a07b-1562e2954f33';
-  drop_landing_variant CONSTANT UUID := 'c709dc59-1ef1-47f6-bba8-44041384c326';
-  countermovement_jump_variant CONSTANT UUID := '48e6ea38-e560-481f-bf99-32edfd5021b4';
+  source_variant_ids UUID[];
+  hips_variant UUID := gen_random_uuid();
+  free_arms_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  drop_jump_variant UUID;
+  drop_landing_variant UUID;
+  countermovement_jump_variant UUID;
   current_video_ids CONSTANT TEXT[] := ARRAY['AzPJZHOmGEg','GeN0S3XCZnM','DxzbXy0lC6Y','Phf_HO1w9BA','dGQRsuI_-ag'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=3;
+  SELECT variant.id INTO drop_jump_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='drop-jump' AND variant.variant_key='baseline';
+  SELECT variant.id INTO drop_landing_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='drop-landing-to-stick' AND variant.variant_key='baseline';
+  SELECT variant.id INTO countermovement_jump_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='countermovement-jump' AND variant.variant_key='baseline';
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-725'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1092')];
+  active_variant_ids := ARRAY[hips_variant,free_arms_variant];
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND slug='depth-jump')
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids))<>3
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids) AND definition_id=canonical_id)<>3
-    OR (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=ANY(archived_definition_ids) AND status='archived')<>2
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=drop_jump_variant AND d.slug='drop-jump')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=drop_landing_variant AND d.slug='drop-landing-to-stick')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_variant_v1 v JOIN coaching.exercise_definition_v1 d ON d.id=v.definition_id WHERE v.id=countermovement_jump_variant AND d.slug='countermovement-jump') THEN
@@ -81,7 +83,7 @@ BEGIN
   UPDATE coaching.exercise_delivery_profile_v1 SET status='archived',updated_at=now() WHERE variant_id=ANY(source_variant_ids);
   UPDATE coaching.exercise_definition_v1 SET status='archived',approved_video_url=NULL,reviewed_by=NULL,approved_by=NULL,last_reviewed_at=NULL,
     provenance_json=coalesce(provenance_json,'{}'::JSONB)||jsonb_build_object('depthJumpAuditHardeningMigration',migration_key,'survivorDefinitionId',canonical_id,'selectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),updated_at=now()
-  WHERE id=ANY(archived_definition_ids);
+  WHERE FALSE;
 
   UPDATE coaching.exercise_definition_v1 SET
     canonical_name='Depth Jump',display_name='Depth Jump',

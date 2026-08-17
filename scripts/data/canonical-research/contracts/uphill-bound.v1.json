@@ -1,0 +1,519 @@
+{
+  "migrationKey": "747_coaching_uphill_bound_source_995_candidate_materialization",
+  "researchVersion": "2026-07-25.6",
+  "batchFile": "../batches/alternating-bounds.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 995,
+        "slug": "uphill-bound",
+        "canonicalName": "Uphill Bound",
+        "displayName": "Uphill Bound",
+        "aliases": [
+          "Hill Bounds",
+          "Uphill Bounding"
+        ],
+        "description": "On an inspected, dry, stable uphill lane with a declared gentle-to-moderate grade, perform a short sequence of alternating forward bounds. Each contact projects the body uphill with controlled foot placement, hip extension, trunk organisation, and a planned walk-down recovery. This excludes uphill sprinting, jogging, straight-leg bounds, bilateral hops, downhill bounds, weighted bounds, or an unspecified steep grade.",
+        "familyKey": "alternating_uphill_bounds",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 2,
+        "status": "review",
+        "identityContract": "short_duration_alternating_forward_bounds_on_an_inspected_gentle_to_moderate_uphill_grade_with_declared_contact_count_or_duration_and_walk_down_recovery",
+        "confidence": {
+          "content": 72,
+          "scoring": 58,
+          "media": 50
+        },
+        "movementPatterns": [
+          "bound",
+          "horizontal_projection",
+          "land",
+          "brace"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "hamstrings",
+          "glutes",
+          "hip",
+          "pelvis",
+          "core",
+          "spine",
+          "shoulder"
+        ],
+        "requiredEquipment": [
+          "incline_surface",
+          "start_finish_cones",
+          "safe_run_out"
+        ],
+        "optionalEquipment": [
+          "grade_meter",
+          "video_capture",
+          "timer"
+        ],
+        "environment": {
+          "surface": "inspected dry stable uphill lane with no holes, loose material, cross-slope, traffic, or unsafe weather; flat controlled start and finish areas",
+          "space": "one athlete at a time in the uphill lane; a separated walk-down recovery route with no cross traffic",
+          "stationCapacity": 1,
+          "inspection": [
+            "inspect grade, surface, traction, weather, visibility, lane, finish, and walk-down route",
+            "mark start and finish; declare grade, contact count or duration, and walk-down recovery",
+            "remove bystanders and prevent downhill jogging through the active lane",
+            "confirm footwear, communication, stop signal, and current running/bounding exposure"
+          ],
+          "changeRule": "Changing grade, surface, traction, direction, contact sequence, distance, duration, pace, load, recovery route, or purpose requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "controlled level alternating bounds and pain-free tolerance of current hill-running and ankle/calf/tibial loading",
+            "safe inspected lane, grade, finish, and walk-down route",
+            "current lower-limb, tendon, impact, and session-fatigue budgets fit",
+            "understands the bound pattern, route, stop signal, and full recovery rule"
+          ],
+          "excludeOrEscalate": [
+            "symptom, restriction, unsafe grade, traction, weather, visibility, surface, footwear, lane, finish, recovery route, or communication conflict",
+            "pain, giving way, dizziness, neurologic, circulation, breathing, chest, balance, or communication concern",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "universal grade, contact count, duration, recovery, impact reduction, readiness threshold, output, or clinical clearance"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            995
+          ],
+          "identityAuthority": "Source 995 plus alternating-bounds-v1 evidence packet. Uphill Bound is a candidate incline delivery of alternating bounds; grade-specific identity, media, and all approvals remain subject to qualified human review.",
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true,
+          "externalPlaybackVerificationPerformed": false
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "thoracolumbar_spine",
+            "scapulothoracic_articulation",
+            "shoulder"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_bracing",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_and_transverse_stabilization"
+          ],
+          "laterality": "alternating left-right unilateral contacts with bilateral trunk and arm organisation",
+          "claimsBoundary": "Task mechanics and likely loading sites only; no diagnosis, treatment, injury-prevention, isolated activation, or guaranteed performance claim."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate incline alternating-bound exposure when the exact grade, surface, contact pattern, recovery route, and session budgets fit.",
+          "primaryCue": "Push the hill away, keep contacts under you, and stop before the bounds become slow running.",
+          "secondaryCues": [
+            "use the declared lane and walk down to recover",
+            "stay tall through the trunk rather than folding into the hill",
+            "keep the alternating rhythm and controlled foot placement",
+            "do not treat a steeper hill as an automatic progression"
+          ],
+          "expectedSensations": [
+            "brief propulsive hip, calf, thigh, trunk, and foot effort",
+            "short high-intent alternating contacts with full recovery"
+          ],
+          "unexpectedSensations": [
+            "foot, ankle, calf, tibial, knee, hip, back, or shoulder pain",
+            "slipping, giving way, dizziness, unsafe traffic, or a pattern that turns into slow running"
+          ],
+          "selfChecks": [
+            "lane, grade, finish, and walk-down route are clear",
+            "each contact remains alternating and underneath the body",
+            "posture and cadence remain controlled",
+            "no stop event occurs"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact short uphill alternating-bound identity, not sprinting, jogging, straight-leg bounds, bilateral hops, downhill, or weighted work",
+            "grade, surface, traction, weather, lane, finish, walk-down route, footwear, and spacing",
+            "alternating rhythm, foot strike, hip extension, posture, projection, symptoms, and first quality loss"
+          ],
+          "faultCorrections": {
+            "slow_running_stride_or_lost_bound_pattern": "reduce contacts, grade, or intensity; restore short alternating bounds and full recovery; stop if the pattern does not return",
+            "excessive_forward_fold_or_overstride": "reduce grade or distance, restore tall trunk and contact under the body, or stop",
+            "slip_or_unsafe_walk_down": "stop and correct the lane, traction, or recovery route; do not count or continue unsafe attempts"
+          },
+          "doNotUseWhen": [
+            "uphill sprinting, jogging, straight-leg bounds, bilateral hops, downhill bounds, weighted bounds, or a steep grade is intended",
+            "the hill, weather, traction, lane, finish, or recovery route is unsafe",
+            "the exact task conflicts with symptoms, restrictions, or current lower-limb/tendon/impact fatigue budget"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "grade_surface_or_weather",
+            "bound_pattern_or_posture",
+            "contact_or_tendon_load",
+            "recovery_route_or_logistics",
+            "identity_confirmation"
+          ],
+          "supportEscalation": "Stop unresolved grade, surface, weather, logistics, identity, symptom, or quality concerns and follow facility escalation policy.",
+          "changeImpactPolicy": "Any change to grade, surface, contacts, distance, duration, recovery, dose, or substitution reruns selection, logistics, duration, fatigue, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "identity-quarantine-source-995",
+        "archiveKey": "superseded-source-995-skeleton",
+        "displayName": "Uphill Bound Legacy Skeleton — Source 995",
+        "archiveReason": "Source 995 lacks declared grade, lane, contact sequence, distance or duration, recovery route, surface/weather constraints, load/fatigue, alternate boundaries, and review contracts."
+      },
+      "snapshot": {
+        "capturedAt": "2026-07-25T22:50:01.000Z",
+        "cardVersion": 1,
+        "status": "review",
+        "description": "The athlete bounds uphill for a short distance with powerful hip extension, tall posture, and full recovery between reps.",
+        "familyKey": "Hill-assisted projection power"
+      },
+      "variants": [
+        {
+          "id": "995a1bc0-e7e4-4c7e-bf13-1c2fc5009951",
+          "key": "alternating-gentle-to-moderate-uphill-bounds",
+          "displayName": "Alternating Gentle-to-Moderate Uphill Bounds",
+          "modifierKeys": [
+            "alternating",
+            "unilateral_contacts",
+            "uphill",
+            "gentle_to_moderate_grade",
+            "short_duration",
+            "walk_down_recovery"
+          ],
+          "difficulty": {
+            "technicalComplexity": 69,
+            "absoluteLoadDemand": 30,
+            "physicalDifficulty": 30,
+            "coordinationDemand": 72,
+            "supervisionDemand": 58,
+            "failureConsequence": 62,
+            "impact": 61,
+            "workCapacityDemand": 50,
+            "baseOverallDifficulty": 69
+          },
+          "requirements": {
+            "equipment": [
+              "incline_surface",
+              "start_finish_cones",
+              "safe_run_out"
+            ],
+            "laterality": "alternating_left_right_unilateral_contacts",
+            "surface": "inspected_dry_stable_gentle_to_moderate_uphill_lane",
+            "start": "flat_controlled_start_with_declared_grade_and_contact_count_or_duration",
+            "path": "alternating_forward_bounds_uphill_without_sprint_or_jog_cadence",
+            "finish": "controlled_finish_then_walk_down_recovery",
+            "recoveryRule": "walk_down_on_declared_separate_route_before_next_attempt"
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight alternating uphill bounds on individually selected gentle-to-moderate grade",
+            "impactClass": "grade_speed_surface_and_contact_quality_dependent lower-limb impact exposure",
+            "gripDemand": 1,
+            "spinalLoading": 24,
+            "eccentricStress": 44,
+            "landingContactsPerRep": 1,
+            "contactExposureModel": {
+              "per_set_range": "record uphill bound contacts or duration, grade, surface, traction, distance, walk-down recovery, quality loss, symptoms, and other bounds/sprints"
+            },
+            "primaryExposure": [
+              "propulsive_hip_extension",
+              "ankle_calf_tendon_loading",
+              "alternating_unilateral_force_acceptance",
+              "grade_specific_balance_and_trunk_control"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 48,
+            "gripFatigue": 1,
+            "technicalFatigueSensitivity": 60,
+            "impactAccumulation": 61,
+            "recoveryHours": 36,
+            "recoveryHoursPlanningEstimate": 36,
+            "cumulativeBudget": {
+              "uphill_bound_contacts": 30,
+              "alternating_bound_contacts": 40,
+              "lower_limb_plyometric_contacts": 45,
+              "calf_achilles_and_tibial_exposure": 36
+            },
+            "tracking": [
+              "sets",
+              "attempts",
+              "contactsOrDuration",
+              "grade",
+              "surface",
+              "traction",
+              "distance",
+              "walkDownRecovery",
+              "cadence",
+              "qualityLoss",
+              "symptoms",
+              "otherBoundsAndSprints"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "incline_alternating_projection",
+              "short_duration_propulsive_bounds",
+              "grade_specific_rhythm_and_control"
+            ],
+            "stimulusDose": "short high-intent alternating uphill bounds with walk-down recovery",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "output-uphill-alternating-bounds",
+              "phase": "output",
+              "role": "conditional",
+              "purpose": "Candidate short-duration incline alternating-bound work when the exact lane, grade, pattern, recovery route, and lower-limb exposure budget fit.",
+              "suitability": 68,
+              "methodologyAlignment": 64,
+              "objectiveRelevance": {
+                "incline_propulsive_output": 72,
+                "alternating_bound_rhythm": 70
+              },
+              "dosage": {
+                "sets": "2-4",
+                "attemptsPerSet": "1-3",
+                "contactsOrDuration": "4-10 contacts or 5-15 seconds",
+                "restSeconds": "90-240",
+                "intensity": "powerful_not_exhaustive_on_individually_selected_gentle_to_moderate_grade",
+                "countRule": "count only alternating bounds on the declared uphill lane that retain controlled posture, contact pattern, projection, finish, and walk-down recovery"
+              },
+              "qualityGate": "Every counted attempt retains the declared grade and safe lane, alternating bound pattern, controlled foot placement and trunk position, safe finish/walk-down route, and no stop event.",
+              "stopRules": [
+                "stop on pain, giving way, slipping, unsafe surface/weather/lane/finish/recovery route, dizziness, loss of balance, or participant request",
+                "stop when the alternating bound pattern, cadence, posture, contact control, or projection cannot be restored",
+                "stop when the drill becomes slow running or fatigue conditioning rather than short high-quality bounds"
+              ],
+              "coachInstructions": "Inspect and declare grade, surface, traction, weather, lane, start, finish, contacts/duration, route, and rest; observe from side and rear when safe; stop at first unrecoverable quality or safety loss.",
+              "athleteInstructions": "Use the declared uphill lane, bound with alternating contacts, push the hill away while staying tall, finish under control, and walk down on the assigned route before the next attempt.",
+              "expectedAdaptation": "Candidate task-specific incline alternating-bound exposure only; no universal power, speed, running, or injury outcome is guaranteed.",
+              "equipmentRequired": [
+                "incline_surface",
+                "start_finish_cones",
+                "safe_run_out"
+              ],
+              "logistics": {
+                "stationCapacity": 1,
+                "setupSeconds": 75,
+                "transitionSeconds": 45,
+                "clearanceRequired": true
+              },
+              "substitutionIds": [],
+              "timeModel": {
+                "setupSeconds": 75,
+                "perSetSeconds": 45,
+                "resetSeconds": 150,
+                "recomputeAfterSubstitution": true
+              },
+              "doseScaling": {
+                "reduce": "fewer contacts, gentler grade, shorter lane, lower intent, longer rest, or another reviewed task after revalidation",
+                "doNotAutoProgress": "Do not increase grade, distance, duration, speed, load, downhill return, straight-leg strategy, or turn this into hill sprinting without revalidation."
+              },
+              "measurement": {
+                "record": [
+                  "sets",
+                  "attempts",
+                  "contactsOrDuration",
+                  "grade",
+                  "surface",
+                  "traction",
+                  "distance",
+                  "walkDownRecovery",
+                  "cadence",
+                  "qualityLoss",
+                  "symptoms",
+                  "rest"
+                ]
+              },
+              "supportPrompts": {
+                "athlete": "Push the hill away, alternate cleanly, walk down to recover.",
+                "coach": "Confirm grade, surface, and bound identity before counting an attempt."
+              }
+            }
+          ]
+        }
+      ],
+      "legacy": {
+        "preserveArchived": true,
+        "description": "Archived Source 995 remains traceable as an underspecified uphill-bound skeleton.",
+        "defaultSets": null,
+        "defaultReps": null,
+        "defaultWorkSeconds": null,
+        "defaultRestSeconds": null,
+        "tempo": null,
+        "loadNote": "Candidate-only; record grade, lane, surface, traction, contacts or duration, distance, recovery route, valid bounds, rest, quality loss, and symptoms.",
+        "estimatedSecondsPerSet": null,
+        "cardSummary": "Source 995 is represented by an exact candidate uphill alternating-bound contract, pending qualified review.",
+        "coachLanguage": "Use only after grade, surface, lane, duration, fatigue, and downstream-demand checks.",
+        "athleteLanguage": "Bound uphill with controlled alternating contacts; walk down to recover.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "contacts",
+          "duration",
+          "sets",
+          "rest",
+          "grade",
+          "distance",
+          "surface",
+          "recovery_route"
+        ],
+        "movementFamily": "alternating_uphill_bounds",
+        "primaryPhaseKey": "output",
+        "phaseSubrole": "incline_projection_power",
+        "primaryOrderSlot": "plyometric_output",
+        "movementRequirements": {
+          "selectable": false,
+          "sourceIdentityReauthored": true
+        },
+        "coachingExecution": {
+          "quality_gate": "Legacy source is not selectable; use exact candidate contract.",
+          "stop_signs": [
+            "pain",
+            "slipping",
+            "unsafe_surface",
+            "lost_bound_pattern",
+            "posture_collapse",
+            "slow_running_stride"
+          ]
+        },
+        "pairingLogic": {
+          "revalidateAfterSubstitution": true
+        },
+        "mediaLibrary": {
+          "reviewState": "candidate_only"
+        },
+        "participantStructure": "individual",
+        "programmingKind": "exercise"
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact alternating bound pattern, grade, surface, lane, route, symptoms, dose, and downstream task—not participant classification.",
+        "readinessChecks": [
+          "confirm controlled level alternating bounds and current hill-running/ankle-calf-tibial tolerance",
+          "confirm inspected lane, grade, traction, weather, start, finish, and walk-down route",
+          "confirm short alternating bounds, safe finish, stop signal, and current lower-limb exposure"
+        ],
+        "stopSigns": [
+          "pain, giving way, slipping, participant request, dizziness, chest, breathing, neurologic, circulation, or balance symptoms",
+          "unsafe grade, surface, weather, visibility, lane, finish, recovery route, footwear, spacing, or communication",
+          "lost bound pattern, excessive forward fold, overstride, slow running cadence, persistent quality loss, or inability to recover"
+        ],
+        "contraindications": [
+          "symptom, restriction, or unsafe-setting conflict with exact gentle-to-moderate uphill alternating bounds",
+          "uphill sprinting, jogging, straight-leg, bilateral, downhill, weighted, steep-grade, or conditioning intent"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed task only after requirements, duration, fatigue, impact, and logistics are recomputed.",
+          "Do not treat level bounds, hill sprints, straight-leg bounds, downhill bounds, or weighted bounds as automatic substitutions."
+        ]
+      },
+      "score": {
+        "technicalComplexity": 69,
+        "absoluteLoadDemand": 30,
+        "coordinationDemand": 72,
+        "impact": 61,
+        "supervisionDemand": 58,
+        "confidence": 58,
+        "reviewNotes": "Candidate task-only reassessment; base overall difficulty is max(technical complexity 69, absolute load demand 30). Exact identity and independent calibration require qualified human review.",
+        "legacyScores": {
+          "physicalDifficulty": 30,
+          "failureConsequence": 62,
+          "workCapacityDemand": 50
+        },
+        "difficultyProfile": {
+          "technical": 6.9,
+          "complexity": 6.9,
+          "load": 3.0,
+          "overall": 6.9,
+          "attentionDemand": "high",
+          "notes": "Exact short-duration alternating gentle-to-moderate Uphill Bound only; no athlete skill-level classification."
+        }
+      },
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete_provisional_human_confirmation_required",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -79,14 +79,37 @@ export function legacyExerciseBundleToCanonical(bundle) {
     difficulty: {
       technicalComplexity,
       absoluteLoadDemand,
-      coordinationDemand: legacyScore(difficulty.complexity, 10),
-      impact: legacyScore(exercise.movement_requirements?.impact_level, 5, 'negligible'),
-      supervisionDemand: safety.supervision_level === 'high' ? 80 : safety.supervision_level === 'moderate' ? 50 : 20,
-      failureConsequence: safety.spotter_required ? 80 : 30,
-      workCapacityDemand: null,
       baseOverallDifficulty: technicalComplexity == null || absoluteLoadDemand == null
         ? null
         : deriveOverallDifficulty(technicalComplexity, absoluteLoadDemand),
+    },
+    taskDemands: {
+      strengthDemand: absoluteLoadDemand,
+      powerDemand: null,
+      mobilityDemand: null,
+      balanceDemand: null,
+      coordinationDemand: legacyScore(difficulty.complexity, 10),
+      conditioningDemand: null,
+      impactToleranceDemand: legacyScore(exercise.movement_requirements?.impact_level, 5, 'negligible'),
+      eccentricControlDemand: null,
+      bodyControlDemand: null,
+      perceptualDemand: null,
+      attentionDemand: null,
+      supervisionDemand: safety.supervision_level === 'high' ? 80 : safety.supervision_level === 'moderate' ? 50 : 20,
+      failureConsequence: safety.spotter_required ? 80 : 30,
+    },
+    movementGeometry: { planes: [], projections: [], directions: [], supports: [], stances: [], limbRelationships: [] },
+    anatomyProfile: { assignments: [] },
+    equipmentRoles: [
+      ...textList(bundle.requiredEquipment ?? exercise.required_equipment).map((key) => ({ key, role: 'required', quantityPerStation: null, conditions: {} })),
+      ...textList(bundle.optionalEquipment ?? exercise.optional_equipment).map((key) => ({ key, role: 'optional', quantityPerStation: null, conditions: {} })),
+    ],
+    stressProfile: {},
+    scalingHandles: [],
+    compositionProfile: {},
+    structuredProfileReview: {
+      reviewStatus: 'suggested',
+      provenance: { sourceType: 'legacy_adapter', approvalCreated: false, humanReviewRequired: true },
     },
     media: {
       approvedVideoUrl: mediaUrl,

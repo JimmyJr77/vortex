@@ -7,27 +7,37 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '467_coaching_front_plank_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.77';
-  canonical_id CONSTANT UUID := '4bffab47-a9c6-483e-ac8f-5c73b9641fd3';
-  plank_hold_definition CONSTANT UUID := '7dbba793-cb30-44eb-ab9b-1dba269f630a';
-  rkc_definition CONSTANT UUID := 'ae27784c-0275-4176-93b1-4c5607a57bd4';
-  prior_long_lever_definition CONSTANT UUID := '431ee982-ec46-4dc6-9c93-b3a223f31f54';
-  duplicate_definition_ids CONSTANT UUID[] := ARRAY[plank_hold_definition,rkc_definition];
-  affected_definition_ids CONSTANT UUID[] := ARRAY[canonical_id,plank_hold_definition,rkc_definition,prior_long_lever_definition];
+  canonical_id UUID;
+  plank_hold_definition UUID;
+  rkc_definition UUID;
+  prior_long_lever_definition UUID;
+  duplicate_definition_ids UUID[];
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[5,240,602,827];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'ac27561a-22da-4c71-a4df-1a0c31593b28'::UUID,
-    '0e79bbda-905c-4149-a134-4db059e69c51'::UUID,
-    'd42fc210-0dee-4e3c-bda0-15f127bee0fb'::UUID,
-    'a48709a9-6b52-4ae9-a317-a23d484565ac'::UUID];
-  standard_variant CONSTANT UUID := '2c3acc90-f991-4763-8748-ae014dcef565';
-  long_lever_variant CONSTANT UUID := 'eae5176b-38a1-4e63-9c57-75e1ab869e2a';
-  rkc_variant CONSTANT UUID := '5f6b4e90-c024-4e8a-8562-a0ef46fe1033';
-  active_variant_ids CONSTANT UUID[] := ARRAY[standard_variant,long_lever_variant,rkc_variant];
-  dead_bug_variant CONSTANT UUID := 'b31d3fa0-51e0-46e2-bd21-f112af78ae8f';
-  bear_plank_variant CONSTANT UUID := '45876982-41cd-4aef-bc8a-8e8692f594c1';
+  source_variant_ids UUID[];
+  standard_variant UUID := gen_random_uuid();
+  long_lever_variant UUID := gen_random_uuid();
+  rkc_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  dead_bug_variant UUID;
+  bear_plank_variant UUID;
   current_video_ids CONSTANT TEXT[] := ARRAY['0nqvl7ybiYQ','K2UZq6uq_mY','abv03ZRw9bM','lismOShjHnA','tx8wfSu1C4k'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=240;
+  SELECT definition_id INTO plank_hold_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=5;
+  SELECT definition_id INTO rkc_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=602;
+  SELECT id INTO prior_long_lever_definition FROM coaching.exercise_definition_v1 WHERE slug='front-plank-long-lever-plank';
+  duplicate_definition_ids := ARRAY[plank_hold_definition,rkc_definition];
+  affected_definition_ids := ARRAY[canonical_id,plank_hold_definition,rkc_definition,prior_long_lever_definition];
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=plank_hold_definition AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-240-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=rkc_definition AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline')];
+  active_variant_ids := ARRAY[standard_variant,long_lever_variant,rkc_variant];
+  SELECT variant.id INTO dead_bug_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='dead-bug' AND variant.variant_key='baseline';
+  SELECT variant.id INTO bear_plank_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='bear-plank-hold' AND variant.variant_key='baseline';
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND slug='front-plank' AND status<>'archived')
     OR (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=ANY(duplicate_definition_ids))<>2
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=prior_long_lever_definition AND status='archived')

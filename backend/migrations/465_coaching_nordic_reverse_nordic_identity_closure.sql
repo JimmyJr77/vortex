@@ -6,9 +6,11 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
     '465_coaching_nordic_reverse_nordic_identity_closure';
-  nordic_id CONSTANT UUID := '03894b45-360d-444b-a142-6771ce6df7dd';
-  reverse_nordic_id CONSTANT UUID := 'e2880d72-678f-4359-a278-365e108a4996';
+  nordic_id UUID;
+  reverse_nordic_id UUID;
 BEGIN
+  SELECT definition_id INTO nordic_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=4;
+  SELECT definition_id INTO reverse_nordic_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=575;
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=nordic_id AND slug='nordic-hamstring-curl' AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1

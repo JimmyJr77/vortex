@@ -1,0 +1,14 @@
+{
+  "migrationKey": "525_coaching_jump_rope_bounce_source_49_candidate_materialization",
+  "researchVersion": "2026-08-09.115",
+  "generatedAt": "2026-08-09T23:20:00.000Z",
+  "cards": [
+    {
+      "slug": "jump-rope-bounce",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 15,
+      "cardVersion": 2
+    }
+  ]
+}

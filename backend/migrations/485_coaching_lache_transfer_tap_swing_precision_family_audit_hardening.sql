@@ -11,36 +11,61 @@ DECLARE
   migration_key CONSTANT TEXT :=
     '485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.87';
-  lache_definition CONSTANT UUID := 'abc659bf-ce3c-4b7c-a118-f2b0c761bd07';
-  tap_definition CONSTANT UUID := '3018f919-8d85-4870-a1d2-ece8fd2af15e';
-  precision_definition CONSTANT UUID := '656028eb-c7d1-4a2f-a216-45763b201796';
-  source_variant CONSTANT UUID := '9aedcb37-d32a-43b8-a1d1-0a653d1bcdb5';
-  same_height_variant CONSTANT UUID := '29c4fb69-e9c3-4106-b09d-9a0732946da9';
-  higher_target_variant CONSTANT UUID := '2b733b32-477c-4987-ba3b-fcd14cb183d6';
-  lower_target_variant CONSTANT UUID := '53616483-e26c-4e32-90dc-1db96a7db5b0';
-  assisted_variant CONSTANT UUID := 'a2f5e5c7-dcd1-4ed6-921d-60e8409a57d5';
-  tap_variant CONSTANT UUID := 'c0717c68-366c-4039-93e6-be44febe8978';
-  precision_variant CONSTANT UUID := '612fc5a8-a343-4609-9463-b891ebeaf104';
-  definition_ids CONSTANT UUID[] := ARRAY[
-    lache_definition,tap_definition,precision_definition
-  ];
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    same_height_variant,higher_target_variant,lower_target_variant,
-    assisted_variant,tap_variant,precision_variant
-  ];
-  active_hang_definition CONSTANT UUID := '77602a12-d58b-4d41-b84e-713a4b8c3011';
-  dead_hang_definition CONSTANT UUID := '0973b1ff-410a-4c97-b85d-84fec7ad0182';
-  scapular_pull_definition CONSTANT UUID := '0c7d9348-f563-4a42-a31a-248d657901c1';
-  flexed_hang_definition CONSTANT UUID := '424de579-d93c-462e-b94f-4e849e89e03e';
-  standing_precision_definition CONSTANT UUID := '6dc5fcf1-6383-4aed-a73b-7465384fd18b';
-  bar_cast_definition CONSTANT UUID := '6915611f-7382-448b-b3eb-d8dd08f10ee7';
-  cast_handstand_definition CONSTANT UUID := 'd8b03d69-0840-40b0-adba-21d855d3db3e';
-  active_hang_variant CONSTANT UUID := 'aa45a58c-8fe7-4bb6-843a-c3432540fdc2';
-  dead_hang_variant CONSTANT UUID := 'eded93cc-ea14-4cfe-b0b5-3bab27362b9a';
-  scapular_pull_variant CONSTANT UUID := '9d1489fd-55b2-49d9-a3cf-4bc8271e781f';
-  standing_precision_variant CONSTANT UUID := 'dd36d133-894b-4562-9cc7-016d1db6f56c';
+  lache_definition UUID;
+  tap_definition UUID := gen_random_uuid();
+  precision_definition UUID := gen_random_uuid();
+  source_variant UUID;
+  same_height_variant UUID := gen_random_uuid();
+  higher_target_variant UUID := gen_random_uuid();
+  lower_target_variant UUID := gen_random_uuid();
+  assisted_variant UUID := gen_random_uuid();
+  tap_variant UUID := gen_random_uuid();
+  precision_variant UUID := gen_random_uuid();
+  definition_ids UUID[];
+  active_variant_ids UUID[];
+  active_hang_definition UUID;
+  dead_hang_definition UUID;
+  scapular_pull_definition UUID;
+  flexed_hang_definition UUID;
+  standing_precision_definition UUID;
+  bar_cast_definition UUID;
+  cast_handstand_definition UUID;
+  active_hang_variant UUID;
+  dead_hang_variant UUID;
+  scapular_pull_variant UUID;
+  standing_precision_variant UUID;
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO lache_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=19;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_definition AND variant_key='baseline';
+  SELECT id INTO active_hang_definition FROM coaching.exercise_definition_v1
+  WHERE slug='active-hang' AND status<>'archived';
+  SELECT id INTO dead_hang_definition FROM coaching.exercise_definition_v1
+  WHERE slug='dead-hang' AND status<>'archived';
+  SELECT id INTO scapular_pull_definition FROM coaching.exercise_definition_v1
+  WHERE slug='scapular-pull-up' AND status<>'archived';
+  SELECT id INTO flexed_hang_definition FROM coaching.exercise_definition_v1
+  WHERE slug='flexed-arm-hang' AND status<>'archived';
+  SELECT id INTO standing_precision_definition FROM coaching.exercise_definition_v1
+  WHERE slug='precision-jump' AND status<>'archived';
+  SELECT id INTO bar_cast_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bar-cast' AND status<>'archived';
+  SELECT id INTO cast_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bar-cast-to-handstand' AND status<>'archived';
+  SELECT id INTO active_hang_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=active_hang_definition AND variant_key='baseline';
+  SELECT id INTO dead_hang_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=dead_hang_definition AND variant_key='baseline';
+  SELECT id INTO scapular_pull_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=scapular_pull_definition AND variant_key='baseline';
+  SELECT id INTO standing_precision_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=standing_precision_definition AND variant_key='baseline';
+  definition_ids := ARRAY[lache_definition,tap_definition,precision_definition];
+  active_variant_ids := ARRAY[same_height_variant,higher_target_variant,
+    lower_target_variant,assisted_variant,tap_variant,precision_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=lache_definition AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1

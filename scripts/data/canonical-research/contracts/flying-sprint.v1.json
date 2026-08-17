@@ -1,0 +1,102 @@
+{
+  "migrationKey": "705_coaching_flying_sprint_source_128_candidate_materialization",
+  "researchVersion": "2026-07-25.2",
+  "batchFile": "../batches/max-velocity-sprinting.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 128,
+        "preserveLegacyExerciseId": true,
+        "slug": "flying-10",
+        "canonicalName": "Flying Sprint",
+        "displayName": "Flying Sprint",
+        "aliases": ["Flying 10", "Flying 10m Sprint", "Flying 10-Yard Sprint", "Flying 20", "Flying 20m Sprint"],
+        "description": "After a measured progressive build-in on a clear level lane, the athlete enters an upright near-maximal or maximal fly zone, runs through the marked zone, and uses a planned run-out to decelerate gradually. The exact profile declares build-in distance, fly-zone distance, intent, timing method, recovery, and high-speed exposure. This is not a static-start acceleration sprint, sprint-float-sprint, assisted sprint, wicket drill, or approach-to-takeoff task.",
+        "familyKey": "max_velocity_flying_sprint",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 3,
+        "status": "review",
+        "identityContract": "progressive_build_in_to_marked_upright_maximal_velocity_fly_zone_with_planned_run_out",
+        "confidence": {"content": 78, "scoring": 52, "media": 50},
+        "movementPatterns": ["sprint", "transition_to_upright_sprint", "cyclic_sprint_mechanics"],
+        "bodyRegions": ["foot", "ankle", "calf", "knee", "thigh", "hip", "core", "upper_arm"],
+        "requiredEquipment": ["cones", "open_space"],
+        "optionalEquipment": ["timing_gates", "measuring_tape"],
+        "environment": {
+          "surface": "dry, level, non-slip running surface with a measured build-in, fly zone, and run-out",
+          "space": "one protected lane with enough build-in and gradual deceleration distance for the prescribed speed",
+          "stationCapacity": 1,
+          "inspection": ["surface traction and debris", "lane separation and no cross traffic", "measured zones and clear run-out", "footwear, weather, timing setup, and coach sightline"],
+          "changeRule": "Changing fly-zone length, build-in, entry method, speed intent, surface, timing, assistance, resistance, run-out, recovery, or total exposure requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": ["completed progressive speed preparation", "can build in and decelerate safely on the selected surface", "current symptoms, recent high-speed exposure, lane, and recovery budget fit", "understands the fly-zone, run-out, and stop signal"],
+          "excludeOrEscalate": ["pain, limping, acute tightness, unsafe surface, insufficient run-out, weather, spacing, or communication conflict", "new neurologic, circulation, breathing, chest, balance, or coordination concern", "participant requests stop"],
+          "notEstablishedByEvidence": ["universal build-in, fly-zone length, exposure cap, recovery duration, clearance threshold, or performance outcome"]
+        },
+        "provenance": {
+          "legacySources": [128],
+          "identityAuthority": "Source 128 plus the focused max-velocity sprint research batch; Flying 10, 10m, and 20-unit zones are one identity with explicit dosage.",
+          "canonicalAuthoredFromResearch": true,
+          "primaryIdentitySource": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+          "primaryIdentitySourceStatus": "candidate_research_evidence_unreviewed",
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": false,
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true
+        },
+        "anatomy": {
+          "primaryMuscles": ["hamstring_complex", "gluteal_complex", "quadriceps", "calf_complex"],
+          "secondaryMuscles": ["hip_flexors", "intrinsic_foot_muscle_system", "trunk_stabilizers", "shoulder_girdle"],
+          "joints": ["metatarsophalangeal", "talocrural_ankle", "knee", "hip", "thoracolumbar_spine", "shoulder"],
+          "jointActions": ["cyclic_hip_extension_and_flexion", "cyclic_knee_extension_and_flexion", "ankle_stiffness_and_plantarflexion_control", "reciprocal_arm_action", "trunk_pelvis_control"],
+          "planes": ["sagittal_high_speed_locomotion", "frontal_transverse_stabilization"],
+          "laterality": "alternating cyclic lower-limb contacts with reciprocal arm action",
+          "claimsBoundary": "Describes task mechanics and plausible loading sites only; it does not diagnose, treat, prevent injury, or guarantee performance transfer."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate high-speed exposure when the exact lane, preparation, run-in, fly zone, and run-out fit the workout.",
+          "primaryCue": "Build smoothly, run tall through the marked zone, and keep running into the planned run-out.",
+          "secondaryCues": ["use the marked build-in rather than rushing from cold", "strike under your body without reaching", "stay coordinated rather than forcing a universal stride shape", "stop if mechanics, symptoms, or speed quality deteriorate"],
+          "expectedSensations": ["high-speed whole-leg and trunk coordination", "brief high-intent effort followed by full recovery"],
+          "unexpectedSensations": ["pain, hamstring or calf tightening, limping, dizziness, stumble, unsafe traction, or inability to decelerate"],
+          "selfChecks": ["entered the fly zone under control", "ran through rather than stopping at the marker", "used the run-out", "recovered fully enough to repeat quality", "no stop symptom"],
+          "accessibility": {"captionsRequired": true, "transcriptRequired": true, "stillSequenceRequired": true, "audioDescriptionRequired": true}
+        },
+        "coachSupport": {
+          "observationChecklist": ["exact profile and zone geometry", "build-in progression and upright entry", "lane spacing, surface, footwear, and run-out", "contact rhythm, posture, arm-leg coordination, symptoms, and timing trend when used"],
+          "faultCorrections": {"rushing_entry": "lengthen or slow the build-in, rehearse, or use a lower-intent profile", "reaching_or_overstriding": "reduce intensity or exposure and restore rhythm before another rep", "unsafe_deceleration": "increase run-out or do not use the profile", "speed_decline": "end the high-speed work or increase recovery"},
+          "doNotUseWhen": ["a static-start acceleration, directional response, obstacle, assisted, resisted, or approach-takeoff task is intended", "the lane, preparation, run-out, symptoms, recovery, or supervision is inadequate"]
+        },
+        "supportOperations": {"issueCategories": ["surface_or_lane", "recent_speed_exposure", "dose_or_recovery", "mechanics_or_timing", "symptom_or_stop_event", "substitution"], "supportEscalation": "Stop and escalate unresolved symptoms, unsafe lane conditions, repeated quality loss, or a mismatch between requested and exact profile.", "changeImpactPolicy": "Changing high-speed geometry, intent, surface, equipment, dose, or substitution reruns selection, fatigue, impact, logistics, duration, and validation."}
+      },
+      "sourceVariant": {"lookupKey": "identity-quarantine-source-128", "archiveKey": "source-128-flying-sprint-legacy-skeleton", "displayName": "Flying Sprint Legacy Skeleton — Source 128", "archiveReason": "The legacy source lacks explicit fly-zone geometry, build-in, entry, timing, run-out, recovery, load, fatigue, and review contracts."},
+      "snapshot": {"capturedAt": "2026-08-10T23:00:00.000Z", "cardVersion": 2, "status": "archived", "description": "Athlete uses a controlled build-in to sprint through a marked fly zone.", "familyKey": "Max-velocity exposure"},
+      "variants": [
+        {
+          "id": "12800000-0000-4000-8000-000000000001",
+          "key": "progressive-build-in-flying-sprint",
+          "displayName": "Progressive Build-In Flying Sprint",
+          "modifierKeys": ["progressive_build_in", "upright_fly_zone", "planned_run_out"],
+          "difficulty": {"technicalComplexity": 62, "absoluteLoadDemand": 18, "physicalDifficulty": 18, "coordinationDemand": 68, "supervisionDemand": 64, "failureConsequence": 70, "impact": 76, "workCapacityDemand": 42, "baseOverallDifficulty": 62},
+          "requirements": {"equipment": ["cones", "open_space"], "entry": "progressive_build_in", "flyZone": "marked_upright_high_speed_zone", "finish": "run_through_then_gradual_deceleration", "surface": "dry_level_non_slip_lane", "laterality": "alternating_cyclic_contacts"},
+          "loadProfile": {"externalLoadMethod": "bodyweight_progressive_build_in_to_high_speed_fly", "impactClass": "high_speed_repeated_cyclic_contacts", "landingContactsPerRep": 0, "contactExposureModel": {"model": "per_set_range", "minimumContactsPerSet": 18, "planningDefaultContactsPerSet": 32, "maximumContactsPerSet": 56}, "gripDemand": 1, "spinalLoading": 18, "eccentricStress": 72, "primaryExposure": ["high_speed_running_contacts", "posterior_chain", "calf_foot_stiffness", "trunk_pelvis_control"]},
+          "fatigueProfile": {"localMuscleFatigue": 50, "gripFatigue": 1, "technicalFatigueSensitivity": 78, "impactAccumulation": 70, "recoveryHours": 24, "recoveryHoursPlanningEstimate": 24, "cumulativeBudget": {"high_speed_distance": 80, "high_speed_contacts": 160, "posterior_chain": 72, "neural_intent": 60}, "tracking": ["buildInDistance", "flyZoneDistance", "highSpeedDistance", "repetitions", "timing", "quality", "symptoms", "recovery"]},
+          "programmingProfile": {"selectionStatus": "candidate_exact_variant_required", "exerciseScoresDescribeTaskOnly": true, "trainingStimuli": ["maximal_velocity_exposure", "upright_sprint_mechanics", "high_speed_contact_rhythm"], "stimulusDose": "quality_limited_high_speed_distance_with_full_recovery", "recomputeAfterSubstitution": true, "publicationQuarantined": true},
+          "deliveryProfiles": [
+            {"key": "output-flying-10", "phase": "output", "role": "conditional", "purpose": "Candidate short fly-zone maximal-velocity exposure after a controlled build-in.", "suitability": 72, "methodologyAlignment": 66, "objectiveRelevance": {"max_velocity": 82, "speed_mechanics": 70}, "dosage": {"sets": "2-4", "repetitions": "1-3", "buildInDistance": "15-30 yards or meters individualized", "flyZoneDistance": "10 yards or meters", "restSeconds": "120-300", "intensity": "near_maximal_to_maximal", "countRule": "count only a controlled build-in, one marked fly-zone pass, and planned run-out"}, "qualityGate": "The athlete reaches the zone progressively, stays coordinated and upright without reaching, runs through the marker, decelerates gradually, reports no stop symptom, and retains stable timing or observed quality.", "stopRules": ["stop for pain, tightness, limping, stumble, unsafe lane, or inability to decelerate", "stop when mechanics or timing decline persists after full recovery", "stop when recent high-speed exposure or session budget is exceeded"], "coachInstructions": "Measure and inspect the lane, declare build-in/fly/run-out geometry, observe entry and zone mechanics, record quality or timing, and allow full recovery.", "athleteInstructions": "Build smoothly, run tall through the 10-unit zone, keep going into the run-out, recover fully, and report any symptom immediately.", "expectedAdaptation": "Candidate exposure to short upright high-speed running; no guaranteed outcome is claimed.", "equipmentRequired": ["cones", "open_space"], "logistics": {"stationCapacity": 1, "setupSeconds": 120, "transitionSeconds": 45, "clearanceRequired": true, "laneLength": "build-in + 10-unit zone + run-out"}, "substitutionIds": [], "timeModel": {"setupSeconds": 120, "perSetSeconds": 150, "resetSeconds": 90}, "doseScaling": {"reduce": "shorten fly zone or build-in, lower intent, reduce repetitions, extend rest, or use a separately reviewed lower-speed task after revalidation", "doNotAutoProgress": "Do not add assistance, resistance, hurdles, a reactive choice, a takeoff, or more high-speed distance without revalidation."}, "measurement": {"record": ["zone lengths", "efforts", "high-speed distance", "timing when used", "quality", "symptoms", "recovery"]}, "supportPrompts": {"athlete": "Smooth build-in, run through, use the run-out, and report symptoms.", "coach": "Geometry, surface, quality, timing, and recovery are all part of the dose."}},
+            {"key": "output-flying-20", "phase": "output", "role": "conditional", "purpose": "Candidate longer fly-zone high-speed exposure with reduced repetitions and greater recovery demand.", "suitability": 64, "methodologyAlignment": 62, "objectiveRelevance": {"max_velocity": 84, "high_speed_tolerance": 60}, "dosage": {"sets": "2-3", "repetitions": "1-2", "buildInDistance": "20-40 yards or meters individualized", "flyZoneDistance": "20 yards or meters", "restSeconds": "180-360", "intensity": "near_maximal_to_maximal", "countRule": "count only a controlled build-in, one 20-unit fly-zone pass, and planned run-out"}, "qualityGate": "The longer high-speed zone stays coordinated from entry through exit, the athlete runs through the zone and run-out safely, and timing/mechanics do not show persistent decline.", "stopRules": ["stop for any Flying 10 stop rule", "stop when the longer exposure cannot retain upright coordination or recovery quality", "stop instead of converting the work into fatigued conditioning"], "coachInstructions": "Use only when the longer high-speed distance, recovery, recent exposure, lane, and run-out fit; reduce repetitions before accepting quality loss.", "athleteInstructions": "Build in smoothly, hold your best relaxed speed through the full zone, use the run-out, and take the full recovery.", "expectedAdaptation": "Candidate longer high-speed exposure; no guaranteed transfer or performance result is claimed.", "equipmentRequired": ["cones", "open_space"], "logistics": {"stationCapacity": 1, "setupSeconds": 120, "transitionSeconds": 60, "clearanceRequired": true, "laneLength": "build-in + 20-unit zone + run-out"}, "substitutionIds": [], "timeModel": {"setupSeconds": 120, "perSetSeconds": 210, "resetSeconds": 120}, "doseScaling": {"reduce": "use the 10-unit profile, reduce repetitions, lower intent, increase rest, or use another reviewed task after revalidation", "doNotAutoProgress": "Do not increase fly-zone length, reduce recovery, or add assistance/resistance automatically."}, "measurement": {"record": ["zone lengths", "efforts", "high-speed distance", "timing when used", "quality", "symptoms", "recovery"]}, "supportPrompts": {"athlete": "Stay smooth through the whole zone, then take the run-out and full rest.", "coach": "Longer fly zones raise exposure; protect quality before volume."}}
+          ]
+        }
+      ],
+      "legacy": {"preserveArchived": true, "description": "Progressive build-in sprint through a fly zone.", "defaultSets": 3, "defaultReps": 2, "defaultWorkSeconds": 8, "defaultRestSeconds": 180, "tempo": "progressive build-in; high-speed fly; gradual run-out", "loadNote": "Bodyweight high-speed sprint exposure; exact fly zone and recovery are profile-specific.", "estimatedSecondsPerSet": 150, "cardSummary": "Candidate Flying Sprint with explicit 10- and 20-unit fly-zone profiles.", "coachLanguage": "Declare geometry, protect lane/run-out, observe quality, and preserve recovery.", "athleteLanguage": "Build smoothly, run through the zone, use the run-out, and stop for symptoms or lost quality.", "programmingLogic": {"sourceDisposition": "candidate_reauthored", "selectable": false, "humanReviewRequired": true}, "scalableVariables": ["build_in", "fly_zone", "efforts", "rest", "intent"], "movementFamily": "max_velocity_flying_sprint", "primaryPhaseKey": "output", "phaseSubrole": "max_velocity", "primaryOrderSlot": "high_speed_output", "movementRequirements": {"selectable": false, "sourceIdentityReauthored": true}, "mediaLibrary": {"reviewState": "candidate_only"}},
+      "safety": {"riskLevel": 4, "impactLevel": 4, "requiresSpotting": false, "coachSupervision": "required", "prerequisiteNotes": "Readiness is the exact speed, lane, surface, run-out, symptoms, exposure, communication, and recovery context—not a participant classification.", "readinessChecks": ["complete progressive speed preparation", "clear measured lane and gradual run-out", "recent high-speed exposure and session budget fit", "athlete understands run-through and stop signal"], "stopSigns": ["pain, tightening, limping, stumble, unsafe traction, lane conflict, or participant stop request", "loss of upright coordination or persistent timing/quality decline", "inability to decelerate safely"], "contraindications": ["symptom, unsafe lane, insufficient run-out, weather, communication, or exposure conflict", "assisted, resisted, reactive, takeoff, obstacle, assessment, or conditioning intent without a separately reviewed contract"], "commonSubstitutions": ["Use another reviewed task only after full revalidation.", "Do not automatically substitute a static-start acceleration, sprint-float-sprint, assisted sprint, wicket drill, or long-jump approach."]},
+      "score": {"technicalComplexity": 62, "absoluteLoadDemand": 18, "coordinationDemand": 68, "impact": 76, "supervisionDemand": 64, "confidence": 52, "reviewNotes": "Candidate task-only reassessment from focused max-velocity evidence; independent calibration remains required.", "legacyScores": {"physicalDifficulty": 18, "failureConsequence": 70, "workCapacityDemand": 42}, "difficultyProfile": {"technical": 6.2, "complexity": 6.2, "load": 1.8, "overall": 6.2, "attentionDemand": "high", "notes": "Exact progressive-build-in Flying Sprint contract only."}},
+      "testPacket": {"auditVersion": "canonical-card-audit-v1", "status": "quarantined", "humanReviewRequired": true, "checks": {"identity": "candidate_complete", "taxonomy": "candidate_complete", "difficulty": "candidate_complete", "media": "human_review_required", "relationships": "human_review_required", "calibration": "human_review_required", "publication": "human_review_required"}, "blockingIssues": [{"code": "CARD-MEDIA-01", "severity": "P0", "message": "Exact-match media requires human review."}, {"code": "CARD-GRAPH-03", "severity": "P1", "message": "Relationships require human review."}, {"code": "CARD-CALIBRATION-01", "severity": "P1", "message": "Independent score calibration is required."}, {"code": "CARD-PUBLISH-01", "severity": "P0", "message": "Publication requires current two-person approval."}]}
+    }
+  ]
+}

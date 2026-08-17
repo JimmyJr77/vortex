@@ -19,7 +19,7 @@ export const PROGRAMMING_CATEGORIES = [
   'density_blocks',
   'tempo_conditioning',
   'repeat_sprint_shuttle',
-  'aerobic_base',
+  'aerobic_conditioning',
   'mixed_modal',
   'partner_team_relay',
   'game_based',
@@ -291,7 +291,7 @@ export async function saveProgrammingMethod(client, id, body) {
   }))
 
   await replaceChildRows(client, 'programming_method_prescription_profile', id, body.prescriptions, [
-    'profile_name', 'age_min', 'age_max', 'skill_level', 'default_total_minutes', 'default_rounds',
+    'profile_name', 'age_min', 'age_max', 'training_experience', 'default_total_minutes', 'default_rounds',
     'default_work_seconds', 'default_rest_seconds', 'default_rest_between_rounds_seconds',
     'default_station_seconds', 'default_cap_minutes', 'default_rpe_min', 'default_rpe_max',
     'default_heart_rate_zone', 'notes',
@@ -299,7 +299,7 @@ export async function saveProgrammingMethod(client, id, body) {
     profile_name: p.profile_name ?? p.profileName,
     age_min: p.age_min ?? p.ageMin ?? null,
     age_max: p.age_max ?? p.ageMax ?? null,
-    skill_level: p.skill_level ?? p.skillLevel ?? null,
+    training_experience: p.training_experience ?? p.trainingExperience ?? null,
     default_total_minutes: p.default_total_minutes ?? p.defaultTotalMinutes ?? null,
     default_rounds: p.default_rounds ?? p.defaultRounds ?? null,
     default_work_seconds: p.default_work_seconds ?? p.defaultWorkSeconds ?? null,

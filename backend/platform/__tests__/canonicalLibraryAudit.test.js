@@ -107,6 +107,83 @@ test('library audit rejects ambiguous facility scope', async () => {
   )
 })
 
+test('library audit quarantines an invalid canonical-contract row and continues reporting', async () => {
+  const definitionId = '10000000-0000-4000-8000-000000000010'
+  const pool = {
+    async query(sql) {
+      if (sql.includes('SELECT * FROM coaching.exercise_definition_v1')) {
+        return { rows: [{
+          id: definitionId,
+          facility_id: 7,
+          legacy_exercise_id: 110,
+          slug: 'malformed-contract',
+          canonical_name: 'Malformed Contract',
+          display_name: 'Malformed Contract',
+          aliases: [],
+          family_key: 'test',
+          schema_version: '1.0.0',
+          card_version: 1,
+          status: 'review',
+          movement_patterns: [],
+          body_regions: [],
+          required_equipment: [],
+          optional_equipment: [],
+          environment_json: {},
+          population_json: {},
+          anatomy_json: {},
+          provenance_json: { source_id: 110 },
+          approved_video_url: null,
+        }] }
+      }
+      if (sql.includes('FROM coaching.exercise_variant_v1 v')) {
+        return { rows: [{
+          id: '10000000-0000-4000-8000-000000000011',
+          definition_id: definitionId,
+          variant_key: 'invalid-score',
+          display_name: 'Invalid score',
+          modifier_keys: [],
+          difficulty_json: { technicalComplexity: 0 },
+          requirements_json: {},
+          programming_profile_json: {},
+          load_profile_json: {},
+          fatigue_profile_json: {},
+          movement_geometry_json: {},
+          anatomy_profile_json: {},
+          equipment_roles_json: [],
+          task_demands_json: {},
+          stress_profile_json: {},
+          scaling_handles_json: [],
+          composition_profile_json: {},
+          structured_profile_review_status: 'suggested',
+          structured_profile_provenance_json: {},
+          structured_profile_reviewed_by: null,
+          structured_profile_reviewed_at: null,
+          status: 'review',
+        }] }
+      }
+      if (sql.includes('FROM coaching.exercise_delivery_profile_v1 p')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_media_review_v1 mr')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_relationship_v1 r')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_score_calibration_v1 c')) return { rows: [] }
+      if (sql.includes(`SELECT 'movementPatterns' AS kind`)) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_identity_resolution_v1')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise WHERE facility_id=$1')) {
+        return { rows: [{ count: 1, mapped_count: 1 }] }
+      }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+
+  const report = await auditCanonicalExerciseLibrary(pool, { facilityId: 7, persist: false })
+  assert.equal(report.totals.quarantined, 1)
+  assert.equal(report.issueCounts['CARD-CANONICAL-CONTRACT-01'], 1)
+  const contractCheck = report.packets[0].checks_json.find((check) => (
+    check.id === 'CARD-CANONICAL-CONTRACT-01'
+  ))
+  assert.equal(contractCheck.status, 'failed')
+  assert.match(contractCheck.evidence.error, /technicalComplexity/)
+})
+
 test('library audit accepts explicit primary-source provenance for a canonical-authored card without a legacy row', async () => {
   const definitionId = '10000000-0000-4000-8000-000000000009'
   const pool = {

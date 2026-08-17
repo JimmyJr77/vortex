@@ -4,7 +4,7 @@ import { coachFetch, type CoachLibraryPage } from '../../coach/api'
 import { exerciseToClientView } from '../../coach/clientExerciseCard'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
-import type { TaxonomyItem } from '../../coach/taxonomy'
+import type { TaxonomyItem, TaxonomyV2Term } from '../../coach/taxonomy'
 import {
   capacitySubroleSequence,
   orderSlotsForSubrole,
@@ -31,8 +31,14 @@ const PAGE_SIZE = 48
 interface FilterState {
   q: string
   tenet: number | ''
-  methodology: number | ''
+  methodologyV2: string
   physiology: number | ''
+  equipment: number | ''
+  trainingFamily: string
+  athleticNiche: string
+  movementCharacter: string
+  forceVelocity: string
+  conditioningProtocol: string
   phase: number | ''
   subrole: string
   orderSlot: string
@@ -61,14 +67,20 @@ const DIFFICULTY_PRESETS = [
   { key: 'very_hard', label: 'Very hard (8+)', minOverall: 8 as const, maxOverall: '' as const },
 ] as const
 
-const emptyFilters: FilterState = { q: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, incorporatesSkills: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', sort: '' }
+const emptyFilters: FilterState = { q: '', tenet: '', methodologyV2: '', physiology: '', equipment: '', trainingFamily: '', athleticNiche: '', movementCharacter: '', forceVelocity: '', conditioningProtocol: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, incorporatesSkills: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', sort: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
   if (filters.q) params.set('q', filters.q)
   if (filters.tenet) params.set('tenet', String(filters.tenet))
-  if (filters.methodology) params.set('method', String(filters.methodology))
+  if (filters.methodologyV2) params.set('methodology_v2', filters.methodologyV2)
   if (filters.physiology) params.set('physio', String(filters.physiology))
+  if (filters.equipment) params.set('equipment', String(filters.equipment))
+  if (filters.trainingFamily) params.set('training_family', filters.trainingFamily)
+  if (filters.athleticNiche) params.set('athletic_niche', filters.athleticNiche)
+  if (filters.movementCharacter) params.set('movement_character', filters.movementCharacter)
+  if (filters.forceVelocity) params.set('force_velocity', filters.forceVelocity)
+  if (filters.conditioningProtocol) params.set('conditioning_protocol', filters.conditioningProtocol)
   if (filters.phase) params.set('phase', String(filters.phase))
   if (filters.subrole) params.set('subrole', filters.subrole)
   if (filters.orderSlot) params.set('order_slot', filters.orderSlot)
@@ -307,8 +319,14 @@ export default function ExerciseLibrary() {
           </div>
         </div>
         <FacetSelect label="Tenet" items={taxonomy?.tenets as TaxonomyItem[] | undefined} value={filters.tenet} onChange={(v) => setFilters((f) => ({ ...f, tenet: v }))} />
-        <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
+        <TaxonomyV2Select label="Methodology" items={taxonomy?.taxonomyV2?.facets.methodology} value={filters.methodologyV2} onChange={(methodologyV2) => setFilters((f) => ({ ...f, methodologyV2 }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
+        <FacetSelect label="Equipment" items={taxonomy?.equipment} value={filters.equipment} onChange={(equipment) => setFilters((f) => ({ ...f, equipment }))} />
+        <TaxonomyV2Select label="Training family" items={taxonomy?.taxonomyV2?.facets.training_family} value={filters.trainingFamily} onChange={(trainingFamily) => setFilters((f) => ({ ...f, trainingFamily }))} />
+        <TaxonomyV2Select label="Athletic niche" items={taxonomy?.taxonomyV2?.facets.athletic_niche} value={filters.athleticNiche} onChange={(athleticNiche) => setFilters((f) => ({ ...f, athleticNiche }))} />
+        <TaxonomyV2Select label="Movement character" items={taxonomy?.taxonomyV2?.facets.movement_character} value={filters.movementCharacter} onChange={(movementCharacter) => setFilters((f) => ({ ...f, movementCharacter }))} />
+        <TaxonomyV2Select label="Force–velocity" items={taxonomy?.taxonomyV2?.facets.force_velocity} value={filters.forceVelocity} onChange={(forceVelocity) => setFilters((f) => ({ ...f, forceVelocity }))} />
+        <TaxonomyV2Select label="Conditioning protocol" items={taxonomy?.taxonomyV2?.facets.conditioning_protocol} value={filters.conditioningProtocol} onChange={(conditioningProtocol) => setFilters((f) => ({ ...f, conditioningProtocol }))} />
         <FacetSelect label="Session Phase" items={taxonomy?.sessionPhases as TaxonomyItem[] | undefined} value={filters.phase} onChange={(v) => setFilters((f) => ({ ...f, phase: v, subrole: '', orderSlot: '' }))} />
         {selectedPhaseKey && subroleOptions.length > 0 && (
           <div>
@@ -640,6 +658,33 @@ function FacetSelect({
             {item.name}
           </option>
         ))}
+      </select>
+    </div>
+  )
+}
+
+function TaxonomyV2Select({
+  label,
+  items,
+  value,
+  onChange,
+}: {
+  label: string
+  items?: TaxonomyV2Term[]
+  value: string
+  onChange: (value: string) => void
+}) {
+  const domains = [...new Set((items ?? []).map((item) => item.domain).filter(Boolean))]
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">All</option>
+        {domains.length > 0 ? domains.map((domain) => (
+          <optgroup key={domain} label={String(domain).replaceAll('_', ' ')}>
+            {(items ?? []).filter((item) => item.domain === domain).map((item) => <option key={item.id} value={item.key}>{item.name}</option>)}
+          </optgroup>
+        )) : (items ?? []).map((item) => <option key={item.id} value={item.key}>{item.name}</option>)}
       </select>
     </div>
   )

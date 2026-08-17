@@ -6,26 +6,35 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '471_coaching_worlds_greatest_stretch_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.78';
-  canonical_id CONSTANT UUID := 'af147afc-63e9-4944-a5b5-d3b5d2fa6120';
-  duplicate_id CONSTANT UUID := '79163605-3c21-4d37-ab50-07bdd288d99a';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[canonical_id,duplicate_id];
+  canonical_id UUID;
+  duplicate_id UUID;
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[10,883];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'a95b10d1-0da7-4395-bddc-353c317c4939'::UUID,
-    'c5dc4aaa-9f26-4bd9-a879-22d0c96e330b'::UUID];
-  knee_down_variant CONSTANT UUID := 'e96c7db2-05dd-43fd-b3aa-0c40fc2b6736';
-  knee_up_variant CONSTANT UUID := 'c6bacbb4-698d-41e9-8986-eb33d2b8f520';
-  active_variant_ids CONSTANT UUID[] := ARRAY[knee_down_variant,knee_up_variant];
-  spiderman_definition CONSTANT UUID := '4484c7a4-4f6d-4dd4-9dd2-caf7622e8a22';
-  spiderman_variant CONSTANT UUID := '27f0bc89-fa06-438f-ac73-56137c07bd2a';
-  inchworm_definition CONSTANT UUID := '61ecee7c-48e5-4a5f-8325-e3991be4f202';
-  inchworm_variant CONSTANT UUID := '72ef0437-def5-4672-a463-c57182e4a3e1';
-  plank_definition CONSTANT UUID := 'b2018692-7c1d-49d4-a49b-d984ca3b63ed';
-  plank_variant CONSTANT UUID := 'fad0d11a-d3c3-4824-b347-b2c4d28a1352';
+  source_variant_ids UUID[];
+  knee_down_variant UUID := gen_random_uuid();
+  knee_up_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  spiderman_definition UUID;
+  spiderman_variant UUID;
+  inchworm_definition UUID;
+  inchworm_variant UUID;
+  plank_definition UUID;
+  plank_variant UUID;
   current_video_ids CONSTANT TEXT[] := ARRAY[
     '-CiWQ2IvY34','FIZMUyAPPWY','CXnge363CH8','VQqabRnOR1E'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=10;
+  SELECT id INTO duplicate_id FROM coaching.exercise_definition_v1 WHERE slug='worlds-greatest-stretch-with-rotation';
+  affected_definition_ids := ARRAY[canonical_id,duplicate_id];
+  source_variant_ids := ARRAY[(SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),(SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-883-baseline')];
+  active_variant_ids := ARRAY[knee_down_variant,knee_up_variant];
+  SELECT id INTO spiderman_definition FROM coaching.exercise_definition_v1 WHERE slug='spiderman-lunge-hamstring-sweep';
+  SELECT id INTO inchworm_definition FROM coaching.exercise_definition_v1 WHERE slug='inchworm-walkout';
+  SELECT id INTO plank_definition FROM coaching.exercise_definition_v1 WHERE slug='front-plank';
+  SELECT id INTO spiderman_variant FROM coaching.exercise_variant_v1 WHERE definition_id=spiderman_definition AND variant_key='baseline';
+  SELECT id INTO inchworm_variant FROM coaching.exercise_variant_v1 WHERE definition_id=inchworm_definition AND variant_key='baseline';
+  SELECT id INTO plank_variant FROM coaching.exercise_variant_v1 WHERE definition_id=plank_definition AND variant_key='stable-floor-forearm-toes-standard';
   IF NOT EXISTS(
       SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND slug='worlds-greatest-stretch'

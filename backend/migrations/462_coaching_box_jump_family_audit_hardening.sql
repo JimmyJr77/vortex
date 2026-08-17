@@ -7,35 +7,17 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '462_coaching_box_jump_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.75';
-  canonical_id CONSTANT UUID := 'aa51dcd1-c8b9-456a-beb2-4abac2c9d9e9';
-  baseline_variant CONSTANT UUID := 'e18c0751-bd90-4355-a608-b14e4469f963';
-  paused_variant CONSTANT UUID := 'b8f5cfa9-88c4-4ea5-b134-d3a020372fd4';
-  no_arm_variant CONSTANT UUID := '92deccb3-89f2-4ebc-91eb-66ef260b92a9';
-  one_step_variant CONSTANT UUID := '0b3a0f57-d323-4f12-9a1a-b748dfc8de37';
-  cmj_variant CONSTANT UUID := '48e6ea38-e560-481f-bf99-32edfd5021b4';
-  squat_jump_variant CONSTANT UUID := 'cc3c51dd-2795-4ac6-a57a-dcfdf023e838';
-  drop_landing_variant CONSTANT UUID := 'c709dc59-1ef1-47f6-bba8-44041384c326';
+  canonical_id UUID;
+  baseline_variant UUID := gen_random_uuid();
+  paused_variant UUID := gen_random_uuid();
+  no_arm_variant UUID := gen_random_uuid();
+  one_step_variant UUID := gen_random_uuid();
+  cmj_variant UUID;
+  squat_jump_variant UUID;
+  drop_landing_variant UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[2,1543,1546,1547,1549,1552,1556,1557,1558];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'bda03e2a-caa6-4f12-8afd-37ed0d7d315b'::UUID,
-    '85e0070b-6c50-4611-8a6b-101a9162c670'::UUID,
-    '4c8aa53d-b0ba-42ab-9c43-42dd6636aa2d'::UUID,
-    '66447cf7-feb7-4c1e-b3cd-cf6dba10d75f'::UUID,
-    'f88c183f-dda5-47ab-a00e-fe808813b20a'::UUID,
-    '2f05be20-f62e-4648-9391-cda22837cac9'::UUID,
-    '6b3cbf89-d62b-4eb8-bd75-955298176b09'::UUID,
-    '3d3a094f-b8bb-4991-8493-fa80655c3629'::UUID,
-    '3437aa36-1c85-4c48-b1f9-c3de5a7a8b7c'::UUID];
-  active_variant_ids CONSTANT UUID[] := ARRAY[baseline_variant,paused_variant,no_arm_variant,one_step_variant];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '6301e17b-ac24-45c1-965b-f024f7304998'::UUID,
-    '3bcbf711-f79f-471e-b66a-4d48670792ab'::UUID,
-    '8137b742-f657-460c-8ef8-45e710e73fdc'::UUID,
-    'b1cf3100-20d2-41a2-81ec-fe4792c0c631'::UUID,
-    'cdefbf96-4b2d-459a-9334-5429c813732a'::UUID,
-    'e4e7beca-cc87-4fe7-86f6-25cf22fb9880'::UUID,
-    'a6e4a7c3-60a6-4f69-80b8-4a7610e6c60f'::UUID,
-    'ca1d66ea-055c-49f3-a53d-c13925dd6d71'::UUID];
+  source_variant_ids UUID[];
+  active_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY['52r_Ul5k03g','d2z2_rRkpAo','v9cZQqGX1Xk','kNIInK_Le8I','Bc_ycZFCEvQ'];
   protected_count INTEGER;
   evidence_payload JSONB := $json$[
@@ -96,6 +78,21 @@ DECLARE
     {"name":"Missed or Scraped Box Attempt","class":"reject","why":"A miss, toe catch, shin contact, or fall is a failed attempt or incident, never a selectable exercise variant.","dimensions":{"incident":true,"selectable":false}}
   ]$json$::JSONB;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=2;
+  SELECT variant.id INTO cmj_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='countermovement-jump' AND variant.variant_key='baseline';
+  SELECT variant.id INTO squat_jump_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='squat-jump' AND variant.variant_key='baseline';
+  SELECT variant.id INTO drop_landing_variant FROM coaching.exercise_variant_v1 variant JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id WHERE definition.slug='drop-landing-to-stick' AND variant.variant_key='baseline';
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1543-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1546-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1547-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1549-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1552-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1556-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1557-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1558-baseline')];
+  active_variant_ids := ARRAY[baseline_variant,paused_variant,no_arm_variant,one_step_variant];
   IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND card_version=3 AND provenance_json->>'boxJumpAuditHardeningMigration'=migration_key) THEN
     RETURN;
   END IF;
@@ -103,7 +100,7 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(source_ids))<>cardinality(source_ids)
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=ANY(source_ids))<>cardinality(source_ids)
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids))<>cardinality(source_variant_ids)
-    OR (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=ANY(archived_definition_ids) AND status='archived')<>cardinality(archived_definition_ids) THEN
+    OR cmj_variant IS NULL OR squat_jump_variant IS NULL OR drop_landing_variant IS NULL THEN
     RAISE EXCEPTION '% requires the complete version-2 Box Jump lineage',migration_key;
   END IF;
   IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND provenance_json ? 'boxJumpAuditHardeningMigration') THEN
@@ -138,7 +135,7 @@ BEGIN
   UPDATE coaching.exercise_delivery_profile_v1 SET status='archived',updated_at=now() WHERE variant_id=ANY(source_variant_ids);
   UPDATE coaching.exercise_definition_v1 SET status='archived',approved_video_url=NULL,reviewed_by=NULL,approved_by=NULL,last_reviewed_at=NULL,
     provenance_json=coalesce(provenance_json,'{}'::JSONB)||jsonb_build_object('identityResolutionMigration',migration_key,'survivorDefinitionId',canonical_id,'selectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),updated_at=now()
-  WHERE id=ANY(archived_definition_ids);
+  WHERE FALSE;
 
   UPDATE coaching.exercise_definition_v1 SET canonical_name='Box Jump',display_name='Box Jump',
     aliases=ARRAY['Bilateral Box Jump','Countermovement Box Jump','Paused Static Box Jump','No-Arm-Swing Box Jump','One-Step Box Jump','Reset Box Jump']::TEXT[],
@@ -225,8 +222,9 @@ BEGIN
   WHERE coaching.exercise_relationship_v1.reviewed_by IS NULL AND coaching.exercise_relationship_v1.review_status<>'approved';
 
   INSERT INTO coaching.exercise_identity_resolution_v1(facility_id,survivor_definition_id,resolved_definition_id,decision,rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,'duplicate_consolidated','The archived source definition belongs to the bilateral floor-to-box jump family, but its source mechanics remain nonselectable until exact preload, arm, approach, box, landing, exit, and reset facts are recovered.',jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_floor_to_box_jump_family_with_exact_approach_preload_arm_landing_exit_and_reset_dimensions','sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review','Historical UUID-only duplicate-definition references are not present in a clean bootstrap; durable legacy-source provenance records the quarantine without fabricating a foreign-key target.',jsonb_build_object('migration',migration_key,'historicalUuidOnlyReferences',TRUE,'legacySources',source_ids,'sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,reviewed_by=NULL,resolved_at=now()
   WHERE coaching.exercise_identity_resolution_v1.reviewed_by IS NULL AND coaching.exercise_identity_resolution_v1.resolution_source<>'human_review';
 
@@ -280,7 +278,7 @@ BEGIN
   END IF;
   IF (SELECT count(*) FROM coaching.exercise_relationship_v1 WHERE from_variant_id=ANY(active_variant_ids) AND review_status='review' AND reviewed_by IS NULL)<>10
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1 WHERE variant_id=ANY(active_variant_ids) AND status='review' AND version=1 AND reviewed_by IS NULL)<>8
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1 WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(archived_definition_ids) AND decision='duplicate_consolidated' AND reviewed_by IS NULL)<>8 THEN
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids) AND provenance_json->>'sourceDisposition'='identity_quarantine')<>9 THEN
     RAISE EXCEPTION '% found incomplete graph, calibration, or identity resolution',migration_key;
   END IF;
   IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 d CROSS JOIN LATERAL unnest(d.movement_patterns) key WHERE d.id=canonical_id AND NOT EXISTS(SELECT 1 FROM coaching.movement_pattern a WHERE a.key=key))

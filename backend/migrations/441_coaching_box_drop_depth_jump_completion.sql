@@ -12,15 +12,15 @@ DECLARE
   migration_key CONSTANT TEXT :=
     '441_coaching_box_drop_depth_jump_completion';
   research_version CONSTANT TEXT := '2026-08-02.15';
-  box_id CONSTANT UUID := 'aa51dcd1-c8b9-456a-beb2-4abac2c9d9e9';
-  drop_id CONSTANT UUID := '33d62763-a7e1-4f99-b4ab-d345f72dc1d0';
-  depth_id CONSTANT UUID := 'fe5e8eb1-e783-4a37-a1b8-14d970ac1679';
-  box_variant_id CONSTANT UUID := 'bda03e2a-caa6-4f12-8afd-37ed0d7d315b';
-  drop_variant_id CONSTANT UUID := '383a8f53-3525-46e6-a07b-1562e2954f33';
-  depth_variant_id CONSTANT UUID := '39577893-f144-4747-81dd-d5cd2896aa67';
-  cmj_variant_id CONSTANT UUID := '48e6ea38-e560-481f-bf99-32edfd5021b4';
-  landing_variant_id CONSTANT UUID := 'c709dc59-1ef1-47f6-bba8-44041384c326';
-  definition_ids CONSTANT UUID[] := ARRAY[box_id,drop_id,depth_id];
+  box_id UUID;
+  drop_id UUID;
+  depth_id UUID;
+  box_variant_id UUID;
+  drop_variant_id UUID;
+  depth_variant_id UUID;
+  cmj_variant_id UUID;
+  landing_variant_id UUID;
+  definition_ids UUID[];
   protected_count INTEGER;
   evidence_payload JSONB := $json$
   [
@@ -98,6 +98,38 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT definition.id,variant.id INTO box_id,box_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='box-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO drop_id,drop_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='drop-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO depth_id,depth_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='depth-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT variant.id INTO cmj_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='countermovement-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT variant.id INTO landing_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='drop-landing-to-stick'
+    AND variant.variant_key='baseline';
+
+  definition_ids:=ARRAY[box_id,drop_id,depth_id];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(definition_ids)
         AND provenance_json->>'boxDropDepthCompletionMigration'=migration_key)=3 THEN

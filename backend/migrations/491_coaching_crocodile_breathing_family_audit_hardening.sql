@@ -10,26 +10,65 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '491_coaching_crocodile_breathing_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.90';
-  canonical_definition CONSTANT UUID := '2e308a8e-6a1d-48d4-b095-fe3dd18803d8';
-  source_variant CONSTANT UUID := '42909b84-690a-45b5-908a-c085196d1141';
-  flat_variant CONSTANT UUID := 'a041a9a6-a61a-4d14-9969-5eba23fe94fb';
-  bolster_variant CONSTANT UUID := 'd729bed4-7a61-401e-9e0d-cc0da73cd35e';
-  band_variant CONSTANT UUID := '08396682-5289-4b8c-a9f1-715a56681198';
-  active_variant_ids CONSTANT UUID[] := ARRAY[flat_variant,bolster_variant,band_variant];
-  reach_definition CONSTANT UUID := '0ac22398-2eed-482a-aae8-8d26ba888eaf';
-  reach_variant CONSTANT UUID := '4193b7da-09de-4558-b7a1-1ac9440d19eb';
-  lateral_definition CONSTANT UUID := 'b366c4d4-d75e-4902-915c-4b363e6b6238';
-  lateral_variant CONSTANT UUID := 'b5719ed0-5d31-4030-9c11-7ea81aabe254';
-  balloon_definition CONSTANT UUID := '96d4d5fe-1ad1-4930-9c74-2054764d0c6c';
-  hooklying_definition CONSTANT UUID := 'd2214132-df42-4512-bcc3-7c0745321b0b';
-  hooklying_variant CONSTANT UUID := '0d0f1b70-d2e9-4048-bd09-b9dc9ff64a7e';
-  box_definition CONSTANT UUID := '4d4aba1c-c4b5-4915-a85d-fd943acd1e91';
-  med_ball_definition CONSTANT UUID := 'ae51bba4-1fd3-4492-b515-b3cf26327089';
-  swimmer_definition CONSTANT UUID := '21a45ff8-214c-4a35-b091-2b7e0976679d';
-  ytw_iso_definition CONSTANT UUID := 'eaf61dd0-0cca-4aa4-be83-a0b809c0ce1f';
-  ytw_raise_definition CONSTANT UUID := '82d9b921-002b-460a-80d4-74380abc82d5';
+  canonical_definition UUID;
+  source_variant UUID;
+  flat_variant UUID;
+  bolster_variant UUID;
+  band_variant UUID;
+  active_variant_ids UUID[];
+  reach_definition UUID;
+  reach_variant UUID;
+  lateral_definition UUID;
+  lateral_variant UUID;
+  balloon_definition UUID;
+  hooklying_definition UUID;
+  hooklying_variant UUID;
+  box_definition UUID;
+  med_ball_definition UUID;
+  swimmer_definition UUID;
+  ytw_iso_definition UUID;
+  ytw_raise_definition UUID;
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=22;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO flat_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='flat-prone-stacked-hands';
+  flat_variant := coalesce(flat_variant,gen_random_uuid());
+  SELECT id INTO bolster_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='lower-leg-bolster-support';
+  bolster_variant := coalesce(bolster_variant,gen_random_uuid());
+  SELECT id INTO band_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='light-elastic-band-lateral-feedback';
+  band_variant := coalesce(band_variant,gen_random_uuid());
+  SELECT definition_id INTO reach_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=21;
+  SELECT id INTO reach_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=reach_definition AND variant_key='wall-supported-bilateral-reach';
+  SELECT id INTO lateral_definition FROM coaching.exercise_definition_v1
+  WHERE slug='9090-wall-supported-breathing-with-lateral-expansion';
+  SELECT id INTO lateral_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lateral_definition AND variant_key='wall-supported-hands-on-lateral-ribs';
+  SELECT id INTO balloon_definition FROM coaching.exercise_definition_v1
+  WHERE slug='9090-hip-lift-with-ball-and-balloon';
+  SELECT id INTO hooklying_definition FROM coaching.exercise_definition_v1
+  WHERE slug='supine-hook-lying-brace-with-exhale';
+  SELECT id INTO hooklying_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=hooklying_definition AND variant_key='baseline';
+  SELECT id INTO box_definition FROM coaching.exercise_definition_v1
+  WHERE slug='box-breathing-hold-restore';
+  SELECT id INTO med_ball_definition FROM coaching.exercise_definition_v1
+  WHERE slug='med-ball-belly-breathing-restore';
+  SELECT id INTO swimmer_definition FROM coaching.exercise_definition_v1
+  WHERE slug='prone-swimmer-hover';
+  SELECT id INTO ytw_iso_definition FROM coaching.exercise_definition_v1
+  WHERE slug='prone-y-t-w-isometric-series';
+  SELECT id INTO ytw_raise_definition FROM coaching.exercise_definition_v1
+  WHERE slug='prone-y-t-w-raise';
+  active_variant_ids := ARRAY[flat_variant,bolster_variant,band_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND legacy_exercise_id=22
         AND slug='crocodile-breathing' AND status<>'archived')

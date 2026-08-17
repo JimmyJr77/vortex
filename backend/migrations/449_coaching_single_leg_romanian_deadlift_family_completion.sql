@@ -7,41 +7,31 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '449_coaching_single_leg_romanian_deadlift_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.63';
-  canonical_id CONSTANT UUID := 'fc7be015-7005-42fe-acda-26fda330000d';
-  bodyweight_variant CONSTANT UUID := 'ebc1e5c9-75d1-4de7-93ac-1e349595656d';
-  reach_variant CONSTANT UUID := '89200f2e-72d6-4f06-abab-bff0253b5d69';
-  supported_variant CONSTANT UUID := 'b626fd34-e68b-4864-880a-aa5e78a8c36d';
-  db_contralateral_variant CONSTANT UUID := 'cbf565a0-44d8-4b32-bbde-8c39954682a6';
-  db_ipsilateral_variant CONSTANT UUID := 'e751e9b3-00e3-45fe-89b8-1484c20a6fd9';
-  db_bilateral_variant CONSTANT UUID := '25866c7d-b410-4a0d-91b7-4f4a36a44b4d';
-  kb_contralateral_variant CONSTANT UUID := '927b5cf5-6ae1-423d-b189-6aaf5a34548a';
-  kb_ipsilateral_variant CONSTANT UUID := '89ffa37d-ca63-4fbc-b285-936847786fcb';
-  barbell_variant CONSTANT UUID := 'd1f22bb2-7bfa-43c9-adc1-3881d4d54146';
-  eccentric_variant CONSTANT UUID := 'da50c614-e1a6-47da-b46c-e06ae776ef0d';
-  duplicate_reach_variant CONSTANT UUID := '75e03a71-2bf6-4867-9830-b6d0ac80a572';
-  duplicate_context_variant CONSTANT UUID := 'cef7a1c2-7f91-4125-98dc-8def8e7a44ca';
-  variant_ids CONSTANT UUID[] := ARRAY[
-    bodyweight_variant,reach_variant,supported_variant,
-    db_contralateral_variant,db_ipsilateral_variant,db_bilateral_variant,
-    kb_contralateral_variant,kb_ipsilateral_variant,barbell_variant,
-    eccentric_variant];
-  duplicate_variant_ids CONSTANT UUID[] := ARRAY[
-    duplicate_reach_variant,duplicate_context_variant];
+  canonical_id UUID;
+  bodyweight_variant UUID;
+  reach_variant UUID;
+  supported_variant UUID;
+  db_contralateral_variant UUID;
+  db_ipsilateral_variant UUID;
+  db_bilateral_variant UUID;
+  kb_contralateral_variant UUID;
+  kb_ipsilateral_variant UUID;
+  barbell_variant UUID;
+  eccentric_variant UUID;
+  duplicate_reach_variant UUID;
+  duplicate_context_variant UUID;
+  variant_ids UUID[];
+  duplicate_variant_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[
     8,179,230,386,425,483,523,759,1059,1148,1329,1387];
-  archive_definition_ids CONSTANT UUID[] := ARRAY[
-    'efa7d096-ac01-44e2-af1b-70a0a7fe9bb2'::UUID,
-    '786df7b7-ee11-4c21-94de-557c3fada23d'::UUID,
-    '4fcbe4aa-de11-4c9f-b4d8-c25c42a2b644'::UUID,
-    '40822078-88e7-4faa-98aa-4fa148f51aa2'::UUID,
-    'bdb9f3dd-7757-4707-b9a1-8f57f1f0469c'::UUID,
-    'bf8f4566-7372-4c06-9768-b7f0f9d774cd'::UUID,
-    '45a3e90a-7828-4601-a221-1622ce5bbffd'::UUID,
-    '8ae1707a-cbd7-497f-99dd-1271151bffb7'::UUID,
-    '90650afd-b0c5-4740-9b02-97e34d45a43f'::UUID,
-    '5180e9da-0fbc-40c3-abbe-ae49f73df544'::UUID,
-    '14efcb2a-9a29-4b06-b4fa-eb02f4f7d0f9'::UUID];
-  all_variant_ids CONSTANT UUID[] := variant_ids||duplicate_variant_ids;
+  archive_definition_ids UUID[];
+  all_variant_ids UUID[];
+  bilateral_rdl_id UUID;
+  rdl_airplane_id UUID;
+  reach_catch_id UUID;
+  single_leg_squat_id UUID;
+  cone_reach_id UUID;
+  kettlebell_swing_id UUID;
   evidence_payload JSONB := $json$
   [
     {"sectionKey":"identity","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/38093908/","sourceTitle":"Effects of loading positions on the activation of trunk and hip muscles during flywheel and dumbbell single-leg Romanian deadlift exercises","sourcePublisher":"Frontiers in Physiology","sourceKind":"peer_reviewed_research","evidenceQuality":88,"claims":["The studied task is a single-leg Romanian deadlift performed through a unilateral hip hinge with ipsilateral or contralateral external loading.","Bodyweight, support, hand target, implement, implement count, load side, range, tempo, rest, and dose preserve the base exercise identity when the single-leg hinge and square-pelvis return remain required."]},
@@ -81,6 +71,35 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT id INTO canonical_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-romanian-deadlift';
+  SELECT id INTO bodyweight_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO reach_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-230-baseline';
+  SELECT id INTO supported_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-8';
+  SELECT id INTO db_contralateral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-425-baseline';
+  SELECT id INTO db_ipsilateral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1148';
+  SELECT id INTO db_bilateral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1329';
+  SELECT id INTO kb_contralateral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-483-baseline';
+  SELECT id INTO kb_ipsilateral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1387';
+  SELECT id INTO barbell_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-386-baseline';
+  SELECT id INTO eccentric_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-759-baseline';
+  SELECT id INTO duplicate_reach_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-230-baseline-source-1059';
+  SELECT id INTO duplicate_context_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-523-baseline';
+
+  SELECT array_agg(id ORDER BY legacy_exercise_id) INTO archive_definition_ids
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=ANY(source_ids)
+    AND legacy_exercise_id<>179;
+  variant_ids:=ARRAY[bodyweight_variant,reach_variant,supported_variant,db_contralateral_variant,db_ipsilateral_variant,db_bilateral_variant,kb_contralateral_variant,kb_ipsilateral_variant,barbell_variant,eccentric_variant];
+  duplicate_variant_ids:=ARRAY[duplicate_reach_variant,duplicate_context_variant];
+  all_variant_ids:=variant_ids||duplicate_variant_ids;
+
+  SELECT id INTO bilateral_rdl_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='romanian-deadlift';
+  SELECT id INTO rdl_airplane_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-rdl-airplane';
+  SELECT id INTO reach_catch_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-rdl-reach-plus-catch';
+  SELECT id INTO single_leg_squat_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-squat-to-box';
+  SELECT id INTO cone_reach_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-cone-reach-stick';
+  SELECT id INTO kettlebell_swing_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='kettlebell-swing';
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id
         AND provenance_json->>'singleLegRdlCompletionMigration'=migration_key)=1 THEN
@@ -480,13 +499,12 @@ BEGIN
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
   VALUES
-    (1,'ff9573b2-903c-46ea-ab71-3211f2350240',canonical_id,'distinct_exercises','Romanian Deadlift uses bilateral support; Single-Leg Romanian Deadlift uses one stance leg and side-specific balance and dosage.',jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_support_hinge_vs_unilateral_support_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'21ee0ec4-cad3-403e-852f-d5d46687d1e2','distinct_exercises','A staggered-stance RDL retains two-foot support and different load distribution; the single-leg RDL unloads the trailing leg.',jsonb_build_object('migration',migration_key,'identityBoundary','unilateral_support_vs_staggered_two_foot_support','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'5f31cc17-f845-4086-a06d-782ea4ce4955','distinct_exercises','RDL Airplane deliberately opens and closes the pelvis; the Single-Leg Romanian Deadlift requires a square pelvis through the hinge.',jsonb_build_object('migration',migration_key,'identityBoundary','square_pelvis_hinge_vs_deliberate_pelvic_rotation','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'127d6bc9-6004-42a8-9738-0222ecda5f29','distinct_exercises','Reach plus Catch adds an externally timed object catch, perception, hand action, and perturbation.',jsonb_build_object('migration',migration_key,'identityBoundary','hinge_only_vs_hinge_plus_external_catch','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'f27a294a-799e-4620-8a8a-63dfab68e6c1','distinct_exercises','Single-Leg Squat to Box is knee-dominant and reaches the pelvis to a target; the Single-Leg RDL is hip-hinge dominant with a trailing-leg counterbalance.',jsonb_build_object('migration',migration_key,'identityBoundary','single_leg_hip_hinge_vs_single_leg_squat_to_box','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,'e92ea7e1-3f79-4a2e-885d-cfb9e6dc3bf2',canonical_id,'distinct_exercises','Single-Leg Cone Reach Stick uses a target sequence and may change free-foot or hand action; the Single-Leg RDL requires the stable hip-hinge repetition contract.',jsonb_build_object('migration',migration_key,'identityBoundary','multi_target_balance_task_vs_single_leg_hip_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,'f0f47f37-e892-4689-99a0-16cba58a3f40',canonical_id,'distinct_exercises','Kettlebell Swing is a ballistic bilateral hinge; Single-Leg Romanian Deadlift is a controlled unilateral hinge.',jsonb_build_object('migration',migration_key,'identityBoundary','ballistic_bilateral_hinge_vs_controlled_unilateral_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+    (1,bilateral_rdl_id,canonical_id,'distinct_exercises','Romanian Deadlift uses bilateral support; Single-Leg Romanian Deadlift uses one stance leg and side-specific balance and dosage.',jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_support_hinge_vs_unilateral_support_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,rdl_airplane_id,'distinct_exercises','RDL Airplane deliberately opens and closes the pelvis; the Single-Leg Romanian Deadlift requires a square pelvis through the hinge.',jsonb_build_object('migration',migration_key,'identityBoundary','square_pelvis_hinge_vs_deliberate_pelvic_rotation','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,reach_catch_id,'distinct_exercises','Reach plus Catch adds an externally timed object catch, perception, hand action, and perturbation.',jsonb_build_object('migration',migration_key,'identityBoundary','hinge_only_vs_hinge_plus_external_catch','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,single_leg_squat_id,'distinct_exercises','Single-Leg Squat to Box is knee-dominant and reaches the pelvis to a target; the Single-Leg RDL is hip-hinge dominant with a trailing-leg counterbalance.',jsonb_build_object('migration',migration_key,'identityBoundary','single_leg_hip_hinge_vs_single_leg_squat_to_box','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,cone_reach_id,canonical_id,'distinct_exercises','Single-Leg Cone Reach Stick uses a target sequence and may change free-foot or hand action; the Single-Leg RDL requires the stable hip-hinge repetition contract.',jsonb_build_object('migration',migration_key,'identityBoundary','multi_target_balance_task_vs_single_leg_hip_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,kettlebell_swing_id,canonical_id,'distinct_exercises','Kettlebell Swing is a ballistic bilateral hinge; Single-Leg Romanian Deadlift is a controlled unilateral hinge.',jsonb_build_object('migration',migration_key,'identityBoundary','ballistic_bilateral_hinge_vs_controlled_unilateral_hinge','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,

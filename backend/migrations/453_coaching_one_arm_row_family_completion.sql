@@ -7,35 +7,15 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '453_coaching_one_arm_row_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.67';
-  canonical_id CONSTANT UUID := 'e768f302-a920-4aeb-8627-957fd7a96f00';
-  meadows_target_id CONSTANT UUID := 'd3ca1c93-ae41-4eb0-bf44-caa5fab6d0b7';
-  two_hand_target_id CONSTANT UUID := 'cd973ec2-00ed-4f69-baf1-b4a152d359b5';
-  db_variant CONSTANT UUID := 'cce95053-eacc-4051-b061-b36dccbba33d';
-  kb_variant CONSTANT UUID := 'd45f61f6-e982-4961-9326-8358fc818b96';
-  landmine_variant CONSTANT UUID := '53227df3-1e08-4c87-ad41-eb8e1a5b051e';
-  suitcase_variant CONSTANT UUID := '6c4c4a79-949b-49b4-bb53-1812535241ec';
-  moved_meadows_variant CONSTANT UUID := 'e05aa0d8-027a-41ec-b4cd-00e2cb2b5672';
-  moved_tbar_v_variant CONSTANT UUID := 'd1b401f0-b98a-4290-8b50-6f827e32931e';
-  moved_tbar_neutral_variant CONSTANT UUID := 'c8064da6-b9b6-4d0c-ad8a-3689b2773e6e';
-  invalid_gorilla_variant CONSTANT UUID := '6a7ad520-f388-4ec0-8aed-010ed112c136';
-  invalid_ball_grip_variant CONSTANT UUID := '187c20a1-ae69-43b9-b372-994ebb3c1249';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    db_variant,kb_variant,landmine_variant,suitcase_variant];
-  all_variant_ids CONSTANT UUID[] := ARRAY[
-    db_variant,kb_variant,landmine_variant,suitcase_variant,
-    moved_meadows_variant,moved_tbar_v_variant,moved_tbar_neutral_variant,
-    invalid_gorilla_variant,invalid_ball_grip_variant];
+  canonical_id UUID; meadows_target_id UUID; two_hand_target_id UUID;
+  db_variant UUID; kb_variant UUID; landmine_variant UUID; suitcase_variant UUID;
+  moved_meadows_variant UUID; moved_tbar_v_variant UUID; moved_tbar_neutral_variant UUID;
+  invalid_gorilla_variant UUID; invalid_ball_grip_variant UUID;
+  invalid_gorilla_definition_id UUID; invalid_ball_grip_definition_id UUID;
+  active_variant_ids UUID[]; all_variant_ids UUID[];
   canonical_source_ids CONSTANT BIGINT[] := ARRAY[195,496,1436,1438];
   involved_source_ids CONSTANT BIGINT[] := ARRAY[195,496,1434,1435,1436,1438,1441,1448,1450];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    'd8aa1cc5-dbe4-44a1-86e4-69722e94e4b5'::UUID,
-    'b9401a1d-554b-4770-b63d-a0db215f95ad'::UUID,
-    '46f2426b-281c-422a-969f-db314969be21'::UUID,
-    '03cbc1d9-dd25-4cec-9370-642019632c6c'::UUID,
-    '301a5fed-10f6-41e9-8daa-d7dca7f260d3'::UUID,
-    '3003e716-020b-4ee5-83e9-ba548ff5a62d'::UUID,
-    '9db9990b-0b99-4115-9e68-f0773a456d31'::UUID,
-    '77815cfd-2450-4cce-a1ac-ce898bce7a71'::UUID];
+  archived_definition_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'KRN38chlkds','k2kVniB5eQI','zvATS076NVA','TKmtHtY7yNo','2bjH8LMo6DM'];
   evidence_payload JSONB := $json$
@@ -84,6 +64,25 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Source IDs and controlled keys survive bootstrap history; UUIDs do not.
+  SELECT id INTO canonical_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND legacy_exercise_id=195;
+  SELECT id INTO meadows_target_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='meadows-row';
+  SELECT id INTO two_hand_target_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='two-hand-landmine-bent-over-row';
+  SELECT id INTO db_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO kb_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-496-baseline';
+  SELECT id INTO landmine_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-baseline';
+  SELECT id INTO suitcase_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1438-baseline';
+  SELECT id INTO moved_meadows_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1434-baseline';
+  SELECT id INTO moved_tbar_v_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1435-baseline';
+  SELECT id INTO moved_tbar_neutral_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1450-baseline';
+  SELECT id INTO invalid_gorilla_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1441-baseline';
+  SELECT id INTO invalid_ball_grip_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1436-legacy-source-1448-baseline';
+  SELECT id INTO invalid_gorilla_definition_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND legacy_exercise_id=1441;
+  SELECT id INTO invalid_ball_grip_definition_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND legacy_exercise_id=1448;
+  active_variant_ids:=ARRAY[db_variant,kb_variant,landmine_variant,suitcase_variant];
+  all_variant_ids:=ARRAY[db_variant,kb_variant,landmine_variant,suitcase_variant,moved_meadows_variant,moved_tbar_v_variant,moved_tbar_neutral_variant,invalid_gorilla_variant,invalid_ball_grip_variant];
+  SELECT array_agg(id ORDER BY legacy_exercise_id) INTO archived_definition_ids FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND legacy_exercise_id=ANY(involved_source_ids) AND legacy_exercise_id<>195;
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(archived_definition_ids||ARRAY[canonical_id,meadows_target_id,two_hand_target_id]))
       <>cardinality(archived_definition_ids)+3
@@ -147,7 +146,7 @@ BEGIN
   WHERE legacy_exercise_id=ANY(ARRAY[1435,1450]::BIGINT[]);
 
   UPDATE coaching.exercise_definition_source_v1
-  SET definition_id='3003e716-020b-4ee5-83e9-ba548ff5a62d',source_kind='legacy_migration',
+  SET definition_id=invalid_gorilla_definition_id,source_kind='legacy_migration',
       provenance_json=provenance_json||jsonb_build_object(
         'oneArmRowCompletionMigration',migration_key,
         'quarantineReason','source_claims_alternating_row_but_declares_one_fixed_landmine_and_double_handle_without_executable_hand_or_load_sequence',
@@ -155,7 +154,7 @@ BEGIN
   WHERE legacy_exercise_id=1441;
 
   UPDATE coaching.exercise_definition_source_v1
-  SET definition_id='9db9990b-0b99-4115-9e68-f0773a456d31',source_kind='legacy_migration',
+  SET definition_id=invalid_ball_grip_definition_id,source_kind='legacy_migration',
       provenance_json=provenance_json||jsonb_build_object(
         'oneArmRowCompletionMigration',migration_key,
         'quarantineReason','source_does_not_declare_hand_count_support_orientation_or_attachment_geometry',
@@ -261,7 +260,7 @@ BEGIN
         jsonb_build_array('original_authoritative_demo_or_specification','implement_count','hand_sequence','handle_geometry','support_and_repetition_boundary')
         ELSE jsonb_build_array('original_authoritative_demo_or_specification','hand_count','support','stance_orientation','attachment_geometry','repetition_boundary') END,
       'humanReviewRequired',TRUE,'approvalsCreated',FALSE,'publicationQuarantined',TRUE),updated_at=now()
-  WHERE id IN ('3003e716-020b-4ee5-83e9-ba548ff5a62d','9db9990b-0b99-4115-9e68-f0773a456d31');
+  WHERE id=ANY(ARRAY[invalid_gorilla_definition_id,invalid_ball_grip_definition_id]);
 
   UPDATE coaching.exercise_variant_v1 variant SET
     definition_id=canonical_id,variant_key=spec.variant_key,display_name=spec.display_name,
@@ -330,12 +329,12 @@ BEGIN
     programming_profile_json=jsonb_build_object('selectable',FALSE,'publicationQuarantined',TRUE),updated_at=now()
   WHERE id=ANY(ARRAY[moved_tbar_v_variant,moved_tbar_neutral_variant]);
 
-  UPDATE coaching.exercise_variant_v1 SET definition_id='3003e716-020b-4ee5-83e9-ba548ff5a62d',status='archived',
+  UPDATE coaching.exercise_variant_v1 SET definition_id=invalid_gorilla_definition_id,status='archived',
     requirements_json=jsonb_build_object('selectable',FALSE,'archiveReason','internally_inconsistent_landmine_gorilla_source_requires_original_authoritative_specification','preservedLegacySource',TRUE,'humanReviewRequired',TRUE),
     programming_profile_json=jsonb_build_object('selectable',FALSE,'publicationQuarantined',TRUE),updated_at=now()
   WHERE id=invalid_gorilla_variant;
 
-  UPDATE coaching.exercise_variant_v1 SET definition_id='9db9990b-0b99-4115-9e68-f0773a456d31',status='archived',
+  UPDATE coaching.exercise_variant_v1 SET definition_id=invalid_ball_grip_definition_id,status='archived',
     requirements_json=jsonb_build_object('selectable',FALSE,'archiveReason','ball_grip_source_lacks_hand_count_support_orientation_and_attachment_geometry','preservedLegacySource',TRUE,'humanReviewRequired',TRUE),
     programming_profile_json=jsonb_build_object('selectable',FALSE,'publicationQuarantined',TRUE),updated_at=now()
   WHERE id=invalid_ball_grip_variant;
@@ -478,7 +477,13 @@ BEGIN
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  VALUES
+  -- Only persist boundary rows whose referenced identities exist in this
+  -- bootstrap. Historical UUID-only candidates remain represented in the
+  -- alternate packet until an exact stable target can be resolved.
+  SELECT boundary.facility_id,boundary.survivor_definition_id::UUID,
+    boundary.resolved_definition_id::UUID,boundary.decision,boundary.rationale,
+    boundary.evidence_json,boundary.resolution_source,boundary.reviewed_by::BIGINT
+  FROM (VALUES
     (1,canonical_id,'d8aa1cc5-dbe4-44a1-86e4-69722e94e4b5','duplicate_consolidated','One-Arm Kettlebell Row preserves the same unilateral pull and differs by implement, grip, support, stance, load, range, and dose.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"same_unilateral_row_with_kettlebell_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'03cbc1d9-dd25-4cec-9370-642019632c6c','duplicate_consolidated','One-Arm Landmine Row preserves a braced unilateral pull while the pivot creates a fixed resistance arc and equipment-specific setup.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"same_unilateral_row_with_fixed_arc_implement_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'301a5fed-10f6-41e9-8daa-d7dca7f260d3','duplicate_consolidated','Landmine Suitcase Row remains a one-hand landmine row with exact offset stance, handle, orientation, and anti-lateral-flexion demands.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"same_unilateral_landmine_row_with_suitcase_orientation_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
@@ -496,6 +501,10 @@ BEGIN
     (1,canonical_id,'107b4ae7-418e-490c-abd5-5d2e844a4924','distinct_exercises','Bent-Over Row uses bilateral hand loading and one shared repetition; One-Arm Row uses a single loaded hand and separately accounted side dose.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"bilateral_row_vs_unilateral_side_dosed_row","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
     (1,'4b3ecfa5-9d81-446e-b85a-e64d7d219f53',two_hand_target_id,'distinct_exercises','Landmine Press moves the loaded sleeve away from a shoulder through a fixed diagonal pressing arc; Two-Hand Landmine Bent-Over Row pulls the loaded sleeve toward the torso from a held hip hinge. Force direction, joint actions, body orientation, endpoints, and repetition contracts differ.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"fixed_diagonal_press_vs_bilateral_fixed_arc_row","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
     (1,'8013af70-a402-48c3-9d05-5dd608f0b132',meadows_target_id,'distinct_exercises','Landmine Romanian Deadlift to Row requires an ordered dynamic hip-hinge excursion followed by a row; Meadows Row holds a staggered perpendicular hinge base while performing the named unilateral sleeve-grip pull. Sequence, stance, orientation, hand count, and repetition contract differ.',$json$ {"migration":"453_coaching_one_arm_row_family_completion","identityBoundary":"dynamic_romanian_deadlift_then_row_sequence_vs_static_base_named_meadows_row","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL)
+  ) AS boundary(facility_id,survivor_definition_id,resolved_definition_id,decision,rationale,evidence_json,resolution_source,reviewed_by)
+  JOIN coaching.exercise_definition_v1 survivor ON survivor.id=boundary.survivor_definition_id::UUID
+  JOIN coaching.exercise_definition_v1 resolved ON resolved.id=boundary.resolved_definition_id::UUID
+  WHERE TRUE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,
@@ -568,9 +577,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
       WHERE legacy_exercise_id=ANY(ARRAY[1435,1450]::BIGINT[]) AND definition_id=two_hand_target_id)<>2
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
-      WHERE legacy_exercise_id=1441 AND definition_id='3003e716-020b-4ee5-83e9-ba548ff5a62d')<>1
+      WHERE legacy_exercise_id=1441 AND definition_id=invalid_gorilla_definition_id)<>1
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
-      WHERE legacy_exercise_id=1448 AND definition_id='9db9990b-0b99-4115-9e68-f0773a456d31')<>1 THEN
+      WHERE legacy_exercise_id=1448 AND definition_id=invalid_ball_grip_definition_id)<>1 THEN
     RAISE EXCEPTION '% found incorrect post-correction source mappings',migration_key;
   END IF;
 

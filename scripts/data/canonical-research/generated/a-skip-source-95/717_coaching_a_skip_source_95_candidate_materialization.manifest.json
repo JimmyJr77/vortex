@@ -1,0 +1,14 @@
+{
+  "migrationKey": "717_coaching_a_skip_source_95_candidate_materialization",
+  "researchVersion": "2026-07-25.9",
+  "generatedAt": "2026-07-26T04:35:00.000Z",
+  "cards": [
+    {
+      "slug": "a-skip",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 4
+    }
+  ]
+}

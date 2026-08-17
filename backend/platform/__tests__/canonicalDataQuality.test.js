@@ -15,9 +15,13 @@ test('data-quality report exposes coverage, zero-depth phases, graph, and coach 
       call += 1
       queries.push(sql)
       if (call === 1) return { rows: [{
-        total_definitions: 100, published_definitions: 80, video_complete: 90,
+        total_definitions: 100, published_definitions: 80, published_current_card_review_definitions: 78, published_verified_manual_media_definitions: 76, video_complete: 90,
         confidence_complete: 75, with_published_variant: 85,
         with_published_profile: 70, score_complete: 65,
+        total_variants: 120, structured_profile_complete_variants: 60,
+        structured_profile_approved_variants: 30,
+        published_variants: 80, published_structured_profile_complete_variants: 72,
+        published_structured_profile_approved_variants: 64,
         research_candidate_sections_complete: 45,
         research_sections_complete: 40,
         research_candidate_section_count: 960,
@@ -37,12 +41,21 @@ test('data-quality report exposes coverage, zero-depth phases, graph, and coach 
         media_reviews_due: 5, relationships_in_review: 6,
         calibrations_in_review: 7, approved_calibration_anchors: 12,
         exact_identity_collisions: 1,
+        structured_profiles_pending_review: 90,
+        structured_profile_pending_variant_ids: ['variant-1', 'variant-2'],
       }] }
     },
   }
   const report = await buildCanonicalDataQualityReport(pool, 7)
   assert.equal(report.coverage.publicationPercent, 80)
+  assert.equal(report.coverage.publishedCurrentCardReviewPercent, 97.5)
+  assert.equal(report.coverage.publishedVerifiedManualMediaPercent, 95)
   assert.equal(report.coverage.scoreCompletePercent, 65)
+  assert.equal(report.coverage.structuredProfileCompletePercent, 50)
+  assert.equal(report.coverage.structuredProfileApprovedPercent, 25)
+  assert.equal(report.coverage.publishedVariants, 80)
+  assert.equal(report.coverage.publishedStructuredProfileCompletePercent, 90)
+  assert.equal(report.coverage.publishedStructuredProfileApprovedPercent, 80)
   assert.equal(report.coverage.researchCandidateCardsCompletePercent, 45)
   assert.equal(report.coverage.researchSectionsCompletePercent, 40)
   assert.equal(report.coverage.researchCandidateSectionCoveragePercent, 60)
@@ -58,7 +71,16 @@ test('data-quality report exposes coverage, zero-depth phases, graph, and coach 
   assert.equal(report.governance.calibrationsInReview, 7)
   assert.equal(report.governance.approvedCalibrationAnchors, 12)
   assert.equal(report.governance.exactIdentityCollisions, 1)
+  assert.equal(report.governance.structuredProfilesPendingReview, 90)
+  assert.deepEqual(report.governance.structuredProfilePendingVariantIds, ['variant-1', 'variant-2'])
   assert.match(queries[0], /difficulty_json \? 'absoluteLoadDemand'/)
+  assert.match(queries[0], /published_verified_manual_media_definitions/)
+  assert.match(queries[0], /published_current_card_review_definitions/)
+  assert.match(queries[0], /length\(btrim\(approved_card_review\.notes\)\) >= 20/)
+  assert.match(queries[0], /review_basis_json @> jsonb_build_object/)
+  assert.match(queries[0], /exercise_structured_profile_review_v2 structured_evidence/)
+  assert.match(queries[2], /length\(btrim\(review_evidence\.notes\)\) >= 20/)
+  assert.match(queries[2], /exercise_relationship_review_v2/)
   assert.match(queries[0], /GREATEST\(/)
   assert.match(queries[4], /WITH identity_names AS/)
   assert.match(queries[4], /ARRAY\[identity_definition\.canonical_name, identity_definition\.display_name\]/)

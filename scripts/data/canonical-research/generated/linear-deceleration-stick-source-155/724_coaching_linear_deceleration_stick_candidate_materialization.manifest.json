@@ -1,0 +1,14 @@
+{
+  "migrationKey": "724_coaching_linear_deceleration_stick_candidate_materialization",
+  "researchVersion": "2026-07-25.3",
+  "generatedAt": "2026-07-25T22:38:27.000Z",
+  "cards": [
+    {
+      "slug": "jog-to-stick-linear-deceleration",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 3
+    }
+  ]
+}
