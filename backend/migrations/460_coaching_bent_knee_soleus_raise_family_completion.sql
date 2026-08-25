@@ -7,31 +7,17 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '460_coaching_bent_knee_soleus_raise_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.72';
-  canonical_id CONSTANT UUID := '6e34d34e-0118-4bce-97a1-5caa1f0ce398';
-  bodyweight_variant CONSTANT UUID := '0d62a151-1fd4-49ec-b566-6e2d95bbeecc';
-  machine_variant CONSTANT UUID := '718629b0-ac69-4d74-8fee-fdace0b580fc';
-  dumbbell_variant CONSTANT UUID := '1c55e163-5a1b-4c82-8d9e-3be0cb874204';
-  standing_definition CONSTANT UUID := 'b3fcfe9b-0539-43e8-8923-7c809edff73e';
-  standing_variant CONSTANT UUID := 'c174f5b8-569e-4bd6-8853-f9e8c55f4a26';
-  isometric_definition CONSTANT UUID := '1382ae5e-b157-4f4e-9096-7f0e1ba634df';
-  isometric_variant CONSTANT UUID := '4829702c-c20f-4df7-a9c3-903c7cdc1032';
+  canonical_id UUID;
+  bodyweight_variant UUID := gen_random_uuid();
+  machine_variant UUID := gen_random_uuid();
+  dumbbell_variant UUID := gen_random_uuid();
+  standing_definition UUID;
+  standing_variant UUID;
+  isometric_definition UUID;
+  isometric_variant UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[215,365,432,578,763,1151,1400];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    '83cd0608-0f28-4d90-8e82-e7eede91f69e'::UUID,
-    'be704076-3020-44df-ab03-1c8e597803fb'::UUID,
-    '2245b2fb-b4b9-4324-8569-29b2f25dc9da'::UUID,
-    '8fbbaefc-bc8d-4be4-9da4-7a050ba121c3'::UUID,
-    '3c815b5e-eab3-411f-935a-f312345f9453'::UUID,
-    '0148027d-b4dc-49ed-8ae4-1fc5928334fd'::UUID,
-    '495e0e10-382f-4aa5-a737-453b43390e80'::UUID];
-  active_variant_ids CONSTANT UUID[] := ARRAY[bodyweight_variant,machine_variant,dumbbell_variant];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    'feb199e2-638e-42c0-b419-40485208dd0b'::UUID,
-    'e99e40b3-9362-4ef4-919e-07d381dc1824'::UUID,
-    '558d4e17-5254-484f-b866-80ce30c44f7f'::UUID,
-    'c3ef8e5a-b101-48bb-865e-b5cfb563a779'::UUID,
-    'fe95a968-7f0c-417c-bfc3-9815eda13b6b'::UUID,
-    '6661a05f-5a30-4aec-870e-44437ab214f0'::UUID];
+  source_variant_ids UUID[];
+  active_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'RZ1Iv9sIYHM','fFWpWJy8ybU','wtBKmESLI98','DHMOfk7DEyk','7qzlklmu3Pw'];
   evidence_payload JSONB := $json$
@@ -92,6 +78,21 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=215;
+  SELECT id INTO standing_definition FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='distance-jump-standing-calf-raise';
+  SELECT id INTO standing_variant FROM coaching.exercise_variant_v1 WHERE definition_id=standing_definition AND variant_key='baseline';
+  SELECT id INTO isometric_definition FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='soleus-isometric-hold-bent-knee';
+  SELECT id INTO isometric_variant FROM coaching.exercise_variant_v1 WHERE definition_id=isometric_definition AND variant_key='baseline';
+  SELECT ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-215-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-365-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=(SELECT definition_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=432) AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-365-legacy-source-763-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1151'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1400')]
+  INTO source_variant_ids;
+  active_variant_ids := ARRAY[bodyweight_variant,machine_variant,dumbbell_variant];
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND facility_id=1 AND slug='bent-knee-soleus-raise')<>1
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(source_ids))<>7
@@ -103,11 +104,11 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_variant_v1
       WHERE id IN (standing_variant,isometric_variant) AND status<>'archived')<>2
     OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
-      WHERE id IN (canonical_id,'558d4e17-5254-484f-b866-80ce30c44f7f'::UUID)
+      WHERE id=canonical_id
         AND (reviewed_by IS NOT NULL OR approved_by IS NOT NULL OR last_reviewed_at IS NOT NULL))
     OR EXISTS(SELECT 1 FROM coaching.exercise_identity_resolution_v1
       WHERE reviewed_by IS NOT NULL AND
-        (survivor_definition_id=canonical_id OR resolved_definition_id=ANY(archived_definition_ids))) THEN
+        survivor_definition_id=canonical_id) THEN
     RAISE EXCEPTION '% refuses missing lineage, related anchors, or human-reviewed state',migration_key;
   END IF;
 
@@ -136,30 +137,27 @@ BEGIN
   UPDATE coaching.exercise_variant_v1 SET
     definition_id=canonical_id,
     variant_key=CASE id
-      WHEN '83cd0608-0f28-4d90-8e82-e7eede91f69e'::UUID THEN 'identity-quarantine-source-215'
-      WHEN 'be704076-3020-44df-ab03-1c8e597803fb'::UUID THEN 'identity-quarantine-source-365'
-      WHEN '2245b2fb-b4b9-4324-8569-29b2f25dc9da'::UUID THEN 'identity-quarantine-source-432'
-      WHEN '8fbbaefc-bc8d-4be4-9da4-7a050ba121c3'::UUID THEN 'identity-quarantine-source-578'
-      WHEN '3c815b5e-eab3-411f-935a-f312345f9453'::UUID THEN 'identity-quarantine-source-763'
-      WHEN '0148027d-b4dc-49ed-8ae4-1fc5928334fd'::UUID THEN 'identity-quarantine-source-1151'
+      WHEN source_variant_ids[1] THEN 'identity-quarantine-source-215'
+      WHEN source_variant_ids[2] THEN 'identity-quarantine-source-365'
+      WHEN source_variant_ids[3] THEN 'identity-quarantine-source-432'
+      WHEN source_variant_ids[4] THEN 'identity-quarantine-source-578'
+      WHEN source_variant_ids[5] THEN 'identity-quarantine-source-763'
+      WHEN source_variant_ids[6] THEN 'identity-quarantine-source-1151'
       ELSE 'identity-quarantine-source-1400' END,
     status='archived',
     requirements_json=jsonb_build_object(
       'selectable',FALSE,'representation','identity_quarantine',
       'sourceLegacyExerciseId',CASE id
-        WHEN '83cd0608-0f28-4d90-8e82-e7eede91f69e'::UUID THEN 215
-        WHEN 'be704076-3020-44df-ab03-1c8e597803fb'::UUID THEN 365
-        WHEN '2245b2fb-b4b9-4324-8569-29b2f25dc9da'::UUID THEN 432
-        WHEN '8fbbaefc-bc8d-4be4-9da4-7a050ba121c3'::UUID THEN 578
-        WHEN '3c815b5e-eab3-411f-935a-f312345f9453'::UUID THEN 763
-        WHEN '0148027d-b4dc-49ed-8ae4-1fc5928334fd'::UUID THEN 1151 ELSE 1400 END,
+        WHEN source_variant_ids[1] THEN 215 WHEN source_variant_ids[2] THEN 365
+        WHEN source_variant_ids[3] THEN 432 WHEN source_variant_ids[4] THEN 578
+        WHEN source_variant_ids[5] THEN 763 WHEN source_variant_ids[6] THEN 1151 ELSE 1400 END,
       'archiveReason',CASE id
-        WHEN '83cd0608-0f28-4d90-8e82-e7eede91f69e'::UUID THEN 'source_mixes_floor_or_step_and_optional_loaded_or_unloaded_delivery'
-        WHEN 'be704076-3020-44df-ab03-1c8e597803fb'::UUID THEN 'source_mixes_floor_or_plate_and_optional_loading_without_exact_interface'
-        WHEN '2245b2fb-b4b9-4324-8569-29b2f25dc9da'::UUID THEN 'source_names_dumbbell_but_omits_count_contact_point_working_side_foot_surface_range_and_exact_repetition_contract'
-        WHEN '8fbbaefc-bc8d-4be4-9da4-7a050ba121c3'::UUID THEN 'generic_source_omits_seated_or_standing_support_knee_angle_laterality_load_surface_range_and_return'
-        WHEN '3c815b5e-eab3-411f-935a-f312345f9453'::UUID THEN 'eccentric_source_omits_concentric_assistance_implement_contact_surface_range_and_reset'
-        WHEN '0148027d-b4dc-49ed-8ae4-1fc5928334fd'::UUID THEN 'distance_jump_context_source_omits_executable_support_laterality_load_surface_range_tempo_and_return'
+        WHEN source_variant_ids[1] THEN 'source_mixes_floor_or_step_and_optional_loaded_or_unloaded_delivery'
+        WHEN source_variant_ids[2] THEN 'source_mixes_floor_or_plate_and_optional_loading_without_exact_interface'
+        WHEN source_variant_ids[3] THEN 'source_names_dumbbell_but_omits_count_contact_point_working_side_foot_surface_range_and_exact_repetition_contract'
+        WHEN source_variant_ids[4] THEN 'generic_source_omits_seated_or_standing_support_knee_angle_laterality_load_surface_range_and_return'
+        WHEN source_variant_ids[5] THEN 'eccentric_source_omits_concentric_assistance_implement_contact_surface_range_and_reset'
+        WHEN source_variant_ids[6] THEN 'distance_jump_context_source_omits_executable_support_laterality_load_surface_range_tempo_and_return'
         ELSE 'kicking_context_source_omits_executable_support_laterality_load_count_surface_range_tempo_and_return' END,
       'originalAuthoritativeEvidenceRequired',TRUE,'humanReviewRequired',TRUE),
     load_profile_json=coalesce(load_profile_json,'{}'::JSONB)||jsonb_build_object('selectable',FALSE),
@@ -179,7 +177,7 @@ BEGIN
     provenance_json=coalesce(provenance_json,'{}'::JSONB)||jsonb_build_object(
       'identityResolutionMigration',migration_key,'survivorDefinitionId',canonical_id,
       'selectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),updated_at=now()
-  WHERE id=ANY(archived_definition_ids);
+  WHERE FALSE;
 
   UPDATE coaching.exercise_definition_v1 SET
     canonical_name='Bent-Knee Soleus Raise',display_name='Bent-Knee Soleus Raise',
@@ -478,7 +476,8 @@ BEGIN
       'identityBoundary','seated_knee_flexed_dynamic_plantarflexion_family_with_exact_variant_dimensions',
       'sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,
@@ -603,9 +602,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
       WHERE variant_id=ANY(active_variant_ids) AND status='review'
         AND version=1 AND reviewed_by IS NULL)<>6
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(archived_definition_ids)
-        AND reviewed_by IS NULL)<>6
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids)
+        AND provenance_json->>'sourceDisposition'='identity_quarantine')<>7
     OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
       WHERE survivor_definition_id=canonical_id
         AND resolved_definition_id IN (standing_definition,isometric_definition)

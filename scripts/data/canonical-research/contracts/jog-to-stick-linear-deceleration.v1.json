@@ -1,0 +1,571 @@
+{
+  "migrationKey": "724_coaching_linear_deceleration_stick_candidate_materialization",
+  "researchVersion": "2026-07-25.3",
+  "batchFile": "../batches/landing-braking-foundations.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 155,
+        "preserveLegacyExerciseId": true,
+        "slug": "jog-to-stick-linear-deceleration",
+        "canonicalName": "Submaximal Linear Deceleration to Stick",
+        "displayName": "Submaximal Linear Deceleration to Stick",
+        "aliases": [
+          "Jog-to-Stick Linear Deceleration",
+          "Sprint-to-Stick Deceleration",
+          "5-Yard Accel to Decel Stick",
+          "Linear Deceleration Stop Eccentric Stick",
+          "Sprint-to-Balance Deceleration"
+        ],
+        "description": "Build through a declared 5–10 metre submaximal linear approach, initiate braking before the marked brake zone, use multiple controlled deceleration contacts, stop inside the protected finish zone, own a balanced bilateral athletic stick for the declared hold, then reset by walking. One repetition contains one approach, one planned linear stop, one terminal stick, and no turn or reacceleration.",
+        "familyKey": "submaximal_linear_deceleration_terminal_stick",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 3,
+        "status": "review",
+        "identityContract": "declared_submaximal_linear_approach_multiple_braking_contacts_bilateral_terminal_stick_without_turn_or_reacceleration",
+        "confidence": {
+          "content": 84,
+          "scoring": 62,
+          "media": 50
+        },
+        "movementPatterns": [
+          "locomote",
+          "decelerate",
+          "land",
+          "brace"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "thigh",
+          "hip",
+          "core"
+        ],
+        "requiredEquipment": [
+          "cones",
+          "safe_finish_zone",
+          "15_to_30_metre_clear_lane"
+        ],
+        "optionalEquipment": [
+          "timing_gates",
+          "video"
+        ],
+        "environment": {
+          "surface": "clear, level, dry, high-traction non-slip lane with a marked approach, braking zone, finish zone, and protected runoff",
+          "space": "one protected 15–30 metre lane with no cross traffic and a visible coach sightline to braking contacts and finish",
+          "stationCapacity": 1,
+          "inspection": [
+            "surface traction, debris, weather, footwear, cones, lane separation, and runoff",
+            "declared approach, braking, finish, walk-back, and waiting locations",
+            "coach sightline, stop signal, and participant understanding"
+          ],
+          "changeRule": "Changing approach distance, entry speed, braking-zone length, finish target, hold, surface, cue, dose, timing, symptoms, or substitute requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "pain-free easy jogging and controlled walking stop",
+            "demonstrated bilateral athletic landing stance",
+            "safe protected lane and shared stop signal",
+            "session braking, impact, lower-body, technical-fatigue, logistics, and duration budgets fit"
+          ],
+          "excludeOrEscalate": [
+            "pain, giving way, slip, unsafe lane, repeated line overrun, hard reaching stop, knee/trunk collapse, imbalance, or communication conflict",
+            "new neurologic, circulation, breathing, chest, balance, or coordination concern",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "universal approach distance, entry intensity, braking contact count, stop distance, dose, rest, recovery, readiness threshold, clinical clearance, or performance outcome"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            155,
+            156,
+            224,
+            277,
+            545,
+            783
+          ],
+          "identityAuthority": "The landing/braking foundations packet: the stable identity is a declared submaximal linear approach, early multi-step braking, balanced bilateral terminal stick, and reset without a cut or reacceleration.",
+          "canonicalAuthoredFromResearch": true,
+          "primaryIdentitySource": "https://pubmed.ncbi.nlm.nih.gov/33217086/",
+          "primaryIdentitySourceStatus": "candidate_research_evidence_unreviewed",
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": false,
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteal_complex",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstring_complex",
+            "gluteus_medius",
+            "hip_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "metatarsophalangeal",
+            "talocrural_ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "thoracolumbar_spine"
+          ],
+          "jointActions": [
+            "cyclic_hip_knee_ankle_action",
+            "braking_ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "whole_body_braking_to_terminal_stance"
+          ],
+          "planes": [
+            "sagittal_linear_approach_and_stop",
+            "frontal_terminal_stance_stabilization"
+          ],
+          "laterality": "alternating braking contacts ending in a bilateral athletic stick; record meaningful side asymmetry rather than assigning athlete skill labels",
+          "claimsBoundary": "Describes task mechanics and plausible loading sites only; it does not diagnose, treat, prevent injury, establish readiness, or guarantee sport transfer."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate practice for slowing a submaximal linear approach only when the exact lane, entry speed, finish target, and total braking budget fit.",
+          "primaryCue": "Start slowing before the cone, take controlled steps, and stop balanced inside the zone.",
+          "secondaryCues": [
+            "build only to the declared easy jog",
+            "lower smoothly through several steps instead of reaching for one hard stop",
+            "finish quiet and balanced with both feet controlled",
+            "walk back, recover, and report symptoms"
+          ],
+          "expectedSensations": [
+            "moderate front-thigh, hip, calf, and foot braking effort",
+            "high attention to slowing and balanced final stance"
+          ],
+          "unexpectedSensations": [
+            "pain, giving way, slip, hard heel strike, knee/trunk collapse, dizziness, inability to stop, or marked side difference"
+          ],
+          "painGuidance": "Stop rather than forcing a brake or finish through pain, instability, slip, dizziness, or another concerning symptom; report it and follow facility escalation policy.",
+          "selfChecks": [
+            "braking began before the marked zone",
+            "several controlled steps reduced speed",
+            "the final stance was balanced in the finish zone",
+            "no turn, cut, or reacceleration was added",
+            "no stop rule occurred"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          },
+          "mediaAlternatives": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true,
+            "humanReviewRequired": true,
+            "approvedMediaAvailable": false
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact approach, brake zone, finish zone, declared entry speed, and no-turn boundary",
+            "penultimate and braking contacts, foot placement, posture, knee/trunk control, final balance, and side asymmetry",
+            "surface, symptoms, valid stops, rest, and cumulative braking exposure"
+          ],
+          "faultCorrections": {
+            "late_braking": "shorten or slow the approach and restore braking before the marked zone",
+            "reaching_or_hard_stop": "reduce entry speed and rehearse several smaller braking contacts",
+            "line_overrun": "enlarge the finish zone or shorten the approach; do not chase speed",
+            "collapse_or_imbalance": "stop the effort, reduce demand only if control returns, otherwise select another reviewed task after revalidation"
+          },
+          "demonstrationPlan": [
+            "show the protected approach, brake zone, finish zone, walk-back route, and stop signal",
+            "show a lower-speed valid repetition with early braking and a quiet bilateral finish",
+            "show invalid late braking, one hard reaching stop, line overrun, collapse, and an added turn",
+            "confirm the athlete can state the zone, finish, and stop signal before speed rises"
+          ],
+          "groupManagement": [
+            "use one athlete per protected lane and keep all waiting athletes behind the start",
+            "release an athlete only after the prior athlete clears the finish and walk-back route",
+            "record declared and actual approach context, valid stops, first fault, symptoms, rest, and total braking exposure",
+            "maintain coach sightline to approach, contacts, terminal stick, and stop signal"
+          ],
+          "modificationDecisionTree": [
+            "if pain, giving way, slip, dizziness, unsafe lane, or communication failure occurs, stop and escalate under facility policy",
+            "if braking begins late or the finish is overrun, shorten or slow the approach and revalidate the exact profile",
+            "if controlled multi-step braking and balanced stick cannot be restored, end this task and select a separately reviewed option after full revalidation",
+            "if cue, direction, turn, reacceleration, timing protocol, or maximum-intent demand changes, do not substitute automatically; rerun identity, selection, budgets, logistics, duration, and validation"
+          ],
+          "doNotUseWhen": [
+            "the intended task is a reactive cue, cut, turn, reacceleration, max-sprint deceleration, jump landing, or conditioning shuttle",
+            "surface, lane, symptoms, braking control, recovery, supervision, or communication is inadequate"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "surface_or_lane",
+            "entry_speed_or_braking",
+            "terminal_stick_or_balance",
+            "impact_or_fatigue",
+            "symptom_or_stop_event",
+            "dose_or_duration",
+            "substitution"
+          ],
+          "supportEscalation": "Stop and escalate unresolved symptoms, slips, line overruns, collapse, imbalance, unsafe conditions, or a mismatch between the requested task and this exact submaximal linear brake-to-stick contract.",
+          "retentionPolicy": "Persist the versioned definition and exact variant, declared and actual approach context, brake and finish zones, valid stops, first fault, symptoms, rest, total braking exposure, substitution, stop reason, and generator/rendering versions under facility policy.",
+          "changeImpactPolicy": "Any change to approach, speed, braking-zone length, finish, hold, surface, cue, dose, timing, or substitute reruns selection, fatigue, impact, logistics, duration, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "contract-quarantine-jog-to-stick-linear-deceleration",
+        "archiveKey": "source-155-to-783-linear-deceleration-legacy-skeleton",
+        "displayName": "Linear Deceleration Legacy Skeleton — Sources 155–783",
+        "archiveReason": "The consolidated source rows omit a complete exact approach, braking, finish, dose, load, fatigue, support, alternate, and review contract."
+      },
+      "legacy": {
+        "preserveArchived": true,
+        "description": "Use a declared submaximal straight approach, begin braking before the zone, take multiple controlled steps, stop inside the zone, hold a balanced bilateral athletic stance, and walk back to reset.",
+        "defaultSets": 2,
+        "defaultReps": 3,
+        "defaultWorkSeconds": 10,
+        "defaultRestSeconds": 75,
+        "tempo": "easy build; brake before zone; multiple controlled steps; two-second quiet stick; walk-back reset",
+        "loadNote": "Bodyweight horizontal braking. Exact approach distance, entry speed, braking-zone length, finish, hold, rest, and total exposure are delivery-profile specific.",
+        "estimatedSecondsPerSet": 120,
+        "cardSummary": "Candidate submaximal linear braking-to-stick card with explicit lane, finish, no-turn, no-reacceleration, quality, and stop boundaries.",
+        "coachLanguage": "Protect the lane and quality; start with an easy approach and count only controlled early-brake stops.",
+        "athleteLanguage": "Slow before the cone, use several controlled steps, finish balanced, walk back, and report symptoms.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "approach_distance",
+          "entry_speed",
+          "braking_zone_length",
+          "finish_zone",
+          "hold_seconds",
+          "repetitions",
+          "sets",
+          "rest",
+          "surface",
+          "feedback"
+        ]
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "coachSupervision": "required",
+        "prerequisiteNotes": "Readiness is the exact declared approach, braking, finish, lane, surface, symptom, supervision, and recovery context—not a participant classification.",
+        "readinessChecks": [
+          "pain-free easy jogging and controlled bilateral stop",
+          "protected high-traction lane, marked brake/finish zones, and runoff",
+          "can follow the stop signal and demonstrate a lower-speed controlled stop",
+          "session braking, impact, and technical-fatigue budgets fit"
+        ],
+        "stopSigns": [
+          "pain, giving way, slip, hard reaching stop, repeated line overrun, stumble, knee/trunk collapse, imbalance, unsafe lane, marked asymmetry, or participant stop request",
+          "fatigue that prevents early multi-step braking or a balanced bilateral finish"
+        ],
+        "contraindications": [
+          "symptom, unsafe surface/lane, inadequate braking control, recovery, supervision, or communication",
+          "reactive cue, cut, turn, reacceleration, maximal sprint-deceleration, jump, or testing protocol without a separately reviewed contract"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed task only after full revalidation.",
+          "Do not automatically substitute reactive stops, cutting, turn-and-sprint, jump landing, or maximal-sprint deceleration work."
+        ]
+      },
+      "score": {
+        "exerciseScoresDescribeTaskOnly": true,
+        "difficultyRationale": "The score describes exercise complexity and physical difficulty for a declared submaximal brake-to-stick task, not participant ability, experience, age, or readiness. Early multi-step braking, momentum management, terminal balance, and impact raise complexity; speed and body mass remain delivery and workout inputs.",
+        "difficultyProfile": {
+          "technical": 5.2,
+          "complexity": 5.2,
+          "load": 2.0,
+          "overall": 5.2,
+          "attentionDemand": "moderate_to_high",
+          "notes": "Exact submaximal linear approach, multi-step braking, bilateral terminal stick, and no turn or reacceleration."
+        }
+      },
+      "variants": [
+        {
+          "id": "15500000-0000-4000-8000-000000000001",
+          "key": "submaximal-linear-multistep-deceleration-to-bilateral-stick",
+          "displayName": "Submaximal Linear Multi-Step Deceleration to Bilateral Stick",
+          "modifierKeys": [
+            "linear",
+            "submaximal",
+            "multistep_braking",
+            "bilateral_terminal_stick"
+          ],
+          "difficulty": {
+            "technicalComplexity": 52,
+            "absoluteLoadDemand": 20,
+            "physicalDifficulty": 20,
+            "coordinationDemand": 56,
+            "supervisionDemand": 48,
+            "failureConsequence": 58,
+            "impact": 52,
+            "workCapacityDemand": 28,
+            "baseOverallDifficulty": 52
+          },
+          "requirements": {
+            "equipment": [
+              "cones",
+              "safe_finish_zone",
+              "15_to_30_metre_clear_lane"
+            ],
+            "surface": "level_dry_high_traction",
+            "approach": "declared_5_to_10_metre_submaximal_linear_jog",
+            "braking": "multiple_controlled_contacts_before_finish",
+            "finish": "balanced_bilateral_athletic_stick",
+            "prohibited": [
+              "turn",
+              "cut",
+              "reacceleration",
+              "reactive_cue",
+              "maximal_sprint"
+            ]
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_submaximal_horizontal_deceleration_to_terminal_bilateral_stick",
+            "impactClass": "moderate_at_submaximal_approach",
+            "landingContactsPerRep": 0,
+            "contactExposureModel": {
+              "model": "per_set_range",
+              "minimumContactsPerSet": 8,
+              "planningDefaultContactsPerSet": 15,
+              "maximumContactsPerSet": 28
+            },
+            "gripDemand": 1,
+            "spinalLoading": 16,
+            "eccentricStress": 58,
+            "primaryExposure": [
+              "multi_step_braking_contacts",
+              "knee_hip_force_acceptance",
+              "ankle_foot_impact_attenuation",
+              "terminal_stance_stabilization"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 34,
+            "gripFatigue": 1,
+            "technicalFatigueSensitivity": 72,
+            "impactAccumulation": 48,
+            "recoveryHours": 18,
+            "recoveryHoursPlanningEstimate": 18,
+            "cumulativeBudget": {
+              "submaximal_braking_contacts": 72,
+              "knee_hip_eccentric_exposure": 60,
+              "lower_body_impact": 48
+            },
+            "tracking": [
+              "approachDistance",
+              "entrySpeed",
+              "brakingZone",
+              "validStops",
+              "firstFault",
+              "symptoms",
+              "rest",
+              "downstreamLowerBodyExposure"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "submaximal_horizontal_braking",
+              "multi_step_force_attenuation",
+              "terminal_stance_control"
+            ],
+            "stimulusDose": "quality_limited_submaximal_linear_brake_to_stick_efforts",
+            "weeklyExposure": "candidate_review_required; program from total braking exposure rather than a universal frequency",
+            "prerequisites": [
+              "pain-free easy jog",
+              "controlled bilateral athletic stop",
+              "protected marked lane and understood stop signal"
+            ],
+            "completionCriteria": "all repetitions satisfy the declared approach, early multi-step braking, finish-zone, terminal-stick, and stop-rule contract",
+            "sequenceRules": "Place after general preparation and before higher-speed sprint, change-of-direction, jump, or fatigue-heavy lower-body work when braking quality is the priority.",
+            "pairingCompatibility": "May pair only with low-fatigue mobility, simple trunk control, or noncompeting upper-body work when lane traffic, recovery, and total braking budget remain valid.",
+            "interferenceRules": "Do not stack with high-intent deceleration, cutting, high-impact jumps, exhaustive lower-body work, or testing when quality or recovery falls.",
+            "uncertaintyPolicy": "Scores, dose, recovery, and progression are candidate planning estimates; require human review and rerun validation after any change.",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "movement-intelligence",
+              "phase": "movement_intelligence",
+              "role": "primary",
+              "purpose": "Rehearse early multi-step linear braking and a quiet terminal stick at a declared easy approach speed.",
+              "suitability": 84,
+              "methodologyAlignment": 82,
+              "objectiveRelevance": {
+                "braking_control": 90,
+                "low_to_moderate_impact_skill": 80
+              },
+              "dosage": {
+                "sets": "2-3",
+                "repetitions": "2-3 valid stops",
+                "restSeconds": "60-90",
+                "intensity": "declared 50-65 percent easy jog"
+              },
+              "qualityGate": "Brake before the zone, use multiple controlled contacts, stop inside the finish zone, hold the bilateral stick, and show no stop event.",
+              "stopRules": [
+                "pain, instability, slip, unsafe lane, or participant request",
+                "late braking, line overrun, hard reaching stop, collapse, imbalance, or an added turn"
+              ],
+              "coachInstructions": "Declare the approach, zones, finish, and hold. Start below speed that challenges braking, observe every contact, and count only valid quiet stops.",
+              "athleteInstructions": "Build to the easy jog. Slow before the zone with several steps, stop balanced inside the zone, hold, then walk back.",
+              "expectedAdaptation": "Task-specific rehearsal of submaximal linear braking and terminal stance control; no universal outcome is claimed.",
+              "equipmentRequired": [
+                "cones",
+                "safe_finish_zone",
+                "15_to_30_metre_clear_lane"
+              ],
+              "logistics": {
+                "station": "one marked, protected lane with one athlete at a time",
+                "durationFormula": "setup plus valid approaches, walk-backs, rest, restarts, recording, and lane reset"
+              },
+              "timeModel": {
+                "setupSeconds": 90,
+                "effortSeconds": 10,
+                "walkBackSeconds": 25,
+                "restRangeSeconds": [
+                  60,
+                  90
+                ],
+                "recomputeAfterSubstitution": true
+              },
+              "doseScaling": {
+                "entrySpeed": "reduce speed before adding repetitions",
+                "approach": "shorten approach before reducing braking quality",
+                "volume": "add only while every stop remains valid"
+              },
+              "measurement": {
+                "validStops": true,
+                "firstFault": true,
+                "finishZone": true,
+                "symptoms": true,
+                "entrySpeedContext": true
+              },
+              "supportPrompts": {
+                "athlete": "Slow before the cone; several quiet steps; finish balanced.",
+                "coach": "Early braking and a quiet finish count; speed does not."
+              }
+            },
+            {
+              "key": "output",
+              "phase": "output",
+              "role": "conditional",
+              "purpose": "Maintain a declared submaximal brake-to-stick task before later output work without turning it into maximal sprint deceleration.",
+              "suitability": 66,
+              "methodologyAlignment": 64,
+              "objectiveRelevance": {
+                "braking_readiness": 76,
+                "output_preparation": 62
+              },
+              "dosage": {
+                "sets": "1-2",
+                "repetitions": "2 valid stops",
+                "restSeconds": "90-120",
+                "intensity": "declared 60-70 percent only if the movement-intelligence profile is already clean"
+              },
+              "qualityGate": "All braking starts early, stays multi-step and controlled, ends in the zone with a balanced stick, and does not reduce quality for later work.",
+              "stopRules": [
+                "any movement-intelligence stop rule",
+                "quality decline, increased braking demand, or interference with subsequent planned output"
+              ],
+              "coachInstructions": "Use sparingly, preserve full recovery, and remove the profile rather than increasing speed if it compromises later output work.",
+              "athleteInstructions": "Use the same early brake and balanced stick. Do not chase speed; save quality for the session.",
+              "expectedAdaptation": "Candidate readiness rehearsal under a declared submaximal context; no performance transfer is asserted.",
+              "equipmentRequired": [
+                "cones",
+                "safe_finish_zone",
+                "15_to_30_metre_clear_lane"
+              ],
+              "logistics": {
+                "station": "protected single-athlete lane with clear downstream output traffic separation",
+                "durationFormula": "setup plus valid approaches, walk-backs, full recovery, recording, and transition"
+              },
+              "timeModel": {
+                "setupSeconds": 90,
+                "effortSeconds": 10,
+                "walkBackSeconds": 25,
+                "restRangeSeconds": [
+                  90,
+                  120
+                ],
+                "recomputeAfterSubstitution": true
+              },
+              "doseScaling": {
+                "volume": "do not add volume in this profile; remove before raising speed",
+                "speed": "a speed increase requires revalidation and may belong to another exact profile"
+              },
+              "measurement": {
+                "validStops": true,
+                "qualityBeforeAfter": true,
+                "interferenceWithNextTask": true,
+                "symptoms": true
+              },
+              "supportPrompts": {
+                "athlete": "Same quiet stop—do not race it.",
+                "coach": "Protect later output; remove this before quality drops."
+              }
+            }
+          ]
+        }
+      ],
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

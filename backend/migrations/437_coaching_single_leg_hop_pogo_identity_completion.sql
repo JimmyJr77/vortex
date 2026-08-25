@@ -8,12 +8,9 @@ DECLARE
     '437_coaching_single_leg_hop_pogo_identity_completion';
   research_batch CONSTANT TEXT := 'single-leg-hop-pogo-identity-v1';
   research_version CONSTANT TEXT := '2026-08-02.14';
-  source_hop_id CONSTANT UUID :=
-    '8aaa8473-189b-489e-ae2d-2fca7da02a4d';
-  source_pogo_hold_id CONSTANT UUID :=
-    'f83b1d6d-0566-4682-9f9a-2ebe49719d74';
-  pogo_id CONSTANT UUID :=
-    'de5e841b-9413-49b9-86b5-a783a9a96234';
+  source_hop_id UUID;
+  source_pogo_hold_id UUID;
+  pogo_id UUID;
   vertical_id CONSTANT UUID :=
     '3d700ba6-9179-4560-84ea-2ad092bf432f';
   forward_id CONSTANT UUID :=
@@ -26,22 +23,14 @@ DECLARE
     '2b9226df-69a9-4a0c-ad71-96913a7f5541';
   pogo_terminal_variant_id CONSTANT UUID :=
     '98c46697-9d85-40bf-8f8d-dace80fe760d';
-  stationary_pogo_variant_id CONSTANT UUID :=
-    'e25f0142-5e1c-4b74-9dc9-9b66fe2f6b8a';
-  lateral_control_variant_id CONSTANT UUID :=
-    '8e7e1acb-e603-4d3b-8321-3b5ccdc8dca7';
-  lateral_output_variant_id CONSTANT UUID :=
-    '24f50808-bc45-400f-8e48-a0d0667b94c7';
-  lateral_definition_id CONSTANT UUID :=
-    '63fe0dd0-0dd1-4f1a-b004-118b60e6a5ae';
-  source_ids CONSTANT UUID[] :=
-    ARRAY[source_hop_id,source_pogo_hold_id];
-  exact_ids CONSTANT UUID[] := ARRAY[vertical_id,forward_id,pogo_id];
-  all_ids CONSTANT UUID[] :=
-    ARRAY[source_hop_id,source_pogo_hold_id,vertical_id,forward_id,pogo_id];
-  exact_variant_ids CONSTANT UUID[] := ARRAY[
-    vertical_variant_id,forward_control_variant_id,
-    forward_output_variant_id,pogo_terminal_variant_id];
+  stationary_pogo_variant_id UUID;
+  lateral_control_variant_id UUID;
+  lateral_output_variant_id UUID;
+  lateral_definition_id UUID;
+  source_ids UUID[];
+  exact_ids UUID[];
+  all_ids UUID[];
+  exact_variant_ids UUID[];
   current_definition_id UUID;
   current_version INTEGER;
   protected_count INTEGER;
@@ -134,6 +123,34 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT id INTO source_hop_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-hop-to-stick';
+  SELECT id INTO source_pogo_hold_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-pogo-hold-stick';
+  SELECT id INTO pogo_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-pogo';
+  SELECT id INTO stationary_pogo_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=pogo_id AND variant_key='stationary-low-amplitude';
+  SELECT id INTO lateral_definition_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-lateral-hop-to-stick';
+  SELECT id INTO lateral_control_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=lateral_definition_id AND variant_key='low-amplitude-control';
+  SELECT id INTO lateral_output_variant_id
+  FROM coaching.exercise_variant_v1
+  WHERE definition_id=lateral_definition_id AND variant_key='distance-output';
+  source_ids := ARRAY[source_hop_id,source_pogo_hold_id];
+  exact_ids := ARRAY[vertical_id,forward_id,pogo_id];
+  all_ids := ARRAY[source_hop_id,source_pogo_hold_id,vertical_id,forward_id,pogo_id];
+  exact_variant_ids := ARRAY[
+    vertical_variant_id,forward_control_variant_id,
+    forward_output_variant_id,pogo_terminal_variant_id];
+
   IF NOT EXISTS(
     SELECT 1 FROM coaching.exercise_definition_v1
     WHERE id=source_hop_id AND slug='single-leg-hop-to-stick'

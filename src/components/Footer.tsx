@@ -2,7 +2,13 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
-import { JACKRABBIT_CLASS_REGISTRATION_URL, TEAM_EMAIL } from '../config/contact'
+import {
+  BUSINESS_NAP,
+  GOOGLE_MAPS_URL,
+  JACKRABBIT_CLASS_REGISTRATION_URL,
+  TEAM_EMAIL,
+  TEAM_PHONE,
+} from '../config/contact'
 import { trackEvent, trackOutboundClickEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
@@ -67,8 +73,10 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 viewport={{ once: true }}
               >
                 <img 
-                  src="/vortex_logo_1.png" 
+                  src="/vortex-logo-footer.webp"
                   alt="Vortex Athletics" 
+                  width="840"
+                  height="200"
                   className="h-16 w-auto"
                 />
               </motion.div>
@@ -108,7 +116,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
 
             {/* Quick Links */}
             <div>
-              <motion.h4
+              <motion.h2
                 className="text-xl font-bold mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -116,7 +124,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 viewport={{ once: true }}
               >
                 Quick Links
-              </motion.h4>
+              </motion.h2>
               <motion.ul
                 className="space-y-3"
                 initial={{ opacity: 0, y: 20 }}
@@ -176,7 +184,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
 
             {/* Contact Info */}
             <div className="lg:col-span-2">
-              <motion.h4
+              <motion.h2
                 className="text-xl font-bold mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -184,7 +192,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 viewport={{ once: true }}
               >
                 Contact Info
-              </motion.h4>
+              </motion.h2>
               <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
@@ -217,15 +225,25 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                       })
                     }
                   >
-                    +1 (443) 422-4794
+                    {TEAM_PHONE}
                   </a>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-vortex-red mt-1" />
-                  <div className="text-gray-300">
-                    <div>4961 Tesla Dr, Ste E</div>
-                    <div className="text-sm">Bowie, MD 20715</div>
-                  </div>
+                  <a
+                    href={GOOGLE_MAPS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-300 transition-colors hover:text-vortex-red"
+                    aria-label={`Get directions to ${BUSINESS_NAP.name}`}
+                  >
+                    <div>{BUSINESS_NAP.name}</div>
+                    <div>{BUSINESS_NAP.streetAddress}</div>
+                    <div className="text-sm">
+                      {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion}{' '}
+                      {BUSINESS_NAP.postalCode}
+                    </div>
+                  </a>
                 </div>
               </motion.div>
             </div>
@@ -249,6 +267,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
             </p>
             <Link to={getSiteEnrollHref()} className="inline-block btn-primary">
               <motion.span
+                tabIndex={-1}
                 className="inline-block"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

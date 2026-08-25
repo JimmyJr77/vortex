@@ -11,6 +11,7 @@ import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { GYMNASTICS_FAQS } from '../../../config/gymnasticsFaqs'
 import useSpecialPages from '../../../hooks/useSpecialPages'
 import { isSpecialPageAvailable } from '../../../types/specialPages'
+import { campaignImageProps } from '../utils/campaignImages'
 import {
   ArrowRight,
   Sparkles,
@@ -25,23 +26,7 @@ import {
   Shield,
 } from 'lucide-react'
 
-const HERO_IMAGES = [
-  '/campaign_early_dev_hero.jpg',
-  '/campaign_6-12_hero1.jpg',
-  '/campaign_6-12_hero2.jpg',
-  '/campaign_6-12_hero3.jpg',
-  '/campaign_6-12_hero4.jpg',
-  '/campaign_6-12_hero5.jpg',
-  '/campaign_6-12_hero6.jpg',
-  '/campaign_6-12_hero7.jpg',
-  '/campaign_6-12_hero8.jpg',
-  '/campaign_13-18_hero1.jpg',
-  '/campaign_13-18_hero2.jpg',
-  '/campaign_13-18_hero3.jpg',
-  '/campaign_13-18_hero4.jpg',
-  '/campaign_13-18_hero5.jpg',
-  '/campaign_13-18_hero6.jpg',
-]
+const HERO_IMAGE = '/campaign_early_dev_hero.jpg'
 
 interface GymnasticsProps {
   onSignUpClick?: () => void
@@ -110,7 +95,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/artistic-gymnastics',
       icon: Sparkles,
       color: 'from-vortex-red to-red-800',
-      image: '/campaign_6-12_hero6.jpg',
+      image: '/campaign_6-12_hero6-720.webp',
       imageAlt: 'Artistic gymnastics athletes training at Vortex',
     },
     {
@@ -134,7 +119,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/rhythmic-gymnastics',
       icon: Music,
       color: 'from-purple-600 to-purple-900',
-      image: '/campaign_13-18_hero3.jpg',
+      image: '/campaign_13-18_hero3-720.webp',
       imageAlt: 'Rhythmic gymnastics athlete performing at Vortex',
     },
     {
@@ -146,7 +131,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/acro-gymnastics',
       icon: Users,
       color: 'from-cyan-600 to-teal-800',
-      image: '/acro-discipline.jpg',
+      image: '/acro-discipline-1600.webp',
       imageAlt: 'Acrobatic gymnastics partners balancing hand-to-hand at Vortex',
     },
     {
@@ -164,35 +149,22 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white">
       {/* Single keyword-focused H1 for SEO; hero title rotates visually below. */}
       <h1 className="sr-only">Gymnastics Classes in Bowie, MD</h1>
-      {/* Desktop: Full screen section with scrolling hero images.
-          Keep overflow on the image strip only so hero dropdowns can paint above the next section. */}
+      {/* A stable hero image keeps the main content fast and avoids auto-rotating LCP candidates. */}
       <section className="hidden md:block relative z-20 min-h-below-site-header w-full pt-below-site-header">
-        {/* Scrolling images strip — nonstop steady scroll */}
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="flex h-full gymnastics-hero-scroll"
-            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
-          >
-            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                className="h-full flex-shrink-0"
-                style={{ width: '100vw', minWidth: '100vw' }}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : 'auto'}
-                  decoding="async"
-                />
-              </div>
-            ))}
-          </div>
+          <img
+            {...campaignImageProps(HERO_IMAGE)}
+            alt=""
+            width="1600"
+            height="1065"
+            className="h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="container-custom relative z-10 flex justify-center min-h-below-site-header text-center px-4">
@@ -255,30 +227,19 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
         </div>
       </section>
 
-      {/* Mobile: Hero section with scrolling images */}
+      {/* Mobile: the same responsive hero image avoids a second image payload. */}
       <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="flex h-full gymnastics-hero-scroll"
-            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
-          >
-            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
-              <div
-                key={`${src}-${i}-mobile`}
-                className="h-full flex-shrink-0"
-                style={{ width: '100vw', minWidth: '100vw' }}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : 'auto'}
-                  decoding="async"
-                />
-              </div>
-            ))}
-          </div>
+          <img
+            {...campaignImageProps(HERO_IMAGE)}
+            alt=""
+            width="1600"
+            height="1065"
+            className="h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
@@ -402,7 +363,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
                         to={disc.to}
                         className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-white/80 px-6 py-3 font-bold text-white transition-all duration-300 hover:bg-white/10"
                       >
-                        Learn More
+                        Explore {disc.title}
                         <ArrowRight className="h-5 w-5" />
                       </Link>
                     )}
@@ -711,7 +672,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
         </div>
       </section>
 
-    </div>
+    </main>
   )
 }
 

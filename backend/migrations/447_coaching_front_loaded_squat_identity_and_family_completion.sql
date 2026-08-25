@@ -6,33 +6,41 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '447_coaching_front_loaded_squat_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.19';
-  front_id CONSTANT UUID := '74b636ed-eb74-4dcb-af92-dc018ff72faa';
-  goblet_id CONSTANT UUID := 'd0bf688a-6570-4f26-b66f-9f24c5f803d7';
-  double_id CONSTANT UUID := '1682675e-8f58-48bd-841a-c4855834e861';
-  single_id CONSTANT UUID := '8a4b5536-c882-4d49-8316-20bc1a1304e2';
-  broad_id CONSTANT UUID := 'b9059b92-77b2-4af0-a115-d289496d11f0';
-  heel_front_id CONSTANT UUID := '1d112993-654e-488c-a9fe-5724d7d88e31';
-  slow_goblet_id CONSTANT UUID := '7efccdd5-d835-4b74-9a52-3307a953a8cc';
-  front_clean_variant CONSTANT UUID := '7f01a800-dcde-4a2a-adcd-7cd320283040';
-  front_cross_variant CONSTANT UUID := 'dff0792c-d50b-4bdc-bb75-593815b261a7';
-  front_heel_variant CONSTANT UUID := '7b7ea324-e182-4498-9e87-90810d44f400';
-  goblet_db_variant CONSTANT UUID := 'ad0df8ff-f2a9-4fbb-a817-e62e34faaa00';
-  goblet_kb_variant CONSTANT UUID := '099870d2-cff8-4151-9fd3-723679f5e30e';
-  goblet_db_heel_variant CONSTANT UUID := 'd3809ca8-8bd5-490d-8677-a64750a97878';
-  goblet_kb_heel_variant CONSTANT UUID := 'f6521c0c-d95f-4b8b-b50c-b3cb973d3b74';
-  goblet_med_variant CONSTANT UUID := '1461ba9e-5b7c-43d8-bb6d-4da3565a25d0';
-  double_db_variant CONSTANT UUID := 'd26ad866-29b2-4a51-8512-b840caa8871c';
-  double_kb_variant CONSTANT UUID := '0d5c7351-1784-4c9b-b013-a48f7cda389c';
-  single_kb_variant CONSTANT UUID := '1a4c9abc-ca9f-4fe7-9a48-f4ff6443a3ad';
-  broad_variant CONSTANT UUID := '4a1f95e0-b68a-4f45-ae01-83fa4c9c2bfa';
-  slow_goblet_variant CONSTANT UUID := '676da506-4dfe-4961-b1ac-4286dd877bdb';
-  definition_ids CONSTANT UUID[] := ARRAY[front_id,goblet_id,double_id,single_id];
-  archive_definition_ids CONSTANT UUID[] := ARRAY[broad_id,heel_front_id,slow_goblet_id];
-  variant_ids CONSTANT UUID[] := ARRAY[
-    front_clean_variant,front_cross_variant,front_heel_variant,
-    goblet_db_variant,goblet_kb_variant,goblet_db_heel_variant,
-    goblet_kb_heel_variant,goblet_med_variant,
-    double_db_variant,double_kb_variant,single_kb_variant];
+  front_id UUID;
+  goblet_id UUID;
+  double_id UUID;
+  single_id UUID;
+  broad_id UUID;
+  heel_front_id UUID;
+  slow_goblet_id UUID;
+  front_clean_variant UUID;
+  front_cross_variant UUID;
+  front_heel_variant UUID;
+  goblet_db_variant UUID;
+  goblet_kb_variant UUID;
+  goblet_db_heel_variant UUID;
+  goblet_kb_heel_variant UUID;
+  goblet_med_variant UUID;
+  double_db_variant UUID;
+  double_kb_variant UUID;
+  single_kb_variant UUID;
+  broad_variant UUID;
+  slow_goblet_variant UUID;
+  definition_ids UUID[];
+  archive_definition_ids UUID[];
+  variant_ids UUID[];
+  one_arm_row_id UUID;
+  landmine_front_id UUID;
+  medicine_ball_squat_press_id UUID;
+  barbell_hack_id UUID;
+  cossack_id UUID;
+  front_rack_carry_id UUID;
+  medicine_ball_clean_squat_id UUID;
+  single_leg_squat_id UUID;
+  medicine_ball_front_squat_id UUID;
+  medicine_ball_breathing_squat_id UUID;
+  tempo_goblet_id UUID;
+  dumbbell_sumo_id UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[
     167,169,369,377,414,415,461,462,463,464,748,749,1255,1295,1326,1699];
   evidence_payload JSONB := $json$
@@ -117,6 +125,58 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT id INTO front_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='front-squat';
+  SELECT id INTO goblet_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='goblet-squat';
+  SELECT id INTO double_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='double-dumbbell-front-squat';
+  SELECT id INTO single_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-kettlebell-front-rack-squat';
+  SELECT id INTO broad_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='front-squat-db-kb-barbell';
+  SELECT id INTO heel_front_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='heels-elevated-front-squat';
+  SELECT id INTO slow_goblet_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='slow-eccentric-goblet-squat';
+
+  SELECT id INTO front_clean_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='baseline';
+  SELECT id INTO front_cross_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='baseline-source-1326';
+  SELECT id INTO front_heel_variant FROM coaching.exercise_variant_v1 WHERE definition_id=heel_front_id AND variant_key='baseline';
+  SELECT id INTO goblet_db_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-167-baseline';
+  SELECT id INTO goblet_kb_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-167-legacy-source-461-baseline';
+  SELECT id INTO goblet_db_heel_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-167-legacy-source-415-baseline';
+  SELECT id INTO goblet_kb_heel_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-167-legacy-source-415-legacy-source-464-baseline';
+  SELECT id INTO goblet_med_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-1295-baseline';
+  SELECT id INTO double_db_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-414-baseline';
+  SELECT id INTO double_kb_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-414-legacy-source-462-baseline';
+  SELECT id INTO single_kb_variant FROM coaching.exercise_variant_v1 WHERE definition_id=front_id AND variant_key='legacy-source-463-baseline';
+  SELECT id INTO broad_variant FROM coaching.exercise_variant_v1 WHERE definition_id=broad_id AND variant_key='baseline';
+  SELECT id INTO slow_goblet_variant FROM coaching.exercise_variant_v1 WHERE definition_id=slow_goblet_id AND variant_key='baseline';
+
+  definition_ids:=ARRAY[front_id,goblet_id,double_id,single_id];
+  archive_definition_ids:=ARRAY[broad_id,heel_front_id,slow_goblet_id];
+  variant_ids:=ARRAY[front_clean_variant,front_cross_variant,front_heel_variant,goblet_db_variant,goblet_kb_variant,goblet_db_heel_variant,goblet_kb_heel_variant,goblet_med_variant,double_db_variant,double_kb_variant,single_kb_variant];
+
+  SELECT id INTO one_arm_row_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='one-arm-dumbbell-row';
+  SELECT id INTO landmine_front_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='landmine-front-squat';
+  SELECT id INTO medicine_ball_squat_press_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='med-ball-squat-press-hiit-fitness';
+  SELECT id INTO barbell_hack_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='barbell-hack-squat';
+  SELECT id INTO cossack_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='cossack-squat';
+  SELECT id INTO front_rack_carry_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='front-rack-carry';
+  SELECT id INTO medicine_ball_clean_squat_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='medicine-ball-clean-to-squat';
+  SELECT id INTO single_leg_squat_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-squat-to-box';
+  SELECT id INTO medicine_ball_front_squat_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='medicine-ball-front-squat';
+  SELECT id INTO medicine_ball_breathing_squat_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='medicine-ball-front-rack-breathing-squat';
+  SELECT id INTO tempo_goblet_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='goblet-squat-tempo-d6';
+  SELECT id INTO dumbbell_sumo_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='dumbbell-sumo-squat';
+
+  adjacent_identity_payload:=jsonb_set(jsonb_set(jsonb_set(jsonb_set(
+    jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(
+      jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(jsonb_set(
+        jsonb_set(jsonb_set(adjacent_identity_payload,'{0,survivor}',to_jsonb(one_arm_row_id::TEXT)),'{0,resolved}',to_jsonb(single_id::TEXT)),
+        '{1,survivor}',to_jsonb(goblet_id::TEXT)),'{1,resolved}',to_jsonb(landmine_front_id::TEXT)),
+      '{2,survivor}',to_jsonb(goblet_id::TEXT)),'{2,resolved}',to_jsonb(medicine_ball_squat_press_id::TEXT)),
+    '{3,survivor}',to_jsonb(barbell_hack_id::TEXT)),'{3,resolved}',to_jsonb(front_id::TEXT)),
+  '{4,survivor}',to_jsonb(cossack_id::TEXT)),'{4,resolved}',to_jsonb(goblet_id::TEXT)),
+  '{5,survivor}',to_jsonb(double_id::TEXT)),'{5,resolved}',to_jsonb(front_rack_carry_id::TEXT)),
+  '{6,survivor}',to_jsonb(goblet_id::TEXT)),'{6,resolved}',to_jsonb(medicine_ball_clean_squat_id::TEXT)),
+  '{7,survivor}',to_jsonb(front_rack_carry_id::TEXT)),'{7,resolved}',to_jsonb(single_id::TEXT)),
+  '{8,survivor}',to_jsonb(single_id::TEXT)),'{8,resolved}',to_jsonb(single_leg_squat_id::TEXT));
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(definition_ids)
         AND provenance_json->>'frontLoadedSquatCompletionMigration'=migration_key)=4 THEN
@@ -643,10 +703,10 @@ BEGIN
     (1,front_id,broad_id,'duplicate_consolidated','The broad DB / KB / Barbell umbrella is not selectable because it hides materially different support interfaces; its ambiguous source remains quarantined under the barbell card pending human review.',jsonb_build_object('migration',migration_key,'resolution','archive_ambiguous_umbrella_and_restore_exact_definitions','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,front_id,heel_front_id,'duplicate_consolidated','Heel elevation is an exact support variant of the barbell front squat, not a separate dynamic exercise identity.',jsonb_build_object('migration',migration_key,'resolution','heel_support_variant','priorDistinctDecisionSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,goblet_id,slow_goblet_id,'duplicate_consolidated','Slow eccentric duration is delivery dosage within the goblet squat identity.',jsonb_build_object('migration',migration_key,'resolution','tempo_delivery_modifier','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,goblet_id,'02670502-1e6f-42eb-b202-546c30e82dc0','duplicate_consolidated','Medicine Ball Front Squat uses the same one-object center-chest two-hand squat action and is retained as an exact implement variant.',jsonb_build_object('migration',migration_key,'resolution','medicine_ball_center_chest_variant','priorFrontSquatConsolidationSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,goblet_id,'5c12ae98-11dc-48c1-8d09-458f4b0cd26f','duplicate_consolidated','Breathing cadence does not change the center-chest medicine-ball squat identity and is a delivery annotation.',jsonb_build_object('migration',migration_key,'resolution','medicine_ball_variant_with_breath_cadence','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,goblet_id,'51ab2de5-d96a-4aa0-9489-dd6f54edd244','duplicate_consolidated','The 3-1 tempo is delivery dosage within the goblet squat identity.',jsonb_build_object('migration',migration_key,'resolution','tempo_delivery_modifier','priorFrontSquatConsolidationSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,'60c20e45-ff6d-4221-b0af-209dc90c515d',goblet_id,'distinct_exercises','Dumbbell Sumo Squat requires a wide turned-out stance and different hip strategy; it remains distinct regardless of whether the load is held near the torso.',jsonb_build_object('migration',migration_key,'identityBoundary','required_sumo_stance_vs_declared_bilateral_goblet_stance','priorNeedsHumanReviewSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+    (1,goblet_id,medicine_ball_front_squat_id,'duplicate_consolidated','Medicine Ball Front Squat uses the same one-object center-chest two-hand squat action and is retained as an exact implement variant.',jsonb_build_object('migration',migration_key,'resolution','medicine_ball_center_chest_variant','priorFrontSquatConsolidationSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,goblet_id,medicine_ball_breathing_squat_id,'duplicate_consolidated','Breathing cadence does not change the center-chest medicine-ball squat identity and is a delivery annotation.',jsonb_build_object('migration',migration_key,'resolution','medicine_ball_variant_with_breath_cadence','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,goblet_id,tempo_goblet_id,'duplicate_consolidated','The 3-1 tempo is delivery dosage within the goblet squat identity.',jsonb_build_object('migration',migration_key,'resolution','tempo_delivery_modifier','priorFrontSquatConsolidationSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,dumbbell_sumo_id,goblet_id,'distinct_exercises','Dumbbell Sumo Squat requires a wide turned-out stance and different hip strategy; it remains distinct regardless of whether the load is held near the torso.',jsonb_build_object('migration',migration_key,'identityBoundary','required_sumo_stance_vs_declared_bilateral_goblet_stance','priorNeedsHumanReviewSuperseded',TRUE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,

@@ -19,7 +19,7 @@ export const DROP_IN_FAQS: Faq[] = [
   {
     question: 'Where are Vortex drop-in classes held?',
     answer:
-      'Drop-in classes are held at Vortex Athletics, 4961 Tesla Dr, Ste E, Bowie, MD 20715, convenient to Bowie, Crofton, Mitchellville, Glenn Dale, and Upper Marlboro families.',
+      'Drop-in classes are held at Vortex Athletics, 4961 Tesla Dr Suite E, Bowie, MD 20715, convenient to Bowie, Crofton, Mitchellville, Glenn Dale, and Upper Marlboro families.',
   },
 ]
 

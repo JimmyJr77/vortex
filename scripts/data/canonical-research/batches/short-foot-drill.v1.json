@@ -1,0 +1,123 @@
+{
+  "batchKey": "short-foot-drill",
+  "facilityId": 1,
+  "researchVersion": "2026-08-09.113",
+  "snapshotAt": "2026-08-09T22:00:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/short-foot-drill",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "short-foot-drill",
+      "snapshotVariantKey": "standing-hands-free-single-target-foot-dome-hold-return",
+      "assessmentSummary": {
+        "identity": "One Short-Foot Drill repetition is performed on one target foot. Begin with the target heel, first metatarsal head, fifth metatarsal head, and relaxed long toes supported. Without curling or lifting the toes or rotating the ankle, draw the metatarsal heads toward the heel enough to shorten the foot and raise the medial arch, maintain the prescribed isometric hold, then relax with control to the same supported start. Record left and right separately. Standing hands-free, standing light wall-touch, and seated stable-bench support are exact variants. Hold time, comfortable submaximal effort and range, breathing, repetitions, sets, rest, side order, and delivery context are dosage or annotations. Toe Yoga, toe pressing or curling, whole-foot weight shifts, heel raises, dynamic-only contractions, single-leg or unstable support, maximal testing, biofeedback, and clinical treatment change the variant or definition.",
+        "currentCardFindings": [
+          "Source 46 has a stable canonical identity and no direct name collision, but its definition and only variant are skeletal and do not supply a complete start, return endpoint, side-specific count, anatomy, loading, fatigue, delivery, substitution, persistence, or review contract.",
+          "The legacy description collapses standing and seated delivery into one ambiguous row and carries an age floor. The canonical version separates support variants and removes age and skill classification because exercise cards score the task only.",
+          "Direct doming research supports metatarsal-head-to-heel shortening, arch elevation, retained heel and forefoot contact, long toes, and rejection of toe curling, toe lifting, or ankle rotation. It does not establish a universal workout dose, outcome, recovery interval, or Vortex difficulty score.",
+          "Five YouTube candidates returned healthy oEmbed metadata. None has been watched in full, assigned to an exact support variant, or approved for mechanics, hold and return, count, captions, accessibility, cue quality, safety, or card-version match."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace"],
+          "bodyRegions": ["foot", "ankle", "calf", "knee", "hip", "core"],
+          "support": "one_target_foot_flat_with_standing_hands_free_standing_wall_touch_or_seated_bench_support",
+          "laterality": "one_target_foot_per_repetition_left_and_right_recorded_separately",
+          "planes": ["sagittal_arch_shortening", "frontal_stabilization", "transverse_stabilization"],
+          "equipment": ["none", "wall", "bench"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 8,
+          "physicalDifficulty": 8,
+          "coordinationDemand": 46,
+          "supervisionDemand": 11,
+          "failureConsequence": 6,
+          "impact": 1,
+          "workCapacityDemand": 8,
+          "baseOverallDifficulty": 44,
+          "variantScores": {
+            "standingHandsFree": {"technicalComplexity": 44, "absoluteLoadDemand": 8, "physicalDifficulty": 8, "coordinationDemand": 46, "supervisionDemand": 11, "failureConsequence": 6, "impact": 1, "workCapacityDemand": 8, "baseOverallDifficulty": 44},
+            "standingWallTouch": {"technicalComplexity": 40, "absoluteLoadDemand": 7, "physicalDifficulty": 7, "coordinationDemand": 42, "supervisionDemand": 10, "failureConsequence": 5, "impact": 1, "workCapacityDemand": 7, "baseOverallDifficulty": 40},
+            "seatedBench": {"technicalComplexity": 36, "absoluteLoadDemand": 5, "physicalDifficulty": 5, "coordinationDemand": 38, "supervisionDemand": 9, "failureConsequence": 4, "impact": 1, "workCapacityDemand": 6, "baseOverallDifficulty": 36}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "submaximal_target_foot_arch_shortening_isometric_with_support_position_specific_weight_bearing_and_no_added_resistance",
+          "impactClass": "none",
+          "primaryExposure": ["intrinsic_and_extrinsic_arch_control", "metatarsal_head_to_heel_shortening", "long_toe_contact", "foot_motor_coordination"],
+          "recovery": "6_hours_planning_estimate_with_2_to_12_hour_review_range"
+        },
+        "proposedDosage": {
+          "prepare": "1-2_sets_of_4-6_repetitions_per_side_with_3-5_second_submaximal_holds",
+          "resilience": "1-3_sets_of_4-8_repetitions_per_side_with_3-8_second_submaximal_holds_without_chasing_fatigue",
+          "tempo": "controlled_dome_prescribed_hold_and_controlled_full_relaxation_to_the_same_start",
+          "rest": "15-60_seconds_or_as_needed_to_restore_long_toes_contacts_arch_ankle_knee_body_control_breathing_and_symptom_rules",
+          "durationRule": "surface_hygiene_equipment_and_body_setup_plus_actual_valid_repetitions_and_hold_seconds_by_side_plus_side_switch_rest_invalid_partial_assisted_or_symptom_limited_attempts_substitution_cleaning_station_reset_and_exit"
+        },
+        "programmingDecision": "Select only when the exact support variant, target side order, clean dry nonslip foot-safe surface, hygiene, toe visibility, comfortable submaximal arch shortening, symptoms, restrictions, hold dose, duration, and cumulative foot, toe, calf, balance, running, landing, jumping, agility, and lower-body budgets fit. Do not silently change support position, weight bearing, hand support, target side, toe action, contraction mode, assistance, resistance, count, clinical scope, or task identity. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after every change.",
+        "calibrationEvidence": {
+          "basis": "Direct doming strength-test mechanics, a randomized short-foot progression trial, an ultrasound-biofeedback motor-learning trial, a feasibility study documenting immediate learning difficulty, direct intrinsic-foot activation research, systematic reviews, general supervised-exercise safeguards, the exact Source 46 contract, five current YouTube oEmbed records, and comparison with Toe Yoga, tripod shifts, hallux pressing, toe flexion, single-leg balance, and short-foot-to-calf-raise neighbors",
+          "uncertainty": "Research does not validate one universal support position, effort, range, hold, dose, frequency, fatigue ceiling, recovery interval, outcome, participant threshold, or Vortex score. Maximal strength testing and biofeedback research are not workout prescriptions. No media, relationship, or score has qualified human approval.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration_for_three_variants", "variant_family_review", "surface_hygiene_wall_bench_and_visibility_safety_review", "anatomy_load_fatigue_and_recovery_review", "clinical_scope_and_stop_rule_review", "full_video_review_and_variant_assignment", "relationship_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"short_foot_doming_strength_reliability_2017","claims":["Doming draws the metatarsal heads toward the heel while raising the arch and retaining foot contact.","Vortex defines one target-foot dome, prescribed hold, and controlled return as one repetition; support variants and side-specific counting are explicit."]},
+        {"sectionKey":"taxonomy","sourceKey":"short_foot_pronation_rct_2020","claims":["Short-foot exercise is an arch-shortening task distinct from selective toe extension and whole-foot pressure shifting.","Seated, loaded seated, standing, and single-leg conditions change support or loading and are not silently collapsed."]},
+        {"sectionKey":"anatomy","sourceKey":"selective_toe_extension_mri_2016","claims":["Short-foot exercise activated all measured plantar intrinsic foot muscles in the study.","The card includes intrinsic and extrinsic contributors, joints, actions, planes, contacts, and laterality without claiming isolation."]},
+        {"sectionKey":"biomechanics","sourceKey":"short_foot_doming_strength_reliability_2017","claims":["Valid doming keeps the toes and heel down while the forefoot draws toward the heel; toe or heel lifting invalidated trials.","Workout repetitions additionally require no toe curl, no ankle rotation, a submaximal hold, and a controlled return."]},
+        {"sectionKey":"difficulty","sourceKey":"short_foot_feasibility_2025","claims":["Short-foot exercise was technically challenging and many participants could not perform it acceptably even after practice.","Candidate scores describe task complexity and physical difficulty only, not participant proficiency, eligibility, or age."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"selective_toe_extension_mri_2016","claims":["Short-foot exercise produced measurable plantar intrinsic activation in an acute laboratory protocol.","Laboratory exposure does not establish workout fatigue or recovery; Vortex tracks repetitions, hold seconds, support, faults, symptoms, and overlapping foot load."]},
+        {"sectionKey":"constraints","sourceKey":"short_foot_feasibility_2025","claims":["The feasibility protocol used seated support, first-metatarsal-head and heel contact, arch elevation, and rejected interphalangeal flexion or ankle rotation.","Vortex adds surface, hygiene, visibility, wall, bench, symptom, communication, space, and exit constraints without demographic classification."]},
+        {"sectionKey":"dosage","sourceKey":"short_foot_pronation_rct_2020","claims":["Published protocols vary and the trial authors did not identify one universal short-foot protocol.","Candidate hold and repetition ranges remain quarantined and stop before contact, long-toe, arch, ankle, body, breathing, or symptom quality degrades."]},
+        {"sectionKey":"instructions","sourceKey":"short_foot_doming_strength_reliability_2017","claims":["A direct instruction is to draw the ball of the foot toward the heel and raise the arch without curling or lifting the toes.","Vortex adds target side, submaximal hold, controlled relaxation, valid count, support position, and stop rules."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"nsca_youth_resistance_position","claims":["General exercise safeguards emphasize qualified instruction, safe environments, appropriate progression, and technique supervision.","No age or participant level is inferred; exact-task control, symptoms, environment, exposure, and facility escalation govern selection."]},
+        {"sectionKey":"programming","sourceKey":"intrinsic_foot_training_meta_analysis_2023","claims":["Intrinsic-foot programs are heterogeneous in exercise selection, dose, and outcomes.","Short-Foot Drill may serve preparation or resilience only when purpose and fatigue budgets fit; no universal outcome is promised."]},
+        {"sectionKey":"athlete_support","sourceKey":"short_foot_feasibility_2025","claims":["Acceptable performance can require practice and is defined by observable contacts and absence of toe flexion and ankle rotation.","Athlete support uses small comfortable doming, long toes, quiet contacts, full relaxation, breathing, and symptom checks rather than maximal effort."]},
+        {"sectionKey":"coach_support","sourceKey":"short_foot_doming_strength_reliability_2017","claims":["Toe, first-metatarsal-base, and heel lifting were observable invalid-trial criteria.","Coaches record support, side, contacts, toe curl or lift, ankle rotation, arch action, return, first fault, exposure, symptoms, and duration without diagnosing impairment."]},
+        {"sectionKey":"accessibility","sourceKey":"short_foot_pronation_rct_2020","claims":["Seated support preceded progressively loaded and standing practice in one protocol.","Seated support, visible cue cards, smaller effort, shorter holds, fewer repetitions, more rest, captions, transcript, stills, or live instruction may improve access; assistance is a separate candidate variant."]},
+        {"sectionKey":"alternates","sourceKey":"foot_strength_athletes_review","claims":["Short-foot, selective toe extension, toe-spread, and toe-flexion exercises have different action contracts.","Support variants, modifiers, single-leg, unstable, assisted, resisted, dynamic-only, maximal-test, biofeedback, and compound boundaries remain explicit."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed metadata on 2026-08-09.","Metadata health does not prove playback, exact variant, mechanics, hold, return, count, captions, accessibility, cue quality, safety, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=acTjKwkti5s","title":"Short Foot Drill - Yoga/Janda Foot","channelName":"Dr. Beau Beard","sourceQuery":"legacy Source 46 candidate; exact support and mechanics require full review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"},"notes":"oEmbed metadata only; playback, exact mechanics, support variant, hold, return, count, captions, accessibility, safety, and approval remain unverified."},
+        {"url":"https://www.youtube.com/watch?v=m1lkcg8p-48","title":"Short Foot Exercise","channelName":"Singapore General Hospital","sourceQuery":"legacy Source 46 candidate; clinical context and exact variant require full review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"},"notes":"oEmbed metadata only; playback, exact mechanics, support variant, hold, return, count, captions, accessibility, safety, and approval remain unverified."},
+        {"url":"https://www.youtube.com/watch?v=z0-Vnmw2sxM","title":"The Short Foot exercise | A great way to strengthen your feet","channelName":"Elevate Chiropractic - Dr Craig Buscomb","sourceQuery":"legacy Source 46 candidate; outcome framing and exact variant require full review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"},"notes":"oEmbed metadata only; playback, exact mechanics, support variant, hold, return, count, captions, accessibility, safety, and approval remain unverified."},
+        {"url":"https://www.youtube.com/watch?v=cIn8bZAwnIQ","title":"Foot Doming, or Short Foot Exercise","channelName":"Beacon Physical Therapy","sourceQuery":"foot doming candidate; exact support and repetition contract require full review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"},"notes":"oEmbed metadata only; playback, exact mechanics, support variant, hold, return, count, captions, accessibility, safety, and approval remain unverified."},
+        {"url":"https://www.youtube.com/watch?v=rS5ucOyfgSg","title":"Barefoot Running Exercise: Foot Doming","channelName":"[P]rehab","sourceQuery":"foot doming candidate; running framing and exact variant require full review","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"},"notes":"oEmbed metadata only; playback, exact mechanics, support variant, hold, return, count, captions, accessibility, safety, and approval remain unverified."}
+      ],
+      "alternateAssessments": [
+        {"name":"Standing Hands-Free Single-Target-Foot Short-Foot Drill","classification":"same_identity","rationale":"Authored exact standing hands-free variant.","distinguishingDimensions":{"support":"standing_hands_free","status":"authored_review_variant"}},
+        {"name":"Standing Wall-Touch Single-Target-Foot Short-Foot Drill","classification":"same_identity","rationale":"Authored exact light wall-touch variant.","distinguishingDimensions":{"support":"standing_wall_touch","status":"authored_review_variant"}},
+        {"name":"Seated Single-Target-Foot Short-Foot Drill","classification":"same_identity","rationale":"Authored exact stable-bench seated variant.","distinguishingDimensions":{"support":"seated_bench","status":"authored_review_variant"}},
+        {"name":"Left Foot First or Right Foot First","classification":"modifier_annotation","rationale":"Side order does not change identity when each side is recorded separately.","distinguishingDimensions":{"annotation":"target_side_order"}},
+        {"name":"Comfortable Smaller Dome Range","classification":"modifier_annotation","rationale":"Comfortable submaximal range can change while contacts, action, hold, return, and count remain intact.","distinguishingDimensions":{"annotation":"comfortable_range"}},
+        {"name":"Three- to Eight-Second Short-Foot Hold","classification":"modifier_annotation","rationale":"Prescribed hold time is dosage while the same isometric dome-and-return repetition remains intact.","distinguishingDimensions":{"annotation":"hold_seconds"}},
+        {"name":"Short-Foot Repetition Set and Rest Changes","classification":"modifier_annotation","rationale":"Repetitions, sets, and rest are delivery-profile fields.","distinguishingDimensions":{"annotation":"dose"}},
+        {"name":"Prepare versus Resilience Short-Foot Context","classification":"modifier_annotation","rationale":"Delivery phase changes purpose and dose, not task identity.","distinguishingDimensions":{"annotation":"delivery_context"}},
+        {"name":"Barefoot versus Approved Thin Sock","classification":"modifier_annotation","rationale":"Foot covering is operational only when traction, hygiene, comfort, and observation remain adequate.","distinguishingDimensions":{"annotation":"foot_covering"}},
+        {"name":"Comfortable Standing Stance Width","classification":"modifier_annotation","rationale":"Small stance-width changes are annotations when support and target-foot mechanics remain unchanged.","distinguishingDimensions":{"annotation":"stance_width"}},
+        {"name":"Submaximal Effort Change","classification":"modifier_annotation","rationale":"Comfortable effort is dosage while the exact dome, hold, and return remain unchanged.","distinguishingDimensions":{"annotation":"effort"}},
+        {"name":"Breathing Cue Change","classification":"modifier_annotation","rationale":"Breathing cues are delivery annotations unless a breath-hold task is prescribed.","distinguishingDimensions":{"annotation":"breathing"}},
+        {"name":"Simultaneous Bilateral Short-Foot Drill","classification":"new_variant","rationale":"Both feet acting simultaneously changes laterality, observation, count, and compensation rules.","distinguishingDimensions":{"boundary":"bilateral_simultaneous"}},
+        {"name":"Single-Leg Stance Short-Foot Drill","classification":"new_variant","rationale":"Removing the other foot changes balance, loading, failure consequence, and stop rules.","distinguishingDimensions":{"boundary":"single_leg"}},
+        {"name":"Unstable-Surface Short-Foot Drill","classification":"new_variant","rationale":"Unstable support changes balance, pressure, logistics, and failure behavior.","distinguishingDimensions":{"boundary":"unstable_surface"}},
+        {"name":"Manually Assisted Short-Foot Drill","classification":"new_variant","rationale":"Manual guidance changes assistance, validity, consent, and coach contact.","distinguishingDimensions":{"boundary":"manual_assistance"}},
+        {"name":"Banded or Resisted Short-Foot Drill","classification":"new_variant","rationale":"Resistance changes equipment, load, force direction, fatigue, and failure behavior.","distinguishingDimensions":{"boundary":"external_resistance"}},
+        {"name":"Dynamic Short-Foot Repetitions without a Hold","classification":"new_variant","rationale":"Removing the prescribed isometric interval changes contraction and dose contract.","distinguishingDimensions":{"boundary":"dynamic_only"}},
+        {"name":"Eccentric-Only Arch-Lengthening Drill","classification":"new_variant","rationale":"An eccentric-only task changes action direction, start, endpoint, and count.","distinguishingDimensions":{"boundary":"eccentric_only"}},
+        {"name":"Short-Foot with Ultrasound or EMG Biofeedback","classification":"new_variant","rationale":"Instrumented feedback changes equipment, delivery, supervision, and scope.","distinguishingDimensions":{"boundary":"biofeedback"}},
+        {"name":"Split-Stance Short-Foot Drill","classification":"new_variant","rationale":"Split stance changes support geometry and target-foot loading.","distinguishingDimensions":{"boundary":"split_stance"}},
+        {"name":"Toe Yoga","classification":"new_definition","rationale":"Selective great-toe and lesser-toe extension is not arch shortening.","distinguishingDimensions":{"boundary":"selective_toe_extension"}},
+        {"name":"Foot Tripod Weight Shifts","classification":"new_definition","rationale":"Whole-foot pressure shifting moves center of pressure rather than intentionally shortening the arch.","distinguishingDimensions":{"boundary":"pressure_shift"}},
+        {"name":"Big Toe Press Iso Hold","classification":"new_definition","rationale":"A sustained hallux press has a different target action and dose.","distinguishingDimensions":{"boundary":"hallux_press"}},
+        {"name":"Towel Curl or Toe-Grip Exercise","classification":"new_definition","rationale":"Toe flexion and gripping add a different digit action and often an implement.","distinguishingDimensions":{"boundary":"toe_flexion_grip"}},
+        {"name":"Maximal Doming Strength Assessment","classification":"new_definition","rationale":"A maximal instrumented test has a different purpose, effort, validity, and interpretation.","distinguishingDimensions":{"boundary":"maximal_assessment"}},
+        {"name":"Short Foot to Calf Raise","classification":"new_definition","rationale":"Adding plantarflexion and heel elevation creates a compound sequence.","distinguishingDimensions":{"boundary":"compound_calf_raise"}},
+        {"name":"Single-Leg Tripod Balance","classification":"new_definition","rationale":"A balance hold with tripod contacts is not a repeated arch-shortening hold-and-return task.","distinguishingDimensions":{"boundary":"balance_hold"}}
+      ]
+    }
+  ]
+}

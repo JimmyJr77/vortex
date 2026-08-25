@@ -11,8 +11,8 @@ import { HOME_FAQS, type Faq } from '../config/faqs'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
-import { SUMMER_CAMP_2026_WEEKS } from '../apps/gymnastics/data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
+import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { ENROLL_PATH } from '../config/enrollSites'
 import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
@@ -39,11 +39,23 @@ export const organizationSchema = (): JsonLd => ({
   '@type': 'Organization',
   '@id': `${HUB_ORIGIN}/#organization`,
   name: SITE_NAME,
+  legalName: 'Vortex Athletics, LLC',
+  alternateName: ['Vortex Athletics and Gymnastics', 'Vortex Gymnastics'],
   url: rootUrl(HUB_ORIGIN),
   logo: DEFAULT_OG_IMAGE,
+  address: postalAddress(),
   email: TEAM_EMAIL,
   telephone: phoneE164,
-  sameAs: [...SOCIAL_PROFILES],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: phoneE164,
+    email: TEAM_EMAIL,
+    contactType: 'customer service',
+    areaServed: 'US-MD',
+    availableLanguage: 'English',
+  },
+  location: { '@id': `${HUB_ORIGIN}/#location` },
+  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
 })
 
 export const webSiteSchema = (origin: string): JsonLd => ({
@@ -55,13 +67,37 @@ export const webSiteSchema = (origin: string): JsonLd => ({
   publisher: { '@id': `${HUB_ORIGIN}/#organization` },
 })
 
-/** SportsActivityLocation (LocalBusiness subtype) with canonical NAP + geo + hours. */
-export const sportsActivityLocationSchema = (origin: string): JsonLd => ({
+const localServiceCatalog = () => ({
+  '@type': 'OfferCatalog',
+  name: 'Youth athletics and gymnastics programs',
+  itemListElement: [
+    'Youth Sports Performance Training',
+    'Gymnastics Classes',
+    'Beginner Gymnastics',
+    'Artistic Gymnastics',
+    'Rhythmic Gymnastics',
+    'Acrobatic Gymnastics',
+    'Trampoline and Tumbling',
+    'Fit & Flip Athletic Training',
+    'Homeschool Gymnastics and PE',
+    'Drop-In Youth Classes',
+  ].map((name) => ({
+    '@type': 'Offer',
+    itemOffered: { '@type': 'Service', name },
+  })),
+})
+
+/** One stable local entity shared by both sites, matching the Google profile. */
+export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'SportsActivityLocation',
-  '@id': `${origin}/#location`,
-  name: SITE_NAME,
-  url: rootUrl(origin),
+  '@id': `${HUB_ORIGIN}/#location`,
+  name: BUSINESS_NAP.name,
+  alternateName: [SITE_NAME, 'Vortex Gymnastics'],
+  url: rootUrl(HUB_ORIGIN),
+  mainEntityOfPage: rootUrl(pageOrigin),
+  description:
+    'Youth sports performance training and gymnastics classes for children and teens in Bowie, Maryland, including speed, agility, strength, conditioning, tumbling, and competitive gymnastics.',
   image: DEFAULT_OG_IMAGE,
   telephone: phoneE164,
   email: TEAM_EMAIL,
@@ -80,7 +116,25 @@ export const sportsActivityLocationSchema = (origin: string): JsonLd => ({
     closes: slot.closes,
   })),
   areaServed: SERVICE_AREAS.map((name) => ({ '@type': 'City', name })),
-  sameAs: [...SOCIAL_PROFILES],
+  sport: ['Gymnastics', 'Youth sports', 'Strength and conditioning', 'Tumbling'],
+  knowsAbout: [
+    'Youth athletic development',
+    'Sports performance training',
+    'Speed and agility training',
+    'Strength and conditioning',
+    'Artistic gymnastics',
+    'Rhythmic gymnastics',
+    'Acrobatic gymnastics',
+    'Trampoline and tumbling',
+  ],
+  parentOrganization: { '@id': `${HUB_ORIGIN}/#organization` },
+  hasOfferCatalog: localServiceCatalog(),
+  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, rootUrl(GYMNASTICS_ORIGIN)],
+  potentialAction: {
+    '@type': 'ReserveAction',
+    target: `${HUB_ORIGIN}${ENROLL_PATH}`,
+    result: { '@type': 'Reservation', name: 'Vortex class enrollment' },
+  },
 })
 
 export const breadcrumbSchema = (
@@ -107,10 +161,13 @@ export const courseSchema = (params: {
   name: params.name,
   description: params.description,
   url: params.url,
+  inLanguage: 'en-US',
+  courseMode: 'onsite',
   provider: {
     '@type': 'SportsActivityLocation',
-    name: SITE_NAME,
-    url: rootUrl(params.providerOrigin),
+    '@id': `${HUB_ORIGIN}/#location`,
+    name: BUSINESS_NAP.name,
+    url: rootUrl(HUB_ORIGIN),
   },
 })
 
@@ -126,10 +183,8 @@ export const serviceSchema = (params: {
   description: params.description,
   url: params.url,
   areaServed: SERVICE_AREAS.map((name) => ({ '@type': 'City', name })),
-  provider: { '@id': `${HUB_ORIGIN}/#organization` },
+  provider: { '@id': `${HUB_ORIGIN}/#location` },
 })
-
-const ENROLL_REGISTRATION_URL = `${HUB_ORIGIN}${ENROLL_PATH}`
 
 export const eventSchema = (params: {
   name: string
@@ -151,18 +206,15 @@ export const eventSchema = (params: {
   url: params.url,
   location: {
     '@type': 'Place',
-    name: 'Vortex Gymnastics',
+    '@id': `${HUB_ORIGIN}/#location`,
+    name: BUSINESS_NAP.name,
     address: postalAddress(),
   },
   organizer: {
     '@type': 'Organization',
-    name: 'Vortex Gymnastics',
-    url: rootUrl(params.providerOrigin),
-  },
-  offers: {
-    '@type': 'Offer',
-    url: params.registrationUrl ?? params.url,
-    availability: 'https://schema.org/InStock',
+    '@id': `${HUB_ORIGIN}/#organization`,
+    name: SITE_NAME,
+    url: rootUrl(HUB_ORIGIN),
   },
 })
 
@@ -225,6 +277,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
   if (pathname === '/vortex-athletics') {
     schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(faqPageSchema(YOUTH_TRAINING_FAQS))
     schema.push(
       serviceSchema({
         name: 'Youth Sports Performance Training',
@@ -323,20 +376,6 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
       ]),
     )
     schema.push(faqPageSchema(SUMMER_CAMP_FAQS))
-    for (const week of SUMMER_CAMP_2026_WEEKS) {
-      const [start, end] = week.dateRange.split('/')
-      schema.push(
-        eventSchema({
-          name: `Vortex Gymnastics Summer Camp 2026 — Week ${week.week}`,
-          description: `${week.dates}: ${week.activities.join(', ')}. Ages 6–14.`,
-          startDate: start,
-          endDate: end,
-          url,
-          registrationUrl: ENROLL_REGISTRATION_URL,
-          providerOrigin: origin,
-        }),
-      )
-    }
     return schema
   }
 

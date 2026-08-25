@@ -1,0 +1,14 @@
+{
+  "migrationKey": "561_coaching_rear_support_table_hold_source_76_candidate_materialization",
+  "researchVersion": "2026-08-10.122",
+  "generatedAt": "2026-08-10T05:30:00.000Z",
+  "cards": [
+    {
+      "slug": "rear-support-shape-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 8,
+      "cardVersion": 2
+    }
+  ]
+}

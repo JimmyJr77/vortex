@@ -36,6 +36,9 @@ BEGIN
       migration_key;
   END IF;
 
+  -- A pre-existing, unreviewed machine decision with the same exact
+  -- classification is safe to bring under this migration's provenance. A
+  -- different classification, source, or any human review remains protected.
   SELECT count(*) INTO conflicting_count
   FROM coaching.exercise_identity_resolution_v1 resolution
   WHERE resolution.facility_id = 1
@@ -45,7 +48,6 @@ BEGIN
       resolution.decision = 'distinct_exercises'
       AND resolution.resolution_source = 'deterministic_identity_equivalence'
       AND resolution.reviewed_by IS NULL
-      AND resolution.evidence_json->>'migration' = migration_key
     );
 
   IF conflicting_count > 0 THEN
@@ -99,7 +101,19 @@ BEGIN
     WHERE resolution.facility_id = 1
       AND resolution.survivor_definition_id IN (left_id, right_id)
       AND resolution.resolved_definition_id IN (left_id, right_id)
-  );
+      AND resolution.evidence_json->>'migration' = migration_key
+  )
+  ON CONFLICT (survivor_definition_id, resolved_definition_id) DO UPDATE SET
+    decision = EXCLUDED.decision,
+    rationale = EXCLUDED.rationale,
+    evidence_json = EXCLUDED.evidence_json,
+    resolution_source = EXCLUDED.resolution_source,
+    reviewed_by = NULL,
+    resolved_at = EXCLUDED.resolved_at
+  WHERE coaching.exercise_identity_resolution_v1.decision = 'distinct_exercises'
+    AND coaching.exercise_identity_resolution_v1.resolution_source =
+      'deterministic_identity_equivalence'
+    AND coaching.exercise_identity_resolution_v1.reviewed_by IS NULL;
 
   SELECT id INTO left_id
   FROM coaching.exercise_definition_v1

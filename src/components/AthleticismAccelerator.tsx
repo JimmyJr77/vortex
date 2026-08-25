@@ -10,6 +10,7 @@ import RotatingOfferHeadline from './RotatingOfferHeadline'
 import TrainingPhilosophy from './TrainingPhilosophy'
 import VortexDifference from './VortexDifference'
 import { TENETS, TRAINING_METHODOLOGIES, PHYSIOLOGICAL_EMPHASIS } from '../coach/taxonomy'
+import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 
 interface AthleticismAcceleratorProps {
   onHighlightsClick?: () => void
@@ -27,17 +28,14 @@ const ACCELERATOR_OFFER_HEADLINES = [
   },
 ]
 
+const ACCELERATOR_BENEFITS = [
+  { icon: TrendingUp, title: 'Measurable Progress', description: 'Track improvements through data-driven metrics and AI analysis' },
+  { icon: Shield, title: 'Reduced Injury Risk', description: 'Build resilient bodies through proper movement patterns and strength' },
+  { icon: Target, title: 'Enhanced Performance', description: 'Outperform competitors with superior athletic capabilities' },
+  { icon: Users, title: 'Multi-Sport Transfer', description: 'Skills that enhance performance in any athletic discipline' },
+]
+
 const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorProps) => {
-  const tenets = TENETS
-  const trainingMethodologies = TRAINING_METHODOLOGIES
-
-  const benefits = [
-    { icon: TrendingUp, title: 'Measurable Progress', description: 'Track improvements through data-driven metrics and AI analysis' },
-    { icon: Shield, title: 'Reduced Injury Risk', description: 'Build resilient bodies through proper movement patterns and strength' },
-    { icon: Target, title: 'Enhanced Performance', description: 'Outperform competitors with superior athletic capabilities' },
-    { icon: Users, title: 'Multi-Sport Transfer', description: 'Skills that enhance performance in any athletic discipline' },
-  ]
-
   return (
     <div className="min-h-screen bg-white">
       <Hero onHighlightsClick={onHighlightsClick} hideAcceleratorCta />
@@ -107,7 +105,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {tenets.map((tenet, index) => (
+            {TENETS.map((tenet, index) => (
               <motion.div
                 key={tenet.name}
                 className="bg-gray-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
@@ -157,7 +155,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trainingMethodologies.map((method, index) => (
+            {TRAINING_METHODOLOGIES.map((method, index) => (
               <motion.div
                 key={method.name}
                 className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 text-white"
@@ -167,7 +165,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
                 viewport={{ once: true }}
               >
                 <Target className="w-8 h-8 text-vortex-red mb-4" />
-                <h4 className="text-xl font-bold mb-2">{method.name}</h4>
+                <h3 className="text-xl font-bold mb-2">{method.name}</h3>
                 <p className="text-gray-300 text-sm">{method.description}</p>
               </motion.div>
             ))}
@@ -260,7 +258,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {benefits.map((benefit, index) => (
+            {ACCELERATOR_BENEFITS.map((benefit, index) => (
               <motion.div
                 key={benefit.title}
                 className="bg-white rounded-2xl p-8 shadow-lg"
@@ -313,6 +311,45 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
         </div>
       </section>
 
+      <section className="section-padding bg-gray-100" id="youth-training-faq">
+        <div className="container-custom">
+          <div className="mx-auto mb-12 max-w-4xl text-center">
+            <p className="mb-3 font-bold uppercase tracking-[0.2em] text-red-700">
+              Local Youth Training
+            </p>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Youth Sports Performance Training FAQs
+            </h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-gray-700">
+              What families should know about athletic development classes at Vortex in Bowie,
+              Maryland.
+            </p>
+          </div>
+
+          <div className="mx-auto max-w-4xl space-y-4">
+            {YOUTH_TRAINING_FAQS.map((faq) => (
+              <details
+                key={faq.question}
+                className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+              >
+                <summary className="cursor-pointer list-none text-lg font-bold text-black [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-center justify-between gap-4">
+                    {faq.question}
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-xl font-normal text-white transition-transform group-open:rotate-45"
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
+                  </span>
+                </summary>
+                <p className="mt-4 leading-relaxed text-gray-700">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Join the Accelerator */}
       <section className="section-padding bg-white text-black">
         <div className="container-custom">
@@ -333,6 +370,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
                 className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
               >
                 <motion.span
+                  tabIndex={-1}
                   className="inline-block"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

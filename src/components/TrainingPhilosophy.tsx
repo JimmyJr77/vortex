@@ -85,7 +85,10 @@ export default function TrainingPhilosophy() {
             <motion.div key={triadTab} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.2 }} className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-4">
                 <h3 className="text-xl font-display font-bold text-black md:text-2xl">{triads[triadTab].title}</h3>
-                <span className="flex-shrink-0 cursor-help rounded-full p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-700" title={triadTooltip} aria-label="More about how triads work together"><Info className="h-5 w-5" /></span>
+                <span className="flex-shrink-0 cursor-help rounded-full p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-700" title={triadTooltip}>
+                  <Info className="h-5 w-5" aria-hidden="true" />
+                  <span className="sr-only">More about how triads work together</span>
+                </span>
               </div>
               <p className="leading-relaxed text-gray-700">{triads[triadTab].definition}</p>
               <p className="text-sm font-medium text-vortex-red">Why it matters: {triads[triadTab].whyItMatters}</p>

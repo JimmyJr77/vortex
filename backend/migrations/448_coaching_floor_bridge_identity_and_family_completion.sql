@@ -7,36 +7,34 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '448_coaching_floor_bridge_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.62';
-  bridge_id CONSTANT UUID := '047048f8-4eb2-43aa-8daf-0bbb542e145a';
-  bridge_iso_id CONSTANT UUID := 'f40bde37-6465-42a3-a817-830eada23aa7';
-  single_bridge_id CONSTANT UUID := '3f21cb64-9f61-4c11-bbc0-aebd395dc76e';
-  single_iso_id CONSTANT UUID := 'eae3a6ea-3550-4a0e-bd48-dcde852f2fbe';
-  combined_long_lever_id CONSTANT UUID := '32b920aa-a132-48eb-a1fe-ba144b4b90c6';
-  long_lever_duplicate_id CONSTANT UUID := '118a77c2-ba2c-4c9c-98f2-6465935a30a2';
-  single_iso_duplicate_id CONSTANT UUID := 'b0ef6134-e935-4b4b-bfd6-c902305d3c32';
-  bridge_bodyweight_variant CONSTANT UUID := '4e587994-1c2b-4a2c-a014-717f7c3f82c6';
-  bridge_barbell_variant CONSTANT UUID := 'e0ec1173-eca8-4902-ba28-3808b71e0fef';
-  bridge_dumbbell_variant CONSTANT UUID := '1a74c667-676f-408d-bdce-5add37f4d617';
-  bridge_kettlebell_variant CONSTANT UUID := '508512e6-10a3-40dc-b6ad-f2437efa3e0b';
-  bridge_sandbag_variant CONSTANT UUID := 'd795d861-6d48-47d8-bbd1-d05d3fba23ef';
-  bridge_iso_variant CONSTANT UUID := '01e13d68-1384-46f2-bb81-e2044ce8f353';
-  bridge_long_lever_variant CONSTANT UUID := '0f44d878-0152-40cc-adb3-e6f6622dcfc1';
-  single_bridge_variant CONSTANT UUID := '4b0e19fe-ce7c-4b06-92c0-24997d7ef58b';
-  single_iso_variant CONSTANT UUID := 'ba716fe1-3e62-42a7-b258-7c232537cf22';
-  duplicate_bodyweight_variant CONSTANT UUID := 'c84f719f-16f4-4f70-aa30-035e81dc7916';
-  duplicate_long_lever_variant CONSTANT UUID := 'be15a3d8-aa19-4571-8f3f-5f47c22324bf';
-  duplicate_single_iso_variant CONSTANT UUID := '2cb1be9b-ee02-4fdc-8b6c-4cc96060129b';
-  definition_ids CONSTANT UUID[] := ARRAY[
-    bridge_id,bridge_iso_id,single_bridge_id,single_iso_id];
-  archive_definition_ids CONSTANT UUID[] := ARRAY[
-    combined_long_lever_id,long_lever_duplicate_id,single_iso_duplicate_id];
-  variant_ids CONSTANT UUID[] := ARRAY[
-    bridge_bodyweight_variant,bridge_barbell_variant,bridge_dumbbell_variant,
-    bridge_kettlebell_variant,bridge_sandbag_variant,bridge_iso_variant,
-    bridge_long_lever_variant,single_bridge_variant,single_iso_variant];
-  duplicate_variant_ids CONSTANT UUID[] := ARRAY[
-    duplicate_bodyweight_variant,duplicate_long_lever_variant,
-    duplicate_single_iso_variant];
+  bridge_id UUID;
+  bridge_iso_id UUID;
+  single_bridge_id UUID;
+  single_iso_id UUID;
+  combined_long_lever_id UUID;
+  long_lever_duplicate_id UUID;
+  single_iso_duplicate_id UUID;
+  bridge_bodyweight_variant UUID;
+  bridge_barbell_variant UUID;
+  bridge_dumbbell_variant UUID;
+  bridge_kettlebell_variant UUID;
+  bridge_sandbag_variant UUID;
+  bridge_iso_variant UUID;
+  bridge_long_lever_variant UUID;
+  single_bridge_variant UUID;
+  single_iso_variant UUID;
+  duplicate_bodyweight_variant UUID;
+  duplicate_long_lever_variant UUID;
+  duplicate_single_iso_variant UUID;
+  definition_ids UUID[];
+  archive_definition_ids UUID[];
+  variant_ids UUID[];
+  duplicate_variant_ids UUID[];
+  bridge_march_id UUID;
+  bridge_walkout_id UUID;
+  back_bridge_id UUID;
+  adductor_squeeze_bridge_id UUID;
+  hip_thrust_id UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[
     64,261,397,429,486,517,570,830,837,838,1018,1061];
   evidence_payload JSONB := $json$
@@ -108,6 +106,38 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT id INTO bridge_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='glute-bridge';
+  SELECT id INTO bridge_iso_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='glute-bridge-iso-hold';
+  SELECT id INTO single_bridge_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-glute-bridge';
+  SELECT id INTO single_iso_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-glute-bridge-hold';
+  SELECT id INTO combined_long_lever_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='hamstring-bridge-iso-long-lever-bridge-hold';
+  SELECT id INTO long_lever_duplicate_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='long-lever-hamstring-bridge-iso-hold';
+  SELECT id INTO single_iso_duplicate_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='single-leg-glute-bridge-iso-hold';
+
+  SELECT id INTO bridge_bodyweight_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='baseline';
+  SELECT id INTO bridge_barbell_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-397-baseline';
+  SELECT id INTO bridge_dumbbell_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-429-baseline';
+  SELECT id INTO bridge_kettlebell_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-486-baseline';
+  SELECT id INTO bridge_sandbag_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-1018-baseline';
+  SELECT id INTO bridge_iso_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-830-baseline';
+  SELECT id INTO bridge_long_lever_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-261-baseline';
+  SELECT id INTO single_bridge_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-570-baseline';
+  SELECT id INTO single_iso_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-517-baseline';
+  SELECT id INTO duplicate_bodyweight_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-1061-baseline';
+  SELECT id INTO duplicate_long_lever_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-261-baseline-source-838';
+  SELECT id INTO duplicate_single_iso_variant FROM coaching.exercise_variant_v1 WHERE definition_id=bridge_id AND variant_key='legacy-source-517-baseline-source-837';
+
+  definition_ids:=ARRAY[bridge_id,bridge_iso_id,single_bridge_id,single_iso_id];
+  archive_definition_ids:=ARRAY[combined_long_lever_id,long_lever_duplicate_id,single_iso_duplicate_id];
+  variant_ids:=ARRAY[bridge_bodyweight_variant,bridge_barbell_variant,bridge_dumbbell_variant,bridge_kettlebell_variant,bridge_sandbag_variant,bridge_iso_variant,bridge_long_lever_variant,single_bridge_variant,single_iso_variant];
+  duplicate_variant_ids:=ARRAY[duplicate_bodyweight_variant,duplicate_long_lever_variant,duplicate_single_iso_variant];
+
+  SELECT id INTO bridge_march_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='glute-bridge-march';
+  SELECT id INTO bridge_walkout_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='glute-bridge-walkout';
+  SELECT id INTO back_bridge_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='back-bridge';
+  SELECT id INTO adductor_squeeze_bridge_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='adductor-squeeze-bridge-hold';
+  SELECT id INTO hip_thrust_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='hip-thrust';
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=ANY(definition_ids)
         AND provenance_json->>'floorBridgeCompletionMigration'=migration_key)=4 THEN
@@ -590,11 +620,11 @@ BEGIN
     (1,bridge_iso_id,combined_long_lever_id,'duplicate_consolidated','Long lever and knee-angle setup are exact variants of the bilateral bridge isometric identity.',jsonb_build_object('migration',migration_key,'resolution','long_lever_bilateral_isometric_variant','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,bridge_iso_id,long_lever_duplicate_id,'duplicate_consolidated','The exact long-lever title is a duplicate source for the bilateral isometric long-lever variant.',jsonb_build_object('migration',migration_key,'resolution','long_lever_orthographic_duplicate','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,single_iso_id,single_iso_duplicate_id,'duplicate_consolidated','Hold and iso-hold titles describe the same unilateral static bridge contract and are preserved as one active identity.',jsonb_build_object('migration',migration_key,'resolution','single_leg_isometric_orthographic_duplicate','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,bridge_id,'4ebc3dd8-d982-4819-829a-60e2f13bec5e','distinct_exercises','Glute Bridge March adds alternating hip flexion and repeated unilateral support while the pelvis remains elevated.',jsonb_build_object('migration',migration_key,'identityBoundary','dynamic_bridge_vs_elevated_alternating_march','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,bridge_id,'97733a5c-71e6-424b-9907-a5867781c2b7','distinct_exercises','Glute Bridge Walkout repeatedly steps the heels away and back while elevated, changing ordered actions and the repetition boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','dynamic_bridge_vs_elevated_heel_walkout','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,'154614aa-67be-4b1c-8e9f-cb9a30620239',bridge_id,'distinct_exercises','Back Bridge requires spinal extension and hand or shoulder support that are absent from the floor glute bridge contract.',jsonb_build_object('migration',migration_key,'identityBoundary','spinal_extension_back_bridge_vs_supine_hip_extension','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,bridge_iso_id,'f5c5999e-7a9e-476e-a696-4cd1a6563334','distinct_exercises','Adductor Squeeze Bridge Hold requires sustained hip-adduction force against an object in addition to the bridge hold.',jsonb_build_object('migration',migration_key,'identityBoundary','standard_bilateral_hold_vs_required_adductor_squeeze','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,bridge_id,'a289c8a1-f601-4fde-a829-e51f85d1595c','distinct_exercises','Floor Glute Bridge keeps the upper trunk supported on the floor; Hip Thrust uses elevated upper-trunk support with different geometry, range, setup, clearance, and failure.',jsonb_build_object('migration',migration_key,'identityBoundary','floor_upper_trunk_support_vs_elevated_hip_thrust_support','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+    (1,bridge_id,bridge_march_id,'distinct_exercises','Glute Bridge March adds alternating hip flexion and repeated unilateral support while the pelvis remains elevated.',jsonb_build_object('migration',migration_key,'identityBoundary','dynamic_bridge_vs_elevated_alternating_march','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,bridge_id,bridge_walkout_id,'distinct_exercises','Glute Bridge Walkout repeatedly steps the heels away and back while elevated, changing ordered actions and the repetition boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','dynamic_bridge_vs_elevated_heel_walkout','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,back_bridge_id,bridge_id,'distinct_exercises','Back Bridge requires spinal extension and hand or shoulder support that are absent from the floor glute bridge contract.',jsonb_build_object('migration',migration_key,'identityBoundary','spinal_extension_back_bridge_vs_supine_hip_extension','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,bridge_iso_id,adductor_squeeze_bridge_id,'distinct_exercises','Adductor Squeeze Bridge Hold requires sustained hip-adduction force against an object in addition to the bridge hold.',jsonb_build_object('migration',migration_key,'identityBoundary','standard_bilateral_hold_vs_required_adductor_squeeze','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,bridge_id,hip_thrust_id,'distinct_exercises','Floor Glute Bridge keeps the upper trunk supported on the floor; Hip Thrust uses elevated upper-trunk support with different geometry, range, setup, clearance, and failure.',jsonb_build_object('migration',migration_key,'identityBoundary','floor_upper_trunk_support_vs_elevated_hip_thrust_support','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,

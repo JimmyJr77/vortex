@@ -7,16 +7,17 @@ export interface HubRouteSeo {
   priority?: number
   ogImage?: string
   ogImageAlt?: string
+  robots?: string
 }
 
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
-  title: 'Youth Sports Training in Bowie, MD | Vortex Athletics',
+  title: 'Youth Sports & Athletic Training in Bowie, MD | Vortex',
   description:
-    'Explore youth sports training in Bowie, MD, including sports conditioning, speed and agility, strength, Fit & Flip, and gymnastics programs.',
+    'Youth sports performance and athletic training for kids and teens in Bowie, MD. Build speed, agility, strength, conditioning, and body control.',
   priority: 1.0,
-  ogImage: `${HUB_ORIGIN}/trampoline-event.jpg`,
-  ogImageAlt: 'A Vortex athlete performing an inverted skill above the trampoline',
+  ogImage: `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
+  ogImageAlt: 'Vortex Athletics youth sports performance training in Bowie, Maryland',
 }
 
 export const HUB_ROUTES: HubRouteSeo[] = [
@@ -27,28 +28,29 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     description:
       'Youth sports performance training in Bowie, MD. Build speed, agility, strength, explosiveness, conditioning, coordination, and body control.',
     priority: 0.9,
-    ogImage: `${HUB_ORIGIN}/speed.jpeg`,
-    ogImageAlt: 'Athlete completing speed training at Vortex Athletics in Bowie, Maryland',
+    ogImage: `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
+    ogImageAlt: 'Vortex Athletics youth sports performance training in Bowie, Maryland',
   },
   {
     path: '/ninja',
     title: 'Kids Ninja Classes in Bowie, MD | Vortex',
     description:
-      'Ninja obstacle classes for kids in Bowie, MD. Build strength, agility, and confidence on warped walls and courses. Book a free trial.',
+      'Vortex Ninja classes in Bowie, MD are temporarily on hold. Explore current youth athletic training, gymnastics, and Fit & Flip programs.',
     priority: 0.8,
+    robots: 'noindex, follow',
   },
   {
     path: '/fit-and-flip',
-    title: 'Fit & Flip Athletic Training | Vortex Athletics Bowie',
+    title: 'Youth Strength, Conditioning & Tumbling | Bowie, MD',
     description:
-      'Foundational athletic training combining advanced athletics, tumbling, coordination, and body control in 1.5-hour training blocks.',
+      'Fit & Flip youth athletic training in Bowie combines strength, conditioning, speed, tumbling, coordination, and body control. Find a class.',
     priority: 0.8,
   },
   {
     path: '/summer-athletic-training',
     title: 'Middle & High School Summer Athletic Training | Vortex Athletics',
     description:
-      "Join Vortex Athletics' Athleticism Accelerator summer training program for middle and high school athletes. Build speed, strength, agility, mobility, conditioning, and confidence. Free sessions available for students from select schools.",
+      'Summer athletic training for middle and high school athletes in Bowie, MD. Build speed, strength, agility, mobility, conditioning, and confidence.',
     priority: 0.9,
   },
   {
@@ -127,6 +129,7 @@ export const getHubSeoForPath = (pathname: string): SeoMeta => {
     canonical: buildCanonical(HUB_ORIGIN, route.path),
     ogImage: route.ogImage,
     ogImageAlt: route.ogImageAlt,
+    robots: route.robots,
   }
 }
 

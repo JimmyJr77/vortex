@@ -15,7 +15,7 @@ export const GYMNASTICS_FAQS: Faq[] = [
   {
     question: 'Where are you located?',
     answer:
-      'Vortex Gymnastics is at 4961 Tesla Dr, Ste E, Bowie, MD 20715, near Routes 50 and 3. We serve families across Bowie, Crofton, Mitchellville, Upper Marlboro, and Prince George\u2019s and Anne Arundel Counties.',
+      'Vortex Gymnastics is at 4961 Tesla Dr Suite E, Bowie, MD 20715, near Routes 50 and 3. We serve families across Bowie, Crofton, Mitchellville, Upper Marlboro, and Prince George\u2019s and Anne Arundel Counties.',
   },
   {
     question: 'What are your hours?',

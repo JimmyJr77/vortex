@@ -6,27 +6,13 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '458_coaching_medicine_ball_shot_put_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.70';
-  canonical_id CONSTANT UUID := '5beb30c6-84d5-4210-8eee-ea29e7032e4e';
-  active_variant CONSTANT UUID := 'c91cbbd9-e876-4b10-b2f6-95571a9ff5af';
-  two_hand_rotational_throw CONSTANT UUID := 'fcfa60f8-cac5-4787-a432-18ed877f15a5';
-  chest_pass_variant CONSTANT UUID := 'caad8b31-410a-43d6-86d5-0f18b7a91691';
-  rollout_definition CONSTANT UUID := 'e50595cb-5efc-4432-86d5-2ff3fbf53480';
+  canonical_id UUID;
+  active_variant UUID;
+  two_hand_rotational_throw UUID;
+  chest_pass_variant UUID;
+  rollout_definition UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[154,357,1002,1197,1270,1318,1478];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    '0de3c548-0349-4bf6-bbb6-0f11ce540619'::UUID,
-    '618f6604-5c47-47cb-8455-2a8b4a2fb0c0'::UUID,
-    'd865a03e-5666-4cbe-b582-446dce21475a'::UUID,
-    '5ec3d333-97a8-421b-9c6c-a262102487ea'::UUID,
-    '917748fa-2875-48db-91f5-8bd785dd72a9'::UUID,
-    '8c8524c9-2b80-4cf1-b3ca-970b5d50eec2'::UUID,
-    'e0195910-9b1d-4dfc-9985-e52df4d49886'::UUID];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '5e75d49b-0674-4338-8980-65667dfa230b'::UUID,
-    'c65a26fc-a18b-4b2e-8d95-2eedff6f65f6'::UUID,
-    '57c50eaf-2053-41a7-b275-4733b0b8136f'::UUID,
-    '48a415e4-f117-4c2b-9e52-f6d2d759c8ce'::UUID,
-    '1a9d37a0-625a-4cf6-bb18-2e5db67c604f'::UUID,
-    'be85ab1a-723b-4619-abc0-83f152fb5327'::UUID];
+  source_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'KtzuEYn0DmY','WBUDq_5DGG0','EXV9UhUMTiY','wX4tcyR-61w','GTK8P0IOCTI'];
   evidence_payload JSONB := $json$
@@ -81,11 +67,39 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Source IDs and exact lineage keys are stable; generated UUIDs are not.
+  -- The active working specification is intentionally research-authored and
+  -- must never reuse a generic legacy-source variant.
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=154;
+  SELECT id INTO active_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='static-side-on-wall-throw-only';
+  IF active_variant IS NULL THEN active_variant := gen_random_uuid(); END IF;
+  SELECT variant.id INTO two_hand_rotational_throw FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.facility_id=1 AND definition.slug='medicine-ball-rotational-throw'
+    AND variant.variant_key='static-side-on-two-hand-rotational-scoop-throw-only';
+  SELECT variant.id INTO chest_pass_variant FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.facility_id=1 AND definition.slug='medicine-ball-chest-pass'
+    AND variant.variant_key='shallow-countermovement-wall-pass';
+  SELECT id INTO rollout_definition FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='medicine-ball-rollout';
+  SELECT ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1002-baseline-source-357'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1002-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1197-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1270-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1318-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1478')]
+  INTO source_variant_ids;
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND facility_id=1 AND slug='medicine-ball-shot-put-throw')<>1
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(source_ids))<>7
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
       WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids))<>7
+    OR two_hand_rotational_throw IS NULL OR chest_pass_variant IS NULL OR rollout_definition IS NULL
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids))<>7
     OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND
       (reviewed_by IS NOT NULL OR approved_by IS NOT NULL OR last_reviewed_at IS NOT NULL)) THEN
@@ -112,19 +126,19 @@ BEGIN
     requirements_json=jsonb_build_object(
       'selectable',FALSE,'representation','identity_quarantine',
       'sourceLegacyExerciseId',CASE id
-        WHEN '0de3c548-0349-4bf6-bbb6-0f11ce540619'::UUID THEN 154
-        WHEN '618f6604-5c47-47cb-8455-2a8b4a2fb0c0'::UUID THEN 357
-        WHEN 'd865a03e-5666-4cbe-b582-446dce21475a'::UUID THEN 1002
-        WHEN '5ec3d333-97a8-421b-9c6c-a262102487ea'::UUID THEN 1197
-        WHEN '917748fa-2875-48db-91f5-8bd785dd72a9'::UUID THEN 1270
-        WHEN '8c8524c9-2b80-4cf1-b3ca-970b5d50eec2'::UUID THEN 1318 ELSE 1478 END,
+        WHEN source_variant_ids[1] THEN 154
+        WHEN source_variant_ids[2] THEN 357
+        WHEN source_variant_ids[3] THEN 1002
+        WHEN source_variant_ids[4] THEN 1197
+        WHEN source_variant_ids[5] THEN 1270
+        WHEN source_variant_ids[6] THEN 1318 ELSE 1478 END,
       'archiveReason',CASE id
-        WHEN '0de3c548-0349-4bf6-bbb6-0f11ce540619'::UUID THEN 'generic_record_omits_orientation_ball_position_pivot_target_return_and_catch'
-        WHEN '618f6604-5c47-47cb-8455-2a8b4a2fb0c0'::UUID THEN 'side_on_record_permits_back_hip_or_chest_ball_start_and_omits_pivot_and_return'
-        WHEN 'd865a03e-5666-4cbe-b582-446dce21475a'::UUID THEN 'side_on_record_omits_ball_start_foot_pivot_and_rebound_or_retrieval_contract'
-        WHEN '5ec3d333-97a8-421b-9c6c-a262102487ea'::UUID THEN 'partner_record_omits_ball_start_lead_leg_to_arm_mapping_partner_return_and_catch_contract'
-        WHEN '917748fa-2875-48db-91f5-8bd785dd72a9'::UUID THEN 'wall_record_permits_catch_or_no_catch_and_omits_exact_stance_and_pivot'
-        WHEN '8c8524c9-2b80-4cf1-b3ca-970b5d50eec2'::UUID THEN 'split_stance_record_does_not_define_full_release_receiver_lead_leg_or_return'
+        WHEN source_variant_ids[1] THEN 'generic_record_omits_orientation_ball_position_pivot_target_return_and_catch'
+        WHEN source_variant_ids[2] THEN 'side_on_record_permits_back_hip_or_chest_ball_start_and_omits_pivot_and_return'
+        WHEN source_variant_ids[3] THEN 'side_on_record_omits_ball_start_foot_pivot_and_rebound_or_retrieval_contract'
+        WHEN source_variant_ids[4] THEN 'partner_record_omits_ball_start_lead_leg_to_arm_mapping_partner_return_and_catch_contract'
+        WHEN source_variant_ids[5] THEN 'wall_record_permits_catch_or_no_catch_and_omits_exact_stance_and_pivot'
+        WHEN source_variant_ids[6] THEN 'split_stance_record_does_not_define_full_release_receiver_lead_leg_or_return'
         ELSE 'rotational_record_omits_stance_entry_ball_position_pivot_target_and_catch_or_retrieval' END,
       'originalAuthoritativeEvidenceRequired',TRUE,'humanReviewRequired',TRUE),
     load_profile_json=coalesce(load_profile_json,'{}'::JSONB)||jsonb_build_object('selectable',FALSE),
@@ -383,19 +397,16 @@ BEGIN
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,'needs_human_review',
-    CASE definition_id
-      WHEN '5e75d49b-0674-4338-8980-65667dfa230b'::UUID THEN 'The prior Medicine Ball Rotational Shot Put definition belongs to the unilateral shot-put family, but sources 1002 and 357 omit ball-start, foot/pivot, or return facts needed for an exact selectable variant.'
-      WHEN 'c65a26fc-a18b-4b2e-8d95-2eedff6f65f6'::UUID THEN 'The abbreviated rotational source permits a back-hip or chest ball start and omits pivot and return details.'
-      WHEN '57c50eaf-2053-41a7-b275-4733b0b8136f'::UUID THEN 'The partner pass source omits ball position, lead-leg-to-arm mapping, receiver catch, and return contract.'
-      WHEN '48a415e4-f117-4c2b-9e52-f6d2d759c8ce'::UUID THEN 'The wall source explicitly permits catch or no catch and omits exact stance and pivot.'
-      WHEN '1a9d37a0-625a-4cf6-bb18-2e5db67c604f'::UUID THEN 'The split-stance source does not define a full release, receiver, lead-leg mapping, or return.'
-      ELSE 'The generic rotational source omits stance, entry, ball position, pivot, target, and catch or retrieval.' END,
-    jsonb_build_object('migration',migration_key,
-      'identityBoundary','same_unilateral_shot_put_family_with_missing_exact_variant_contract',
+  -- Historical UUID-only definition records are absent in a fresh bootstrap.
+  -- The durable source mappings and archived variants above retain every
+  -- quarantine without manufacturing a foreign-key identity target.
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review',
+    'Historical UUID-only identity boundary is retained by quarantined source lineage; no foreign-key target is fabricated during clean bootstrap.',
+    jsonb_build_object('migration',migration_key,'historicalBoundaryNotReplayed',TRUE,
       'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision='needs_human_review',rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,
@@ -517,9 +528,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
       WHERE variant_id=active_variant AND status='review'
         AND version=1 AND reviewed_by IS NULL)<>2
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(archived_definition_ids)
-        AND decision='needs_human_review' AND reviewed_by IS NULL)<>6
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids)
+        AND provenance_json->>'sourceDisposition'='identity_quarantine')<>7
     OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
       WHERE survivor_definition_id=canonical_id AND resolved_definition_id=rollout_definition
         AND decision='distinct_exercises' AND reviewed_by IS NULL)<>1 THEN

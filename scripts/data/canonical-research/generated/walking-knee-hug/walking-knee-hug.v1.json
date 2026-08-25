@@ -1,0 +1,490 @@
+{
+  "facilityId": 1,
+  "slug": "walking-knee-hug",
+  "researchVersion": "2026-08-09.115",
+  "assessmentSummary": {
+    "identity": "One Walking Knee Hug cycle is a controlled forward step, an organized single-leg stance, an ipsilateral knee-to-chest hand-assisted hold within a comfortable range, release, and step-through to the other side. It is not a static standing stretch, knee-hug-to-calf-raise sequence, walking quad pull, high-knee march, lunge, hop, balance assessment, or running drill.",
+    "currentCardFindings": [
+      "Source 50 describes only a generic walk-and-knee-pull sequence; it omits side and cycle boundaries, hold/release, range, support, lane, fatigue, substitutions, and current review status.",
+      "The established identity boundary correctly keeps Walking Knee Hug separate from Walking Knee Hug to Calf Raise because plantarflexion, balance exposure, action order, and repetition boundary are added.",
+      "Three legacy YouTube candidates returned oEmbed metadata on 2026-08-09. Exact mechanics, playback, captions, accessibility, instructional quality, current availability, and approval remain human-review work."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "locomote",
+        "hip_flexion",
+        "single_leg_stabilize"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "trunk",
+        "shoulder",
+        "elbow"
+      ],
+      "laterality": "alternating_single_leg_stance_with_ipsilateral_hand_assisted_knee_hug",
+      "planes": [
+        "sagittal_hip_knee_motion",
+        "frontal_transverse_stance_stabilization"
+      ],
+      "equipment": [
+        "none_optional_wall_or_rail_support"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 26,
+      "absoluteLoadDemand": 12,
+      "physicalDifficulty": 12,
+      "coordinationDemand": 30,
+      "supervisionDemand": 12,
+      "failureConsequence": 12,
+      "impact": 4,
+      "workCapacityDemand": 12,
+      "baseOverallDifficulty": 26,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_alternating_walk_single_leg_stance_and_hand_assisted_hip_flexion_hold",
+      "impactClass": "low_step_to_step",
+      "primaryExposure": [
+        "hip_flexion_range_and_control",
+        "single_leg_posture",
+        "stance_foot_ankle_balance",
+        "trunk_pelvis_organization"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual steps, holds, pace, range, support, symptoms, and overlapping work"
+    },
+    "proposedDosage": {
+      "prepare": "1-3 controlled passes or 4-10 cycles per side with range and pace held below compensation",
+      "rest": "walk-back or pause until balance, breathing, symptoms, and intended range are acceptable",
+      "durationRule": "include lane, cueing, support setup, side count, pauses, substitutions, cleaning, exit, and downstream session timing"
+    },
+    "programmingDecision": "Select only when a clear level lane or safe stationary alternative, comfortable range, controlled single-leg stance, communication, support if needed, session duration, fatigue, logistics, substitutions, and downstream demands fit. Recompute selection, dosage, fatigue, logistics, substitution, persistence, and coach/athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Dynamic-stretching and warm-up reviews, source-card audit, and the recorded boundary against Walking Knee Hug to Calf Raise.",
+      "uncertainty": "The evidence does not establish a universal hold duration, range, step count, recovery interval, readiness threshold, clinical eligibility, or Vortex score. Human review is required for every score, relationship, and video.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "dose_and_support_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T23:45:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From a clear, level walking lane, take a controlled forward step and organize on one stance leg. Bring the ipsilateral knee toward the chest with light hand assistance only to the available comfortable range; keep the trunk and pelvis organized, release the leg, and step through before repeating on the other side. One cycle is one left and one right controlled knee-hug step-through. Record sides, cycles, range, hold, pace, support use, lane, symptoms, and substitutions. This is not a stationary knee hug, calf raise, quad pull, high-knee march, lunge, hop, test, or run.",
+      "familyKey": "walking_knee_hug",
+      "movementPatterns": [
+        "locomote",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "spine",
+        "core",
+        "shoulder",
+        "elbow"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "upright_support_optional"
+      ],
+      "variantKey": "alternating-walking-hands-free-knee-hug-step-through",
+      "environment": {
+        "surface": "clear level dry non-slip lane or safe stationary space",
+        "space": "enough forward clearance for a controlled step-through and return path",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface and lane clearance",
+          "support stability if used",
+          "communication and exit route"
+        ],
+        "changeRule": "Changing locomotion, support, held limb, range, action order, pace, intent, or dose requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "comfortable controlled step and single-leg stance",
+          "understands range, stop signal, and step-through",
+          "clear lane or stable wall/rail support",
+          "session logistics and downstream demands fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms, restriction, or unsafe balance/lane conflict with the task",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal range, hold duration, cycle count, recovery, outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 26,
+        "absoluteLoadDemand": 12,
+        "physicalDifficulty": 12,
+        "coordinationDemand": 30,
+        "supervisionDemand": 12,
+        "failureConsequence": 12,
+        "impact": 4,
+        "workCapacityDemand": 12,
+        "baseOverallDifficulty": 26
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_alternating_walk_single_leg_stance_and_hand_assisted_hip_flexion_hold",
+        "impactClass": "low_step_to_step",
+        "primaryExposure": [
+          "hip_flexion_range_and_control",
+          "stance_foot_ankle_balance",
+          "trunk_pelvis_organization"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 10,
+        "technicalFatigueSensitivity": 18,
+        "impactAccumulation": 4,
+        "recoveryHoursPlanningEstimate": 4,
+        "cumulativeBudget": {
+          "single_leg_balance": 10,
+          "hip_mobility": 12,
+          "walking": 10
+        },
+        "tracking": [
+          "leftRightCycles",
+          "range",
+          "holdSeconds",
+          "pace",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic warm-up literature concerns a category of activity rather than an exact knee-hug movement.",
+        "Vortex defines this candidate by its observable alternating walk, single-leg stance, controlled ipsilateral knee-to-chest hand hold, release, and step-through; it does not include a calf raise, hop, run, or balance assessment."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Warm-up effects depend on the activity sequence and subsequent task.",
+        "This is a sagittal-plane, alternating locomotor mobility task with an upper-body-assisted hip-flexion hold; adding plantarflexion, a pause test, or another gait pattern changes the contract."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37962709/",
+      "sourceTitle": "Acute Effects of Various Stretching Techniques on Range of Motion: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Acute stretching evidence addresses range-of-motion responses rather than isolated-muscle activation claims.",
+        "The card records hip flexors, gluteal and hamstring tissues, quadriceps, calf, foot, trunk, and shoulder/elbow roles as task anatomy without diagnosis or guaranteed tissue change."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic stretching is performed through movement rather than a sustained passive position.",
+        "A valid cycle requires stance organization, an ipsilateral knee-hug hold within comfortable range, release, and a controlled step-through before the other side."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "General and activity-specific warm-up conditions should not be treated as identical exposures.",
+        "Candidate scores assess only the exercise's coordination and physical demand; they do not classify an athlete by skill, age, experience, or eligibility."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "sourceTitle": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "sourcePublisher": "Applied Physiology, Nutrition, and Metabolism",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Acute stretching effects and outcomes depend on type, dose, timing, and surrounding activity.",
+        "Track steps, sides, holds, range, support use, symptoms, and downstream balance or locomotor work instead of asserting a universal recovery interval or outcome."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction, supervision, environment, and progressive exposure are relevant safeguards in supervised exercise.",
+        "Use a clear level lane, controlled pace, available support, communication, and an exit path; no demographic or proficiency classification is encoded on this exercise card."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic-stretching dose and performance evidence varies across protocols.",
+        "Candidate sets, steps, and hold durations are planning proposals only; stop before range is forced, posture degrades, or the drill becomes conditioning."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Activity-specific warm-up implementation matters to the task that follows.",
+        "Cue a controlled alternating walk, tall stance, comfortable knee-to-chest hold, release, and step-through without promising flexibility, injury prevention, or performance transfer."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe training requires appropriate instruction, supervision, and environment.",
+        "Stop for pain, new neurologic/circulatory symptoms, dizziness, unsafe balance or lane conditions, inability to communicate, or a participant stop request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "sourceTitle": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "sourcePublisher": "Applied Physiology, Nutrition, and Metabolism",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Stretching effects should be interpreted with dose and subsequent dynamic activity in view.",
+        "Use this only as a candidate preparation movement after the selected session inputs, logistics, duration, fatigue, substitutions, and downstream demands are validated."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic movement can be coached without framing a single drill as a guaranteed performance intervention.",
+        "Athlete support uses a simple range, balance, breathing, and stop-signal check; a support option or different reviewed task is acceptable when quality is not available."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Warm-up components should be considered in context rather than as universal prescriptions.",
+        "Coaches observe the side sequence, stance control, pelvic/trunk compensation, hand pressure, range, support use, pace, symptoms, and first loss of quality without diagnosing restriction."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction and safe environments are core implementation safeguards.",
+        "Captions, transcript, still sequence, clear lane markers, support, verbal cueing, and a different reviewed movement remain candidate supports; media accessibility is not assumed."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic movement categories include differing tasks and do not establish equivalence between their mechanics.",
+        "The alternate review separates stance, hand assistance, locomotion, action order, added calf raise, external support, pause/testing intent, and range from the base walk-and-hug contract."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Task-specific instruction and supervision remain relevant to safe implementation.",
+        "Three oEmbed-metadata candidates are retained as candidates only; playback, mechanics, captions, accessibility, quality, and exact-match approval require human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=hcNASUf_kYg",
+      "title": "Walking Knee Hug",
+      "channelName": "Performance Course",
+      "sourceQuery": "legacy source-50 candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:45:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact walk-and-hug mechanics, captions, accessibility, safety, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KwUmmO66uN8",
+      "title": "Dynamic Warm-Up for Athletes - Phase 2: Walking Knee Hug",
+      "channelName": "Catalyst Sports",
+      "sourceQuery": "legacy source-50 candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:45:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact cycle, captions, accessibility, safety, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LlE_ZnUNvGQ",
+      "title": "How To Do: Walking Knee Hug Exercise and It's Benefits",
+      "channelName": "ePainAssist",
+      "sourceQuery": "legacy source-50 candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:45:00.000Z"
+      },
+      "notes": "oEmbed metadata only; claims, exact cycle, captions, accessibility, safety, quality, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Alternating Walking Knee Hug",
+      "classification": "same_identity",
+      "rationale": "This is the exact candidate contract.",
+      "distinguishingDimensions": {
+        "laterality": "alternating"
+      }
+    },
+    {
+      "name": "Shorter Comfortable Knee-Hug Range",
+      "classification": "modifier_annotation",
+      "rationale": "Range is delivery when the same walk, stance, hold, release, and step-through remain.",
+      "distinguishingDimensions": {
+        "annotation": "range"
+      }
+    },
+    {
+      "name": "Slower Pace or Fewer Cycles",
+      "classification": "modifier_annotation",
+      "rationale": "Pace and dose change exposure but not the movement contract.",
+      "distinguishingDimensions": {
+        "annotation": "pace_or_dose"
+      }
+    },
+    {
+      "name": "Wall or Rail Touch Support",
+      "classification": "new_variant",
+      "rationale": "External hand support changes the balance and hand-use contract.",
+      "distinguishingDimensions": {
+        "externalSupport": true
+      }
+    },
+    {
+      "name": "Stationary Alternating Knee Hug",
+      "classification": "new_variant",
+      "rationale": "Removing step-through locomotion changes the repetition boundary and logistics.",
+      "distinguishingDimensions": {
+        "locomotion": "stationary"
+      }
+    },
+    {
+      "name": "Walking Knee Hug to Calf Raise",
+      "classification": "new_definition",
+      "rationale": "It adds plantarflexion and a distinct balance/action-order sequence.",
+      "distinguishingDimensions": {
+        "addedAction": "calf_raise"
+      }
+    },
+    {
+      "name": "Walking Quad Pull",
+      "classification": "new_definition",
+      "rationale": "The held limb, joint action, and target position differ.",
+      "distinguishingDimensions": {
+        "heldLimb": "ankle_or_foot"
+      }
+    },
+    {
+      "name": "High-Knee March",
+      "classification": "new_definition",
+      "rationale": "A march has a different hand-assistance, hold, and gait contract.",
+      "distinguishingDimensions": {
+        "handAssistance": false
+      }
+    },
+    {
+      "name": "Knee-Hug Balance Assessment",
+      "classification": "new_definition",
+      "rationale": "Assessment changes measurement, intent, governance, and stop logic.",
+      "distinguishingDimensions": {
+        "intent": "assessment"
+      }
+    },
+    {
+      "name": "Walking Lunge with Knee Drive",
+      "classification": "new_definition",
+      "rationale": "The lunge loading and knee-drive sequence changes force, range, and repetition boundary.",
+      "distinguishingDimensions": {
+        "primaryAction": "lunge"
+      }
+    }
+  ]
+}

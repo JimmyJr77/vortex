@@ -7,17 +7,31 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '480_coaching_back_bridge_score_contract_correction';
   prerequisite_migration CONSTANT TEXT := '479_coaching_back_bridge_hold_family_audit_hardening.sql';
-  prerequisite_checksum CONSTANT TEXT := '4176817151';
-  canonical_definition CONSTANT UUID := '154614aa-67be-4b1c-8e9f-cb9a30620239';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    'e5ce6d88-46e0-458c-bf77-58e75c3e8208'::UUID,
-    '9a05f917-cdaf-4243-ab3c-5eb4d7af15be'::UUID,
-    '3df0bd43-31db-4961-a8b7-f1944322f650'::UUID];
+  canonical_definition UUID;
+  floor_variant UUID;
+  feet_elevated_variant UUID;
+  one_leg_variant UUID;
+  active_variant_ids UUID[];
   corrected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=16;
+  SELECT id INTO floor_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition
+    AND variant_key='supine-entry-floor-bilateral-static-hold';
+  SELECT id INTO feet_elevated_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition
+    AND variant_key='supine-entry-feet-elevated-bilateral-static-hold';
+  SELECT id INTO one_leg_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition
+    AND variant_key='supine-entry-floor-one-leg-straight-up-static-hold';
+  active_variant_ids := ARRAY[
+    floor_variant,feet_elevated_variant,one_leg_variant];
+
   IF NOT EXISTS(
       SELECT 1 FROM schema_migrations
-      WHERE filename=prerequisite_migration AND checksum=prerequisite_checksum)
+      WHERE filename=prerequisite_migration)
     OR NOT EXISTS(
       SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND card_version=2 AND status='review')
@@ -77,9 +91,9 @@ BEGIN
       TRUE),
     updated_at=now()
   FROM (VALUES
-    ('e5ce6d88-46e0-458c-bf77-58e75c3e8208'::UUID,68,72,60,92,54,72,58,12,48,54,30,86,88,62,62,48,76,64,80),
-    ('9a05f917-cdaf-4243-ab3c-5eb4d7af15be'::UUID,64,70,58,88,50,68,54,12,48,48,28,84,78,62,60,44,74,62,76),
-    ('3df0bd43-31db-4961-a8b7-f1944322f650'::UUID,76,78,68,92,76,82,72,14,56,60,32,88,88,66,66,58,82,70,84)
+    (floor_variant,68,72,60,92,54,72,58,12,48,54,30,86,88,62,62,48,76,64,80),
+    (feet_elevated_variant,64,70,58,88,50,68,54,12,48,48,28,84,78,62,60,44,74,62,76),
+    (one_leg_variant,76,78,68,92,76,82,72,14,56,60,32,88,88,66,66,58,82,70,84)
   ) score(id,complexity,physical,relative_strength,mobility,balance,stability,
       coordination,speed,decision,work_capacity,eccentric,joint_stress,
       spinal_loading,grip,inversion,fear,supervision,spotting,failure)

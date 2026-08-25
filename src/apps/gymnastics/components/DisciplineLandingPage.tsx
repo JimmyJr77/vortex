@@ -25,14 +25,22 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
         />
         <div className="absolute inset-0 bg-black/55" />
         <div className="container-custom relative z-10 flex min-h-below-site-header flex-col justify-center py-16 text-center">
-          <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
+          <motion.p
+            className="mb-4 text-lg font-bold uppercase tracking-[0.14em] text-gray-200 md:text-xl"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
             {config.heroTitle}{' '}
             <span className={theme.heroHighlight}>{config.heroHighlight}</span>
+          </motion.p>
+          <motion.h1
+            className="mb-6 text-4xl font-display font-bold text-white md:text-6xl lg:text-7xl"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.8 }}
+          >
+            {config.title} <span className={theme.heroHighlight}>in Bowie, MD</span>
           </motion.h1>
           <motion.p
             className="mx-auto max-w-3xl text-xl md:text-2xl text-gray-300 leading-relaxed mb-10"

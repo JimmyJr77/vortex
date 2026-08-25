@@ -1,0 +1,574 @@
+{
+  "migrationKey": "527_coaching_walking_quad_pull_source_51_candidate_materialization",
+  "researchVersion": "2026-08-09.115",
+  "batchFile": "../batches/walking-quad-pull.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 51,
+        "slug": "walking-quad-pull",
+        "canonicalName": "Walking Quad Pull",
+        "displayName": "Walking Quad Pull",
+        "aliases": [
+          "Walking Quadriceps Pull",
+          "Walking Quad Stretch"
+        ],
+        "description": "In a clear level lane, take a controlled step and organize on one stance leg. Hold the ipsilateral ankle or foot lightly, bring the heel toward the body only to a comfortable knee-flexion and hip-extension position without forced lumbar extension, release, and step through before the other side. One cycle is one left and one right hold-release-step-through. This excludes overhead reach, knee hug, lunge, hop, assessment, and running.",
+        "familyKey": "walking_quad_pull",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 2,
+        "status": "review",
+        "identityContract": "alternating_forward_step_single_leg_stance_ipsilateral_ankle_or_foot_hold_comfortable_knee_flexion_hip_extension_release_step_through",
+        "confidence": {
+          "content": 76,
+          "scoring": 52,
+          "media": 50
+        },
+        "movementPatterns": [
+          "locomote",
+          "brace"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "knee",
+          "hip",
+          "pelvis",
+          "spine","core",
+          "shoulder",
+          "elbow"
+        ],
+        "requiredEquipment": [],
+        "optionalEquipment": [
+          "upright_support_optional"
+        ],
+        "environment": {
+          "surface": "clear level dry non-slip lane",
+          "space": "controlled step-through and exit lane",
+          "stationCapacity": 1,
+          "changeRule": "Changing support, held limb, range, overhead reach, locomotion, pace, intent, or dose requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "comfortable step and single-leg stance",
+            "comfortable ankle or foot hold and range",
+            "clear lane or stable support",
+            "communication and stop signal"
+          ],
+          "excludeOrEscalate": [
+            "symptoms, restriction, unsafe balance, lane, support, or communication conflict"
+          ],
+          "notEstablishedByEvidence": [
+            "universal range, dose, recovery, outcome, readiness threshold, or clinical clearance"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            51
+          ],
+          "identityAuthority": "Source 51 plus distinct overhead-reach alternate assessment.",
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true,
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": true
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "hip_flexor_group",
+            "stance_foot_ankle_stabilizers"
+          ],
+          "secondaryMuscles": [
+            "gluteal_and_hamstring_complex",
+            "trunk_stabilizers",
+            "shoulder_and_elbow_flexors"
+          ],
+          "joints": [
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine","core",
+            "shoulder",
+            "elbow"
+          ],
+          "jointActions": [
+            "alternating_knee_flexion",
+            "hip_extension_positioning",
+            "stance_stabilization",
+            "controlled_step_through"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_transverse_stance_stabilization"
+          ],
+          "laterality": "alternating single-leg stance with ipsilateral ankle or foot hold",
+          "claimsBoundary": "Task mechanics only; no diagnosis, treatment, flexibility, injury-prevention, or performance claim."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate controlled walking quadriceps-pull preparation when its exact balance and range task fits.",
+          "primaryCue": "Step, stand tall, hold the foot lightly, use a comfortable range, release, and walk through.",
+          "secondaryCues": [
+            "do not force range",
+            "do not arch the low back",
+            "do not add an overhead reach"
+          ],
+          "expectedSensations": [
+            "gentle front-thigh and hip movement",
+            "light stance balance"
+          ],
+          "unexpectedSensations": [
+            "pain, dizziness, neurologic symptoms, or loss of balance"
+          ],
+          "selfChecks": [
+            "one hold then release and step-through",
+            "no overhead reach",
+            "clear lane"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact support variant",
+            "foot or ankle hold",
+            "comfortable range and trunk control",
+            "left/right step-through",
+            "lane and symptoms"
+          ],
+          "faultCorrections": {
+            "forced_range": "reduce range or stop",
+            "lumbar_extension": "reduce range and restore ribs/pelvis",
+            "overhead_reach": "use the separate reviewed task only if selected"
+          },
+          "doNotUseWhen": [
+            "the lane/support is unsafe",
+            "the task conflicts with symptoms or restrictions",
+            "the intended task adds overhead reach, a lunge, hop, test, or run"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "range_or_symptoms",
+            "balance_or_support",
+            "lane_or_logistics",
+            "dose_or_duration"
+          ],
+          "supportEscalation": "Stop unresolved safety, symptom, balance, or quality issues.",
+          "changeImpactPolicy": "Any task change reruns selection, logistics, duration, fatigue, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "baseline",
+        "archiveKey": "superseded-source-51-skeleton",
+        "displayName": "Walking Quad Pull Legacy Skeleton — Source 51",
+        "archiveReason": "The source lacks exact cycle, hold, range, support, lane, fatigue, delivery, alternate, and review contracts."
+      },
+      "snapshot": {
+        "capturedAt": "2026-08-10T00:10:00.000Z",
+        "cardVersion": 1,
+        "status": "review",
+        "description": "Walk with standing quad stretch.",
+        "familyKey": "hip_mobility"
+      },
+      "variants": [
+        {
+          "id": "3b9e9e9d-4b1b-4f3b-9cf0-e9c9d92de001",
+          "key": "alternating-walking-hands-free-quad-pull-step-through",
+          "displayName": "Alternating Walking Hands-Free Quad Pull Step-Through",
+          "modifierKeys": [
+            "alternating",
+            "walking",
+            "hands_free"
+          ],
+          "difficulty": {
+            "technicalComplexity": 30,
+            "absoluteLoadDemand": 14,
+            "physicalDifficulty": 14,
+            "coordinationDemand": 32,
+            "supervisionDemand": 14,
+            "failureConsequence": 14,
+            "impact": 4,
+            "workCapacityDemand": 12,
+            "baseOverallDifficulty": 30
+          },
+          "requirements": {
+            "equipment": [],
+            "laterality": "alternating",
+            "support": "hands_free",
+            "cycleRule": "one left and one right hold-release-step-through",
+            "rangeRule": "comfortable heel-toward-body only",
+            "surface": "clear_level_dry_non_slip"
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_alternating_walk_single_leg_stance_and_hand_assisted_quad_pull",
+            "impactClass": "low_step_to_step",
+            "primaryExposure": [
+              "knee_flexion_hip_extension_positioning",
+              "stance_balance",
+              "trunk_pelvis_organization"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 12,
+            "technicalFatigueSensitivity": 20,
+            "impactAccumulation": 4,
+            "recoveryHoursPlanningEstimate": 4,
+            "cumulativeBudget": {
+              "single_leg_balance": 12,
+              "hip_mobility": 12,
+              "walking": 10
+            },
+            "tracking": [
+              "cycles",
+              "sides",
+              "range",
+              "support",
+              "symptoms"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "controlled_dynamic_quad_pull",
+              "alternating_stance_organization"
+            ],
+            "stimulusDose": "counted_cycles_with_quality",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "prepare-controlled-walking-quad-pull",
+              "phase": "prepare_and_access",
+              "role": "conditional",
+              "purpose": "Candidate locomotor quadriceps-pull preparation when its exact balance and range contract fits.",
+              "suitability": 68,
+              "methodologyAlignment": 58,
+              "objectiveRelevance": {
+                "hip_mobility": 62,
+                "movement_preparation": 60
+              },
+              "dosage": {
+                "sets": "1-3",
+                "cyclesPerSide": "4-10",
+                "holdSeconds": "0-3",
+                "restSeconds": "walk-back or 15-45",
+                "countRule": "count controlled left/right hold-release-step-through cycles"
+              },
+              "qualityGate": "Each side has controlled stance, a light ankle/foot hold, comfortable range, organized trunk, complete release, and step-through without overhead reach.",
+              "stopRules": [
+                "stop on pain, new symptoms, dizziness, unsafe balance/lane, or participant request",
+                "stop when range, posture, breathing, or step-through cannot be restored"
+              ],
+              "coachInstructions": "Set the lane and exact cycle, observe both sides, and do not add overhead reach or force range.",
+              "athleteInstructions": "Step, lightly hold the foot or ankle, use a comfortable range, release, and walk through before the other side.",
+              "expectedAdaptation": "Candidate preparation only; no outcome is guaranteed.",
+              "equipmentRequired": [],
+              "logistics": {
+                "stationCapacity": 1,
+                "setupSeconds": 15,
+                "transitionSeconds": 15,
+                "clearanceRequired": true
+              },
+              "substitutionIds": [],
+              "timeModel": {
+                "setupSeconds": 15,
+                "perSetSeconds": 45,
+                "resetSeconds": 15
+              },
+              "doseScaling": {
+                "reduce": "shorter range, fewer cycles, slower pace, support, or another reviewed task",
+                "doNotAutoProgress": "Do not add overhead reach, lunge, hop, assessment, or running pace without revalidation."
+              },
+              "measurement": {
+                "record": [
+                  "cycles",
+                  "sides",
+                  "range",
+                  "support",
+                  "symptoms"
+                ]
+              },
+              "supportPrompts": {
+                "athlete": "Comfortable range; release and step through.",
+                "coach": "Verify base quad pull, not overhead reach."
+              }
+            }
+          ]
+        },
+        {
+          "id": "3b9e9e9d-4b1b-4f3b-9cf0-e9c9d92de002",
+          "key": "alternating-walking-wall-touch-quad-pull-step-through",
+          "displayName": "Alternating Walking Wall-Touch Quad Pull Step-Through",
+          "modifierKeys": [
+            "alternating",
+            "walking",
+            "wall_touch_support"
+          ],
+          "difficulty": {
+            "technicalComplexity": 24,
+            "absoluteLoadDemand": 10,
+            "physicalDifficulty": 10,
+            "coordinationDemand": 24,
+            "supervisionDemand": 10,
+            "failureConsequence": 10,
+            "impact": 4,
+            "workCapacityDemand": 10,
+            "baseOverallDifficulty": 24
+          },
+          "requirements": {
+            "equipment": [
+              "upright_support_optional"
+            ],
+            "laterality": "alternating",
+            "support": "continuous_or_light_wall_rail_touch",
+            "cycleRule": "one left and one right supported hold-release-step-through",
+            "rangeRule": "comfortable heel-toward-body only",
+            "surface": "clear_level_dry_non_slip"
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_alternating_walk_with_external_touch_support_and_hand_assisted_quad_pull",
+            "impactClass": "low_step_to_step",
+            "primaryExposure": [
+              "knee_flexion_hip_extension_positioning",
+              "supported_stance_organization"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 8,
+            "technicalFatigueSensitivity": 12,
+            "impactAccumulation": 4,
+            "recoveryHoursPlanningEstimate": 4,
+            "cumulativeBudget": {
+              "supported_balance": 8,
+              "hip_mobility": 12,
+              "walking": 10
+            },
+            "tracking": [
+              "cycles",
+              "sides",
+              "range",
+              "support",
+              "symptoms"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "supported_dynamic_quad_pull"
+            ],
+            "stimulusDose": "counted_cycles_with_quality",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "prepare-supported-walking-quad-pull",
+              "phase": "prepare_and_access",
+              "role": "conditional",
+              "purpose": "Candidate supported walking quadriceps-pull preparation when the wall/rail touch-support contract fits.",
+              "suitability": 64,
+              "methodologyAlignment": 56,
+              "objectiveRelevance": {
+                "hip_mobility": 60,
+                "supported_movement_preparation": 58
+              },
+              "dosage": {
+                "sets": "1-3",
+                "cyclesPerSide": "4-10",
+                "holdSeconds": "0-3",
+                "restSeconds": "15-45",
+                "countRule": "count controlled supported left/right hold-release-step-through cycles"
+              },
+              "qualityGate": "The wall or rail is stable, contact is light, the ankle/foot hold and range remain comfortable, and each side releases and steps through without overhead reach.",
+              "stopRules": [
+                "stop on pain, new symptoms, unstable support, unsafe lane, or participant request",
+                "stop when range, breathing, support, posture, or step-through quality cannot be restored"
+              ],
+              "coachInstructions": "Inspect the support and lane, teach a light touch, and do not let the wall or rail become pulling, forced range, or an added reach.",
+              "athleteInstructions": "Use a light touch for balance, hold the foot or ankle only to a comfortable range, release, and step through.",
+              "expectedAdaptation": "Candidate supported preparation only; no outcome is guaranteed.",
+              "equipmentRequired": [
+                "upright_support_optional"
+              ],
+              "logistics": {
+                "stationCapacity": 1,
+                "setupSeconds": 20,
+                "transitionSeconds": 15,
+                "clearanceRequired": true
+              },
+              "substitutionIds": [],
+              "timeModel": {
+                "setupSeconds": 20,
+                "perSetSeconds": 45,
+                "resetSeconds": 15
+              },
+              "doseScaling": {
+                "reduce": "shorter range, fewer cycles, slower pace, or another reviewed task",
+                "doNotAutoProgress": "Do not remove support or add overhead reach, lunge, hop, assessment, or running pace without revalidation."
+              },
+              "measurement": {
+                "record": [
+                  "cycles",
+                  "sides",
+                  "range",
+                  "support",
+                  "symptoms"
+                ]
+              },
+              "supportPrompts": {
+                "athlete": "Light touch, comfortable range, release and step through.",
+                "coach": "Support is an exact changed variant, not a hidden modification."
+              }
+            }
+          ]
+        }
+      ],
+      "legacy": {
+        "description": "Archived Source 51 remains traceable as a generic walking quad-stretch skeleton.",
+        "defaultSets": null,
+        "defaultReps": null,
+        "defaultWorkSeconds": null,
+        "defaultRestSeconds": null,
+        "tempo": null,
+        "loadNote": "Candidate-only; use exact delivery and record sides, cycles, range, support, and symptoms.",
+        "estimatedSecondsPerSet": null,
+        "cardSummary": "Source 51 is represented by exact candidate variants, not the vague legacy row.",
+        "coachLanguage": "Use an exact candidate only after range, balance, lane, duration, and downstream-demand checks.",
+        "athleteLanguage": "Use a comfortable range, release, and step through; do not add reach.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "cycles",
+          "range",
+          "hold",
+          "pace",
+          "support",
+          "lane"
+        ],
+        "movementFamily": "walking_quad_pull",
+        "primaryPhaseKey": "prepare_and_access",
+        "phaseSubrole": "hip_mobility",
+        "primaryOrderSlot": "gait_hip_extension_prep",
+        "movementRequirements": {
+          "selectable": false,
+          "sourceIdentityReauthored": true
+        },
+        "coachingExecution": {
+          "quality_gate": "Legacy source is not selectable; use exact candidate contract.",
+          "stop_signs": [
+            "pain",
+            "symptoms",
+            "unsafe balance/lane",
+            "forced range"
+          ]
+        },
+        "pairingLogic": {
+          "revalidateAfterSubstitution": true
+        },
+        "mediaLibrary": {
+          "reviewState": "candidate_only"
+        },
+        "participantStructure": "individual",
+        "programmingKind": "exercise"
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 0,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact variant, comfortable range, safe lane/support, symptoms, communication, dose, and downstream task—not a participant classification.",
+        "readinessChecks": [
+          "confirm safe lane or stable support",
+          "confirm comfortable controlled cycle",
+          "confirm stop signal and exit"
+        ],
+        "stopSigns": [
+          "pain or stop request",
+          "dizziness, chest, neurologic, or circulation symptoms",
+          "unsafe balance, support, lane, or persistent quality loss"
+        ],
+        "contraindications": [
+          "symptom/restriction or unsafe setting conflicts",
+          "overhead-reach, assessment, lunge, hop, or running intent"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed preparation task only after revalidation.",
+          "Do not treat overhead reach, stationary holds, knee hugs, lunges, hopping, or assessment as automatic substitutions."
+        ]
+      },
+      "score": {
+        "technicalComplexity": 30,
+        "absoluteLoadDemand": 14,
+        "coordinationDemand": 32,
+        "impact": 4,
+        "supervisionDemand": 14,
+        "confidence": 52,
+        "reviewNotes": "Candidate task-only reassessment; independent calibration required.",
+        "legacyScores": {
+          "physicalDifficulty": 14,
+          "failureConsequence": 14,
+          "workCapacityDemand": 12
+        },
+        "difficultyProfile": {
+          "technical": 3,
+          "complexity": 3,
+          "load": 1.4,
+          "overall": 3,
+          "attentionDemand": "low_to_moderate",
+          "notes": "Exact hands-free walking quad-pull only."
+        }
+      },
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

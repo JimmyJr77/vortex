@@ -7,23 +7,16 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '452_coaching_rotational_ball_slam_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.66';
-  canonical_id CONSTANT UUID := '1af84588-3b81-4008-be73-e2995280769f';
-  stationary_variant CONSTANT UUID := '28e6ff39-a1a1-4681-aedc-4f1dcc76908d';
-  rainbow_variant CONSTANT UUID := 'd6e0e934-d72f-4d1b-938c-c4c6302c75be';
-  step_behind_variant CONSTANT UUID := 'ef71984a-761a-4d52-a284-ab0e3d020bd0';
-  delivery_only_variant CONSTANT UUID := '0c469928-da22-4cf4-8ef4-05aed3f248d1';
-  duplicate_variant CONSTANT UUID := 'b2e8d89b-f77b-4877-884e-9d23533fec2b';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    stationary_variant,rainbow_variant,step_behind_variant];
-  all_variant_ids CONSTANT UUID[] := ARRAY[
-    stationary_variant,rainbow_variant,step_behind_variant,
-    delivery_only_variant,duplicate_variant];
+  canonical_id UUID;
+  stationary_variant UUID;
+  rainbow_variant UUID;
+  step_behind_variant UUID;
+  delivery_only_variant UUID;
+  duplicate_variant UUID;
+  active_variant_ids UUID[];
+  all_variant_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[1162,1163,1165,1168,1483];
-  archive_definition_ids CONSTANT UUID[] := ARRAY[
-    'f7aa86a1-0ea9-42d9-ae87-c68def651ac9'::UUID,
-    'c44ed0a5-d643-43a8-b88d-de531fc332d7'::UUID,
-    'f86fdd4b-7c77-4a05-85a1-ef379f54a311'::UUID,
-    'd6f5a754-7722-4a8c-8bf7-e9094cee25ae'::UUID];
+  archive_definition_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'xYANsh80ErM','wK9DwFTt1YQ','vf61IsovxKo','eZ0I7FmJ1A0','9CKf3Yc2FMk'];
   evidence_payload JSONB := $json$
@@ -72,6 +65,21 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- UUID allocation is not stable across the historical bootstrap paths.
+  -- The legacy source IDs and exact variant keys are the protected identity.
+  SELECT id INTO canonical_id FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=1162;
+  SELECT id INTO stationary_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO delivery_only_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1163';
+  SELECT id INTO rainbow_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1165';
+  SELECT id INTO step_behind_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1168';
+  SELECT id INTO duplicate_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1483';
+  active_variant_ids:=ARRAY[stationary_variant,rainbow_variant,step_behind_variant];
+  all_variant_ids:=ARRAY[stationary_variant,rainbow_variant,step_behind_variant,delivery_only_variant,duplicate_variant];
+  SELECT array_agg(id ORDER BY legacy_exercise_id) INTO archive_definition_ids
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=ANY(source_ids) AND legacy_exercise_id<>1162;
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=canonical_id)<>1
     OR (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=ANY(archive_definition_ids))<>cardinality(archive_definition_ids)
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(all_variant_ids))<>cardinality(all_variant_ids)
@@ -412,7 +420,12 @@ BEGIN
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  VALUES
+  -- The historical UUID-only boundary rows below cannot safely be replayed
+  -- across bootstrap histories. Exact boundary candidates remain in the
+  -- alternate assessment packet; do not manufacture foreign-key targets.
+  SELECT facility_id, survivor_definition_id::UUID, resolved_definition_id::UUID,
+    decision, rationale, evidence_json, resolution_source, reviewed_by::BIGINT
+  FROM (VALUES
     (1,canonical_id,'52f9a2fe-f605-4396-8b84-cf1d9302e82d','distinct_exercises','Medicine Ball Overhead Slam uses a bilateral straight-ahead sagittal release; Rotational Ball Slam requires a side-directed floor target and coordinated transverse rotation.',jsonb_build_object('migration',migration_key,'identityBoundary','straight_overhead_slam_vs_side_directed_rotational_slam','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'4aab75e6-c3d8-4b2c-a523-35f9b85f0199','distinct_exercises','Medicine Ball Rotational Throw releases toward a wall, partner, or free-flight target; Rotational Ball Slam releases into a marked floor zone.',jsonb_build_object('migration',migration_key,'identityBoundary','free_or_wall_throw_vs_floor_slam','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'8dc91b17-d8b4-485a-8848-1c16145f4bf9','distinct_exercises','Medicine Ball Rebound Slam to Catch makes reactive rebound reception the defining task; rebound catch is optional delivery in Rotational Ball Slam and dead-ball retrieval is valid.',jsonb_build_object('migration',migration_key,'identityBoundary','reactive_catch_objective_vs_optional_recovery_method','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
@@ -428,6 +441,8 @@ BEGIN
     (1,canonical_id,'11cb66a9-be13-492b-bb19-3025a7f3251d','distinct_exercises','Shuffle-to-Rotational Medicine Ball Throw uses lateral approach steps and a wall/free-flight projection; step-behind Rotational Ball Slam still terminates in a side floor impact.',jsonb_build_object('migration',migration_key,'identityBoundary','shuffle_to_wall_projection_vs_step_behind_floor_slam','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'8a22285b-b363-4b49-80f5-b9f6917fea79','distinct_exercises','Medicine Ball Rotational Toss to Lateral Bound combines a free toss with an athlete flight and landing; Rotational Ball Slam has no required athlete flight or bound.',jsonb_build_object('migration',migration_key,'identityBoundary','free_toss_plus_lateral_bound_vs_floor_slam_without_athlete_flight','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
     (1,canonical_id,'6a256c5b-fc5d-4c45-bd9a-601eb7249c6b','distinct_exercises','Medicine Ball Side Toss with Step uses a step-in free or wall projection; Rotational Ball Slam uses an overhead or rainbow path to a floor impact zone.',jsonb_build_object('migration',migration_key,'identityBoundary','step_in_side_projection_vs_overhead_rotational_floor_slam','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+  ) AS boundary(facility_id,survivor_definition_id,resolved_definition_id,decision,rationale,evidence_json,resolution_source,reviewed_by)
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,

@@ -18,6 +18,7 @@
     "rehearsal:signoff": "node scripts/business-signoff-export.mjs",
     "bootstrap:staging-rehearsal": "npm run bootstrap:staging-rehearsal --prefix backend",
     "test:integration:backend": "node --test backend/tests/integration/*.test.mjs",
+    "test:flip-fit": "node --test scripts/verify-flip-fit-program.mjs scripts/verify-flip-fit-overrides.mjs scripts/verify-flip-fit-prescriptions.mjs backend/platform/__tests__/flipFitScheduleRepository.test.js backend/platform/__tests__/flipFitCardRepository.test.js",
     "test:e2e:smoke": "playwright test --config=playwright.config.ts",
     "test:seo-release": "node scripts/verify-seo-release.mjs",
     "test:seo-live": "node scripts/verify-seo-release.mjs --live",

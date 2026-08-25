@@ -403,115 +403,143 @@ async function writeVariantsAndProfiles(client, definitionId, card, status) {
   )
 }
 
-export async function saveCanonicalCardDraft(pool, facilityId, actorUserId, raw, options = {}) {
+function validatedCanonicalCardDraft(raw) {
   const draftValidation = validateCanonicalCardDraft(raw)
   if (!draftValidation.valid) {
     throw Object.assign(new TypeError('Canonical card draft is invalid.'), { details: draftValidation })
   }
-  const card = draftValidation.normalized
-  const definitionId = options.definitionId ?? null
+  return draftValidation.normalized
+}
+
+export async function withCanonicalCardTransaction(pool, facilityId, operation) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
     await client.query(`SELECT pg_advisory_xact_lock(hashtext('canonical-card:' || $1::text))`, [facilityId])
-    await assertControlledTaxonomies(client, card)
-    const duplicates = await duplicateCandidates(client, facilityId, card, definitionId)
-    const blockingDuplicates = duplicates.filter((match) => match.score >= 90)
-    if (blockingDuplicates.length > 0) {
-      throw Object.assign(new Error('A canonical card or alias is too similar to an existing card.'), {
-        status: 409,
-        details: { duplicates: blockingDuplicates },
-      })
-    }
-    let id = definitionId
-    let fromStatus = null
-    if (definitionId) {
-      const existing = await client.query(
-        `SELECT * FROM coaching.exercise_definition_v1
-         WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
-        [definitionId, facilityId],
-      )
-      if (existing.rows.length === 0) throw Object.assign(new Error('Canonical card not found.'), { status: 404 })
-      const row = existing.rows[0]
-      fromStatus = row.status
-      if (!['draft', 'review'].includes(row.status)) {
-        throw new RangeError('Published, deprecated, and archived cards are immutable; create a reviewed revision instead.')
-      }
-      if (!options.expectedUpdatedAt || new Date(options.expectedUpdatedAt).getTime() !== new Date(row.updated_at).getTime()) {
-        throw Object.assign(new Error('This card changed after it was opened. Reload before saving.'), { status: 409 })
-      }
-      await client.query(
-        `UPDATE coaching.exercise_definition_v1 SET
-           slug=$3, canonical_name=$4, display_name=$5, aliases=$6,
-           description=$7, family_key=$8, content_confidence=$9,
-           scoring_confidence=$10, media_confidence=$11,
-           movement_patterns=$12, body_regions=$13, required_equipment=$14,
-           optional_equipment=$15, environment_json=$16::jsonb,
-           population_json=$17::jsonb, anatomy_json=$18::jsonb,
-           athlete_support_json=$19::jsonb, coach_support_json=$20::jsonb,
-           support_operations_json=$21::jsonb, approved_video_url=$22,
-           status='draft', reviewed_by=NULL,
-           card_version=card_version + 1, updated_at=now()
-         WHERE id=$1 AND facility_id=$2`,
-        [
-          definitionId, facilityId, card.slug, card.canonicalName, card.displayName,
-          card.aliases, card.description, card.familyKey, card.contentConfidence,
-          card.scoringConfidence, card.mediaConfidence, card.movementPatterns,
-          card.bodyRegions, card.requiredEquipment, card.optionalEquipment,
-          JSON.stringify(card.environment), JSON.stringify(card.population),
-          JSON.stringify(card.anatomy), JSON.stringify(card.athleteSupport),
-          JSON.stringify(card.coachSupport), JSON.stringify(card.supportOperations),
-          card.approvedVideoUrl,
-        ],
-      )
-    } else {
-      const created = await client.query(
-        `INSERT INTO coaching.exercise_definition_v1 (
-           facility_id, slug, canonical_name, display_name, aliases, description,
-           family_key, status, content_confidence, scoring_confidence,
-           media_confidence, movement_patterns, body_regions, required_equipment,
-           optional_equipment, environment_json, population_json,
-           anatomy_json, athlete_support_json, coach_support_json,
-           support_operations_json, approved_video_url, provenance_json, created_by
-         ) VALUES ($1,$2,$3,$4,$5,$6,$7,'draft',$8,$9,$10,$11,$12,$13,$14,
-                   $15::jsonb,$16::jsonb,$17::jsonb,$18::jsonb,$19::jsonb,$20::jsonb,
-                   $21,'{"source":"canonical_authoring"}'::jsonb,$22)
-         RETURNING id`,
-        [
-          facilityId, card.slug, card.canonicalName, card.displayName, card.aliases,
-          card.description, card.familyKey, card.contentConfidence,
-          card.scoringConfidence, card.mediaConfidence, card.movementPatterns,
-          card.bodyRegions, card.requiredEquipment, card.optionalEquipment,
-          JSON.stringify(card.environment), JSON.stringify(card.population),
-          JSON.stringify(card.anatomy), JSON.stringify(card.athleteSupport),
-          JSON.stringify(card.coachSupport), JSON.stringify(card.supportOperations),
-          card.approvedVideoUrl, actorUserId,
-        ],
-      )
-      id = created.rows[0].id
-    }
-    await writeVariantsAndProfiles(client, id, card, 'draft')
-    if (definitionId) {
-      await client.query(
-        `UPDATE coaching.exercise_media_review_v1
-         SET exact_variant_match=FALSE, link_status='pending', updated_at=now()
-         WHERE definition_id=$1`,
-        [definitionId],
-      )
-    }
-    await insertRevision(
-      client, facilityId, id, actorUserId,
-      definitionId && fromStatus === 'review' ? 'returned_to_draft' : definitionId ? 'updated' : 'created',
-      fromStatus, 'draft', card, options.changeSummary,
-    )
+    const result = await operation(client)
     await client.query('COMMIT')
-    return loadCanonicalCard(pool, facilityId, id)
+    return result
   } catch (error) {
     await client.query('ROLLBACK')
     throw error
   } finally {
     client.release()
   }
+}
+
+async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, options = {}) {
+  const definitionId = options.definitionId ?? null
+  await assertControlledTaxonomies(client, card)
+  const duplicates = await duplicateCandidates(client, facilityId, card, definitionId)
+  const blockingDuplicates = duplicates.filter((match) => match.score >= 90)
+  if (blockingDuplicates.length > 0) {
+    throw Object.assign(new Error('A canonical card or alias is too similar to an existing card.'), {
+      status: 409,
+      details: { duplicates: blockingDuplicates },
+    })
+  }
+  let id = definitionId
+  let fromStatus = null
+  if (definitionId) {
+    const existing = await client.query(
+      `SELECT * FROM coaching.exercise_definition_v1
+       WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
+      [definitionId, facilityId],
+    )
+    if (existing.rows.length === 0) throw Object.assign(new Error('Canonical card not found.'), { status: 404 })
+    const row = existing.rows[0]
+    fromStatus = row.status
+    if (!['draft', 'review'].includes(row.status)) {
+      throw new RangeError('Published, deprecated, and archived cards are immutable; create a reviewed revision instead.')
+    }
+    if (!options.expectedUpdatedAt || new Date(options.expectedUpdatedAt).getTime() !== new Date(row.updated_at).getTime()) {
+      throw Object.assign(new Error('This card changed after it was opened. Reload before saving.'), { status: 409 })
+    }
+    await client.query(
+      `UPDATE coaching.exercise_definition_v1 SET
+         slug=$3, canonical_name=$4, display_name=$5, aliases=$6,
+         description=$7, family_key=$8, content_confidence=$9,
+         scoring_confidence=$10, media_confidence=$11,
+         movement_patterns=$12, body_regions=$13, required_equipment=$14,
+         optional_equipment=$15, environment_json=$16::jsonb,
+         population_json=$17::jsonb, anatomy_json=$18::jsonb,
+         athlete_support_json=$19::jsonb, coach_support_json=$20::jsonb,
+         support_operations_json=$21::jsonb, approved_video_url=$22,
+         status='draft', reviewed_by=NULL,
+         card_version=card_version + 1, updated_at=now()
+       WHERE id=$1 AND facility_id=$2`,
+      [
+        definitionId, facilityId, card.slug, card.canonicalName, card.displayName,
+        card.aliases, card.description, card.familyKey, card.contentConfidence,
+        card.scoringConfidence, card.mediaConfidence, card.movementPatterns,
+        card.bodyRegions, card.requiredEquipment, card.optionalEquipment,
+        JSON.stringify(card.environment), JSON.stringify(card.population),
+        JSON.stringify(card.anatomy), JSON.stringify(card.athleteSupport),
+        JSON.stringify(card.coachSupport), JSON.stringify(card.supportOperations),
+        card.approvedVideoUrl,
+      ],
+    )
+  } else {
+    const created = await client.query(
+      `INSERT INTO coaching.exercise_definition_v1 (
+         facility_id, slug, canonical_name, display_name, aliases, description,
+         family_key, status, content_confidence, scoring_confidence,
+         media_confidence, movement_patterns, body_regions, required_equipment,
+         optional_equipment, environment_json, population_json,
+         anatomy_json, athlete_support_json, coach_support_json,
+         support_operations_json, approved_video_url, provenance_json, created_by
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,'draft',$8,$9,$10,$11,$12,$13,$14,
+                 $15::jsonb,$16::jsonb,$17::jsonb,$18::jsonb,$19::jsonb,$20::jsonb,
+                 $21,'{"source":"canonical_authoring"}'::jsonb,$22)
+       RETURNING id`,
+      [
+        facilityId, card.slug, card.canonicalName, card.displayName, card.aliases,
+        card.description, card.familyKey, card.contentConfidence,
+        card.scoringConfidence, card.mediaConfidence, card.movementPatterns,
+        card.bodyRegions, card.requiredEquipment, card.optionalEquipment,
+        JSON.stringify(card.environment), JSON.stringify(card.population),
+        JSON.stringify(card.anatomy), JSON.stringify(card.athleteSupport),
+        JSON.stringify(card.coachSupport), JSON.stringify(card.supportOperations),
+        card.approvedVideoUrl, actorUserId,
+      ],
+    )
+    id = created.rows[0].id
+  }
+  await writeVariantsAndProfiles(client, id, card, 'draft')
+  if (definitionId) {
+    await client.query(
+      `UPDATE coaching.exercise_media_review_v1
+       SET exact_variant_match=FALSE, link_status='pending', updated_at=now()
+       WHERE definition_id=$1`,
+      [definitionId],
+    )
+  }
+  await insertRevision(
+    client, facilityId, id, actorUserId,
+    definitionId && fromStatus === 'review' ? 'returned_to_draft' : definitionId ? 'updated' : 'created',
+    fromStatus, 'draft', card, options.changeSummary,
+  )
+  return id
+}
+
+export async function saveCanonicalCardDraftInTransaction(client, facilityId, actorUserId, raw, options = {}) {
+  const card = validatedCanonicalCardDraft(raw)
+  const id = await persistCanonicalCardDraft(client, facilityId, actorUserId, card, options)
+  return {
+    id: String(id),
+    ...card,
+    status: 'draft',
+  }
+}
+
+export async function saveCanonicalCardDraft(pool, facilityId, actorUserId, raw, options = {}) {
+  const card = validatedCanonicalCardDraft(raw)
+  const id = await withCanonicalCardTransaction(
+    pool,
+    facilityId,
+    (client) => persistCanonicalCardDraft(client, facilityId, actorUserId, card, options),
+  )
+  return loadCanonicalCard(pool, facilityId, id)
 }
 
 export async function transitionCanonicalCard(pool, facilityId, definitionId, actorUserId, toStatus, options = {}) {

@@ -1,0 +1,480 @@
+{
+  "facilityId": 1,
+  "slug": "rock-and-roll-to-stand",
+  "researchVersion": "2026-08-10.124",
+  "assessmentSummary": {
+    "identity": "From a seated tuck on a clean, stable mat or floor, hold the shins, keep the body compact and rounded, rock backward only to the upper-back/shoulder contact range that remains controlled, rock forward, bring both feet under the body, and stand tall without placing hands on the floor or another person. One complete seated-tuck to tall-standing return is one cycle. Repeated tuck rocks that return to seated, any hand or partner assistance, raised surfaces, forward or backward rolls, a hand-supported backward-roll action, and different terminal positions are separate tasks or reviewed variants.",
+    "currentCardFindings": [
+      "Source 81 establishes seated tuck, rocking on the upper back/shoulders, a feet-under-body transition, and tall standing finish but lacks an exact repetition unit, no-hand boundary, quality gates, dosage, fatigue, media review, relationships, and calibration.",
+      "The exact candidate uses a no-hand floor return because hand support or a partner changes contacts, assistance, force path, logistics, and coaching needs. Those changes cannot be silently treated as participant-skill labels.",
+      "Three direct legacy YouTube URLs are retained only as unverified, non-embedded candidates. Search and source presence do not verify playback, exact cycle match, safety, captions, accessibility, quality, reviewer, or approval."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "squat",
+        "transition"
+      ],
+      "bodyRegions": [
+        "head",
+        "neck",
+        "shoulder",
+        "thoracic_spine",
+        "spine",
+        "core",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "support": "seated_then_upper_back_shoulders_then_bilateral_feet_on_stable_floor",
+      "laterality": "bilateral_symmetric",
+      "planes": [
+        "sagittal_primary",
+        "frontal_and_transverse_stabilization"
+      ],
+      "equipment": [
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 44,
+      "absoluteLoadDemand": 22,
+      "physicalDifficulty": 24,
+      "coordinationDemand": 42,
+      "supervisionDemand": 30,
+      "failureConsequence": 28,
+      "impact": 2,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 44,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_tuck_rock_to_bilateral_floor_stand_without_hand_support",
+      "impactClass": "controlled_floor_contact_no_jump_or_external_impact",
+      "primaryExposure": [
+        "upper_back_and_shoulder_floor_contact",
+        "trunk_flexion_control",
+        "hip_knee_ankle_squat_transition",
+        "standing_balance"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual cycles, contact tolerance, symptoms, assistance, surface, and overlapping rolling or squat work"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "validCycles": "2-6 per set",
+      "rest": "30-90 seconds or enough to restore compact tuck, controlled upper-back contact, feet-under-body return, breathing, and balance",
+      "durationRule": "include floor setup, demonstration, valid and failed cycles, rest, substitutions, cleaning, and controlled exit"
+    },
+    "programmingDecision": "Select only when the exact no-hand seated tuck-rock-to-tall cycle, stable floor/mat, clear exit, communication, head/neck and upper-back contact tolerance, cumulative fatigue, duration, logistics, and downstream work fit. Tuck compactness, pace, cycles, rest, mat use, and cueing are delivery annotations only while the exact contact path and no-hand tall finish remain. Hand support, partner assistance, raised or inclined surface, repeated seated rocks, forward/backward roll, different finish, assessment, or clinical intent requires revalidation.",
+    "calibrationEvidence": {
+      "basis": "Source 81 lineage, published gymnastics rolling teaching guidance, task mechanics, and comparison with tuck rocks, assisted rock-to-stand, forward/backward rolls, and squat-roll-to-stand.",
+      "uncertainty": "No source establishes universal contact range, cycle count, recovery, readiness, clearance, outcome, transfer, or Vortex score. Independent human calibration remains required.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "load_fatigue_recovery_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T08:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Start seated in a compact tuck on a clean stable mat or floor, holding the shins. Rock backward only to controlled upper-back and shoulder contact, rock forward, place both feet under the body, and stand tall without placing hands on the floor or another person. One seated-tuck to tall-standing return is one cycle. Hand or partner assistance, raised surfaces, repeated rocks returning to seated, forward or backward rolls, changed terminal positions, assessment, and clinical intervention require separate reviewed variants or definitions.",
+      "familyKey": "seated_tuck_rock_to_tall_stand",
+      "movementPatterns": [
+        "brace",
+        "squat",
+        "transition"
+      ],
+      "bodyRegions": [
+        "head",
+        "neck",
+        "shoulder",
+        "thoracic_spine",
+        "spine",
+        "core",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "variantKey": "stable-floor-seated-tuck-upper-back-rock-tall-stand-no-hand",
+      "environment": {
+        "surface": "clean dry level stable floor or mat permitting a controlled roll and stand",
+        "space": "one roll-to-stand station with a clear lateral boundary and exit",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface and mat condition",
+          "clear roll path and stand exit",
+          "communication and coach sightline"
+        ],
+        "changeRule": "Changing start, contact path, hand or partner assistance, surface height or incline, terminal position, load, intent, symptoms, or substitution requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe floor/mat, clear exit, and communication",
+          "can complete the declared no-hand upper-back rock and controlled tall return without stop symptoms",
+          "current rolling, squat-transition, positional-floor-work, and balance budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms, restrictions, or setting conflict with exact floor rolling and stand",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "unsafe station or participant request to stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal contact range, cycle count, recovery, readiness, clearance, outcome, or transfer"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 44,
+        "absoluteLoadDemand": 22,
+        "physicalDifficulty": 24,
+        "coordinationDemand": 42,
+        "supervisionDemand": 30,
+        "failureConsequence": 28,
+        "impact": 2,
+        "workCapacityDemand": 24,
+        "baseOverallDifficulty": 44
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_tuck_rock_to_bilateral_floor_stand_without_hand_support",
+        "impactClass": "controlled_floor_contact_no_jump_or_external_impact",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "upper_back_and_shoulder_floor_contact",
+          "trunk_control",
+          "hip_knee_ankle_squat_transition",
+          "standing_balance"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 24,
+        "technicalFatigueSensitivity": 42,
+        "impactAccumulation": 2,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "tuck_rock_cycles": 24,
+          "positional_floor_work_cycles": 24,
+          "squat_transition_cycles": 24,
+          "upper_back_contact_cycles": 20
+        },
+        "tracking": [
+          "validCycles",
+          "failedCycles",
+          "contactPath",
+          "handUse",
+          "standBalance",
+          "symptoms",
+          "rest"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The roll cards distinguish rocking in a tuck from a rock-and-roll-to-stand progression.",
+        "This candidate fixes seated tuck, controlled upper-back/shoulder rock, feet-under-body return, and tall no-hand finish as one cycle."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics instruction should define exact task conditions and progression boundaries.",
+        "Assistance, surface, contact route, terminal position, and repetition unit are task dimensions, never participant classifications."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Rolling cards describe compact tuck, upper-back contact, feet placement, and return to standing.",
+        "The card records observable contacts and joint roles without diagnosis, isolated activation, treatment, or outcome claims."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Task-specific conditions and controlled progressions are required for gymnastics instruction.",
+        "The candidate excludes head loading, hand push-off, partner pull, and changed roll directions from its exact cycle."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Rocking and standing are distinct stages in the rolling progression.",
+        "The proposed 44/24/44 scores describe exercise complexity and physical difficulty only, never ability, age, experience, or readiness."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Instruction must account for task conditions and progressive teaching.",
+        "Track valid cycles, contact tolerance, hand use, feet-under-body return, balance, symptoms, and overlapping rolling or squat work; recovery is a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe gymnastics teaching depends on the setting and task-specific progression.",
+        "Use a clean stable mat/floor, clear roll and stand space, communication, controlled exit, and exact no-hand condition."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The cards describe rocking and a progression toward standing rather than a universal dosage.",
+        "Proposed cycles and rest are quality-limited review-only guidance, not universal prescription."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The rolling guidance uses a compact tuck, controlled rocking, feet placement, and transition toward standing.",
+        "Instructions specify seated start, shins held, upper-back/shoulder contact, forward rock, feet under body, tall finish, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe instruction depends on conditions, supervision, and progression.",
+        "Stop for pain, new neurologic/circulation/breathing/dizziness symptoms, head/neck contact, unsafe station, uncontrolled contact or stand, repeated hand use, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics tasks should be selected for their exact conditions and progression needs.",
+        "Use only when objective, floor logistics, contact tolerance, fatigue, duration, and downstream demands fit; no transfer, prevention, or treatment promise is made."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Clear rolling cues distinguish compact rocking from other roll families.",
+        "Athlete support needs the start, contact path, feet-under-body return, tall finish, self-check, stop, and help prompt in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should observe task conditions and adjust instruction without diagnosis.",
+        "Coach support observes start, upper-back contact, head/neck clearance, hand use, foot placement, finish balance, symptoms, cycle count, and first quality loss."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Teaching conditions and progressions must match the exact task.",
+        "Use captions, transcript, still sequence, audio description, visual floor boundary, verbal cueing, and another reviewed task if exact floor rolling is unsuitable."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "sourceTitle": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "sourcePublisher": "Professional Development Service for Teachers",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Tuck rocks, rock-to-stand, forward rolls, and changed surfaces are distinct progression conditions.",
+        "The alternate review separates repeated rocks, assisted standing, incline/raised surface, forward/backward rolls, squat-roll-to-stand, and non-tall finishes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Direct YouTube URLs can be retained as candidates without an approval claim.",
+        "Three Source 81 URLs are preserved solely as unverified, non-embedded candidate media pending exact-cycle, safety, accessibility, quality, reviewer, and approval review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=rxgMUlvMXxs",
+      "title": "Legacy Rock-and-Roll-to-Stand candidate 1 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 81 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate. Playback, exact no-hand seated-tuck-to-tall-cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=sCBswDE9WKw",
+      "title": "Legacy Rock-and-Roll-to-Stand candidate 2 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 81 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate. Playback, exact no-hand seated-tuck-to-tall-cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IB4t9ughOFk",
+      "title": "Legacy Rock-and-Roll-to-Stand candidate 3 — human review required",
+      "channelName": null,
+      "sourceQuery": "Source 81 legacy media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Inherited direct candidate. Playback, exact no-hand seated-tuck-to-tall-cycle match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Seated Tuck Rock-to-Tall Stand (No-Hand)",
+      "classification": "same_identity",
+      "rationale": "This is the exact seated-tuck, upper-back/shoulder-rock, feet-under-body, tall no-hand return cycle.",
+      "distinguishingDimensions": {
+        "start": "seated_tuck",
+        "finish": "tall_stand",
+        "hands": "no_floor_or_partner_support"
+      }
+    },
+    {
+      "name": "Fewer Cycles or Longer Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Cycle count and rest change delivery while the exact contact path and no-hand tall finish remain.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "cycles",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Assisted Rock-to-Stand",
+      "classification": "new_variant",
+      "rationale": "Partner, rail, or hand assistance changes contacts, force path, staffing, logistics, and safety requirements.",
+      "distinguishingDimensions": {
+        "assistance": "external"
+      }
+    },
+    {
+      "name": "Raised or Inclined-Surface Rock-to-Stand",
+      "classification": "new_variant",
+      "rationale": "Surface height or incline changes equipment, entry, contact mechanics, exit, logistics, and loading.",
+      "distinguishingDimensions": {
+        "surface": "raised_or_inclined"
+      }
+    },
+    {
+      "name": "Tuck Rock Returning to Seated",
+      "classification": "new_definition",
+      "rationale": "Repeated rocking omits the feet-under-body and tall-standing terminal action.",
+      "distinguishingDimensions": {
+        "finish": "seated"
+      }
+    },
+    {
+      "name": "Forward or Backward Roll",
+      "classification": "new_definition",
+      "rationale": "A sagittal roll changes entry, contact route, hand role, rotation, and terminal contract.",
+      "distinguishingDimensions": {
+        "action": "forward_or_backward_roll"
+      }
+    },
+    {
+      "name": "Squat Roll to Stand",
+      "classification": "new_definition",
+      "rationale": "A squat start and its directed roll path are distinct from the seated-tuck upper-back rock cycle.",
+      "distinguishingDimensions": {
+        "start": "squat"
+      }
+    },
+    {
+      "name": "Rolling Assessment or Clinical Intervention",
+      "classification": "new_definition",
+      "rationale": "Assessment or clinical care adds protocol, measurement, consent, interpretation, and escalation.",
+      "distinguishingDimensions": {
+        "scope": "clinical"
+      }
+    }
+  ]
+}

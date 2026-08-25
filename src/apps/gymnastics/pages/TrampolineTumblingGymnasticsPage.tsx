@@ -12,10 +12,6 @@ import {
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../../../utils/enrollSite'
 
-interface TrampolineTumblingGymnasticsPageProps {
-  onSignUpClick?: () => void
-}
-
 interface EventSection {
   name: string
   shortDescription: string
@@ -98,9 +94,7 @@ const EventPhotoWithInstagramBanner = ({
   </div>
 )
 
-const TrampolineTumblingGymnasticsPage = ({
-  onSignUpClick: _onSignUpClick,
-}: TrampolineTumblingGymnasticsPageProps) => {
+const TrampolineTumblingGymnasticsPage = () => {
   const enrollHref = getSiteEnrollHref({ programName: 'Trampoline & Tumbling' })
 
   return (
@@ -119,11 +113,12 @@ const TrampolineTumblingGymnasticsPage = ({
               A Gymnastics Discipline
             </p>
             <h1 className="text-5xl font-display font-bold leading-[.95] sm:text-6xl lg:text-7xl">
-              Tramp <span className="text-vortex-red">&amp;</span> Tumble
+              Trampoline &amp; Tumbling Gymnastics{' '}
+              <span className="text-vortex-red">in Bowie, MD</span>
             </h1>
             <p className="mt-7 max-w-2xl text-xl leading-relaxed text-gray-200 md:text-2xl">
-              Bounce higher. Tumble stronger. Learn to move through the air with confidence and
-              control.
+              Tramp &amp; Tumble: bounce higher, tumble stronger, and learn to move through the air
+              with confidence and control.
             </p>
           </motion.div>
 
@@ -135,7 +130,7 @@ const TrampolineTumblingGymnasticsPage = ({
           >
             <div className="relative h-full min-h-[24rem] overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl lg:rounded-l-3xl lg:rounded-r-none lg:border-y-0 lg:border-r-0">
               <img
-                src="/tramp-tumble-hero.jpg"
+                src="/tramp-tumble-hero-1600.webp"
                 alt="A Vortex athlete performing a tumbling skill on the power tumbling track"
                 className="absolute inset-0 h-full w-full translate-y-3 scale-[1.5] object-cover object-center lg:translate-y-0 lg:scale-[1.35]"
                 loading="eager"

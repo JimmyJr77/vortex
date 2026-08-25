@@ -10,20 +10,18 @@ DECLARE
   migration_key CONSTANT TEXT :=
     '445_coaching_bilateral_horizontal_jump_foundations_completion';
   research_version CONSTANT TEXT := '2026-08-02.17';
-  stick_id CONSTANT UUID := '1260d75e-6807-4c91-859d-7d561a9160a3';
-  repeated_id CONSTANT UUID := 'a3768015-f081-44ff-81a0-2d15a5acb94f';
-  standing_id CONSTANT UUID := '626ba7ed-840e-4275-9001-bab668e37503';
-  triple_id CONSTANT UUID := 'c559e16a-0a2e-49b8-83be-fd801b9e3d40';
-  stick_variant_id CONSTANT UUID := '962d4295-1d84-400f-af24-53ff25813f96';
-  stick_duplicate_variant_id CONSTANT UUID := 'c1cce47d-0d5e-49e8-9cd3-7c57f821aeda';
-  repeated_variant_id CONSTANT UUID := 'c8f55d97-86bc-4b0e-8b19-5fc64533717f';
-  standing_variant_id CONSTANT UUID := 'b6d4dea3-c379-4029-9de2-5b5f4d4b51e8';
-  triple_variant_id CONSTANT UUID := '178e9ff5-c5ce-4f44-a986-cdc6306379f4';
-  single_leg_forward_id CONSTANT UUID := 'aaef001d-2c36-4bb4-80b0-76618e074297';
-  definition_ids CONSTANT UUID[] :=
-    ARRAY[stick_id,repeated_id,standing_id,triple_id];
-  variant_ids CONSTANT UUID[] :=
-    ARRAY[stick_variant_id,repeated_variant_id,standing_variant_id,triple_variant_id];
+  stick_id UUID;
+  repeated_id UUID;
+  standing_id UUID;
+  triple_id UUID;
+  stick_variant_id UUID;
+  stick_duplicate_variant_id UUID;
+  repeated_variant_id UUID;
+  standing_variant_id UUID;
+  triple_variant_id UUID;
+  single_leg_forward_id UUID;
+  definition_ids UUID[];
+  variant_ids UUID[];
   evidence_payload JSONB := $json$
   [
     {"sectionKey":"identity","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/12445616/","sourceTitle":"Role of arm motion in the standing long jump","sourcePublisher":"Journal of Biomechanics","sourceKind":"peer_reviewed_research","evidenceQuality":88,"claims":["A standing long or broad jump begins without an approach and uses a bilateral countermovement, bilateral takeoff, horizontal flight, and bilateral landing; free arm motion changes takeoff velocity, flight control, landing position, and measured distance.","Maximal measurement, deliberate terminal stabilization, flexible linked contacts, and an exact three-jump test are separate declared contracts."]},
@@ -93,6 +91,42 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  SELECT definition.id,variant.id INTO stick_id,stick_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='broad-jump-to-stick'
+    AND variant.variant_key='baseline';
+
+  SELECT variant.id INTO stick_duplicate_variant_id
+  FROM coaching.exercise_variant_v1 variant
+  WHERE variant.definition_id=stick_id
+    AND variant.variant_key='baseline-source-1127';
+
+  SELECT definition.id,variant.id INTO repeated_id,repeated_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='repeated-broad-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO standing_id,standing_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='standing-broad-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT definition.id,variant.id INTO triple_id,triple_variant_id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant ON variant.definition_id=definition.id
+  WHERE definition.facility_id=1 AND definition.slug='triple-broad-jump'
+    AND variant.variant_key='baseline';
+
+  SELECT id INTO single_leg_forward_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-forward-hop-to-stick';
+
+  definition_ids:=ARRAY[stick_id,repeated_id,standing_id,triple_id];
+  variant_ids:=ARRAY[stick_variant_id,repeated_variant_id,standing_variant_id,triple_variant_id];
+
   INSERT INTO coaching.equipment(key,name,sort_order)
   VALUES('tape_measure','Tape Measure',230)
   ON CONFLICT(key) DO NOTHING;

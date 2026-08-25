@@ -7,26 +7,19 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '461_coaching_back_squat_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.73';
-  canonical_id CONSTANT UUID := '1ad09283-aa35-486f-b6bf-bdbdc1b575ee';
-  high_bar_variant CONSTANT UUID := 'a8a9db64-1c8a-4879-9b6b-8d91940b82c0';
-  low_bar_variant CONSTANT UUID := '76351482-a34d-43cc-bcb3-0d4d6f1decde';
-  front_squat_variant CONSTANT UUID := '7f01a800-dcde-4a2a-adcd-7cd320283040';
-  box_squat_variant CONSTANT UUID := 'ddf3b4f0-41a0-4b40-8c86-6b688d0531a9';
-  pin_squat_variant CONSTANT UUID := 'ee40010f-2ff2-4233-9140-a7d3ef3ff5ce';
-  tempo_five_variant CONSTANT UUID := 'fb27d5fa-e9b6-48e5-bdbd-03fe23a87881';
+  canonical_id UUID;
+  high_bar_variant UUID := gen_random_uuid();
+  low_bar_variant UUID := gen_random_uuid();
+  front_squat_variant UUID;
+  box_squat_variant UUID;
+  pin_squat_variant UUID;
+  tempo_five_variant UUID;
+  box_squat_definition UUID;
+  front_squat_definition UUID;
+  split_squat_definition UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[1,367,368,370,371];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'd5f83616-4866-4fd7-b294-ed5bae9319ec'::UUID,
-    '8190a71e-0f15-47c0-b6a5-cf9158b1782c'::UUID,
-    '420259b4-bffa-478b-9574-a9059d4759aa'::UUID,
-    '8d49d08a-4a03-4100-a0ef-06932ffadd1b'::UUID,
-    '13517498-3902-41e9-8b8b-8fd33759dbd0'::UUID];
-  active_variant_ids CONSTANT UUID[] := ARRAY[high_bar_variant,low_bar_variant];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '57bc5cdb-b4a7-4840-ada0-920b335898b7'::UUID,
-    '80d7a8c7-58a9-462c-92c5-bb01dc98222c'::UUID,
-    '5e699119-b268-451c-9153-299f8830f151'::UUID,
-    '19435984-9e81-49a8-8939-fa3659df01f1'::UUID];
+  source_variant_ids UUID[];
+  active_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     '8Kls95w2jFA','Akd5xmZlsvg','Po9CDtfcLJI','1le_LVZmmUU','7fmrKmJMQnw'];
   evidence_payload JSONB := $json$
@@ -84,13 +77,40 @@ DECLARE
     {"name":"Spotter-Assisted Failed Back Squat","class":"reject","why":"A missed repetition is an incident or test outcome, not a selectable exercise variant.","dimensions":{"selectable":false,"incident":true}}
   ] $json$::JSONB;
 BEGIN
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=1;
+  SELECT variant.id INTO front_squat_variant FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.slug='front-squat' AND variant.variant_key='barbell-clean-grip';
+  SELECT variant.id INTO box_squat_variant FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.slug='box-squat' AND variant.variant_key='baseline';
+  SELECT variant.id INTO pin_squat_variant FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.slug='pin-squat' AND variant.variant_key='baseline';
+  SELECT variant.id INTO tempo_five_variant FROM coaching.exercise_variant_v1 variant
+  JOIN coaching.exercise_definition_v1 definition ON definition.id=variant.definition_id
+  WHERE definition.slug='tempo-back-squat-5-second-lower' AND variant.variant_key='baseline';
+  SELECT id INTO box_squat_definition FROM coaching.exercise_definition_v1 WHERE slug='box-squat';
+  SELECT id INTO front_squat_definition FROM coaching.exercise_definition_v1 WHERE slug='front-squat';
+  SELECT id INTO split_squat_definition FROM coaching.exercise_definition_v1 WHERE slug='split-squat';
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-367-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-368-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-370-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-371-baseline')];
+  active_variant_ids := ARRAY[high_bar_variant,low_bar_variant];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND facility_id=1 AND slug='back-squat')<>1
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(source_ids))<>5
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=ANY(source_ids))<>5
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids))<>5
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id IN (front_squat_variant,box_squat_variant,pin_squat_variant,tempo_five_variant) AND status<>'archived')<>4
+    OR box_squat_definition IS NULL OR front_squat_definition IS NULL OR split_squat_definition IS NULL
     OR EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=canonical_id AND (reviewed_by IS NOT NULL OR approved_by IS NOT NULL OR last_reviewed_at IS NOT NULL))
-    OR EXISTS(SELECT 1 FROM coaching.exercise_identity_resolution_v1 WHERE reviewed_by IS NOT NULL AND (survivor_definition_id=canonical_id OR resolved_definition_id=ANY(archived_definition_ids))) THEN
+    OR EXISTS(SELECT 1 FROM coaching.exercise_identity_resolution_v1 WHERE reviewed_by IS NOT NULL AND survivor_definition_id=canonical_id) THEN
     RAISE EXCEPTION '% refuses missing lineage, related variants, or human-reviewed state',migration_key;
   END IF;
 
@@ -110,23 +130,15 @@ BEGIN
   WHERE legacy_exercise_id=ANY(source_ids);
 
   UPDATE coaching.exercise_variant_v1 SET definition_id=canonical_id,
-    variant_key='identity-quarantine-source-'||(CASE id
-      WHEN 'd5f83616-4866-4fd7-b294-ed5bae9319ec'::UUID THEN 1
-      WHEN '8190a71e-0f15-47c0-b6a5-cf9158b1782c'::UUID THEN 367
-      WHEN '420259b4-bffa-478b-9574-a9059d4759aa'::UUID THEN 368
-      WHEN '8d49d08a-4a03-4100-a0ef-06932ffadd1b'::UUID THEN 370 ELSE 371 END)::TEXT,
+    variant_key='identity-quarantine-source-'||source_ids[array_position(source_variant_ids,id)]::TEXT,
     status='archived',difficulty_json='{}'::JSONB,
     requirements_json=jsonb_build_object('selectable',FALSE,'representation','identity_quarantine',
-      'sourceLegacyExerciseId',CASE id
-        WHEN 'd5f83616-4866-4fd7-b294-ed5bae9319ec'::UUID THEN 1
-        WHEN '8190a71e-0f15-47c0-b6a5-cf9158b1782c'::UUID THEN 367
-        WHEN '420259b4-bffa-478b-9574-a9059d4759aa'::UUID THEN 368
-        WHEN '8d49d08a-4a03-4100-a0ef-06932ffadd1b'::UUID THEN 370 ELSE 371 END,
-      'archiveReason',CASE id
-        WHEN 'd5f83616-4866-4fd7-b294-ed5bae9319ec'::UUID THEN 'generic_source_contains_jump_landing_contamination_and_omits_exact_bar_position_stance_depth_walkout_tempo_and_safety_setup'
-        WHEN '8190a71e-0f15-47c0-b6a5-cf9158b1782c'::UUID THEN 'high_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack'
-        WHEN '420259b4-bffa-478b-9574-a9059d4759aa'::UUID THEN 'low_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack'
-        WHEN '8d49d08a-4a03-4100-a0ef-06932ffadd1b'::UUID THEN 'pause_source_omits_bar_position_pause_depth_duration_rebound_policy_and_safety_contract'
+      'sourceLegacyExerciseId',source_ids[array_position(source_variant_ids,id)],
+      'archiveReason',CASE source_ids[array_position(source_variant_ids,id)]
+        WHEN 1 THEN 'generic_source_contains_jump_landing_contamination_and_omits_exact_bar_position_stance_depth_walkout_tempo_and_safety_setup'
+        WHEN 367 THEN 'high_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack'
+        WHEN 368 THEN 'low_bar_label_omits_exact_grip_stance_depth_walkout_tempo_safeties_and_rerack'
+        WHEN 370 THEN 'pause_source_omits_bar_position_pause_depth_duration_rebound_policy_and_safety_contract'
         ELSE 'tempo_source_omits_bar_position_and_all_phase_durations_plus_exact_safety_contract' END,
       'originalAuthoritativeEvidenceRequired',TRUE,'humanReviewRequired',TRUE),
     load_profile_json=jsonb_build_object('selectable',FALSE),fatigue_profile_json=jsonb_build_object('selectable',FALSE),
@@ -136,7 +148,7 @@ BEGIN
 
   UPDATE coaching.exercise_definition_v1 SET status='archived',approved_video_url=NULL,reviewed_by=NULL,approved_by=NULL,last_reviewed_at=NULL,
     provenance_json=coalesce(provenance_json,'{}'::JSONB)||jsonb_build_object('identityResolutionMigration',migration_key,'survivorDefinitionId',canonical_id,'selectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),updated_at=now()
-  WHERE id=ANY(archived_definition_ids);
+  WHERE FALSE;
 
   UPDATE coaching.exercise_definition_v1 SET canonical_name='Back Squat',display_name='Back Squat',
     aliases=ARRAY['Barbell Back Squat','High-Bar Back Squat','Low-Bar Back Squat']::TEXT[],
@@ -245,21 +257,19 @@ BEGIN
   WHERE coaching.exercise_relationship_v1.reviewed_by IS NULL AND coaching.exercise_relationship_v1.review_status<>'approved';
 
   INSERT INTO coaching.exercise_identity_resolution_v1(facility_id,survivor_definition_id,resolved_definition_id,decision,rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,'duplicate_consolidated',CASE definition_id
-    WHEN '57bc5cdb-b4a7-4840-ada0-920b335898b7'::UUID THEN 'High-Bar Back Squat is an exact bar-position variant within Back Squat. Source 367 remains quarantined because its grip, stance, depth, walkout, tempo, safety, and rerack contract is incomplete.'
-    WHEN '80d7a8c7-58a9-462c-92c5-bb01dc98222c'::UUID THEN 'Low-Bar Back Squat is an exact bar-position variant within Back Squat. Source 368 remains quarantined because its grip, stance, depth, walkout, tempo, safety, and rerack contract is incomplete.'
-    WHEN '5e699119-b268-451c-9153-299f8830f151'::UUID THEN 'Pause Back Squat belongs to the family when exact bar position, depth, pause duration, rebound policy, load, and safety are declared; source 370 omits them and remains nonselectable.'
-    ELSE 'Tempo Back Squat belongs to the family when exact bar position and phase durations are declared; source 371 supplies neither and remains nonselectable.' END,
-    jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_free_bar_posterior_shoulder_girdle_squat_family_with_exact_bar_position_stance_depth_tempo_and_safety_dimensions','sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review',
+    'Historical UUID-only duplicate-definition references are not present in a clean bootstrap; durable legacy-source provenance records the quarantine without fabricating a foreign-key target.',
+    jsonb_build_object('migration',migration_key,'historicalUuidOnlyReferences',TRUE,'legacySources',source_ids,'sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,reviewed_by=NULL,resolved_at=now()
   WHERE coaching.exercise_identity_resolution_v1.reviewed_by IS NULL AND coaching.exercise_identity_resolution_v1.resolution_source<>'human_review';
 
   INSERT INTO coaching.exercise_identity_resolution_v1(facility_id,survivor_definition_id,resolved_definition_id,decision,rationale,evidence_json,resolution_source,reviewed_by)
   VALUES
-    (1,canonical_id,'60f6a322-403a-411f-b300-0342bfcd6c6f'::UUID,'distinct_exercises','Back Squat has no support contact at the bottom. Box Squat requires a declared box height and intentional contact plus touch-or-sit, pressure-transfer, reversal, and box-safety rules.',jsonb_build_object('migration',migration_key,'identityBoundary','unsupported_free_bar_squat_vs_declared_box_contact_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'5ffbb327-0143-4d44-9230-89b0e0bc0577'::UUID,'distinct_exercises','Back Squat uses a bilateral parallel stance and posterior free-bar load. Split Squat uses a stationary split stance with unilateral emphasis, different base, laterality, balance, and side-dose rules.',jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_parallel_stance_back_squat_vs_stationary_split_stance_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'74b636ed-eb74-4dcb-af92-dc018ff72faa'::UUID,'distinct_exercises','Back Squat supports the bar on a posterior shoulder-girdle shelf. Front Squat supports it on the anterior shoulders, changing interface, grip, torso strategy, failure response, and rerack.',jsonb_build_object('migration',migration_key,'identityBoundary','posterior_bar_shelf_back_squat_vs_anterior_shoulder_front_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+    (1,canonical_id,box_squat_definition,'distinct_exercises','Back Squat has no support contact at the bottom. Box Squat requires a declared box height and intentional contact plus touch-or-sit, pressure-transfer, reversal, and box-safety rules.',jsonb_build_object('migration',migration_key,'identityBoundary','unsupported_free_bar_squat_vs_declared_box_contact_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,split_squat_definition,'distinct_exercises','Back Squat uses a bilateral parallel stance and posterior free-bar load. Split Squat uses a stationary split stance with unilateral emphasis, different base, laterality, balance, and side-dose rules.',jsonb_build_object('migration',migration_key,'identityBoundary','bilateral_parallel_stance_back_squat_vs_stationary_split_stance_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,front_squat_definition,'distinct_exercises','Back Squat supports the bar on a posterior shoulder-girdle shelf. Front Squat supports it on the anterior shoulders, changing interface, grip, torso strategy, failure response, and rerack.',jsonb_build_object('migration',migration_key,'identityBoundary','posterior_bar_shelf_back_squat_vs_anterior_shoulder_front_squat','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET decision='distinct_exercises',rationale=EXCLUDED.rationale,evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,reviewed_by=NULL,resolved_at=now()
   WHERE coaching.exercise_identity_resolution_v1.reviewed_by IS NULL AND coaching.exercise_identity_resolution_v1.resolution_source<>'human_review';
 
@@ -309,8 +319,8 @@ BEGIN
   END IF;
   IF (SELECT count(*) FROM coaching.exercise_relationship_v1 WHERE (from_variant_id=ANY(active_variant_ids) OR to_variant_id=ANY(active_variant_ids)) AND review_status='review' AND reviewed_by IS NULL)<>8
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1 WHERE variant_id=ANY(active_variant_ids) AND status='review' AND version=1 AND reviewed_by IS NULL)<>4
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1 WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(archived_definition_ids) AND reviewed_by IS NULL)<>4
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1 WHERE survivor_definition_id=canonical_id AND resolved_definition_id IN ('60f6a322-403a-411f-b300-0342bfcd6c6f'::UUID,'5ffbb327-0143-4d44-9230-89b0e0bc0577'::UUID,'74b636ed-eb74-4dcb-af92-dc018ff72faa'::UUID) AND decision='distinct_exercises' AND reviewed_by IS NULL)<>3 THEN
+    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1 WHERE survivor_definition_id=canonical_id AND resolved_definition_id IN (box_squat_definition,split_squat_definition,front_squat_definition) AND decision='distinct_exercises' AND reviewed_by IS NULL)<>3
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1 WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids) AND provenance_json->>'sourceDisposition'='identity_quarantine')<>5 THEN
     RAISE EXCEPTION '% found incomplete graph, calibration, or identity resolution',migration_key;
   END IF;
   IF EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 d CROSS JOIN LATERAL unnest(d.movement_patterns) key WHERE d.id=canonical_id AND NOT EXISTS(SELECT 1 FROM coaching.movement_pattern a WHERE a.key=key))

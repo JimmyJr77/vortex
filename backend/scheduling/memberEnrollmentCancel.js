@@ -70,11 +70,37 @@ async function safeScheduleSubscriptionEnd(db, opts) {
   }
 }
 
+/** Throttle GET-path cancellation sweeps; billing cron should pass `{ force: true }`. */
+let lastDueCancelRunAt = 0
+const DUE_CANCEL_MIN_INTERVAL_MS = 5 * 60 * 1000
+let dueCancelInFlight = null
+
 /**
  * Finalize signups whose cancel_effective_date has arrived.
+ * @param {import('pg').Pool} pool
+ * @param {{ force?: boolean }} [options]
  * @returns {Promise<number[]>} signup ids cancelled
  */
-export async function processDueEnrollmentCancellations(pool) {
+export async function processDueEnrollmentCancellations(pool, { force = false } = {}) {
+  const now = Date.now()
+  if (!force && now - lastDueCancelRunAt < DUE_CANCEL_MIN_INTERVAL_MS) {
+    return []
+  }
+  if (dueCancelInFlight) return dueCancelInFlight
+
+  dueCancelInFlight = (async () => {
+    try {
+      return await runDueEnrollmentCancellations(pool)
+    } finally {
+      lastDueCancelRunAt = Date.now()
+      dueCancelInFlight = null
+    }
+  })()
+
+  return dueCancelInFlight
+}
+
+async function runDueEnrollmentCancellations(pool) {
   try {
     await ensureEnrollmentLifecycleColumns(pool)
   } catch (schemaErr) {

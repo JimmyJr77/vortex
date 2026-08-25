@@ -1,0 +1,113 @@
+{
+  "batchKey": "scapular-push-up-v1",
+  "researchVersion": "2026-08-09.100",
+  "snapshotAt": "2026-08-09T20:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/scapular-push-up",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "scapular-push-up",
+      "assessmentSummary": {
+        "identity": "A four-variant bilateral straight-arm hand-support family requiring explicit selection of quadruped or high-plank base and dynamic retraction-to-protraction cycle or protraction hold. Quadruped retains both hands and knees; high plank retains both hands and toes. Dynamic variants count one complete retraction-to-protraction cycle. Hold variants count actual valid seconds in controlled protraction. Elbow flexion, a full push-up or push-up plus, wall or raised support, knee hover, unilateral or single-leg support, instability, resistance, perturbation, or clinical assessment changes the task.",
+        "currentCardFindings": [
+          "Legacy sources 33, 247, and 853 provide generic or hold skeletons without exact base, action, count, loading, dosage, support, graph, calibration, or review contracts.",
+          "The inherited PMID 32707142 citation is a prone cardiopulmonary-resuscitation review and is unrelated to Scapular Push-Ups; it must be removed from current provenance.",
+          "Legacy age, publication, outcome, and media implications are unsupported and remain cleared or quarantined."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "push"],
+          "bodyRegions": ["hand", "wrist", "elbow", "shoulder", "scapula", "core", "spine", "hip", "knee", "ankle"],
+          "support": "bilateral_hands_and_declared_knees_or_toes",
+          "laterality": "bilateral",
+          "planes": ["transverse", "sagittal", "multiplanar_stabilization"],
+          "equipment": ["none"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 32,
+          "absoluteLoadDemand": 30,
+          "physicalDifficulty": 30,
+          "baseOverallDifficulty": 32,
+          "variantScores": {
+            "quadrupedDynamic": {"technicalComplexity": 24, "absoluteLoadDemand": 18, "physicalDifficulty": 18, "baseOverallDifficulty": 24},
+            "highPlankDynamic": {"technicalComplexity": 32, "absoluteLoadDemand": 30, "physicalDifficulty": 30, "baseOverallDifficulty": 32},
+            "quadrupedHold": {"technicalComplexity": 22, "absoluteLoadDemand": 18, "physicalDifficulty": 18, "baseOverallDifficulty": 22},
+            "highPlankHold": {"technicalComplexity": 28, "absoluteLoadDemand": 30, "physicalDifficulty": 30, "baseOverallDifficulty": 30}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "partial_bodyweight_bilateral_hand_support",
+          "impactClass": "none",
+          "primaryExposure": ["scapular_retraction_protraction_or_protraction_isometric", "wrist_extension_support", "straight_elbow_support", "shoulder_girdle_support", "trunk_and_declared_lower_body_support"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2",
+          "completeDynamicRepetitions": "4-12",
+          "validHoldSeconds": "5-20",
+          "rest": "30-75_seconds_or_as_needed_to_preserve_exact_contacts_straight_elbows_scapular_action_body_line_and_symptom_free_control",
+          "durationRule": "setup_plus_actual_dynamic_cycle_or_valid_hold_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when exact base, action, count unit, required contacts, straight-arm support, floor access, symptoms, dose, duration, and cumulative wrist, shoulder, pressing, trunk, plank, and downstream hand-support budgets fit. Do not switch base or action silently or add elbow flexion, support height, knee hover, laterality, instability, resistance, perturbation, or assessment. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Direct Shoulder ABC and ACE instructions, peer-reviewed push-up-plus loading and EMG studies, protraction-hold fatigue context, USA Gymnastics symptom guidance, current oEmbed metadata, and comparison with exact Push-Up and Quadruped Scapular Clock neighbors",
+          "uncertainty": "No source validates one universal hand width, scapular range, body line, force, activation, dose, frequency, recovery interval, prevention or treatment result, progression order, or Vortex score. No media candidate has been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "identity_boundary_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"bmj_shoulder_abc_scapular_push_up","claims":["The exercise sheet describes a push-up position with straight elbows while the shoulder blades are brought together and then pushed forward.","This supports the dynamic straight-arm identity but does not define every Vortex base, hold, count, or graph decision."]},
+        {"sectionKey":"taxonomy","sourceKey":"ace_scapular_pushups","claims":["ACE separates straight-elbow scapular retraction and protraction from an elbow-bending push-up.","Use controlled brace and push terms; the source does not create Vortex taxonomy keys."]},
+        {"sectionKey":"anatomy","sourceKey":"push_up_plus_emg_meta_2019","claims":["The review supports serratus anterior and upper-trapezius involvement and reports that setup choices alter EMG findings.","Do not claim isolated activation, quantified force, or one universal muscle pattern for all four variants."]},
+        {"sectionKey":"biomechanics","sourceKey":"scapular_protraction_retraction_emg_2025","claims":["The study explicitly compares quadruped protraction-retraction task conditions.","A small EMG study cannot define universal technique, force, outcome, or dosage."]},
+        {"sectionKey":"difficulty","sourceKey":"modified_traditional_push_up_plus_load_2015","claims":["Hands-and-feet support produced higher vertical ground reaction force and measured activation than hands-and-knees support.","The 24/18, 32/30, 22/18, and 28/30 proposals describe exercise complexity and physical difficulty only and require independent calibration."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"scapular_protraction_hold_fatigue_2009","claims":["A sustained protraction hold produced measurable fatigue and some scapular kinematic changes in asymptomatic adults.","Track cycles, valid hold and support seconds, faults, symptoms, and overlapping work; recovery and thresholds remain planning estimates."]},
+        {"sectionKey":"constraints","sourceKey":"usa_gymnastics_wrist_exercises","claims":["USA Gymnastics advises medical guidance when pain is present, discontinuing painful exercise, and reducing work when form fails.","Selection requires safe floor entry, exact contacts, clean stable surface, communication, symptom monitoring, and compatible cumulative support exposure."]},
+        {"sectionKey":"dosage","sourceKey":"bmj_shoulder_abc_scapular_push_up","claims":["The programme provides example blocks of two to three sets of eight to ten repetitions or twenty seconds and shows knee lift-off as harder.","Those examples are not universal prescriptions and do not validate Vortex budgets, frequency, or recovery."]},
+        {"sectionKey":"instructions","sourceKey":"bmj_shoulder_abc_scapular_push_up","claims":["The direct instruction keeps elbows straight while the shoulder blades come together and are pushed forward.","Vortex adds exact base, contacts, cycle or hold counting, body-line gates, stops, and persistence without claiming those additions are source-validated outcomes."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"usa_gymnastics_wrist_exercises","claims":["The source supports stopping painful exercise and reducing work when form breaks down.","It does not replace facility emergency, trauma, neurologic, circulation, cardiopulmonary, or clinical escalation policy."]},
+        {"sectionKey":"programming","sourceKey":"bmj_shoulder_abc_trial","claims":["The multicomponent programme did not significantly reduce throwing-shoulder overuse prevalence or symptoms.","Do not promise prevention, treatment, readiness, or guaranteed transfer from this exercise."]},
+        {"sectionKey":"athlete_support","sourceKey":"ace_scapular_pushups","claims":["ACE gives concise straight-elbow shoulder-blades-together then apart instruction and identifies elbow bending as a key challenge.","Athlete support must name base and action, show contacts and count unit, and provide clear stop and help signals."]},
+        {"sectionKey":"coach_support","sourceKey":"push_up_plus_emg_meta_2019","claims":["Base, hand spacing, elbow angle, shoulder angle, lower-body position, and surface alter observed muscle activity.","Coach support must observe exact setup, first fault, actual exposure, downstream demand, and escalation without diagnosis."]},
+        {"sectionKey":"accessibility","sourceKey":"ace_scapular_pushups","claims":["ACE demonstrates a related straight-elbow scapular action on stable raised support.","Raised support changes identity, equipment, loading, logistics, and failure consequence and requires a separately authored card."]},
+        {"sectionKey":"alternates","sourceKey":"modified_traditional_push_up_plus_load_2015","claims":["Hands-and-knees and hands-and-feet bases create materially different loading while elbow position changes the task.","Keep changed base, elbow action, support height, laterality, stability, resistance, and clinical scope outside the four exact variants until reviewed."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.","oEmbed health does not prove playback, exact base or action, straight-elbow rule, contacts, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=WJraJbTJY_E","title":"Quadruped Scapular Push-Up","channelName":"Elite Performance Institute","sourceQuery":"quadruped scapular push-up candidate title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=S9NhochxIhY","title":"Scapular Stabilization Serratus Push Ups","channelName":"Physical Therapy First","sourceQuery":"serratus scapular push-up candidate title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=5YHZnEsE9hA","title":"Scapula Pushup","channelName":"Andrew Sacks","sourceQuery":"scapula push-up candidate title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=ccxY-ax5SC8","title":"Shoulder Stabilization with The Push Up Plus | Sports Performance Physical Therapy | San Diego, CA","channelName":"Sports Performance Physical Therapy","sourceQuery":"push-up-plus candidate title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=d0bfBjxEa4s","title":"Band-Resisted Push-Up Plus / Scapular Push-Ups","channelName":"Matthew Stevens","sourceQuery":"band-resisted adjacent candidate title checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:30:00.000Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Quadruped Scapular Push-Up or Scapula Push-Up","classification":"same_identity","rationale":"Aliases fit only with hands and knees, straight elbows, and one retraction-to-protraction cycle.","distinguishingDimensions":{"variant":"quadruped_dynamic"}},
+        {"name":"High-Plank Scapular Push-Up or Serratus Push-Up","classification":"same_identity","rationale":"Aliases fit only with hands and toes, straight elbows, and one retraction-to-protraction cycle.","distinguishingDimensions":{"variant":"high_plank_dynamic"}},
+        {"name":"Quadruped Scapular Push-Up Hold","classification":"same_identity","rationale":"The name fits only with hands and knees and actual valid protraction-hold seconds.","distinguishingDimensions":{"variant":"quadruped_hold"}},
+        {"name":"High-Plank Scapular Push-Up Plus Iso Hold","classification":"same_identity","rationale":"The name fits only with hands and toes, straight elbows, and actual valid protraction-hold seconds.","distinguishingDimensions":{"variant":"high_plank_hold"}},
+        {"name":"Comfortable Scapular Range","classification":"modifier_annotation","rationale":"Comfortable range changes dose while exact base, action, contacts, and count remain fixed.","distinguishingDimensions":{"modifier":"scapular_range"}},
+        {"name":"Controlled Tempo","classification":"modifier_annotation","rationale":"Tempo changes dose while the complete dynamic cycle remains exact.","distinguishingDimensions":{"modifier":"tempo"}},
+        {"name":"Repetitions Sets Hold Seconds or Rest","classification":"modifier_annotation","rationale":"Volume and recovery change dosage rather than identity.","distinguishingDimensions":{"modifiers":["repetitions","sets","hold_seconds","rest"]}},
+        {"name":"Comfortable Hand Spacing","classification":"modifier_annotation","rationale":"Comfortable spacing is a setup annotation when base, contacts, elbow action, and path remain exact.","distinguishingDimensions":{"modifier":"hand_spacing"}},
+        {"name":"Stable Knee Cushioning","classification":"modifier_annotation","rationale":"Stable cushioning changes quadruped knee comfort without changing the support base.","distinguishingDimensions":{"modifier":"knee_cushioning"}},
+        {"name":"Brief Protraction Pause During Dynamic Cycles","classification":"modifier_annotation","rationale":"A brief pause changes tempo only when the task still counts one complete dynamic cycle.","distinguishingDimensions":{"modifier":"brief_pause"}},
+        {"name":"Wall Scapular Push-Up","classification":"new_variant","rationale":"Wall support changes angle, equipment, loading, station, and failure consequence.","distinguishingDimensions":{"support":"wall"}},
+        {"name":"Raised-Support Scapular Push-Up","classification":"new_variant","rationale":"Bench or box support changes height, equipment, load, logistics, and failure consequence.","distinguishingDimensions":{"support":"raised"}},
+        {"name":"Bear-Hover Scapular Push-Up","classification":"new_variant","rationale":"Knee hover changes contacts, load, trunk demand, fatigue, and failure consequence.","distinguishingDimensions":{"support":"bear_hover"}},
+        {"name":"Unilateral Scapular Push-Up","classification":"new_variant","rationale":"One-hand emphasis changes laterality, loading, trunk demand, and control.","distinguishingDimensions":{"laterality":"unilateral"}},
+        {"name":"Single-Leg High-Plank Scapular Push-Up","classification":"new_variant","rationale":"Removing one foot changes laterality, stability, rotation demand, and loading.","distinguishingDimensions":{"lowerBodySupport":"single_leg"}},
+        {"name":"Unstable-Surface Scapular Push-Up","classification":"new_variant","rationale":"Instability changes equipment, stability, load variability, and failure consequence.","distinguishingDimensions":{"surface":"unstable"}},
+        {"name":"Band-Resisted Scapular Push-Up","classification":"new_variant","rationale":"Resistance changes equipment, force direction, load, fatigue, setup, and release risk.","distinguishingDimensions":{"resistance":"band"}},
+        {"name":"Feet-Elevated Scapular Push-Up","classification":"new_variant","rationale":"Foot elevation changes equipment, angle, upper-limb load, logistics, and failure consequence.","distinguishingDimensions":{"lowerBodySupport":"elevated"}},
+        {"name":"Push-Up Plus with Elbow Flexion","classification":"new_definition","rationale":"A full push-up plus adds elbow flexion and extension, vertical displacement, a new count, and greater loading.","distinguishingDimensions":{"elbowAction":"flexion_extension_then_protraction"}},
+        {"name":"Push-Up","classification":"new_definition","rationale":"A push-up counts whole-body lowering and pressing rather than a straight-arm scapular cycle or hold.","distinguishingDimensions":{"targetLegacyExerciseId":186}},
+        {"name":"Scapular Pull-Up","classification":"new_definition","rationale":"Hanging scapular elevation and depression use overhead suspension, grip, and different actions.","distinguishingDimensions":{"support":"hanging"}},
+        {"name":"Quadruped Scapular Clock","classification":"new_definition","rationale":"Multi-directional movement adds direction choices, sequencing, and a different count.","distinguishingDimensions":{"targetLegacyExerciseId":1311}},
+        {"name":"Serratus Punch","classification":"new_definition","rationale":"Open-chain arm protraction changes support, equipment, force direction, and action context.","distinguishingDimensions":{"action":"open_chain_protraction"}},
+        {"name":"Clinical Scapular Dyskinesis or Shoulder Assessment","classification":"new_definition","rationale":"Assessment adds examiner protocol, measurement, clinical purpose, consent, interpretation, and escalation.","distinguishingDimensions":{"scope":"clinical_assessment"}}
+      ]
+    }
+  ]
+}

@@ -36,6 +36,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   programs: CalendarRange,
   'training-blocks': Blocks,
   regimens: Layers,
+  'flip-fit': CalendarRange,
   challenges: Trophy,
   'gymnastics-evaluations': ClipboardCheck,
   skills: GitBranch,

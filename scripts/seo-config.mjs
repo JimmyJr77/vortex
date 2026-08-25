@@ -1,11 +1,15 @@
 /** Shared SEO data for build scripts (keep in sync with src/config/*.ts). */
 
-export const HUB_ORIGIN = 'https://www.vortexathletics.com'
+// Update only when indexable page content or search metadata changes. A stable,
+// truthful date is better than rewriting every <lastmod> on every deployment.
+export const SEO_CONTENT_LASTMOD = '2026-08-17'
+
+/** Canonical hub origin. Production redirects the www host to this apex host. */
+export const HUB_ORIGIN = 'https://vortexathletics.com'
 
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/vortex-athletics', priority: '0.9', changefreq: 'weekly' },
-  { path: '/ninja', priority: '0.8', changefreq: 'weekly' },
   { path: '/fit-and-flip', priority: '0.8', changefreq: 'weekly' },
   { path: '/summer-athletic-training', priority: '0.9', changefreq: 'weekly' },
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
@@ -18,12 +22,20 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
 ]
 
-export const HUB_PRERENDER_PATHS = HUB_SITEMAP_ENTRIES.map((entry) => entry.path)
+export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']
 
-export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex_logo_1.png`
+export const HUB_PRERENDER_PATHS = [
+  ...HUB_SITEMAP_ENTRIES.map((entry) => entry.path),
+  // Directly reachable but intentionally excluded from search while on hold.
+  ...HUB_NOINDEX_PRERENDER_PATHS,
+]
+
+export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex-athletics-og.jpg`
 export const SITE_NAME = 'Vortex Athletics'
 
-export const GYMNASTICS_ORIGIN = 'https://vortex-gymnastics.com'
+/** Canonical gymnastics origin. Production redirects the apex host to www. */
+export const GYMNASTICS_ORIGIN = 'https://www.vortex-gymnastics.com'
+export const GYMNASTICS_SITE_NAME = 'Vortex Gymnastics'
 
 /**
  * Indexable gymnastics routes (vortex-gymnastics.com) for the sitemap.
@@ -39,7 +51,6 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
   { path: '/homeschool-gymnastics', priority: '0.9', changefreq: 'monthly' },
-  { path: '/summer-camp-26', priority: '0.9', changefreq: 'weekly' },
   { path: '/acro-gymnastics', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics', priority: '0.8', changefreq: 'monthly' },
   { path: '/rhythmic-gymnastics', priority: '0.8', changefreq: 'monthly' },
@@ -55,7 +66,6 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
  * noindex duplicates). Rendered via the `?sport=gymnastics` host override.
  */
 export const GYMNASTICS_PRERENDER_PATHS = [
-  '/gymnastics',
   '/beginner-gymnastics',
   '/homeschool-gymnastics',
   '/artistic-gymnastics-early',
@@ -69,13 +79,17 @@ export const GYMNASTICS_PRERENDER_PATHS = [
   '/aerobic-gymnastics',
 ]
 
+export const GYMNASTICS_NOINDEX_PRERENDER_PATHS = ['/summer-camp-26']
+
 /**
  * Gymnastics routes whose paths collide with the hub build (`/`, `/read-board`).
  * They are prerendered into dedicated `_gym/*` files and served to the
  * vortex-gymnastics.com host via host-based rules in vercel.json. `outFile` is
  * relative to dist/. Titles/descriptions must mirror src/config/gymnasticsSeo.ts.
  */
-export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex_gymnastics_logo.png`
+export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex-gymnastics-og.jpg`
+export const GYMNASTICS_OG_IMAGE_ALT =
+  'A Vortex Gymnastics athlete training on a trampoline in Bowie, Maryland'
 
 export const GYMNASTICS_HOST_PAGES = [
   {
@@ -85,8 +99,9 @@ export const GYMNASTICS_HOST_PAGES = [
     description:
       'Gymnastics classes for all ages in Bowie, MD - preschool to competitive, taught by expert coaches. Book a free trial class today.',
     canonical: GYMNASTICS_ORIGIN,
+    siteName: GYMNASTICS_SITE_NAME,
     ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: 'Vortex Gymnastics',
+    ogImageAlt: GYMNASTICS_OG_IMAGE_ALT,
   },
   {
     path: '/read-board',
@@ -95,8 +110,9 @@ export const GYMNASTICS_HOST_PAGES = [
     description:
       'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
     canonical: `${GYMNASTICS_ORIGIN}/read-board`,
+    siteName: GYMNASTICS_SITE_NAME,
     ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: 'Vortex Gymnastics',
+    ogImageAlt: GYMNASTICS_OG_IMAGE_ALT,
   },
   {
     path: '/drop-in',
@@ -105,13 +121,14 @@ export const GYMNASTICS_HOST_PAGES = [
     description:
       'Book one available gymnastics class in Bowie, MD without monthly enrollment. Browse live dates, age groups, levels, and drop-in openings.',
     canonical: `${GYMNASTICS_ORIGIN}/drop-in`,
+    siteName: GYMNASTICS_SITE_NAME,
     ogImage: GYMNASTICS_OG_IMAGE,
     ogImageAlt: 'Vortex Gymnastics drop-in classes in Bowie, Maryland',
   },
 ]
 
 /** Coming-soon sport domains only (not vortex-gymnastics.com) */
-/** @type {{ host: string, title: string, description: string, canonical: string }[]} */
+/** @type {{ host: string, title: string, description: string, canonical: string, robots: string }[]} */
 export const STUB_SEO_ENTRIES = [
   {
     host: 'vortex-lacross.com',
@@ -119,6 +136,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Lacrosse is coming soon. Development-focused training, top coaches, and resources that help athletes grow when championships matter most.',
     canonical: 'https://vortex-lacross.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-conditioning.com',
@@ -126,6 +144,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Conditioning is coming soon. Build fitness and athleticism with level-appropriate programs, expert coaching, and training resources that teach.',
     canonical: 'https://vortex-conditioning.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-football.com',
@@ -133,6 +152,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Football is coming soon. Development-first football training with expert coaches, video resources, and facilities built for athletic excellence.',
     canonical: 'https://vortex-football.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-basketball.com',
@@ -140,6 +160,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Basketball is coming soon. Level-appropriate skill development, elite coaching, and training packages designed for long-term player growth.',
     canonical: 'https://vortex-basketball.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-track.com',
@@ -147,6 +168,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Track & Field is coming soon. Development-focused training, expert coaches, and facilities built to help athletes excel when it counts.',
     canonical: 'https://vortex-track.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-fit.com',
@@ -154,6 +176,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Fit is coming soon. Strength, conditioning, and athletic development with expert coaches and resources that support real learning.',
     canonical: 'https://vortex-fit.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-athlete.com',
@@ -161,6 +184,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Athlete development is coming soon. Complete athlete training with level-appropriate programs, top coaches, and facilities built to excel.',
     canonical: 'https://vortex-athlete.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-soccer.com',
@@ -168,6 +192,7 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Soccer is coming soon. Development-first soccer training with expert coaches, video resources, and programs built for lasting growth.',
     canonical: 'https://vortex-soccer.com/',
+    robots: 'noindex, follow',
   },
   {
     host: 'vortex-reps.com',
@@ -175,5 +200,6 @@ export const STUB_SEO_ENTRIES = [
     description:
       'Vortex Reps is coming soon. Repetition-based skill development with expert coaching, training resources, and facilities built for athleticism.',
     canonical: 'https://vortex-reps.com/',
+    robots: 'noindex, follow',
   },
 ]

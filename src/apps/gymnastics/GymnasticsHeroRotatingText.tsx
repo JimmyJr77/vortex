@@ -41,11 +41,16 @@ export const GymnasticsHeroIndicators = ({
           role="tab"
           aria-selected={i === slideIndex}
           onClick={() => onSelectSlide(i)}
-          className={`w-2.5 h-2.5 rounded-full transition-colors ${
-            i === slideIndex ? 'bg-vortex-red' : 'bg-white/35 hover:bg-white/55'
-          }`}
+          className="group grid h-6 w-6 place-items-center rounded-full"
           aria-label={`Show hero message ${i + 1} of ${slideCount}`}
-        />
+        >
+          <span
+            className={`h-2.5 w-2.5 rounded-full transition-colors ${
+              i === slideIndex ? 'bg-vortex-red' : 'bg-white/35 group-hover:bg-white/55'
+            }`}
+            aria-hidden="true"
+          />
+        </button>
       ))}
     </div>
   )

@@ -1,0 +1,220 @@
+{
+  "batchKey": "inchworm-walkout-v1",
+  "researchVersion": "2026-08-09.96",
+  "snapshotAt": "2026-08-09T20:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/inchworm-walkout",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "ace_inchworms_exercise_library",
+      "claims": [
+        "ACE describes a standing hip hinge, sequential hand steps to a full push-up or high-plank position, and sequential foot steps toward the hands, supporting a bilateral integrated hip, knee, ankle, shoulder, elbow, wrist, scapular, and trunk task.",
+        "Model trunk anti-extension and hand-supported shoulder, elbow, and wrist stabilization plus hip flexion and extension, knee accommodation, and ankle motion; do not infer quantified joint force or one mandatory spinal shape."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "oxford_health_walkout_plank",
+      "claims": [
+        "Oxford Health identifies the standing bend-to-hand-walk-to-plank sequence but provides no Vortex complexity or physical-difficulty score.",
+        "Stationary hand-return 30/24/30 and traveling feet-in 34/26/34 are review-only task proposals; overall difficulty is the maximum of exercise complexity and physical difficulty and never a participant classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "core_muscle_activity_systematic_review",
+      "claims": [
+        "The systematic review supports that plank-family tasks involve measurable trunk-muscle activity, but it does not quantify the moving walkout variants, dose, fatigue threshold, or recovery interval.",
+        "Track actual hand and foot steps, high-plank seconds, wrist and shoulder support seconds, trunk-control faults, hinge range, repetitions, distance, symptoms, and same-session hand-support loading; recovery remains a conservative planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "aopt_low_back_pain_cpg_2021",
+      "claims": [
+        "The guideline supports individualized exercise in applicable contexts and red-flag screening rather than universal assignment of a walkout.",
+        "Selection requires a safe standing-to-floor transition, tolerable hinge and high-plank positions, weight-bearing wrist and shoulder capacity, a non-slip surface, clearance, communication, and a safe exit; clinical restrictions or concerning symptoms require another task or escalation."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "ace_inchworms_exercise_library",
+      "claims": [
+        "ACE emphasizes controlled small steps, spinal monitoring, and avoiding an overlong reach that increases shoulder stress.",
+        "Stop for pain, neurologic or cardiopulmonary concern, dizziness, loss of hand or foot traction, uncontrolled lumbar sag or hip hike, elbow collapse, unsafe reach, inability to return safely, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "dynamic_stretching_flexibility_performance_review",
+      "claims": [
+        "The dynamic-stretching review supports treating warm-up effects as context-dependent and does not validate Inchworm dose, progression, prevention, or readiness claims.",
+        "Use low-volume quality-first Prepare & Access or Movement Intelligence profiles, calculate actual duration, and revalidate cumulative hand-support, trunk, posterior-chain, distance, transition, fatigue, and downstream loading budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "special_olympics_young_athletes_inchworm",
+      "claims": [
+        "Special Olympics uses a simple hands-out then feet-to-hands description for the traveling form.",
+        "Athlete support must name the selected return mode, count one complete stand-to-plank-to-stand cycle, state that no push-up is included, allow safe knee bend, and provide clear stop and help signals."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "oxford_health_walkout_plank",
+      "claims": [
+        "Oxford Health supplies a concise standing-to-plank description that can be paired with a visual phase sequence.",
+        "Provide side-view demonstration, written stand-hands-down-hand-steps-plank-return-stand phases, floor markers, slower pace, fewer steps or repetitions, rest, and a separately authored raised-hand alternative rather than silently changing support height."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Five Inchworm or Walkout candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, selected return mode, exact sequence, omission of a push-up, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all five remain candidates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "inchworm-walkout",
+      "assessmentSummary": {
+        "identity": "An unloaded standing-to-high-plank hand-walk sequence with one explicitly selected return mode. Both exact variants start standing, hinge or bend the knees as needed to place the hands safely, walk the hands forward under control until a high plank is established, and omit a push-up. The stationary variant keeps the feet planted while the hands walk out and back, then stands at the original location. The traveling variant keeps the hands planted after plank while the feet take controlled steps toward the hands, then stands forward of the start. One complete return to standing is one repetition. Step size, safe knee bend, pace, brief plank pause, repetitions, sets, rest, and floor markers are delivery annotations. A push-up, jump, single-leg base, weighted or unstable support, raised hands, added lunge/rotation, down-dog phase, or incomplete plank-only endpoint changes the task.",
+        "currentCardFindings": [
+          "Source 29 has one skeletal baseline variant and one incomplete profile with empty taxonomy, anatomy, load, fatigue, constraints, support, research, alternate, calibration, and exact media review data.",
+          "The legacy text permits either feet toward hands or hands back toward feet; these change locomotion, space, contact sequence, count, and logistics, so they require two explicit exact variants rather than an ambiguous runtime choice.",
+          "Source 908 adds a lunge and trunk rotation and remains a distinct definition; no direct duplicate definition was found. Legacy age and publication claims are unsupported and must be cleared."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["hinge", "brace", "locomote"],
+          "bodyRegions": ["full_body", "core", "spine", "shoulder", "scapula", "elbow", "wrist", "hand", "hip", "knee", "hamstrings", "ankle", "foot", "calf"],
+          "support": "standing_to_bilateral_hand_supported_high_plank_and_declared_return",
+          "laterality": "bilateral_support_with_alternating_hand_steps_and_variant_specific_foot_steps",
+          "planes": ["sagittal_primary", "multiplanar_stabilization"],
+          "equipment": ["none"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 26,
+          "physicalDifficulty": 26,
+          "baseOverallDifficulty": 34,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)",
+          "variantScoreProposals": {
+            "stationary_hand_return": {"technicalComplexity":30,"physicalDifficulty":24,"baseOverallDifficulty":30},
+            "traveling_feet_in_return": {"technicalComplexity":34,"physicalDifficulty":26,"baseOverallDifficulty":34}
+          }
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_with_alternating_hand_support_and_variant_specific_standing_return",
+          "impactClass": "none",
+          "primaryExposure": ["wrist_extension_and_hand_support", "shoulder_and_scapular_closed_chain_support", "trunk_anti_extension", "standing_to_floor_transition", "hip_hinge_and_posterior_chain_range", "alternating_hand_steps", "traveling_variant_foot_steps"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "completeRepetitions": "2-6",
+          "tempo": "controlled_eight_to_twenty_seconds_per_complete_repetition",
+          "rest": "20-90_seconds_or_as_needed_to_preserve_hand_support_trunk_control_and_safe_transitions",
+          "durationRule": "setup_plus_actual_transition_hand_step_plank_return_and_stand_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when the exact stationary or traveling return mode, safe floor access, wrist and shoulder support, hinge range, trunk control, surface traction, lane or station space, dose, duration, and downstream budgets fit. Do not add a push-up or silently swap return modes. Use a separately authored raised-hand regression, plank-only drill, Down Dog wave, bear crawl, or Inchworm-to-World's-Greatest-Stretch when that changed task is intended.",
+        "calibrationEvidence": {
+          "basis": "ACE direct Inchworm instruction, Oxford Health walk-out plank guidance, Special Olympics traveling Inchworm description, a core-exercise systematic review, a dynamic-stretching review, AOPT clinical scope guidance, current oEmbed metadata, and direct comparison with neighboring Vortex cards",
+          "uncertainty": "No source validates one universal spinal shape, knee angle, hand-step count, plank pause, dose, frequency, recovery interval, benefit, eligibility rule, progression order, injury-prevention claim, or Vortex score. Existing media has not been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "two_variant_identity_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "special_olympics_young_athletes_inchworm",
+          "claims": [
+            "Special Olympics names an Inchworm that walks the hands out and then the feet to the hands, supporting the traveling return identity without a push-up.",
+            "Vortex also preserves the legacy hands-back stationary mode as a second exact variant; each profile must declare one mode before selection and count only a complete return to standing."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ace_inchworms_exercise_library",
+          "claims": [
+            "The recognizable sequence combines a standing hinge, braced high-plank support, and sequential hand or foot locomotion under bodyweight.",
+            "Use only controlled hinge, brace, and locomote patterns; mobility, warm-up, and integrated control are purposes rather than invented taxonomy keys."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "core_muscle_activity_systematic_review",
+          "claims": [
+            "Plank-family exercises can recruit trunk musculature, but evidence across static exercises cannot be converted into Inchworm joint force, muscle ranking, or performance benefit.",
+            "The card records the observable hand-support, high-plank, hinge, and stepping phases and labels all numeric load and recovery values as planning estimates."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "dynamic_stretching_flexibility_performance_review",
+          "claims": [
+            "Dynamic warm-up effects vary by protocol, duration, and subsequent task; the review does not prescribe an Inchworm dose.",
+            "Use a conservative review-only range of one to three sets and two to six complete repetitions, calculate actual time and hand-support exposure, and stop before position or transition quality degrades."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "oxford_health_walkout_plank",
+          "claims": [
+            "Oxford Health supports standing, bending over, and walking the hands into plank as a concise phase sequence.",
+            "The card adds an explicit selected return mode, safe knee accommodation, a controlled high-plank checkpoint, no push-up, return to standing, repetition count, traction, clearance, and symptom stops."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "aopt_low_back_pain_cpg_2021",
+          "claims": [
+            "Clinical guidance supports individualized exercise and monitoring with red-flag screening rather than universal exercise assignment.",
+            "Coach support verifies the exact variant, standing-to-floor and floor-to-standing tolerance, wrist and shoulder support, hinge and knee strategy, hand-step reach, high-plank line, return sequence, first fault, actual dose, symptoms, and escalation without diagnosis."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "ace_inchworms_exercise_library",
+          "claims": [
+            "ACE includes a push-up and forward traveling sequence, demonstrating why added push-ups and selected return mode are identity-relevant rather than silent dosage changes.",
+            "Keep push-up, jump, raised-hand, single-leg, weighted, unstable, lunge/rotation, Down Dog, bear-crawl, and plank-only tasks outside the two exact variants until separately authored and reviewed."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=BXRL_AC8om4","title":"Inchworm Walkout","channelName":"Performance Course","sourceQuery":"legacy exact-title candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=ttxQ_UPOwWc","title":"Inchworm Walkout","channelName":"Movement As Medicine","sourceQuery":"legacy exact-title candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=aFkv2m9FTGs","title":"How To Do Inch Worm Exercise","channelName":"PureGym","sourceQuery":"exact exercise candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=-FW8DNKsAh8","title":"Walkout","channelName":"LivestrongWoman","sourceQuery":"walkout alias candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=ZvhfaibmpwU","title":"Inchworm Walkout","channelName":"Performance Course","sourceQuery":"legacy exact-title candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T20:00:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Inchworm, Inch Worm, Walkout, Hand Walkout, or Plank Walkout","classification":"same_identity","rationale":"These aliases may name the standing-to-hand-walk-to-high-plank family only when the exact selected return mode and no-push-up contract are stated.","distinguishingDimensions":{"aliases":true,"variantMustBeDeclared":true}},
+        {"name":"Stationary Hands-Out-and-Back Walkout","classification":"same_identity","rationale":"This exact variant keeps the feet at the start while the hands walk to high plank and back before standing.","distinguishingDimensions":{"variant":"stationary_hand_return"}},
+        {"name":"Traveling Hands-Out, Feet-In Inchworm","classification":"same_identity","rationale":"This exact variant keeps the hands planted after high plank while the feet step toward them and the athlete stands forward of the start.","distinguishingDimensions":{"variant":"traveling_feet_in_return"}},
+        {"name":"Knee Bend or Hinge Range","classification":"modifier_annotation","rationale":"Safe knee accommodation and reachable hinge range are delivery settings when the selected hand and foot sequence is unchanged.","distinguishingDimensions":{"delivery":["knee_bend","hinge_range"]}},
+        {"name":"Hand Step Size or Count","classification":"modifier_annotation","rationale":"Small controlled hand-step size changes path detail and duration without changing the selected variant.","distinguishingDimensions":{"delivery":"hand_step_size"}},
+        {"name":"Tempo, Brief Plank Pause, Repetitions, Sets, or Rest","classification":"modifier_annotation","rationale":"Pace, a controlled pause, volume, and recovery change dose rather than identity.","distinguishingDimensions":{"delivery":["tempo","plank_pause","repetitions","sets","rest"]}},
+        {"name":"Floor Markers or Lane Cones","classification":"modifier_annotation","rationale":"Markers organize distance and station boundaries without changing contacts or actions.","distinguishingDimensions":{"delivery":"station_markers"}},
+        {"name":"Inchworm with Push-Up","classification":"new_variant","rationale":"A push-up adds elbow flexion-extension, chest lowering, pressing load, failure modes, dose, and a distinct completion checkpoint.","distinguishingDimensions":{"addedAction":"push_up","reviewState":"identity_quarantine"}},
+        {"name":"Multiple Push-Up Inchworm","classification":"new_variant","rationale":"Multiple push-ups create a materially different pressing dose and fatigue profile.","distinguishingDimensions":{"addedAction":"multiple_push_ups","reviewState":"identity_quarantine"}},
+        {"name":"Inchworm to World's Greatest Stretch","classification":"new_definition","rationale":"The lunge step and trunk rotation add base, laterality, hip, shoulder, sequence, and completion requirements.","distinguishingDimensions":{"targetLegacyExerciseId":908,"addedActions":["lunge","rotation"]}},
+        {"name":"Walkout to Down Dog or Plank-to-Pike","classification":"new_definition","rationale":"A declared pike or Down Dog phase adds hip elevation, shoulder angle, posterior-chain position, and another checkpoint.","distinguishingDimensions":{"addedAction":"pike_or_down_dog"}},
+        {"name":"Walkout to Plank Hold Only","classification":"new_definition","rationale":"Ending in plank or using the sequence only as entry to a timed hold removes the complete return-to-standing repetition.","distinguishingDimensions":{"endpoint":"high_plank","outcome":"hold"}},
+        {"name":"Raised-Hand Bench or Box Walkout","classification":"new_variant","rationale":"Elevated hand support changes equipment, wrist and shoulder angles, load distribution, station, and fall consequences.","distinguishingDimensions":{"supportHeight":"raised","equipment":true,"reviewState":"identity_quarantine"}},
+        {"name":"Single-Leg Inchworm","classification":"new_variant","rationale":"Single-leg support changes balance, laterality, pelvis control, load, and fall risk.","distinguishingDimensions":{"base":"single_leg","reviewState":"identity_quarantine"}},
+        {"name":"Jump-Back or Jump-In Inchworm","classification":"new_definition","rationale":"A jump replaces sequential steps and adds flight, landing contacts, impact, power, and different stop rules.","distinguishingDimensions":{"action":"jump","impact":true}},
+        {"name":"Bear Crawl","classification":"new_definition","rationale":"Bear Crawl maintains a hand-and-foot locomotor base rather than completing standing-hinge-to-plank-to-standing repetitions.","distinguishingDimensions":{"base":"continuous_quadrupedal_locomotion"}},
+        {"name":"Hamstring or Glute-Bridge Walkout","classification":"new_definition","rationale":"Supine heel walking under a bridge changes base, moving contacts, joint actions, load, and purpose.","distinguishingDimensions":{"base":"supine_bridge","movingContacts":"heels"}},
+        {"name":"Ab-Wheel or Slider Walkout","classification":"new_definition","rationale":"Rolling or sliding implements change external interface, leverage, friction, range, equipment, and failure consequences.","distinguishingDimensions":{"equipment":true,"interface":"rolling_or_sliding"}},
+        {"name":"Loaded or Resisted Inchworm","classification":"new_definition","rationale":"A vest, band, cable, or dragged load changes force direction, magnitude, equipment, fatigue, and station safety.","distinguishingDimensions":{"externalLoad":true}},
+        {"name":"Partner- or Clinician-Assisted Walkout or Assessment","classification":"new_definition","rationale":"Manual force or a measured assessment adds consent, contact, examiner protocol, outcome, clinical scope, and different stops.","distinguishingDimensions":{"manualAssistanceOrAssessment":true,"clinicalScope":true}}
+      ]
+    }
+  ]
+}

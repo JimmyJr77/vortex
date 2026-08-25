@@ -24,28 +24,28 @@ const SPORT_TILES: SportTile[] = [
   {
     title: 'Athleticism Training',
     teaser: 'Speed, power, and body control that transfer to every sport.',
-    image: '/strength.jpeg',
+    image: '/strength-card.webp',
     kind: 'internal',
     to: '/vortex-athletics',
   },
   {
     title: 'Fit & Flip',
     teaser: 'Strength, conditioning, and acrobatics for the complete athlete.',
-    image: '/fit-and-flip.jpeg',
+    image: '/fit-and-flip-card.webp',
     kind: 'internal',
     to: '/fit-and-flip',
   },
   {
     title: 'Gymnastics',
     teaser: 'Grace, strength, and precision across every discipline.',
-    image: '/gymnastics.jpeg',
+    image: '/gymnastics-card.webp',
     kind: 'external',
     href: getGymnasticsSiteUrl(),
   },
   {
     title: 'Trampoline & Tumbling',
     teaser: 'Bounce Higher. Land Stronger. Tumble Smarter.',
-    image: '/trampoline-tumbling-card.jpg',
+    image: '/trampoline-tumbling-card.webp',
     kind: 'external',
     href: getGymnasticsSiteUrl('/trampoline-tumbling'),
   },
@@ -135,7 +135,7 @@ const SportsRouteTiles = () => (
 
 const Sports = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white">
       {/* Sports hero — replaces the standard Athletics home-page hero. */}
       <section
         className="relative isolate min-h-[calc(100svh-var(--site-header-height))] overflow-hidden border-y border-gray-900 bg-black pt-[var(--site-header-height)]"
@@ -146,10 +146,10 @@ const Sports = () => {
         >
           <div className="flex h-full w-max gymnastics-hero-scroll">
             {[
-              '/vortex-athletics-banner.jpg',
-              '/vortex-gymnastics-banner.jpg',
-              '/vortex-athletics-banner.jpg',
-              '/vortex-gymnastics-banner.jpg',
+              '/vortex-athletics-banner.webp',
+              '/vortex-gymnastics-banner.webp',
+              '/vortex-athletics-banner.webp',
+              '/vortex-gymnastics-banner.webp',
             ].map((image, index) => (
               <div
                 key={`${image}-${index}`}
@@ -181,10 +181,11 @@ const Sports = () => {
             viewport={{ once: true }}
           >
             <h1 className="mb-5 text-5xl font-display font-bold text-white sm:text-6xl md:text-7xl">
-              Train <span className="text-vortex-red">Every</span> Sport.
+              Youth Athletic Training <span className="text-vortex-red">in Bowie, MD</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-              Pick your path. We&apos;ll build the athlete.
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+              Gymnastics-first sports performance coaching for kids and teens. Build speed,
+              strength, agility, conditioning, and body control for every sport.
             </p>
           </motion.div>
 
@@ -200,7 +201,7 @@ const Sports = () => {
               className="group relative block aspect-[4/3] overflow-hidden rounded-3xl border-2 border-white/90 bg-black shadow-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-vortex-red"
             >
               <img
-                src="/multisport.jpeg"
+                src="/multisport-card.webp"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="eager"
@@ -217,7 +218,7 @@ const Sports = () => {
               className="group relative block aspect-[4/3] overflow-hidden rounded-3xl border-2 border-white/90 bg-black shadow-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-vortex-red"
             >
               <img
-                src="/gymnastics.jpeg"
+                src="/gymnastics-card.webp"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="eager"
@@ -269,7 +270,7 @@ const Sports = () => {
         hideTechnology
         afterOffersContent={<SportsRouteTiles />}
       />
-    </div>
+    </main>
   )
 }
 

@@ -9,38 +9,69 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '475_coaching_pull_up_chin_up_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.80';
-  canonical_id CONSTANT UUID := '03bb53ca-123a-4f38-864f-bb38f4e22bc1';
-  assisted_definition CONSTANT UUID := 'e1aeb8e2-ce00-4609-9a4e-51fff594b01b';
-  mixed_definition CONSTANT UUID := 'a797e386-1cc3-4926-b6a1-3fd63c98df68';
-  weighted_definition CONSTANT UUID := '8d14e9ce-d9b7-4fb8-bc3a-e8fe41616038';
-  eccentric_definition CONSTANT UUID := '551d5bae-9b11-4d0d-892e-4011f0cca2bf';
-  isometric_definition CONSTANT UUID := 'fdb42a0a-880b-4d61-946e-5519d010f9bb';
-  scapular_definition CONSTANT UUID := '0c7d9348-f563-4a42-a31a-248d657901c1';
-  consolidated_definition_ids CONSTANT UUID[] := ARRAY[
-    assisted_definition,mixed_definition,weighted_definition];
-  affected_definition_ids CONSTANT UUID[] := ARRAY[
-    canonical_id,assisted_definition,mixed_definition,weighted_definition];
+  canonical_id UUID;
+  assisted_definition UUID;
+  mixed_definition UUID;
+  weighted_definition UUID;
+  eccentric_definition UUID;
+  isometric_definition UUID;
+  scapular_definition UUID;
+  consolidated_definition_ids UUID[];
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[12,197,199,596,599,818,1049,1352];
-  old_variant_ids CONSTANT UUID[] := ARRAY[
-    '03881371-3363-490c-8013-32778c58efa6'::UUID,
-    '18f0c965-0b94-445b-8c37-5b1371fb1465'::UUID,
-    '384cc745-9444-475c-8012-c94b6a1c50ff'::UUID,
-    '0c0300f3-1c9d-470f-9e52-05d9ded4d14d'::UUID];
-  pronated_variant CONSTANT UUID := '2cf556c7-a027-4325-958e-2aed821bcb57';
-  supinated_variant CONSTANT UUID := 'b414da74-6422-4532-b20d-375882051773';
-  neutral_variant CONSTANT UUID := '053f3458-f912-46fc-83ad-e8e22b81fbba';
-  archer_variant CONSTANT UUID := '4a0d3b2b-ad00-40ca-b78c-809831a0e3dc';
-  band_assisted_variant CONSTANT UUID := '517570b4-a36b-4e84-9e64-d3afb80f614e';
-  machine_assisted_variant CONSTANT UUID := '2f493ee7-431a-4b4c-86bb-8e9c4fd1c2d0';
-  weighted_vest_variant CONSTANT UUID := 'cd5d5dba-ccae-4170-a88a-ae80aa00df70';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    pronated_variant,supinated_variant,neutral_variant,archer_variant,
-    band_assisted_variant,machine_assisted_variant,weighted_vest_variant];
-  all_family_variant_ids CONSTANT UUID[] := old_variant_ids||active_variant_ids;
+  canonical_baseline UUID;
+  assisted_baseline UUID;
+  disjunctive_baseline UUID;
+  weighted_baseline UUID;
+  old_variant_ids UUID[];
+  pronated_variant UUID := gen_random_uuid();
+  supinated_variant UUID := gen_random_uuid();
+  neutral_variant UUID := gen_random_uuid();
+  archer_variant UUID := gen_random_uuid();
+  band_assisted_variant UUID := gen_random_uuid();
+  machine_assisted_variant UUID := gen_random_uuid();
+  weighted_vest_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  all_family_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'GBqAZP6jquc','eGo4IYlbE5g','e1YSApl-QcM','ayvVeCtp83Q','AqCmhR1Bl2Q'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=12;
+  SELECT id INTO assisted_definition FROM coaching.exercise_definition_v1
+  WHERE slug='assisted-pull-up';
+  SELECT id INTO mixed_definition FROM coaching.exercise_definition_v1
+  WHERE slug='chin-up-or-assisted-chin-up';
+  SELECT id INTO weighted_definition FROM coaching.exercise_definition_v1
+  WHERE slug='weighted-vest-pull-up-strength';
+  SELECT id INTO eccentric_definition FROM coaching.exercise_definition_v1
+  WHERE slug='eccentric-pull-up' AND status<>'archived';
+  SELECT id INTO isometric_definition FROM coaching.exercise_definition_v1
+  WHERE slug='isometric-pull-up-hold' AND status<>'archived';
+  SELECT id INTO scapular_definition FROM coaching.exercise_definition_v1
+  WHERE slug='scapular-pull-up' AND status<>'archived';
+
+  SELECT id INTO canonical_baseline FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO assisted_baseline FROM coaching.exercise_variant_v1
+  WHERE definition_id=assisted_definition AND variant_key='baseline';
+  SELECT id INTO disjunctive_baseline FROM coaching.exercise_variant_v1
+  WHERE definition_id=mixed_definition AND variant_key='baseline';
+  SELECT id INTO weighted_baseline FROM coaching.exercise_variant_v1
+  WHERE definition_id=weighted_definition AND variant_key='baseline';
+
+  consolidated_definition_ids := ARRAY[
+    assisted_definition,mixed_definition,weighted_definition];
+  affected_definition_ids := ARRAY[
+    canonical_id,assisted_definition,mixed_definition,weighted_definition];
+  old_variant_ids := ARRAY[
+    canonical_baseline,assisted_baseline,disjunctive_baseline,weighted_baseline];
+  active_variant_ids := ARRAY[
+    pronated_variant,supinated_variant,neutral_variant,archer_variant,
+    band_assisted_variant,machine_assisted_variant,weighted_vest_variant];
+  all_family_variant_ids := old_variant_ids||active_variant_ids;
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND slug='pull-up-chin-up' AND status<>'archived')
     OR (SELECT count(*) FROM coaching.exercise_definition_v1
@@ -124,14 +155,14 @@ BEGIN
   WHERE variant_id=ANY(old_variant_ids);
   UPDATE coaching.exercise_variant_v1
   SET variant_key=CASE id
-        WHEN '03881371-3363-490c-8013-32778c58efa6'::UUID THEN 'identity-quarantine-canonical-baseline'
-        WHEN '18f0c965-0b94-445b-8c37-5b1371fb1465'::UUID THEN 'identity-quarantine-assisted-baseline'
-        WHEN '384cc745-9444-475c-8012-c94b6a1c50ff'::UUID THEN 'identity-quarantine-disjunctive-baseline'
+        WHEN canonical_baseline THEN 'identity-quarantine-canonical-baseline'
+        WHEN assisted_baseline THEN 'identity-quarantine-assisted-baseline'
+        WHEN disjunctive_baseline THEN 'identity-quarantine-disjunctive-baseline'
         ELSE 'identity-quarantine-weighted-baseline' END,
       display_name=CASE id
-        WHEN '03881371-3363-490c-8013-32778c58efa6'::UUID THEN 'Pull-Up / Chin-Up Baseline — Identity Quarantine'
-        WHEN '18f0c965-0b94-445b-8c37-5b1371fb1465'::UUID THEN 'Assisted Pull-Up Baseline — Identity Quarantine'
-        WHEN '384cc745-9444-475c-8012-c94b6a1c50ff'::UUID THEN 'Chin-Up or Assisted Chin-Up — Identity Quarantine'
+        WHEN canonical_baseline THEN 'Pull-Up / Chin-Up Baseline — Identity Quarantine'
+        WHEN assisted_baseline THEN 'Assisted Pull-Up Baseline — Identity Quarantine'
+        WHEN disjunctive_baseline THEN 'Chin-Up or Assisted Chin-Up — Identity Quarantine'
         ELSE 'Weighted Vest Pull-Up Baseline — Identity Quarantine' END,
       modifier_keys='{}'::TEXT[],difficulty_json='{}'::JSONB,status='archived',
       requirements_json=jsonb_build_object(

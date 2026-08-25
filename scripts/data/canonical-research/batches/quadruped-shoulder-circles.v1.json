@@ -1,0 +1,109 @@
+{
+  "batchKey": "quadruped-shoulder-circles-v1",
+  "researchVersion": "2026-08-09.101",
+  "snapshotAt": "2026-08-09T22:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/quadruped-shoulder-circles",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "quadruped-shoulder-circles",
+      "assessmentSummary": {
+        "identity": "One bilateral fixed-contact quadruped scapular-circle exercise. Both hands and both knees remain supported, elbows remain extended without forced lockout, and the comparatively quiet trunk supports a continuous loop through protraction, elevation, retraction, depression, and return to the same protracted checkpoint. One return through every declared checkpoint is one repetition. The opposite first vertical direction reverses the loop. Direction, comfortable range, tempo, brief checkpoint pauses, repetitions, sets, rest, and stable knee cushioning are annotations. Wall or raised support, high plank, knee hover, unilateral support, resistance, instability, arm circles, spinal circles, discrete clock targets, push-up cycles, or clinical assessment changes the task.",
+        "currentCardFindings": [
+          "Source 34 has one skeletal baseline and one incomplete legacy delivery profile with empty canonical anatomy, load, fatigue, constraints, programming, user support, coach support, and support-operations fields.",
+          "The legacy card stores four YouTube URLs as clinical or sport-science references even though they are demonstration candidates and have no recorded playback, exactness, caption, accessibility, quality, safety, or approval review.",
+          "The legacy age floor of eight, publication state, generic dose, and current 20/10/20 difficulty vector lack exercise-specific calibration evidence and must be cleared or quarantined.",
+          "Source 1311 Quadruped Scapular Clock does not specify whether the hand stays planted, whether one arm reaches around a clock, which checkpoints are required, or how a repetition is counted; it cannot be merged into this exact continuous-circle identity without human evidence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "push", "rotate"],
+          "bodyRegions": ["hand", "wrist", "elbow", "shoulder", "scapula", "core", "spine", "hip", "knee"],
+          "support": "bilateral_hands_and_knees_fixed",
+          "laterality": "bilateral",
+          "planes": ["transverse", "frontal", "multiplanar_transition"],
+          "equipment": ["none"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 30,
+          "absoluteLoadDemand": 18,
+          "physicalDifficulty": 18,
+          "baseOverallDifficulty": 30,
+          "variantScores": {
+            "fixedContactContinuousCircle": {"technicalComplexity": 30, "absoluteLoadDemand": 18, "physicalDifficulty": 18, "baseOverallDifficulty": 30}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "partial_bodyweight_bilateral_hand_and_knee_support",
+          "impactClass": "none",
+          "primaryExposure": ["multidirectional_scapular_motion", "wrist_extension_support", "straight_elbow_support", "shoulder_girdle_support", "trunk_and_hip_stabilization"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "completeCirclesPerDirection": "2-6",
+          "secondsPerCircle": "4-10",
+          "rest": "20-60_seconds_or_as_needed_to_preserve_contacts_straight_elbows_declared_checkpoints_quiet_trunk_breathing_and_symptom_free_control",
+          "durationRule": "setup_plus_actual_valid_circle_seconds_plus_direction_change_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when fixed hand-and-knee contacts, continuous four-checkpoint scapular path, wrist and shoulder support, floor access, symptoms, dose, duration, and cumulative upper-limb, quadruped, scapular-control, trunk, and downstream hand-support budgets fit. Do not silently change support height, base, laterality, action, path, external force, stability, clinical scope, or count. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Direct GMB and Rehab Hero quadruped-circle instructions, peer-reviewed scapulothoracic and closed-chain kinematics, a randomized scapular-training outcome boundary, related quadruped loading evidence, USA Gymnastics symptom guidance, current YouTube oEmbed metadata, and comparison with exact Scapular Push-Up, Quadruped Spinal Circles, Arm Circles, and the incomplete Scapular Clock neighbor",
+          "uncertainty": "No source validates one universal circle shape, checkpoint range, hand width, trunk motion allowance, muscle force, activation target, dose, frequency, recovery interval, prevention or treatment result, progression order, or Vortex score. No media candidate has been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "identity_boundary_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"gmb_quadruped_shoulder_circles","claims":["GMB instructs hands and knees aligned under shoulders and hips, straight arms, wide shoulder circles, and both directions.","Vortex defines the fixed-contact checkpoint and count boundary but does not claim one universal range or circle shape."]},
+        {"sectionKey":"taxonomy","sourceKey":"rehab_hero_quadruped_scapular_circles","claims":["The direct exercise page describes multidirectional scapular motion from a quadruped base with a neutral-spine intent.","Brace, push, and rotate are controlled planning terms, not source-authored physiological outcomes."]},
+        {"sectionKey":"anatomy","sourceKey":"scapulothoracic_kinematics_cadaver_2023","claims":["The study quantifies scapulothoracic, sternoclavicular, and acromioclavicular motion during protraction, retraction, and shrug.","Cadaver kinematics do not establish live exercise muscle force, exact circle mechanics, normal range, or individual eligibility."]},
+        {"sectionKey":"biomechanics","sourceKey":"open_closed_chain_scapular_kinematics_2017","claims":["Closed-chain upper-extremity movement fixes or substantially restrains the terminal segment and produces kinematics different from open-chain movement.","The study used sling shoulder elevation rather than this exact circle, so it supports only the closed-chain boundary and uncertainty."]},
+        {"sectionKey":"difficulty","sourceKey":"modified_traditional_push_up_plus_load_2015","claims":["Related hands-and-knees and hands-and-feet support tasks differ materially in vertical force and muscle activity.","The 30/18/30 proposal describes this exercise task only and requires independent calibration; it is not a participant skill or age level."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"scapular_protraction_retraction_emg_2025","claims":["Quadruped protraction-retraction conditions produce measurable scapular-muscle activity and change when support is altered.","Track complete circles, direction, support seconds, faults, symptoms, and overlapping work; tissue thresholds and recovery hours remain planning estimates."]},
+        {"sectionKey":"constraints","sourceKey":"usa_gymnastics_wrist_exercises","claims":["USA Gymnastics advises medical guidance when pain is present, stopping painful exercise, and reducing work when form fails.","Selection requires safe floor entry, stable surface, exact contacts, communication, symptom monitoring, and compatible cumulative support exposure."]},
+        {"sectionKey":"dosage","sourceKey":"gmb_quadruped_shoulder_circles","claims":["GMB provides examples of five repetitions each direction for two to three sets and also 30 to 60 seconds each direction.","These are examples rather than universal prescriptions and do not validate Vortex budgets, frequency, recovery, or eligibility."]},
+        {"sectionKey":"instructions","sourceKey":"gmb_quadruped_shoulder_circles","claims":["The direct instruction uses fixed quadruped support, straight arms, wide controlled shoulder circles, and both directions.","Vortex adds explicit checkpoints, count validity, faults, stops, and persistence without claiming those additions are source-validated outcomes."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"gmb_quadruped_shoulder_circles","claims":["GMB recommends professional help for worsening pain, night pain, weakness, numbness, pins and needles, or pain after trauma.","Facility trauma, neurologic, circulation, cardiopulmonary, incident, and emergency escalation rules remain separately required."]},
+        {"sectionKey":"programming","sourceKey":"scapular_movement_training_rct_2023","claims":["A randomized trial found scapular movement training was not superior to standardized exercise for the measured chronic-shoulder-pain outcomes.","Do not promise treatment, prevention, corrected biomechanics, readiness, or guaranteed transfer from this single exercise."]},
+        {"sectionKey":"athlete_support","sourceKey":"rehab_hero_quadruped_scapular_circles","claims":["The direct page emphasizes hands-and-knees setup, core brace, neutral-spine intent, circular shoulder-blade motion, and both directions.","Athlete support must name contacts, checkpoints, count, expected effort, unexpected symptoms, and how to stop and ask for help."]},
+        {"sectionKey":"coach_support","sourceKey":"open_closed_chain_scapular_kinematics_2017","claims":["Closed-chain setup changes scapular kinematics and loading context compared with open-chain motion.","Coach support must observe exact base, path, first fault, actual exposure, downstream demand, and escalation without diagnosing movement or pathology."]},
+        {"sectionKey":"accessibility","sourceKey":"gmb_quadruped_shoulder_circles","claims":["The source allows self-selected usable circle range and controlled pacing.","Smaller range, slower tempo, fewer repetitions, direction prompts, and stable knee cushioning are annotations; changed support requires another reviewed card."]},
+        {"sectionKey":"alternates","sourceKey":"rehab_hero_quadruped_scapular_circles","claims":["The exact direct task retains quadruped support and moves the shoulder blades in clockwise and counter-clockwise circles.","Support, laterality, path, moving region, resistance, instability, or clinical-purpose changes remain proposed variants or distinct definitions."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.","oEmbed health does not prove playback, exact contacts or path, straight elbows, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=XtGilhjp8OQ","title":"Quadruped Shoulder Circles for Shoulder Health","channelName":"AnamBliss","sourceQuery":"legacy Source 34 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=R1D5vuq9nJM","title":"Quadruped shoulder circles","channelName":"MobilityTraining","sourceQuery":"legacy Source 34 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=d8SmV7z6CyQ","title":"Quadruped shoulder circles","channelName":"Unique Fitness","sourceQuery":"legacy Source 34 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=7p5ujyokvtY","title":"Quadruped Shoulder circles","channelName":"santo chiappetta","sourceQuery":"legacy Source 34 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=B-U015U3wGk","title":"Quadruped Scapular Circles","channelName":"In Focus Coaching & Sports Nutrition","sourceQuery":"quadruped scapular circles candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T22:00:00.000Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Quadruped Shoulder Circles","classification":"same_identity","rationale":"The source name fits the exact bilateral fixed-contact continuous circle.","distinguishingDimensions":{"variant":"fixed_contact_continuous_circle"}},
+        {"name":"Quadruped Scapular Circles or Scapula Circles","classification":"same_identity","rationale":"These are aliases only when hands and knees stay down, elbows stay straight, and the continuous four-checkpoint loop is counted.","distinguishingDimensions":{"variant":"fixed_contact_continuous_circle"}},
+        {"name":"Quadruped Scapular CARs","classification":"same_identity","rationale":"CAR is an alias only when it means the same bilateral continuous scapular loop rather than a glenohumeral arm circle or clinical assessment.","distinguishingDimensions":{"variant":"fixed_contact_continuous_circle"}},
+        {"name":"Elevation-First or Depression-First Direction","classification":"modifier_annotation","rationale":"Reversing the first vertical checkpoint changes direction while preserving the same loop and count.","distinguishingDimensions":{"modifier":"direction"}},
+        {"name":"Clockwise or Counter-Clockwise Cue","classification":"modifier_annotation","rationale":"Clock-face language is a rendering annotation only after athlete perspective and exact path are declared.","distinguishingDimensions":{"modifier":"direction_language"}},
+        {"name":"Comfortable Circle Range","classification":"modifier_annotation","rationale":"Self-selected symptom-free range changes dose, not fixed contacts or the complete path.","distinguishingDimensions":{"modifier":"range"}},
+        {"name":"Controlled Tempo","classification":"modifier_annotation","rationale":"Tempo changes dose while the same checkpoints and one-loop count remain.","distinguishingDimensions":{"modifier":"tempo"}},
+        {"name":"Brief Cardinal Checkpoint Pauses","classification":"modifier_annotation","rationale":"Brief pauses change tempo when the continuous path and count remain intact.","distinguishingDimensions":{"modifier":"checkpoint_pause"}},
+        {"name":"Repetitions Sets or Rest","classification":"modifier_annotation","rationale":"Volume and recovery alter dosage rather than exercise identity.","distinguishingDimensions":{"modifiers":["repetitions","sets","rest"]}},
+        {"name":"Stable Knee Cushioning","classification":"modifier_annotation","rationale":"A stable mat changes knee comfort without changing hand-and-knee support.","distinguishingDimensions":{"modifier":"knee_cushioning"}},
+        {"name":"Wall Scapular Circles","classification":"new_variant","rationale":"Wall support changes angle, equipment, load, station, and failure consequence.","distinguishingDimensions":{"support":"wall"}},
+        {"name":"Raised-Support Scapular Circles","classification":"new_variant","rationale":"Bench or box support changes height, equipment, load, logistics, and failure consequence.","distinguishingDimensions":{"support":"raised"}},
+        {"name":"High-Plank Scapular Circles","classification":"new_variant","rationale":"Toe rather than knee support changes leverage, whole-body demand, fatigue, and failure consequence.","distinguishingDimensions":{"support":"high_plank"}},
+        {"name":"Bear-Hover Scapular Circles","classification":"new_variant","rationale":"Knee hover changes contacts, load, trunk demand, fatigue, and failure consequence.","distinguishingDimensions":{"support":"bear_hover"}},
+        {"name":"Unilateral Quadruped Scapular Circle","classification":"new_variant","rationale":"One-hand emphasis or a lifted hand changes laterality, stability, rotation demand, and loading.","distinguishingDimensions":{"laterality":"unilateral"}},
+        {"name":"Band-Resisted Scapular Circles","classification":"new_variant","rationale":"External resistance changes equipment, force direction, loading, setup, fatigue, and release risk.","distinguishingDimensions":{"resistance":"band"}},
+        {"name":"Unstable-Surface Scapular Circles","classification":"new_variant","rationale":"Instability changes equipment, load variability, control demand, and failure consequence.","distinguishingDimensions":{"surface":"unstable"}},
+        {"name":"Quadruped Scapular Clock","classification":"new_definition","rationale":"Source 1311 lacks a reproducible exact path; discrete clock targets, unilateral hand travel, or another count cannot be inferred or merged into the continuous circle.","distinguishingDimensions":{"targetLegacyExerciseId":1311,"status":"identity_contract_incomplete"}},
+        {"name":"Quadruped Spinal Circles","classification":"new_definition","rationale":"Global spinal and pelvic flexion, lateral, and extension checkpoints change the moving region and count.","distinguishingDimensions":{"targetLegacyExerciseId":26}},
+        {"name":"Arm Circles or Shoulder CARs","classification":"new_definition","rationale":"Open-chain humeral motion with a moving hand changes support, joints, actions, laterality, and count.","distinguishingDimensions":{"targetLegacyExerciseId":37}},
+        {"name":"Scapular Push-Up","classification":"new_definition","rationale":"A straight-arm retraction-to-protraction cycle or protraction hold omits the elevation-depression circle and uses another count.","distinguishingDimensions":{"targetLegacyExerciseId":33}},
+        {"name":"Clinical Scapular Dyskinesis or Shoulder Assessment","classification":"new_definition","rationale":"Assessment adds examiner protocol, measurement, consent, clinical interpretation, and escalation.","distinguishingDimensions":{"scope":"clinical_assessment"}}
+      ]
+    }
+  ]
+}

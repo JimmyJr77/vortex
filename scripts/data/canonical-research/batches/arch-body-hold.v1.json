@@ -1,0 +1,96 @@
+{
+  "batchKey": "arch-body-hold-source-70",
+  "facilityId": 1,
+  "researchVersion": "2026-08-10.116",
+  "sourceRegistry": "../source-registry.v1.json",
+  "snapshotAt": "2026-08-10T00:00:00.000Z",
+  "outputDirectory": "../generated/arch-body-hold",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "arch-body-hold",
+      "snapshotVariantKey": "prone-long-body-arch-hold",
+      "assessmentSummary": {
+        "identity": "Arch Body Hold is an isometric prone long-body shape: lie face down with arms overhead and legs together, set a long whole-body line, then lift the chest, arms, and legs together only to a controllable height while the abdomen/pelvis remain supported. One bout ends with a deliberate lowering and reset. It is not a prone trunk-only extension, a leg-only lift, a dynamic superman repetition, a hollow-to-arch transition, a bridge, a rolling drill, a loaded back extension, or a diagnostic test.",
+        "currentCardFindings": [
+          "Source 70 supplies only a generic name and a vague description; its empty taxonomy, anatomy, load, fatigue, environment, population, support, relationship, evidence, and media fields cannot be made selectable safely.",
+          "Combined upper- and lower-extremity prone lifting changes the mechanical task from isolated arm, leg, or trunk lifts. Lumbopelvic strategy and accumulated time under tension materially affect the task, so height and duration are controlled delivery variables, not a universal prescription.",
+          "Five direct YouTube URLs are stored as unverified candidates only. No playback, current availability, embedding, exact match, captioning, safety, accessibility, quality, reviewer, or approval conclusion is made."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "reach"],
+          "bodyRegions": ["neck", "thoracic_spine", "spine", "shoulder", "hip", "knee", "ankle", "core"],
+          "support": "prone_abdomen_and_pelvis_floor_support",
+          "laterality": "simultaneous_bilateral_upper_and_lower_limb_lift",
+          "planes": ["sagittal_primary", "frontal_stabilization", "transverse_trunk_control"],
+          "equipment": ["mat_optional"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 30,
+          "physicalDifficulty": 30,
+          "coordinationDemand": 44,
+          "supervisionDemand": 24,
+          "failureConsequence": 24,
+          "impact": 1,
+          "workCapacityDemand": 22,
+          "baseOverallDifficulty": 42,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_prone_isometric_combined_trunk_hip_and_shoulder_extension",
+          "impactClass": "no_landing_or_external_impact",
+          "primaryExposure": ["posterior_trunk_isometric", "hip_extension_isometric", "shoulder_flexion_hold", "prone_contact_pressure"],
+          "recovery": "candidate planning estimate only; recompute from actual bout duration, lift height, symptoms, surface, and overlapping trunk or hip-extension work"
+        },
+        "proposedDosage": {
+          "prepare": "1-3 brief quality-limited holds, each with a deliberate lower-and-reset",
+          "tempo": "controlled lift, steady breathing during hold, controlled lower",
+          "rest": "restore breathing, long-body line, and absence of symptoms before the next bout",
+          "durationRule": "include mat setup, demonstration, hold time, lower/reset, rest, substitutions, cleaning, and exit"
+        },
+        "programmingDecision": "Select only when the exact prone long-body contract, surface, communication, symptoms, planned duration, fatigue budget, and downstream trunk or hip-extension work fit. Any change to limb position, support, elevation, hold duration, movement rhythm, external load, intent, surface, or substitution re-runs selection, logistics, duration, fatigue, relationships, and validation.",
+        "calibrationEvidence": {
+          "basis": "Prone combined-extremity lifting evidence, lumbopelvic-control research, fatigue research, source lineage, and comparison with prone trunk-only, limb-only, dynamic, rolling, bridge, and loaded-extension tasks.",
+          "uncertainty": "The evidence does not set universal hold height, duration, frequency, recovery, readiness, symptom interpretation, transfer, outcome, or Vortex difficulty score. Independent human calibration remains required.",
+          "reviewNeeded": ["qualified_content_review", "independent_variant_difficulty_calibration", "load_fatigue_recovery_review", "full_video_review_and_variant_assignment", "relationship_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"prone_superman_multifidus_2021","claims":["The study distinguished prone upper-extremity, lower-extremity, and combined upper-and-lower-extremity lifts.","This candidate is the simultaneous combined-limb prone long-body hold only; partial-limb and dynamic tasks remain separate."]},
+        {"sectionKey":"taxonomy","sourceKey":"prone_superman_multifidus_2021","claims":["Combined upper-and-lower prone lifting is mechanically distinguishable from upper-only and lower-only lift conditions.","Arm position, leg position, support, lift height, and hold duration are explicit task dimensions rather than participant labels."]},
+        {"sectionKey":"anatomy","sourceKey":"prone_trunk_extension_lumbopelvic_control_2017","claims":["Prone extension tasks involve posterior trunk and hip-extensor recruitment patterns that change with lumbopelvic strategy.","The card records trunk, hip, shoulder, knee, and ankle task roles without making diagnosis, isolated-activation, prevention, or treatment claims."]},
+        {"sectionKey":"biomechanics","sourceKey":"prone_trunk_extension_lumbopelvic_control_2017","claims":["Active lumbopelvic control changed lordosis and posterior-chain recruitment during prone extension exercises.","The candidate therefore requires a long controlled shape and modest controllable lift rather than a demand for maximal height or lumbar compression."]},
+        {"sectionKey":"difficulty","sourceKey":"prone_superman_multifidus_2021","claims":["Combined prone arm-and-leg lifting is a distinct exercise condition from partial lifts.","Candidate scores describe task complexity and physical demand only, never participant proficiency, age, or classification."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"trunk_extension_fatigue_recruitment_2003","claims":["Fatiguing trunk-extension exercise changed lumbar and hip-extensor recruitment patterns.","Track bout duration, lift height, line quality, surface, symptoms, and overlapping trunk or hip-extension work instead of asserting a universal recovery interval."]},
+        {"sectionKey":"constraints","sourceKey":"nsca_youth_resistance_position","claims":["Instruction, supervision, setting, and progressive exposure are relevant safeguards for supervised exercise.","Use a clean stable floor or mat, clear prone station and exit, communication, and an exact task check; the card does not classify people."]},
+        {"sectionKey":"dosage","sourceKey":"trunk_extension_fatigue_recruitment_2003","claims":["Exercise duration and fatigue can affect posterior-chain recruitment patterns.","Candidate duration is quality-limited and review-only; the research does not establish a universal hold, set, frequency, or recovery prescription."]},
+        {"sectionKey":"instructions","sourceKey":"prone_trunk_extension_lumbopelvic_control_2017","claims":["Lumbopelvic strategy affects prone extension mechanics.","Instructions explicitly set the prone base, overhead arms, together legs, simultaneous modest lift, breathing, controlled lower, and reset without demanding a diagnostic posture."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"nsca_youth_resistance_position","claims":["Appropriate instruction, supervision, environment, and progression are safeguards.","Stop for sharp or increasing pain, new neurologic/circulation/breathing/dizziness symptoms, inability to restore the long-body line, unsafe station, or participant request."]},
+        {"sectionKey":"programming","sourceKey":"trunk_extension_fatigue_recruitment_2003","claims":["Trunk-extension recruitment patterns change as fatigue accumulates.","Use the exact low-impact candidate only when current fatigue, symptoms, logistics, duration, and downstream work fit; it does not promise transfer, prevention, or treatment."]},
+        {"sectionKey":"athlete_support","sourceKey":"prone_superman_multifidus_2021","claims":["The study's graded exercise conditions support showing which limbs move in the exact candidate.","Athlete support must show base, whole-body line, modest simultaneous lift, breathing, controlled lower, self-check, and stop prompt in plain language."]},
+        {"sectionKey":"coach_support","sourceKey":"prone_trunk_extension_lumbopelvic_control_2017","claims":["Lumbopelvic control changes exercise mechanics and recruitment patterns.","Coaches should observe exact limb position, lift height, head/neck position, loss of line, breath-holding, duration, symptoms, and first quality loss without diagnosing a spinal condition."]},
+        {"sectionKey":"accessibility","sourceKey":"nsca_youth_resistance_position","claims":["Instruction and supervision must be matched to task and setting.","Candidate supports include matting, a still sequence, captions, transcript, audio description, verbal cueing, and a reviewed substitution when prone floor access is unsuitable; they do not establish readiness."]},
+        {"sectionKey":"alternates","sourceKey":"prone_superman_multifidus_2021","claims":["Upper-only, lower-only, and combined-limb prone lifts were distinct exercise conditions.","The alternate review separates limb participation, static versus dynamic action, support, and training intent rather than treating all superman wording as one automatic substitution."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five direct YouTube URLs are retained as unverified candidate links only.","Embed URLs can be generated for review, but no playback, exact-match, embedding, caption, accessibility, quality, reviewer, or approval result is claimed."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=ayZzax-MaiA","title":"Arch Hold: Gymnastics Programming","channelName":"The Gymnastics Course","sourceQuery":"arch hold gymnastics candidate","linkStatus":"unverified","embeddingAllowed":false,"notes":"Search-discovered candidate; full playback, exact task/variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=h6G0hLiFcn4","title":"Arch Hold","channelName":"Breazeal Gymnastics","sourceQuery":"arch hold gymnastics candidate","linkStatus":"unverified","embeddingAllowed":false,"notes":"Search-discovered candidate; full playback, exact task/variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=7N0aX-8B5I4","title":"Superman Hold","channelName":"FITTR","sourceQuery":"superman hold candidate","linkStatus":"unverified","embeddingAllowed":false,"notes":"Search-discovered candidate; full playback, exact task/variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."},
+        {"url":"https://www.youtube.com/watch?v=_1LXu5T8AO4","title":"Hollow Body Hold to Superman Hold","channelName":null,"sourceQuery":"hollow body hold to superman hold candidate","linkStatus":"unverified","embeddingAllowed":false,"notes":"Search-discovered adjacent candidate; it may be a transition rather than the exact static arch hold. Full review remains pending."},
+        {"url":"https://www.youtube.com/watch?v=K08vEbwaiu0","title":"Superman Hold","channelName":null,"sourceQuery":"superman hold candidate","linkStatus":"unverified","embeddingAllowed":false,"notes":"Search-discovered candidate; full playback, exact task/variant match, safety, captions, accessibility, quality, reviewer, and approval remain pending."}
+      ],
+      "alternateAssessments": [
+        {"name":"Prone Long-Body Arch Hold","classification":"same_identity","rationale":"This is the exact candidate contract.","distinguishingDimensions":{"limbAction":"simultaneous_bilateral_arms_and_legs","action":"isometric_hold"}},
+        {"name":"Lower Arch Hold Height","classification":"modifier_annotation","rationale":"Lift height changes delivery only when the prone base, simultaneous limb lift, long-body line, and static hold remain intact.","distinguishingDimensions":{"liftHeight":"lower_controllable"}},
+        {"name":"Shorter Arch Hold Duration","classification":"modifier_annotation","rationale":"Duration changes exposure but not the exact static shape when the contract remains intact.","distinguishingDimensions":{"holdDuration":"shorter"}},
+        {"name":"Arms-Only Prone Lift","classification":"new_variant","rationale":"Removing lower-limb lift changes segment participation and loading.","distinguishingDimensions":{"limbParticipation":"upper_only"}},
+        {"name":"Legs-Only Prone Lift","classification":"new_variant","rationale":"Removing upper-limb lift changes segment participation and loading.","distinguishingDimensions":{"limbParticipation":"lower_only"}},
+        {"name":"Dynamic Superman Repetition","classification":"new_definition","rationale":"Repeated lift-and-lower action has a different count unit, fatigue behavior, and delivery contract.","distinguishingDimensions":{"primaryAction":"dynamic_repetition"}},
+        {"name":"Hollow-to-Arch Roll","classification":"new_definition","rationale":"A supine-to-prone transition changes support, ordered actions, planes, and terminal rule.","distinguishingDimensions":{"support":"supine_and_prone","primaryAction":"rolling_transition"}},
+        {"name":"Prone Loaded Back Extension","classification":"new_definition","rationale":"External load changes loading, progression, fatigue, and supervision requirements.","distinguishingDimensions":{"externalLoad":"added"}}
+      ]
+    }
+  ]
+}

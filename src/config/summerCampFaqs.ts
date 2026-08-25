@@ -20,7 +20,7 @@ export const SUMMER_CAMP_FAQS: Faq[] = [
   {
     question: 'Where is summer camp located?',
     answer:
-      'Camp is held at Vortex Gymnastics, 4961 Tesla Dr, Ste E, Bowie, MD 20715. We serve families across Bowie, Prince George\u2019s County, Anne Arundel County, and surrounding communities.',
+      'Camp is held at Vortex Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715. We serve families across Bowie, Prince George\u2019s County, Anne Arundel County, and surrounding communities.',
   },
   {
     question: 'What should my child bring to camp?',

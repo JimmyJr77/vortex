@@ -12,38 +12,38 @@ const tiles: ProgramTile[] = [
   {
     title: 'Sports Conditioning',
     teaser: 'Build stamina, movement quality, and game-ready conditioning that transfers to every sport.',
-    image: '/multisport.jpeg',
+    image: '/multisport-card.webp',
     imageAlt: 'Young athletes completing sports conditioning drills at Vortex',
   },
   {
     title: 'Body Control',
     teaser: 'Develop body control through elite tumbling training on trampolines and mats.',
-    image: '/fit-and-flip.jpeg',
+    image: '/fit-and-flip-card.webp',
     imageAlt: 'Young athlete performing a flip on a trampoline at Vortex',
     lighterImage: true,
   },
   {
     title: 'Speed & Agility Training',
     teaser: 'Develop faster acceleration, sharper direction changes, and quicker reactions for every sport.',
-    image: '/agility.jpeg',
+    image: '/agility-card.webp',
     imageAlt: 'Athlete completing a cone agility drill at Vortex',
   },
   {
     title: 'Strength & Explosiveness',
     teaser: 'Build force, power, and resilient movement that translate into stronger athletic performance.',
-    image: '/strength.jpeg',
+    image: '/strength-card.webp',
     imageAlt: 'Strength and power training equipment at Vortex',
   },
   {
     title: 'Mobility & Balance',
     teaser: 'Master flexibility, mobility, fluidity, and balance.',
-    image: '/balance.jpeg',
+    image: '/balance-card.webp',
     imageAlt: 'Athlete developing mobility and balance at Vortex',
   },
   {
     title: 'Lifting Fundamentals',
     teaser: 'Learn safe and proper techniques for strength training. 8 & up.',
-    image: '/lifting-fundamentals.jpeg',
+    image: '/lifting-fundamentals-card.webp',
     imageAlt: 'Young athlete practicing a barbell lift at Vortex',
   },
 ]
@@ -66,7 +66,7 @@ export default function AcceleratorProgramTiles() {
             Fit &amp; Flip
           </h2>
           <p className="text-lg leading-relaxed text-gray-300 md:text-xl">
-            Vortex Athletic&apos;s foundational athletics training program. Athletes train in
+            Vortex Athletics&apos; foundational athletics training program. Athletes train in
             1.5 hour blocks and combine advanced athletics training with tumbling,
             coordination, and body control. All training is underpinned by our Athleticism
             Accelerator training philosophy. Fit &amp; Flip trains all the below elements.

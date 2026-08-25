@@ -1,0 +1,216 @@
+{
+  "batchKey": "wrist-rockers-palms-down-v1",
+  "researchVersion": "2026-08-09.97",
+  "snapshotAt": "2026-08-09T21:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/wrist-rockers-palms-down",
+  "sharedEvidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "prehab_quadruped_wrist_flexion_extension",
+      "claims": [
+        "The Prehab Guys describe hands-and-knees support with fingers forward, shoulder-blade and arm support, and a slow forward weight shift over the wrists followed by a backward return.",
+        "Model bilateral wrist-extension loading with hand and finger pressure, elbow and shoulder support, scapular stabilization, and trunk/hip/knee support; do not infer quantified tissue force or one universal range."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "usa_gymnastics_wrist_exercises",
+      "claims": [
+        "USA Gymnastics identifies a kneeling palms-on-floor forward rock as a weight-bearing wrist-extension exercise but provides no Vortex difficulty score.",
+        "Exercise complexity 22, physical difficulty 16, and derived overall 22 are review-only task proposals and never classify a participant."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "gymnastics_wrist_guard_biomechanics",
+      "claims": [
+        "Gymnastics wrist angles and moments change with hand-support conditions, but back-handspring findings cannot be converted into force values for a low-load quadruped rocker.",
+        "Track actual complete rocks, forward-range marker, wrist-extension and hand-support seconds, palm/finger contact, support faults, symptoms, and overlapping same-session hand support; recovery remains a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "adolescent_gymnastics_wrist_injury_review",
+      "claims": [
+        "The review reports substantial wrist-pain and injury burden in adolescent gymnastics and low-to-very-low certainty for available risk-factor evidence; it does not create an age rule or authorize exercise through symptoms.",
+        "Selection requires tolerable floor transfer and bilateral palm support, a firm nonslip hand surface, controlled wrist range, communication, symptom monitoring, and compatible same-session wrist exposure."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "usa_gymnastics_wrist_exercises",
+      "claims": [
+        "USA Gymnastics says to seek medical guidance when pain is present, discontinue exercises that cause pain, and reduce load or repetitions when form breaks down.",
+        "Stop for pain, neurologic symptoms, dizziness, worsening discomfort, palm or finger contact loss, elbow collapse, unsafe surface movement, uncontrolled range, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "usa_gymnastics_wrist_exercises",
+      "claims": [
+        "USA Gymnastics presents the movement among wrist flexibility and strength exercises for gymnastics, not as proof of readiness, prevention, or universal warm-up benefit.",
+        "Use low-volume quality-first Prepare & Access or Movement Intelligence profiles and recompute cumulative wrist, hand-support, technical-fatigue, duration, and downstream loading budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "prehab_quadruped_wrist_flexion_extension",
+      "claims": [
+        "The Prehab Guys use a concise forward-over-wrists then back sequence and explicitly advise limiting forward range rather than forcing pain or significant discomfort.",
+        "Athlete support must show palms down, fingers forward, one complete forward-and-back count, comfortable range, floor-pressure checks, and a clear stop/help signal."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "usa_gymnastics_wrist_exercises",
+      "claims": [
+        "The one-page USA Gymnastics table supplies a short written sequence that can be paired with setup and endpoint images.",
+        "Provide front and side demonstrations, a two-frame forward/back count, tactile-free visual floor markers, slower pace, fewer repetitions, more rest, and a separately authored raised-support task when floor palm loading does not fit."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Five wrist-rock or quadruped wrist-extension candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, palms-down/fingers-forward setup, exact forward-back repetition, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all remain candidates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "wrist-rockers-palms-down",
+      "assessmentSummary": {
+        "identity": "A dynamic bilateral quadruped wrist-extension rocker. Start on hands and knees with palms flat, fingers spread and facing forward, elbows extended but not forced, and a firm stable hand surface. Shift the shoulders forward under control to a comfortable wrist-extension/load endpoint while maintaining the declared contacts, then rock back to the starting load. One complete forward-and-back cycle is one repetition. Forward range, tempo, brief comfortable endpoint pause, repetitions, sets, rest, and optional knee cushioning are delivery annotations. Palms up or backs of hands down, fingers turned toward the knees or sides, unilateral loading, circles, palm lifts, sustained isometric holds, tall-plank loading, raised hands, bands, manual force, or a clinical assessment changes the task.",
+        "currentCardFindings": [
+          "Source 30 has one skeletal baseline variant and a generic legacy profile with empty taxonomy, anatomy, load, fatigue, constraints, support, research, alternate, calibration, and exact media review data.",
+          "The legacy exercise and USA Gymnastics/Prehab instructions consistently support one forward-facing palms-down quadruped forward-and-back rocker; Source 31 palms-up, Source 256 hold-or-tall-plank capacity, Source 32 palm lifts, and Source 796 orientation shifts remain distinct.",
+          "Legacy age, publication, link, and reviewed-media implications are unsupported and must be cleared or quarantined."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "push"],
+          "bodyRegions": ["wrist", "hand", "elbow", "shoulder", "scapula", "core", "spine", "hip", "knee"],
+          "support": "bilateral_palms_and_knees_fixed_quadruped_support",
+          "laterality": "bilateral_synchronous_forward_and_backward_weight_shift",
+          "planes": ["sagittal_primary", "multiplanar_stabilization"],
+          "equipment": ["none"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 22,
+          "absoluteLoadDemand": 16,
+          "physicalDifficulty": 16,
+          "baseOverallDifficulty": 22,
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "partial_bodyweight_bilateral_palms_down_quadruped_support",
+          "impactClass": "none",
+          "primaryExposure": ["wrist_extension_under_partial_bodyweight", "palm_and_finger_pressure", "elbow_and_shoulder_closed_chain_support", "scapular_and_trunk_stabilization", "knee_and_shin_floor_contact"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-2",
+          "completeRepetitions": "5-10",
+          "tempo": "controlled_three_to_six_seconds_per_complete_forward_and_back_cycle",
+          "rest": "20-60_seconds_or_as_needed_to_preserve_contacts_range_and_symptom_free_control",
+          "durationRule": "setup_plus_actual_forward_endpoint_and_return_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when exact palms-down/fingers-forward floor support, comfortable wrist-extension range, elbow/shoulder support, firm surface, dose, duration, symptoms, and downstream hand-support budgets fit. Do not turn the hands, add a hold, move to tall plank, elevate the hands, or treat the drill as clearance. Choose a separately authored palms-up, isometric/tall-plank, palm-lift, orientation-shift, or raised-support card when that changed task is intended.",
+        "calibrationEvidence": {
+          "basis": "USA Gymnastics direct wrist-exercise guidance, Prehab direct quadruped wrist-flexion/extension instruction, peer-reviewed gymnastics wrist biomechanics and injury synthesis, current oEmbed metadata, and comparison with neighboring Vortex wrist cards",
+          "uncertainty": "No source validates one universal hand width, finger spread, wrist angle, forward range, palm-pressure distribution, pause, dose, frequency, recovery interval, treatment/prevention benefit, eligibility rule, progression order, or Vortex score. Existing media has not been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "identity_boundary_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "usa_gymnastics_wrist_exercises",
+          "claims": [
+            "USA Gymnastics distinguishes palms-on-floor forward rocking for wrist extension from backs-of-hands rocking for wrist flexion.",
+            "Source 30 therefore remains one palms-down, fingers-forward, dynamic forward-and-back quadruped identity; hand surface and action are not silent annotations."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "prehab_quadruped_wrist_flexion_extension",
+          "claims": [
+            "The task combines a braced quadruped base with controlled upper-extremity pushing support and a sagittal weight shift.",
+            "Use controlled brace and push patterns; mobility and preparation are contextual purposes rather than invented movement-pattern keys."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "gymnastics_wrist_guard_biomechanics",
+          "claims": [
+            "Wrist extension angle and flexion moment vary with gymnastics hand-support conditions, demonstrating that support details matter.",
+            "The study examines back handsprings, not this rocker, so the card records observable position, contacts, range, exposure time, and symptoms without importing force values."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "usa_gymnastics_wrist_exercises",
+          "claims": [
+            "USA Gymnastics provides a hold-based example and advises fewer repetitions when form fails; it does not validate the Vortex dynamic dose.",
+            "Use a conservative review-only range of one to two sets and five to ten complete cycles, calculate actual support time, and stop before contact, range, support, or symptom quality degrades."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "prehab_quadruped_wrist_flexion_extension",
+          "claims": [
+            "Prehab supports hands and knees, fingers forward, strong upper-body support, a slow shoulder-over-wrist shift, and a backward return.",
+            "The card adds exact palms-down contact, complete-cycle counting, comfortable range, no bounce, firm surface, symptom stops, and actual-dose recording."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "adolescent_gymnastics_wrist_injury_review",
+          "claims": [
+            "The systematic review supports taking gymnastics wrist symptoms and accumulated exposure seriously while emphasizing low certainty and absent training thresholds.",
+            "Coach support verifies task identity, floor entry, palm/finger contact, wrist range, elbow/shoulder/trunk support, first fault, actual exposure, symptoms, downstream hand-support demand, and escalation without diagnosis."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "usa_gymnastics_wrist_exercises",
+          "claims": [
+            "USA Gymnastics separately lists palms-on-floor forward rocking and backs-of-hands backward rocking, supporting distinct wrist-extension and wrist-flexion tasks.",
+            "Keep palms-up, rear-facing, side-facing, circular, unilateral, palm-lift, isometric, tall-plank, raised-support, banded, manual, and assessment tasks outside the exact Source 30 variant until separately authored and reviewed."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=9KYKYqoVBSA","title":"How To Do The Wrist Rockers Mobility Exercise - Tangelo Health","channelName":"Tangelo - Seattle Chiropractor + Rehab","sourceQuery":"legacy wrist-rockers candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T21:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=5mil82fqj30","title":"Wrist Rocks | Wrist Exercise","channelName":"Matthew Stevens","sourceQuery":"legacy exact-title candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T21:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=54khDyn0qn8","title":"Quadruped Wrist Extension Rocks","channelName":"Dr. Jordan Weber","sourceQuery":"exact quadruped wrist-extension candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T21:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=O_S9TKHwnsE","title":"Wrist rocks","channelName":"W10 Personal Training Gym","sourceQuery":"exact-title wrist-rock candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T21:00:00Z"}},
+        {"url":"https://www.youtube.com/watch?v=4dRox1rxhfU","title":"Wrist Rockers","channelName":"Caroline Juster","sourceQuery":"exact-title wrist-rocker candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T21:00:00Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Wrist Rockers, Wrist Rocks, or Quadruped Wrist Extension Rocks","classification":"same_identity","rationale":"These aliases fit only when the exact bilateral palms-down, fingers-forward, quadruped forward-and-back cycle is stated.","distinguishingDimensions":{"aliases":true,"exactContractRequired":true}},
+        {"name":"Smaller Forward Range","classification":"modifier_annotation","rationale":"Comfortable forward range changes dose while contacts, hand orientation, action, and return remain exact.","distinguishingDimensions":{"delivery":"forward_range"}},
+        {"name":"Tempo or Brief Comfortable Endpoint Pause","classification":"modifier_annotation","rationale":"Controlled pace and a short non-forced pause change exposure rather than identity.","distinguishingDimensions":{"delivery":["tempo","brief_pause"]}},
+        {"name":"Repetitions, Sets, or Rest","classification":"modifier_annotation","rationale":"Volume and recovery change dose rather than the task.","distinguishingDimensions":{"delivery":["repetitions","sets","rest"]}},
+        {"name":"Stable Knee Cushioning","classification":"modifier_annotation","rationale":"A stable pad under the knees changes contact comfort without changing the firm palm-support surface or action.","distinguishingDimensions":{"delivery":"knee_cushioning_only"}},
+        {"name":"Wrist Rockers — Palms Up / Flexor Bias","classification":"new_definition","rationale":"Backs-of-hands support and wrist-flexion bias change the contact surface, joint action, comfort, load, and stop rules.","distinguishingDimensions":{"targetLegacyExerciseId":31,"handSurface":"dorsal_hand","wristAction":"flexion_bias"}},
+        {"name":"Rear-Facing Palms-Down Wrist Rock","classification":"new_variant","rationale":"Turning the fingers toward the knees changes forearm rotation, wrist line, load direction, and endpoint.","distinguishingDimensions":{"handOrientation":"fingers_toward_knees","reviewState":"identity_quarantine"}},
+        {"name":"Side-Facing Wrist Rock","classification":"new_variant","rationale":"Fingers facing laterally and side-to-side travel change the plane and radial/ulnar loading.","distinguishingDimensions":{"handOrientation":"lateral","travel":"side_to_side"}},
+        {"name":"Quadruped Wrist Circles","classification":"new_definition","rationale":"Circular center-of-pressure travel adds lateral checkpoints and a direction count.","distinguishingDimensions":{"path":"circular","directionCount":true}},
+        {"name":"Unilateral Wrist Rock","classification":"new_variant","rationale":"One-hand emphasis changes laterality, load distribution, trunk demand, and failure consequences.","distinguishingDimensions":{"laterality":"unilateral"}},
+        {"name":"Finger Pulses / Palm Lifts","classification":"new_definition","rationale":"Active palm-heel lifting and finger/knuckle pressure are distinct hand actions rather than bodyweight rocking.","distinguishingDimensions":{"targetLegacyExerciseId":32,"action":"active_palm_lift_or_finger_pulse"}},
+        {"name":"Wrist Lean Isometric / Wrist Support Rock Hold","classification":"new_definition","rationale":"A sustained isometric endpoint or tall-plank support changes the count, duration, leverage, load, purpose, and fatigue profile.","distinguishingDimensions":{"targetLegacyExerciseId":256,"action":"sustained_hold_or_tall_plank_capacity"}},
+        {"name":"Quadruped Wrist Pronation-Supination Shifts","classification":"new_definition","rationale":"Changing hand orientation during loading adds forearm rotation and multiple directional wrist exposures.","distinguishingDimensions":{"targetLegacyExerciseId":796,"action":"hand_orientation_shift"}},
+        {"name":"Raised-Hand Wrist Rock","classification":"new_variant","rationale":"Wall, counter, bench, or box support changes equipment, support height, load, joint angles, station, and fall consequences.","distinguishingDimensions":{"supportHeight":"raised","equipment":true}},
+        {"name":"Tall-Plank Wrist Rock or Planche Lean","classification":"new_definition","rationale":"Toe support and longer leverage materially increase wrist, shoulder, trunk, and fatigue demand.","distinguishingDimensions":{"base":"tall_plank","leverage":"long"}},
+        {"name":"Banded Wrist Mobilization Rock","classification":"new_definition","rationale":"An anchored band changes joint force direction, equipment, setup, contraindications, and scope.","distinguishingDimensions":{"externalForce":"banded_joint_mobilization"}},
+        {"name":"Towel-under-Palm Wrist Rock","classification":"new_variant","rationale":"Elevating the palm heel changes wrist angle and support interface rather than only knee comfort.","distinguishingDimensions":{"supportInterface":"palm_heel_elevated"}},
+        {"name":"Fist or Parallette Rock","classification":"new_definition","rationale":"Neutral-wrist gripping support removes the exact flat-palm wrist-extension interface.","distinguishingDimensions":{"supportInterface":"fist_or_handle","wristPosition":"neutral"}},
+        {"name":"Loaded or Partner-Resisted Wrist Rock","classification":"new_definition","rationale":"External load or manual force changes magnitude, consent, equipment, failure risk, and coaching scope.","distinguishingDimensions":{"externalLoadOrManualForce":true}},
+        {"name":"Clinical Wrist Range or Pain Assessment","classification":"new_definition","rationale":"A measured assessment adds examiner protocol, diagnostic/clinical purpose, outcomes, consent, and different stop/escalation rules.","distinguishingDimensions":{"assessment":true,"clinicalScope":true}}
+      ]
+    }
+  ]
+}

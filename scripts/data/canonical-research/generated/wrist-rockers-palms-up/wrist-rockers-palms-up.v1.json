@@ -1,0 +1,596 @@
+{
+  "facilityId": 1,
+  "slug": "wrist-rockers-palms-up",
+  "researchVersion": "2026-08-09.98",
+  "assessmentSummary": {
+    "identity": "A dynamic bilateral quadruped wrist-flexion-biased rocker. Start on hands and knees with the backs of both hands supported, palms facing up, fingers spread comfortably and pointing toward the knees, elbows extended without forced lockout, and pressure initially light. Shift the hips and center of mass backward toward the heels under control only to a comfortable wrist-flexion and dorsal-hand-loading endpoint, then return forward to the declared starting load. One complete backward-and-forward cycle is one repetition. Backward range, tempo, brief comfortable endpoint pause, repetitions, sets, rest, and optional knee cushioning are delivery annotations. Palms down, fingers facing forward or sideways, unilateral loading, circles, palm or finger lifts, sustained holds, tall-plank loading, raised support, bands, manual force, or clinical assessment changes the task.",
+    "currentCardFindings": [
+      "Source 31 has one skeletal baseline variant and generic profile with empty controlled taxonomy, anatomy, load, fatigue, constraints, support, research, alternate, calibration, and exact media review data.",
+      "The legacy title says flexor bias, but the observable action is wrist-flexion bias with dorsal-hand support; it does not establish isolated wrist-flexor tissue targeting.",
+      "Legacy age, publication, linked-skill, broad outcome, and reviewed-media implications are unsupported and must be cleared or quarantined."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "push"
+      ],
+      "bodyRegions": [
+        "wrist",
+        "hand",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee"
+      ],
+      "support": "bilateral_dorsal_hands_and_knees_fixed_quadruped_support",
+      "laterality": "bilateral_synchronous_backward_and_forward_weight_shift",
+      "planes": [
+        "sagittal_primary",
+        "multiplanar_stabilization"
+      ],
+      "equipment": [
+        "none"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 26,
+      "absoluteLoadDemand": 18,
+      "physicalDifficulty": 18,
+      "baseOverallDifficulty": 26,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "partial_bodyweight_bilateral_dorsal_hand_quadruped_support",
+      "impactClass": "none",
+      "primaryExposure": [
+        "wrist_flexion_under_light_partial_bodyweight",
+        "dorsal_hand_and_finger_contact",
+        "elbow_and_shoulder_closed_chain_support",
+        "scapular_and_trunk_stabilization",
+        "knee_and_shin_floor_contact"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "completeRepetitions": "3-6",
+      "tempo": "controlled_four_to_eight_seconds_per_complete_backward_and_forward_cycle",
+      "rest": "30-75_seconds_or_as_needed_to_preserve_contact_range_and_symptom_free_control",
+      "durationRule": "setup_plus_actual_backward_endpoint_and_forward_return_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+    },
+    "programmingDecision": "Select only when exact backs-of-hands-down, palms-up, fingers-toward-knees floor support, comfortable wrist-flexion range, elbow/shoulder support, clean firm surface, low dose, duration, symptoms, and downstream wrist budgets fit. Do not convert wrist-flexion bias into a muscle-isolation claim, force range, rotate the hands, add a hold, move to tall plank, or treat the drill as clearance. Choose a separately authored palms-down, palm-lift, isometric, orientation-shift, raised-support, or clinical card when that changed task is intended.",
+    "calibrationEvidence": {
+      "basis": "GMB and USA Gymnastics direct exercise descriptions, peer-reviewed gymnastics wrist biomechanics and injury synthesis, current oEmbed metadata, and comparison with neighboring Vortex wrist cards",
+      "uncertainty": "No source validates one universal hand width, finger spread, wrist angle, backward range, dorsal-hand pressure, pause, dose, frequency, recovery interval, tissue-specific effect, treatment/prevention benefit, eligibility rule, progression order, or Vortex score. Existing media has not been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "identity_boundary_review",
+        "anatomy_and_load_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T22:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From a stable bilateral hands-and-knees base, place the backs of both hands on a clean firm nonabrasive surface with palms facing up and fingers pointing toward the knees. Keep the elbows extended without forced lockout and begin with very light pressure. Shift the hips and center of mass backward toward the heels under control only to a comfortable wrist-flexion and dorsal-hand-loading endpoint, then return forward to the declared starting load. One complete backward-and-forward cycle is one repetition. Range, pace, a brief comfortable pause, repetitions, sets, rest, and stable knee cushioning are delivery annotations. Palms down, changed finger direction, unilateral loading, circles, palm lifts, sustained holds, tall-plank loading, raised support, external force, or assessment changes the task.",
+      "familyKey": "quadruped_rear_facing_palms_up_wrist_flexion_rock",
+      "movementPatterns": [
+        "brace",
+        "push"
+      ],
+      "bodyRegions": [
+        "wrist",
+        "hand",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "hip",
+        "knee"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "mat"
+      ],
+      "environment": {
+        "space": "one stationary quadruped station with head shoulder elbow hip knee foot and safe floor-entry clearance and no cross traffic",
+        "surface": "clean firm flat dry stable nonslip nonabrasive floor for the backs of both hands; optional stable cushioning may be placed under knees only",
+        "changeRule": "Changing hand surface finger direction support height base laterality path hold external force purpose dose symptoms surface or downstream wrist demand requires full identity selection duration logistics substitution persistence and rendering revalidation.",
+        "inspection": [
+          "clean firm nonabrasive dorsal-hand surface",
+          "traction dryness and debris",
+          "optional knee mat flatness and movement",
+          "hand finger and knee clearance",
+          "cross traffic",
+          "communication sightline and emergency route",
+          "safe floor entry and exit"
+        ],
+        "laneRequired": false,
+        "coachSightline": "side view for wrist-flexion and backward endpoint plus front-oblique view for dorsal-hand finger elbow shoulder and trunk support",
+        "stationCapacity": 1,
+        "optionalEquipment": "mat_for_knees_only"
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "current pain or recent significant trauma procedure or surgery without applicable guidance",
+          "sharp increasing radiating or unfamiliar wrist hand forearm elbow shoulder spine hip or knee symptoms",
+          "new numbness tingling weakness color temperature circulation or hand-control change",
+          "chest or breathing concern dizziness faintness nausea visual change or inability to communicate",
+          "floor transfer dorsal-hand support or wrist flexion cannot be performed without compensation",
+          "surface sightline communication or safe exit is inadequate",
+          "participant requests stop"
+        ],
+        "selectionPrerequisites": [
+          "safe floor entry bilateral dorsal-hand and knee support and exit",
+          "comfortable controllable wrist flexion under very light partial bodyweight",
+          "can keep backs of hands and fingers supported while elbows shoulders scapula and trunk remain organized",
+          "understands backward and forward completion count and stop signal",
+          "no conflicting trauma symptom restriction or service-scope concern"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility or age rule",
+          "one correct hand width finger spread wrist angle pressure distribution or range",
+          "isolated wrist-flexor or wrist-extensor tissue effect",
+          "universal dose frequency recovery progression treatment or prevention",
+          "numeric difficulty calibration or media exactness"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB describes a rear-facing palms-up position with fingers toward the knees, a backward shift toward the heels, and a forward return.",
+        "Model observable bilateral dorsal-hand contact and increasing/decreasing wrist flexion; do not relabel wrist-flexion bias as proof that one muscle group is isolated or universally stretched."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "sourceTitle": "Suggested Gymnastics Wrist Exercises",
+      "sourcePublisher": "USA Gymnastics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "USA Gymnastics separately identifies a kneeling back-of-hand backward rock as a weight-bearing wrist-flexion exercise but provides no Vortex difficulty score.",
+        "Exercise complexity 26, physical difficulty 18, and derived overall 26 are review-only task proposals and never classify a participant."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37794701/",
+      "sourceTitle": "Wrist Guards/Supports in Gymnastics: Are They Helping or Hurting You?",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Gymnastics wrist angles and moments change with hand-support conditions, but back-handspring findings cannot be converted into force values for a lightly loaded dorsal-hand quadruped rocker.",
+        "Track complete cycles, wrist-flexion and dorsal-hand support seconds, contact pressure tolerance, support faults, symptoms, and overlapping same-session wrist work; recovery remains a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12804664/",
+      "sourceTitle": "Epidemiology and Risk Factors of Wrist Pain and Injury in Adolescent Artistic Gymnasts: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Orthopaedic Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "The review reports substantial wrist-pain and injury burden in adolescent gymnastics with low-to-very-low certainty for available risk-factor evidence; it does not create an age rule or authorize exercise through symptoms.",
+        "Selection requires tolerable floor transfer and bilateral dorsal-hand support, comfortable wrist flexion, a clean firm nonabrasive nonslip surface, communication, symptom monitoring, and compatible same-session wrist exposure."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "sourceTitle": "Suggested Gymnastics Wrist Exercises",
+      "sourcePublisher": "USA Gymnastics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "USA Gymnastics says to seek medical guidance when pain is present, discontinue exercises that cause pain, and reduce load or repetitions when form breaks down.",
+        "Stop for pain, neurologic or circulation symptoms, dizziness, worsening discomfort, dorsal-hand or finger contact loss, forced range, elbow or shoulder collapse, unsafe surface, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB presents this as one optional wrist-strengthening/mobility routine element and explicitly says the position can be uncomfortable and must stay within comfortable range.",
+        "Use low-volume quality-first Prepare & Access or Movement Intelligence profiles and recompute wrist-flexion, dorsal-hand support, technical-fatigue, duration, and downstream hand-support budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB gives a concise fingers-toward-knees, palms-up, back-toward-heels then forward sequence and explicitly prohibits moving into pain.",
+        "Athlete support must show backs of hands down, palms up, fingers toward knees, one complete backward-and-forward count, very light comfortable pressure, and a clear stop/help signal."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "sourceTitle": "Suggested Gymnastics Wrist Exercises",
+      "sourcePublisher": "USA Gymnastics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "The USA Gymnastics table supplies a short written back-of-hand backward-rock sequence that can be paired with setup and endpoint images.",
+        "Provide front and side demonstrations, a two-frame backward/forward count, slower pace, fewer repetitions, more rest, optional stable knee cushioning, and a separately authored task when dorsal-hand floor contact does not fit."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five palms-up, rear-facing, or wrist-rock candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact dorsal-hand/fingers-toward-knees setup, backward-forward repetition, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all remain candidates."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB distinguishes rear-facing palms-down and rear-facing palms-up tasks and gives the palms-up task its own setup and comfort warning.",
+        "Source 31 therefore remains one backs-of-hands-down, palms-up, fingers-toward-knees dynamic backward-and-forward identity; hand surface and action are not silent annotations."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The task combines a braced quadruped base with controlled upper-extremity support and a sagittal backward/forward weight shift.",
+        "Use controlled brace and push patterns; mobility and preparation are contextual purposes rather than invented movement-pattern keys."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37794701/",
+      "sourceTitle": "Wrist Guards/Supports in Gymnastics: Are They Helping or Hurting You?",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Wrist angle and moment vary with gymnastics hand-support conditions, demonstrating that surface and orientation details matter.",
+        "The study examines back handsprings, not this rocker, so the card records observable position, contacts, range, exposure time, and symptoms without importing force values."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "sourceTitle": "Suggested Gymnastics Wrist Exercises",
+      "sourcePublisher": "USA Gymnastics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "USA Gymnastics provides a hold-based example and advises fewer repetitions when form fails; it does not validate the Vortex dynamic dose.",
+        "Use a conservative review-only range of one to two sets and three to six complete cycles, calculate actual support time, and stop before contact, range, support, or symptom quality degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "sourceTitle": "Wrist Strengthening Cheatsheet",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB supports fingers toward the knees, palms up, a backward shift toward the heels, a forward return, slow progression, comfortable range, and no pain.",
+        "The card adds exact dorsal-hand contact, complete-cycle counting, light pressure, no bounce, clean stable surface, symptom stops, and actual-dose recording."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12804664/",
+      "sourceTitle": "Epidemiology and Risk Factors of Wrist Pain and Injury in Adolescent Artistic Gymnasts: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Orthopaedic Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "The systematic review supports taking gymnastics wrist symptoms and accumulated exposure seriously while emphasizing low certainty and absent training thresholds.",
+        "Coach support verifies identity, floor entry, dorsal-hand/finger contact, wrist range, elbow/shoulder/trunk support, first fault, actual exposure, symptoms, downstream wrist demand, and escalation without diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "sourceTitle": "Suggested Gymnastics Wrist Exercises",
+      "sourcePublisher": "USA Gymnastics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "USA Gymnastics separately lists palms-on-floor forward rocking and backs-of-hands backward rocking, supporting distinct wrist-extension and wrist-flexion tasks.",
+        "Keep palms-down, changed finger direction, circular, unilateral, palm-lift, isometric, tall-plank, raised-support, banded, manual, and assessment tasks outside the exact Source 31 variant until separately authored and reviewed."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=GYlgQSLqNRI",
+      "title": "Wrist Prep, Palms up, Fingers facing backwards",
+      "channelName": "Chris Gaines",
+      "sourceQuery": "exact-title palms-up rear-facing candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=MGmCC35rSB8",
+      "title": "Palms up Fingers Facing you Wrist Stretch - Reduce Wrist and Forearm Pain!",
+      "channelName": "its.maddymartinez",
+      "sourceQuery": "palms-up fingers-facing candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CjPVImbUXfA",
+      "title": "Rear Facing Wrist.mp4",
+      "channelName": "Flux",
+      "sourceQuery": "rear-facing wrist candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=M9UC3QezhCo",
+      "title": "Wrist Rocks - forward, backward, inside, palms up",
+      "channelName": "McG",
+      "sourceQuery": "multi-orientation candidate containing palms-up label checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PNRoKMw96Ew",
+      "title": "Wrist Prep Routine + Wrist Rockers - Kinetic Sports Rehab",
+      "channelName": "Tangelo - Seattle Chiropractor + Rehab",
+      "sourceQuery": "wrist-prep routine candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Rear-Facing Palms-Up Wrist Rock, Back-of-Hand Wrist Rock, or Wrist-Flexion Rock",
+      "classification": "same_identity",
+      "rationale": "These aliases fit only when bilateral dorsal-hand contact, palms up, fingers toward the knees, and the exact backward-and-forward cycle are stated.",
+      "distinguishingDimensions": {
+        "aliases": true,
+        "exactContractRequired": true
+      }
+    },
+    {
+      "name": "Smaller Backward Range",
+      "classification": "modifier_annotation",
+      "rationale": "Comfortable backward range changes dose while contacts, hand orientation, action, and return remain exact.",
+      "distinguishingDimensions": {
+        "delivery": "backward_range"
+      }
+    },
+    {
+      "name": "Tempo or Brief Comfortable Endpoint Pause",
+      "classification": "modifier_annotation",
+      "rationale": "Controlled pace and a short non-forced pause change exposure rather than identity.",
+      "distinguishingDimensions": {
+        "delivery": [
+          "tempo",
+          "brief_pause"
+        ]
+      }
+    },
+    {
+      "name": "Repetitions, Sets, or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and recovery change dose rather than the task.",
+      "distinguishingDimensions": {
+        "delivery": [
+          "repetitions",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Stable Knee Cushioning",
+      "classification": "modifier_annotation",
+      "rationale": "A stable pad under the knees changes contact comfort without changing the dorsal-hand surface or action.",
+      "distinguishingDimensions": {
+        "delivery": "knee_cushioning_only"
+      }
+    },
+    {
+      "name": "Thin Firm Dorsal-Hand Comfort Pad",
+      "classification": "new_variant",
+      "rationale": "Padding under the hands changes pressure distribution, friction, cleanliness, and support interface and requires explicit validation.",
+      "distinguishingDimensions": {
+        "supportInterface": "thin_firm_pad"
+      }
+    },
+    {
+      "name": "Side-Facing Palms-Up Wrist Rock",
+      "classification": "new_variant",
+      "rationale": "Changing finger direction changes forearm rotation, wrist line, pressure, and available range.",
+      "distinguishingDimensions": {
+        "handOrientation": "lateral"
+      }
+    },
+    {
+      "name": "Unilateral Back-of-Hand Wrist Rock",
+      "classification": "new_variant",
+      "rationale": "One-hand emphasis changes laterality, load distribution, trunk demand, and failure consequences.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Raised-Support Back-of-Hand Wrist Rock",
+      "classification": "new_variant",
+      "rationale": "A wall, bench, box, or other raised surface changes equipment, support height, load, angles, station, and failure consequences.",
+      "distinguishingDimensions": {
+        "supportHeight": "raised",
+        "equipment": true
+      }
+    },
+    {
+      "name": "Seated or Non-Quadruped Back-of-Hand Wrist Rock",
+      "classification": "new_variant",
+      "rationale": "Removing the hands-and-knees base changes support, bodyweight transfer, floor access, and count.",
+      "distinguishingDimensions": {
+        "base": "non_quadruped"
+      }
+    },
+    {
+      "name": "Wrist Rockers — Palms Down",
+      "classification": "new_definition",
+      "rationale": "Palmar hand support with fingers forward and wrist-extension loading changes the contact surface, joint action, loading direction, and endpoint.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 30,
+        "handSurface": "palmar",
+        "wristAction": "extension_bias"
+      }
+    },
+    {
+      "name": "Finger Pulses / Palm Lifts",
+      "classification": "new_definition",
+      "rationale": "Active palm-heel lifting and finger/knuckle pressure are distinct hand actions rather than dorsal-hand bodyweight rocking.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 32,
+        "action": "active_palm_lift_or_finger_pulse"
+      }
+    },
+    {
+      "name": "Wrist Lean Isometric / Wrist Support Rock Hold",
+      "classification": "new_definition",
+      "rationale": "A sustained isometric endpoint or tall-plank support changes count, duration, leverage, load, purpose, and fatigue.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 256,
+        "action": "sustained_hold_or_tall_plank_capacity"
+      }
+    },
+    {
+      "name": "Quadruped Wrist Pronation-Supination Shifts",
+      "classification": "new_definition",
+      "rationale": "Changing hand orientation during loading adds forearm rotation and multiple directional wrist exposures.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 796,
+        "action": "hand_orientation_shift"
+      }
+    },
+    {
+      "name": "Back-of-Hand Wrist Circles",
+      "classification": "new_definition",
+      "rationale": "Circular pressure travel adds lateral checkpoints, direction counting, and different dorsal-hand exposure.",
+      "distinguishingDimensions": {
+        "path": "circular",
+        "directionCount": true
+      }
+    },
+    {
+      "name": "Tall-Plank Back-of-Hand Rock or Planche Lean",
+      "classification": "new_definition",
+      "rationale": "Toe support and long leverage materially increase wrist, shoulder, trunk, and fatigue demand.",
+      "distinguishingDimensions": {
+        "base": "tall_plank",
+        "leverage": "long"
+      }
+    },
+    {
+      "name": "Banded Wrist-Flexion Mobilization",
+      "classification": "new_definition",
+      "rationale": "An anchored band changes joint force direction, equipment, setup, contraindications, and scope.",
+      "distinguishingDimensions": {
+        "externalForce": "banded_joint_mobilization"
+      }
+    },
+    {
+      "name": "Fist or Parallette Rock",
+      "classification": "new_definition",
+      "rationale": "Neutral-wrist gripping support removes the exact dorsal-hand wrist-flexion interface.",
+      "distinguishingDimensions": {
+        "supportInterface": "fist_or_handle",
+        "wristPosition": "neutral"
+      }
+    },
+    {
+      "name": "Loaded or Partner-Resisted Back-of-Hand Rock",
+      "classification": "new_definition",
+      "rationale": "External load or manual force changes magnitude, consent, equipment, failure risk, and coaching scope.",
+      "distinguishingDimensions": {
+        "externalLoadOrManualForce": true
+      }
+    },
+    {
+      "name": "Clinical Wrist-Flexion Range or Pain Assessment",
+      "classification": "new_definition",
+      "rationale": "A measured assessment adds examiner protocol, clinical purpose, outcomes, consent, and different stop/escalation rules.",
+      "distinguishingDimensions": {
+        "assessment": true,
+        "clinicalScope": true
+      }
+    }
+  ]
+}

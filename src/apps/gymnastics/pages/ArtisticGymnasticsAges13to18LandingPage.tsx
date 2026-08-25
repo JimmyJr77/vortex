@@ -3,15 +3,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { Link } from 'react-router-dom'
+import { campaignImageProps } from '../utils/campaignImages'
 
-const HERO_IMAGES = [
-  '/campaign_13-18_hero1.jpg',
-  '/campaign_13-18_hero2.jpg',
-  '/campaign_13-18_hero3.jpg',
-  '/campaign_13-18_hero4.jpg',
-  '/campaign_13-18_hero5.jpg',
-  '/campaign_13-18_hero6.jpg',
-]
+const HERO_IMAGE = '/campaign_13-18_hero3.jpg'
 
 interface ArtisticGymnasticsAges13to18LandingProps {
   onSignUpClick?: () => void
@@ -58,22 +52,17 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
       <section className="relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
-        {/* Scrolling images strip — same smooth scroll as /gymnastics hero */}
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="flex h-full gymnastics-hero-scroll"
-            style={{ width: `${HERO_IMAGES.length * 2 * 100}vw` }}
-          >
-            {[...HERO_IMAGES, ...HERO_IMAGES].map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                className="h-full flex-shrink-0"
-                style={{ width: '100vw', minWidth: '100vw' }}
-              >
-                <img src={src} alt="" className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
+          <img
+            {...campaignImageProps(HERO_IMAGE)}
+            alt=""
+            width="1600"
+            height="1067"
+            className="h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
         <div className="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
         <div className="absolute inset-0 z-[1]">
@@ -96,8 +85,17 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Advanced artistic gymnastics training for athletes 13–18 who want real progression.
+            Teen &amp; Competitive Gymnastics <span className="text-vortex-red">in Bowie, MD</span>
           </motion.h1>
+          <motion.p
+            className="mx-auto mb-10 max-w-3xl text-xl leading-relaxed text-gray-300 md:text-2xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+          >
+            Advanced artistic gymnastics training for athletes ages 13–18 who want serious skill
+            development and real progression.
+          </motion.p>
           <motion.div
 
             initial={{ opacity: 0, y: 30 }}
@@ -117,6 +115,8 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
           >
 
             <motion.span
+
+              tabIndex={-1}
 
               className="inline-flex items-center justify-center gap-3 whitespace-nowrap"
 
@@ -284,6 +284,8 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
               >
 
                 <motion.span
+
+                  tabIndex={-1}
 
                   className="inline-block"
 

@@ -1,0 +1,484 @@
+{
+  "migrationKey": "728_coaching_low_amplitude_forward_jump_stick_candidate_materialization",
+  "researchVersion": "2026-07-25.3",
+  "batchFile": "../batches/landing-braking-foundations.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 220,
+        "preserveLegacyExerciseId": true,
+        "slug": "forward-hop-to-stick-low-amplitude",
+        "canonicalName": "Low-Amplitude Forward Jump to Stick",
+        "displayName": "Low-Amplitude Forward Jump to Stick",
+        "aliases": [
+          "Forward Hop to Stick — Low Amplitude",
+          "Forward Hop to Stick",
+          "Forward Jump and Stick",
+          "Bilateral Jump and Stick"
+        ],
+        "description": "From a declared bilateral start, perform one low-amplitude horizontal jump with two-foot takeoff, land on two feet inside the declared target, absorb through ankles, knees, and hips, hold the terminal athletic position for the declared duration, then reset. One repetition contains one bilateral takeoff, one bilateral landing, one stick, and no obstacle, travel after landing, rebound, or second takeoff.",
+        "familyKey": "bilateral_low_amplitude_horizontal_jump_terminal_stick",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 3,
+        "status": "review",
+        "identityContract": "bilateral_low_amplitude_horizontal_jump_two_foot_takeoff_two_foot_landing_terminal_stick_without_obstacle_rebound_or_second_takeoff",
+        "confidence": {
+          "content": 84,
+          "scoring": 64,
+          "media": 50
+        },
+        "movementPatterns": [
+          "jump",
+          "land",
+          "brace"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "thigh",
+          "hip",
+          "core"
+        ],
+        "requiredEquipment": [
+          "none"
+        ],
+        "optionalEquipment": [
+          "video"
+        ],
+        "environment": {
+          "surface": "clean, dry, level, stable non-slip floor with clear forward and lateral landing space",
+          "space": "one marked standing and landing station with protected entry and exit",
+          "stationCapacity": 1,
+          "inspection": [
+            "surface, footwear, target visibility, landing clearance, traffic, and stop signal",
+            "coach sightline to takeoff, landing, knees, trunk, terminal hold, and reset"
+          ],
+          "changeRule": "Changing distance, target, obstacle, takeoff/landing laterality, surface, rebound, takeoff count, hold, dose, symptoms, or substitute requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "pain-free low bilateral jump and landing",
+            "owns a quiet bilateral Drop Squat/Snap-Down landing position",
+            "understands bilateral takeoff/landing, target, terminal hold, stop signal, and reset",
+            "safe station and session lower-body, impact, technical-fatigue, logistics, and duration budgets fit"
+          ],
+          "excludeOrEscalate": [
+            "pain, giving way, slip, unsafe station, repeated asymmetrical landing, loud/stiff landing, knee/trunk collapse, extra step, rebound, balance loss, or communication conflict",
+            "new neurologic, circulation, breathing, chest, balance, or coordination concern",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "universal distance, amplitude, target size, dose, recovery, readiness threshold, clinical clearance, injury outcome, or performance transfer"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            220
+          ],
+          "identityAuthority": "Landing/braking foundations packet: the stable identity is a bilateral low-amplitude forward jump, bilateral landing, and terminal stick. The legacy hop term is retained as an alias only; unilateral support, obstacle, continuous rebound, and maximal-distance intent require their own assessment.",
+          "canonicalAuthoredFromResearch": true,
+          "primaryIdentitySource": "https://pubmed.ncbi.nlm.nih.gov/33217086/",
+          "primaryIdentitySourceStatus": "candidate_research_evidence_unreviewed",
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": false,
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteal_complex",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstring_complex",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "metatarsophalangeal",
+            "talocrural_ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "thoracolumbar_spine"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "bilateral_terminal_stance_stabilization"
+          ],
+          "planes": [
+            "sagittal_horizontal_jump_and_landing",
+            "frontal_terminal_stance_stabilization"
+          ],
+          "laterality": "bilateral two-foot takeoff and landing; record meaningful asymmetry without assigning athlete skill labels",
+          "claimsBoundary": "Describes task mechanics and plausible loading sites only; it does not diagnose, treat, prevent injury, establish readiness, or guarantee transfer."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate practice for one low horizontal bilateral jump and a quiet controlled landing only when the exact distance, target, floor, and impact budget fit.",
+          "primaryCue": "Jump only as far as you can land quietly on two feet and hold.",
+          "secondaryCues": [
+            "take off from two feet and land on two feet",
+            "bend through ankles, knees, and hips to absorb",
+            "stick the declared target without extra steps or a bounce",
+            "reset and report symptoms"
+          ],
+          "expectedSensations": [
+            "brief lower-body push-off and landing absorption effort",
+            "attention to target accuracy, quiet landing, and terminal balance"
+          ],
+          "unexpectedSensations": [
+            "pain, giving way, slip, loud/stiff contact, asymmetry, knee/trunk collapse, dizziness, or inability to hold"
+          ],
+          "painGuidance": "Stop rather than chasing distance through pain, instability, dizziness, or another concerning symptom; report it and follow facility escalation policy.",
+          "selfChecks": [
+            "two feet took off and two feet landed",
+            "landing reached the target without an extra step",
+            "contact was quiet and the landing shape held",
+            "no hurdle, rebound, second takeoff, or stop event occurred"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          },
+          "mediaAlternatives": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true,
+            "humanReviewRequired": true,
+            "approvedMediaAvailable": false
+          }
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact bilateral low-amplitude task, target, surface, and no-obstacle/no-rebound boundary",
+            "two-foot takeoff and landing, distance, contact sound, foot placement, knee/trunk control, terminal hold, and asymmetry",
+            "valid repetitions, first fault, symptoms, rest, and cumulative impact exposure"
+          ],
+          "faultCorrections": {
+            "distance_chasing": "shorten the target and restore quiet target-accurate landing",
+            "single_foot_or_asymmetric_contact": "reduce amplitude and reestablish bilateral takeoff and landing",
+            "stiff_or_loud_landing": "reduce distance and restore ankle-knee-hip absorption",
+            "rebound_or_extra_step": "stop and reestablish terminal hold before accepting another repetition"
+          },
+          "demonstrationPlan": [
+            "show bilateral start, low forward jump, bilateral landing, terminal hold, reset, and stop signal",
+            "show the target and a valid low-amplitude distance",
+            "show invalid single-leg contact, obstacle, stiff landing, extra step, rebound, and second takeoff",
+            "confirm athlete can state the two-foot and no-rebound boundaries"
+          ],
+          "groupManagement": [
+            "one athlete per clear station with protected landing zone",
+            "stage athletes behind the start until the landing zone is clear",
+            "record target, valid repetitions, first fault, symptoms, rest, and lower-body impact exposure"
+          ],
+          "modificationDecisionTree": [
+            "if pain, giving way, slip, dizziness, unsafe floor, or communication failure occurs, stop and escalate under facility policy",
+            "if quiet bilateral landing cannot be restored, reduce distance only if quality returns",
+            "if the task needs an obstacle, unilateral support, continuous rebound, or maximal-distance intent, select a separately reviewed exact card and rerun validation",
+            "do not replace this with a non-jump drop squat, depth drop, or repeated bounds automatically"
+          ],
+          "doNotUseWhen": [
+            "the intended task is non-jump landing position, obstacle clearance, unilateral hop, repeated rebound, broad-jump testing, or conditioning",
+            "surface, symptoms, bilateral landing control, supervision, or communication is inadequate"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "surface_or_space",
+            "distance_or_target",
+            "takeoff_or_landing",
+            "impact_or_fatigue",
+            "symptom_or_stop_event",
+            "dose_or_duration",
+            "substitution"
+          ],
+          "supportEscalation": "Stop and escalate unresolved symptoms, unsafe setup, repeated asymmetric/loud landing, or a mismatch between the requested task and this exact low-amplitude bilateral jump-to-stick contract.",
+          "retentionPolicy": "Persist the versioned definition and exact variant, target/distance context, valid repetitions, first fault, landing quality, terminal hold, symptoms, rest, substitution, stop reason, and generator/rendering versions under facility policy.",
+          "changeImpactPolicy": "Any change to distance, target, obstacle, laterality, rebound, takeoff, surface, hold, dose, cue, or substitute reruns selection, fatigue, impact, logistics, duration, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "identity-quarantine-source-220",
+        "archiveKey": "source-220-forward-hop-legacy-skeleton",
+        "displayName": "Forward Hop to Stick Legacy Skeleton — Source 220",
+        "archiveReason": "The source lacks the exact bilateral takeoff/landing, amplitude, target, terminal-hold, load, fatigue, delivery, alternate, support, and review contract."
+      },
+      "legacy": {
+        "preserveArchived": true,
+        "description": "Use two feet to make one low forward jump, land on two feet quietly in the target, hold, then reset.",
+        "defaultSets": 2,
+        "defaultReps": 3,
+        "defaultWorkSeconds": 8,
+        "defaultRestSeconds": 60,
+        "tempo": "bilateral takeoff; low forward travel; quiet bilateral landing; two-second stick; reset",
+        "loadNote": "Low-to-moderate bodyweight horizontal jump/landing exposure. Exact distance, target, hold, rest, and lower-body overlap are delivery-profile specific.",
+        "estimatedSecondsPerSet": 90,
+        "cardSummary": "Candidate low-amplitude bilateral forward jump-to-stick card with explicit two-foot, no-obstacle, no-rebound, terminal-hold, and stop boundaries.",
+        "coachLanguage": "Count only quiet bilateral target-accurate landings that own the terminal stick.",
+        "athleteLanguage": "Jump only as far as you can land quietly on two feet, freeze, reset, and report symptoms.",
+        "programmingLogic": {
+          "sourceDisposition": "candidate_reauthored",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "distance",
+          "target",
+          "hold_seconds",
+          "repetitions",
+          "sets",
+          "rest",
+          "surface",
+          "feedback"
+        ]
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact bilateral jump, landing, target, surface, symptom, supervision, and fatigue context—not a participant classification.",
+        "readinessChecks": [
+          "pain-free low bilateral jump and landing",
+          "quiet controlled bilateral terminal stick",
+          "clean dry non-slip floor and clear landing zone",
+          "session impact and technical-fatigue budgets fit"
+        ],
+        "stopSigns": [
+          "pain, giving way, slip, asymmetry, loud/stiff landing, knee/trunk collapse, extra step, rebound, unsafe station, or participant stop request",
+          "inability to restore bilateral target-accurate terminal control after rest"
+        ],
+        "contraindications": [
+          "symptom, unsafe surface, inadequate bilateral landing control, supervision, or communication",
+          "obstacle, unilateral support, continuous rebound, second takeoff, or maximal-distance testing without a separately reviewed contract"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed task only after full revalidation.",
+          "Do not automatically substitute a non-jump drop squat, hurdle jump, single-leg hop, depth drop, or repeated bounds."
+        ]
+      },
+      "score": {
+        "exerciseScoresDescribeTaskOnly": true,
+        "difficultyRationale": "The score describes task complexity and physical difficulty for one low-amplitude bilateral horizontal jump-to-stick only, not participant ability, experience, age, or readiness. Two-foot timing, target control, landing absorption, and terminal balance exceed the low physical load.",
+        "difficultyProfile": {
+          "technical": 3.8,
+          "complexity": 3.8,
+          "load": 1.2,
+          "overall": 3.8,
+          "attentionDemand": "moderate",
+          "notes": "Exact low-amplitude bilateral forward jump, bilateral landing, terminal stick, no obstacle/rebound/second takeoff."
+        }
+      },
+      "variants": [
+        {
+          "id": "22000000-0000-4000-8000-000000000001",
+          "key": "bilateral-low-amplitude-forward-jump-to-terminal-stick",
+          "displayName": "Bilateral Low-Amplitude Forward Jump to Terminal Stick",
+          "modifierKeys": [
+            "bilateral",
+            "low_amplitude",
+            "horizontal",
+            "terminal_stick"
+          ],
+          "difficulty": {
+            "technicalComplexity": 38,
+            "absoluteLoadDemand": 12,
+            "physicalDifficulty": 12,
+            "coordinationDemand": 42,
+            "supervisionDemand": 34,
+            "failureConsequence": 38,
+            "impact": 36,
+            "workCapacityDemand": 16,
+            "baseOverallDifficulty": 38
+          },
+          "requirements": {
+            "equipment": [
+              "none"
+            ],
+            "takeoff": "bilateral",
+            "landing": "bilateral",
+            "distance": "declared_low_amplitude",
+            "finish": "target_accurate_terminal_stick",
+            "prohibited": [
+              "obstacle",
+              "unilateral_contact",
+              "rebound",
+              "second_takeoff",
+              "maximal_distance_testing"
+            ]
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_bilateral_low_amplitude_horizontal_jump_and_landing",
+            "impactClass": "low_to_moderate",
+            "landingContactsPerRep": 2,
+            "gripDemand": 1,
+            "spinalLoading": 10,
+            "eccentricStress": 34,
+            "primaryExposure": [
+              "bilateral_takeoff",
+              "horizontal_landing_absorption",
+              "ankle_knee_hip_eccentric_attenuation",
+              "terminal_stance_control"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 18,
+            "gripFatigue": 1,
+            "technicalFatigueSensitivity": 58,
+            "impactAccumulation": 30,
+            "recoveryHours": 12,
+            "recoveryHoursPlanningEstimate": 12,
+            "cumulativeBudget": {
+              "bilateral_jump_landings": 48,
+              "horizontal_landing_exposure": 44,
+              "lower_body_impact": 30
+            },
+            "tracking": [
+              "distance",
+              "target",
+              "validRepetitions",
+              "firstFault",
+              "landingQuality",
+              "symptoms",
+              "rest",
+              "downstreamLowerBodyExposure"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "bilateral_horizontal_jump_landing",
+              "target_accurate_force_absorption",
+              "terminal_stance_control"
+            ],
+            "stimulusDose": "quality_limited_low_amplitude_bilateral_jump_to_stick_repetitions",
+            "weeklyExposure": "candidate_review_required; program from current lower-body impact rather than a universal frequency",
+            "prerequisites": [
+              "pain-free low bilateral jump",
+              "quiet bilateral terminal stick",
+              "safe clear landing station"
+            ],
+            "completionCriteria": "every repetition uses bilateral takeoff and landing, reaches the declared target quietly, holds the terminal position, and has no stop event",
+            "sequenceRules": "Place after lower-impact landing-position work and before higher-amplitude, obstacle, unilateral, rebound, or fatigue-heavy lower-body work when jump/landing quality is the priority.",
+            "pairingCompatibility": "May pair with mobility, trunk control, or noncompeting upper-body work when station, recovery, and total impact remain valid.",
+            "interferenceRules": "Do not stack with high-impact jumps, depth drops, repeated bounds, exhaustive lower-body work, or testing when landing quality degrades.",
+            "uncertaintyPolicy": "Scores, dose, recovery, and progression are candidate planning estimates; require human review and rerun validation after any change.",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "movement-intelligence",
+              "phase": "movement_intelligence",
+              "role": "primary",
+              "purpose": "Rehearse one low horizontal bilateral jump and a target-accurate quiet terminal landing without rebound.",
+              "suitability": 84,
+              "methodologyAlignment": 82,
+              "objectiveRelevance": {
+                "horizontal_landing_control": 90,
+                "low_to_moderate_impact_skill": 82
+              },
+              "dosage": {
+                "sets": "2-3",
+                "repetitions": "2-4 valid jumps",
+                "restSeconds": "45-75",
+                "intensity": "declared low amplitude; no distance chasing"
+              },
+              "qualityGate": "Two feet take off and land, the target is reached quietly, the terminal position holds, and no stop event, rebound, or second takeoff occurs.",
+              "stopRules": [
+                "pain, instability, slip, unsafe station, or participant request",
+                "asymmetry, loud/stiff landing, collapse, extra step, missed target, rebound, or inability to hold"
+              ],
+              "coachInstructions": "Declare a low target and observe takeoff, landing, and terminal hold. Count only quiet bilateral target-accurate landings.",
+              "athleteInstructions": "Use two feet to jump a small distance. Land quietly on two feet in the target, freeze, then reset.",
+              "expectedAdaptation": "Task-specific bilateral horizontal jump-and-landing rehearsal; no universal outcome is claimed.",
+              "equipmentRequired": [
+                "none"
+              ],
+              "logistics": {
+                "station": "one visible clean non-slip station with clear forward/lateral landing space",
+                "durationFormula": "setup plus valid jumps, rest, restarts, recording, and reset"
+              },
+              "timeModel": {
+                "setupSeconds": 45,
+                "effortSeconds": 5,
+                "restRangeSeconds": [
+                  45,
+                  75
+                ],
+                "recomputeAfterSubstitution": true
+              },
+              "doseScaling": {
+                "distance": "shorten target before adding repetitions",
+                "volume": "add only while each landing remains quiet, bilateral, target-accurate, and held"
+              },
+              "measurement": {
+                "validRepetitions": true,
+                "targetAccuracy": true,
+                "firstFault": true,
+                "landingQuality": true,
+                "symptoms": true
+              },
+              "supportPrompts": {
+                "athlete": "Small jump, two feet, quiet stick.",
+                "coach": "Target and landing quality count; distance does not."
+              }
+            }
+          ]
+        }
+      ],
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

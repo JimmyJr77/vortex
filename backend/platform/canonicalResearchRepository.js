@@ -28,6 +28,136 @@ function notFound(message) {
   return error
 }
 
+const REQUIRED_RESEARCH_SECTIONS = Object.freeze([
+  'identity', 'taxonomy', 'anatomy', 'biomechanics', 'difficulty',
+  'load_fatigue_recovery', 'constraints', 'dosage', 'instructions',
+  'safety_stop_rules', 'programming', 'athlete_support', 'coach_support',
+  'accessibility', 'alternates', 'media',
+])
+
+function valueCount(items, predicate) {
+  return items.filter(predicate).length
+}
+
+/**
+ * Produces an intentionally non-authoritative review checklist. It makes
+ * remaining human decisions visible without changing their status or treating
+ * candidate research as approval.
+ */
+export function summarizeCanonicalResearchReview({ evidence, mediaCandidates, alternateAssessments }) {
+  const evidenceRows = Array.isArray(evidence) ? evidence : []
+  const mediaRows = Array.isArray(mediaCandidates) ? mediaCandidates : []
+  const alternateRows = Array.isArray(alternateAssessments) ? alternateAssessments : []
+  const reviewedEvidenceSections = new Set(evidenceRows
+    .filter((item) => item.review_status === 'reviewed')
+    .map((item) => item.section_key))
+  const candidateEvidenceSections = new Set(evidenceRows
+    .filter((item) => ['candidate', 'reviewed'].includes(item.review_status))
+    .map((item) => item.section_key))
+  const missingCandidateSections = REQUIRED_RESEARCH_SECTIONS
+    .filter((section) => !candidateEvidenceSections.has(section))
+  const pendingEvidenceSections = REQUIRED_RESEARCH_SECTIONS
+    .filter((section) => !reviewedEvidenceSections.has(section))
+  const approvedMedia = mediaRows.filter((item) => (
+    item.review_status === 'approved'
+    && item.link_status === 'healthy'
+    && item.embedding_allowed === true
+    && item.exact_variant_match === true
+    && Number(item.demonstration_quality_score) >= 80
+    && item.reviewer_user_id != null
+    && item.reviewed_at != null
+  ))
+  const mediaAwaitingAccessibilityMetadata = mediaRows.filter((item) => (
+    ['candidate', 'shortlisted', 'approved'].includes(item.review_status)
+    && item.captions_available == null
+  ))
+  const reviewedAlternates = alternateRows.filter((item) => (
+    ['reviewed', 'approved'].includes(item.review_status)
+  ))
+  const proposedNewDefinitions = alternateRows.filter((item) => (
+    item.classification === 'new_definition'
+  ))
+  const explicitDefinitionPlans = proposedNewDefinitions.filter((item) => (
+    String(item.proposed_card_json?.slug ?? '').trim()
+    || String(item.distinguishing_dimensions?.targetDefinitionId ?? '').trim()
+  ))
+  const unresolvedTargetReferences = proposedNewDefinitions.filter((item) => (
+    String(item.distinguishing_dimensions?.targetDefinitionId ?? '').trim()
+    && item.distinguishing_dimensions?.targetDefinitionResolution !== 'active_current_definition'
+  ))
+  const unplannedNewDefinitions = proposedNewDefinitions.filter((item) => (
+    !String(item.proposed_card_json?.slug ?? '').trim()
+    && !String(item.distinguishing_dimensions?.targetDefinitionId ?? '').trim()
+  ))
+  const blockers = []
+  if (missingCandidateSections.length) {
+    blockers.push({ code: 'RESEARCH_CANDIDATES_INCOMPLETE', sections: missingCandidateSections })
+  }
+  if (pendingEvidenceSections.length) {
+    blockers.push({ code: 'RESEARCH_REVIEW_PENDING', sections: pendingEvidenceSections })
+  }
+  if (mediaRows.length < 3 || mediaRows.length > 5 || approvedMedia.length !== mediaRows.length) {
+    blockers.push({
+      code: 'EXACT_MEDIA_REVIEW_PENDING',
+      candidateCount: mediaRows.length,
+      approvedCount: approvedMedia.length,
+    })
+  }
+  if (reviewedAlternates.length !== alternateRows.length || alternateRows.length === 0) {
+    blockers.push({
+      code: 'ALTERNATE_REVIEW_PENDING',
+      candidateCount: alternateRows.length,
+      reviewedCount: reviewedAlternates.length,
+    })
+  }
+  if (unplannedNewDefinitions.length || unresolvedTargetReferences.length) {
+    blockers.push({
+      code: 'NEW_DEFINITION_TRIAGE_PENDING',
+      candidateCount: proposedNewDefinitions.length,
+      unplannedCount: unplannedNewDefinitions.length,
+      unresolvedTargetReferenceCount: unresolvedTargetReferences.length,
+    })
+  }
+  if (mediaAwaitingAccessibilityMetadata.length) {
+    blockers.push({
+      code: 'MEDIA_ACCESSIBILITY_METADATA_PENDING',
+      candidateCount: mediaAwaitingAccessibilityMetadata.length,
+    })
+  }
+  return {
+    humanReviewRequired: blockers.length > 0,
+    readyForPublication: blockers.length === 0,
+    blockers,
+    evidence: {
+      requiredSections: REQUIRED_RESEARCH_SECTIONS.length,
+      candidateSections: candidateEvidenceSections.size,
+      reviewedSections: reviewedEvidenceSections.size,
+      missingCandidateSections,
+      pendingEvidenceSections,
+      rejectedRecords: valueCount(evidenceRows, (item) => item.review_status === 'rejected'),
+    },
+    media: {
+      requiredMinimum: 3,
+      allowedMaximum: 5,
+      candidateCount: mediaRows.length,
+      approvedCount: approvedMedia.length,
+      pendingExactReviewCount: mediaRows.length - approvedMedia.length,
+      accessibilityMetadataPendingCount: mediaAwaitingAccessibilityMetadata.length,
+      rejectedCount: valueCount(mediaRows, (item) => item.review_status === 'rejected'),
+    },
+    alternates: {
+      candidateCount: alternateRows.length,
+      reviewedCount: reviewedAlternates.length,
+      pendingReviewCount: alternateRows.length - reviewedAlternates.length,
+      rejectedCount: valueCount(alternateRows, (item) => item.review_status === 'rejected'),
+      proposedNewDefinitionCount: proposedNewDefinitions.length,
+      newDefinitionWithDirectPlanCount: explicitDefinitionPlans.length,
+      newDefinitionWithoutCardPlanCount: unplannedNewDefinitions.length,
+      unresolvedTargetReferenceCount: unresolvedTargetReferences.length,
+    },
+  }
+}
+
 export async function loadCanonicalResearchReview(pool, facilityId, definitionId) {
   const cardId = uuid(definitionId, 'definitionId')
   const definition = await pool.query(
@@ -67,11 +197,15 @@ export async function loadCanonicalResearchReview(pool, facilityId, definitionId
       [cardId, card.card_version],
     ),
   ])
-  return {
+  const review = {
     card,
     evidence: evidence.rows,
     mediaCandidates: media.rows,
     alternateAssessments: alternates.rows,
+  }
+  return {
+    ...review,
+    reviewChecklist: summarizeCanonicalResearchReview(review),
   }
 }
 

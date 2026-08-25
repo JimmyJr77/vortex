@@ -51,6 +51,29 @@ test('family evidence compiles registered provenance and card-specific section o
   )
 })
 
+test('research batch builder snapshots an active exact variant when no baseline remains', () => {
+  assert.match(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /const snapshotVariantKeys = Object\.fromEntries\(batch\.cards[\s\S]*?card\.snapshotVariantKey/,
+  )
+  assert.match(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /LEFT JOIN LATERAL \([\s\S]*?candidate\.status IN \('review','published'\)[\s\S]*?candidate\.variant_key=\(\$4::jsonb ->> definition\.slug\)[\s\S]*?\(candidate\.variant_key='baseline'\) DESC[\s\S]*?LIMIT 1[\s\S]*?\) variant ON TRUE/,
+  )
+  assert.match(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /variantKey: row\.variant_key \?\? null/,
+  )
+  assert.match(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /JSON\.stringify\(snapshotVariantKeys\)/,
+  )
+  assert.doesNotMatch(
+    RESEARCH_BATCH_BUILDER_SOURCE,
+    /LEFT JOIN coaching\.exercise_variant_v1 variant[\s\S]{0,160}variant\.variant_key='baseline'/,
+  )
+})
+
 test('single-leg hop and pogo packets preserve direction-specific cards, exact terminal contacts, and human media gates', () => {
   const registryDocument = JSON.parse(readFileSync(
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
@@ -2593,7 +2616,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2781,7 +2804,7 @@ test('landmine press research batch consolidates exact standing variants and lea
     'utf8',
   ))
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -2901,7 +2924,7 @@ test('one-arm landmine base packets complete exact cards while keeping Arc Press
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3022,7 +3045,7 @@ test('landmine explosive press packets consolidate hand count while preserving a
     ['landmine-squat-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'nsca_landmine_press_implementation',
     'landmine_press_kinematics_2026',
@@ -3153,7 +3176,7 @@ test('landmine squat and lunge packets preserve support, foot-motion, and action
     ['landmine-reverse-lunge-to-press', 3],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'landmine_squat_muscle_activity_kinetics',
     'acsm_landmine_squat_exercise',
@@ -3290,7 +3313,7 @@ test('hill sprint acceleration packet separates grade identity, start variants, 
     mediaCandidates: [],
   })
 
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
   for (const sourceKey of [
     'uphill_sprint_slope_kinematics',
     'resisted_sprint_acceleration_meta_analysis',
@@ -4617,7 +4640,7 @@ test('Cossack audit sources distinguish direct technique from adjacent biomechan
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const wideStance = registryDocument.sources.wide_stance_foot_angle_squat_biomechanics
   assert.equal(wideStance.url, 'https://pubmed.ncbi.nlm.nih.gov/30026952/')
@@ -4642,7 +4665,7 @@ test('Floor Press sources separate direct technique, floor-specific testing, and
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const floorTest = registryDocument.sources.isometric_floor_press_validity
   assert.equal(floorTest.url, 'https://pubmed.ncbi.nlm.nih.gov/42367017/')
@@ -4670,7 +4693,7 @@ test('Rotational Ball Slam sources separate direct technique from adjacent power
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const ace = registryDocument.sources.ace_rotational_slam
   assert.equal(
@@ -4698,7 +4721,7 @@ test('One-Arm Row sources separate exact variant technique from adjacent row bio
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const ace = registryDocument.sources.ace_single_arm_row_technique
   assert.equal(
@@ -4731,7 +4754,7 @@ test('Push-Up sources replace the unrelated calf-raise PMID with direct variant 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const technique = registryDocument.sources.nasm_push_up_technique
   assert.equal(
@@ -4769,7 +4792,7 @@ test('Reverse Lunge evidence separates direct reverse-step kinetics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const direct = registryDocument.sources.reverse_lunge_joint_kinetics
   assert.equal(direct.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4641539/')
@@ -4795,7 +4818,7 @@ test('Lateral Lunge evidence separates direct step-out biomechanics from adjacen
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const olderAdults = registryDocument.sources.lateral_lunge_older_adult_biomechanics
   const healthy = registryDocument.sources.lateral_lunge_healthy_biomechanics
@@ -4829,7 +4852,7 @@ test('Suitcase Carry evidence distinguishes unilateral locomotion, static holds,
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const activation = registryDocument.sources.loaded_carry_muscle_activation
   assert.equal(activation.url, 'https://pubmed.ncbi.nlm.nih.gov/38665162/')
@@ -4856,7 +4879,7 @@ test('Bent-Knee Soleus Raise evidence separates knee-position adaptation, tendon
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const hypertrophy = registryDocument.sources.bent_knee_calf_raise_hypertrophy_knee_position
   assert.equal(
@@ -4892,7 +4915,7 @@ test('Back Squat evidence separates bar position, stance, depth, loading, adapta
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const barPosition = registryDocument.sources.back_squat_high_low_3rm_biomechanics
   assert.equal(barPosition.url, 'https://pubmed.ncbi.nlm.nih.gov/38900172/')
@@ -4923,7 +4946,7 @@ test('Box Jump evidence distinguishes propulsion, elevated landing, height, arm 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const comparison = registryDocument.sources.countermovement_hurdle_box_jump_comparison
   assert.equal(comparison.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10204452/')
@@ -4955,7 +4978,7 @@ test('Depth Jump evidence separates countermovement height strategy from bounce 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const technique = registryDocument.sources.drop_jump_technique_rsi_study
   assert.equal(technique.url, 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/')
@@ -4986,7 +5009,7 @@ test('Nordic Hamstring evidence separates variation mechanics, angle-specific is
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const variation = registryDocument.sources.nordic_hamstring_variation_kinematics_emg
   assert.equal(variation.url, 'https://pubmed.ncbi.nlm.nih.gov/31644582/')
@@ -5019,7 +5042,7 @@ test('Front Plank evidence separates exact lever and tension variants from tests
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const lever = registryDocument.sources.front_plank_long_lever_posterior_tilt_emg
   assert.equal(lever.url, 'https://pubmed.ncbi.nlm.nih.gov/25325773/')
@@ -5053,7 +5076,7 @@ test('Kettlebell Swing evidence separates exact technique, hand count, load, fat
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const technique = registryDocument.sources.ace_two_hand_kettlebell_swing_technique
   assert.equal(
@@ -5098,7 +5121,7 @@ test('Pull-Up evidence separates grip variants, strict identity, loading, fatigu
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const instruction = registryDocument.sources.ace_pull_up_instruction
   assert.equal(
@@ -5146,7 +5169,7 @@ test('Hollow Body Hold evidence separates the exact static shape from abdominal 
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const instruction = registryDocument.sources.crossfit_gymnastics_hollow_body_guide
   assert.equal(
@@ -5194,7 +5217,7 @@ test('Handstand Hold evidence separates unsupported balance, wall support, entry
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
 
   const professional = registryDocument.sources.crossfit_handstand_coaching_guide
   assert.equal(
@@ -5249,8 +5272,8 @@ test('Cartwheel hand-placement line-drill evidence separates direct instruction,
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['safe_gymnastics_cartwheel_markers', {
@@ -5334,8 +5357,8 @@ test('Back Bridge evidence separates static support identity from dynamic entrie
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['bridge_spine_hyperextension_review', {
@@ -5422,8 +5445,8 @@ test('Bar Cast evidence separates amplitude-return casts from terminal handstand
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['world_gymnastics_wag_cast_code_2025_2028', {
@@ -5498,8 +5521,8 @@ test('Handstand Snap-Down evidence separates the inverted-start stick from a ful
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['usag_wag_compulsory_roundoff_snapdown_2025', {
@@ -5562,8 +5585,8 @@ test('Lache evidence separates two-bar catch, no-release Tap Swing, and two-foot
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['world_gymnastics_parkour_age_group_bar_elements_2021', {
@@ -5632,8 +5655,8 @@ test('Precision Jump evidence separates no-turn and 360 identities while limitin
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['world_gymnastics_parkour_table_of_tricks_2026', {
@@ -5694,8 +5717,8 @@ test('90/90 breathing research registers exact sources and compiles three uncont
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['fms_9090_breathing_lateral_expansion', {
@@ -5816,8 +5839,8 @@ test('Crocodile Breathing research preserves prone identity, explicit feedback v
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['fms_crocodile_breathing_exercise', {
@@ -5910,8 +5933,8 @@ test('Full-Body Joint CARs research preserves an exact composite flow and joint-
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['ace_controlled_articular_rotations_2024', {
@@ -5990,8 +6013,8 @@ test('Neck CARs research consolidates the tall-posture duplicate and preserves c
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['ace_controlled_articular_rotations_2024', {
@@ -6088,8 +6111,8 @@ test('Cat-Cow research consolidates the segmental duplicate and keeps support-ch
     path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
     'utf8',
   ))
-  assert.equal(registryDocument.registryVersion, '2026-08-02.93')
-  assert.equal(Object.keys(registryDocument.sources).length, 396)
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
 
   const expectedSources = new Map([
     ['ace_cat_cow_exercise_library', {
@@ -6202,4 +6225,2690 @@ test('Cat-Cow research consolidates the segmental duplicate and keeps support-ch
   }
   assert.match(packet.assessmentSummary.identity, /segmental wave are exact variants/i)
   assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Quadruped Spinal Circles research preserves the fixed-contact global circle and quarantines support changes', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+
+  const expectedSources = new Map([
+    ['gmb_quadruped_spinal_circles_pdf', {
+      url: 'https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf',
+      kind: 'expert_instruction', publisher: 'GMB Fitness', minimumQuality: 78,
+    }],
+    ['gmb_joint_mobility_spinal_circles', {
+      url: 'https://gmb.io/joint-mobility/',
+      kind: 'expert_instruction', publisher: 'GMB Fitness', minimumQuality: 80,
+    }],
+    ['napa_quadruped_exercises_pt', {
+      url: 'https://napacenter.org/quadruped-exercises/',
+      kind: 'expert_instruction', publisher: 'NAPA Center', minimumQuality: 74,
+    }],
+    ['thoracic_exercise_prescription_review', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/',
+      kind: 'peer_reviewed_research',
+      publisher: 'BMJ Open Sport & Exercise Medicine',
+      minimumQuality: 86,
+    }],
+    ['aopt_low_back_pain_cpg_2021', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/',
+      kind: 'professional_standard',
+      publisher: 'Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy',
+      minimumQuality: 96,
+    }],
+  ])
+  for (const [sourceKey, expected] of expectedSources) {
+    const source = registryDocument.sources[sourceKey]
+    assert.ok(source, `missing Quadruped Spinal Circles source ${sourceKey}`)
+    assert.equal(source.url, expected.url)
+    assert.equal(source.kind, expected.kind)
+    assert.equal(source.publisher, expected.publisher)
+    assert.ok(source.evidenceQuality >= expected.minimumQuality)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'quadruped-spinal-circles.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.94')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Quadruped Spinal Circles',
+      familyKey: 'Spinal mobility',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['F8tiHAb_WQI', 'LywxamPqa9k', 'b4fwyPYXFkY', 'u2HkVRxxioA', 'vdgvP8CqwRw'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 2)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Quadruped Spinal Wave Circles'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.reviewState === 'identity_quarantine'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Quadruped Thread-the-Needle'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === '1032ba98-fa48-4960-a039-2d11b2a492cc'
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, ['brace'])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.planes, [
+    'sagittal', 'frontal', 'coupled_multiplanar_transition',
+  ])
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+    Math.max(
+      packet.assessmentSummary.proposedDifficulty.technicalComplexity,
+      packet.assessmentSummary.proposedDifficulty.physicalDifficulty,
+    ))
+  for (const scores of Object.values(
+    packet.assessmentSummary.proposedDifficulty.variantScoreProposals,
+  )) {
+    assert.equal(
+      scores.baseOverallDifficulty,
+      Math.max(scores.technicalComplexity, scores.physicalDifficulty),
+    )
+  }
+  assert.match(packet.assessmentSummary.identity, /Both hands and knees remain down/)
+  assert.match(packet.assessmentSummary.programmingDecision, /delivery annotations/)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Side-Lying Open Book research consolidates duplicate names and quarantines support-changing alternates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+
+  const expectedSources = new Map([
+    ['leeds_nhs_open_book', {
+      url: 'https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/',
+      kind: 'professional_standard', publisher: 'Leeds Teaching Hospitals NHS Trust', minimumQuality: 88,
+    }],
+    ['dynamic_health_nhs_mid_back_open_book', {
+      url: 'https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/',
+      kind: 'professional_standard', publisher: 'Dynamic Health NHS', minimumQuality: 84,
+    }],
+    ['side_lying_thoracolumbar_rotation_reliability', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3096141/',
+      kind: 'peer_reviewed_research',
+      publisher: 'North American Journal of Sports Physical Therapy',
+      minimumQuality: 82,
+    }],
+    ['thoracic_exercise_prescription_review', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/',
+      kind: 'peer_reviewed_research',
+      publisher: 'BMJ Open Sport & Exercise Medicine',
+      minimumQuality: 86,
+    }],
+    ['aopt_low_back_pain_cpg_2021', {
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/',
+      kind: 'professional_standard',
+      publisher: 'Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy',
+      minimumQuality: 96,
+    }],
+  ])
+  for (const [sourceKey, expected] of expectedSources) {
+    const source = registryDocument.sources[sourceKey]
+    assert.ok(source, `missing Side-Lying Open Book source ${sourceKey}`)
+    assert.equal(source.url, expected.url)
+    assert.equal(source.kind, expected.kind)
+    assert.equal(source.publisher, expected.publisher)
+    assert.ok(source.evidenceQuality >= expected.minimumQuality)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'side-lying-open-book.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.95')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Side-Lying Open Book',
+      familyKey: 'Thoracic rotation',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['gooXfQYTV-0', 'Bik7s2SZo_U', 'xznlno1QVuU', '3Cyd4iYLuKo', 'DO94-QTeyrM'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 2)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Open Book Rotation, Open Book T-Spine Rotation, or Side-Lying Thoracic Rotation'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.legacySources.join(',') === '28,891,1306'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Split-Leg Top-Knee-Anchored Open Book'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.reviewState === 'identity_quarantine'
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'rotate', 'reach',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.planes, [
+    'transverse', 'coupled_sagittal_or_frontal_accommodation',
+  ])
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+    Math.max(
+      packet.assessmentSummary.proposedDifficulty.technicalComplexity,
+      packet.assessmentSummary.proposedDifficulty.physicalDifficulty,
+    ))
+  for (const scores of Object.values(
+    packet.assessmentSummary.proposedDifficulty.variantScoreProposals,
+  )) {
+    assert.equal(
+      scores.baseOverallDifficulty,
+      Math.max(scores.technicalComplexity, scores.physicalDifficulty),
+    )
+  }
+  assert.match(packet.assessmentSummary.identity, /hands stack/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /delivery annotations/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Inchworm Walkout research packet separates return-mode variants and quarantines media', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'ace_inchworms_exercise_library',
+    'oxford_health_walkout_plank',
+    'special_olympics_young_athletes_inchworm',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 29 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'inchworm-walkout.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.96')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Inchworm Walkout',
+      familyKey: 'Integrated mobility',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['BXRL_AC8om4', 'ttxQ_UPOwWc', 'aFkv2m9FTGs', '-FW8DNKsAh8', 'ZvhfaibmpwU'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 3)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Stationary Hands-Out-and-Back Walkout'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.variant === 'stationary_hand_return'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Traveling Hands-Out, Feet-In Inchworm'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.variant === 'traveling_feet_in_return'
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'hinge', 'brace', 'locomote',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+    Math.max(
+      packet.assessmentSummary.proposedDifficulty.technicalComplexity,
+      packet.assessmentSummary.proposedDifficulty.physicalDifficulty,
+    ))
+  assert.deepEqual(
+    Object.values(packet.assessmentSummary.proposedDifficulty.variantScoreProposals)
+      .map((scores) => [
+        scores.technicalComplexity,
+        scores.physicalDifficulty,
+        scores.baseOverallDifficulty,
+      ]),
+    [[30, 24, 30], [34, 26, 34]],
+  )
+  assert.match(packet.assessmentSummary.identity, /stationary variant/i)
+  assert.match(packet.assessmentSummary.identity, /traveling variant/i)
+  assert.match(packet.assessmentSummary.identity, /omit a push-up/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not add a push-up/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Wrist Rockers Palms Down packet fixes hand orientation and quarantines neighboring tasks', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'usa_gymnastics_wrist_exercises',
+    'prehab_quadruped_wrist_flexion_extension',
+    'gymnastics_wrist_guard_biomechanics',
+    'adolescent_gymnastics_wrist_injury_review',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 30 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'wrist-rockers-palms-down.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.97')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Wrist Rockers — Palms Down',
+      familyKey: 'Wrist prep',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['9KYKYqoVBSA', '5mil82fqj30', '54khDyn0qn8', 'O_S9TKHwnsE', '4dRox1rxhfU'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 1)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wrist Rockers — Palms Up / Flexor Bias'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 31
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wrist Lean Isometric / Wrist Support Rock Hold'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 256
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'wrist', 'hand', 'elbow', 'shoulder', 'scapula', 'core', 'spine', 'hip', 'knee',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+    Math.max(
+      packet.assessmentSummary.proposedDifficulty.technicalComplexity,
+      packet.assessmentSummary.proposedDifficulty.physicalDifficulty,
+    ))
+  assert.match(packet.assessmentSummary.identity, /palms flat/i)
+  assert.match(packet.assessmentSummary.identity, /facing forward/i)
+  assert.match(packet.assessmentSummary.identity, /forward-and-back cycle/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not turn the hands/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Wrist Rockers Palms Up packet fixes dorsal-hand wrist-flexion identity and tissue-claim scope', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'gmb_wrist_strengthening_cheatsheet',
+    'usa_gymnastics_wrist_exercises',
+    'gymnastics_wrist_guard_biomechanics',
+    'adolescent_gymnastics_wrist_injury_review',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 31 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'wrist-rockers-palms-up.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.98')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Wrist Rockers — Palms Up / Flexor Bias',
+      familyKey: 'Wrist prep',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['GYlgQSLqNRI', 'MGmCC35rSB8', 'CjPVImbUXfA', 'M9UC3QezhCo', 'PNRoKMw96Ew'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 1)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wrist Rockers — Palms Down'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 30
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Finger Pulses / Palm Lifts'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 32
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'wrist', 'hand', 'elbow', 'shoulder', 'scapula', 'core', 'spine', 'hip', 'knee',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+    Math.max(
+      packet.assessmentSummary.proposedDifficulty.technicalComplexity,
+      packet.assessmentSummary.proposedDifficulty.physicalDifficulty,
+    ))
+  assert.match(packet.assessmentSummary.identity, /backs of both hands/i)
+  assert.match(packet.assessmentSummary.identity, /palms facing up/i)
+  assert.match(packet.assessmentSummary.identity, /backward-and-forward cycle/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /muscle-isolation claim/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Finger Pulses and Palm Lifts packet separates exact actions and preserves human media gates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'gmb_wrist_strengthening_cheatsheet',
+    'usa_gymnastics_wrist_exercises',
+    'gymnastics_wrist_guard_biomechanics',
+    'adolescent_gymnastics_wrist_injury_review',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 32 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'finger-pulses-palm-lifts.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.99')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Finger Pulses / Palm Lifts',
+      familyKey: 'Hand activation',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 4)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['TBvEMTrLLp8', 'V9Lw__srIbM', 'WTcreH1yVjU', 'nM7wB89NlwE'],
+  )
+  assert.equal(packet.alternateAssessments.length, 20)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 2)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Palm Press Finger Lifts'
+      && alternate.classification === 'new_definition'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wrist Lean Isometric or Wrist Support Rock Hold'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 256
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'hand', 'wrist', 'elbow', 'shoulder', 'scapula', 'core', 'spine', 'hip', 'knee',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  assert.deepEqual(packet.assessmentSummary.proposedDifficulty.variantScores.fingerPulse, {
+    technicalComplexity: 24,
+    absoluteLoadDemand: 18,
+    physicalDifficulty: 18,
+    baseOverallDifficulty: 24,
+  })
+  assert.deepEqual(packet.assessmentSummary.proposedDifficulty.variantScores.palmLift, {
+    technicalComplexity: 28,
+    absoluteLoadDemand: 22,
+    physicalDifficulty: 22,
+    baseOverallDifficulty: 28,
+  })
+  assert.match(packet.assessmentSummary.identity, /two-variant bilateral quadruped/i)
+  assert.match(packet.assessmentSummary.identity, /pressure increase and release/i)
+  assert.match(packet.assessmentSummary.identity, /palm-heel lift and lower/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not switch variants silently/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Scapular Push-Up packet separates base and contraction variants and quarantines human gates', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'bmj_shoulder_abc_scapular_push_up',
+    'bmj_shoulder_abc_trial',
+    'ace_scapular_pushups',
+    'push_up_plus_emg_meta_2019',
+    'modified_traditional_push_up_plus_load_2015',
+    'scapular_protraction_retraction_emg_2025',
+    'scapular_protraction_hold_fatigue_2009',
+    'usa_gymnastics_wrist_exercises',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 33 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'scapular-push-up.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.100')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Scapular Push-Up',
+      familyKey: 'Scapular control',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['WJraJbTJY_E', 'S9NhochxIhY', '5YHZnEsE9hA', 'ccxY-ax5SC8', 'd0bfBjxEa4s'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 4)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 6)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 8)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_definition',
+  ).length, 6)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Push-Up'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 186
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Quadruped Scapular Clock'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 1311
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'hand', 'wrist', 'elbow', 'shoulder', 'scapula', 'core', 'spine', 'hip',
+    'knee', 'ankle',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  for (const variant of Object.values(
+    packet.assessmentSummary.proposedDifficulty.variantScores,
+  )) {
+    assert.equal(
+      variant.baseOverallDifficulty,
+      Math.max(variant.technicalComplexity, variant.physicalDifficulty),
+    )
+  }
+  assert.match(packet.assessmentSummary.identity, /four-variant bilateral straight-arm/i)
+  assert.match(packet.assessmentSummary.identity, /actual valid seconds/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not switch base or action silently/i)
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /32707142[\s\S]*unrelated/i,
+  )
+})
+
+test('Quadruped Shoulder Circles packet separates annotations, variants, and distinct identities', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'gmb_quadruped_shoulder_circles',
+    'rehab_hero_quadruped_scapular_circles',
+    'scapulothoracic_kinematics_cadaver_2023',
+    'open_closed_chain_scapular_kinematics_2017',
+    'scapular_movement_training_rct_2023',
+    'modified_traditional_push_up_plus_load_2015',
+    'scapular_protraction_retraction_emg_2025',
+    'usa_gymnastics_wrist_exercises',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 34 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'quadruped-shoulder-circles.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.101')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Quadruped Shoulder Circles',
+      familyKey: 'Quadruped Scapular Circle',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['XtGilhjp8OQ', 'R1D5vuq9nJM', 'd8SmV7z6CyQ', '7p5ujyokvtY', 'B-U015U3wGk'],
+  )
+  assert.equal(packet.alternateAssessments.length, 22)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 3)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 7)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 7)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_definition',
+  ).length, 5)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Quadruped Scapular Clock'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 1311
+      && alternate.distinguishingDimensions.status === 'identity_contract_incomplete'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Scapular Push-Up'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 33
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push', 'rotate',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'hand', 'wrist', 'elbow', 'shoulder', 'scapula', 'core', 'spine', 'hip', 'knee',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['none'])
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.fixedContactContinuousCircle,
+    {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 18,
+      physicalDifficulty: 18,
+      baseOverallDifficulty: 30,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /bilateral fixed-contact quadruped/i)
+  assert.match(packet.assessmentSummary.identity, /continuous loop through protraction/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently change support height/i)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 1311[\s\S]*cannot be merged/i,
+  )
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Wall Slides with Lift-Off packet repairs lineage and preserves exact terminal mechanics', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'physitrack_forearm_wall_slide_lift_off',
+    'catalyst_wall_slide_lift_off',
+    'wall_slide_serratus_emg_2006',
+    'wall_slide_theraband_emg_2022',
+    'wall_slide_alignment_pain_trial_2016',
+    'rotator_cuff_tendinopathy_cpg_2025',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 35 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'wall-slides-with-lift-off.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.102')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Wall Slides with Lift-Off',
+      familyKey: 'Standing Forearm Wall Slide and Lift-Off',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['3blA9Ba2TFI', '6fCDq1SMhsk', 'DwqcX8VVpkU', 'OKfgrx-Qeqk', 'ykw9BWnZtlY'],
+  )
+  assert.equal(packet.alternateAssessments.length, 26)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'same_identity',
+  ).length, 3)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'modifier_annotation',
+  ).length, 9)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_variant',
+  ).length, 7)
+  assert.equal(packet.alternateAssessments.filter(
+    (alternate) => alternate.classification === 'new_definition',
+  ).length, 7)
+  for (const [name, legacyId] of [
+    ['Forearm Wall Slide with Reach', 905],
+    ['Serratus Foam-Roller Wall Slide', 1310],
+    ['Wall Slide with Lift-Off — Throwing', 1309],
+  ]) {
+    assert.equal(packet.alternateAssessments.some((alternate) => (
+      alternate.name === name
+        && alternate.classification === 'new_definition'
+        && alternate.distinguishingDimensions.targetLegacyExerciseId === legacyId
+    )), true)
+  }
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'push', 'reach',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, [
+    'wrist', 'elbow', 'shoulder', 'scapula', 'thoracic_spine', 'core',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['wall'])
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.bilateralForearmSlideTerminalLiftOff,
+    {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 16,
+      physicalDifficulty: 16,
+      baseOverallDifficulty: 30,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /terminal full-arm lift-off/i)
+  assert.match(packet.assessmentSummary.identity, /One complete return is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently omit the lift-off/i)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 1309[\s\S]*not evidence of exact identity/i,
+  )
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Bilateral Band External Rotation packet preserves the elbows-at-sides identity and quarantines unresolved eccentric overlap', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'nwhsu_bilateral_band_shoulder_external_rotation',
+    'performance_health_bilateral_external_rotation',
+    'orthopedic_one_no_money_exercise',
+    'elastic_resistance_shoulder_strength_trial_2018',
+    'shoulder_abduction_band_resistance_emg_2025',
+    'constant_elastic_shoulder_rotation_kinematics_2018',
+    'rotator_cuff_tendinopathy_cpg_2025',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 36 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'bilateral-band-external-rotation.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.103')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Band External Rotation / No-Money Drill',
+      familyKey: 'Bilateral Elbows-at-Sides Band External Rotation',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['_UvmPNGtlPM', '4tpl-huz060', '_thyHbdB7nI', '_G0feLqXA0E', 'DZP1RF7uyIs'],
+  )
+  assert.equal(packet.alternateAssessments.length, 26)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 9],
+    ['new_variant', 8],
+    ['new_definition', 6],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Eccentric Band External Rotation'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 1348
+      && alternate.distinguishingDimensions.status === 'identity_contract_incomplete'
+  )), true)
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.movementPatterns, [
+    'brace', 'pull', 'rotate',
+  ])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.bodyRegions, ['shoulder'])
+  assert.deepEqual(packet.assessmentSummary.proposedTaxonomy.equipment, ['bands'])
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.bilateralStandingElbowsAtSides,
+    {
+      technicalComplexity: 26,
+      absoluteLoadDemand: 18,
+      physicalDifficulty: 18,
+      baseOverallDifficulty: 26,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /bilateral standing shoulder-external-rotation cycle/i)
+  assert.match(packet.assessmentSummary.identity, /One outward-and-return cycle is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently anchor the band/i)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 1348[\s\S]*remains unresolved/i,
+  )
+  assert.doesNotMatch(JSON.stringify(packet), /athleteSkill|proficiencyLevel|ageLevel/i)
+})
+
+test('Source 37 research packets split a full-range Shoulder CAR from repeated bilateral Arm Circles', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'mind_body_spine_shoulder_cars',
+    'missouri_extension_arm_circles_2023',
+    'scapular_kinematics_variability_review_2025',
+    'dynamic_glenohumeral_elevation_emg_2019',
+    'active_passive_shoulder_elevation_2016',
+    'unconstrained_overhead_reaching_kinematics_2009',
+    'ace_controlled_articular_rotations_2024',
+    'rotator_cuff_tendinopathy_cpg_2025',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 37 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'standing-shoulder-car-and-arm-circles.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.104')
+  assert.equal(batch.cards.length, 2)
+
+  const currentCards = new Map([
+    ['arm-circles', {
+      canonicalName: 'Standing Single-Arm Shoulder CAR',
+      familyKey: 'Standing Single-Arm Shoulder CAR',
+      cardVersion: 2,
+    }],
+    ['standing-bilateral-arm-circles', {
+      canonicalName: 'Standing Bilateral Arm Circles',
+      familyKey: 'Standing Bilateral Arm Circles',
+      cardVersion: 1,
+    }],
+  ])
+  const packets = new Map()
+  for (const cardSpec of batch.cards) {
+    const current = currentCards.get(cardSpec.slug)
+    assert.ok(current, `missing current-card fixture for ${cardSpec.slug}`)
+    const { packet, validation } = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: current.canonicalName,
+        familyKey: current.familyKey,
+        snapshot: { cardVersion: current.cardVersion, status: 'review' },
+      },
+      mediaCandidates: [],
+    })
+    assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+    assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.deepEqual(
+      new Set(packet.evidence.map((entry) => entry.sectionKey)),
+      new Set(REQUIRED_RESEARCH_SECTIONS),
+    )
+    assert.ok(packet.mediaCandidates.length >= 3)
+    assert.ok(packet.mediaCandidates.length <= 5)
+    assert.equal(packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+        && (candidate.exactVariantMatch ?? null) === null
+        && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )), true)
+    assert.doesNotMatch(
+      JSON.stringify(packet),
+      /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+    )
+    packets.set(cardSpec.slug, packet)
+  }
+
+  const shoulderCar = packets.get('arm-circles')
+  assert.deepEqual(
+    shoulderCar.assessmentSummary.proposedDifficulty.variantScores.standingSingleArmShoulderCar,
+    {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 12,
+      physicalDifficulty: 12,
+      baseOverallDifficulty: 30,
+    },
+  )
+  assert.deepEqual(
+    shoulderCar.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['2hyNG1U5wYs', '898QrvpmRWc', 'CLWFwun1BfQ', 'P6p0IamojmE', 'Ag1yVYbPXeg'],
+  )
+  assert.equal(shoulderCar.alternateAssessments.length, 23)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 7],
+    ['new_variant', 6],
+    ['new_definition', 7],
+  ]) {
+    assert.equal(shoulderCar.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.match(shoulderCar.assessmentSummary.identity, /One complete return-to-start loop/i)
+  assert.match(shoulderCar.assessmentSummary.programmingDecision, /Do not silently convert it into bilateral/i)
+  assert.equal(shoulderCar.alternateAssessments.some((alternate) => (
+    alternate.name === 'Neck CARs'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === 'ee59b220-042c-482a-b7b5-5923d644c800'
+  )), true)
+
+  const armCircles = packets.get('standing-bilateral-arm-circles')
+  assert.deepEqual(
+    armCircles.assessmentSummary.proposedDifficulty.variantScores.standingBilateralSmallArmCircles,
+    {
+      technicalComplexity: 16,
+      absoluteLoadDemand: 14,
+      physicalDifficulty: 14,
+      baseOverallDifficulty: 16,
+    },
+  )
+  assert.deepEqual(
+    armCircles.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['mwDgFY86zck', 'ndmSvkEdNQQ', 'vTx_ldn6MCA', 'hniUI4ykF64'],
+  )
+  assert.equal(armCircles.alternateAssessments.length, 20)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 6],
+    ['new_variant', 5],
+    ['new_definition', 6],
+  ]) {
+    assert.equal(armCircles.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.match(armCircles.assessmentSummary.identity, /one complete small revolution by both arms/i)
+  assert.match(armCircles.assessmentSummary.programmingDecision, /Do not silently use a full-range Shoulder CAR/i)
+})
+
+test('Source 38 packet preserves a fixed-contact knee-hover Bear Crawl Rock-Back and quarantines Source 912', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'spooner_bear_crawl_rock_backs',
+    'juggernaut_bear_crawl_rock_backs',
+    'quadruped_exercise_postural_muscle_recruitment_2022',
+    'crawling_trunk_muscle_thickness_2023',
+    'human_quadrupedal_locomotion_speed_2013',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 38 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'bear-crawl-rock-back.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.105')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Bear Crawl Rock-Back',
+      familyKey: 'Bear Crawl Rock-Back',
+      snapshot: { cardVersion: 1, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['LAZ9HYjUwvk', 'X4eMdNmq0e8', 'YJ05ptsucvY', 's4MQVrvrXBU', 'b9fsav8zSm4'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 7],
+    ['new_variant', 5],
+    ['new_definition', 9],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.stationaryBearHoverRockBack,
+    {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 24,
+      physicalDifficulty: 24,
+      baseOverallDifficulty: 30,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /both knees hovering about one to two inches/i)
+  assert.match(packet.assessmentSummary.identity, /One complete backward-and-forward return is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently place the knees down/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Source 912 Bear Crawl Rock-Back'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetLegacyExerciseId === 912
+      && alternate.distinguishingDimensions.status === 'identity_contract_incomplete'
+  )), true)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 912[\s\S]*cannot prove exact identity/i,
+  )
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 39 packet consolidates Plank-to-Pike and Rocking Plank under one exact fixed-support cycle', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'ace_downward_facing_dog',
+    'ace_plank_to_downward_facing_dog_breath_cycle',
+    'yoga_trunk_hip_activation_2023',
+    'yoga_stabilization_emg_2024',
+    'high_plank_shoulder_scapular_activity_2024',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 39 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'plank-to-down-dog.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.106')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Plank to Down Dog',
+      familyKey: 'Fixed-Support Plank to Inverted-V Cycle',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['DP2fmagkrdg', 'WPmvODuVv14', 'u8eUdDxyAMg', 'vXqPc4Uu8X0', '0bzf7NKacXk'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  for (const [classification, expected] of [
+    ['same_identity', 4],
+    ['modifier_annotation', 7],
+    ['new_variant', 5],
+    ['new_definition', 8],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.fixedSupportPlankToDownDogCycle,
+    {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 28,
+      physicalDifficulty: 28,
+      baseOverallDifficulty: 30,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /both hands and feet fixed/i)
+  assert.match(packet.assessmentSummary.identity, /One complete plank-to-inverted-V-to-same-plank return is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently add a push-up/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Plank to Pike'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.legacySourceId === 675
+  )), true)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 675 Plank to Pike[\s\S]*direct duplicate/i,
+  )
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 40 packet consolidates standing knee-to-wall duplicates while preserving support and action boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'weight_bearing_lunge_reliability_validity_2012',
+    'weight_bearing_lunge_knee_to_wall_protocol_2020',
+    'weight_bearing_lunge_radiographic_validity_2019',
+    'weight_bearing_lunge_sensation_mapping_2026',
+    'weight_bearing_anterior_leg_rotation_intervention_2022',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 40 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'knee-to-wall-ankle-rocker.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.107')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Standing Knee-to-Wall Ankle Rocker',
+      familyKey: 'Standing Knee-to-Wall Ankle Dorsiflexion Cycle',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['33-GE3x-xQM', 'ElrpduJn92Y', 'Y1IZXkdPPdw', 'qjrNGnubve4', 'YH7xjrkq7ic'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  for (const [classification, expected] of [
+    ['same_identity', 4],
+    ['modifier_annotation', 7],
+    ['new_variant', 5],
+    ['new_definition', 8],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.standingKneeToWallRocker,
+    {
+      technicalComplexity: 18,
+      absoluteLoadDemand: 12,
+      physicalDifficulty: 12,
+      coordinationDemand: 16,
+      supervisionDemand: 12,
+      failureConsequence: 12,
+      impact: 1,
+      workCapacityDemand: 12,
+      baseOverallDifficulty: 18,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /staggered stance facing a stable wall/i)
+  assert.match(packet.assessmentSummary.identity, /One complete forward-and-return cycle is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently kneel/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Ankle Knee-to-Wall Mobilization'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.legacySourceId === 1359
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Half-Kneeling Ankle Dorsiflexion Pulse'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === 'ab9faf95-7a17-4c30-ad90-a087ae774b5e'
+  )), true)
+  assert.match(
+    packet.assessmentSummary.currentCardFindings.join(' '),
+    /Source 1359 Ankle Knee-to-Wall Mobilization[\s\S]*delivery profile/i,
+  )
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 41 packet defines one exact half-kneeling end-range pulse and quarantines adjacent variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'closed_chain_half_kneeling_dorsiflexion_measure_2018',
+    'ankle_self_mobilization_crossfit_rct_2020',
+    'talocrural_self_mobilization_duration_2025',
+    'weight_bearing_lunge_reliability_validity_2012',
+    'weight_bearing_lunge_radiographic_validity_2019',
+    'weight_bearing_lunge_sensation_mapping_2026',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 41 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'half-kneeling-ankle-dorsiflexion-pulse.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.108')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Half-Kneeling Ankle Dorsiflexion Pulse',
+      familyKey: 'Half-Kneeling Ankle Dorsiflexion End-Range Pulse',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['Kn-TjcmuzYQ', 'NrZ4NuSlJ88', 'wIUdrQsqhKs', 'yc27kCW8aco', '1uk2j8TyHvk'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  for (const [classification, expected] of [
+    ['same_identity', 2],
+    ['modifier_annotation', 8],
+    ['new_variant', 7],
+    ['new_definition', 7],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.halfKneelingEndRangePulse,
+    {
+      technicalComplexity: 22,
+      absoluteLoadDemand: 14,
+      physicalDifficulty: 14,
+      coordinationDemand: 20,
+      supervisionDemand: 14,
+      failureConsequence: 14,
+      impact: 1,
+      workCapacityDemand: 14,
+      baseOverallDifficulty: 22,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /initial move to that endpoint is setup, not a repetition/i)
+  assert.match(packet.assessmentSummary.identity, /One partial retreat-and-re-advance is one pulse/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently return to the upright start/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Standing Knee-to-Wall Ankle Rocker'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === 'c12b9ae2-11a4-4cdf-96dd-280b291ca71c'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Kettlebell-Loaded Half-Kneeling Dorsiflexion'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 42 packet defines one exact seated active ankle circuit and quarantines alternate bases and actions', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'ankle_active_inversion_eversion_reliability_2006',
+    'ankle_joint_complex_active_rom_1993',
+    'ankle_biomechanics_review_2016',
+    'ace_controlled_articular_rotations_2024',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 42 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'ankle-cars.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.109')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Ankle CARs',
+      familyKey: 'Seated Active Ankle Controlled Articular Rotation',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['BDNGAnp7u7s', 'fyShbLKXMkY', 'M2hhS_XJjww', 'IYdRxX95vNE', 'gLtItpjgi3M'],
+  )
+  assert.equal(packet.alternateAssessments.length, 24)
+  for (const [classification, expected] of [
+    ['same_identity', 2],
+    ['modifier_annotation', 8],
+    ['new_variant', 7],
+    ['new_definition', 7],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.seatedActiveAnkleCircuit,
+    {
+      technicalComplexity: 24,
+      absoluteLoadDemand: 12,
+      physicalDifficulty: 12,
+      coordinationDemand: 22,
+      supervisionDemand: 12,
+      failureConsequence: 10,
+      impact: 1,
+      workCapacityDemand: 10,
+      baseOverallDifficulty: 24,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /target foot clear of the floor/i)
+  assert.match(packet.assessmentSummary.identity, /closed circuit is one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently stand/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Full-Body Joint CARs Flow'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === 'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Band-Resisted Ankle CAR'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 43 packet defines one exact wall-supported bilateral tibialis raise and quarantines unsupported identity assumptions', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'tibialis_anterior_attachment_anatomy_2022',
+    'swing_dorsiflexion_clearance_kinetics_2024',
+    'isometric_dorsiflexion_protocol_2015',
+    'ankle_biomechanics_review_2016',
+    'acsm_resistance_training_position_stand_2026',
+    'nsca_youth_resistance_position',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 43 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'tibialis-raises.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.110')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Wall-Supported Bilateral Tibialis Raise',
+      familyKey: 'Wall-Supported Ankle Dorsiflexion Raise',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['RHWRxiBe1iU', 'VzIcGAgBiaM', 'psaTKDL1zUw', 'k9NvBCZfSWg', '0o2GAg2yX5M'],
+  )
+  assert.equal(packet.alternateAssessments.length, 26)
+  for (const [classification, expected] of [
+    ['same_identity', 2],
+    ['modifier_annotation', 8],
+    ['new_variant', 8],
+    ['new_definition', 8],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.wallSupportedBilateralTibialisRaise,
+    {
+      technicalComplexity: 18,
+      absoluteLoadDemand: 24,
+      physicalDifficulty: 24,
+      coordinationDemand: 16,
+      supervisionDemand: 10,
+      failureConsequence: 8,
+      impact: 1,
+      workCapacityDemand: 22,
+      baseOverallDifficulty: 24,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /both forefeet toward the shins/i)
+  assert.match(packet.assessmentSummary.identity, /one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently change laterality/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Generic Tibialis Raise Sources 214, 1113, and 1399'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.identityStatus === 'needs_human_review'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Tib-Bar Loaded Dorsiflexion Raise'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 44 packet defines one exact supported bilateral calf-raise cycle and explicit family boundaries', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'double_leg_heel_raise_activity_2015',
+    'standing_heel_raise_phase_emg_2021',
+    'standing_heel_raise_foot_position_2016',
+    'heel_raise_achilles_loading_hierarchy',
+    'bent_knee_calf_raise_hypertrophy_knee_position',
+    'acsm_resistance_training_position_stand_2026',
+    'nsca_youth_resistance_position',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 44 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'standing-calf-raise.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.111')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Standing Calf Raise',
+      familyKey: 'Standing Ankle Plantarflexion Raise',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['_B6o13eoAuU', '88D6QOBlCWA', 'Dgf9hougTdc', 'CtpPV2FBkG4', '584joZQZvRg'],
+  )
+  assert.equal(packet.alternateAssessments.length, 28)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 9],
+    ['new_variant', 8],
+    ['new_definition', 8],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(
+    packet.assessmentSummary.proposedDifficulty.variantScores.wallSupportedBilateralStandingCalfRaise,
+    {
+      technicalComplexity: 22,
+      absoluteLoadDemand: 32,
+      physicalDifficulty: 32,
+      coordinationDemand: 20,
+      supervisionDemand: 12,
+      failureConsequence: 10,
+      impact: 1,
+      workCapacityDemand: 30,
+      baseOverallDifficulty: 32,
+    },
+  )
+  assert.match(packet.assessmentSummary.identity, /raise both heels simultaneously/i)
+  assert.match(packet.assessmentSummary.identity, /one repetition/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently change support/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Standing Calf Raise Sustained Top Hold'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Wall-Supported Tibialis Raise'
+      && alternate.classification === 'new_definition'
+      && alternate.distinguishingDimensions.targetDefinitionId
+        === '17ea43fe-0d11-42b1-9be0-214bccd08616'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 45 packet consolidates the Toe Yoga collision and keeps support and laterality exact', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'selective_toe_extension_mri_2016',
+    'intrinsic_foot_training_meta_analysis_2023',
+    'intrinsic_foot_dynamic_balance_meta_analysis_2022',
+    'selective_toe_extension_kinematics_2026',
+    'toe_yoga_hallux_lesser_toe_sequence_2025',
+    'foot_strength_athletes_review',
+    'nsca_youth_resistance_position',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 45 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'toe-yoga.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.112')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Toe Yoga',
+      familyKey: 'Selective Toe Extension Cycle',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['SbQ2RYxbppE', 'QVZpBSVV9js', 'bUoTjK0tQEw', 'SkFZ5zVXGEo', 'kp8QI1Uj59Q'],
+  )
+  assert.equal(packet.alternateAssessments.length, 28)
+  for (const [classification, expected] of [
+    ['same_identity', 4],
+    ['modifier_annotation', 8],
+    ['new_variant', 9],
+    ['new_definition', 7],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(packet.assessmentSummary.proposedDifficulty.variantScores, {
+    standingHandsFree: {
+      technicalComplexity: 42,
+      absoluteLoadDemand: 8,
+      physicalDifficulty: 8,
+      coordinationDemand: 44,
+      supervisionDemand: 10,
+      failureConsequence: 6,
+      impact: 1,
+      workCapacityDemand: 7,
+      baseOverallDifficulty: 42,
+    },
+    standingWallTouch: {
+      technicalComplexity: 38,
+      absoluteLoadDemand: 7,
+      physicalDifficulty: 7,
+      coordinationDemand: 40,
+      supervisionDemand: 9,
+      failureConsequence: 5,
+      impact: 1,
+      workCapacityDemand: 6,
+      baseOverallDifficulty: 38,
+    },
+    seatedBench: {
+      technicalComplexity: 34,
+      absoluteLoadDemand: 5,
+      physicalDifficulty: 5,
+      coordinationDemand: 36,
+      supervisionDemand: 8,
+      failureConsequence: 4,
+      impact: 1,
+      workCapacityDemand: 5,
+      baseOverallDifficulty: 34,
+    },
+  })
+  assert.match(packet.assessmentSummary.identity, /one target foot/i)
+  assert.match(packet.assessmentSummary.identity, /record left and right separately/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently change support position/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Toe-Yoga Tripod Balance'
+      && alternate.classification === 'same_identity'
+      && alternate.distinguishingDimensions.resolution === 'duplicate_consolidated'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Manually Assisted Toe Yoga'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 46 packet separates Short-Foot support variants and keeps task difficulty participant-neutral', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'short_foot_doming_strength_reliability_2017',
+    'short_foot_pronation_rct_2020',
+    'short_foot_ultrasound_biofeedback_2024',
+    'short_foot_feasibility_2025',
+    'selective_toe_extension_mri_2016',
+    'intrinsic_foot_training_meta_analysis_2023',
+    'foot_strength_athletes_review',
+    'nsca_youth_resistance_position',
+    'youtube_embed_help',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], `missing Source 46 evidence ${sourceKey}`)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'short-foot-drill.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.113')
+  assert.equal(batch.cards.length, 1)
+  const cardSpec = batch.cards[0]
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Short-Foot Drill',
+      familyKey: 'Short-Foot Arch Doming',
+      snapshot: { cardVersion: 2, status: 'review' },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.deepEqual(
+    new Set(packet.evidence.map((entry) => entry.sectionKey)),
+    new Set(REQUIRED_RESEARCH_SECTIONS),
+  )
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+      && (candidate.exactVariantMatch ?? null) === null
+      && !Object.hasOwn(candidate, 'demonstrationQualityScore')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )), true)
+  assert.deepEqual(
+    packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+    ['acTjKwkti5s', 'm1lkcg8p-48', 'z0-Vnmw2sxM', 'cIn8bZAwnIQ', 'rS5ucOyfgSg'],
+  )
+  assert.equal(packet.alternateAssessments.length, 28)
+  for (const [classification, expected] of [
+    ['same_identity', 3],
+    ['modifier_annotation', 9],
+    ['new_variant', 9],
+    ['new_definition', 7],
+  ]) {
+    assert.equal(packet.alternateAssessments.filter(
+      (alternate) => alternate.classification === classification,
+    ).length, expected)
+  }
+  assert.deepEqual(packet.assessmentSummary.proposedDifficulty.variantScores, {
+    standingHandsFree: {
+      technicalComplexity: 44,
+      absoluteLoadDemand: 8,
+      physicalDifficulty: 8,
+      coordinationDemand: 46,
+      supervisionDemand: 11,
+      failureConsequence: 6,
+      impact: 1,
+      workCapacityDemand: 8,
+      baseOverallDifficulty: 44,
+    },
+    standingWallTouch: {
+      technicalComplexity: 40,
+      absoluteLoadDemand: 7,
+      physicalDifficulty: 7,
+      coordinationDemand: 42,
+      supervisionDemand: 10,
+      failureConsequence: 5,
+      impact: 1,
+      workCapacityDemand: 7,
+      baseOverallDifficulty: 40,
+    },
+    seatedBench: {
+      technicalComplexity: 36,
+      absoluteLoadDemand: 5,
+      physicalDifficulty: 5,
+      coordinationDemand: 38,
+      supervisionDemand: 9,
+      failureConsequence: 4,
+      impact: 1,
+      workCapacityDemand: 6,
+      baseOverallDifficulty: 36,
+    },
+  })
+  assert.match(packet.assessmentSummary.identity, /one target foot/i)
+  assert.match(packet.assessmentSummary.identity, /record left and right separately/i)
+  assert.match(packet.assessmentSummary.programmingDecision, /Do not silently change support position/i)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Single-Leg Stance Short-Foot Drill'
+      && alternate.classification === 'new_variant'
+  )), true)
+  assert.equal(packet.alternateAssessments.some((alternate) => (
+    alternate.name === 'Toe Yoga'
+      && alternate.classification === 'new_definition'
+  )), true)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Sources 47, 848, and 877 keep the foot-control family mechanically distinct and candidate-only', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  for (const sourceKey of [
+    'voluntary_cop_sway_postural_stability_1993',
+    'mediolateral_cop_weight_shift_feedback_2016',
+    'common_foot_strengthening_posture_load_2025',
+    'hallux_plantarflexion_postural_sway_2015',
+    'hallux_contact_limits_stability_2025',
+    'arch_raise_heel_raise_emg_2025',
+    'foot_core_heel_raise_sequence_2025',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey], 'missing foot-control source ' + sourceKey)
+  }
+
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches', 'foot-control-trio.v1.json'),
+    'utf8',
+  ))
+  assert.equal(batch.researchVersion, '2026-08-09.114')
+  assert.equal(batch.cards.length, 3)
+  const expected = new Map([
+    ['foot-tripod-weight-shifts', {
+      name: 'Foot Tripod Weight Shifts',
+      overall: 42,
+      mediaIds: ['A4M39vPEMm8', 'F6jsi7GB1Ow', 'LI1b1t4JUvc'],
+      identity: /four-direction circuit/i,
+      alternate: ['Forward-Backward Foot Tripod Weight Shift Only', 'new_variant'],
+    }],
+    ['big-toe-press-iso-hold', {
+      name: 'Big Toe Press Iso Hold',
+      overall: 40,
+      mediaIds: ['DImmuuSJtOA', 'XPAlVb2NnJw', 'Zr2VUQH2fQo', 'iaElVAi8o2Q', 'uBDLzJ9WIWg'],
+      identity: /one target foot/i,
+      alternate: ['Press-and-Lift Big Toe Drill', 'new_variant'],
+    }],
+    ['short-foot-to-calf-raise-mobility-prep', {
+      name: 'Short Foot to Calf Raise Mobility Prep',
+      overall: 46,
+      mediaIds: ['CBlvcD5gQVk', 'U64dA4OSJBI', 'ZP_ZXfgliSc', 'nbXNaOXGzZk', 'r6yl_v0Kwac'],
+      identity: /heel is expected to leave contact/i,
+      alternate: ['Single-Leg Short Foot to Calf Raise', 'new_variant'],
+    }],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const expectation = expected.get(cardSpec.slug)
+    assert.ok(expectation, 'unexpected card ' + cardSpec.slug)
+    const { packet, validation } = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: expectation.name,
+        familyKey: 'Foot control',
+        snapshot: { cardVersion: 1, status: 'review' },
+      },
+      mediaCandidates: [],
+    })
+    assert.equal(validation.valid, true, JSON.stringify(validation.errors))
+    assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.deepEqual(
+      new Set(packet.evidence.map((entry) => entry.sectionKey)),
+      new Set(REQUIRED_RESEARCH_SECTIONS),
+    )
+    assert.equal(packet.mediaCandidates.length, expectation.mediaIds.length)
+    assert.equal(packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && (candidate.reviewStatus ?? 'candidate') === 'candidate'
+        && (candidate.exactVariantMatch ?? null) === null
+    )), true)
+    assert.deepEqual(
+      packet.mediaCandidates.map((candidate) => new URL(candidate.url).searchParams.get('v')),
+      expectation.mediaIds,
+    )
+    assert.equal(
+      packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty,
+      expectation.overall,
+    )
+    assert.match(packet.assessmentSummary.identity, expectation.identity)
+    assert.equal(packet.alternateAssessments.some((alternate) => (
+      alternate.name === expectation.alternate[0]
+        && alternate.classification === expectation.alternate[1]
+    )), true)
+    assert.doesNotMatch(
+      JSON.stringify(packet),
+      /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+    )
+  }
+})
+
+test('Source 49 keeps low bilateral rope bounce distinct from changed rope and contact tasks', () => {
+  const registryDocument = JSON.parse(readFileSync(path.join(
+    RESEARCH_ROOT,
+    'source-registry.v1.json',
+  ), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(
+    RESEARCH_ROOT,
+    'batches',
+    'jump-rope-bounce.v1.json',
+  ), 'utf8'))
+  assert.equal(registryDocument.registryVersion, '2026-08-09.115')
+  assert.equal(Object.keys(registryDocument.sources).length, 491)
+  assert.equal(batch.researchVersion, registryDocument.registryVersion)
+  assert.equal(batch.cards.length, 1)
+  const [card] = batch.cards
+  assert.equal(card.slug, 'jump-rope-bounce')
+  assert.equal(card.evidence.length, 16)
+  assert.equal(card.mediaCandidates.length, 4)
+  assert.equal(card.alternateAssessments.some((item) => (
+    item.name === 'Alternating-Foot Rope Skip' && item.classification === 'new_variant'
+  )), true)
+  assert.equal(card.alternateAssessments.some((item) => (
+    item.name === 'Jump Rope Interval Conditioning' && item.classification === 'new_definition'
+  )), true)
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec: card,
+    currentCard: {
+      slug: card.slug,
+      canonicalName: 'Jump Rope Bounce',
+      familyKey: 'jump_rope_basic_bounce',
+      snapshot: { cardVersion: 2 },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.mediaCandidates.length, 4)
+})
+
+test('Source 50 defines the walking knee-hug cycle and keeps added calf-raise work separate', () => {
+  const registryDocument = JSON.parse(readFileSync(path.join(
+    RESEARCH_ROOT,
+    'source-registry.v1.json',
+  ), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(
+    RESEARCH_ROOT,
+    'batches',
+    'walking-knee-hug.v1.json',
+  ), 'utf8'))
+  assert.equal(batch.researchVersion, registryDocument.registryVersion)
+  assert.equal(batch.cards.length, 1)
+  const [card] = batch.cards
+  assert.equal(card.slug, 'walking-knee-hug')
+  assert.equal(card.evidence.length, 0)
+  assert.equal(batch.sharedEvidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(card.mediaCandidates.length, 3)
+  assert.equal(card.alternateAssessments.some((item) => (
+    item.name === 'Walking Knee Hug to Calf Raise'
+      && item.classification === 'new_definition'
+  )), true)
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec: card,
+    currentCard: {
+      slug: card.slug,
+      canonicalName: 'Walking Knee Hug',
+      familyKey: 'walking_knee_hug',
+      snapshot: { cardVersion: 1 },
+    },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && (candidate.exactVariantMatch ?? null) === null
+  )), true)
+  assert.equal(packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty, 26)
+  assert.doesNotMatch(
+    JSON.stringify(packet),
+    /athleteSkill|proficiencyLevel|ageLevel|minimumSkillLevel|exerciseSkillLevel/i,
+  )
+})
+
+test('Source 51 keeps overhead reach outside the base walking quad-pull identity', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'walking-quad-pull.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Walking Quad Pull', familyKey: 'walking_quad_pull', snapshot: { cardVersion: 1 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Walking Quad Pull with Overhead Reach' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Wall or Rail Touch Support' && item.classification === 'new_variant'), true)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'healthy' && item.embeddingAllowed === true && (item.exactVariantMatch ?? null) === null), true)
+})
+
+test('Source 52 keeps stationary supported sagittal leg swings distinct from lateral and walking tasks', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'leg-swings-front-back.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Leg Swings — Front/Back', familyKey: 'hip_mobility', snapshot: { cardVersion: 1 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Leg Swings — Lateral' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Walking Leg Swing' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'healthy' && item.embeddingAllowed === true && (item.exactVariantMatch ?? null) === null), true)
+})
+
+test('Source 53 keeps stationary supported frontal leg swings distinct from front/back and walking tasks', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'leg-swings-lateral.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Leg Swings — Lateral', familyKey: 'hip_mobility', snapshot: { cardVersion: 1 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Leg Swings — Front/Back' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Walking Lateral Leg Swing' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'healthy' && item.embeddingAllowed === true && (item.exactVariantMatch ?? null) === null), true)
+})
+
+test('Source 54 keeps the seated 90/90 no-rise switch distinct from shin-box get-ups', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', '9090-hip-switch.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: '90/90 Hip Switch', familyKey: 'hip_mobility', snapshot: { cardVersion: 1 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Shin Box Get-Up' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Shin Box Switch' && item.classification === 'same_identity' && item.distinguishingDimensions.resolution === 'duplicate_consolidated'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'No-Hands 90/90 Lift-Off Switch' && item.classification === 'new_variant'), true)
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'healthy' && item.embeddingAllowed === true && (item.exactVariantMatch ?? null) === null), true)
+})
+
+test('Source 55 remains a fail-closed nomenclature duplicate of the 90/90 hip switch', () => {
+  const migration = readFileSync(
+    new URL('../../migrations/302_coaching_9090_shin_box_identity_consolidation.sql', import.meta.url),
+    'utf8',
+  )
+  assert.match(migration, /'9090-hip-switch',\s*'shin-box-switch',\s*'nomenclature'/)
+  assert.match(migration, /'duplicate_consolidated'/)
+  assert.match(migration, /requires human review: % protected records/)
+  assert.match(migration, /publication_quarantined', TRUE/)
+})
+
+test('Source 56 keeps the full shin-box ground-to-stand separate from partial lifts and seated switches', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', '9090-shin-box-foundations.v1.json'), 'utf8'))
+  const card = batch.cards.find((entry) => entry.slug === 'shin-box-get-up')
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Shin Box Get-Up', familyKey: 'ground_to_stand_transition', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Shin Box Hip Lift' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Turkish Get-Up' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'healthy' && item.embeddingAllowed === true && (item.exactVariantMatch ?? null) === null), true)
+})
+
+test('Source 57 separates the standing-supported and quadruped Hip CAR bases without participant skill labels', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'hip-cars.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Hip CARs', familyKey: 'hip_controlled_rotation', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Standing Stable-Support Hip CAR' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Quadruped Hip CAR' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Hip Airplane' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+})
+
+test('Source 59 preserves Frog Rockback as a separate bilateral bent-knee definition with quarantined legacy media', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'frog-rockback.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Frog Rockback', familyKey: 'bilateral_wide_kneeling_hip_rockback', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Adductor Rockback' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Elevated-Hands Frog Rockback' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Static Frog Stretch' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 61 keeps Deep Squat Pry separate from stand transitions and lateral squat tasks', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'deep-squat-pry.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Deep Squat Pry', familyKey: 'deep_squat_pry_access', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Deep Squat Pry with T-Spine Reach' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Squat-to-Stand with Reach' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Cossack Squat' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 62 keeps the ordered Squat-to-Stand cycle exact and flags the mobility-reach duplicate', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'squat-to-stand-with-reach.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Squat-to-Stand with Reach', familyKey: 'hinge_squat_reach_stand', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Sequential Bilateral Squat-to-Stand with Reach' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Squat-to-Stand Mobility Reach' && item.classification === 'same_identity'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Deep Squat Pry' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 5)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 64 keeps Glute Bridge as a bilateral floor-supported hip-extension return with quarantined legacy media', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'glute-bridge.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Glute Bridge', familyKey: 'floor_bilateral_glute_bridge', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Hip Thrust' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Glute Bridge March' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Loaded Floor Glute Bridge' && item.classification === 'new_variant'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 65 preserves the elevated alternating-support Glute Bridge March cycle and quarantines legacy media', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'glute-bridge-march.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Glute Bridge March', familyKey: 'elevated_alternating_glute_bridge_march', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Glute Bridge' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Hip Thrust March' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Loaded Glute Bridge March' && item.classification === 'new_variant'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 67 preserves Bird Dog as an alternating contralateral quadruped reach-return and quarantines legacy media', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'bird-dog.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Bird Dog', familyKey: 'quadruped_contralateral_reach_return', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Bird Dog with Brief Pause' && item.classification === 'modifier_annotation'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Bird Dog ISO Hold' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Bird Dog Row' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Elevated-Hands Bird Dog' && item.classification === 'new_variant'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 66 preserves Dead Bug Heel Tap as an arms-fixed, legs-only alternating heel contact and quarantines legacy media', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'dead-bug-heel-tap.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Dead Bug Heel Tap', familyKey: 'supine_arms_fixed_alternating_heel_tap', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Dead Bug Heel Tap with Brief Pause' && item.classification === 'modifier_annotation'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Dead Bug Heel Slide' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Contralateral Arm and Heel-Tap Dead Bug' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
+})
+
+test('Source 68 keeps the above-knee loop-band lateral walk distinct from changed placement, loading, direction, and base', () => {
+  const registry = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'source-registry.v1.json'), 'utf8'))
+  const batch = JSON.parse(readFileSync(path.join(RESEARCH_ROOT, 'batches', 'mini-band-lateral-walk.v1.json'), 'utf8'))
+  const [card] = batch.cards
+  const { packet, validation } = buildResearchPacketFromBatch({
+    facilityId: 1, researchVersion: batch.researchVersion, sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registry.sources, cardSpec: card,
+    currentCard: { slug: card.slug, canonicalName: 'Mini-Band Lateral Walk', familyKey: 'loop_band_above_knees_lateral_walk', snapshot: { cardVersion: 2 } },
+    mediaCandidates: [],
+  })
+  assert.equal(validation.valid, true)
+  assert.equal(packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Mini-Band Lateral Walk with Band at Ankles' && item.classification === 'new_variant'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'No-Band Lateral Step' && item.classification === 'new_definition'), true)
+  assert.equal(packet.alternateAssessments.some((item) => item.name === 'Monster Walk' && item.classification === 'new_definition'), true)
+  assert.equal(packet.mediaCandidates.length, 3)
+  assert.equal(packet.mediaCandidates.every((item) => item.linkStatus === 'unverified' && item.embeddingAllowed === false), true)
+  assert.doesNotMatch(JSON.stringify(packet), /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/)
 })

@@ -1,0 +1,677 @@
+{
+  "facilityId": 1,
+  "slug": "short-foot-to-calf-raise-mobility-prep",
+  "researchVersion": "2026-08-09.114",
+  "assessmentSummary": {
+    "identity": "One Short Foot to Calf Raise repetition is performed from a bilateral standing base. Start with both heels, first metatarsal heads, fifth metatarsal heads, and relaxed long toes supported on a clean dry level surface. Gently create a short-foot arch on both feet by drawing the metatarsal heads toward the heels without curling or lifting the toes. Maintain the forefoot contacts while rising directly upward into a comfortable bilateral heel raise, pause only as prescribed, lower both heels with control to the same flat-foot start, then fully relax the short-foot action before the next repetition. The heel is expected to leave contact during the rise; first and fifth metatarsal head contact and quiet toe behavior remain required. Standing hands-free and light wall-touch are exact variants. Single-leg, step, seated, bent-knee, externally loaded, sustained-top-hold, rebound, toe-dorsiflexed, manually assisted, resistance-on-midfoot, or clinical treatment forms change the variant or definition.",
+    "currentCardFindings": [
+      "Source 877 has one stable legacy definition but its source variant does not define the ordered arch-to-rise-to-lower-to-release sequence, the fact that heel contact intentionally changes, support variants, dose, fatigue, substitutions, or review state.",
+      "The compound sequence is distinct from standalone Short-Foot Drill and Standing Calf Raise. The arch set precedes the bilateral plantarflexion cycle; it is not a claim of universal arch behavior or clinical outcome.",
+      "Five legacy candidates returned healthy oEmbed metadata. At least one title signals a single-leg form, so all remain candidate-only and require exact-variant matching before use."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "calf_raise"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "support": "bilateral_standing_hands_free_or_light_wall_touch",
+      "laterality": "simultaneous_bilateral_foot_action",
+      "planes": [
+        "sagittal_ankle_plantarflexion",
+        "sagittal_arch_shortening",
+        "frontal_stabilization",
+        "transverse_stabilization"
+      ],
+      "equipment": [
+        "none",
+        "wall"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 46,
+      "absoluteLoadDemand": 32,
+      "physicalDifficulty": 32,
+      "coordinationDemand": 48,
+      "supervisionDemand": 15,
+      "failureConsequence": 11,
+      "impact": 1,
+      "workCapacityDemand": 30,
+      "baseOverallDifficulty": 46,
+      "variantScores": {
+        "standingHandsFree": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 32,
+          "physicalDifficulty": 32,
+          "coordinationDemand": 48,
+          "supervisionDemand": 15,
+          "failureConsequence": 11,
+          "impact": 1,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 46
+        },
+        "standingWallTouch": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 30,
+          "physicalDifficulty": 30,
+          "coordinationDemand": 44,
+          "supervisionDemand": 13,
+          "failureConsequence": 9,
+          "impact": 1,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 42
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_shared_bilaterally_with_short_foot_arch_set_followed_by_controlled_ankle_plantarflexion_and_lowering",
+      "impactClass": "none",
+      "primaryExposure": [
+        "arch_control_under_bilateral_heel_raise",
+        "ankle_plantarflexion",
+        "controlled_eccentric_lowering",
+        "forefoot_pressure",
+        "calf_and_Achilles_loading"
+      ],
+      "recovery": "24_hours_planning_estimate_with_12_to_36_hour_review_range"
+    },
+    "proposedDosage": {
+      "prepare": "1-2_sets_of_4-6_slow_clean_repetitions_with_a_small_arch_set_and_no_fatigue_chasing",
+      "resilience": "1-3_sets_of_5-10_repetitions_with_controlled_rise_lower_and_full_arch_release",
+      "tempo": "gentle_arch_set_slow_rise_brief_prescribed_top_check_slow_lower_full_release",
+      "rest": "30-90_seconds_or_until_forefoot_contacts_arch_control_calf_tolerance_breathing_and_symptom_rules_are_restored",
+      "durationRule": "surface_hygiene_station_and_support_plus_valid_arch_set_rise_lower_release_cycles_restarts_rest_substitution_cleaning_reset_and_exit"
+    },
+    "programmingDecision": "Select only when the exact bilateral support variant, clean visible foot-safe surface, arch-set quality, comfortable calf-raise range, symptoms, restrictions, planned dose, duration, logistics, and cumulative foot, toe, calf, Achilles, balance, running, landing, jumping, agility, and lower-body budgets fit. Do not silently substitute standalone short-foot, ordinary calf raise, single-leg, step, seated, bent-knee, loaded, held, rebound, or clinical forms. Recompute selection, fatigue, impact, duration, logistics, substitutions, persistence, and coach and athlete rendering after every change.",
+    "calibrationEvidence": {
+      "basis": "Direct short-foot mechanics, double-leg heel-raise mechanics and muscle-activity studies, direct arch-raise-with-heel-raise evidence used only as adjacent support, a foot-core clinical sequence used only for ordered cueing, general exercise safeguards, Source 877 context, five oEmbed records, and comparison with Short-Foot Drill, Standing Calf Raise, Big Toe Press Iso Hold, and Single-Leg Tripod Balance.",
+      "uncertainty": "No source establishes a universal arch height, heel-raise range, tempo, dose, recovery interval, transfer, participant threshold, or Vortex score. The resisted arch-raise study is not treated as equivalent to this unresisted card. No video, relationship, score, or publication is approved.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration_for_two_variants",
+        "compound_sequence_and_family_review",
+        "surface_hygiene_visibility_and_support_review",
+        "anatomy_load_fatigue_recovery_and_clinical_scope_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T22:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand with both heels, first metatarsal heads, fifth metatarsal heads, and relaxed long toes supported on a clean dry level surface. Gently shorten both feet by drawing the metatarsal heads toward the heels without curling or lifting the toes. Keep forefoot contacts while rising directly upward into a comfortable bilateral calf raise, lower both heels with control to the same flat-foot start, then fully relax the arch set before the next repetition. The heels intentionally leave contact during the rise; first and fifth metatarsal head contact and quiet toe behavior remain required. Hands-free and light wall-touch are exact variants.",
+      "familyKey": "Short-Foot to Bilateral Calf Raise",
+      "movementPatterns": [
+        "brace",
+        "plantar_flex"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "wall"
+      ],
+      "variantKey": "bilateral-standing-hands-free-short-foot-to-calf-raise-return",
+      "environment": {
+        "surface": "clean dry level stable nonslip foot-safe floor",
+        "space": "one visible standing station with clear entry and exit",
+        "stationCapacity": 1,
+        "hygiene": "follow facility foot-contact and shared-surface policy",
+        "coachSightline": "front and side views of toes, forefeet, heels, arches, ankles, knees, trunk, support, breathing, and symptoms",
+        "changeRule": "A change to arch action, support, laterality, range, step, load, knee position, hold, rebound, dose, symptoms, or downstream demand requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe visible station and selected support",
+          "comfortable bilateral forefoot contacts, arch set, and calf-rise range",
+          "understands arch set, rise, lower, full release, stop signal, and exit",
+          "same-session foot, calf, Achilles, balance, and lower-body budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "current symptoms or restrictions conflicting with exact foot or heel-raise task",
+          "sharp or increasing pain, instability, new neurologic, circulation, or skin concern",
+          "dizziness, faintness, chest pain, unusual breathlessness, disorientation, or inability to communicate",
+          "unsafe surface, hygiene, visibility, wall, space, traffic, communication, or exit"
+        ],
+        "notEstablishedByEvidence": [
+          "universal arch height, heel-raise range, tempo, dose, frequency, recovery, or outcome",
+          "diagnosis, treatment, clearance, or Achilles protocol",
+          "participant classification or age threshold"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 46,
+        "absoluteLoadDemand": 32,
+        "physicalDifficulty": 32,
+        "coordinationDemand": 48,
+        "supervisionDemand": 15,
+        "failureConsequence": 11,
+        "impact": 1,
+        "workCapacityDemand": 30,
+        "baseOverallDifficulty": 46
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_shared_bilaterally_with_short_foot_set_then_controlled_plantarflexion_and_lowering",
+        "impactClass": "none",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "arch_control_under_bilateral_heel_raise",
+          "ankle_plantarflexion",
+          "controlled_eccentric_lowering",
+          "forefoot_pressure",
+          "calf_and_Achilles_loading"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 26,
+        "technicalFatigueSensitivity": 32,
+        "impactAccumulation": 1,
+        "recoveryHoursPlanningEstimate": 24,
+        "cumulativeBudget": {
+          "foot": 22,
+          "toe": 12,
+          "calf": 32,
+          "Achilles": 28,
+          "balance": 16,
+          "impact": 0
+        },
+        "tracking": [
+          "validRepetitions",
+          "archSet",
+          "toeBehavior",
+          "forefootContact",
+          "heelPath",
+          "range",
+          "support",
+          "symptoms",
+          "downstreamLowerBodyExposure"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11911532/",
+      "sourceTitle": "Non-Operative Management of Symptomatic Hallux Limitus: A Novel Approach of Foot Core Stabilization and Extracorporeal Shockwave Therapy",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 74,
+      "claims": [
+        "The clinical sequence describes activating the arch before slowly rising on the toes.",
+        "Vortex defines an unresisted bilateral short-foot set followed by rise, controlled lower, and full release; it does not adopt clinical treatment claims."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "sourceTitle": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Short-foot and double-leg heel-raise tasks are separately described in the study protocol.",
+        "The card is an ordered compound sequence, distinct from either standalone exercise."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12483491/",
+      "sourceTitle": "Electromyographic examination of a new exercise therapy for the intrinsic and extrinsic foot muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The arch-raise study measured intrinsic and extrinsic foot and lower-leg muscle activity during arch raise, short foot, and heel raise tasks.",
+        "The card records contributors and joint actions without claiming isolated muscles or equivalence to a resisted arch-raise protocol."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8070905/",
+      "sourceTitle": "Electromyographic Assessment of the Lower Leg Muscles during Concentric and Eccentric Phases of Standing Heel Raise",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Standing heel raises have distinct concentric and eccentric phases.",
+        "Vortex requires an arch set before the rise, retained forefoot contacts while heels lift, controlled lowering, and a complete release before the next repetition."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12703198/",
+      "sourceTitle": "Relationship of Physical Factors to the Acceptability and Unacceptability of Short Foot Exercise: A Preliminary Study",
+      "sourcePublisher": "Progress in Rehabilitation Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Short-foot execution can be technically difficult even before a standing compound task is added.",
+        "Candidate scores describe the compound task's complexity and physical demand only; they do not classify people."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4483433/",
+      "sourceTitle": "Comparison of ankle plantar flexor activity between double-leg heel raise and walking",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Double-leg heel raise produces plantar-flexor activity distinct from walking.",
+        "Vortex treats this as a bodyweight calf and foot exposure and tracks valid repetitions, range, support, faults, symptoms, and overlapping lower-leg demand; recovery remains a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe supervised exercise requires appropriate instruction, progression, environment, and technique control.",
+        "Vortex requires a clean dry level surface, foot visibility, selected support, space, hygiene, communication, and exit conditions without demographic classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8070905/",
+      "sourceTitle": "Electromyographic Assessment of the Lower Leg Muscles during Concentric and Eccentric Phases of Standing Heel Raise",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The study examined phase-specific activity rather than one universal workout prescription.",
+        "Candidate repetition, tempo, and rest ranges remain quarantined and stop before arch, forefoot, body, or symptom quality degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11911532/",
+      "sourceTitle": "Non-Operative Management of Symptomatic Hallux Limitus: A Novel Approach of Foot Core Stabilization and Extracorporeal Shockwave Therapy",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 74,
+      "claims": [
+        "The source cues arch activation followed by slow rise on the toes.",
+        "Vortex adds bilateral start and return contacts, the intentional heel lift boundary, controlled lower, full release, and valid repetition rules."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5343533/",
+      "sourceTitle": "Achilles Tendon Loading During Heel-Raising and -Lowering Exercises",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Heel-raising and lowering exercises load the Achilles tendon and were performed with explicit range and support criteria.",
+        "Stop for pain, instability, symptom escalation, lost forefoot contacts, toe curl, unsafe station, or inability to restore controlled rise and lower; do not use this card as an Achilles protocol."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35724360/",
+      "sourceTitle": "Evidence for Intrinsic Foot Muscle Training in Improving Foot Function: A Systematic Review and Meta-Analysis",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Intrinsic-foot programs are heterogeneous in exercise and dosage.",
+        "The compound may serve preparation or resilience only when purpose, calf and foot recovery, and later high-output lower-body work fit; no universal outcome is promised."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5723035/",
+      "sourceTitle": "Reliability of doming and toe flexion testing to quantify foot muscle strength",
+      "sourcePublisher": "Journal of Foot and Ankle Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Short-foot mechanics use forefoot-to-heel shortening with toe and heel contact criteria.",
+        "Athlete support uses a gentle arch set, quiet long toes, direct-up heel rise, slow lower, full relax, and no-chasing-fatigue cue."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8070905/",
+      "sourceTitle": "Electromyographic Assessment of the Lower Leg Muscles during Concentric and Eccentric Phases of Standing Heel Raise",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Standing heel raise phases can be distinguished for observation.",
+        "Coaches record support, arch set, toe behavior, forefoot contact, heel path, range, lower control, release, first fault, symptoms, and actual exposure without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Task selection and progression should account for the exact exercise, environment, instruction, and supervision.",
+        "Wall-touch, smaller range, fewer repetitions, slower cadence, more rest, captions, stills, transcript, and live instruction can improve access while preserving the exact bilateral sequence."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12483491/",
+      "sourceTitle": "Electromyographic examination of a new exercise therapy for the intrinsic and extrinsic foot muscles",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Arch raise, short foot, and heel raise are distinct task conditions in the study.",
+        "The unresisted compound card is not silently merged with resisted arch raise, standalone short-foot, ordinary heel raise, single-leg, step, or seated forms."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports embedded playback subject to video and platform state.",
+        "Five candidates returned healthy YouTube oEmbed metadata on 2026-08-09; exact bilateral sequence, support, captions, accessibility, safety, and approval remain unverified."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=CBlvcD5gQVk",
+      "title": "Foot Strengthening Exercises for Runners",
+      "channelName": "Stronger Runner",
+      "sourceQuery": "legacy Source 877 candidate; exact compound and running framing require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact bilateral sequence, support, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=U64dA4OSJBI",
+      "title": "SL Short Foot Calf Raise",
+      "channelName": "Movement Connect",
+      "sourceQuery": "legacy Source 877 candidate; title signals single-leg mismatch",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; title signals a possible single-leg mismatch. Full review required; not approved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ZP_ZXfgliSc",
+      "title": "Posterior Tibialis Activation & Foot to Core Integration Exercise",
+      "channelName": "EBFA Global",
+      "sourceQuery": "legacy Source 877 candidate; exact compound and outcome framing require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact bilateral sequence, support, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=nbXNaOXGzZk",
+      "title": "Short Foot Calf Raise",
+      "channelName": "Movement Connect",
+      "sourceQuery": "legacy Source 877 candidate; exact bilateral support and count require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact bilateral sequence, support, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=r6yl_v0Kwac",
+      "title": "4 Advanced Foot Exercises for Strength, Stability & Mobility",
+      "channelName": "Valley Rehab Physical Therapy",
+      "sourceQuery": "legacy Source 877 candidate; exact compound and advanced framing require full review",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T22:30:00.000Z"
+      },
+      "notes": "oEmbed metadata only; playback, exact bilateral sequence, support, captions, accessibility, safety, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bilateral Hands-Free Short Foot to Calf Raise",
+      "classification": "same_identity",
+      "rationale": "Authored exact bilateral hands-free compound sequence.",
+      "distinguishingDimensions": {
+        "support": "standing_hands_free",
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Wall-Touch Bilateral Short Foot to Calf Raise",
+      "classification": "same_identity",
+      "rationale": "Light wall contact preserves the ordered bilateral sequence.",
+      "distinguishingDimensions": {
+        "support": "standing_wall_touch",
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Comfortable Arch-Set Size",
+      "classification": "modifier_annotation",
+      "rationale": "A gentle comfortable arch set is dosage when sequence and contacts remain intact.",
+      "distinguishingDimensions": {
+        "annotation": "arch_set_range"
+      }
+    },
+    {
+      "name": "Comfortable Heel-Raise Height",
+      "classification": "modifier_annotation",
+      "rationale": "A smaller active range changes exposure without changing the cycle.",
+      "distinguishingDimensions": {
+        "annotation": "heel_raise_range"
+      }
+    },
+    {
+      "name": "Rise-Lower Tempo Change",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo changes exposure while preserving ordered actions and return.",
+      "distinguishingDimensions": {
+        "annotation": "tempo"
+      }
+    },
+    {
+      "name": "Brief Untimed Top Checkpoint",
+      "classification": "modifier_annotation",
+      "rationale": "An untimed checkpoint is not a sustained-hold variant.",
+      "distinguishingDimensions": {
+        "annotation": "brief_checkpoint"
+      }
+    },
+    {
+      "name": "Repetitions Sets Rest or Effort Change",
+      "classification": "modifier_annotation",
+      "rationale": "Volume, recovery, and effort are delivery fields.",
+      "distinguishingDimensions": {
+        "annotation": "dose"
+      }
+    },
+    {
+      "name": "Comfortable Stance Width or Foot Angle",
+      "classification": "modifier_annotation",
+      "rationale": "Small setup changes are annotations if the bilateral sequence and contacts remain valid.",
+      "distinguishingDimensions": {
+        "annotation": "stance_setup"
+      }
+    },
+    {
+      "name": "Approved Foot Covering",
+      "classification": "modifier_annotation",
+      "rationale": "Footwear is operational when traction, toe behavior, and range remain observable.",
+      "distinguishingDimensions": {
+        "annotation": "foot_covering"
+      }
+    },
+    {
+      "name": "Preparation or Resilience Context",
+      "classification": "modifier_annotation",
+      "rationale": "Delivery context changes purpose and dose, not physical identity.",
+      "distinguishingDimensions": {
+        "annotation": "delivery_context"
+      }
+    },
+    {
+      "name": "Single-Leg Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "Unilateral loading changes balance, force, fatigue, consequence, and count.",
+      "distinguishingDimensions": {
+        "laterality": "single_leg"
+      }
+    },
+    {
+      "name": "Alternating Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "Alternation changes timing, side sequence, exposure, and count.",
+      "distinguishingDimensions": {
+        "laterality": "alternating"
+      }
+    },
+    {
+      "name": "Step Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "A step adds below-neutral range, edge geometry, equipment, and fall consequences.",
+      "distinguishingDimensions": {
+        "surfaceHeight": "step"
+      }
+    },
+    {
+      "name": "Bent-Knee Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "Knee flexion changes loading context and the task contract.",
+      "distinguishingDimensions": {
+        "kneePosition": "bent"
+      }
+    },
+    {
+      "name": "Seated Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "Seated support changes base, force path, balance, and logistics.",
+      "distinguishingDimensions": {
+        "support": "seated"
+      }
+    },
+    {
+      "name": "Externally Loaded Short Foot to Calf Raise",
+      "classification": "new_variant",
+      "rationale": "External resistance changes loading, handling, fatigue, and failure behavior.",
+      "distinguishingDimensions": {
+        "externalLoad": true
+      }
+    },
+    {
+      "name": "Sustained-Top-Hold Short Foot Calf Raise",
+      "classification": "new_variant",
+      "rationale": "A prescribed top hold changes contraction mode, dose unit, fatigue, and count.",
+      "distinguishingDimensions": {
+        "contractionMode": "isometric_hold"
+      }
+    },
+    {
+      "name": "Rebound Short Foot Calf Raise",
+      "classification": "new_variant",
+      "rationale": "Elastic intent changes contact behavior, impact, and stop rules.",
+      "distinguishingDimensions": {
+        "intent": "elastic_rebound"
+      }
+    },
+    {
+      "name": "Resisted Midfoot Arch Raise During Heel Raise",
+      "classification": "new_variant",
+      "rationale": "Midfoot resistance changes implement, load path, and task mechanics.",
+      "distinguishingDimensions": {
+        "externalLoad": "midfoot_resistance"
+      }
+    },
+    {
+      "name": "Short-Foot Drill",
+      "classification": "new_definition",
+      "rationale": "The standalone one-foot arch hold does not include bilateral heel rise and lower.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "f8e6217e-1f08-465c-b533-308316c8602e"
+      }
+    },
+    {
+      "name": "Standing Calf Raise",
+      "classification": "new_definition",
+      "rationale": "The ordinary calf raise lacks the required preceding arch-set and release sequence.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "4db2e6be-6c45-45de-ae3d-6ef86aa84184"
+      }
+    },
+    {
+      "name": "Bent-Knee Soleus Raise",
+      "classification": "new_definition",
+      "rationale": "A knee-flexed calf task has a different base and loading context.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "94737140-403a-4f82-8fc2-00f07543f8d6"
+      }
+    },
+    {
+      "name": "Big Toe Press Iso Hold",
+      "classification": "new_definition",
+      "rationale": "Target-hallux isometric pressing is not a bilateral heel-raise cycle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "285b2fe4-707c-41af-9382-08597788407f"
+      }
+    },
+    {
+      "name": "Foot Tripod Weight Shifts",
+      "classification": "new_definition",
+      "rationale": "Whole-foot pressure shifting lacks the arch-to-rise-to-lower sequence.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "3370a943-9672-49da-b28c-3940470091e1"
+      }
+    },
+    {
+      "name": "Ankle Pogo in Place",
+      "classification": "new_definition",
+      "rationale": "Pogos introduce rebound, impact, possible flight, landing, and contact count.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "cf96f21f-d3b6-4c3b-a31f-98e5f3a392af"
+      }
+    }
+  ]
+}

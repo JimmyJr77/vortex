@@ -912,31 +912,42 @@ function mapSignupRow(row, positions = {}) {
 }
 
 async function attachPositionsToSignups(db, rows) {
-  const groupIds = [...new Set(rows.map((r) => r.slot_group_id).filter(Boolean))]
+  const groupIds = [...new Set(rows.map((r) => r.slot_group_id).filter(Boolean).map(Number))]
   const positionMap = new Map()
+  if (!groupIds.length) {
+    return rows.map((row) => mapSignupRow(row, {}))
+  }
 
-  for (const groupId of groupIds) {
-    const maxRes = await db.query(
-      'SELECT max_participants FROM scheduling_slot_group WHERE id = $1',
-      [groupId],
-    )
-    const maxParticipants = Number(maxRes.rows[0]?.max_participants ?? 0)
-    const posRes = await db.query(
-      `
-      SELECT id, status,
-        ROW_NUMBER() OVER (PARTITION BY status ORDER BY created_at, id) AS rn
+  const maxRes = await db.query(
+    'SELECT id, max_participants FROM scheduling_slot_group WHERE id = ANY($1::bigint[])',
+    [groupIds],
+  )
+  const maxByGroup = new Map(
+    maxRes.rows.map((r) => [Number(r.id), Number(r.max_participants ?? 0)]),
+  )
+
+  const posRes = await db.query(
+    `
+      SELECT id, slot_group_id, status,
+        ROW_NUMBER() OVER (
+          PARTITION BY slot_group_id, status
+          ORDER BY created_at, id
+        ) AS rn
       FROM scheduling_signup
-      WHERE slot_group_id = $1 AND status IN ('confirmed', 'waitlisted')
-      `,
-      [groupId],
-    )
-    for (const p of posRes.rows) {
-      positionMap.set(Number(p.id), {
-        signupNumber: p.status === 'confirmed' ? Number(p.rn) : null,
-        waitlistPosition: p.status === 'waitlisted' ? Number(p.rn) : null,
-        maxParticipants,
-      })
-    }
+      WHERE slot_group_id = ANY($1::bigint[])
+        AND status IN ('confirmed', 'waitlisted')
+        AND orphaned_at IS NULL
+        AND archived_at IS NULL
+    `,
+    [groupIds],
+  )
+  for (const p of posRes.rows) {
+    const groupId = Number(p.slot_group_id)
+    positionMap.set(Number(p.id), {
+      signupNumber: p.status === 'confirmed' ? Number(p.rn) : null,
+      waitlistPosition: p.status === 'waitlisted' ? Number(p.rn) : null,
+      maxParticipants: maxByGroup.get(groupId) ?? 0,
+    })
   }
 
   return rows.map((row) => mapSignupRow(row, positionMap.get(Number(row.id)) || {}))
@@ -4177,27 +4188,7 @@ export function createSchedulingHandlers(pool) {
           SELECT s.*, f.title AS form_title,
             f.signup_fields, f.mandate_waiver,
             m.profile_complete,
-            ts.week_letter, ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ts.schedule_mode,
-            (
-              SELECT COUNT(*)::int FROM scheduling_signup s2
-              WHERE s2.form_id = s.form_id AND s2.member_id = s.member_id
-                AND s2.status IN ('confirmed', 'waitlisted')
-            ) AS total_slots_for_user,
-            (
-              SELECT COALESCE(json_agg(
-                json_build_object(
-                  'week_letter', o.week_letter,
-                  'day_of_week', o.day_of_week,
-                  'specific_date', o.specific_date,
-                  'start_time', o.start_time,
-                  'end_time', o.end_time,
-                  'schedule_mode', o.schedule_mode
-                )
-                ORDER BY o.week_letter NULLS LAST, o.day_of_week NULLS LAST, o.specific_date NULLS LAST, o.start_time
-              ), '[]'::json)
-              FROM scheduling_time_slot o
-              WHERE o.slot_group_id = s.slot_group_id
-            ) AS group_occurrences
+            ts.week_letter, ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ts.schedule_mode
           FROM scheduling_signup s
           LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
           LEFT JOIN member m ON m.id = s.member_id
@@ -4208,13 +4199,83 @@ export function createSchedulingHandlers(pool) {
           params,
         )
 
+        const groupIds = [
+          ...new Set(result.rows.map((r) => r.slot_group_id).filter(Boolean).map(Number)),
+        ]
+        const occurrencesByGroup = new Map()
+        if (groupIds.length) {
+          const occRes = await pool.query(
+            `
+              SELECT slot_group_id,
+                COALESCE(json_agg(
+                  json_build_object(
+                    'week_letter', o.week_letter,
+                    'day_of_week', o.day_of_week,
+                    'specific_date', o.specific_date,
+                    'start_time', o.start_time,
+                    'end_time', o.end_time,
+                    'schedule_mode', o.schedule_mode
+                  )
+                  ORDER BY o.week_letter NULLS LAST, o.day_of_week NULLS LAST, o.specific_date NULLS LAST, o.start_time
+                ), '[]'::json) AS group_occurrences
+              FROM scheduling_time_slot o
+              WHERE o.slot_group_id = ANY($1::bigint[])
+              GROUP BY o.slot_group_id
+            `,
+            [groupIds],
+          )
+          for (const row of occRes.rows) {
+            occurrencesByGroup.set(Number(row.slot_group_id), row.group_occurrences)
+          }
+        }
+
+        const memberFormPairs = result.rows
+          .filter((r) => r.member_id != null)
+          .map((r) => ({ formId: Number(r.form_id), memberId: Number(r.member_id) }))
+        const slotCountByPair = new Map()
+        if (memberFormPairs.length) {
+          const formIds = [...new Set(memberFormPairs.map((p) => p.formId))]
+          const memberIds = [...new Set(memberFormPairs.map((p) => p.memberId))]
+          const countRes = await pool.query(
+            `
+              SELECT form_id, member_id, COUNT(*)::int AS n
+              FROM scheduling_signup
+              WHERE form_id = ANY($1::bigint[])
+                AND member_id = ANY($2::bigint[])
+                AND status IN ('confirmed', 'waitlisted')
+                AND orphaned_at IS NULL
+                AND archived_at IS NULL
+              GROUP BY form_id, member_id
+            `,
+            [formIds, memberIds],
+          )
+          for (const row of countRes.rows) {
+            slotCountByPair.set(`${Number(row.form_id)}:${Number(row.member_id)}`, Number(row.n))
+          }
+        }
+
+        for (const row of result.rows) {
+          row.group_occurrences = occurrencesByGroup.get(Number(row.slot_group_id)) ?? []
+          row.total_slots_for_user =
+            row.member_id != null
+              ? slotCountByPair.get(`${Number(row.form_id)}:${Number(row.member_id)}`) ?? 0
+              : 0
+        }
+
+        const stubClearIds = []
         for (const row of result.rows) {
           if (!row.admin_stub) continue
           const signupFields = Array.isArray(row.signup_fields) ? row.signup_fields : []
           if (!effectiveAdminStub(row, signupFields, Boolean(row.mandate_waiver))) {
-            await pool.query('UPDATE scheduling_signup SET admin_stub = FALSE WHERE id = $1', [row.id])
+            stubClearIds.push(Number(row.id))
             row.admin_stub = false
           }
+        }
+        if (stubClearIds.length) {
+          await pool.query(
+            'UPDATE scheduling_signup SET admin_stub = FALSE WHERE id = ANY($1::bigint[])',
+            [stubClearIds],
+          )
         }
 
         const enriched = await attachPositionsToSignups(pool, result.rows)

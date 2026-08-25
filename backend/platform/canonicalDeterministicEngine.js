@@ -205,6 +205,13 @@ function dosageFor(card, profile, executionBudgetSeconds, modifiers) {
     workSeconds = Math.max(20, Math.min(workSeconds, 40))
   }
   if (modifiers.includes('make_eccentric')) tempo = '4-1-1'
+  const numericContactsPerSet = Number(dose.contactsPerSet)
+  const contactModel = card.loadProfile?.contactExposureModel ?? {}
+  const profileContactModel = dose.contactEstimate ?? {}
+  const estimatedContactsPerSet = Number(
+    profileContactModel.planningDefaultContactsPerSet
+      ?? contactModel.planningDefaultContactsPerSet,
+  )
   return {
     sets,
     reps,
@@ -214,11 +221,13 @@ function dosageFor(card, profile, executionBudgetSeconds, modifiers) {
     loadMethod: dose.loadMethod ?? 'bodyweight_or_coach_selected',
     loadTarget: dose.loadTarget ?? null,
     rpe: dose.rpe ?? null,
-    contacts: dose.contactsPerSet != null
-      ? sets * Number(dose.contactsPerSet)
+    contacts: Number.isFinite(numericContactsPerSet)
+      ? sets * numericContactsPerSet
+      : (Number.isFinite(estimatedContactsPerSet)
+          ? sets * estimatedContactsPerSet
       : (card.loadProfile?.landingContactsPerRep > 0 && reps != null
           ? sets * reps * Number(card.loadProfile.landingContactsPerRep)
-          : null),
+          : null)),
     estimatedSeconds: sets * (workSeconds + resolvedRestSeconds),
   }
 }

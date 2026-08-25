@@ -5,11 +5,15 @@
 DO $$
 DECLARE
   migration_key CONSTANT TEXT := '468_coaching_front_plank_similarity_closure';
-  front_plank_id CONSTANT UUID := '4bffab47-a9c6-483e-ac8f-5c73b9641fd3';
-  bear_plank_id CONSTANT UUID := '2fdab5fa-6d3c-42d0-9ec0-bd206c08233d';
-  glute_bridge_id CONSTANT UUID := '047048f8-4eb2-43aa-8daf-0bbb542e145a';
-  side_plank_id CONSTANT UUID := '648cd257-0c56-4784-bef9-1789f069ac81';
+  front_plank_id UUID;
+  bear_plank_id UUID;
+  glute_bridge_id UUID;
+  side_plank_id UUID;
 BEGIN
+  SELECT definition_id INTO front_plank_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=240;
+  SELECT id INTO bear_plank_id FROM coaching.exercise_definition_v1 WHERE slug='bear-plank-hold';
+  SELECT id INTO glute_bridge_id FROM coaching.exercise_definition_v1 WHERE slug='glute-bridge';
+  SELECT id INTO side_plank_id FROM coaching.exercise_definition_v1 WHERE slug='side-plank';
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=front_plank_id AND slug='front-plank' AND status<>'archived' AND family_key='prone_bilateral_forearm_front_support_isometric_anti_extension')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=bear_plank_id AND slug='bear-plank-hold' AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1 WHERE id=glute_bridge_id AND slug='glute-bridge' AND status<>'archived')

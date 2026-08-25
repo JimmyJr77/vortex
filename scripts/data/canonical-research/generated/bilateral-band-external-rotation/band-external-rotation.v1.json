@@ -1,0 +1,585 @@
+{
+  "facilityId": 1,
+  "slug": "band-external-rotation",
+  "researchVersion": "2026-08-09.103",
+  "assessmentSummary": {
+    "identity": "One bilateral standing shoulder-external-rotation cycle against an unanchored resistance band held between both hands. Stand with feet fixed and trunk organized, elbows flexed near 90 degrees, upper arms beside the ribs, wrists organized, and the band crossing in front of the torso. Rotate both forearms and hands outward through the declared comfortable range without elbow drift, shrugging, wrist substitution, trunk extension or rotation, then return slowly to the same start. One outward-and-return cycle is one repetition. Palms-up or thumbs-up grip, comfortable range, initial hand spacing, light band tension, tempo, brief pauses, breathing prompts, repetitions, sets, rest, and a fixed towel spacer at the elbows are annotations. Changing base, laterality, band attachment, shoulder-abduction angle, contraction mode, required scapular action, action sequence, clinical purpose, or count changes the task.",
+    "currentCardFindings": [
+      "Source 36 has a clear standing elbows-at-sides bilateral action but its slash label conflates generic band external rotation with the no-money nickname and the version-1 variant has empty exact requirements.",
+      "The current profile, anatomy, load, fatigue, constraints, generation, coach, athlete, accessibility, support, and persistence data do not define a reproducible selectable exercise contract.",
+      "Source 1348 Eccentric Band External Rotation remains unresolved because its elbow position, shoulder-abduction angle, rotation plane, starting position, return assistance, and exact count are not declared; name similarity cannot resolve that identity.",
+      "The legacy age floor of ten, publication state, generic dose, 40/20/40 score, and unreviewed media lack Source-36-specific calibration, playback, exactness, captions, accessibility, quality, safety, reviewer, and approval evidence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "pull",
+        "rotate"
+      ],
+      "bodyRegions": [
+        "shoulder"
+      ],
+      "support": "bilateral_standing_fixed_foot_elbows_at_sides_unanchored_band_external_rotation",
+      "laterality": "bilateral",
+      "planes": [
+        "transverse"
+      ],
+      "equipment": [
+        "bands"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 26,
+      "absoluteLoadDemand": 18,
+      "physicalDifficulty": 18,
+      "baseOverallDifficulty": 26,
+      "variantScores": {
+        "bilateralStandingElbowsAtSides": {
+          "technicalComplexity": 26,
+          "absoluteLoadDemand": 18,
+          "physicalDifficulty": 18,
+          "baseOverallDifficulty": 26
+        }
+      },
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "unanchored_elastic_band_tension_between_both_hands_during_bilateral_external_rotation",
+      "impactClass": "none",
+      "primaryExposure": [
+        "glenohumeral_external_rotation",
+        "infraspinatus_and_teres_minor_demand",
+        "posterior_shoulder_support",
+        "scapular_and_trunk_stabilization",
+        "band_grip_and_release_control"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "completeCycles": "6-15",
+      "endRangeHoldSeconds": "0-3",
+      "secondsPerCycle": "3-8",
+      "rest": "20-60_seconds_or_as_needed_to_preserve_elbows_at_sides_bilateral_symmetry_wrist_trunk_and_scapular_control_comfortable_range_and_symptom_rules",
+      "durationRule": "setup_plus_actual_valid_cycle_and_hold_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_band_change_and_station_reset"
+    },
+    "programmingDecision": "Select only when an intact light resistance band, safe standing station, bilateral elbows-at-sides external-rotation range, grip and release control, symptoms, dose, duration, and cumulative shoulder, rotator-cuff, scapular, grip, pressing, pulling, throwing, climbing, hanging, handstand, and overhead budgets fit. Do not silently anchor the band, change laterality or base, raise the elbows, add a face pull or deliberate scapular-retraction count, convert the cycle to an isometric or eccentric-only task, or infer clinical clearance. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct Northwestern Health Sciences University and Performance Health bilateral-band instructions, Orthopedic One no-money instruction and sample dose, peer-reviewed elastic-resistance strength, shoulder-angle and band-resistance EMG, and elastic-versus-constant-resistance kinematic studies, the 2025 rotator-cuff-tendinopathy clinical-practice scope boundary, current YouTube oEmbed metadata, and comparison with exact 90/90, face-pull, eccentric, unilateral, isometric, straight-arm, and internal-rotation neighbors",
+      "uncertainty": "No source validates one universal grip, hand spacing, band color or force, external-rotation range, scapular position, muscle activation target, dose, frequency, recovery interval, prevention or treatment result, progression order, population eligibility, or Vortex score. Research protocols do not validate every Source-36 operational rule, and no media candidate has been watched in full.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "identity_boundary_review",
+        "anatomy_and_load_review",
+        "band_condition_and_release_safety_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T21:45:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Stand tall holding a light band with elbows bent to 90 degrees and tucked near the ribs. Rotate the hands outward while keeping the elbows close to the body. Return slowly.",
+      "familyKey": "Rotator cuff activation",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 20,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nwhealth.edu/wp-content/uploads/2019/04/NWHSU-rehab-shoulder-ext-rot.pdf",
+      "sourceTitle": "Shoulder External Rotation",
+      "sourcePublisher": "Northwestern Health Sciences University",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct instruction places the band in front of the torso, keeps both elbows at the sides, pulls both hands apart, holds if prescribed, and returns slowly to start.",
+        "Vortex makes fixed standing base, bilateral action, elbow flexion, unanchored band, valid outward-and-return cycle, compensation, and count rules explicit without claiming one universal range or grip."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://admin.performancehealth.com/media/wysiwyg/pdfs/RTC_PDF.pdf",
+      "sourceTitle": "Exercises for Shoulder Impingement",
+      "sourcePublisher": "Performance Health / TheraBand Academy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The bilateral external-rotation instruction uses an elastic band, elbows at 90 degrees, outward rotation, a hold, and slow return.",
+        "Brace, pull, and rotate are controlled planning keys rather than source-authored outcome guarantees."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41559205/",
+      "sourceTitle": "The effects of shoulder abduction angle and elastic band resistance on shoulder muscle activity during external rotation exercises",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The study measured shoulder and rotator-cuff muscle activity during elastic-band external rotation at 0, 45, and 90 degrees of humeral abduction under low and moderate resistance.",
+        "It supports glenohumeral external-rotation and position-dependent shoulder-muscle involvement but does not establish isolated activation, force, normal range, treatment, or eligibility."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6262970/",
+      "sourceTitle": "Comparison of the kinematics and kinetics of shoulder exercises performed with constant and elastic resistance",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Three-dimensional analysis found that resistance method changes joint-moment and range-of-motion characteristics across shoulder rotation exercises.",
+        "Band attachment, resistance source, shoulder angle, base, laterality, and action sequence therefore remain explicit variant boundaries rather than interchangeable equipment labels."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nwhealth.edu/wp-content/uploads/2019/04/NWHSU-rehab-shoulder-ext-rot.pdf",
+      "sourceTitle": "Shoulder External Rotation",
+      "sourcePublisher": "Northwestern Health Sciences University",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct task coordinates bilateral hand separation while both elbows remain at the sides and the return stays controlled.",
+        "The 26/18/26 proposal describes this exercise task only and requires independent calibration; it is not a participant skill, proficiency, age, or readiness level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41559205/",
+      "sourceTitle": "The effects of shoulder abduction angle and elastic band resistance on shoulder muscle activity during external rotation exercises",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shoulder abduction angle and band resistance level change measured activity during external-rotation exercise.",
+        "Track complete cycles, band tension and position, valid range, time under tension, faults, symptoms, and overlapping shoulder work; tissue thresholds and recovery hours remain planning estimates."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40165544/",
+      "sourceTitle": "Rotator Cuff Tendinopathy Diagnosis, Nonsurgical Medical Care, and Rehabilitation: A Clinical Practice Guideline",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 94,
+      "claims": [
+        "The clinical guideline addresses assessment, management, prognosis, and return to function for adults with suspected rotator-cuff tendinopathy.",
+        "A workout card cannot diagnose, treat, clear return to sport, or replace individualized clinical care; symptom, trauma, neurologic, instability, and scope escalation remains mandatory."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.orthopedicone.com/news-events/shoulder-exercises-for-improved-rotator-cuff-strength-and-stability/",
+      "sourceTitle": "Shoulder Exercises for Improved Rotator Cuff Strength and Stability",
+      "sourcePublisher": "Orthopedic One",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Orthopedic One presents a no-money example with a two-second outward phase, four-second return, and three sets of fifteen twice weekly.",
+        "That example is context-specific and does not validate a universal Vortex dose, frequency, recovery interval, duration budget, or population rule."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nwhealth.edu/wp-content/uploads/2019/04/NWHSU-rehab-shoulder-ext-rot.pdf",
+      "sourceTitle": "Shoulder External Rotation",
+      "sourcePublisher": "Northwestern Health Sciences University",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct sequence is band in front, shoulder blades organized, elbows retained at the sides, hands pulled apart, optional hold, then slow return.",
+        "Vortex adds explicit standing base, wrist and trunk fault, band condition, valid-repetition, stop, persistence, and actual-duration rules without presenting them as source-validated treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://admin.performancehealth.com/media/wysiwyg/pdfs/RTC_PDF.pdf",
+      "sourceTitle": "Exercises for Shoulder Impingement",
+      "sourcePublisher": "Performance Health / TheraBand Academy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Performance Health warns that resistance products can break or slip and calls for proper stance and grip, secure use, and eye protection consideration.",
+        "Inspect the band and space, control release, stop for equipment damage, escalating or sharp pain, neurologic symptoms, trauma or instability, and use facility emergency and clinical escalation rules."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5847412/",
+      "sourceTitle": "Elastic Resistance Effectiveness on Increasing Strength of Shoulders and Hips",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "A supervised elastic-resistance program included shoulder external rotation at the side from internal rotation toward external rotation and reported strength changes in the studied sample.",
+        "The multi-exercise protocol and study population do not justify universal prevention, rehabilitation, readiness, dose, or performance-transfer claims for the exact bilateral Source-36 task."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nwhealth.edu/wp-content/uploads/2019/04/NWHSU-rehab-shoulder-ext-rot.pdf",
+      "sourceTitle": "Shoulder External Rotation",
+      "sourcePublisher": "Northwestern Health Sciences University",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The direct page provides a short contact-and-direction sequence with blank fields for individualized sets, repetitions, holds, duration, and frequency.",
+        "Athlete support must explain the exact elbows-at-sides cycle, expected light-to-moderate local effort, permitted range and tension changes, unexpected symptoms, band damage, and how to stop and ask for help."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41559205/",
+      "sourceTitle": "The effects of shoulder abduction angle and elastic band resistance on shoulder muscle activity during external rotation exercises",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shoulder-abduction angle and band resistance materially change the measured loading context of external-rotation exercise.",
+        "Coach support must observe exact elbow position, bilateral symmetry, grip, band path and condition, first fault, actual exposure, downstream shoulder demand, and escalation without diagnosing pathology."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://admin.performancehealth.com/media/wysiwyg/pdfs/RTC_PDF.pdf",
+      "sourceTitle": "Exercises for Shoulder Impingement",
+      "sourcePublisher": "Performance Health / TheraBand Academy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The direct bilateral task can be explained with elbow, hand, direction, hold, and return checkpoints and uses adjustable elastic resistance.",
+        "Wider initial hand spacing, lighter tension, smaller comfortable range, slower tempo, fewer repetitions, visual or tactile elbow checkpoints, and a fixed towel spacer are annotations; changing base or action requires another card."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6262970/",
+      "sourceTitle": "Comparison of the kinematics and kinetics of shoulder exercises performed with constant and elastic resistance",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance source and exercise geometry alter shoulder external-rotation kinetics and kinematics.",
+        "Base, laterality, band attachment, shoulder angle, contraction mode, required scapular action, or clinical purpose changes remain proposed variants or distinct definitions rather than silent annotations."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact bilateral unanchored-band setup, elbow position, grip, action, return count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=_UvmPNGtlPM",
+      "title": "Shoulder External Rotation with Resistive Band - Ask Doctor Jo",
+      "channelName": "AskDoctorJo",
+      "sourceQuery": "Source 36 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T21:45:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4tpl-huz060",
+      "title": "Shoulder exercise - External Rotation Retraction",
+      "channelName": "www.sportsinjuryclinic.net",
+      "sourceQuery": "Source 36 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T21:45:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_thyHbdB7nI",
+      "title": "Banded External Rotation",
+      "channelName": "Camille Leblanc-bazinet",
+      "sourceQuery": "Source 36 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T21:45:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_G0feLqXA0E",
+      "title": "Shoulder W Exercise for Bilateral External Rotation - Mike Reinold",
+      "channelName": "Mike Reinold",
+      "sourceQuery": "Source 36 candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T21:45:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DZP1RF7uyIs",
+      "title": "Shoulder Exercises for Tennis Players",
+      "channelName": "Orthopedic One",
+      "sourceQuery": "Source 36 composite candidate containing a no-money segment checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T21:45:00.000Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bilateral Band External Rotation — Elbows at Sides",
+      "classification": "same_identity",
+      "rationale": "The descriptive label preserves the exact standing bilateral unanchored-band outward-and-return cycle with upper arms beside the ribs.",
+      "distinguishingDimensions": {
+        "variant": "bilateral_standing_elbows_at_sides"
+      }
+    },
+    {
+      "name": "No-Money Drill",
+      "classification": "same_identity",
+      "rationale": "The nickname is an alias only when it means the same bilateral elbows-at-sides external-rotation cycle rather than a W raise, robbery, pull-apart, or added scapular sequence.",
+      "distinguishingDimensions": {
+        "variant": "bilateral_standing_elbows_at_sides"
+      }
+    },
+    {
+      "name": "Standing Band External Rotation with Elbows Tucked",
+      "classification": "same_identity",
+      "rationale": "Tucked elbows describe the retained upper-arm contact boundary without changing band attachment, action, or count.",
+      "distinguishingDimensions": {
+        "variant": "bilateral_standing_elbows_at_sides"
+      }
+    },
+    {
+      "name": "Palms-Up or Thumbs-Up Grip",
+      "classification": "modifier_annotation",
+      "rationale": "Forearm orientation is recorded for exact delivery and media matching but does not change the bilateral shoulder-external-rotation action when wrists stay organized.",
+      "distinguishingDimensions": {
+        "modifier": "grip_orientation"
+      }
+    },
+    {
+      "name": "Comfortable External-Rotation Range",
+      "classification": "modifier_annotation",
+      "rationale": "Individual symptom-free range changes amplitude without changing base, contacts, action, or count.",
+      "distinguishingDimensions": {
+        "modifier": "range"
+      }
+    },
+    {
+      "name": "Light Band Tension",
+      "classification": "modifier_annotation",
+      "rationale": "Band color and low resistance change load within the reviewed task when form, range, and safety remain valid.",
+      "distinguishingDimensions": {
+        "modifier": "band_tension"
+      }
+    },
+    {
+      "name": "Initial Hand Spacing",
+      "classification": "modifier_annotation",
+      "rationale": "Hand spacing adjusts starting tension while the unanchored band and bilateral cycle remain unchanged.",
+      "distinguishingDimensions": {
+        "modifier": "hand_spacing"
+      }
+    },
+    {
+      "name": "Controlled Tempo",
+      "classification": "modifier_annotation",
+      "rationale": "Outward and return pace change dose without changing the full cycle.",
+      "distinguishingDimensions": {
+        "modifier": "tempo"
+      }
+    },
+    {
+      "name": "Brief End-Range Pause",
+      "classification": "modifier_annotation",
+      "rationale": "A short pause changes time under tension while the action and count remain.",
+      "distinguishingDimensions": {
+        "modifier": "end_range_pause"
+      }
+    },
+    {
+      "name": "Repetitions Sets or Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Volume and recovery alter dosage, not exercise identity.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "repetitions",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Breathing Prompt",
+      "classification": "modifier_annotation",
+      "rationale": "Continuous breathing or exhale cues change delivery without changing mechanics.",
+      "distinguishingDimensions": {
+        "modifier": "breathing_prompt"
+      }
+    },
+    {
+      "name": "Fixed Towel Spacer at Elbows",
+      "classification": "modifier_annotation",
+      "rationale": "A thin fixed towel can provide an elbow-position checkpoint without changing the band path, action, or base.",
+      "distinguishingDimensions": {
+        "modifier": "elbow_position_feedback"
+      }
+    },
+    {
+      "name": "Seated Bilateral Band External Rotation",
+      "classification": "new_variant",
+      "rationale": "Seated execution changes base, equipment, trunk constraint, accessibility, and logistics.",
+      "distinguishingDimensions": {
+        "base": "seated"
+      }
+    },
+    {
+      "name": "Supine Bilateral Band External Rotation",
+      "classification": "new_variant",
+      "rationale": "Supine execution changes gravity, support, surface, trunk demand, transfer, and range constraints.",
+      "distinguishingDimensions": {
+        "base": "supine"
+      }
+    },
+    {
+      "name": "Band Loop Around Wrists External Rotation",
+      "classification": "new_variant",
+      "rationale": "A wrist loop changes grip, contact, resistance application, release risk, and hand demand.",
+      "distinguishingDimensions": {
+        "band_attachment": "wrist_loop"
+      }
+    },
+    {
+      "name": "Bilateral External-Rotation Isometric Hold",
+      "classification": "new_variant",
+      "rationale": "Maintaining a fixed angle changes contraction, count, time model, fatigue, and stop rules.",
+      "distinguishingDimensions": {
+        "contraction": "isometric"
+      }
+    },
+    {
+      "name": "No-Money with Required Scapular Retraction",
+      "classification": "new_variant",
+      "rationale": "Adding a deliberate scapular-retraction action and endpoint changes required joint actions, fault rules, and count.",
+      "distinguishingDimensions": {
+        "added_action": "scapular_retraction"
+      }
+    },
+    {
+      "name": "Half-Kneeling Bilateral Band External Rotation",
+      "classification": "new_variant",
+      "rationale": "Half-kneeling changes base, floor transfer, balance, laterality, hip and trunk demand, and logistics.",
+      "distinguishingDimensions": {
+        "base": "half_kneeling"
+      }
+    },
+    {
+      "name": "Unilateral Anchored Band External Rotation at Side",
+      "classification": "new_variant",
+      "rationale": "Single-arm execution with a fixed anchor changes laterality, resistance vector, setup, band-failure risk, and comparison rules.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral",
+        "band_attachment": "fixed_anchor"
+      }
+    },
+    {
+      "name": "Band External Rotation at 45 Degrees Abduction",
+      "classification": "new_variant",
+      "rationale": "Raising the upper arm changes joint position, muscle activity, loading, setup, and compensation rules.",
+      "distinguishingDimensions": {
+        "shoulder_abduction_degrees": 45
+      }
+    },
+    {
+      "name": "Cable or Band 90/90 External Rotation",
+      "classification": "new_definition",
+      "rationale": "Sources 1313 and 1347 hold the upper arm near shoulder height, changing joint position, resistance setup, loading, purpose, and fault rules.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseIds": [
+          1313,
+          1347
+        ],
+        "shoulder_abduction_degrees": 90
+      }
+    },
+    {
+      "name": "Face Pull to External Rotation",
+      "classification": "new_definition",
+      "rationale": "Source 1346 adds a pull toward the face before external rotation, changing action sequence, elbow path, loading, and count.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 1346,
+        "action_sequence": "face_pull_then_external_rotation"
+      }
+    },
+    {
+      "name": "Eccentric Band External Rotation",
+      "classification": "new_definition",
+      "rationale": "Source 1348 remains on its own quarantined definition because elbow position, shoulder angle, start, rotation phase, return assistance, and count are incomplete; exact overlap cannot be inferred.",
+      "distinguishingDimensions": {
+        "targetLegacyExerciseId": 1348,
+        "status": "identity_contract_incomplete"
+      }
+    },
+    {
+      "name": "Straight-Arm Band Pull-Apart",
+      "classification": "new_definition",
+      "rationale": "Extended elbows and shoulder horizontal abduction change joint actions, leverage, range, loading, and count.",
+      "distinguishingDimensions": {
+        "action": "straight_arm_horizontal_abduction"
+      }
+    },
+    {
+      "name": "Band Shoulder Internal Rotation",
+      "classification": "new_definition",
+      "rationale": "Internal rotation reverses the primary joint action and resistance direction.",
+      "distinguishingDimensions": {
+        "action": "shoulder_internal_rotation"
+      }
+    },
+    {
+      "name": "Clinical Shoulder External-Rotation Test or Assessment",
+      "classification": "new_definition",
+      "rationale": "Assessment adds standardized position, examiner or device, measurement, consent, interpretation, and clinical escalation.",
+      "distinguishingDimensions": {
+        "scope": "clinical_assessment"
+      }
+    }
+  ]
+}

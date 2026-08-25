@@ -6,37 +6,20 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '456_coaching_reverse_lunge_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.69';
-  canonical_id CONSTANT UUID := 'f5640b99-b702-4747-80bb-b603236bbbc6';
-  bodyweight_variant CONSTANT UUID := '282a402b-5686-4d81-bd27-4f9e611e2780';
-  bodyweight_duplicate CONSTANT UUID := '91e3dee7-d30c-47a4-be92-d0161a9bea6a';
-  barbell_ambiguous CONSTANT UUID := '1b49fb26-95e8-4536-bac9-0fba22874c47';
-  front_rack_barbell_variant CONSTANT UUID := '1cf657d6-7231-4c78-a04e-4c23ac199fc1';
-  dumbbell_ambiguous CONSTANT UUID := '5ef59a98-20f7-4466-8d3e-fb5c80ed5aa3';
-  kettlebell_ambiguous CONSTANT UUID := 'b9fa748e-5fb0-4941-9dd6-0c519d8189d9';
-  tempo_annotation CONSTANT UUID := '76bf7734-ae40-4898-a2ff-baffa63dc1cb';
-  sandbag_ambiguous CONSTANT UUID := 'ba76e745-8bce-43d3-a87a-b54c8ef5cf0c';
-  med_ball_variant CONSTANT UUID := '6c5e1416-a595-4d75-9657-b2e59c9d9d0c';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    bodyweight_variant,front_rack_barbell_variant,med_ball_variant];
-  ambiguous_variant_ids CONSTANT UUID[] := ARRAY[
-    barbell_ambiguous,dumbbell_ambiguous,kettlebell_ambiguous,sandbag_ambiguous];
-  all_variant_ids CONSTANT UUID[] := active_variant_ids||ambiguous_variant_ids||
-    ARRAY[bodyweight_duplicate,tempo_annotation];
+  canonical_id UUID;
+  bodyweight_variant UUID;
+  bodyweight_duplicate UUID;
+  barbell_ambiguous UUID;
+  front_rack_barbell_variant UUID;
+  dumbbell_ambiguous UUID;
+  kettlebell_ambiguous UUID;
+  tempo_annotation UUID;
+  sandbag_ambiguous UUID;
+  med_ball_variant UUID;
+  active_variant_ids UUID[];
+  ambiguous_variant_ids UUID[];
+  all_variant_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[172,380,381,421,473,565,753,1009,1301];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '98602ded-5df4-4fa7-bf48-476d4f663df8'::UUID,
-    '37feeb4f-45c0-4a82-83e1-752a4bd69cc3'::UUID,
-    'ac791daf-09fe-4af4-90cd-5f267750c2a4'::UUID,
-    '0a306815-0864-48cb-83d3-52d9f84b2e4e'::UUID,
-    '42f52148-1b28-44ea-b174-2142d6130acd'::UUID,
-    '996281b4-7c7a-4241-8d5c-c149b5612831'::UUID,
-    'c9ada602-7eb3-465c-a5a2-1c438cf20d43'::UUID,
-    '7984010b-675d-447e-a21d-9e0ad33019a4'::UUID];
-  ambiguous_definition_ids CONSTANT UUID[] := ARRAY[
-    '98602ded-5df4-4fa7-bf48-476d4f663df8'::UUID,
-    'ac791daf-09fe-4af4-90cd-5f267750c2a4'::UUID,
-    '996281b4-7c7a-4241-8d5c-c149b5612831'::UUID,
-    '7984010b-675d-447e-a21d-9e0ad33019a4'::UUID];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'v791YUqiE-o','xrPteyQLGAo','1cXnW986vqU','Vlgh0ImT5oU','RZKXLMxPF_I'];
   evidence_payload JSONB := $json$
@@ -61,11 +44,11 @@ DECLARE
   $json$::JSONB;
   media_payload JSONB := $json$
   [
-    {"variantId":"282a402b-5686-4d81-bd27-4f9e611e2780","videoId":"v791YUqiE-o","title":"How To Reverse Lunge With Krissy Cela","channel":"EvolveYou","query":"bodyweight reverse lunge technique"},
-    {"variantId":"282a402b-5686-4d81-bd27-4f9e611e2780","videoId":"xrPteyQLGAo","title":"How To Reverse Lunge","channel":"PureGym","query":"reverse lunge technique"},
-    {"variantId":"1cf657d6-7231-4c78-a04e-4c23ac199fc1","videoId":"1cXnW986vqU","title":"How to Do a Barbell Front Rack Reverse Lunge","channel":"Peak Functional","query":"barbell front rack reverse lunge technique"},
-    {"variantId":"1cf657d6-7231-4c78-a04e-4c23ac199fc1","videoId":"Vlgh0ImT5oU","title":"Barbell Front Rack Reverse Lunge","channel":"Functional Bodybuilding","query":"front rack reverse lunge"},
-    {"variantId":"5ef59a98-20f7-4466-8d3e-fb5c80ed5aa3","videoId":"RZKXLMxPF_I","title":"Dumbbell Reverse Lunges | How To | Proper Form & Technique","channel":"FITTR","query":"dumbbell reverse lunge carry position review"}
+    {"variantKey":"bodyweight","videoId":"v791YUqiE-o","title":"How To Reverse Lunge With Krissy Cela","channel":"EvolveYou","query":"bodyweight reverse lunge technique"},
+    {"variantKey":"bodyweight","videoId":"xrPteyQLGAo","title":"How To Reverse Lunge","channel":"PureGym","query":"reverse lunge technique"},
+    {"variantKey":"front-rack","videoId":"1cXnW986vqU","title":"How to Do a Barbell Front Rack Reverse Lunge","channel":"Peak Functional","query":"barbell front rack reverse lunge technique"},
+    {"variantKey":"front-rack","videoId":"Vlgh0ImT5oU","title":"Barbell Front Rack Reverse Lunge","channel":"Functional Bodybuilding","query":"front rack reverse lunge"},
+    {"variantKey":"dumbbell-quarantine","videoId":"RZKXLMxPF_I","title":"Dumbbell Reverse Lunges | How To | Proper Form & Technique","channel":"FITTR","query":"dumbbell reverse lunge carry position review"}
   ]
   $json$::JSONB;
   alternate_payload JSONB := $json$
@@ -89,6 +72,32 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Fresh bootstraps generate UUIDs. The legacy exercise IDs and the exact
+  -- variant lineage keys below are the durable identity anchors.
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=172;
+  SELECT id INTO bodyweight_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO bodyweight_duplicate FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-565-baseline';
+  SELECT id INTO barbell_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-380-baseline';
+  SELECT id INTO front_rack_barbell_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-381-baseline';
+  SELECT id INTO dumbbell_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-421-baseline';
+  SELECT id INTO kettlebell_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-473-baseline';
+  SELECT id INTO tempo_annotation FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-753-baseline';
+  SELECT id INTO sandbag_ambiguous FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-1009-baseline';
+  SELECT id INTO med_ball_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-1301-baseline';
+  active_variant_ids := ARRAY[bodyweight_variant,front_rack_barbell_variant,med_ball_variant];
+  ambiguous_variant_ids := ARRAY[barbell_ambiguous,dumbbell_ambiguous,kettlebell_ambiguous,sandbag_ambiguous];
+  all_variant_ids := active_variant_ids||ambiguous_variant_ids||ARRAY[bodyweight_duplicate,tempo_annotation];
+
   IF (SELECT count(*) FROM coaching.exercise_definition_source_v1
       WHERE legacy_exercise_id=ANY(source_ids) AND definition_id=canonical_id)<>9
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(all_variant_ids))<>9
@@ -377,7 +386,11 @@ BEGIN
     channel_name,language_code,captions_available,embedding_allowed,
     exact_variant_match,demonstration_quality_score,link_status,review_status,
     discovery_method,source_query,reviewer_user_id,reviewed_at,next_review_at,notes)
-  SELECT canonical_id,(item->>'variantId')::UUID,2,
+  SELECT canonical_id,
+    CASE item->>'variantKey'
+      WHEN 'bodyweight' THEN bodyweight_variant
+      WHEN 'front-rack' THEN front_rack_barbell_variant
+      WHEN 'dumbbell-quarantine' THEN dumbbell_ambiguous END,2,
     'https://www.youtube.com/watch?v='||(item->>'videoId'),
     'https://www.youtube-nocookie.com/embed/'||(item->>'videoId'),
     item->>'videoId',item->>'title',item->>'channel','en',NULL,TRUE,NULL,NULL,
@@ -424,24 +437,17 @@ BEGIN
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,
-    CASE WHEN definition_id=ANY(ambiguous_definition_ids) THEN 'needs_human_review'
-      ELSE 'duplicate_consolidated' END,
-    CASE definition_id
-      WHEN '98602ded-5df4-4fa7-bf48-476d4f663df8'::UUID THEN 'Barbell Reverse Lunge belongs to this movement family but omits the rack or carry position required for an executable exact variant.'
-      WHEN 'ac791daf-09fe-4af4-90cd-5f267750c2a4'::UUID THEN 'Dumbbell Reverse Lunge belongs to this movement family but omits implement count, carry position, and load side.'
-      WHEN '996281b4-7c7a-4241-8d5c-c149b5612831'::UUID THEN 'Kettlebell Reverse Lunge belongs to this movement family but omits implement count, carry position, and load side.'
-      WHEN '7984010b-675d-447e-a21d-9e0ad33019a4'::UUID THEN 'Sandbag Reverse Lunge belongs to this movement family but permits an undeclared grip or hug and lacks an exact hold contract.'
-      WHEN '37feeb4f-45c0-4a82-83e1-752a4bd69cc3'::UUID THEN 'Bodyweight Reverse Lunge duplicates the canonical bodyweight full-cycle identity.'
-      WHEN 'c9ada602-7eb3-465c-a5a2-1c438cf20d43'::UUID THEN 'Reverse Lunge Negative preserves the full return to standing and is a slow-eccentric modifier annotation.'
-      ELSE 'The source preserves Reverse Lunge identity with an exact declared implement and load position represented as a canonical variant.' END,
-    jsonb_build_object('migration',migration_key,
-      'identityBoundary',CASE WHEN definition_id=ANY(ambiguous_definition_ids)
-        THEN 'reverse_lunge_family_with_missing_exact_load_position'
-        ELSE 'same_reverse_step_lunge_with_exact_variant_or_modifier' END,
+  -- Earlier non-replayable UUID-only records are not recreated against a
+  -- clean bootstrap: no distinct resolved definition exists to reference.
+  -- The durable source lineage and archived exact variants above retain the
+  -- quarantine without inventing a foreign-key identity boundary.
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review',
+    'Historical UUID-only identity boundary is retained in source lineage; no foreign-key target is fabricated during clean bootstrap.',
+    jsonb_build_object('migration',migration_key,'historicalBoundaryNotReplayed',TRUE,
       'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,
@@ -551,9 +557,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
       WHERE variant_id=ANY(active_variant_ids) AND status='review'
         AND version=1 AND reviewed_by IS NULL)<>6
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(ambiguous_definition_ids)
-        AND decision='needs_human_review' AND reviewed_by IS NULL)<>4 THEN
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE legacy_exercise_id=ANY(ARRAY[380,421,473,1009]::BIGINT[])
+        AND provenance_json->>'identityDisposition' LIKE 'archived_missing_%')<>4 THEN
     RAISE EXCEPTION '% found incomplete graph, calibration, or identity quarantine',migration_key;
   END IF;
 

@@ -9,28 +9,70 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '479_coaching_back_bridge_hold_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.84';
-  canonical_definition CONSTANT UUID := '154614aa-67be-4b1c-8e9f-cb9a30620239';
+  canonical_definition UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[16];
-  source_variant CONSTANT UUID := 'e84078d2-0fda-41a0-be73-355d84f2c985';
-  floor_variant CONSTANT UUID := 'e5ce6d88-46e0-458c-bf77-58e75c3e8208';
-  feet_elevated_variant CONSTANT UUID := '9a05f917-cdaf-4243-ab3c-5eb4d7af15be';
-  one_leg_variant CONSTANT UUID := '3df0bd43-31db-4961-a8b7-f1944322f650';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    floor_variant,feet_elevated_variant,one_leg_variant];
-  neighbor_definition_ids CONSTANT UUID[] := ARRAY[
-    '047048f8-4eb2-43aa-8daf-0bbb542e145a'::UUID,
-    'f40bde37-6465-42a3-a817-830eada23aa7'::UUID,
-    '3f21cb64-9f61-4c11-bbc0-aebd395dc76e'::UUID,
-    'eae3a6ea-3550-4a0e-bd48-dcde852f2fbe'::UUID,
-    'df3fdc9e-4e14-4be8-bf73-090b0e6227fd'::UUID,
-    'bd089b50-604a-40e5-9222-5cb1002dd241'::UUID,
-    '41b60c7f-ccc7-4c8d-97fd-c032b22b4761'::UUID,
-    'b9b5fe20-d556-4ade-8bad-4f4b4f219f18'::UUID,
-    '86f314f9-d8bd-4c53-a46d-af6806134e1c'::UUID];
+  source_variant UUID;
+  floor_variant UUID := gen_random_uuid();
+  feet_elevated_variant UUID := gen_random_uuid();
+  one_leg_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  glute_bridge_definition UUID;
+  glute_bridge_iso_definition UUID;
+  single_leg_glute_bridge_definition UUID;
+  single_leg_glute_bridge_iso_definition UUID;
+  crab_reach_definition UUID;
+  crab_reach_thoracic_definition UUID;
+  arch_body_definition UUID;
+  arch_hold_definition UUID;
+  back_extension_definition UUID;
+  arch_hold_variant UUID;
+  glute_bridge_iso_variant UUID;
+  crab_reach_thoracic_variant UUID;
+  back_extension_variant UUID;
+  neighbor_definition_ids UUID[];
   video_ids CONSTANT TEXT[] := ARRAY[
     'TrxZLshL0Ec','aozR72_L16g','tSvmWU-0Zo0','usyrUMFhLUc'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=16;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO glute_bridge_definition FROM coaching.exercise_definition_v1
+  WHERE slug='glute-bridge' AND status<>'archived';
+  SELECT id INTO glute_bridge_iso_definition FROM coaching.exercise_definition_v1
+  WHERE slug='glute-bridge-iso-hold' AND status<>'archived';
+  SELECT id INTO single_leg_glute_bridge_definition FROM coaching.exercise_definition_v1
+  WHERE slug='single-leg-glute-bridge' AND status<>'archived';
+  SELECT id INTO single_leg_glute_bridge_iso_definition FROM coaching.exercise_definition_v1
+  WHERE slug='single-leg-glute-bridge-hold' AND status<>'archived';
+  SELECT id INTO crab_reach_definition FROM coaching.exercise_definition_v1
+  WHERE slug='crab-reach' AND status<>'archived';
+  SELECT id INTO crab_reach_thoracic_definition FROM coaching.exercise_definition_v1
+  WHERE slug='crab-reach-thoracic-bridge' AND status<>'archived';
+  SELECT id INTO arch_body_definition FROM coaching.exercise_definition_v1
+  WHERE slug='arch-body-hold' AND status<>'archived';
+  SELECT id INTO arch_hold_definition FROM coaching.exercise_definition_v1
+  WHERE slug='arch-hold' AND status<>'archived';
+  SELECT id INTO back_extension_definition FROM coaching.exercise_definition_v1
+  WHERE slug='back-extension-hip-extension' AND status<>'archived';
+  SELECT id INTO arch_hold_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=arch_hold_definition AND variant_key='baseline';
+  SELECT id INTO glute_bridge_iso_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=glute_bridge_iso_definition
+    AND variant_key='bodyweight-bilateral-isometric';
+  SELECT id INTO crab_reach_thoracic_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=crab_reach_thoracic_definition AND variant_key='baseline';
+  SELECT id INTO back_extension_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=back_extension_definition AND variant_key='baseline';
+  active_variant_ids := ARRAY[floor_variant,feet_elevated_variant,one_leg_variant];
+  neighbor_definition_ids := ARRAY[
+    glute_bridge_definition,glute_bridge_iso_definition,
+    single_leg_glute_bridge_definition,single_leg_glute_bridge_iso_definition,
+    crab_reach_definition,crab_reach_thoracic_definition,arch_body_definition,
+    arch_hold_definition,back_extension_definition];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1
@@ -151,15 +193,15 @@ BEGIN
       'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL,now()
   FROM (VALUES
-    ('047048f8-4eb2-43aa-8daf-0bbb542e145a'::UUID,'hands_and_feet_arch_hold_vs_shoulders_and_feet_hip_extension_repetition','Glute Bridge scores dynamic hip extension with shoulders retained on support and no hand weight-bearing; Back Bridge is a static four-point arched support hold.','supine_shoulders_and_feet_supported_dynamic_hip_extension'),
-    ('f40bde37-6465-42a3-a817-830eada23aa7'::UUID,'hands_and_feet_arch_hold_vs_shoulders_and_feet_neutral_iso','Glute Bridge Iso retains shoulders on the floor and a comparatively neutral trunk line rather than hand-supported spine and shoulder extension.','supine_shoulders_and_feet_supported_hip_extension_isometric'),
-    ('3f21cb64-9f61-4c11-bbc0-aebd395dc76e'::UUID,'four_point_back_bridge_vs_unilateral_glute_bridge_repetition','Single-Leg Glute Bridge changes orientation, support, spinal shape, and dynamic hip-extension repetition.','unilateral_shoulders_and_foot_supported_dynamic_hip_extension'),
-    ('eae3a6ea-3550-4a0e-bd48-dcde852f2fbe'::UUID,'four_point_back_bridge_vs_unilateral_glute_bridge_iso','Single-Leg Glute Bridge Iso retains shoulder-floor support and hip-extension alignment rather than palm support and an arched spine.','unilateral_shoulders_and_foot_supported_hip_extension_isometric'),
-    ('df3fdc9e-4e14-4be8-bf73-090b0e6227fd'::UUID,'bilateral_static_hold_vs_unilateral_rotational_reach','Crab Reach uses one supporting arm and a prescribed reach or rotation action rather than a bilateral static bridge hold.','one_arm_crab_support_with_reach_and_rotation'),
-    ('bd089b50-604a-40e5-9222-5cb1002dd241'::UUID,'bilateral_static_hold_vs_dynamic_thoracic_bridge_reach','Crab Reach Thoracic Bridge is an anterior-chain flow with unilateral reach and rotation, not the same static support contract.','dynamic_crab_reach_thoracic_rotation_flow'),
-    ('41b60c7f-ccc7-4c8d-97fd-c032b22b4761'::UUID,'four_point_supported_arch_vs_prone_unsupported_arch','Arch Body Hold or Superman is prone unsupported limb elevation with no palm-and-foot support.','prone_unsupported_static_arch_shape'),
-    ('b9b5fe20-d556-4ade-8bad-4f4b4f219f18'::UUID,'four_point_supported_arch_vs_prone_arch_hold','Arch Hold is a prone ground shape and cannot substitute without changing support, loading, spinal demand, and objective.','prone_static_arch_shape_hold'),
-    ('86f314f9-d8bd-4c53-a46d-af6806134e1c'::UUID,'static_full_body_arch_vs_supported_hinge_extension_cycle','Back Extension or Hip Extension is a supported hinge repetition around the hip or trunk, not a static hands-and-feet bridge.','supported_dynamic_hip_or_trunk_extension_cycle')
+    (glute_bridge_definition,'hands_and_feet_arch_hold_vs_shoulders_and_feet_hip_extension_repetition','Glute Bridge scores dynamic hip extension with shoulders retained on support and no hand weight-bearing; Back Bridge is a static four-point arched support hold.','supine_shoulders_and_feet_supported_dynamic_hip_extension'),
+    (glute_bridge_iso_definition,'hands_and_feet_arch_hold_vs_shoulders_and_feet_neutral_iso','Glute Bridge Iso retains shoulders on the floor and a comparatively neutral trunk line rather than hand-supported spine and shoulder extension.','supine_shoulders_and_feet_supported_hip_extension_isometric'),
+    (single_leg_glute_bridge_definition,'four_point_back_bridge_vs_unilateral_glute_bridge_repetition','Single-Leg Glute Bridge changes orientation, support, spinal shape, and dynamic hip-extension repetition.','unilateral_shoulders_and_foot_supported_dynamic_hip_extension'),
+    (single_leg_glute_bridge_iso_definition,'four_point_back_bridge_vs_unilateral_glute_bridge_iso','Single-Leg Glute Bridge Iso retains shoulder-floor support and hip-extension alignment rather than palm support and an arched spine.','unilateral_shoulders_and_foot_supported_hip_extension_isometric'),
+    (crab_reach_definition,'bilateral_static_hold_vs_unilateral_rotational_reach','Crab Reach uses one supporting arm and a prescribed reach or rotation action rather than a bilateral static bridge hold.','one_arm_crab_support_with_reach_and_rotation'),
+    (crab_reach_thoracic_definition,'bilateral_static_hold_vs_dynamic_thoracic_bridge_reach','Crab Reach Thoracic Bridge is an anterior-chain flow with unilateral reach and rotation, not the same static support contract.','dynamic_crab_reach_thoracic_rotation_flow'),
+    (arch_body_definition,'four_point_supported_arch_vs_prone_unsupported_arch','Arch Body Hold or Superman is prone unsupported limb elevation with no palm-and-foot support.','prone_unsupported_static_arch_shape'),
+    (arch_hold_definition,'four_point_supported_arch_vs_prone_arch_hold','Arch Hold is a prone ground shape and cannot substitute without changing support, loading, spinal demand, and objective.','prone_static_arch_shape_hold'),
+    (back_extension_definition,'static_full_body_arch_vs_supported_hinge_extension_cycle','Back Extension or Hip Extension is a supported hinge repetition around the hip or trunk, not a static hands-and-feet bridge.','supported_dynamic_hip_or_trunk_extension_cycle')
   ) b(definition_id,boundary_key,rationale,neighbor_contract)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
@@ -553,10 +595,10 @@ BEGIN
     (feet_elevated_variant,floor_variant,'lateral_substitution',72,ARRAY['range','leverage','stability','complexity']::TEXT[],'Returning feet to the floor changes range, geometry, load distribution, and station and requires full revalidation.'),
     (floor_variant,one_leg_variant,'progression',70,ARRAY['load','stability','complexity']::TEXT[],'Removing one foot and holding a straight free leg increases unilateral support and position-control demand; readiness is not inferred from difficulty.'),
     (one_leg_variant,floor_variant,'regression',70,ARRAY['load','stability','complexity']::TEXT[],'Restoring bilateral foot support can reduce one balance and load demand while side, geometry, hold, and exit still require review.'),
-    (floor_variant,'94204980-597a-4ab9-b759-bc2cfc83d2bb'::UUID,'regression',50,ARRAY['load','range','complexity']::TEXT[],'Prone Arch Hold removes palm-and-foot weight-bearing and can be a different low-load extension objective, not an automatic substitute.'),
-    (floor_variant,'01e13d68-1384-46f2-bb81-e2044ce8f353'::UUID,'regression',48,ARRAY['load','range','complexity']::TEXT[],'Glute Bridge Iso removes palm support and large spinal and shoulder extension but changes the exercise objective and identity.'),
-    (floor_variant,'59ce1a43-cace-47d2-af14-6abbc7941df7'::UUID,'lateral_substitution',42,ARRAY['stability','range','complexity','decision_demand']::TEXT[],'Crab Reach Thoracic Bridge adds unilateral reach and rotation; use only when the session objective is explicitly changed and revalidated.'),
-    (floor_variant,'089c11ea-2f9f-4743-8ff4-e24f4a44f276'::UUID,'lateral_substitution',40,ARRAY['load','range','complexity']::TEXT[],'Back Extension changes support axis and dynamic action; it is only a candidate when the objective changes from static bridge support to extension repetition.')
+    (floor_variant,arch_hold_variant,'regression',50,ARRAY['load','range','complexity']::TEXT[],'Prone Arch Hold removes palm-and-foot weight-bearing and can be a different low-load extension objective, not an automatic substitute.'),
+    (floor_variant,glute_bridge_iso_variant,'regression',48,ARRAY['load','range','complexity']::TEXT[],'Glute Bridge Iso removes palm support and large spinal and shoulder extension but changes the exercise objective and identity.'),
+    (floor_variant,crab_reach_thoracic_variant,'lateral_substitution',42,ARRAY['stability','range','complexity','decision_demand']::TEXT[],'Crab Reach Thoracic Bridge adds unilateral reach and rotation; use only when the session objective is explicitly changed and revalidated.'),
+    (floor_variant,back_extension_variant,'lateral_substitution',40,ARRAY['load','range','complexity']::TEXT[],'Back Extension changes support axis and dynamic action; it is only a candidate when the objective changes from static bridge support to extension repetition.')
   ) r(from_id,to_id,relationship,similarity,dimensions,reason)
   ON CONFLICT(from_variant_id,to_variant_id,relationship) DO UPDATE SET
     similarity_score=EXCLUDED.similarity_score,dimensions=EXCLUDED.dimensions,

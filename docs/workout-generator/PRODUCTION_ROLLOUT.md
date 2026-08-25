@@ -1,5 +1,21 @@
 # Canonical workout generation production rollout
 
+## Current authoritative snapshot (2026-08-11)
+
+The current disposable-PostgreSQL release report covers 206 active canonical
+definitions and 1,676 source-covered legacy rows. All 206 are deliberately in
+`review`; zero are published. Candidate contract coverage is 100% for scores,
+anatomy, load, fatigue, support, operations, research sections, alternates, and
+a three-to-five media-candidate set; 99.51% have three to five healthy embeddable
+metadata records. This does not constitute
+external media verification or clinical/coach approval.
+
+The release command remains correctly blocked at 0/25 published cards, zero
+published phase depth in all seven phases, 0/10 approved graph edges, 0/3
+approved calibration anchors, and 0/20 coach-pilot reviews. Historic snapshots
+below are evidence of the migration path only; do not use their counts for a
+release decision.
+
 ## Automated release gate
 
 Run:
@@ -911,6 +927,45 @@ are additive and should not be rolled back destructively during an incident.
   bootstrap rehearsal, staged flags, monitoring, and rollback evidence remain
   required.
 
+## 2026-08-09 — Source 44 rollout checkpoint
+
+- Migration 520 is registered in the real platform runner at checksum
+  `745227028` and passes immutable re-entry. It replaces the conflicting
+  Standing Calf Raise rows with one review-only Source 44 specification while
+  retaining all nine legacy family source variants as archived provenance.
+  Source 44 remains unpublished; eight duplicate or unresolved legacy family
+  rows are archived and unpublished. No approval or review authority was
+  fabricated.
+- The selectable review variant includes exact support, start, rise,
+  checkpoint, return, count, task-only difficulty, anatomy, load, fatigue,
+  recovery, cumulative budgets, logistics, duration, substitution
+  revalidation, persistence, and distinct coach/member rendering. Step,
+  unilateral, alternating, unsupported, loaded, sustained-isometric,
+  eccentric-only, fast-elastic, bent-knee, seated, compound, clinical, and
+  sport tasks do not enter this variant silently.
+- Its packet retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed responses
+  prove current metadata and embedding availability only; playback, exact
+  mechanics, captions, accessibility, demonstration quality, safety, scope,
+  reviewer identity, card-version match, and approval remain human work.
+- The research/migration slice passes 277/277, the single-workout full-story
+  slice passes 65/65, the platform suite passes 829/829, and the backend suite
+  passes 1,083 with 20 intentional skips out of 1,103. Focused lint, generated
+  packet validation, diff integrity, and the production build pass; the build
+  reports only stale browser-data and greater-than-500-kB bundle advisories.
+- Machine coverage is now 10.88% for scores, anatomy, support, complete
+  candidate research packets, candidate evidence-section coverage, and
+  alternates; 11.07% for operational profiles; 8.44% for load; 8.91% for
+  fatigue; 69.98% for candidate media sets; and 5.82% for embeddable candidate
+  sets. Reviewed research, approved media, approved graph, approved
+  calibration, and publication coverage remain zero.
+- Production release remains correctly blocked: 0 published canonical
+  definitions, zero phase depth, 0/490 approved relationships, 0/699 approved
+  calibration anchors, and 0 coach-pilot reviews. Qualified review,
+  clean-bootstrap repair for historical failed migrations, shadow generation,
+  staged rollout, monitoring, rollback, incident response, and support
+  rehearsal remain required.
+
 ## Automated gate snapshot after migration 477
 
 - Freestanding and wall-supported Handstand Holds now expose four exact
@@ -1306,3 +1361,679 @@ are additive and should not be rolled back destructively during an incident.
   monitoring, rollback, and incident proof; support readiness; and a real
   coach pilot. The remaining 942 machine-incomplete cards continue with Source
   26 `Quadruped Spinal Circles`.
+
+## 2026-08-09 — Source 26 rollout checkpoint
+
+- Migration 497 (`3770465916`) passes two unchanged direct executions,
+  normal-runner registration/third idempotent execution, immutable skip, exact
+  family assertions, per-card canonical audit, focused and full tests, and
+  production build. It creates no human review or approval state.
+- Source 26 contributes one machine-complete review card, one exact
+  fixed-contact variant, two contextual profiles, one current five-video
+  candidate set, and candidate-only evidence, alternates, identity, graph,
+  calibration, content, and publication records. Its per-card audit contains
+  only media, graph, calibration, and publication human gates. Source 27 is
+  already at the same machine-complete/human-gated state; Source 28
+  `Side-Lying Open Book` is the next machine-incomplete family.
+- Validation passes 236 focused tests, 788 platform tests, and 1,042 backend
+  tests with 20 intentional skips. Focused lint, JSON parsing, generated
+  packet/manifest checks, diff integrity, canonical coverage, the 1,592/1,592
+  published-legacy Needs Engine audit, and production build pass. Existing
+  browser-data freshness and large Admin-chunk warnings remain advisory.
+- Release remains correctly `blocked`: the disposable reconstruction has zero
+  published canonical definitions and phase depth, 0/10 approved
+  relationships, 0/3 approved calibration anchors, and 0/20 real coach
+  reviews. Source 26 additionally requires full-video, evidence, alternate,
+  identity, graph, difficulty, content, comprehension, and separate
+  publication review. No approval may be inferred from machine completeness or
+  oEmbed health.
+- A clean-database rollout is not yet proven. The full numbered migration path
+  currently orders `426_drop_in_notification_tracking.sql` before the
+  unnumbered prerequisite that creates `drop_in_registration`. Later family-
+  audit migrations also reference UUIDs that migration 243 generates
+  nondeterministically on a fresh database. Source 26 was validated using a
+  disposable-only faithful Source-23-through-25 reconstruction; production
+  rollout must repair the bootstrap order/identity determinism and then rerun
+  the entire database from empty without normalization shortcuts.
+- Production authorization still requires the human gates above, sufficient
+  reviewed/published phase depth, shadow generation, representative
+  substitution and failure tests, clean-database rehearsal, staged flags,
+  monitoring, rollback, incident proof, support readiness, and a real coach
+  pilot meeting the configured acceptance/edit thresholds.
+
+## 2026-08-09 — Source 28 rollout checkpoint
+
+- Migration 498 (`18231930`) passes two unchanged direct executions,
+  normal-runner registration and immutable skip, family assertions, focused
+  and full suites, audits, and the production build. It creates no human review
+  or approval state.
+- Source 28 contributes one machine-complete survivor, one exact review
+  variant, two operational profiles, one five-video candidate set, and
+  candidate-only evidence, alternates, identity decisions, graph proposals,
+  calibrations, content, and publication records. Sources 891 and 1306 are
+  archived exact duplicates with mappings and lineage preserved. The Source 28
+  packet has only media, graph, calibration, and publication human gates.
+- Validation passes 238 focused tests, 790 platform tests, and 1,044 backend
+  tests with 20 intentional skips. Focused lint, JSON/generated artifacts,
+  diff integrity, repeated PostgreSQL application, runner registration/skip,
+  family invariants, the 1,589/1,589 published-legacy Needs Engine audit,
+  canonical and release reporting, and the production build pass. Browser-
+  compatibility data freshness and the greater-than-500-kB Admin bundle remain
+  nonblocking advisories.
+- Release remains correctly `blocked`: zero canonical definitions and phase
+  depth are published, 0/10 relationships and 0/3 calibration anchors are
+  approved, and 0/20 real coach reviews exist. Qualified reviewers must still
+  watch the five videos, adjudicate all evidence, alternates, identities,
+  graph and difficulty proposals, review coach/athlete/support content, test
+  comprehension, and provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on migration-243 UUIDs that are nondeterministic on a fresh database.
+  These are explicit production blockers; the Source 28 migration itself was
+  validated on the disposable faithful reconstruction without modifying
+  unrelated scheduling work.
+- Production authorization additionally requires enough reviewed/published
+  phase depth, shadow generation, representative substitution and failure
+  tests, a repaired empty-database rehearsal, staged flags, monitoring,
+  rollback and incident proof, support readiness, and a coach pilot that meets
+  the configured acceptance and edit thresholds. Source 29 `Inchworm Walkout`
+  is the next machine-incomplete family.
+
+## 2026-08-09 — Source 29 rollout checkpoint
+
+- Migrations 499 (`1634112643`) and 500 (`546720287`) pass repeated direct
+  execution, normal-runner registration and immutable skip, family and identity
+  assertions, focused and full suites, audits, and the production build. They
+  create no human review or approval state.
+- Source 29 contributes one stable machine-complete definition, two exact
+  review variants, four operational profiles, one five-video candidate set,
+  and candidate-only evidence, alternates, identity decisions, graph proposals,
+  calibrations, content, and publication records. Its packet contains only the
+  four intended media, graph, calibration, and publication human gates.
+- Validation passes 241 focused tests, 793 platform tests, and 1,047 backend
+  tests with 20 intentional skips. Focused lint, JSON/generated artifacts,
+  diff integrity, repeated PostgreSQL application, runner checks, persisted
+  invariants, the 1,588/1,588 published-legacy Needs Engine audit, canonical
+  and release reporting, and the production build pass. Browser-data freshness,
+  the greater-than-500-kB Admin bundle, and clean-bootstrap defects remain
+  advisories or explicit blockers as already classified.
+- Release remains correctly `blocked`: zero canonical definitions and phase
+  depth are published, graph and calibration proposals remain unapproved, and
+  no real coach-pilot review exists. Qualified reviewers must still watch all
+  five videos, adjudicate evidence, alternates, identities, graph and score
+  proposals, review coach/athlete/support content, test comprehension, and
+  provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. No production data or
+  unrelated scheduling work was changed to conceal those defects.
+- Production authorization additionally requires sufficient reviewed and
+  published phase depth, shadow generation, representative substitution and
+  failure tests, a repaired empty-database rehearsal, staged flags, monitoring,
+  rollback and incident proof, support readiness, and a coach pilot meeting the
+  configured thresholds. Source 30 `Wrist Rockers — Palms Down` is next.
+
+## 2026-08-09 — Source 30 rollout checkpoint
+
+- Migration 501 (`3818017833`) passes repeated direct execution, production-
+  runner registration and immutable skip, family assertions, focused and full
+  suites, audits, and the production build. It creates no human review or
+  approval state.
+- Source 30 contributes one stable machine-complete definition, one exact
+  review variant, two operational profiles, one five-video candidate set, and
+  candidate-only evidence, alternates, identity decisions, graph proposals,
+  calibrations, content, and publication records. After correcting one
+  uncontrolled body-region label and two graph dimensions, the persisted card
+  packet contains only media, graph, calibration, and publication human gates.
+- Validation passes 243 focused tests, 795 platform tests, and 1,049 backend
+  tests with 20 intentional skips. Focused lint, JSON/generated artifacts,
+  diff integrity, repeated PostgreSQL application, runner checks, persisted
+  invariants, the 1,587/1,587 published-legacy Needs Engine audit, canonical
+  and identity audits, expected blocked release reporting, and the production
+  build pass. Browser-data freshness and the greater-than-500-kB Admin bundle
+  remain nonblocking advisories.
+- Release remains correctly `blocked`: 0 canonical definitions and phase depth
+  are published, 0/438 graph edges and 0/661 calibration anchors are approved,
+  and 0 real coach-pilot reviews exist. Qualified reviewers must still watch
+  all five videos, adjudicate evidence, alternates, identities, graph and score
+  proposals, review coach/athlete/support content, test comprehension, and
+  provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. No production data or
+  unrelated scheduling work was changed to conceal those defects.
+- Production authorization additionally requires at least 25 reviewed and
+  published definitions, depth of 3 in every required phase, 10 approved graph
+  edges, 3 independently approved calibration anchors, shadow generation,
+  substitution/failure rehearsals, repaired empty-database migration, staged
+  flags, monitoring, rollback/incident/support proof, and at least 20 real
+  coach reviews meeting the configured acceptance and edit thresholds. Source
+  31 `Wrist Rockers — Palms Up / Flexor Bias` is next.
+
+## 2026-08-09 — Source 31 rollout checkpoint
+
+- Migration 502 (`436621732`) passes repeated direct execution, production-
+  runner registration and immutable skip, family assertions, focused and full
+  suites, audits, and the production build. It creates no human review or
+  approval state.
+- Source 31 contributes one stable machine-complete definition, one exact
+  review variant, two operational profiles, one five-video current candidate
+  set, and candidate-only evidence, alternates, identity decisions, graph
+  proposals, calibrations, content, and publication records. Its clarified
+  display name states the backs-of-hands-down wrist-flexion task while
+  preserving the legacy palms-up/flexor-bias alias. The persisted audit packet
+  contains only media, graph, calibration, and publication human gates.
+- Validation passes 245 focused tests, 797 platform tests, and 1,051 backend
+  tests with 20 intentional skips. Focused lint, JSON/generated artifacts,
+  migration and runner checks, persisted invariants, the 1,586/1,586
+  published-legacy Needs Engine audit, canonical and identity audits, expected
+  blocked release reporting, and the production build pass. Browser-data
+  freshness and the greater-than-500-kB Admin bundle remain nonblocking
+  advisories.
+- Release remains correctly `blocked`: 0 canonical definitions and phase depth
+  are published, 0/442 graph edges and 0/663 calibration anchors are approved,
+  and 0 real coach-pilot reviews exist. Qualified reviewers must still watch
+  all five videos, adjudicate evidence, alternates, identities, graph and score
+  proposals, review coach/athlete/support content, test comprehension, and
+  provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. No production data, handoff
+  record, or unrelated scheduling work was changed to conceal those defects.
+- Production authorization additionally requires at least 25 reviewed and
+  published definitions, depth of 3 in every required phase, 10 approved graph
+  edges, 3 independently approved calibration anchors, shadow generation,
+  substitution/failure rehearsals, repaired empty-database migration, staged
+  flags, monitoring, rollback/incident/support proof, and at least 20 real
+  coach reviews meeting the configured acceptance and edit thresholds. Source
+  32 `Finger Pulses / Palm Lifts` is next.
+
+## 2026-08-09 — Source 32 rollout checkpoint
+
+- Migration 503 (`2010872005`) passes repeated direct execution, production-
+  runner registration and immutable skip, family assertions, focused and full
+  suites, audits, and the production build. It creates no human review or
+  approval state.
+- Source 32 contributes one stable machine-complete definition, two exact
+  review variants, four operational profiles, one four-video current candidate
+  set, and candidate-only evidence, alternates, identity decisions, graph
+  proposals, calibrations, content, and publication records. It replaces an
+  ambiguous combined skeleton with explicit Finger Pulse and Palm Lift action,
+  contact, count, logistics, duration, fatigue, substitution, persistence, and
+  rendering contracts. The persisted packet contains only media, graph,
+  calibration, and publication human gates.
+- Validation passes 247 focused tests, 799 platform tests, and 1,053 backend
+  tests with 20 intentional skips. Focused lint, JSON/generated artifacts,
+  migration and runner checks, persisted invariants, the 1,585/1,585
+  published-legacy Needs Engine audit, canonical and identity audits, expected
+  blocked release reporting, and the production build pass. Browser-data
+  freshness and the greater-than-500-kB Admin bundle remain nonblocking
+  advisories.
+- Release remains correctly `blocked`: 0 canonical definitions and phase depth
+  are published, 0/447 graph edges and 0/667 calibration anchors are approved,
+  and 0 real coach-pilot reviews exist. Qualified reviewers must still watch
+  all four videos, adjudicate evidence, alternates, identities, graph and score
+  proposals, review coach/athlete/support content, test comprehension, and
+  provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. No production data, handoff
+  record, or unrelated scheduling work was changed to conceal those defects.
+- Production authorization additionally requires at least 25 reviewed and
+  published definitions, depth of 3 in every required phase, 10 approved graph
+  edges, 3 independently approved calibration anchors, shadow generation,
+  substitution/failure rehearsals, repaired empty-database migration, staged
+  flags, monitoring, rollback/incident/support proof, and at least 20 real
+  coach reviews meeting the configured acceptance and edit thresholds. Source
+  33 is next.
+
+## 2026-08-09 — Source 33 rollout checkpoint
+
+- Migrations 504 (`3861180580`) and 505 (`2304250950`) pass repeated direct
+  execution, production-runner registration and immutable skip, family and
+  duplicate-closure assertions, focused and full suites, audits, and the
+  production build. They create no human review or approval state.
+- Source 33 contributes one stable machine-complete definition, four exact
+  review variants, eight operational profiles, one five-video current
+  candidate set, and candidate-only evidence, alternates, identity decisions,
+  graph proposals, calibrations, content, and publication records. Source 900
+  is consolidated as an exact quadruped-dynamic duplicate and archived. The
+  persisted packet contains only media, graph, calibration, and publication
+  human gates.
+- Validation passes 250 focused tests, 802 platform tests, and 1,056 backend
+  tests with 20 intentional skips out of 1,076. Focused lint, registry/batch
+  and generated artifacts, migration/runner checks, persisted invariants, the
+  1,583/1,583 published-legacy Needs Engine audit, canonical and identity
+  audits, expected blocked release reporting, diff integrity, and the
+  production build pass. Browser-data freshness and the greater-than-500-kB
+  Admin bundle remain nonblocking advisories.
+- Release remains correctly `blocked`: 0 canonical definitions and phase depth
+  are published, 0/453 graph edges and 0/675 calibration anchors are approved,
+  and 0 real coach-pilot reviews exist. Qualified reviewers must still watch
+  all five videos, adjudicate evidence, alternates, identities, graph and score
+  proposals, review coach/athlete/support content, test comprehension, and
+  provide separate publication approval.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. No production data, handoff
+  record, or unrelated dirty work was changed to conceal those defects.
+- Production authorization additionally requires at least 25 reviewed and
+  published definitions, depth of 3 in every required phase, 10 approved graph
+  edges, 3 independently approved calibration anchors, shadow generation,
+  substitution/failure rehearsals, repaired empty-database migration, staged
+  flags, monitoring, rollback/incident/support proof, and at least 20 real
+  coach reviews meeting the configured acceptance and edit thresholds. Source
+  34 is next.
+
+## 2026-08-09 — Source 34 rollout checkpoint
+
+- Migration 506 is registered in disposable PostgreSQL at checksum
+  `3738284647`, timestamp `2026-08-09 16:53:54.541567-04`. Direct execution,
+  runner registration and immutable skip, persisted invariants, focused lint,
+  generated packet checks, full test suites, and the production build pass.
+  The migration creates no human review or approval state.
+- Source 34 contributes one stable machine-complete definition, one exact
+  review variant, two operational review profiles, a five-video current
+  candidate set, and candidate-only evidence, alternates, identity decisions,
+  graph proposals, calibrations, content, and publication records. One source
+  skeleton and its profile are archived. The persisted packet contains exactly
+  four blockers: media, graph, calibration, and publication.
+- Validation passes 252 focused tests, 804 platform tests, and 1,058 backend
+  tests with 20 intentional skips out of 1,078. The refreshed Needs Engine
+  audit passes 1,582/1,582 published legacy exercises. The canonical audit has
+  1,070 definitions, 29 unresolved high-similarity pairs, and zero exact
+  collision. Browser-data freshness and the greater-than-500-kB Admin bundle
+  remain nonblocking build advisories.
+- Release remains correctly `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/457 graph edges and 0/677
+  calibration anchors are approved, and 0 real coach-pilot reviews exist.
+  Qualified reviewers must watch and match all five videos, adjudicate
+  evidence, alternates, identity boundaries, graph and difficulty proposals,
+  review coach/athlete/accessibility/support content, test comprehension, and
+  provide separate publication approval.
+- Source 1311 Quadruped Scapular Clock remains quarantined and distinct until
+  exact planted/moving-hand, path, checkpoint, and count mechanics are
+  established. No unresolved mechanics were promoted to production authority.
+- Clean-database rollout remains unproven because migration 426 precedes its
+  unnumbered `drop_in_registration` prerequisite and later family migrations
+  depend on nondeterministic migration-243 UUIDs. Production authorization
+  still requires repaired empty-database migration, the configured library and
+  phase-depth floors, approved graph and calibration depth, shadow generation,
+  substitution/failure rehearsals, staged flags, monitoring,
+  rollback/incident/support proof, and at least 20 qualifying real coach
+  reviews.
+
+## 2026-08-09 — Source 35 rollout checkpoint
+
+- Migration 507 is registered in disposable PostgreSQL at checksum
+  `939129674`, timestamp `2026-08-09 17:18:51.59162-04`. Direct and repeated
+  execution, application-runner registration and immutable skip, persisted
+  invariants, focused lint, generated packet checks, full test suites, and the
+  production build pass. The migration creates no human approval state.
+- Source 35 contributes one stable machine-complete definition, one exact
+  review variant, two operational review profiles, a five-video current
+  candidate set, and candidate-only evidence, alternates, identity decisions,
+  graph proposals, calibrations, content, and publication records. Source 899
+  is consolidated as an exact legacy duplicate. Source 1309 is restored to an
+  archived identity quarantine rather than merged by name. Three source
+  variants and profiles are archived. The packet retains exactly four
+  blockers: media, graph, calibration, and publication.
+- Validation passes 254 focused tests, 806 platform tests, and 1,060 backend
+  tests with 20 intentional skips out of 1,080. The Needs Engine audit passes
+  1,579/1,579 still-published legacy exercises. The canonical audit has 1,070
+  definitions, 629 raw potential pairs, 600 adjudicated-distinct pairs, 29
+  unresolved high-similarity pairs, and zero exact collision. Browser-data
+  freshness and the 863.70-kB Admin chunk remain nonblocking build advisories.
+- Machine coverage is 10.09% score and operational profiles, 9.91% anatomy,
+  support, and candidate research packets, 7.48% load profiles, 7.94% fatigue
+  profiles, 69.81% three-to-five candidate media sets, and 4.86% embeddable
+  candidate sets. Reviewed research, approved media, and publication coverage
+  remain zero.
+- Release is correctly `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/461 graph edges and 0/679
+  calibration anchors are approved, and 0 real coach-pilot reviews exist.
+  Qualified reviewers must watch and match all five videos, adjudicate
+  evidence, alternates, identities, graph and score proposals, review coach,
+  athlete, accessibility, and support content, test comprehension, and provide
+  separate publication approval.
+- Clean-database rollout remains unproven because existing migration-order and
+  nondeterministic legacy-UUID prerequisites predate Source 35. Production
+  authorization still requires a repaired empty-database migration path, at
+  least 25 reviewed and published definitions, depth of 3 in every required
+  phase, 10 approved graph edges, 3 approved calibration anchors, shadow
+  generation, substitution and failure rehearsals, staged flags, monitoring,
+  rollback, incident and support proof, and at least 20 qualifying real coach
+  reviews.
+
+## 2026-08-09 — Source 36 rollout checkpoint
+
+- Migration 508 is registered in disposable PostgreSQL at checksum
+  `2642450056`, timestamp `2026-08-09 17:40:55.159597-04`. Direct and repeated
+  execution, application-runner registration and immutable skip, checksum
+  equality, persisted invariants, focused lint, packet validation, full test
+  suites, and the production build pass. No human approval state is created.
+- Source 36 contributes one stable machine-complete definition, one exact
+  review variant, two operational review profiles, five current media
+  candidates, and candidate-only evidence, alternates, identity decisions,
+  graph proposals, calibrations, content, and publication records. Its source
+  skeleton and profile are archived. Source 1348 remains an unresolved direct
+  identity collision rather than being merged by name. The packet retains
+  exactly four blockers: media, graph, calibration, and publication.
+- Validation passes 256 focused tests, 808 platform tests, and 1,062 backend
+  tests with 20 intentional skips out of 1,082. The Needs Engine audit passes
+  1,578/1,578 still-published legacy exercises. The canonical audit has 1,070
+  definitions, 630 raw pairs, 601 adjudicated-distinct pairs, 29 unresolved
+  high-similarity pairs, and zero exact collision. Browser-data freshness and
+  the 863.70-kB Admin chunk remain nonblocking build advisories.
+- Machine coverage is 10.19% score and operational profiles, 10.00% anatomy,
+  support, and candidate research packets, 7.57% load profiles, 8.04% fatigue
+  profiles, 69.81% candidate media sets, and 4.95% embeddable candidate sets.
+  Reviewed research, approved media, and publication coverage remain zero.
+- Release is correctly `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/465 graph edges and 0/681
+  calibration anchors are approved, and 0 real coach-pilot reviews exist.
+  Qualified reviewers must watch and match all five videos, resolve the Source
+  1348 collision, adjudicate evidence, alternates, graph and score proposals,
+  test coach/athlete/accessibility/support content, and provide separate
+  publication approval.
+- Clean-database rollout remains unproven because existing migration-order and
+  nondeterministic legacy-UUID prerequisites predate Source 36. Production
+  authorization still requires a repaired empty-database path, at least 25
+  reviewed and published definitions, depth of 3 in every required phase, 10
+  approved graph edges, 3 approved calibration anchors, shadow generation,
+  substitution and failure rehearsals, staged flags, monitoring, rollback,
+  incident and support proof, and at least 20 qualifying real coach reviews.
+
+## 2026-08-09 — Source 37 rollout checkpoint
+
+- Migration 509 is registered in disposable PostgreSQL at checksum
+  `3691112942`, timestamp `2026-08-09 18:12:28.636467-04`. Finalized direct
+  execution, application-runner registration and immutable skip, persisted
+  invariants, packet regeneration, focused lint, full suites, audits, and the
+  production build pass. No human review or approval state is created.
+- Source 37 is split into exact review-only `Standing Single-Arm Shoulder CAR`
+  and `Standing Bilateral Arm Circles` definitions. They contribute 2 exact
+  variants, 3 operational profiles, 32 candidate evidence sections, 9 media
+  candidates, 43 alternates, 6 graph proposals, 4 calibration proposals, and
+  7 deterministic identity decisions. The conflated skeleton is archived.
+- Validation passes 258 focused tests, 810 platform tests, and 1,064 backend
+  tests with 20 intentional skips out of 1,084. The Needs Engine audit passes
+  1,577/1,577 published exercises. The canonical audit has 1,071 definitions,
+  631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved high-similarity
+  pairs, and zero exact collision. The Shoulder CAR/Neck CAR false positive is
+  explicitly closed.
+- Machine coverage is 10.36% score and operational profiles, 10.18% anatomy,
+  support, and candidate research packets, 7.75% load profiles, 8.22% fatigue
+  profiles, 69.84% candidate media sets, and 5.14% embeddable candidate sets.
+  Reviewed research, approved media, and publication coverage remain zero.
+- Release is correctly `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/469 graph edges and 0/685
+  calibration anchors are approved, and 0 real coach-pilot reviews exist.
+  Qualified reviewers must watch and exactly match all nine videos, adjudicate
+  evidence, alternates, identity, graph and score proposals, test coach,
+  athlete, accessibility and support content, and separately approve release.
+- Existing clean-bootstrap blockers remain outside Source 37. Production still
+  requires the repaired empty-database path, configured library and phase-depth
+  floors, approved graph and calibration depth, shadow generation,
+  substitution/failure rehearsals, staged flags, monitoring, rollback,
+  incident/support proof, and at least 20 qualifying real coach reviews.
+
+## 2026-08-09 — Source 38 rollout checkpoint
+
+- Migration 510 is registered in disposable PostgreSQL at checksum
+  `1098400606`, timestamp `2026-08-09 18:31:20.658721-04`. The application
+  runner applies it once and skips it immutably thereafter; generated packet,
+  persisted invariants, focused lint, full suites, audits, and the production
+  build pass. No human review or approval state is created.
+- Source 38 contributes one exact review variant, two contextual profiles, 16
+  candidate evidence sections, 5 media candidates, 24 alternates, 4 graph
+  proposals, 2 calibration proposals, and 5 identity decisions. Source 38's
+  skeleton is archived. Source 912 is restored to its own archived definition
+  and remains an explicit human identity gate rather than an inferred exact
+  duplicate. The packet retains five blockers: media, identity, graph,
+  calibration, and publication.
+- Validation passes 260 focused tests, 812 platform tests, and 1,066 backend
+  tests with 20 intentional skips out of 1,086. The Needs Engine audit passes
+  1,575/1,575 published exercises. The canonical audit has 1,071 definitions,
+  631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved high-similarity
+  pairs, and zero exact collision.
+- Machine coverage is 10.36% score, 10.27% anatomy and support, 10.46%
+  operational profiles, 7.84% load profiles, 8.31% fatigue profiles, 10.27%
+  complete candidate research packets, 69.84% candidate media sets, and 5.23%
+  embeddable candidate sets. Reviewed research, approved media, and
+  publication coverage remain zero.
+- Release is correctly `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/473 graph edges and 0/687
+  calibration anchors are approved, and 0 real coach-pilot reviews exist.
+  Qualified reviewers must watch and exactly match all five candidates,
+  resolve Source 912, adjudicate evidence, alternates, graph and score
+  proposals, test coach/athlete/accessibility/support content, and separately
+  approve release.
+- Existing clean-bootstrap blockers remain outside Source 38. Production still
+  requires a repaired empty-database path, at least 25 reviewed and published
+  definitions, depth of 3 in every required phase, 10 approved graph edges, 3
+  approved calibration anchors, shadow generation, substitution and failure
+  rehearsals, staged flags, monitoring, rollback, incident and support proof,
+  and at least 20 qualifying real coach reviews.
+
+## 2026-08-09 — Source 39 rollout checkpoint
+
+- Source 39, Source 675 Plank to Pike, and Source 795 Rocking Plank to Down
+  Dog now resolve to one exact review-only definition. Duplicate legacy cards
+  are unpublished and archived; the canonical Source 39 projection is also
+  unpublished until qualified review.
+- Migration 511 passed rolled-back PostgreSQL validation, application-runner
+  apply and immutable re-entry checks, focused lint and JSON checks, 262
+  focused tests, 814 platform tests, the 1,068-pass/20-skip full backend suite,
+  diff integrity, and the production build. It creates no approval state.
+- Machine coverage is now 10.37% score, anatomy, support, and complete
+  candidate research packets; 10.56% operational profiles; 7.94% load; 8.41%
+  fatigue; 69.91% candidate media sets; and 5.33% embeddable candidate sets.
+  Reviewed research, approved media, approved graph, approved calibration, and
+  publication coverage remain zero.
+- Release correctly remains `blocked`: 0 canonical definitions are published,
+  every required phase has zero published depth, 0/476 graph edges and 0/689
+  calibration anchors are approved, and no real coach-pilot review exists.
+  Qualified reviewers must watch and exactly match all five media candidates,
+  adjudicate evidence, alternates, graph and score proposals, test
+  coach/athlete/accessibility/support content, and separately approve release.
+
+## 2026-08-09 — Source 40 rollout checkpoint
+
+- Migrations 512–514 are registered in disposable PostgreSQL at checksums
+  `1469215636`, `4053192554`, and `1242308153`. Rolled-back validation, normal
+  platform-runner application, checksum registration, and immutable re-entry
+  pass. No human review or approval state is created.
+- Sources 40, 875, and 1359 now resolve to one standing knee-to-wall
+  forward-and-return identity with one exact review variant and two contextual
+  profiles. Duplicate definitions and three skeletal variants are archived;
+  five deterministic decisions preserve the half-kneeling, isometric, CAR,
+  and foot-control action boundaries.
+- The Source 40 packet passes all machine-owned checks after explicit
+  normalized-score and complete task-difficulty corrections. It retains only
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`. Metadata health for five media candidates is not playback,
+  exact-match, accessibility, quality, safety, or approval evidence.
+- Validation passes 266 focused tests, 818 platform tests, and 1,072 backend
+  tests with 20 intentional skips out of 1,092. The Needs Engine audit passes
+  1,569/1,569 published legacy exercises. The canonical audit has 1,069
+  definitions, 29 unresolved high-similarity pairs, and zero exact collision.
+  The production build passes with only the existing stale browser-data and
+  greater-than-500-kB bundle advisories.
+- Machine coverage is 10.48% score, anatomy, support, and complete candidate
+  research packets; 10.66% operational profiles; 8.04% load; 8.51% fatigue;
+  69.97% candidate media sets; and 5.43% embeddable candidate sets. Reviewed
+  research, approved media, approved graph, approved calibration, and
+  publication coverage remain zero.
+- Production release remains correctly `blocked`: 0 canonical definitions are
+  published, every required phase has zero published depth, 0/480 graph edges
+  and 0/691 calibration anchors are approved, and no real coach-pilot review
+  exists. Qualified reviewers must complete exact media review, evidence and
+  alternate adjudication, graph and calibration review, coach and athlete
+  comprehension testing, and separate publication approval. The known clean-
+  bootstrap, shadow-generation, staged-rollout, monitoring, rollback,
+  incident-response, and support proofs also remain required.
+
+## 2026-08-09 — Source 41 rollout checkpoint
+
+- Migration 515 is registered in disposable PostgreSQL at checksum
+  `2816286728`. Transactional rollback validation, normal platform-runner
+  application, persisted assertions, generated research artifacts, and the
+  focused 269-test slice pass. No human review or approval state is created.
+- Source 41 now has one exact rear-knee-supported end-range pulse, Prepare &
+  Access and Restore profiles, complete constraints and budgets, and explicit
+  standing, full-return, isometric, banded, loaded, elevated, activation,
+  calf, and clinical boundaries. Exercise difficulty remains task-only.
+- The packet retains only `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed responses
+  prove metadata and iframe availability only. They do not prove playback,
+  exact mechanics, captions, accessibility, quality, safety, or approval.
+- Validation passes 269 focused tests, 821/821 platform tests, and 1,075
+  backend tests with 20 intentional skips out of 1,095. Focused lint,
+  JSON/generated-artifact validation, diff integrity, and the production build
+  pass. The build reports only the existing stale browser-data and
+  greater-than-500-kB bundle advisories.
+- Machine coverage is now 10.57% for score, anatomy, support, and complete
+  candidate research packets; 10.76% operational profiles; 8.14% load; 8.61%
+  fatigue; 69.97% candidate media sets; and 5.52% embeddable candidate sets.
+  Reviewed research, approved media, approved graph, approved calibration,
+  and publication coverage remain zero.
+- Production release remains correctly blocked: 0 canonical definitions are
+  published, every phase has zero published depth, 0/483 graph edges and
+  0/693 calibration anchors are approved, and no real coach pilot exists.
+  Clean-bootstrap, shadow-generation, staged rollout, monitoring, rollback,
+  incident-response, and support proofs remain required in addition to the
+  qualified card reviews.
+
+## 2026-08-09 — Source 42 rollout checkpoint
+
+- Migrations 516–518 are registered in disposable PostgreSQL at checksums
+  `1682906775`, `2211057671`, and `2204393135`. Rolled-back validation, normal
+  platform-runner application, immutable re-entry, persisted assertions,
+  generated artifacts, and automated audit regeneration pass. No human review
+  or approval state is created.
+- Source 42 now has one exact seated thigh-supported active ankle circuit with
+  Prepare & Access and Restore profiles, complete constraints and budgets,
+  canonical member/coach/support fields, concise athlete rendering, and
+  explicit alternate-base, resistance, load, passive, weight-bearing, pump,
+  alphabet, calf, clinical, and sport boundaries. Exercise difficulty remains
+  task-only.
+- The packet retains only `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed responses
+  prove metadata and iframe availability only, not playback, exact mechanics,
+  captions, accessibility, quality, safety, reviewer identity, or approval.
+- Validation passes 272 focused tests, 825/825 platform tests, and 1,079
+  backend tests with 20 intentional skips out of 1,099. Focused lint,
+  JSON/generated-artifact validation, diff integrity, and the production build
+  pass with only the existing stale browser-data and greater-than-500-kB
+  bundle advisories.
+- Machine coverage is now 10.66% for score, anatomy, support, and complete
+  candidate research packets; 10.85% operational profiles; 8.23% load; 8.70%
+  fatigue; 69.97% candidate media sets; and 5.61% embeddable candidate sets.
+  Reviewed research, approved media, approved graph, approved calibration,
+  and publication coverage remain zero.
+- Production release remains correctly blocked: 0 canonical definitions are
+  published, every phase has zero published depth, 0/484 graph edges and
+  0/695 calibration anchors are approved, and no real coach pilot exists.
+  Clean-bootstrap, shadow generation, staged rollout, monitoring, rollback,
+  incident response, support rehearsal, and qualified card review remain
+  required.
+
+## 2026-08-09 — Source 43 rollout checkpoint
+
+- Migration 519 is registered in disposable PostgreSQL at checksum
+  `304965183`. Transactional execution, platform-runner application,
+  immutable re-entry, persisted assertions, generated artifacts, and
+  automated audit regeneration pass without creating review or approval state.
+- Source 43 now has one exact wall-supported bilateral heel-planted active
+  dorsiflexion lift-and-controlled-return cycle. Prepare & Access and Capacity
+  profiles include dosage, duration, logistics, cumulative fatigue/impact
+  budgets, substitutions, persistence, and distinct coach/member rendering.
+  Difficulty describes only the exercise task.
+- Its packet retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed responses
+  prove current metadata and embedding availability only, not complete
+  playback, exact mechanics, captions, accessibility, demonstration quality,
+  safety, reviewer identity, version match, or approval.
+- The 275-test research/migration slice, 65-test single-workout full-story
+  slice, 827/827 platform suite, and full backend suite all pass. Backend
+  totals are 1,101 tests, 1,081 passes, 20 intentional skips, and 0 failures.
+  Focused lint, JSON/generated artifacts, diff integrity, and the production
+  build pass; the build reports only stale browser-data and greater-than-500-
+  kB bundle advisories.
+- Machine coverage is now 10.76% for scores, anatomy, support, complete
+  candidate research packets, candidate evidence-section coverage, and
+  alternate assessment; 10.94% for operational profiles; 8.33% for load;
+  8.79% for fatigue; 69.97% for candidate media sets; and 5.71% for
+  embeddable candidate sets. Reviewed research, approved media, approved
+  graph, approved calibration, and publication coverage remain zero.
+- Production release remains correctly blocked: 0 published canonical
+  definitions, zero depth in all seven phases, 0/487 approved graph edges,
+  0/697 approved calibration anchors, and 0 coach-pilot reviews. Qualified
+  reviews plus clean-bootstrap, shadow generation, staged rollout,
+  monitoring, rollback, incident response, and support rehearsal remain
+  required.
+
+## 2026-08-09 — Source 46 rollout checkpoint
+
+- Migration 522 is registered in disposable PostgreSQL at immutable checksum
+  `3569596322` and re-enters through the production runner as already applied.
+  It creates no human review, media approval, graph approval, calibration
+  approval, or publication state.
+- Source 46 now has three exact support variants, four contextual delivery
+  profiles, task-only difficulty, cumulative repetition/hold/fatigue and
+  zero-physical-impact budgets, duration and logistics models, substitution
+  revalidation, immutable persistence inputs, and separate coach, athlete,
+  accessibility, user-support, and operations rendering. The source is
+  unpublished and its prior age floor is removed.
+- The generated packet retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed records
+  prove metadata availability only; playback and content approval remain
+  unverified.
+- Machine coverage is now 11.08% for score, anatomy, support, complete
+  candidate research packets, candidate evidence-section coverage, and
+  alternate assessment; 11.27% for operational profiles; 8.64% for load;
+  9.11% for fatigue; 69.95% for candidate media sets; and 6.01% for
+  embeddable candidate sets. Reviewed research, approved media, approved
+  graph, approved calibration, and publication coverage remain zero.
+- Release remains correctly blocked: 0 published definitions, zero depth in
+  all seven phases, 0/504 approved graph edges, 0/711 approved calibration
+  anchors, and 0 coach-pilot reviews. Qualified review plus clean bootstrap,
+  shadow generation, staged rollout, monitoring, rollback, incident response,
+  and support rehearsal remain required.
+
+## 2026-08-09 — Source 45 rollout checkpoint
+
+- Migration 521 is registered in disposable PostgreSQL at immutable checksum
+  `3898034578` and re-enters through the platform runner as already applied.
+  It replaces the Source 45 / Source 524 collision with three exact review-
+  only support variants and creates no human review or approval state.
+- Source 45 now carries one-target-foot action and count semantics, task-only
+  difficulty, four contextual delivery profiles, explicit cumulative fatigue
+  and zero-physical-impact budgets, logistics and duration models,
+  substitution revalidation, immutable persistence inputs, and separate
+  coach, athlete, accessibility, user-support, and operations contracts.
+  Source 45 is unpublished; duplicate Source 524 is archived and unpublished.
+- The packet retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Five healthy oEmbed responses
+  prove metadata availability only; playback, exact support/action match,
+  captions, accessibility, quality, safety, reviewer identity, version match,
+  and approval remain unverified.
+- Focused validation passes 279/279, the single-workout generation story
+  remains covered inside the 831/831 platform suite, and the full backend
+  suite passes 1,085 tests with 20 intentional skips out of 1,105. Focused
+  lint, generated-artifact validation, diff integrity, and the production
+  build pass. The build reports only the existing stale browser-data and
+  greater-than-500-kB bundle advisories.
+- Machine coverage is 10.99% for score, anatomy, support, complete candidate
+  research packets, candidate evidence sections, and alternate assessment;
+  11.17% for operational profiles; 8.54% for load; 9.01% for fatigue; 69.95%
+  for candidate media sets; and 5.92% for embeddable candidate sets. Reviewed
+  research, approved media, approved graph, approved calibration, and
+  publication coverage remain zero.
+- Production release remains correctly blocked: 0 published canonical
+  definitions, zero depth in all seven phases, 0/497 approved graph edges,
+  0/705 approved calibration anchors, and 0 coach-pilot reviews. Qualified
+  content work plus clean bootstrap, shadow generation, staged rollout,
+  monitoring, rollback, incident response, and support rehearsal remain
+  required.

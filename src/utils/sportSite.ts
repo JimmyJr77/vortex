@@ -35,7 +35,7 @@ export const getSportBrandName = (sportLabel: string): string =>
 export const getSportHomeUrl = (config: StubSiteConfig): string => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname.replace(/^www\./, '')
-    if (host === config.canonicalHost) {
+    if (host === config.canonicalHost.replace(/^www\./, '')) {
       return `${window.location.origin}/`
     }
   }

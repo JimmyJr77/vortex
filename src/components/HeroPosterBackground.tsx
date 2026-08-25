@@ -6,7 +6,7 @@ interface HeroPosterBackgroundProps {
 
 /** Static hero background image with optional dark overlay (no video). */
 const HeroPosterBackground = ({
-  posterFileName = 'main_hero_bg.png',
+  posterFileName = 'main_hero_bg-1600.webp',
   className = 'absolute inset-0 w-full h-full',
   overlayClassName = 'absolute inset-0 bg-black/50 z-[1] pointer-events-none',
 }: HeroPosterBackgroundProps) => (

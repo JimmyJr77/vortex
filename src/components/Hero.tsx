@@ -183,7 +183,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
         <div className="absolute inset-0 overflow-hidden">
           <HeroBackgroundVideo
             videoFileName="short_hero.mp4"
-            posterFileName="main_hero_bg.png"
+            posterFileName="main_hero_bg-1600.webp"
             imageOnly
             playRequested={isVideoPlaying}
             youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
@@ -279,8 +279,8 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
             >
-              The premier technology-driven athletic development center where kinematics pair 
-              with cutting-edge science to transform youth athletes into champions.
+              Youth sports performance training in Bowie, Maryland, combining speed, strength,
+              agility, conditioning, gymnastics, and movement analysis for complete athletes.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -302,14 +302,8 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                 </motion.button>
               )}
               {!hideAcceleratorCta && (
-                <Link to="/vortex-athletics">
-                  <motion.button
-                    className="btn-secondary group"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Athleticism Accelerator
-                  </motion.button>
+                <Link to="/vortex-athletics" className="btn-secondary group inline-block">
+                  Athleticism Accelerator
                 </Link>
               )}
               <Link
@@ -318,24 +312,13 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                     ? getSiteEnrollHref({ programName: 'Fit & Flip' })
                     : '/fit-and-flip'
                 }
+                className="btn-secondary group inline-block"
               >
-                <motion.button
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
-                </motion.button>
+                {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
               </Link>
               {hideAcceleratorCta && (
-                <Link to="/drop-in">
-                  <motion.button
-                    className="btn-secondary group"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Drop-in Classes
-                  </motion.button>
+                <Link to="/drop-in" className="btn-secondary group inline-block">
+                  Drop-in Classes
                 </Link>
               )}
               {hideAcceleratorCta && <HeroSpecializedTrainingMenu />}
@@ -391,7 +374,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
         {/* Background: poster until Play Video; then YouTube video in background */}
         <HeroBackgroundVideo
           videoFileName="short_hero.mp4"
-          posterFileName="main_hero_bg.png"
+          posterFileName="main_hero_bg-1600.webp"
           imageOnly
           playRequested={isVideoPlaying}
           youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
@@ -466,8 +449,8 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
             >
-              The premier technology-driven athletic development center where kinematics pair 
-              with cutting-edge science to transform youth athletes into champions.
+              Youth sports performance training in Bowie, Maryland, combining speed, strength,
+              agility, conditioning, gymnastics, and movement analysis for complete athletes.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -489,14 +472,11 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                 </motion.button>
               )}
               {!hideAcceleratorCta && (
-                <Link to="/vortex-athletics" className="w-full max-w-xs">
-                  <motion.button
-                    className="btn-secondary group w-full"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Athleticism Accelerator
-                  </motion.button>
+                <Link
+                  to="/vortex-athletics"
+                  className="btn-secondary group w-full max-w-xs text-center"
+                >
+                  Athleticism Accelerator
                 </Link>
               )}
               <Link
@@ -505,25 +485,16 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                     ? getSiteEnrollHref({ programName: 'Fit & Flip' })
                     : '/fit-and-flip'
                 }
-                className="w-full max-w-xs"
+                className="btn-secondary group w-full max-w-xs text-center"
               >
-                <motion.button
-                  className="btn-secondary group w-full"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
-                </motion.button>
+                {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
               </Link>
               {hideAcceleratorCta && (
-                <Link to="/drop-in" className="w-full max-w-xs">
-                  <motion.button
-                    className="btn-secondary group w-full"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Drop-in Classes
-                  </motion.button>
+                <Link
+                  to="/drop-in"
+                  className="btn-secondary group w-full max-w-xs text-center"
+                >
+                  Drop-in Classes
                 </Link>
               )}
               {hideAcceleratorCta && <HeroSpecializedTrainingMenu fullWidth />}

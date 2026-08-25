@@ -164,7 +164,7 @@ export const ARTISTIC_LANDING: DisciplineLandingConfig = {
     'Floor tumbling & dance',
     'Strength, flexibility & form',
   ],
-  heroImage: '/gymnastics.jpeg',
+  heroImage: '/gymnastics-hero.webp',
   theme: {
     heroGradient: 'from-red-950 via-gray-900 to-black',
     heroHighlight: 'text-red-400',
@@ -233,7 +233,7 @@ export const RHYTHMIC_LANDING: DisciplineLandingConfig = {
     'Balance & turns',
     'Strength for apparatus control',
   ],
-  heroImage: '/gymnastics.jpeg',
+  heroImage: '/gymnastics-hero.webp',
   theme: {
     heroGradient: 'from-purple-950 via-gray-900 to-black',
     heroHighlight: 'text-purple-400',

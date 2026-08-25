@@ -11,14 +11,16 @@ import {
   slotLabelForSignupRow,
 } from '../scheduling/slotDisplayLabel.js'
 
-export async function queryFamilyMemberEnrollments(pool, memberIds) {
+export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCancellations = false } = {}) {
   if (!memberIds?.length) return []
 
-  try {
-    const { processDueEnrollmentCancellations } = await import('../scheduling/memberEnrollmentCancel.js')
-    await processDueEnrollmentCancellations(pool)
-  } catch (err) {
-    console.warn('[memberEnrollments] process due cancellations:', err?.message ?? err)
+  if (!skipDueCancellations) {
+    try {
+      const { processDueEnrollmentCancellations } = await import('../scheduling/memberEnrollmentCancel.js')
+      await processDueEnrollmentCancellations(pool)
+    } catch (err) {
+      console.warn('[memberEnrollments] process due cancellations:', err?.message ?? err)
+    }
   }
 
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')

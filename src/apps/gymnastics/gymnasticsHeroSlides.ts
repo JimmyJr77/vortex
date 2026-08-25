@@ -15,7 +15,7 @@ export const GYMNASTICS_HERO_SLIDES: GymnasticsHeroSlide[] = [
   {
     title: 'Located in Bowie, Maryland',
     description:
-      'Vortex Gymnastics is located at 4961 Tesla Dr, Ste E, Bowie, MD 20715, near Routes 50 and 3 - perfectly positioned to serve families across central Maryland.',
+      'Vortex Gymnastics is located at 4961 Tesla Dr Suite E, Bowie, MD 20715, near Routes 50 and 3 - perfectly positioned to serve families across central Maryland.',
   },
   {
     title: 'Foundational Gymnastics Training',

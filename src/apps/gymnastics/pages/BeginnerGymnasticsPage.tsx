@@ -97,7 +97,7 @@ const BeginnerGymnasticsPage = () => {
             <MapPin className="mx-auto h-9 w-9 text-vortex-red" aria-hidden="true" />
             <h2 className="mt-4 text-3xl font-display font-bold text-black md:text-4xl">Beginner gymnastics near Bowie families</h2>
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-gray-700">
-              Train at 4961 Tesla Dr, Ste E in Bowie, Maryland. Vortex welcomes beginner gymnasts
+              Train at 4961 Tesla Dr Suite E in Bowie, Maryland. Vortex welcomes beginner gymnasts
               from Bowie, Crofton, Mitchellville, Upper Marlboro, Glenn Dale, Lanham, and throughout
               Prince George&apos;s and Anne Arundel counties. Explore our
               {' '}<Link className="font-semibold text-vortex-red underline" to="/artistic-gymnastics-early">preschool gymnastics</Link>,

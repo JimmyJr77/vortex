@@ -14,8 +14,10 @@ export const JACKRABBIT_CLASS_REGISTRATION_URL =
 
 /** Canonical NAP (name, address, phone) — keep identical everywhere for local SEO. */
 export const BUSINESS_NAP = {
-  name: 'Vortex Athletics',
-  streetAddress: '4961 Tesla Dr, Ste E',
+  // Match the public Google Business Profile exactly so search engines can
+  // reconcile the website, map listing, and citations as one local entity.
+  name: 'Vortex Athletics and Gymnastics',
+  streetAddress: '4961 Tesla Dr Suite E',
   addressLocality: 'Bowie',
   addressRegion: 'MD',
   postalCode: '20715',
@@ -43,19 +45,15 @@ export const SOCIAL_PROFILES = [
   'https://www.youtube.com/@VortexAthleticsUSA',
 ] as const
 
-/**
- * Approximate geo coordinates for 4961 Tesla Dr (Melford Town Center block).
- * Derived from neighboring Tesla Dr addresses; confirm against Google Business
- * Profile if exact precision is needed.
- */
+/** Exact pin coordinates from the public Google Business Profile. */
 export const BUSINESS_GEO = {
-  latitude: 38.9565,
-  longitude: -76.7088,
+  latitude: 38.9564345,
+  longitude: -76.7076355,
 } as const
 
-/** Google Maps link for the facility (used for hasMap + contact CTA). */
+/** Stable CID link for the verified public Google Business Profile. */
 export const GOOGLE_MAPS_URL =
-  'https://www.google.com/maps/search/?api=1&query=Vortex+Athletics+4961+Tesla+Dr+Ste+E+Bowie+MD+20715'
+  'https://www.google.com/maps?cid=15262285316302188709'
 
 /**
  * Hours of operation. `days` use schema.org DayOfWeek names; times are 24h.

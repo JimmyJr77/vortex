@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Target, Cpu, Trophy } from 'lucide-react'
+import { BUSINESS_NAP, GOOGLE_MAPS_URL } from '../config/contact'
 
 // Custom D1 Icon Component
 const D1Icon = ({ className }: { className?: string }) => (
@@ -43,10 +44,11 @@ export const StrategicLocation = ({ className = '' }: { className?: string }) =>
     </p>
     <div className="text-center">
       <p className="text-lg font-semibold text-vortex-red mb-2">
-        4961 Tesla Dr, Ste E, Bowie, MD 20715
+        {BUSINESS_NAP.streetAddress}, {BUSINESS_NAP.addressLocality},{' '}
+        {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
       </p>
       <a
-        href="https://www.google.com/maps/place/Vortex+Athletics+and+Gymnastics/@38.9529792,-76.7165051,14z/data=!4m6!3m5!1s0x89b7ed0013e38567:0xd3ce87a1d2da30a5!8m2!3d38.9564345!4d-76.7076355!16s%2Fg%2F11mrrvn3bt?hl=en&entry=ttu"
+        href={GOOGLE_MAPS_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center text-vortex-red hover:text-red-700 font-semibold transition-colors duration-300"
@@ -164,6 +166,7 @@ const About = ({ onSignUpClick, hideStrategicLocation = false, hideDifference = 
               className="inline-block border-2 border-vortex-red text-vortex-red px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
             >
               <motion.span
+                tabIndex={-1}
                 className="inline-block"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "redirects": [
     {
@@ -22,159 +23,255 @@
       "permanent": true
     },
     {
+      "source": "/strength-conditioning",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortexathletics.com/fit-and-flip",
+      "permanent": true
+    },
+    {
+      "source": "/strength-conditioning",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortexathletics.com/fit-and-flip",
+      "permanent": true
+    },
+    {
       "source": "/gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/",
+      "destination": "https://www.vortex-gymnastics.com/",
       "permanent": true
     },
     {
       "source": "/gymnastics",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/",
+      "destination": "https://www.vortex-gymnastics.com/",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-early",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-early",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-early",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-early",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-6-12",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-6-12",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-13-18",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics-13-18",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-early",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-early",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-early",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-early",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-6-12",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-6-12",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-6-12",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-6-12",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-13-18",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-13-18",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
       "permanent": true
     },
     {
       "source": "/campaigns/artistic-gymnastics-13-18",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/campaigns/artistic-gymnastics-13-18",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
       "permanent": true
     },
     {
       "source": "/summer-camp-26",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/summer-camp-26",
+      "destination": "https://www.vortex-gymnastics.com/summer-camp-26",
       "permanent": true
     },
     {
       "source": "/summer-camp-26",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/summer-camp-26",
+      "destination": "https://www.vortex-gymnastics.com/summer-camp-26",
       "permanent": true
     },
     {
       "source": "/acro-gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/acro-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/acro-gymnastics",
       "permanent": true
     },
     {
       "source": "/acro-gymnastics",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/acro-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/acro-gymnastics",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics",
       "permanent": true
     },
     {
       "source": "/artistic-gymnastics",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/artistic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics",
       "permanent": true
     },
     {
       "source": "/rhythmic-gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/rhythmic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/rhythmic-gymnastics",
       "permanent": true
     },
     {
       "source": "/rhythmic-gymnastics",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/rhythmic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/rhythmic-gymnastics",
       "permanent": true
     },
     {
       "source": "/trampoline-tumbling",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/trampoline-tumbling",
+      "destination": "https://www.vortex-gymnastics.com/trampoline-tumbling",
       "permanent": true
     },
     {
       "source": "/trampoline-tumbling",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/trampoline-tumbling",
+      "destination": "https://www.vortex-gymnastics.com/trampoline-tumbling",
       "permanent": true
     },
     {
       "source": "/aerobic-gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/aerobic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/aerobic-gymnastics",
       "permanent": true
     },
     {
       "source": "/aerobic-gymnastics",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
-      "destination": "https://vortex-gymnastics.com/aerobic-gymnastics",
+      "destination": "https://www.vortex-gymnastics.com/aerobic-gymnastics",
+      "permanent": true
+    },
+    {
+      "source": "/gymnastics",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/gymnastics",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-early",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-early",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-6-12",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-6-12",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "permanent": true
+    },
+    {
+      "source": "/campaigns/artistic-gymnastics-13-18",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/artistic-gymnastics-13-18",
+      "permanent": true
+    },
+    {
+      "source": "/sitemap-gymnastics.xml",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "https://vortexathletics.com/sitemap.xml",
+      "permanent": true
+    },
+    {
+      "source": "/sitemap-gymnastics.xml",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortexathletics.com/sitemap.xml",
+      "permanent": true
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/sitemap-gymnastics.xml",
+      "permanent": true
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/sitemap-gymnastics.xml",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
+      "destination": "https://vortexathletics.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://www.vortex-gymnastics.com/:path*",
       "permanent": true
     }
   ],
@@ -189,11 +286,51 @@
       ]
     },
     {
-      "source": "/((?!assets/).*)",
+      "source": "/admin",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/copy",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
+    },
+    {
+      "source": "/ninja",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
+    },
+    {
+      "source": "/summer-camp-26",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
+    },
+    {
+      "source": "/signup/:path*",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/verify-email",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/registration/:path*",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/waivers-memberships",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/camp_interest/:path*",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/fonts/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
@@ -207,133 +344,112 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-lacross.com" }],
-      "dest": "/_seo/vortex-lacross.com.html"
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "vortexathletics.com" }],
+      "destination": "/robots-hub.txt"
     },
     {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-lacross.com" }],
-      "dest": "/_seo/vortex-lacross.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-conditioning.com" }],
-      "dest": "/_seo/vortex-conditioning.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-conditioning.com" }],
-      "dest": "/_seo/vortex-conditioning.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-football.com" }],
-      "dest": "/_seo/vortex-football.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-football.com" }],
-      "dest": "/_seo/vortex-football.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-basketball.com" }],
-      "dest": "/_seo/vortex-basketball.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-basketball.com" }],
-      "dest": "/_seo/vortex-basketball.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-track.com" }],
-      "dest": "/_seo/vortex-track.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-track.com" }],
-      "dest": "/_seo/vortex-track.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-fit.com" }],
-      "dest": "/_seo/vortex-fit.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-fit.com" }],
-      "dest": "/_seo/vortex-fit.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-athlete.com" }],
-      "dest": "/_seo/vortex-athlete.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-athlete.com" }],
-      "dest": "/_seo/vortex-athlete.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-soccer.com" }],
-      "dest": "/_seo/vortex-soccer.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-soccer.com" }],
-      "dest": "/_seo/vortex-soccer.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-reps.com" }],
-      "dest": "/_seo/vortex-reps.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "www.vortex-reps.com" }],
-      "dest": "/_seo/vortex-reps.com.html"
-    },
-    {
-      "src": "/",
-      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
-      "dest": "/_gym/index.html"
-    },
-    {
-      "src": "/",
+      "source": "/robots.txt",
       "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
-      "dest": "/_gym/index.html"
+      "destination": "/robots-gymnastics.txt"
     },
     {
-      "src": "/read-board",
-      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
-      "dest": "/_gym/read-board.html"
+      "source": "/robots.txt",
+      "destination": "/robots-generic.txt"
     },
     {
-      "src": "/read-board",
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-lacross\\.com" }],
+      "destination": "/_seo/vortex-lacross.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-conditioning\\.com" }],
+      "destination": "/_seo/vortex-conditioning.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-football\\.com" }],
+      "destination": "/_seo/vortex-football.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-basketball\\.com" }],
+      "destination": "/_seo/vortex-basketball.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-track\\.com" }],
+      "destination": "/_seo/vortex-track.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-fit\\.com" }],
+      "destination": "/_seo/vortex-fit.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-athlete\\.com" }],
+      "destination": "/_seo/vortex-athlete.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-soccer\\.com" }],
+      "destination": "/_seo/vortex-soccer.com.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "(?:www\\.)?vortex-reps\\.com" }],
+      "destination": "/_seo/vortex-reps.com.html"
+    },
+    {
+      "source": "/",
       "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
-      "dest": "/_gym/read-board.html"
+      "destination": "/_gym/index.html"
     },
     {
-      "src": "/drop-in",
-      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
-      "dest": "/_gym/drop-in.html"
-    },
-    {
-      "src": "/drop-in",
+      "source": "/read-board",
       "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
-      "dest": "/_gym/drop-in.html"
+      "destination": "/_gym/read-board.html"
     },
     {
-      "handle": "filesystem"
+      "source": "/drop-in",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "/_gym/drop-in.html"
     },
     {
-      "src": "/((?!assets/)(?!_seo/)(?!_gym/).*)",
-      "dest": "/index.html"
+      "source": "/copy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/signup/family",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/signup/invite",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/registration/receipt",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/waivers-memberships",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/camp_interest",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/camp_interest/thank-you",
+      "destination": "/index.html"
     }
   ]
 }

@@ -9,43 +9,75 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '476_coaching_hollow_body_hold_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.81';
-  canonical_id CONSTANT UUID := 'aad3f83d-14ba-45b9-b7fe-a6b52cd0424b';
-  dumbbell_source_definition CONSTANT UUID := '2e853a5d-5bb8-43af-a199-2e3b85308ec2';
-  medicine_ball_source_definition CONSTANT UUID := 'dcb9cc94-ca53-494d-afc5-0307f79c13f3';
-  duplicate_definition_ids CONSTANT UUID[] := ARRAY[
-    dumbbell_source_definition,medicine_ball_source_definition];
-  affected_definition_ids CONSTANT UUID[] := ARRAY[
-    canonical_id,dumbbell_source_definition,medicine_ball_source_definition];
+  canonical_id UUID;
+  dumbbell_source_definition UUID;
+  medicine_ball_source_definition UUID;
+  duplicate_definition_ids UUID[];
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[13,458,1172];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'c368730a-c647-4ad4-bbaa-1714994850a6'::UUID,
-    '36b07556-928d-4ac0-94cc-7888c15c68e3'::UUID,
-    '74082fe2-31f3-4b9d-acfc-d44db0607dd2'::UUID];
-  tuck_variant CONSTANT UUID := 'cb7c2e6f-3337-4e45-94ba-82816c881f9f';
-  one_leg_variant CONSTANT UUID := 'c8cb9934-cf5e-474b-bc6f-dade9985fec4';
-  straight_forward_variant CONSTANT UUID := 'a248a07d-beb4-4a43-b2c9-4dbdfc96acd3';
-  overhead_variant CONSTANT UUID := 'cb071433-c378-432e-9848-4217e5f02f81';
-  dumbbell_variant CONSTANT UUID := 'e85eeb62-14f3-4431-94e6-ed17e1f591cb';
-  medicine_ball_variant CONSTANT UUID := 'd102c5c3-790f-4803-8187-64922cf19815';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    tuck_variant,one_leg_variant,straight_forward_variant,overhead_variant,
-    dumbbell_variant,medicine_ball_variant];
-  hollow_rock_definition CONSTANT UUID := 'da6d6964-aa46-4b84-ae6e-a49d60955ba4';
-  rock_freeze_definition CONSTANT UUID := '053d38e7-a044-46f9-b3a0-c227ebb9ef0b';
-  flutter_kick_definition CONSTANT UUID := 'cdf82671-533d-496b-bcfb-06ee1864b19b';
-  hollow_arch_roll_definition CONSTANT UUID := '68050fb0-c538-4995-b4ce-17ecf54e6179';
-  eccentric_lower_definition CONSTANT UUID := '4d6b9640-2b07-4499-9ad4-b139a5504e21';
-  partner_exchange_definition CONSTANT UUID := 'bcfb7e56-128c-4d87-82ac-eada008bfc49';
-  dead_bug_definition CONSTANT UUID := '2a07d4d4-5012-420c-9549-8bdbc64ec675';
-  l_sit_definition CONSTANT UUID := 'f2931c9e-c891-4275-b4bc-ceeac7e721d8';
-  neighbor_definition_ids CONSTANT UUID[] := ARRAY[
-    hollow_rock_definition,rock_freeze_definition,flutter_kick_definition,
-    hollow_arch_roll_definition,eccentric_lower_definition,
-    partner_exchange_definition,dead_bug_definition,l_sit_definition];
+  source_variant_ids UUID[];
+  tuck_variant UUID := gen_random_uuid();
+  one_leg_variant UUID := gen_random_uuid();
+  straight_forward_variant UUID := gen_random_uuid();
+  overhead_variant UUID := gen_random_uuid();
+  dumbbell_variant UUID := gen_random_uuid();
+  medicine_ball_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  hollow_rock_definition UUID;
+  rock_freeze_definition UUID;
+  flutter_kick_definition UUID;
+  hollow_arch_roll_definition UUID;
+  eccentric_lower_definition UUID;
+  partner_exchange_definition UUID;
+  dead_bug_definition UUID;
+  l_sit_definition UUID;
+  neighbor_definition_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'QgVOvBM96eE','qU0r6449do4','pLt0s2cimdI','LlDNef_Ztsc','VyrUmzIHmzw'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=13;
+  SELECT id INTO dumbbell_source_definition FROM coaching.exercise_definition_v1
+  WHERE slug='dumbbell-hollow-body-pullover-hold';
+  SELECT id INTO medicine_ball_source_definition FROM coaching.exercise_definition_v1
+  WHERE slug='medicine-ball-hollow-body-hold';
+  SELECT id INTO hollow_rock_definition FROM coaching.exercise_definition_v1
+  WHERE slug='hollow-rock' AND status<>'archived';
+  SELECT id INTO rock_freeze_definition FROM coaching.exercise_definition_v1
+  WHERE slug='hollow-body-rock-to-freeze' AND status<>'archived';
+  SELECT id INTO flutter_kick_definition FROM coaching.exercise_definition_v1
+  WHERE slug='hollow-flutter-kick' AND status<>'archived';
+  SELECT id INTO hollow_arch_roll_definition FROM coaching.exercise_definition_v1
+  WHERE slug='hollow-to-arch-roll' AND status<>'archived';
+  SELECT id INTO eccentric_lower_definition FROM coaching.exercise_definition_v1
+  WHERE slug='eccentric-hollow-body-lower' AND status<>'archived';
+  SELECT id INTO partner_exchange_definition FROM coaching.exercise_definition_v1
+  WHERE slug='partner-hollow-body-med-ball-exchange' AND status<>'archived';
+  SELECT id INTO dead_bug_definition FROM coaching.exercise_definition_v1
+  WHERE slug='dead-bug' AND status<>'archived';
+  SELECT id INTO l_sit_definition FROM coaching.exercise_definition_v1
+  WHERE slug='l-sit' AND status<>'archived';
+
+  SELECT ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=canonical_id AND variant_key='legacy-source-458-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1
+      WHERE definition_id=canonical_id AND variant_key='legacy-source-1172-baseline')]
+    INTO source_variant_ids;
+  duplicate_definition_ids := ARRAY[dumbbell_source_definition,medicine_ball_source_definition];
+  affected_definition_ids := ARRAY[
+    canonical_id,dumbbell_source_definition,medicine_ball_source_definition];
+  active_variant_ids := ARRAY[
+    tuck_variant,one_leg_variant,straight_forward_variant,overhead_variant,
+    dumbbell_variant,medicine_ball_variant];
+  neighbor_definition_ids := ARRAY[
+    hollow_rock_definition,rock_freeze_definition,flutter_kick_definition,
+    hollow_arch_roll_definition,eccentric_lower_definition,
+    partner_exchange_definition,dead_bug_definition,l_sit_definition];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND slug='hollow-body-hold' AND status<>'archived')
     OR (SELECT count(*) FROM coaching.exercise_definition_v1

@@ -1,0 +1,13 @@
+{
+  "batchKey": "finger-pulses-palm-lifts-v1",
+  "researchVersion": "2026-08-09.99",
+  "generatedAt": "2026-08-09T23:30:00.000Z",
+  "cards": [
+    {
+      "slug": "finger-pulses",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 20
+    }
+  ]
+}

@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { normalizePortalConfig } from '../../platform/portalSettings.js'
+import {
+  COACH_PORTAL_TAB_KEYS,
+  COACH_PORTAL_TAB_LABELS,
+  normalizePortalConfig,
+} from '../../platform/portalSettings.js'
 
 test('normalizePortalConfig drops invalid and locked tabs', () => {
   const config = normalizePortalConfig({
@@ -31,6 +35,12 @@ test('normalizePortalConfig defaults to empty hidden lists and canonical order',
     'preferences',
   ])
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'needs', 'library'])
+  assert.ok(config.coach.tabOrder.includes('flip-fit'))
+})
+
+test('coach portal exposes the Flip & Fit tab and label', () => {
+  assert.ok(COACH_PORTAL_TAB_KEYS.includes('flip-fit'))
+  assert.equal(COACH_PORTAL_TAB_LABELS['flip-fit'], 'Flip & Fit')
 })
 
 test('normalizePortalConfig preserves custom coach order for all portal tabs', () => {

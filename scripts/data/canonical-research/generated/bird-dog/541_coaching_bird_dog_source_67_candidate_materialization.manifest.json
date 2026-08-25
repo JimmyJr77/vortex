@@ -1,0 +1,14 @@
+{
+  "migrationKey": "541_coaching_bird_dog_source_67_candidate_materialization",
+  "researchVersion": "2026-08-10.122",
+  "generatedAt": "2026-08-10T12:00:00.000Z",
+  "cards": [
+    {
+      "slug": "bird-dog",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 10,
+      "cardVersion": 2
+    }
+  ]
+}

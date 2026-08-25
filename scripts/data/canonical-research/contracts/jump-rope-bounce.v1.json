@@ -1,0 +1,504 @@
+{
+  "batchFile": "../batches/jump-rope-bounce.v1.json",
+  "migrationKey": "525_coaching_jump_rope_bounce_source_49_candidate_materialization",
+  "researchVersion": "2026-08-09.115",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 49,
+        "preserveLegacyExerciseId": true,
+        "slug": "jump-rope-bounce",
+        "canonicalName": "Jump Rope Bounce",
+        "displayName": "Jump Rope Bounce",
+        "aliases": [
+          "Jump Rope Easy Bounce",
+          "Jump Rope Low Bounce",
+          "Basic Rope Bounce",
+          "Two-Foot Rope Bounce"
+        ],
+        "description": "Stand on a clean, level, non-slip surface with a correctly sized unweighted jump rope held in both hands. Rotate the rope with the hands and wrists so it passes under both feet once. Make one low simultaneous bilateral takeoff, clear the rope, and land quietly on both feet before the next pass. One rope revolution with one bilateral takeoff and landing is one repetition. Record valid passes, misses, actual contact count, cadence, rope type, surface, footwear, symptoms, and rest. Alternating-foot, boxer, single-leg, double-under, mimed, weighted-rope, high-output, interval, assessment, and other changed tasks require their own reviewed variant or definition.",
+        "familyKey": "jump_rope_basic_bounce",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 2,
+        "identityContract": "one_handheld_unweighted_rope_revolution_with_low_simultaneous_bilateral_takeoff_clearance_and_landing",
+        "confidence": {
+          "content": 82,
+          "scoring": 58,
+          "media": 50
+        },
+        "movementPatterns": [
+          "jump",
+          "land"
+        ],
+        "bodyRegions": [
+          "foot",
+          "ankle",
+          "calf",
+          "knee",
+          "hip",
+          "core",
+          "shoulder",
+          "wrist"
+        ],
+        "requiredEquipment": [
+          "jump_rope"
+        ],
+        "optionalEquipment": [],
+        "environment": {
+          "surface": "clean, level, dry, non-slip impact-appropriate floor",
+          "space": "clear overhead, forward, rear, and lateral rope arc with no traffic",
+          "stationCapacity": 1,
+          "inspection": [
+            "rope length, handles, cord, and attachment condition",
+            "surface traction, debris, moisture, and clearance",
+            "footwear or approved barefoot policy",
+            "communication, line of sight, entry, and exit"
+          ],
+          "changeRule": "Changing rope mass, rope length beyond setup fit, contact pattern, amplitude, cadence, surface, footwear, support, intent, dose, or symptoms requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": [
+            "safe clear rope station",
+            "comfortable low bilateral rope pass and landing",
+            "understands counted pass, miss, stop signal, and exit",
+            "same-session impact, calf, foot, and lower-body budgets fit"
+          ],
+          "excludeOrEscalate": [
+            "symptoms or restriction conflicting with repeated impact",
+            "sharp, increasing, unfamiliar, neurologic, circulation, skin, breathing, chest, balance, or communication concern",
+            "unsafe rope, surface, clearance, footwear, supervision, or exit",
+            "participant requests stop"
+          ],
+          "notEstablishedByEvidence": [
+            "universal contact cap, cadence, dose, recovery, outcome, readiness threshold, or clinical clearance"
+          ]
+        },
+        "provenance": {
+          "legacySources": [
+            49
+          ],
+          "identityAuthority": "Migration 339 consolidates Source 49 under the stable jump-rope-bounce identity while retaining its source skeleton.",
+          "researchSources": [
+            "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+            "https://pubmed.ncbi.nlm.nih.gov/37892884/"
+          ],
+          "confidenceBySection": {
+            "identity": 82,
+            "taxonomy": 84,
+            "anatomy": 76,
+            "difficulty": 58,
+            "load": 76,
+            "fatigueRecovery": 52,
+            "constraints": 82,
+            "dosage": 50,
+            "instructions": 78,
+            "alternates": 88,
+            "media": 50
+          },
+          "unresolvedClaims": [
+            "universal cadence, contact cap, dose, recovery, and outcome",
+            "numeric difficulty calibration",
+            "full media review and variant assignment"
+          ],
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": true,
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true
+        },
+        "anatomy": {
+          "primaryMuscles": [
+            "calf_complex",
+            "intrinsic_foot_muscle_system",
+            "tibialis_anterior"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "gluteal_stabilizers",
+            "trunk_stabilizers",
+            "forearm_and_wrist_rotators"
+          ],
+          "joints": [
+            "metatarsophalangeal",
+            "talocrural_ankle",
+            "knee",
+            "hip",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "jointActions": [
+            "repeated_low_amplitude_bilateral_takeoff_and_landing",
+            "ankle_plantarflexion_dorsiflexion_control",
+            "rope_rotation",
+            "lower_limb_and_trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal_takeoff_landing",
+            "frontal_stabilization",
+            "transverse_rope_control"
+          ],
+          "laterality": "simultaneous bilateral lower-limb contacts with bilateral hand-held rope control",
+          "claimsBoundary": "The card records task mechanics and possible loading sites, not diagnosis, treatment, injury prevention, isolated activation, or guaranteed transfer."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Practises a low, repeatable rope pass with a quiet two-foot landing.",
+          "primaryCue": "Turn the rope, make a small two-foot jump, land quietly, and count only clean passes.",
+          "secondaryCues": [
+            "keep the jump low",
+            "hands and wrists turn the rope",
+            "leave enough space",
+            "reset after a miss",
+            "stop before contacts get loud or uncontrolled"
+          ],
+          "expectedSensations": [
+            "light repeated foot and calf work",
+            "steady rope rhythm",
+            "quiet low contacts"
+          ],
+          "unexpectedSensations": [
+            "sharp or increasing pain",
+            "dizziness, chest symptoms, unusual breathlessness, or loss of control",
+            "new numbness, tingling, weakness, circulation, or skin change"
+          ],
+          "selfChecks": [
+            "one rope pass per jump",
+            "both feet leave and return together",
+            "rope clears without chasing it",
+            "station stays clear",
+            "no stop symptom"
+          ],
+          "accessibility": {
+            "captionsRequired": true,
+            "transcriptRequired": true,
+            "stillSequenceRequired": true,
+            "audioDescriptionRequired": true
+          },
+          "readingLevel": "plain_language"
+        },
+        "coachSupport": {
+          "observationChecklist": [
+            "exact bilateral basic-bounce variant",
+            "rope condition and station clearance",
+            "low amplitude and simultaneous contacts",
+            "quiet landing and controlled rope pass",
+            "misses, contact count, cadence, symptoms, and first quality loss"
+          ],
+          "faultCorrections": {
+            "high_jump": "reduce amplitude and slow the rope",
+            "arm_swing": "keep elbows quieter and turn from the wrists",
+            "repeated_trip": "stop, reset rope length and station, then use a different reviewed task if unresolved",
+            "loud_contacts": "reduce cadence or stop; do not add contacts"
+          },
+          "doNotUseWhen": [
+            "safe rope station or communication is unavailable",
+            "the exact task conflicts with symptoms or restrictions",
+            "the requested service is an assessment, clinical intervention, or different rope pattern"
+          ]
+        },
+        "supportOperations": {
+          "issueCategories": [
+            "rope_condition",
+            "surface_or_clearance",
+            "contact_quality",
+            "fatigue_or_symptoms",
+            "dose_or_duration",
+            "substitution"
+          ],
+          "supportEscalation": "Stop the bout for an unresolved safety issue, symptoms, repeated trips, or loss of quality; follow facility escalation policy.",
+          "retentionPolicy": "Record exact variant, rope type, passes, contacts, misses, surface, footwear, faults, symptoms, and substitutions under workout-record policy.",
+          "changeImpactPolicy": "Any task change reruns logistics, duration, impact, fatigue, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "legacy-source-49-baseline",
+        "archiveKey": "superseded-source-49-easy-bounce-skeleton",
+        "displayName": "Jump Rope Easy Bounce Legacy Skeleton — Source 49",
+        "archiveReason": "The merged source does not define exact rope requirement, one-pass count, bilateral contact pattern, amplitude boundary, surface, footwear, loading, fatigue, delivery, substitutions, or candidate review state."
+      },
+      "snapshot": {
+        "capturedAt": "2026-08-09T23:20:00.000Z",
+        "cardVersion": 1,
+        "status": "review",
+        "description": "Light rope or mimed bounce for rhythm.",
+        "familyKey": "Rhythm warm-up"
+      },
+      "variants": [
+        {
+          "id": "ee3216e6-7b75-4d1f-a07a-b06f10dd5fda",
+          "key": "bilateral-low-amplitude-basic-rope-bounce",
+          "displayName": "Bilateral Low-Amplitude Basic Rope Bounce",
+          "modifierKeys": [
+            "bilateral",
+            "low_amplitude",
+            "unweighted_rope"
+          ],
+          "difficulty": {
+            "technicalComplexity": 38,
+            "absoluteLoadDemand": 24,
+            "physicalDifficulty": 24,
+            "coordinationDemand": 40,
+            "supervisionDemand": 14,
+            "failureConsequence": 14,
+            "impact": 28,
+            "workCapacityDemand": 24,
+            "baseOverallDifficulty": 38
+          },
+          "requirements": {
+            "equipment": [
+              "jump_rope"
+            ],
+            "laterality": "simultaneous_bilateral",
+            "ropeRule": "one_unweighted_handheld_rope_revolution_per_jump",
+            "contactRule": "one_low_simultaneous_bilateral_takeoff_and_landing_per_pass",
+            "surface": "clean_level_dry_non_slip",
+            "amplitude": "low"
+          },
+          "loadProfile": {
+            "externalLoadMethod": "bodyweight_with_unweighted_handheld_rope",
+            "impactClass": "repeated_low_amplitude_bilateral_contacts",
+            "landingContactsPerRep": 2,
+            "primaryExposure": [
+              "foot_ankle_calf",
+              "repeated_impact",
+              "rope_rotation"
+            ]
+          },
+          "fatigueProfile": {
+            "localMuscleFatigue": 24,
+            "technicalFatigueSensitivity": 32,
+            "impactAccumulation": 28,
+            "recoveryHoursPlanningEstimate": 12,
+            "cumulativeBudget": {
+              "rope_contacts": 80,
+              "foot": 22,
+              "calf": 22,
+              "impact": 30,
+              "lower_body": 18
+            },
+            "tracking": [
+              "validPasses",
+              "contactCount",
+              "cadence",
+              "misses",
+              "surface",
+              "footwear",
+              "symptoms"
+            ]
+          },
+          "programmingProfile": {
+            "selectionStatus": "candidate_exact_variant_required",
+            "exerciseScoresDescribeTaskOnly": true,
+            "trainingStimuli": [
+              "rope_rhythm",
+              "low_amplitude_repeated_contact_control"
+            ],
+            "stimulusDose": "valid_passes_and_contacts",
+            "recomputeAfterSubstitution": true,
+            "publicationQuarantined": true
+          },
+          "deliveryProfiles": [
+            {
+              "key": "prepare-rhythm-bilateral-basic-rope-bounce",
+              "phase": "prepare_and_access",
+              "role": "conditional",
+              "purpose": "Candidate low-amplitude rhythm and repeated-contact preparation when exact rope mechanics and impact budget fit.",
+              "suitability": 68,
+              "methodologyAlignment": 62,
+              "objectiveRelevance": {
+                "rhythm": 72,
+                "foot_ankle_preparation": 64
+              },
+              "dosage": {
+                "sets": "1-3",
+                "workSeconds": "10-30",
+                "restSeconds": "30-90",
+                "countRule": "count valid passes and contacts; stop before quality loss"
+              },
+              "qualityGate": "Each pass stays low, bilateral, quiet, clear, and controlled; the rope, surface, space, breathing, and symptoms remain acceptable.",
+              "stopRules": [
+                "stop on pain, new symptoms, loss of control, repeated trips, unsafe clearance, or participant request",
+                "stop when landing sound, amplitude, rope control, or breathing quality cannot be restored"
+              ],
+              "coachInstructions": "Check rope condition and clearance, demonstrate one clean pass, count valid contacts, and stop rather than turning the task into conditioning.",
+              "athleteInstructions": "Turn the rope with your hands and wrists, take one small two-foot jump, land quietly, and reset after a miss.",
+              "expectedAdaptation": "Candidate rhythm and repeated-contact practice only; no guaranteed transfer is claimed.",
+              "equipmentRequired": [
+                "jump_rope"
+              ],
+              "logistics": {
+                "stationCapacity": 1,
+                "setupSeconds": 45,
+                "transitionSeconds": 30,
+                "clearanceRequired": true
+              },
+              "substitutionIds": [],
+              "timeModel": {
+                "setupSeconds": 45,
+                "perSetSeconds": 45,
+                "resetSeconds": 30
+              },
+              "doseScaling": {
+                "reduce": "fewer clean passes, slower cadence, longer rest, or select another reviewed task",
+                "doNotAutoProgress": "Do not add alternating contacts, higher amplitude, double-unders, rope mass, or interval density without revalidation."
+              },
+              "measurement": {
+                "record": [
+                  "validPasses",
+                  "contacts",
+                  "misses",
+                  "cadence",
+                  "symptoms"
+                ]
+              },
+              "supportPrompts": {
+                "athlete": "Small jump; quiet landing; count clean passes.",
+                "coach": "Observe rope clearance and bilateral contacts before adding duration."
+              }
+            }
+          ]
+        }
+      ],
+      "legacy": {
+        "description": "Archived Source 49 remains a traceable merged-source skeleton. The reviewed candidate is the exact bilateral basic rope bounce survivor variant; it is not a mimed bounce or an automatically selectable legacy row.",
+        "defaultSets": null,
+        "defaultReps": null,
+        "defaultWorkSeconds": null,
+        "defaultRestSeconds": null,
+        "tempo": null,
+        "loadNote": "Candidate-only; use exact variant delivery profile and recompute contacts and impact.",
+        "estimatedSecondsPerSet": null,
+        "cardSummary": "Source 49 is consolidated under Jump Rope Bounce and retained as archived provenance.",
+        "coachLanguage": "Use only the exact reviewed candidate variant after safety, logistics, duration, and impact checks.",
+        "athleteLanguage": "Do not count a pass unless the rope clears and you land quietly on both feet.",
+        "programmingLogic": {
+          "sourceDisposition": "merged_source_skeleton",
+          "selectable": false,
+          "humanReviewRequired": true
+        },
+        "scalableVariables": [
+          "valid_passes",
+          "contact_count",
+          "cadence",
+          "rest",
+          "surface",
+          "footwear"
+        ],
+        "movementFamily": "jump_rope_basic_bounce",
+        "primaryPhaseKey": "prepare_and_access",
+        "phaseSubrole": "rhythm_warmup",
+        "primaryOrderSlot": "rhythm_warmup",
+        "movementRequirements": {
+          "selectable": false,
+          "sourceIdentityDuplicate": true
+        },
+        "coachingExecution": {
+          "quality_gate": "Legacy source is not selectable; use exact candidate contract only.",
+          "stop_signs": [
+            "pain",
+            "symptoms",
+            "unsafe station",
+            "repeated trips"
+          ]
+        },
+        "pairingLogic": {
+          "revalidateAfterSubstitution": true
+        },
+        "mediaLibrary": {
+          "reviewState": "candidate_only"
+        },
+        "participantStructure": "individual",
+        "programmingKind": "exercise",
+        "preserveArchived": true
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "coachSupervision": "recommended",
+        "prerequisiteNotes": "Readiness is the exact rope, bilateral contact, clear station, symptoms, communication, planned dose, and impact budget; never a participant classification.",
+        "readinessChecks": [
+          "Confirm rope condition, length, and clear station.",
+          "Confirm a comfortable low bilateral pass and quiet landing.",
+          "Confirm count rule, stop signal, and exit.",
+          "Review cumulative foot, calf, impact, and lower-body work."
+        ],
+        "stopSigns": [
+          "sharp, increasing, unfamiliar, or post-trauma pain or stop request",
+          "dizziness, chest symptoms, unusual breathlessness, disorientation, or inability to communicate",
+          "repeated trips, loud or uncontrolled contacts, or rope clearance failure that does not resolve",
+          "unsafe rope, surface, clearance, footwear, visibility, or exit"
+        ],
+        "contraindications": [
+          "symptoms, restriction, or unsafe station conflicts with repeated impact",
+          "assessment, clinical treatment, alternating-foot, unilateral, double-under, weighted-rope, or interval intent"
+        ],
+        "commonSubstitutions": [
+          "Use another reviewed rhythm task only after requirements, duration, and impact budgets are recomputed.",
+          "Do not treat mimed, alternating, boxer, unilateral, power, interval, or loaded rope work as automatic substitutions."
+        ]
+      },
+      "score": {
+        "technicalComplexity": 38,
+        "absoluteLoadDemand": 24,
+        "coordinationDemand": 40,
+        "impact": 28,
+        "supervisionDemand": 14,
+        "confidence": 58,
+        "reviewNotes": "Candidate task-only reassessment. Independent calibration remains required.",
+        "legacyScores": {
+          "physicalDifficulty": 24,
+          "failureConsequence": 14,
+          "workCapacityDemand": 24
+        },
+        "difficultyProfile": {
+          "technical": 3.8,
+          "complexity": 3.8,
+          "load": 2.4,
+          "overall": 3.8,
+          "attentionDemand": "moderate",
+          "notes": "Candidate score describes the exact bilateral rope-bounce task only."
+        }
+      },
+      "testPacket": {
+        "auditVersion": "canonical-card-audit-v2",
+        "status": "quarantined",
+        "humanReviewRequired": true,
+        "checks": {
+          "identity": "candidate_complete",
+          "taxonomy": "candidate_complete",
+          "difficulty": "candidate_complete",
+          "media": "human_review_required",
+          "relationships": "human_review_required",
+          "calibration": "human_review_required",
+          "publication": "human_review_required"
+        },
+        "blockingIssues": [
+          {
+            "code": "CARD-MEDIA-01",
+            "severity": "P0",
+            "message": "Exact-match media requires human review."
+          },
+          {
+            "code": "CARD-GRAPH-03",
+            "severity": "P1",
+            "message": "Relationships require human review."
+          },
+          {
+            "code": "CARD-CALIBRATION-01",
+            "severity": "P1",
+            "message": "Independent score calibration is required."
+          },
+          {
+            "code": "CARD-PUBLISH-01",
+            "severity": "P0",
+            "message": "Publication requires current two-person approval."
+          }
+        ]
+      }
+    }
+  ]
+}

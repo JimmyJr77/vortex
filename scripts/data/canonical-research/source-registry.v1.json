@@ -1,6 +1,27 @@
 {
-  "registryVersion": "2026-08-02.93",
+  "registryVersion": "2026-08-09.115",
   "sources": {
+    "jump_rope_footwear_biomechanics_2022": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "title": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "publisher": "Bioengineering",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "alternating_jump_rope_shod_barefoot_2023": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37892884/",
+      "title": "Effects of Barefoot and Shod Conditions on the Kinematics and Kinetics of the Lower Extremities in Alternating Jump Rope Skipping",
+      "publisher": "Bioengineering",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "nsca_youth_resistance_position": {
+      "url": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "title": "Youth Resistance Training: Updated Position Statement Paper",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
     "crossfit_handstand_coaching_guide": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/11104218/How-to-Coach-CrossFit-Gymnastics.pdf",
       "title": "Gymnastics for CrossFit Coaches: A Comprehensive Training Guide",
@@ -984,6 +1005,13 @@
     "prehab_adductor_rockback": {
       "url": "https://library.theprehabguys.com/vimeo-video/quadruped-dynamic-long-adductor-stretch/",
       "title": "Adductor Rock Back",
+      "publisher": "[P]rehab",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "prehab_dynamic_frog_stretch": {
+      "url": "https://library.theprehabguys.com/vimeo-video/frog-stretch-dynamic/",
+      "title": "Frog Stretch – Dynamic",
       "publisher": "[P]rehab",
       "kind": "expert_instruction",
       "evidenceQuality": 72
@@ -2570,6 +2598,20 @@
       "kind": "professional_standard",
       "evidenceQuality": 82
     },
+    "pdst_gymnastics_roll_cards": {
+      "url": "https://www.pdst.ie/sites/default/files/Gymnastics%20Roll%20Cards%20-%20FULL%20SET%20-%20compressed_0.pdf",
+      "title": "Gymnastics Skills Cards for Physical Education — Rolling",
+      "publisher": "Professional Development Service for Teachers",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "usta_carioca_dynamic_warmup": {
+      "url": "https://www.sausd.us/cms/lib/CA01000471/Centricity/Domain/371/Tennis%20Dynamic%20Warm%20up.pdf",
+      "title": "Carioca Drill — Dynamic Warm Up",
+      "publisher": "United States Tennis Association Player Development",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
     "special_olympics_handstand_snapdown_coaching": {
       "url": "https://special-olympics.be/wp-content/uploads/2022/08/specialolympics_artisticgymnastics.pdf",
       "title": "Special Olympics Artistic Gymnastics Coaching Guide",
@@ -2772,6 +2814,636 @@
       "publisher": "Special Olympics",
       "kind": "governing_body",
       "evidenceQuality": 78
+    },
+    "gmb_quadruped_spinal_circles_pdf": {
+      "url": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "title": "Daily Diagnostic Joint Mobility Routine",
+      "publisher": "GMB Fitness",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "gmb_joint_mobility_spinal_circles": {
+      "url": "https://gmb.io/joint-mobility/",
+      "title": "Joint Mobility Exercises for Health, Function, and Workout Preparation",
+      "publisher": "GMB Fitness",
+      "kind": "expert_instruction",
+      "evidenceQuality": 80
+    },
+    "napa_quadruped_exercises_pt": {
+      "url": "https://napacenter.org/quadruped-exercises/",
+      "title": "8 Quadruped Exercises by a Pediatric Physical Therapist",
+      "publisher": "NAPA Center",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "leeds_nhs_open_book": {
+      "url": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "title": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "publisher": "Leeds Teaching Hospitals NHS Trust",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "dynamic_health_nhs_mid_back_open_book": {
+      "url": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "title": "Mid-back pain",
+      "publisher": "Dynamic Health NHS",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "side_lying_thoracolumbar_rotation_reliability": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3096141/",
+      "title": "Reliability and exploration of the side-lying thoraco-lumbar rotation measurement",
+      "publisher": "North American Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "ace_inchworms_exercise_library": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/254/inchworms/",
+      "title": "Ab Exercises: Inchworms",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "oxford_health_walkout_plank": {
+      "url": "https://www.oxfordhealth.nhs.uk/wp-content/uploads/sites/22/2023/10/Core-Strength-2.pdf",
+      "title": "Core Strength Level 2",
+      "publisher": "Oxford Health NHS Foundation Trust",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "special_olympics_young_athletes_inchworm": {
+      "url": "https://media.specialolympics.org/resources/community-building/young-athletes/lesson-plans/YA-Lesson-Plans-5to7-Abridged-EN.pdf",
+      "title": "Young Athletes Lesson Plans Ages 5–7",
+      "publisher": "Special Olympics",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "usa_gymnastics_wrist_exercises": {
+      "url": "https://static.usagym.org/PDFs/about/wellness/exercise/wrist.pdf",
+      "title": "Suggested Gymnastics Wrist Exercises",
+      "publisher": "USA Gymnastics",
+      "kind": "governing_body",
+      "evidenceQuality": 88
+    },
+    "gmb_wrist_strengthening_cheatsheet": {
+      "url": "https://gmb.io/wp-content/uploads/2025/02/GMB-Wrist-Strengthening-Cheatsheet.pdf",
+      "title": "Wrist Strengthening Cheatsheet",
+      "publisher": "GMB Fitness",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "prehab_quadruped_wrist_flexion_extension": {
+      "url": "https://library.theprehabguys.com/vimeo-video/quadruped-wrist-flexion-extension-prom/",
+      "title": "Quadruped Wrist Flexion & Extension – PROM",
+      "publisher": "The Prehab Guys",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "gymnastics_wrist_guard_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37794701/",
+      "title": "Wrist Guards/Supports in Gymnastics: Are They Helping or Hurting You?",
+      "publisher": "The American Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "adolescent_gymnastics_wrist_injury_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12804664/",
+      "title": "Epidemiology and Risk Factors of Wrist Pain and Injury in Adolescent Artistic Gymnasts: A Systematic Review and Meta-analysis",
+      "publisher": "Orthopaedic Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "bmj_shoulder_abc_scapular_push_up": {
+      "url": "https://bmjopensem.bmj.com/content/bmjosem/8/1/e001270/DC1/embed/inline-supplementary-material-1.pdf",
+      "title": "Shoulder ABC Prevention Exercises",
+      "publisher": "BMJ Open Sport & Exercise Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "bmj_shoulder_abc_trial": {
+      "url": "https://bmjopensem.bmj.com/content/8/1/e001270",
+      "title": "Multicomponent stretching and rubber band strengthening exercises do not reduce overuse shoulder injuries",
+      "publisher": "BMJ Open Sport & Exercise Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "ace_scapular_pushups": {
+      "url": "https://www.acefitness.org/resources/everyone/blog/6350/exercises-to-counteract-too-much-sitting/",
+      "title": "Exercises to Counteract Too Much Sitting",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "push_up_plus_emg_meta_2019": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6863690/",
+      "title": "Serratus Anterior and Upper Trapezius Electromyographic Analysis of the Push-Up Plus Exercise",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "modified_traditional_push_up_plus_load_2015": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25881172/",
+      "title": "The effects of exercise type and elbow angle on vertical ground reaction force and muscle activity during a push-up plus exercise",
+      "publisher": "Journal of Sports Science & Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "scapular_protraction_retraction_emg_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12734928/",
+      "title": "Electromyographic Patterns of Scapular Muscles During Four Variations of Protraction–Retraction Exercises",
+      "publisher": "Healthcare",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "scapular_protraction_hold_fatigue_2009": {
+      "url": "https://ohiostate.elsevierpure.com/en/publications/scapula-kinematic-alterations-following-a-modified-push-up-plus-t/",
+      "title": "Scapula kinematic alterations following a modified push-up plus task",
+      "publisher": "Human Movement Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "gmb_quadruped_shoulder_circles": {
+      "url": "https://gmb.io/shoulder-mobility/",
+      "title": "Shoulder Mobility Exercises: Find Your Restriction, Then Fix It",
+      "publisher": "GMB Fitness",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "rehab_hero_quadruped_scapular_circles": {
+      "url": "https://www.rehabhero.ca/exercise/quadruped-scapular-circles",
+      "title": "Quadruped Scapular Circles",
+      "publisher": "Rehab Hero",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "scapulothoracic_kinematics_cadaver_2023": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9937811/",
+      "title": "Kinematic analysis of scapulothoracic movements in the shoulder girdle: a whole cadaver study",
+      "publisher": "JSES International",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "open_closed_chain_scapular_kinematics_2017": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0021929016306832",
+      "title": "Three-dimensional scapular kinematics during open and closed kinetic chain movements in asymptomatic and symptomatic subjects",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "scapular_movement_training_rct_2023": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36000960/",
+      "title": "Scapular movement training is not superior to standardized exercises in the treatment of individuals with chronic shoulder pain and scapular dyskinesis: randomized controlled trial",
+      "publisher": "Disability and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "physitrack_forearm_wall_slide_lift_off": {
+      "url": "https://us.physitrack.com/home-exercise-video/ghjt-flexion-wall-slides---lift-off",
+      "title": "GHjt flexion wall slides - lift-off",
+      "publisher": "Physitrack",
+      "kind": "expert_instruction",
+      "evidenceQuality": 80
+    },
+    "catalyst_wall_slide_lift_off": {
+      "url": "https://www.catalystathletics.com/exercise/796/Wall-Slide-With-Lift-Off/",
+      "title": "Wall Slide With Lift-Off",
+      "publisher": "Catalyst Athletics",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "wall_slide_serratus_emg_2006": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17193867/",
+      "title": "A comparison of serratus anterior muscle activation during a wall slide exercise and other traditional exercises",
+      "publisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "wall_slide_theraband_emg_2022": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9661929/",
+      "title": "Theraband Applications for Improved Upper Extremity Wall-Slide Exercises",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "wall_slide_alignment_pain_trial_2016": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5080198/",
+      "title": "The effects of wall slide and sling slide exercises on scapular alignment and pain in subjects with scapular downward rotation",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "rotator_cuff_tendinopathy_cpg_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40165544/",
+      "title": "Rotator Cuff Tendinopathy Diagnosis, Nonsurgical Medical Care, and Rehabilitation: A Clinical Practice Guideline",
+      "publisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "kind": "professional_standard",
+      "evidenceQuality": 94
+    },
+    "nwhsu_bilateral_band_shoulder_external_rotation": {
+      "url": "https://www.nwhealth.edu/wp-content/uploads/2019/04/NWHSU-rehab-shoulder-ext-rot.pdf",
+      "title": "Shoulder External Rotation",
+      "publisher": "Northwestern Health Sciences University",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "performance_health_bilateral_external_rotation": {
+      "url": "https://admin.performancehealth.com/media/wysiwyg/pdfs/RTC_PDF.pdf",
+      "title": "Exercises for Shoulder Impingement",
+      "publisher": "Performance Health / TheraBand Academy",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "orthopedic_one_no_money_exercise": {
+      "url": "https://www.orthopedicone.com/news-events/shoulder-exercises-for-improved-rotator-cuff-strength-and-stability/",
+      "title": "Shoulder Exercises for Improved Rotator Cuff Strength and Stability",
+      "publisher": "Orthopedic One",
+      "kind": "expert_instruction",
+      "evidenceQuality": 82
+    },
+    "elastic_resistance_shoulder_strength_trial_2018": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5847412/",
+      "title": "Elastic Resistance Effectiveness on Increasing Strength of Shoulders and Hips",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "shoulder_abduction_band_resistance_emg_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41559205/",
+      "title": "The effects of shoulder abduction angle and elastic band resistance on shoulder muscle activity during external rotation exercises",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "constant_elastic_shoulder_rotation_kinematics_2018": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6262970/",
+      "title": "Comparison of the kinematics and kinetics of shoulder exercises performed with constant and elastic resistance",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "mind_body_spine_shoulder_cars": {
+      "url": "https://mindbodyspine.ca/mobility-for-shoulders-controlled-articular-rotations-cars/",
+      "title": "Mobility for Shoulders – Controlled Articular Rotations (CARs)",
+      "publisher": "Mind Body Spine",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "missouri_extension_arm_circles_2023": {
+      "url": "https://extension.missouri.edu/sites/default/files/legacy_media/wysiwyg/Extensiondata/Pub/pdf/n862.pdf",
+      "title": "Physical Activity Cards: Arm Circles",
+      "publisher": "University of Missouri Extension",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "scapular_kinematics_variability_review_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12398250/",
+      "title": "Scapular kinematics variability in individuals with and without rotator cuff-related shoulder pain: A systematic review with multilevel meta-regression",
+      "publisher": "Brazilian Journal of Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 94
+    },
+    "dynamic_glenohumeral_elevation_emg_2019": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6368381/",
+      "title": "Patterns of muscle coordination during dynamic glenohumeral joint elevation: An EMG study",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "active_passive_shoulder_elevation_2016": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4932079/",
+      "title": "Analysis of scapular kinematics during active and passive arm elevation",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "unconstrained_overhead_reaching_kinematics_2009": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2841046/",
+      "title": "In vivo assessment of scapulohumeral rhythm during unconstrained overhead reaching in asymptomatic subjects",
+      "publisher": "Journal of Shoulder and Elbow Surgery",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "spooner_bear_crawl_rock_backs": {
+      "url": "https://www.spoonerpt.com/spooner-blog/dynamic-warm-up-for-mountain-bikers/",
+      "title": "Dynamic Warm-Up for Mountain Bikers: Bear Crawl Rock Backs",
+      "publisher": "Spooner Physical Therapy",
+      "kind": "expert_instruction",
+      "evidenceQuality": 82
+    },
+    "juggernaut_bear_crawl_rock_backs": {
+      "url": "https://www.jtsstrength.com/7-step-low-back-warmup/",
+      "title": "7 Step Lower Back Warmup: Bear Crawl Rock Backs",
+      "publisher": "Juggernaut Training Systems",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "quadruped_exercise_postural_muscle_recruitment_2022": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "title": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "crawling_trunk_muscle_thickness_2023": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10824310/",
+      "title": "Trunk Muscle Thickness During Supine and Crawling Exercises",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "human_quadrupedal_locomotion_speed_2013": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24235984/",
+      "title": "Are various forms of locomotion-speed diverse or unique performance quality?",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "ace_downward_facing_dog": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "title": "Downward-Facing Dog",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 88
+    },
+    "ace_plank_to_downward_facing_dog_breath_cycle": {
+      "url": "https://www.acefitness.org/blog/6106/a-yoga-routine-to-energize-your-morning-no-coffee",
+      "title": "Plank-to-Downward Facing Dog",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 84
+    },
+    "yoga_trunk_hip_activation_2023": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37949547/",
+      "title": "Electromyographic analysis of trunk and hip muscles during Yoga poses prescribed for treating chronic low back pain",
+      "publisher": "Journal of Bodywork and Movement Therapies",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "yoga_stabilization_emg_2024": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39593551/",
+      "title": "Characteristics of electromyographic activity during yoga-applied stabilization exercises",
+      "publisher": "Journal of Bodywork and Movement Therapies",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "high_plank_shoulder_scapular_activity_2024": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "title": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "weight_bearing_lunge_reliability_validity_2012": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23997389/",
+      "title": "Reliability and validity of a weight-bearing measure of ankle dorsiflexion range of motion",
+      "publisher": "Physiotherapy Canada",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "weight_bearing_lunge_knee_to_wall_protocol_2020": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7309406/",
+      "title": "Acute Effects of Increased Joint Mobilization Treatment Duration on Ankle Function and Dynamic Postural Control in Female Athletes With Chronic Ankle Instability",
+      "publisher": "Orthopaedic Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "weight_bearing_lunge_radiographic_validity_2019": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31337266/",
+      "title": "How Much Does the Talocrural Joint Contribute to Ankle Dorsiflexion Range of Motion During the Weight-Bearing Lunge Test? A Cross-sectional Radiographic Validity Study",
+      "publisher": "Journal of Orthopaedic & Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "weight_bearing_lunge_sensation_mapping_2026": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42486468/",
+      "title": "Sensory-Mapping During the Weight-Bearing Lunge Test Across Chronic Ankle Instability, Copers, and Healthy Controls",
+      "publisher": "Journal of Sport Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "weight_bearing_anterior_leg_rotation_intervention_2022": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35133995/",
+      "title": "Comparison of Alternative Methods to Improve Weight-Bearing Sagittal Plane Anterior Leg Rotation",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "closed_chain_half_kneeling_dorsiflexion_measure_2018": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6063060/",
+      "title": "Immediate and Short Term Effect of Dry Needling on Triceps Surae Range of Motion and Functional Movement: A Randomized Trial",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "ankle_self_mobilization_crossfit_rct_2020": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31935136/",
+      "title": "Ankle-Joint Self-Mobilization and CrossFit Training in Patients With Chronic Ankle Instability: A Randomized Controlled Trial",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "talocrural_self_mobilization_duration_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39514236/",
+      "title": "Effect duration of a self-applied talocrural joint mobilization on restricted dorsiflexion: a repeated measures design",
+      "publisher": "Journal of Manual & Manipulative Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "ankle_active_inversion_eversion_reliability_2006": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1550229/",
+      "title": "Reliability of two goniometric methods of measuring active inversion and eversion range of motion at the ankle",
+      "publisher": "BMC Musculoskeletal Disorders",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "ankle_joint_complex_active_rom_1993": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/8423170/",
+      "title": "A method to determine the range of motion of the ankle joint complex, in vivo",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "ankle_biomechanics_review_2016": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4994968/",
+      "title": "Biomechanics of the ankle",
+      "publisher": "Orthopaedics and Trauma",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "tibialis_anterior_attachment_anatomy_2022": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9277928/",
+      "title": "Relationship between attachment site of tibialis anterior muscle and shape of tibia: anatomical study of cadavers",
+      "publisher": "Journal of Foot and Ankle Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "swing_dorsiflexion_clearance_kinetics_2024": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11191291/",
+      "title": "The ankle dorsiflexion kinetics demand to increase swing phase foot-ground clearance: implications for assistive device design and energy demands",
+      "publisher": "Journal of NeuroEngineering and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "isometric_dorsiflexion_protocol_2015": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4487336/",
+      "title": "Improvement of isometric dorsiflexion protocol for assessment of tibialis anterior muscle strength",
+      "publisher": "Journal of Foot and Ankle Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "double_leg_heel_raise_activity_2015": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4483433/",
+      "title": "Comparison of ankle plantar flexor activity between double-leg heel raise and walking",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "standing_heel_raise_phase_emg_2021": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8070905/",
+      "title": "Electromyographic Assessment of the Lower Leg Muscles during Concentric and Eccentric Phases of Standing Heel Raise",
+      "publisher": "Journal of Functional Morphology and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "standing_heel_raise_foot_position_2016": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4738962/",
+      "title": "Analysis of Heel Raise Exercise with Three Foot Positions",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "selective_toe_extension_mri_2016": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5094843/",
+      "title": "Intrinsic Foot Muscle Activation During Specific Exercises: A T2 Time Magnetic Resonance Imaging Study",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "intrinsic_foot_training_meta_analysis_2023": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35724360/",
+      "title": "Evidence for Intrinsic Foot Muscle Training in Improving Foot Function: A Systematic Review and Meta-Analysis",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "intrinsic_foot_dynamic_balance_meta_analysis_2022": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35442981/",
+      "title": "Effect of intrinsic foot muscles training on foot function and dynamic postural balance: A systematic review and meta-analysis",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "selective_toe_extension_kinematics_2026": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028051/",
+      "title": "Kinematic Characteristics and Reliability of Selective Toe Extension Tasks in Young and Older Adults",
+      "publisher": "Journal of Functional Morphology and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "toe_yoga_hallux_lesser_toe_sequence_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11911532/",
+      "title": "Non-Operative Management of Symptomatic Hallux Limitus: A Novel Approach of Foot Core Stabilization and Extracorporeal Shockwave Therapy",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 74
+    },
+    "short_foot_doming_strength_reliability_2017": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5723035/",
+      "title": "Reliability of doming and toe flexion testing to quantify foot muscle strength",
+      "publisher": "Journal of Foot and Ankle Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "short_foot_pronation_rct_2020": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7369729/",
+      "title": "Randomized Clinical Trial: The Effect of Exercise of the Intrinsic Muscle on Foot Pronation",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "short_foot_ultrasound_biofeedback_2024": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38160335/",
+      "title": "Effects of short foot exercises with ultrasound bio-feedback on motor learning and foot alignment: A double blinded randomized control trial",
+      "publisher": "Journal of Back and Musculoskeletal Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "short_foot_feasibility_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12703198/",
+      "title": "Relationship of Physical Factors to the Acceptability and Unacceptability of Short Foot Exercise: A Preliminary Study",
+      "publisher": "Progress in Rehabilitation Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "voluntary_cop_sway_postural_stability_1993": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/8317244/",
+      "title": "Evaluation of the postural stability in man: movement and posture interaction",
+      "publisher": "Acta Neurobiologiae Experimentalis",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "mediolateral_cop_weight_shift_feedback_2016": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26991996/",
+      "title": "Effects of Filtering the Center of Pressure Feedback Provided in Visually Guided Mediolateral Weight Shifting",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "common_foot_strengthening_posture_load_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13090714/",
+      "title": "The influence of body posture and added mass on intrinsic and extrinsic foot muscle activation and force output during common foot strengthening exercises",
+      "publisher": "Journal of Foot and Ankle Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "hallux_plantarflexion_postural_sway_2015": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4616073/",
+      "title": "Clarification of functional differences between the hallux and lesser toes during the single leg stance: immediate effects of conditioning contraction of the toe plantar flexion muscles",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 79
+    },
+    "hallux_contact_limits_stability_2025": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39764301/",
+      "title": "Noncontact of the unilateral hallux with the ground reduces forward limits of stability while standing",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "arch_raise_heel_raise_emg_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12483491/",
+      "title": "Electromyographic examination of a new exercise therapy for the intrinsic and extrinsic foot muscles",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "foot_core_heel_raise_sequence_2025": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11911532/",
+      "title": "Non-Operative Management of Symptomatic Hallux Limitus: A Novel Approach of Foot Core Stabilization and Extracorporeal Shockwave Therapy",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 74
+    },
+    "prone_superman_multifidus_2021": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34055178/",
+      "title": "Lumbar Multifidus Muscle Thickness During Graded Quadruped and Prone Exercises",
+      "publisher": "Physical and Virtual Learning Quarterly",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 76
+    },
+    "prone_trunk_extension_lumbopelvic_control_2017": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28371661/",
+      "title": "Applying an active lumbopelvic control strategy during lumbar extension exercises: Effect on muscle recruitment patterns of the lumbopelvic region",
+      "publisher": "Human Movement Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "trunk_extension_fatigue_recruitment_2003": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12567032/",
+      "title": "Derecruitment of the lumbar musculature with fatiguing trunk extension exercise",
+      "publisher": "Spine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
     }
   }
 }

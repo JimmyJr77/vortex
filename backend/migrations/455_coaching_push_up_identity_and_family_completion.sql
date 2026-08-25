@@ -8,46 +8,36 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '455_coaching_push_up_identity_and_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.68';
-  canonical_id CONSTANT UUID := '46c7611a-e107-4e32-9c81-d688e509fe73';
-  standard_variant CONSTANT UUID := 'b11fb718-d6ad-4023-9873-5ca390b51093';
-  incline_variant CONSTANT UUID := 'd786124e-5540-4ecf-bf35-7580af753298';
-  feet_elevated_variant CONSTANT UUID := 'b013c646-fcfc-4bbe-9783-fa765c6d7e66';
-  deficit_variant CONSTANT UUID := '81c6a8f4-982e-40ef-a849-e32528b6501d';
-  close_grip_variant CONSTANT UUID := 'a1f31367-0624-4be7-aced-8e6b5d6a9873';
-  ring_variant CONSTANT UUID := 'e7e762e4-ab1b-4489-83ff-0d91fc3b0936';
-  archer_variant CONSTANT UUID := '1933eabf-4a88-454b-9cce-f06c0c6425cd';
-  pseudo_planche_variant CONSTANT UUID := 'af8093f0-36e0-41bc-be66-3d535844104f';
-  weighted_vest_variant CONSTANT UUID := 'fe3f9120-3f17-479e-b5c3-5bef028dfa3d';
-  floor_negative_variant CONSTANT UUID := 'b1028d0b-e752-4c41-b8a7-66fab3ca79d5';
-  ring_negative_variant CONSTANT UUID := 'e23c0693-b43c-41fd-bc01-fb0a27ad3cac';
-  tempo_eccentric_annotation CONSTANT UUID := '0fe5ee87-2885-4994-b11f-cfee26b5a97c';
-  tempo_annotation CONSTANT UUID := '2b3e8382-80d1-4106-acc4-52a19951b521';
-  decline_duplicate_variant CONSTANT UUID := 'eb9ef106-95e5-438e-929f-481f29e0253e';
-  ambiguous_one_arm_variant CONSTANT UUID := '1f79001d-50a8-4797-8983-c8079a0a142e';
-  ambiguous_one_arm_definition CONSTANT UUID := '60e141e0-7cd4-41f4-999f-b980835d4701';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    standard_variant,incline_variant,feet_elevated_variant,deficit_variant,
-    close_grip_variant,ring_variant,archer_variant,pseudo_planche_variant,
-    weighted_vest_variant,floor_negative_variant,ring_negative_variant];
-  all_variant_ids CONSTANT UUID[] := active_variant_ids||ARRAY[
-    tempo_eccentric_annotation,tempo_annotation,decline_duplicate_variant,
-    ambiguous_one_arm_variant];
+  canonical_id UUID;
+  standard_variant UUID;
+  incline_variant UUID;
+  feet_elevated_variant UUID;
+  deficit_variant UUID;
+  close_grip_variant UUID;
+  ring_variant UUID;
+  archer_variant UUID;
+  pseudo_planche_variant UUID;
+  weighted_vest_variant UUID;
+  floor_negative_variant UUID;
+  ring_negative_variant UUID;
+  tempo_eccentric_annotation UUID;
+  tempo_annotation UUID;
+  decline_duplicate_variant UUID;
+  ambiguous_one_arm_variant UUID;
+  ambiguous_one_arm_definition UUID;
+  feet_elevated_definition UUID;
+  deficit_definition UUID;
+  pseudo_planche_definition UUID;
+  close_grip_definition UUID;
+  weighted_vest_definition UUID;
+  weighted_vest_pull_up_definition UUID;
+  close_grip_bench_definition UUID;
+  active_variant_ids UUID[];
+  all_variant_ids UUID[];
   canonical_source_ids CONSTANT BIGINT[] := ARRAY[
     185,186,187,579,580,581,582,583,584,769,770,815,816,1048];
   involved_source_ids CONSTANT BIGINT[] := canonical_source_ids||ARRAY[585]::BIGINT[];
-  consolidated_definition_ids CONSTANT UUID[] := ARRAY[
-    '30bef5fa-164d-478d-896b-940409ede8cf'::UUID,
-    'c0b1e84a-3fa4-4478-b8b4-c65b1ffaaa5f'::UUID,
-    '5eef370d-25fa-4c0c-ad86-819a80d891ab'::UUID,
-    '8475da29-2ca1-4700-8b59-6af0758ffeba'::UUID,
-    'b2b35942-4538-4f32-b7f4-c84cb94c1869'::UUID,
-    '83b2c683-e854-4abf-8931-7b876e3b0a98'::UUID,
-    '16057cee-9273-4508-803d-d4bc651f4953'::UUID,
-    '1828a718-2e84-44db-8aee-8aaf3c25e2c0'::UUID,
-    '07962f5e-9667-4343-b37e-418d9612e1f2'::UUID,
-    '7ec01e33-36dd-4926-9c5c-0e3ee0fe3d71'::UUID,
-    '28b0cceb-1dba-40af-bf1a-881ba70b334e'::UUID,
-    'd4741a25-fc3d-46a5-9e6d-3311a2be3155'::UUID];
+  consolidated_definition_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'WDIpL0pjun0','0JUrOH--Kdk','DBz85WuXqMk','6KfBJQcRpYw','A0r8ploEnZY'];
   evidence_payload JSONB := $json$
@@ -102,13 +92,73 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
-  IF (SELECT count(*) FROM coaching.exercise_definition_v1
-      WHERE id=ANY(consolidated_definition_ids||ARRAY[canonical_id,ambiguous_one_arm_definition]))
-      <>cardinality(consolidated_definition_ids)+2
+  -- UUIDs are generated during a fresh library bootstrap. Resolve every
+  -- protected record through immutable legacy source IDs and exact lineage
+  -- keys so this completion remains replayable in new environments.
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=186;
+  SELECT definition_id INTO feet_elevated_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=580;
+  SELECT definition_id INTO deficit_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=581;
+  SELECT definition_id INTO pseudo_planche_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=584;
+  SELECT definition_id INTO close_grip_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=815;
+  SELECT definition_id INTO weighted_vest_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=1048;
+  SELECT definition_id INTO ambiguous_one_arm_definition
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=585;
+  SELECT id INTO standard_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO incline_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-185-baseline';
+  SELECT id INTO feet_elevated_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=feet_elevated_definition AND variant_key='baseline';
+  SELECT id INTO deficit_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=deficit_definition AND variant_key='baseline';
+  SELECT id INTO close_grip_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=close_grip_definition AND variant_key='baseline';
+  SELECT id INTO ring_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-582-baseline';
+  SELECT id INTO archer_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-583-baseline';
+  SELECT id INTO pseudo_planche_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=pseudo_planche_definition AND variant_key='baseline';
+  SELECT id INTO weighted_vest_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=weighted_vest_definition AND variant_key='baseline';
+  SELECT id INTO floor_negative_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-769-baseline';
+  SELECT id INTO ring_negative_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-769-legacy-source-770-baseline';
+  SELECT id INTO tempo_eccentric_annotation FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-187-baseline';
+  SELECT id INTO tempo_annotation FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-579-baseline';
+  SELECT id INTO decline_duplicate_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='legacy-source-816-baseline';
+  SELECT id INTO ambiguous_one_arm_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=ambiguous_one_arm_definition AND variant_key='baseline';
+  SELECT id INTO weighted_vest_pull_up_definition FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='weighted-vest-pull-up-strength';
+  SELECT id INTO close_grip_bench_definition FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='close-grip-bench-press';
+  SELECT array_agg(DISTINCT definition_id ORDER BY definition_id) INTO consolidated_definition_ids
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=ANY(canonical_source_ids) AND definition_id<>canonical_id;
+  active_variant_ids := ARRAY[standard_variant,incline_variant,feet_elevated_variant,
+    deficit_variant,close_grip_variant,ring_variant,archer_variant,pseudo_planche_variant,
+    weighted_vest_variant,floor_negative_variant,ring_negative_variant];
+  all_variant_ids := active_variant_ids||ARRAY[tempo_eccentric_annotation,tempo_annotation,
+    decline_duplicate_variant,ambiguous_one_arm_variant];
+
+  IF canonical_id IS NULL OR ambiguous_one_arm_definition IS NULL
+    OR cardinality(consolidated_definition_ids)<>5
     OR (SELECT count(*) FROM coaching.exercise_variant_v1
       WHERE id=ANY(all_variant_ids))<>cardinality(all_variant_ids)
     OR (SELECT count(*) FROM coaching.exercise
-      WHERE id=ANY(involved_source_ids))<>cardinality(involved_source_ids) THEN
+      WHERE id=ANY(involved_source_ids))<>cardinality(involved_source_ids)
+    OR weighted_vest_pull_up_definition IS NULL OR close_grip_bench_definition IS NULL THEN
     RAISE EXCEPTION '% requires every protected definition, variant, and legacy source',migration_key;
   END IF;
 
@@ -235,7 +285,7 @@ BEGIN
     provenance_json=(provenance_json-'researchSources')||jsonb_build_object(
       'pushUpCompletionMigration',migration_key,'canonicalResearchVersion',research_version,
       'canonicalSourceIds',to_jsonb(canonical_source_ids),
-      'identityCorrection',jsonb_build_object('movedDefinitionIds',to_jsonb(consolidated_definition_ids[8:12]),'tempoModifierSourceIds',jsonb_build_array(187,579),'duplicateFeetElevatedSourceIds',jsonb_build_array(580,816),'ambiguousOneArmSourceId',585),
+      'identityCorrection',jsonb_build_object('movedDefinitionIds',to_jsonb(consolidated_definition_ids),'tempoModifierSourceIds',jsonb_build_array(187,579),'duplicateFeetElevatedSourceIds',jsonb_build_array(580,816),'ambiguousOneArmSourceId',585),
       'difficultyModel','exercise_complexity_and_physical_difficulty_only',
       'overallDifficultyFormula','max(exercise_complexity,physical_difficulty)',
       'researchCorrection','PMID 38156065 is a calf-raise hypertrophy study and has been removed from Push-Up provenance. Direct Push-Up evidence is now separately registered.',
@@ -552,14 +602,14 @@ BEGIN
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
   VALUES
-    (1,canonical_id,'1828a718-2e84-44db-8aee-8aaf3c25e2c0','duplicate_consolidated','Feet-Elevated Push-Up and Decline Push-Up declare the same elevated-foot closed-chain press; support height, body angle, load, range, repetitions, and rest belong to one exact variant and delivery contract.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_feet_elevated_push_up_variant","duplicateLegacySourceIds":[580,816],"humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'07962f5e-9667-4343-b37e-418d9612e1f2','duplicate_consolidated','Deficit Push-Up preserves the same closed-chain press while stable blocks or parallettes deliberately increase available range.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_declared_deficit_range_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'7ec01e33-36dd-4926-9c5c-0e3ee0fe3d71','duplicate_consolidated','Pseudo-Planche Push-Up preserves the press cycle while hand position and forward lean create an exact leverage, wrist, shoulder, and scapular-demand variant.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_forward_lean_leverage_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'28b0cceb-1dba-40af-bf1a-881ba70b334e','duplicate_consolidated','Close-Grip Push-Up preserves the full Push-Up cycle and differs by declared narrow hand base, elbow path, wrist tolerance, and muscle emphasis.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_narrow_hand_base_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'d4741a25-fc3d-46a5-9e6d-3311a2be3155','duplicate_consolidated','Weighted Vest Push-Up preserves the closed-chain press while a secured vest adds exact external load, retention, breathing, dose, and exit requirements.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_secured_external_vest_load_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,feet_elevated_definition,'duplicate_consolidated','Feet-Elevated Push-Up and Decline Push-Up declare the same elevated-foot closed-chain press; support height, body angle, load, range, repetitions, and rest belong to one exact variant and delivery contract.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_feet_elevated_push_up_variant","duplicateLegacySourceIds":[580,816],"humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,deficit_definition,'duplicate_consolidated','Deficit Push-Up preserves the same closed-chain press while stable blocks or parallettes deliberately increase available range.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_declared_deficit_range_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,pseudo_planche_definition,'duplicate_consolidated','Pseudo-Planche Push-Up preserves the press cycle while hand position and forward lean create an exact leverage, wrist, shoulder, and scapular-demand variant.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_forward_lean_leverage_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,close_grip_definition,'duplicate_consolidated','Close-Grip Push-Up preserves the full Push-Up cycle and differs by declared narrow hand base, elbow path, wrist tolerance, and muscle emphasis.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_narrow_hand_base_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,weighted_vest_definition,'duplicate_consolidated','Weighted Vest Push-Up preserves the closed-chain press while a secured vest adds exact external load, retention, breathing, dose, and exit requirements.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"same_push_up_with_secured_external_vest_load_variant","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
     (1,canonical_id,ambiguous_one_arm_definition,'needs_human_review','One-Arm Push-Up Progression is not executable as authored: it does not identify the working hand, assistance or counterbalance, foot base, hand placement, range, repetition sequence, or return strategy. It remains archived rather than being guessed or merged.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"missing_exact_one_arm_variant_contract","requiredEvidence":["working_hand","assistance_or_counterbalance","foot_base","hand_position","range","repetition_and_return_contract"],"humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'8d14e9ce-d9b7-4fb8-bc3a-e8fe41616038','distinct_exercises','Weighted Vest Pull-Up is a vertical closed-chain pull from an overhead bar using shoulder adduction or extension and elbow flexion; Push-Up is a prone horizontal closed-chain press from fixed hand support using horizontal adduction and elbow extension. A weighted-vest modifier does not collapse that action, implement, orientation, or joint-action boundary.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"vertical_closed_chain_pull_vs_prone_horizontal_closed_chain_press","similarityCause":"shared_up_and_weighted_vest_name_tokens_only","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
-    (1,'f0cd9a6f-27c4-4285-a75c-c13f6b9e3162',canonical_id,'distinct_exercises','Close-Grip Bench Press is a supine open-chain external-load press on an elevated bench; Push-Up is a prone closed-chain bodyweight press against fixed hand support. A narrow hand base can modify either task but does not erase the support, orientation, load-path, range, setup, spotting, or failure-response boundary.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"supine_open_chain_external_load_bench_press_vs_prone_closed_chain_bodyweight_press","similarityCause":"shared_close_grip_and_press_pattern_tokens_only","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL)
+    (1,canonical_id,weighted_vest_pull_up_definition,'distinct_exercises','Weighted Vest Pull-Up is a vertical closed-chain pull from an overhead bar using shoulder adduction or extension and elbow flexion; Push-Up is a prone horizontal closed-chain press from fixed hand support using horizontal adduction and elbow extension. A weighted-vest modifier does not collapse that action, implement, orientation, or joint-action boundary.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"vertical_closed_chain_pull_vs_prone_horizontal_closed_chain_press","similarityCause":"shared_up_and_weighted_vest_name_tokens_only","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL),
+    (1,close_grip_bench_definition,canonical_id,'distinct_exercises','Close-Grip Bench Press is a supine open-chain external-load press on an elevated bench; Push-Up is a prone closed-chain bodyweight press against fixed hand support. A narrow hand base can modify either task but does not erase the support, orientation, load-path, range, setup, spotting, or failure-response boundary.',$json$ {"migration":"455_coaching_push_up_identity_and_family_completion","identityBoundary":"supine_open_chain_external_load_bench_press_vs_prone_closed_chain_bodyweight_press","similarityCause":"shared_close_grip_and_press_pattern_tokens_only","humanReviewRequired":true,"approvalsCreated":false} $json$::JSONB,'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,
@@ -699,8 +749,8 @@ BEGIN
 
   IF (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
       WHERE decision='distinct_exercises' AND reviewed_by IS NULL
-        AND ((survivor_definition_id=canonical_id AND resolved_definition_id='8d14e9ce-d9b7-4fb8-bc3a-e8fe41616038')
-          OR (survivor_definition_id='f0cd9a6f-27c4-4285-a75c-c13f6b9e3162' AND resolved_definition_id=canonical_id)))<>2 THEN
+        AND ((survivor_definition_id=canonical_id AND resolved_definition_id=weighted_vest_pull_up_definition)
+          OR (survivor_definition_id=close_grip_bench_definition AND resolved_definition_id=canonical_id)))<>2 THEN
     RAISE EXCEPTION '% requires both direct Push-Up name-similarity boundaries',migration_key;
   END IF;
 

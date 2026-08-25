@@ -113,13 +113,7 @@ const competitiveTeamDetails = [
   'Our coaching team supports all athletes in balancing safety, confidence, and performance growth.',
 ]
 
-interface ArtisticGymnasticsDisciplinePageProps {
-  onSignUpClick?: () => void
-}
-
-const ArtisticGymnasticsDisciplinePage = ({
-  onSignUpClick: _onSignUpClick,
-}: ArtisticGymnasticsDisciplinePageProps) => {
+const ArtisticGymnasticsDisciplinePage = () => {
   const enrollHref = getSiteEnrollHref({ programName: 'Artistic Gymnastics' })
 
   return (
@@ -138,7 +132,7 @@ const ArtisticGymnasticsDisciplinePage = ({
               A Gymnastics Discipline
             </p>
             <h1 className="text-5xl font-display font-bold leading-[.95] sm:text-6xl lg:text-7xl">
-              Artistic <span className="text-vortex-red">Gymnastics</span>
+              Artistic Gymnastics <span className="text-vortex-red">in Bowie, MD</span>
             </h1>
             <p className="mt-7 max-w-2xl text-xl leading-relaxed text-gray-200 md:text-2xl">
               Build strength, grace, and athletic precision across vault, bars, beam, and floor.
@@ -154,7 +148,7 @@ const ArtisticGymnasticsDisciplinePage = ({
           >
             <div className="relative h-full min-h-[24rem] overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl lg:rounded-l-3xl lg:rounded-r-none lg:border-y-0 lg:border-r-0">
               <img
-                src="/gymnastics.jpeg"
+                src="/gymnastics-hero.webp"
                 alt="Artistic gymnastics athlete practicing strength and form"
                 className="absolute inset-0 h-full w-full scale-[1.35] object-cover object-center"
                 loading="eager"
@@ -269,7 +263,7 @@ const ArtisticGymnasticsDisciplinePage = ({
                   >
                     <div className="overflow-hidden rounded-3xl bg-black shadow-xl">
                       <img
-                        src="/gymnastics.jpeg"
+                        src="/gymnastics-card.webp"
                         alt={`Artistic gymnastics ${event.name} discipline image`}
                         className="aspect-[3/2] h-full w-full object-cover object-center"
                         loading="lazy"
@@ -353,7 +347,7 @@ const ArtisticGymnasticsDisciplinePage = ({
                   >
                     <div className="overflow-hidden rounded-3xl bg-black shadow-xl">
                       <img
-                        src="/gymnastics.jpeg"
+                        src="/gymnastics-card.webp"
                         alt={`Artistic gymnastics ${event.name} discipline image`}
                         className="aspect-[3/2] h-full w-full object-cover object-center"
                         loading="lazy"

@@ -371,6 +371,18 @@ export async function initSchedulingTables(pool) {
     }
   }
 
+  const signupAdminIndexesMigration = path.join(
+    __dirname,
+    '../migrations/489_scheduling_signup_admin_query_indexes.sql',
+  )
+  if (fs.existsSync(signupAdminIndexesMigration)) {
+    try {
+      await pool.query(fs.readFileSync(signupAdminIndexesMigration, 'utf8'))
+    } catch (err) {
+      console.warn('[scheduling] signup admin query indexes migration:', err.message)
+    }
+  }
+
   const abridgedNamesMigration = path.join(
     __dirname,
     '../migrations/052_scheduling_abridged_names.sql',

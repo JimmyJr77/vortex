@@ -54,10 +54,16 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
             AND COALESCE(d.anatomy_json->>'laterality', '') != ''
           )::int AS anatomy_complete,
           COUNT(DISTINCT d.id) FILTER (WHERE
-            v.load_profile_json ?& ARRAY[
-              'gripDemand', 'spinalLoading', 'eccentricStress',
-              'landingContactsPerRep', 'externalLoadMethod'
-            ]
+            v.load_profile_json ?& ARRAY['gripDemand', 'spinalLoading', 'eccentricStress', 'externalLoadMethod']
+            AND (
+              v.load_profile_json ? 'landingContactsPerRep'
+              OR (
+                v.load_profile_json->'contactExposureModel' ?& ARRAY[
+                  'model', 'minimumContactsPerSet', 'planningDefaultContactsPerSet', 'maximumContactsPerSet'
+                ]
+                AND v.load_profile_json->'contactExposureModel'->>'model' = 'per_set_range'
+              )
+            )
           )::int AS load_profile_complete,
           COUNT(DISTINCT d.id) FILTER (WHERE
             v.fatigue_profile_json ?& ARRAY[

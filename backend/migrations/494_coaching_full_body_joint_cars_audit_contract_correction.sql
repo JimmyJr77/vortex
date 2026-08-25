@@ -5,12 +5,20 @@
 DO $migration$
 DECLARE
   migration_key CONSTANT TEXT := '494_coaching_full_body_joint_cars_audit_contract_correction';
-  canonical_definition CONSTANT UUID := 'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3';
-  independent_variant CONSTANT UUID := 'c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c';
-  wall_variant CONSTANT UUID := '627e9509-da11-4e18-8e6a-e67eea115dad';
-  active_variant_ids CONSTANT UUID[] := ARRAY[independent_variant,wall_variant];
+  canonical_definition UUID;
+  independent_variant UUID;
+  wall_variant UUID;
+  active_variant_ids UUID[];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=23;
+  SELECT id INTO independent_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='standing-independent-eight-region-sequence';
+  SELECT id INTO wall_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_definition AND variant_key='standing-wall-supported-lower-body-sequence';
+  active_variant_ids := ARRAY[independent_variant,wall_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND card_version=2 AND status='review'
         AND provenance_json->>'migration'='493_coaching_full_body_joint_cars_flow_audit_hardening')

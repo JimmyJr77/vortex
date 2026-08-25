@@ -1,0 +1,14 @@
+{
+  "migrationKey": "532_coaching_hip_cars_source_57_candidate_materialization",
+  "researchVersion": "2026-08-09.116",
+  "generatedAt": "2026-08-09T12:00:00.000Z",
+  "cards": [
+    {
+      "slug": "hip-cars",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 5,
+      "cardVersion": 2
+    }
+  ]
+}

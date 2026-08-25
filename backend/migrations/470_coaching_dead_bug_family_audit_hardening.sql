@@ -7,33 +7,45 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '470_coaching_dead_bug_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.77';
-  canonical_id CONSTANT UUID := '2a07d4d4-5012-420c-9549-8bdbc64ec675';
-  cross_crawl_id CONSTANT UUID := 'd1cb006f-094a-4ab9-86d0-f1f327fe2972';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[canonical_id,cross_crawl_id];
+  canonical_id UUID;
+  cross_crawl_id UUID;
+  affected_definition_ids UUID[];
   source_ids CONSTANT BIGINT[] := ARRAY[9,917];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    'e0ec2ab4-9884-443e-8317-31e74d42f857'::UUID,
-    'ca86b1b5-1188-430e-ace1-fbee751b4c58'::UUID];
-  short_variant CONSTANT UUID := '9e6cb14d-85d8-4d7e-8f24-81d4c6b72b40';
-  long_variant CONSTANT UUID := '42d87318-2de1-4da4-8fb8-9b5463b28201';
-  active_variant_ids CONSTANT UUID[] := ARRAY[short_variant,long_variant];
-  heel_tap_definition CONSTANT UUID := '21030934-a9cf-42ae-88a8-ec4dd5c80456';
-  iso_press_definition CONSTANT UUID := '266a21fa-e7e8-451d-9422-3cc432dcdd2e';
-  wall_press_definition CONSTANT UUID := '18be669c-e522-4524-9bc0-60626e63904a';
-  pullover_definition CONSTANT UUID := '3e529e96-0909-4dba-90db-7e83254dbccb';
-  rotation_resist_definition CONSTANT UUID := '10e17b78-b7a4-4434-a461-c4688f636aab';
-  eccentric_leg_lower_definition CONSTANT UUID := '873b8597-001c-4b61-ac1b-b3452b8ad312';
-  partner_press_definition CONSTANT UUID := 'ca83fc82-59f1-4f6f-890b-8de4b458f186';
-  neighbor_definition_ids CONSTANT UUID[] := ARRAY[
-    heel_tap_definition,iso_press_definition,wall_press_definition,
-    pullover_definition,rotation_resist_definition,
-    eccentric_leg_lower_definition,partner_press_definition];
-  heel_tap_variant CONSTANT UUID := 'b31d3fa0-51e0-46e2-bd21-f112af78ae8f';
-  iso_press_variant CONSTANT UUID := '17761950-f95d-482e-8571-4750be9cfc39';
+  source_variant_ids UUID[];
+  short_variant UUID := gen_random_uuid();
+  long_variant UUID := gen_random_uuid();
+  active_variant_ids UUID[];
+  heel_tap_definition UUID;
+  iso_press_definition UUID;
+  wall_press_definition UUID;
+  pullover_definition UUID;
+  rotation_resist_definition UUID;
+  eccentric_leg_lower_definition UUID;
+  partner_press_definition UUID;
+  neighbor_definition_ids UUID[];
+  heel_tap_variant UUID;
+  iso_press_variant UUID;
   current_video_ids CONSTANT TEXT[] := ARRAY[
     '0XVbn86Btj0','BZYaCzbP09M','UBa7wBucN-4','zechBkcIMf0'];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=9;
+  SELECT definition_id INTO cross_crawl_id FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=917;
+  affected_definition_ids := ARRAY[canonical_id,cross_crawl_id];
+  source_variant_ids := ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=cross_crawl_id AND variant_key='baseline')];
+  active_variant_ids := ARRAY[short_variant,long_variant];
+  SELECT id INTO heel_tap_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug-heel-tap';
+  SELECT id INTO iso_press_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug-iso-press';
+  SELECT id INTO wall_press_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug-wall-press';
+  SELECT id INTO pullover_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug-pullover-band-dead-bug';
+  SELECT id INTO rotation_resist_definition FROM coaching.exercise_definition_v1 WHERE slug='dead-bug-band-pulldown-with-rotation-resist';
+  SELECT id INTO eccentric_leg_lower_definition FROM coaching.exercise_definition_v1 WHERE slug='eccentric-dead-bug-leg-lower';
+  SELECT id INTO partner_press_definition FROM coaching.exercise_definition_v1 WHERE slug='partner-dead-bug-hand-press';
+  neighbor_definition_ids := ARRAY[heel_tap_definition,iso_press_definition,wall_press_definition,pullover_definition,rotation_resist_definition,eccentric_leg_lower_definition,partner_press_definition];
+  SELECT id INTO heel_tap_variant FROM coaching.exercise_variant_v1 WHERE definition_id=heel_tap_definition AND variant_key='baseline';
+  SELECT id INTO iso_press_variant FROM coaching.exercise_variant_v1 WHERE definition_id=iso_press_definition AND variant_key='baseline';
   IF NOT EXISTS(
       SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND slug='dead-bug' AND status<>'archived')

@@ -1,0 +1,471 @@
+{
+  "facilityId": 1,
+  "slug": "pike-fold-tall-sit",
+  "researchVersion": "2026-08-10.119",
+  "assessmentSummary": {
+    "identity": "Pike Fold-to-Tall Sit is one seated bodyweight cycle: begin tall with both legs extended together on a stable floor or mat, fold forward from the hips toward the shins only through a comfortable controllable range, then return to a tall stacked seated position before the next repetition. It is not a static pike stretch, a bent-knee fold, a straddle fold, a sit-up, a loaded mobility drill, a V-up, or an assessment.",
+    "currentCardFindings": [
+      "Source 73 states the broad seated fold-to-tall contrast but leaves exact start/finish, range, count unit, dose, surface, fatigue, stop rules, relationships, evidence, and media review unspecified.",
+      "The seated base, extended-together legs, repeated forward-fold-to-tall return, and no forced end-range rule form one coherent exact candidate. Changing knee position, leg separation, support, external load, static versus repeated action, or terminal posture changes the task or its delivery contract.",
+      "Three direct YouTube search results are stored only as unverified non-embedded candidates. Search-result visibility is not playback, exact-cycle, safety, accessibility, quality, or approval verification."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "hinge"
+      ],
+      "bodyRegions": [
+        "core",
+        "spine",
+        "thoracic_spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "hamstrings"
+      ],
+      "support": "seated_pelvis_and_extended_leg_floor_contact",
+      "laterality": "bilateral_symmetric",
+      "planes": [
+        "sagittal_primary",
+        "frontal_stabilization",
+        "transverse_trunk_control"
+      ],
+      "equipment": [
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 34,
+      "absoluteLoadDemand": 16,
+      "physicalDifficulty": 16,
+      "coordinationDemand": 32,
+      "supervisionDemand": 16,
+      "failureConsequence": 14,
+      "impact": 1,
+      "workCapacityDemand": 14,
+      "baseOverallDifficulty": 34,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_seated_pike_fold_to_tall_sit_cycle",
+      "impactClass": "no_landing_or_external_impact",
+      "primaryExposure": [
+        "hip_flexion_range_control",
+        "hamstring_lengthened_position",
+        "trunk_position_control",
+        "seated_floor_contact"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual range, repetitions, tempo, symptoms, and overlapping trunk or hip-flexion work"
+    },
+    "proposedDosage": {
+      "prepare": "1-3 short quality-limited sets of exact fold-to-tall cycles",
+      "tempo": "slow forward fold, deliberate tall return, and reset between repetitions",
+      "rest": "restore breathing, tall posture, and absence of symptoms before the next set",
+      "durationRule": "include floor setup, demonstration, repetitions, tall resets, rest, substitutions, cleaning, and exit"
+    },
+    "programmingDecision": "Select only when the exact seated extended-leg fold-to-tall contract, floor access, communication, current range, symptom context, fatigue budget, and downstream work fit. Changing knee position, leg separation, support, range, tempo, static hold, external load, intent, or substitution reruns selection, logistics, duration, fatigue, relationships, and validation.",
+    "calibrationEvidence": {
+      "basis": "Source 73 lineage, dynamic-stretching evidence, gymnastics instruction, task mechanics, and comparison with static pike, bent-knee pike, straddle fold, sit-up, V-up, and loaded mobility tasks.",
+      "uncertainty": "Evidence does not establish universal range, repetitions, tempo, recovery, readiness, symptom interpretation, clearance, outcome, or Vortex score. Independent human calibration remains required.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "load_fatigue_recovery_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T02:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Sit tall on a clean stable mat or floor with both legs extended together. Fold forward from the hips toward the shins through a comfortable controllable range, then return to a tall stacked seated position before the next repetition. One complete fold-and-tall-return is one repetition. Pause and reset between repetitions. Range, reach target, breath, tempo, repetitions, rest, surface, and cueing are delivery annotations. Static pike stretches, bent-knee folds, straddle folds, sit-ups, V-ups, loaded work, assessments, and clinical interventions are different tasks requiring their own reviewed variant or definition.",
+      "familyKey": "seated_pike_fold_tall_sit",
+      "movementPatterns": [
+        "brace",
+        "hinge"
+      ],
+      "bodyRegions": [
+        "core",
+        "spine",
+        "thoracic_spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "hamstrings"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "variantKey": "seated-legs-together-extended-pike-fold-tall-cycle",
+      "environment": {
+        "surface": "clean stable level mat or floor",
+        "space": "one clear seated station with an unobstructed exit",
+        "stationCapacity": 1,
+        "inspection": [
+          "surface condition and traction",
+          "clear seated station and exit",
+          "communication and coach sightline"
+        ],
+        "changeRule": "Changing base, knee position, leg separation, support, range, tempo, static hold, external load, intent, symptoms, or substitution requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe seated floor access and communication",
+          "can enter and leave the exact position without symptoms",
+          "can perform a controlled fold and tall return without forced range",
+          "current trunk, hip-flexion, hamstring-lengthened-position, and duration budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms or restrictions conflicting with seated floor access or the exact fold",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "unsafe station or participant request to stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal range, repetitions, tempo, recovery, readiness, clearance, outcome, or transfer"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 34,
+        "absoluteLoadDemand": 16,
+        "physicalDifficulty": 16,
+        "coordinationDemand": 32,
+        "supervisionDemand": 16,
+        "failureConsequence": 14,
+        "impact": 1,
+        "workCapacityDemand": 14,
+        "baseOverallDifficulty": 34
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_seated_pike_fold_to_tall_sit_cycle",
+        "impactClass": "no_landing_or_external_impact",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "hip_flexion_range_control",
+          "hamstring_lengthened_position",
+          "trunk_position_control",
+          "seated_floor_contact"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 14,
+        "technicalFatigueSensitivity": 28,
+        "impactAccumulation": 0,
+        "recoveryHoursPlanningEstimate": 8,
+        "cumulativeBudget": {
+          "trunk_position_control": 16,
+          "hip_flexion_range": 14,
+          "hamstring_lengthened_position": 14,
+          "floor_contact": 8
+        },
+        "tracking": [
+          "repetitions",
+          "range",
+          "tempo",
+          "tallReturnQuality",
+          "surface",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics body-shape drills distinguish position and movement contracts.",
+        "This candidate is a repeated seated extended-leg pike fold with a required tall return, not a static stretch or a different floor task."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics instruction should use task-specific progression and conditions.",
+        "Base, leg position, ordered fold-and-return action, range, and support are task dimensions rather than participant labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic stretching is distinct from static stretching in acute exercise practice.",
+        "The card records trunk, hip, knee, hamstring, and pelvic task roles without isolated-activation, diagnosis, treatment, or prevention claims."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Dynamic and static stretching protocols have different exercise conditions.",
+        "The candidate requires a controlled repeated fold and return rather than a prolonged passive end-range hold."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic flexibility work has task-specific execution conditions.",
+        "Candidate scores describe exercise complexity and physical demand only, never participant proficiency, age, or classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Acute stretching effects depend on the method and context.",
+        "Track range, repetitions, tempo, tall-return quality, symptoms, and overlapping trunk or hip-flexion work instead of claiming a universal recovery interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Instruction conditions and progressive teaching are relevant safeguards.",
+        "Use a clean stable floor or mat, clear seated station and exit, communication, and an exact task check; the card does not classify people."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Dynamic and static stretching protocols differ in exposure.",
+        "Candidate repetitions and rest are quality-limited and review-only; no universal dose, range, or recovery claim is made."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://assets.crossfit.com/pdfs/seminars/SMERefs/Gymnastics/GymnasticsCourse_SeminarGuide.pdf",
+      "sourceTitle": "Gymnastics Training Guide",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Body-shape instruction benefits from explicit positions and transitions.",
+        "Instructions define tall seated start, legs together and extended, comfortable fold, deliberate tall return, breathing, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe gymnastics instruction depends on conditions and task-specific progressions.",
+        "Stop for sharp or increasing pain, new neurologic, circulation, breathing, dizziness, unsafe-station, communication, or participant-stop concerns; do not force range."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic stretching is context-dependent rather than universally interchangeable with static stretching.",
+        "Use the exact candidate only when current objective, floor logistics, symptoms, fatigue, duration, and downstream demands fit; no transfer or treatment promise is made."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Instruction should be adapted to the exact task and setting.",
+        "Athlete support needs a plain-language start, fold, tall return, self-check, and stop prompt."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should match supervision to task conditions.",
+        "Observe tall start and finish, leg position, fold range, breath, tempo, symptoms, and first quality loss without diagnosing limitation."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Teaching conditions and progressions must be matched to the task.",
+        "Candidate support includes stable seating, still sequence, captions, transcript, audio description, verbal cueing, and another reviewed task if floor sitting is unsuitable; it does not establish readiness."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Static and dynamic stretching protocols are distinct conditions.",
+        "The alternate review separates static holds, knee/leg-position changes, straddle base, sit-ups, V-ups, and loading rather than silently treating them as the same task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Direct YouTube URLs can be retained as candidates without claiming an approval outcome.",
+        "Three search-discovered pike-stretch URLs are unverified, non-embedded candidates; exact fold-to-tall cycle, playback, accessibility, quality, and approval remain pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ykk6iIRQPi8",
+      "title": "Pike Stretch, Seated Forward Fold with Yoga Blocks",
+      "channelName": "The Sustainable Training Method",
+      "sourceQuery": "YouTube search: seated pike stretch gymnastics",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered adjacent candidate. It may be a static pike hold rather than the exact fold-to-tall cycle; playback, exact match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hD5NGPhyEGc",
+      "title": "How to Perform the Seated Pike Stretch",
+      "channelName": "TREBEL Wellness",
+      "sourceQuery": "YouTube search: seated pike stretch gymnastics",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered adjacent candidate. It may not include the exact tall-return cycle; playback, exact match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=WSkPQ1lXfNk",
+      "title": "CTM - Pike Stretch",
+      "channelName": "CompTrain Masters",
+      "sourceQuery": "YouTube search: seated pike stretch gymnastics",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered candidate. Exact task version, playback, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Seated Extended-Leg Pike Fold-to-Tall Sit Cycle",
+      "classification": "same_identity",
+      "rationale": "This is the exact candidate contract.",
+      "distinguishingDimensions": {
+        "base": "seated",
+        "legs": "together_extended",
+        "action": "fold_to_tall_cycle"
+      }
+    },
+    {
+      "name": "Smaller-Range Pike Fold-to-Tall Sit",
+      "classification": "modifier_annotation",
+      "rationale": "Range changes delivery only while seated base, extended-together legs, ordered fold, and tall return remain exact.",
+      "distinguishingDimensions": {
+        "range": "smaller_comfortable"
+      }
+    },
+    {
+      "name": "Slower Pike Fold-to-Tall Sit",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo changes delivery only while the exact cycle remains.",
+      "distinguishingDimensions": {
+        "tempo": "slower"
+      }
+    },
+    {
+      "name": "Static Seated Pike Stretch",
+      "classification": "new_definition",
+      "rationale": "A sustained end-range hold has no repeated tall-return count unit and a different exposure contract.",
+      "distinguishingDimensions": {
+        "action": "static_hold"
+      }
+    },
+    {
+      "name": "Bent-Knee Seated Pike Fold",
+      "classification": "new_variant",
+      "rationale": "Knee position changes posterior-chain length and fold mechanics.",
+      "distinguishingDimensions": {
+        "knee": "bent"
+      }
+    },
+    {
+      "name": "Seated Straddle Fold-to-Tall Sit",
+      "classification": "new_definition",
+      "rationale": "Leg separation changes hip position, anatomy, and task mechanics.",
+      "distinguishingDimensions": {
+        "legPosition": "straddle"
+      }
+    },
+    {
+      "name": "Pike Sit-Up or V-Up",
+      "classification": "new_definition",
+      "rationale": "Trunk lifting from a supine base and a different terminal action are not the seated fold-to-tall cycle.",
+      "distinguishingDimensions": {
+        "base": "supine",
+        "action": "trunk_lift"
+      }
+    },
+    {
+      "name": "Loaded Seated Pike Mobility Drill",
+      "classification": "new_definition",
+      "rationale": "External loading changes task demand, fatigue, progression, and supervision.",
+      "distinguishingDimensions": {
+        "externalLoad": "added"
+      }
+    }
+  ]
+}

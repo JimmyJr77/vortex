@@ -13,21 +13,33 @@ DECLARE
     '3d700ba6-9179-4560-84ea-2ad092bf432f';
   forward_id CONSTANT UUID :=
     'aaef001d-2c36-4bb4-80b0-76618e074297';
-  triple_id CONSTANT UUID :=
-    '9f28a79b-6726-4d28-83d1-687eaff03eb6';
+  triple_id UUID;
   lateral_hurdle_id CONSTANT UUID :=
     '9a1aa70b-9f83-4cc2-90ff-71576c8d6c8a';
   quarter_turn_id CONSTANT UUID :=
     'e6be6032-cd3d-4453-84f0-70d764c2dbe1';
-  opposite_leg_bound_id CONSTANT UUID :=
-    '318a76c0-f076-492a-a18f-32cf9553b5a1';
-  pogo_id CONSTANT UUID :=
-    'de5e841b-9413-49b9-86b5-a783a9a96234';
-  rebound_id CONSTANT UUID :=
-    'da97d722-379a-4c0d-83ef-fbb8b4575fc4';
+  opposite_leg_bound_id UUID;
+  pogo_id UUID;
+  rebound_id UUID;
   protected_count INTEGER;
   completed_count INTEGER;
 BEGIN
+  SELECT id INTO triple_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-triple-hop-to-stick';
+
+  SELECT id INTO opposite_leg_bound_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='bound-to-stick';
+
+  SELECT id INTO pogo_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-pogo';
+
+  SELECT id INTO rebound_id
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='single-leg-rebound-hop';
+
   IF(SELECT count(*) FROM coaching.exercise_definition_v1
      WHERE id IN(vertical_id,forward_id,triple_id,lateral_hurdle_id,
        quarter_turn_id,opposite_leg_bound_id,pogo_id,rebound_id)

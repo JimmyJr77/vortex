@@ -8,30 +8,27 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '451_coaching_floor_press_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.65';
-  canonical_id CONSTANT UUID := '243e3f71-47ec-4b6a-ac52-3cc68b120f36';
-  db_pair_variant CONSTANT UUID := '224a396f-6446-488a-ac28-e9e055d4062d';
-  kb_single_variant CONSTANT UUID := 'a553c2af-ae31-409f-8a7f-ef6fefd4303b';
-  db_single_variant CONSTANT UUID := 'd21ea816-1b68-454b-9042-938a31a71c80';
-  db_close_variant CONSTANT UUID := 'cc3892a9-e2ba-4694-8d13-a8f6f625f35b';
-  kb_pair_variant CONSTANT UUID := '679a0585-965e-4f00-a021-230628956c1d';
-  kb_alternating_variant CONSTANT UUID := '0898be40-b908-4c3d-8f0e-b98306860b7f';
-  kb_crush_variant CONSTANT UUID := '24b2bab7-d01f-4fc3-a542-80d6ea1c096a';
-  barbell_variant CONSTANT UUID := '327b77fe-ada1-447b-948e-fe45f08fd82a';
-  sandbag_variant CONSTANT UUID := 'ac5ef4bd-6e97-4ba4-a35c-d422af840881';
-  variant_ids CONSTANT UUID[] := ARRAY[
-    db_pair_variant,kb_single_variant,db_single_variant,db_close_variant,
-    kb_pair_variant,kb_alternating_variant,kb_crush_variant,
-    barbell_variant,sandbag_variant];
+  canonical_id UUID;
+  db_pair_variant UUID;
+  kb_single_variant UUID;
+  db_single_variant UUID;
+  db_close_variant UUID;
+  kb_pair_variant UUID;
+  kb_alternating_variant UUID;
+  kb_crush_variant UUID;
+  barbell_variant UUID;
+  sandbag_variant UUID;
+  variant_ids UUID[];
+  close_grip_bench_id UUID;
+  half_kneeling_press_id UUID;
+  one_arm_row_id UUID;
+  bench_press_id UUID;
+  push_up_id UUID;
+  landmine_floor_press_id UUID;
+  z_press_id UUID;
+  crush_grip_curl_id UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[188,402,433,435,487,488,489,495,1021];
-  archive_definition_ids CONSTANT UUID[] := ARRAY[
-    '943ff689-69b4-470f-b6ba-510ab8352237'::UUID,
-    '7c4c75bc-692c-4dae-9775-f3c683f49f22'::UUID,
-    'af7ad406-018e-4a62-a159-ebcdee2459bf'::UUID,
-    'f3be53c7-81d7-46a4-bc0a-f9dcd5a8ba5b'::UUID,
-    '421a5d53-4873-414c-a279-5c2cac77ba32'::UUID,
-    '270439b8-8393-45f1-89f6-9044b6708bb1'::UUID,
-    'e63530ff-a005-4c87-96eb-b852370e4345'::UUID,
-    '3953ca6c-3083-4488-8cb9-db86c0fbd053'::UUID];
+  archive_definition_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     '9vcKpv45aeE','77gWg_ZA8Kg','T0Y3OBF1bNI','uUGDRwge4F8','i1yoygDuZlA'];
   evidence_payload JSONB := $json$
@@ -80,6 +77,33 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Historical UUID allocation differs between bootstrap paths. Resolve the
+  -- protected survivor, its exact source variants, and archived definitions
+  -- by durable legacy/source keys rather than by prior database UUIDs.
+  SELECT id INTO canonical_id FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=188;
+  SELECT id INTO db_pair_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline';
+  SELECT id INTO kb_single_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-487';
+  SELECT id INTO db_single_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-433-baseline';
+  SELECT id INTO db_close_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-435-baseline';
+  SELECT id INTO kb_pair_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-488-baseline';
+  SELECT id INTO kb_alternating_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-489-baseline';
+  SELECT id INTO kb_crush_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-495-baseline';
+  SELECT id INTO barbell_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-402-baseline';
+  SELECT id INTO sandbag_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1021-baseline';
+  variant_ids:=ARRAY[db_pair_variant,kb_single_variant,db_single_variant,db_close_variant,kb_pair_variant,kb_alternating_variant,kb_crush_variant,barbell_variant,sandbag_variant];
+  SELECT array_agg(id ORDER BY legacy_exercise_id) INTO archive_definition_ids
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND legacy_exercise_id=ANY(source_ids) AND legacy_exercise_id<>188;
+  SELECT id INTO close_grip_bench_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='close-grip-bench-press';
+  SELECT id INTO half_kneeling_press_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='half-kneeling-single-arm-press';
+  SELECT id INTO one_arm_row_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='one-arm-dumbbell-row';
+  SELECT id INTO bench_press_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='barbell-bench-press';
+  SELECT id INTO push_up_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='push-up';
+  SELECT id INTO landmine_floor_press_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='one-arm-landmine-floor-press';
+  SELECT id INTO z_press_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='barbell-z-press';
+  SELECT id INTO crush_grip_curl_id FROM coaching.exercise_definition_v1 WHERE facility_id=1 AND slug='kettlebell-crush-grip-curl';
+
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id
         AND provenance_json->>'floorPressCompletionMigration'=migration_key)=1 THEN
@@ -96,9 +120,9 @@ BEGIN
       facility_id,survivor_definition_id,resolved_definition_id,decision,
       rationale,evidence_json,resolution_source,reviewed_by)
     VALUES
-      (1,'f0cd9a6f-27c4-4285-a75c-c13f6b9e3162',canonical_id,'distinct_exercises','Close-Grip Bench Press uses elevated bench support and a bench-defined range; Floor Press is supine on the floor and ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','close_grip_elevated_bench_press_vs_floor_limited_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-      (1,canonical_id,'e75b37a5-e73e-46ca-a7f4-b1632e16bd57','distinct_exercises','Half-Kneeling Single-Arm Press is a vertical overhead press from a half-kneeling base; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_floor_limited_horizontal_press_vs_half_kneeling_vertical_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-      (1,canonical_id,'e768f302-a920-4aeb-8627-957fd7a96f00','distinct_exercises','One-Arm Row is a bench-supported horizontal pull with shoulder extension and elbow flexion; Floor Press is a supine horizontal push with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_horizontal_push_vs_bench_supported_horizontal_pull','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+      (1,close_grip_bench_id,canonical_id,'distinct_exercises','Close-Grip Bench Press uses elevated bench support and a bench-defined range; Floor Press is supine on the floor and ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','close_grip_elevated_bench_press_vs_floor_limited_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+      (1,canonical_id,half_kneeling_press_id,'distinct_exercises','Half-Kneeling Single-Arm Press is a vertical overhead press from a half-kneeling base; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_floor_limited_horizontal_press_vs_half_kneeling_vertical_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+      (1,canonical_id,one_arm_row_id,'distinct_exercises','One-Arm Row is a bench-supported horizontal pull with shoulder extension and elbow flexion; Floor Press is a supine horizontal push with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_horizontal_push_vs_bench_supported_horizontal_pull','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
     ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
       decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
       evidence_json=EXCLUDED.evidence_json,
@@ -535,14 +559,14 @@ BEGIN
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
   VALUES
-    (1,'bf46fc94-2b8a-4a21-871f-c5cdd15ae33b',canonical_id,'distinct_exercises','Bench Press uses elevated bench support and permits shoulder-extension range below the torso plane; Floor Press ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','elevated_bench_full_range_vs_floor_limited_range','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'46c7611a-e107-4e32-9c81-d688e509fe73','distinct_exercises','Push-Up is a prone closed-chain task that moves the body relative to fixed hands; Floor Press is supine and moves external implements.',jsonb_build_object('migration',migration_key,'identityBoundary','closed_chain_body_motion_vs_supine_external_load_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'8305427c-f56b-48a5-b7ff-6bd9a11c65c6','distinct_exercises','One-Arm Landmine Floor Press uses an anchored bar and fixed arc with unilateral landmine setup; free-weight Floor Press variants have unanchored load paths.',jsonb_build_object('migration',migration_key,'identityBoundary','anchored_fixed_arc_vs_unanchored_free_weight_path','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'45e955d5-8e87-4833-89b7-da0d76b99fb4','distinct_exercises','Z Press is a seated overhead press; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','seated_overhead_press_vs_supine_floor_limited_horizontal_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'24bc986e-f732-40d8-9401-9d36e4e75b91','distinct_exercises','Kettlebell Crush-Grip Curl is elbow flexion; Kettlebell Crush-Grip Floor Press is a horizontal press with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','elbow_flexion_curl_vs_horizontal_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,'f0cd9a6f-27c4-4285-a75c-c13f6b9e3162',canonical_id,'distinct_exercises','Close-Grip Bench Press uses elevated bench support and a bench-defined range; Floor Press is supine on the floor and ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','close_grip_elevated_bench_press_vs_floor_limited_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'e75b37a5-e73e-46ca-a7f4-b1632e16bd57','distinct_exercises','Half-Kneeling Single-Arm Press is a vertical overhead press from a half-kneeling base; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_floor_limited_horizontal_press_vs_half_kneeling_vertical_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
-    (1,canonical_id,'e768f302-a920-4aeb-8627-957fd7a96f00','distinct_exercises','One-Arm Row is a bench-supported horizontal pull with shoulder extension and elbow flexion; Floor Press is a supine horizontal push with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_horizontal_push_vs_bench_supported_horizontal_pull','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
+    (1,bench_press_id,canonical_id,'distinct_exercises','Bench Press uses elevated bench support and permits shoulder-extension range below the torso plane; Floor Press ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','elevated_bench_full_range_vs_floor_limited_range','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,push_up_id,'distinct_exercises','Push-Up is a prone closed-chain task that moves the body relative to fixed hands; Floor Press is supine and moves external implements.',jsonb_build_object('migration',migration_key,'identityBoundary','closed_chain_body_motion_vs_supine_external_load_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,landmine_floor_press_id,'distinct_exercises','One-Arm Landmine Floor Press uses an anchored bar and fixed arc with unilateral landmine setup; free-weight Floor Press variants have unanchored load paths.',jsonb_build_object('migration',migration_key,'identityBoundary','anchored_fixed_arc_vs_unanchored_free_weight_path','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,z_press_id,'distinct_exercises','Z Press is a seated overhead press; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','seated_overhead_press_vs_supine_floor_limited_horizontal_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,crush_grip_curl_id,'distinct_exercises','Kettlebell Crush-Grip Curl is elbow flexion; Kettlebell Crush-Grip Floor Press is a horizontal press with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','elbow_flexion_curl_vs_horizontal_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,close_grip_bench_id,canonical_id,'distinct_exercises','Close-Grip Bench Press uses elevated bench support and a bench-defined range; Floor Press is supine on the floor and ends eccentric travel at upper-arm floor contact.',jsonb_build_object('migration',migration_key,'identityBoundary','close_grip_elevated_bench_press_vs_floor_limited_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,half_kneeling_press_id,'distinct_exercises','Half-Kneeling Single-Arm Press is a vertical overhead press from a half-kneeling base; Floor Press is a supine horizontal press with an upper-arm floor boundary.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_floor_limited_horizontal_press_vs_half_kneeling_vertical_press','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL),
+    (1,canonical_id,one_arm_row_id,'distinct_exercises','One-Arm Row is a bench-supported horizontal pull with shoulder extension and elbow flexion; Floor Press is a supine horizontal push with elbow extension.',jsonb_build_object('migration',migration_key,'identityBoundary','supine_horizontal_push_vs_bench_supported_horizontal_pull','humanReviewRequired',TRUE,'approvalsCreated',FALSE),'deterministic_identity_equivalence',NULL)
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,

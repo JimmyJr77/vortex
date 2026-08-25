@@ -7,17 +7,23 @@ interface SeoHeadProps extends SeoMeta {
   schema?: JsonLd[]
   /** Same-origin image to preload (e.g. the LCP hero poster) with high priority. */
   preloadImage?: string
+  /** Responsive candidates for a preloaded image. */
+  preloadImageSrcSet?: string
+  preloadImageSizes?: string
 }
 
 const SeoHead = ({
   title,
   description,
   canonical,
+  siteName = SITE_NAME,
   ogImage = DEFAULT_OG_IMAGE,
   ogImageAlt = SITE_NAME,
   robots,
   schema,
   preloadImage,
+  preloadImageSrcSet,
+  preloadImageSizes,
 }: SeoHeadProps) => {
   return (
     <Helmet>
@@ -26,7 +32,14 @@ const SeoHead = ({
       <link rel="canonical" href={canonical} />
       {robots && <meta name="robots" content={robots} />}
       {preloadImage && (
-        <link rel="preload" as="image" href={preloadImage} fetchPriority="high" />
+        <link
+          rel="preload"
+          as="image"
+          href={preloadImage}
+          imageSrcSet={preloadImageSrcSet}
+          imageSizes={preloadImageSizes}
+          fetchPriority="high"
+        />
       )}
 
       <meta property="og:title" content={title} />
@@ -36,7 +49,7 @@ const SeoHead = ({
       <meta property="og:image:alt" content={ogImageAlt} />
       <meta property="og:type" content="website" />
       <meta property="og:locale" content="en_US" />
-      <meta property="og:site_name" content={SITE_NAME} />
+      <meta property="og:site_name" content={siteName} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />

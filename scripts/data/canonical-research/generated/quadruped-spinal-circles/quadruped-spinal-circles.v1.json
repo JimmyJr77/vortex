@@ -1,0 +1,552 @@
+{
+  "facilityId": 1,
+  "slug": "quadruped-spinal-circles",
+  "researchVersion": "2026-08-09.94",
+  "assessmentSummary": {
+    "identity": "One fixed-contact bilateral hands-and-knees spinal and pelvic circle. Start neutral, move into a comfortable rounded checkpoint, continue toward the named first side through lateral flexion or support shift, an arched checkpoint, the opposite side, and back to the same rounded checkpoint. Reverse by naming the opposite first side. Both hands and knees remain down; limb lift, hover, locomotion, hand walking, external force, or an isolated regional circle changes identity.",
+    "currentCardFindings": [
+      "Source 26 has one skeletal baseline variant, one incomplete legacy profile, empty controlled taxonomy/anatomy/load/fatigue/constraints/support data, zero evidence or alternates, four unverified general-routine media rows, no calibration, and review-only incoming boundaries from Full-Body Joint CARs, Cat-Cow, and Quadruped Shoulder Circles.",
+      "The legacy description supplies a useful phase order but does not define the counted checkpoint, named direction, fixed contacts, axial-rotation boundary, budgets, logistics, persistence, rendering, or human review requirements.",
+      "Legacy age_min=8 and is_published=true are unsupported exercise-card classification or approval claims and must be cleared."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "spine",
+        "thoracic_spine",
+        "neck",
+        "rib_cage",
+        "pelvis",
+        "core",
+        "scapula",
+        "shoulder",
+        "wrist",
+        "hand",
+        "elbow",
+        "hip",
+        "knee"
+      ],
+      "support": "bilateral_hands_and_knees_fixed_contact_quadruped",
+      "laterality": "bilateral_support_with_both_circle_directions_recorded",
+      "planes": [
+        "sagittal",
+        "frontal",
+        "coupled_multiplanar_transition"
+      ],
+      "equipment": [
+        "none",
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 32,
+      "absoluteLoadDemand": 12,
+      "physicalDifficulty": 12,
+      "baseOverallDifficulty": 32,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)",
+      "variantScoreProposals": {
+        "fixed_contact_global_spinal_circle": {
+          "technicalComplexity": 32,
+          "physicalDifficulty": 12,
+          "baseOverallDifficulty": 32
+        }
+      }
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_closed_chain_quadruped_support_with_multi_planar_spine_and_pelvis_motion",
+      "impactClass": "none",
+      "primaryExposure": [
+        "bilateral_hand_and_knee_support",
+        "wrist_extension_tolerance",
+        "shoulder_and_scapular_support",
+        "multi_planar_spinal_range",
+        "pelvic_tilt_and_lateral_shift",
+        "support_weight_shift"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "completeCirclesPerDirection": "2-5",
+      "tempo": "slow_continuous_six_to_eighteen_seconds_per_circle_without_forced_range",
+      "rest": "0-60_seconds_or_as_needed_to_preserve_support_breathing_and_sequence",
+      "durationRule": "setup_plus_actual_circle_seconds_plus_direction_change_pauses_rest_invalid_or_partial_attempts_symptom_response_substitution_and_safe_floor_exit"
+    },
+    "programmingDecision": "Select only for a low-load fixed-contact quadruped multi-planar spinal and pelvic circle when floor access, support, comfortable range, direction comprehension, dose, and downstream budgets fit. Direction, range, pace, circles, rest, and optional mat are delivery annotations. Use Cat-Cow for a sagittal flexion-extension cycle, Thread-the-Needle for arm-driven thoracic rotation, or separately authored tasks when support, moving region, load, or action sequence changes.",
+    "calibrationEvidence": {
+      "basis": "Direct GMB spinal-circle instructions, a GMB contextual mobility article, NAPA quadruped support boundaries, the AOPT low-back-pain guideline, a thoracic-exercise review, exact-title oEmbed metadata, and direct comparison with adjacent Vortex cards",
+      "uncertainty": "No source validates one universal circle shape, axial-rotation amount, range, breath phase, dose, frequency, recovery interval, treatment effect, eligibility rule, progression order, injury-prevention claim, or Vortex difficulty score.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "spinal_action_and_support_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T18:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Start on hands and knees. Slowly draw a circle with the spine and pelvis: round, shift to one side, arch, shift to the other side, then repeat. Reverse direction.",
+      "familyKey": "Spinal mobility",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 20,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 20
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB specifies hands and knees with wrists under shoulders, knees under hips, a neutral start, and a spinal circle that moves through rounded, lateral, arched, and opposite-lateral positions before reversing direction.",
+        "Model active global spinal flexion, bilateral lateral flexion, extension, pelvic tilt and lateral shift, with coupled scapular and support motion; axial rotation may occur naturally but is not a separately required phase."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The task coordinates four declared checkpoints, a continuous multi-planar path, stable hand-and-knee contacts, and both directions despite low external load.",
+        "No source assigns a Vortex score or participant classification; exercise complexity 32 and physical difficulty 12 are review-only proposals, and overall difficulty is their maximum."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The exact task uses bodyweight closed-chain quadruped support with no required external implement while the spine and pelvis move through a comfortable circle.",
+        "Track wrist, hand, shoulder, scapular, knee, spinal-range, support-shift, duration, and technical exposure; neither the source nor the card quantifies tissue force or proves one universal fatigue or recovery interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "The low-back-pain guideline supports individualized exercise and movement-control or trunk-mobility work in applicable contexts while emphasizing patient-centered assessment and red-flag screening.",
+        "Selection requires safe floor entry, quadruped support, comfortable controllable multi-planar motion, symptom reporting, and exit; conflicting trauma, neurologic symptoms, clinical restrictions, support intolerance, or transfer limits require another card or escalation without diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Clinical guidance distinguishes general exercise from evaluation of serious pathology and neurologic deficit and does not make one mobility drill universally appropriate.",
+        "Stop for sharp, increasing, radiating, or unfamiliar pain; numbness, tingling, weakness, saddle sensory change, bowel or bladder change, dizziness, faintness, support loss, inability to follow the declared circle, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://gmb.io/joint-mobility/",
+      "sourceTitle": "Joint Mobility Exercises for Health, Function, and Workout Preparation",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 80,
+      "claims": [
+        "GMB presents Quadruped Spinal Circles as a low-intensity full-back mobility check-in that may be used in daily movement practice or workout preparation.",
+        "Use conservative contextual doses, count actual complete circles in each direction, and revalidate cumulative quadruped-support, wrist, knee, shoulder, spinal-range, duration, and downstream loading budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The direct setup, small-circle start, comfortable enlargement, slow pace, and reverse-direction instruction can be translated into concise athlete instructions.",
+        "Athlete support must name the first side instead of relying on viewpoint-dependent clockwise language, explain one complete counted circle, preserve contacts, and state symptom and support-loss stops."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://napacenter.org/quadruped-exercises/",
+      "sourceTitle": "8 Quadruped Exercises by a Pediatric Physical Therapist",
+      "sourcePublisher": "NAPA Center",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "NAPA describes quadruped as weight bearing through hands and knees and shows that support assistance, bolsters, limb lifts, unstable surfaces, and alternate movements materially change the task.",
+        "Provide front and side demonstration, written phase order, named-direction cues, optional stable mat cushioning, smaller range, fewer circles, slower pace, and rest; separately author support-changing or non-floor tasks."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five exact-title YouTube candidates returned current oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact contacts or phase order, range, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all five remain candidates."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB directly names Quadruped Spinal Circles and describes a hands-and-knees circle through rounded, lateral, arched, and opposite-lateral positions before reversing.",
+        "Vortex fixes both hand and knee contacts and counts rounded-checkpoint to rounded-checkpoint; range, pace, dose, direction order, and optional mat remain delivery settings rather than invented variants."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The task is bilateral closed-chain quadruped global spinal and pelvic movement across sagittal and frontal planes with coupled multi-planar transitions.",
+        "Use the controlled brace pattern for low-load trunk control; do not claim a separately required transverse-plane axial rotation or invent a mobility movement-pattern key."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The thoracic exercise review classifies exercise across planes and shows that plane and movement intent must be specified rather than treating all spinal mobility work as interchangeable.",
+        "It does not validate this exact circle, prescribe axial rotation, establish normal range, or prove an optimal dose or outcome."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "GMB gives five repetitions for two sets in each direction as one routine example and advises beginning with small circles, moving slowly, enlarging only comfortably, and reversing.",
+        "Author a conservative review-only range of one to two sets and two to five complete circles per direction; calculate actual time and stop before support or path control degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://gmb.io/wp-content/uploads/2023/02/Joint-Mobility.pdf",
+      "sourceTitle": "Daily Diagnostic Joint Mobility Routine",
+      "sourcePublisher": "GMB Fitness",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Direct instructions support wrists under shoulders, knees under hips, neutral setup, core organization, a small comfortable spinal circle, slow movement, and both directions.",
+        "The card names the first side, requires all four contacts, counts one return to the rounded checkpoint, exits to neutral after the final repetition, and never forces range."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Clinical guidance supports individualized exercise and monitoring with red-flag screening rather than universal exercise assignment.",
+        "Coach support must verify floor transfer and support tolerance, symptoms and restrictions, named direction, both side and front views, exact checkpoints, contacts, range, first fault, actual dose, and escalation without diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://napacenter.org/quadruped-exercises/",
+      "sourceTitle": "8 Quadruped Exercises by a Pediatric Physical Therapist",
+      "sourcePublisher": "NAPA Center",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "NAPA's quadruped examples show that limb lifting, bolster assistance, unstable surfaces, and different action goals materially change support and task demands.",
+        "Keep Cat-Cow, Thread-the-Needle, shoulder circles, regional circles, tail-wag side bending, hand-walk global CARs, non-floor bases, hover, limb lift, loaded, manual, unstable, and clinically assisted tasks outside this exact variant."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=F8tiHAb_WQI",
+      "title": "Quadruped Spine Circles",
+      "channelName": "ZOAR Fitness",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:10:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LywxamPqa9k",
+      "title": "Quadruped Spine Circles",
+      "channelName": "Matt Gray",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:10:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b4fwyPYXFkY",
+      "title": "Quadruped Spinal Circles",
+      "channelName": "Functional Strength Training Centre",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:10:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=u2HkVRxxioA",
+      "title": "Quadruped Spine Circle",
+      "channelName": "LL Calisthenics Coaching",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:10:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vdgvP8CqwRw",
+      "title": "Quadruped Spine Circles",
+      "channelName": "Nunn Performance",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T18:10:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Quadruped Spine Circles or All-Fours Spinal Circles",
+      "classification": "same_identity",
+      "rationale": "Common aliases retain the exact fixed-contact quadruped rounded-side-arched-opposite-side circle and counted checkpoint.",
+      "distinguishingDimensions": {
+        "alias": true
+      }
+    },
+    {
+      "name": "Fixed-Contact Global Quadruped Spinal Circle",
+      "classification": "same_identity",
+      "rationale": "This is the single authored exact variant when the global circle, contacts, checkpoints, and both directions remain exact.",
+      "distinguishingDimensions": {
+        "variant": "fixed_contact_global",
+        "authorship": "proposed_exact_variant"
+      }
+    },
+    {
+      "name": "First Side, Reverse Direction, or Clockwise Label",
+      "classification": "modifier_annotation",
+      "rationale": "The declared first side and reversal change delivery order; viewpoint-dependent clockwise wording must be resolved to athlete left or right.",
+      "distinguishingDimensions": {
+        "delivery": "direction_order"
+      }
+    },
+    {
+      "name": "Small or Comfortably Larger Spinal Circles",
+      "classification": "modifier_annotation",
+      "rationale": "Range remains a dose setting when all checkpoints, contacts, and the global circular path remain intended and observable.",
+      "distinguishingDimensions": {
+        "delivery": "range"
+      }
+    },
+    {
+      "name": "Spinal Circle Tempo, Repetitions, Sets, and Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Pace and volume change dose rather than the exact movement identity.",
+      "distinguishingDimensions": {
+        "delivery": [
+          "tempo",
+          "circles",
+          "sets",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Quadruped Spinal Circles on Optional Mat",
+      "classification": "modifier_annotation",
+      "rationale": "Stable cushioning changes contact comfort without changing the support base or counted task.",
+      "distinguishingDimensions": {
+        "delivery": "surface_cushioning"
+      }
+    },
+    {
+      "name": "Cat-Cow",
+      "classification": "new_definition",
+      "rationale": "Cat-Cow is a sagittal flexion-extension cycle without required lateral checkpoints or a circular path.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "29f1f054-8700-4233-9866-63810e69242e",
+        "action": "sagittal_cycle"
+      }
+    },
+    {
+      "name": "Quadruped Thread-the-Needle",
+      "classification": "new_definition",
+      "rationale": "Thread-the-Needle removes or changes one hand contact and uses arm-driven thoracic rotation rather than a fixed-contact global spinal circle.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "1032ba98-fa48-4960-a039-2d11b2a492cc",
+        "action": "arm_driven_rotation"
+      }
+    },
+    {
+      "name": "Quadruped Shoulder Circles",
+      "classification": "new_definition",
+      "rationale": "Shoulder and scapular circles keep the spine comparatively organized and use a different moving region and repetition boundary.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "51ca966b-7d25-419a-8629-7961e45933c0",
+        "movingRegion": "shoulder_scapula"
+      }
+    },
+    {
+      "name": "Full-Body Joint CARs Flow",
+      "classification": "new_definition",
+      "rationale": "The standing multi-region flow has different support, sequence, sides, duration, and completion rules.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3",
+        "task": "multi_region_flow"
+      }
+    },
+    {
+      "name": "Quadruped Tail Wag or Side-Bending Only",
+      "classification": "new_definition",
+      "rationale": "A lateral-only pelvis or rib shift omits the rounded and arched checkpoints and complete circular path.",
+      "distinguishingDimensions": {
+        "action": "lateral_flexion_only"
+      }
+    },
+    {
+      "name": "Quadruped Pelvic or Hip Circles",
+      "classification": "new_definition",
+      "rationale": "A pelvis- or hip-dominant task that keeps most of the spine organized changes the intended moving region and completion rule.",
+      "distinguishingDimensions": {
+        "movingRegion": "pelvis_or_hip_dominant",
+        "reviewState": "definition_research_queue"
+      }
+    },
+    {
+      "name": "Quadruped Lumbar CARs",
+      "classification": "new_definition",
+      "rationale": "An intentionally lumbar-only circle changes the moving region, stabilization boundary, risk interpretation, and completion rule.",
+      "distinguishingDimensions": {
+        "movingRegion": "lumbar_only",
+        "reviewState": "definition_research_queue"
+      }
+    },
+    {
+      "name": "Quadruped Spinal Wave Circles",
+      "classification": "new_variant",
+      "rationale": "Mandatory segment-by-segment wave sequencing may preserve the same global checkpoints but changes the coordination contract and requires exact authorship.",
+      "distinguishingDimensions": {
+        "sequence": "ordered_segmental_wave",
+        "reviewState": "identity_quarantine"
+      }
+    },
+    {
+      "name": "Hand-Walk Quadruped Global Spinal CARs",
+      "classification": "new_definition",
+      "rationale": "Walking the hands to lateral positions adds locomotion, changing contacts, reach, space, and repetition boundaries.",
+      "distinguishingDimensions": {
+        "contact": "hand_walk",
+        "task": "locomoting_global_spinal_cars"
+      }
+    },
+    {
+      "name": "Neutral-Wrist or Elevated-Hand Spinal Circles",
+      "classification": "new_variant",
+      "rationale": "Fists, handles, wedges, bench, or box change interface, trunk angle, load distribution, equipment, and exit; exact support variants require review.",
+      "distinguishingDimensions": {
+        "support": "modified_hand_interface_or_height",
+        "reviewState": "identity_quarantine"
+      }
+    },
+    {
+      "name": "Hover or Bear-Position Spinal Circles",
+      "classification": "new_definition",
+      "rationale": "Lifting the knees creates a higher-load hover with different strength, fatigue, balance, support, and failure demands.",
+      "distinguishingDimensions": {
+        "support": "knees_hovering",
+        "load": "increased_bodyweight_support"
+      }
+    },
+    {
+      "name": "Bird-Dog or Limb-Lift Spinal Circles",
+      "classification": "new_definition",
+      "rationale": "Removing a hand or knee contact adds balance, anti-rotation, laterality, and limb-action requirements.",
+      "distinguishingDimensions": {
+        "support": "three_point_or_two_point",
+        "addedAction": "limb_lift"
+      }
+    },
+    {
+      "name": "Seated, Standing, or Supine Spinal Circles",
+      "classification": "new_definition",
+      "rationale": "A non-quadruped base changes support, loading, pelvic freedom, balance, transfer, and observable checkpoints.",
+      "distinguishingDimensions": {
+        "base": "non_quadruped"
+      }
+    },
+    {
+      "name": "Loaded, Banded, Partner-Resisted, Manual-Assisted, or Unstable-Surface Spinal Circles",
+      "classification": "new_definition",
+      "rationale": "External force, an anchor or partner, consent, unstable support, load magnitude, failure consequence, and clinical scope create a different task.",
+      "distinguishingDimensions": {
+        "externalForceOrInstability": true
+      }
+    }
+  ]
+}

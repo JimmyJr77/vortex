@@ -22,7 +22,7 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
       <section className="relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
         <HeroBackgroundVideo
           videoFileName="artistic_gymnastics.mp4"
-          posterFileName="campaign_early_dev_hero.jpg"
+          posterFileName="campaign_early_dev_hero-1600.webp"
           imageOnly
           playRequested={false}
           className="absolute inset-0 w-full h-full object-cover"
@@ -50,7 +50,7 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Confidence <span className="text-vortex-red">Starts Early.</span>
+            Preschool Gymnastics Classes <span className="text-vortex-red">in Bowie, MD</span>
           </motion.h1>
           <motion.p
             className="mx-auto max-w-3xl text-xl md:text-2xl text-gray-300 leading-relaxed mb-10"
@@ -58,7 +58,8 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Structured early development gymnastics for ages 2–5, building balance, coordination, and courage from the very first class.
+            Confidence starts early. Structured gymnastics for ages 2–5 builds balance,
+            coordination, and courage from the very first class.
           </motion.p>
           <motion.div
 
@@ -79,6 +80,8 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
           >
 
             <motion.span
+
+              tabIndex={-1}
 
               className="inline-flex items-center justify-center gap-3 whitespace-nowrap"
 
@@ -359,6 +362,8 @@ const ArtisticGymnasticsEarlyLanding = ({ onSignUpClick }: ArtisticGymnasticsEar
               >
 
                 <motion.span
+
+                  tabIndex={-1}
 
                   className="inline-block"
 

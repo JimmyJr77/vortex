@@ -9,12 +9,20 @@ BEGIN;
 DO $$
 DECLARE
   migration_key CONSTANT TEXT := '474_coaching_kettlebell_swing_taxonomy_gate_completion';
-  swing_definition CONSTANT UUID := 'f0f47f37-e892-4689-99a0-16cba58a3f40';
-  overhead_definition CONSTANT UUID := '5c671a58-1beb-44db-9d5b-a0951630fc6f';
-  target_ids CONSTANT UUID[] := ARRAY[swing_definition, overhead_definition]::UUID[];
+  swing_definition UUID;
+  overhead_definition UUID;
+  target_ids UUID[];
   target_count INTEGER;
   invalid_taxonomy_count INTEGER;
 BEGIN
+  SELECT definition_id INTO swing_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=11;
+  SELECT id INTO overhead_definition
+  FROM coaching.exercise_definition_v1
+  WHERE slug='overhead-kettlebell-swing' AND facility_id=1;
+  target_ids := ARRAY[swing_definition, overhead_definition]::UUID[];
+
   SELECT count(*) INTO target_count
   FROM coaching.exercise_definition_v1
   WHERE id = ANY(target_ids)

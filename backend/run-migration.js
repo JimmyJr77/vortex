@@ -86,6 +86,8 @@ const ADDON_MIGRATION_ORDER = [
   'patch_discount_rule_legacy_columns.sql',
   'remove_baked_system_discount_rules.sql',
   'add_free_passes.sql',
+  'add_drop_in_entitlements.sql',
+  'add_drop_in_notification_tracking.sql',
   'add_free_pass_specific_date.sql',
   'add_pricing_benefit_selection.sql',
   'add_additional_fees.sql',

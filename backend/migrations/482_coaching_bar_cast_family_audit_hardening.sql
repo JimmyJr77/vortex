@@ -9,32 +9,47 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '482_coaching_bar_cast_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.85';
-  cast_definition CONSTANT UUID := '6915611f-7382-448b-b3eb-d8dd08f10ee7';
-  handstand_definition CONSTANT UUID := 'd8b03d69-0840-40b0-adba-21d855d3db3e';
-  source_variant CONSTANT UUID := 'aa63fb72-5cab-413a-89d3-4eb865424c21';
-  cast_below_variant CONSTANT UUID := '6d6f938d-d399-4c4a-92f7-e56b72b6eeaf';
-  cast_horizontal_variant CONSTANT UUID := '2a92d86f-3006-4da7-a809-d4bdce39cbd4';
-  cast_above_variant CONSTANT UUID := '8c27e24d-7d1f-4739-93ff-4225bbe22b8d';
-  assisted_straddle_handstand_variant CONSTANT UUID := '750a945c-9407-4bd2-b47b-9478b3d6bfff';
-  assisted_straight_handstand_variant CONSTANT UUID := 'd7a94de1-52a9-4b17-8d8c-072d3b0ed317';
-  independent_straddle_handstand_variant CONSTANT UUID := '3ffdbc7b-cc31-44ae-9840-4840ca58cf51';
-  independent_straight_handstand_variant CONSTANT UUID := 'be865d38-135a-4a42-9d3f-d2ecd4f34d3b';
-  affected_definition_ids CONSTANT UUID[] := ARRAY[cast_definition,handstand_definition];
-  cast_variant_ids CONSTANT UUID[] := ARRAY[
-    cast_below_variant,cast_horizontal_variant,cast_above_variant];
-  handstand_variant_ids CONSTANT UUID[] := ARRAY[
-    assisted_straddle_handstand_variant,assisted_straight_handstand_variant,
-    independent_straddle_handstand_variant,independent_straight_handstand_variant];
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    cast_below_variant,cast_horizontal_variant,cast_above_variant,
-    assisted_straddle_handstand_variant,assisted_straight_handstand_variant,
-    independent_straddle_handstand_variant,independent_straight_handstand_variant];
-  front_support_definition CONSTANT UUID := '473cb74f-6356-4fdd-8fe4-a5fff99f3bd0';
-  freestanding_handstand_definition CONSTANT UUID := '74ff4c17-2a19-4ae4-8f0b-320eac87c3f3';
-  wall_handstand_definition CONSTANT UUID := '8f4d89bd-8c34-45b0-bc79-12b7f0d29b9f';
-  handstand_kickup_definition CONSTANT UUID := '2e89b7eb-19f8-42cb-9608-8227b070bccf';
+  cast_definition UUID;
+  handstand_definition UUID := gen_random_uuid();
+  source_variant UUID;
+  cast_below_variant UUID := gen_random_uuid();
+  cast_horizontal_variant UUID := gen_random_uuid();
+  cast_above_variant UUID := gen_random_uuid();
+  assisted_straddle_handstand_variant UUID := gen_random_uuid();
+  assisted_straight_handstand_variant UUID := gen_random_uuid();
+  independent_straddle_handstand_variant UUID := gen_random_uuid();
+  independent_straight_handstand_variant UUID := gen_random_uuid();
+  affected_definition_ids UUID[];
+  cast_variant_ids UUID[];
+  handstand_variant_ids UUID[];
+  active_variant_ids UUID[];
+  front_support_definition UUID;
+  freestanding_handstand_definition UUID;
+  wall_handstand_definition UUID;
+  handstand_kickup_definition UUID;
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO cast_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=17;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=cast_definition AND variant_key='baseline';
+  SELECT id INTO front_support_definition FROM coaching.exercise_definition_v1
+  WHERE slug='front-support-shape-hold' AND status<>'archived';
+  SELECT id INTO freestanding_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-hold' AND status<>'archived';
+  SELECT id INTO wall_handstand_definition FROM coaching.exercise_definition_v1
+  WHERE slug='wall-handstand-hold' AND status<>'archived';
+  SELECT id INTO handstand_kickup_definition FROM coaching.exercise_definition_v1
+  WHERE slug='handstand-kick-up-wall' AND status<>'archived';
+  affected_definition_ids := ARRAY[cast_definition,handstand_definition];
+  cast_variant_ids := ARRAY[
+    cast_below_variant,cast_horizontal_variant,cast_above_variant];
+  handstand_variant_ids := ARRAY[
+    assisted_straddle_handstand_variant,assisted_straight_handstand_variant,
+    independent_straddle_handstand_variant,independent_straight_handstand_variant];
+  active_variant_ids := cast_variant_ids||handstand_variant_ids;
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=cast_definition AND status<>'archived')
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise_definition_source_v1

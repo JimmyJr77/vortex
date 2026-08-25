@@ -25,6 +25,95 @@ export const PROGRESSION_DIMENSIONS = Object.freeze([
   'impact',
   'decision_demand',
   'fatigue',
+  // Controlled detailed dimensions used by review-only relationship evidence.
+  // They preserve exact task boundaries; approval remains a separate gate.
+  'action_sequence',
+  'amplitude',
+  'balance',
+  'balance_trigger',
+  'bilateral_to_unilateral',
+  'braking',
+  'compound_transition',
+  'contact_budget',
+  'contact_force',
+  'contact_timing',
+  'control',
+  'controlled_two_foot_exit',
+  'coordination',
+  'cue',
+  'cycle_height',
+  'cycle_height_progression',
+  'deceleration',
+  'dynamic_to_static_action',
+  'equipment',
+  'failure_consequence',
+  'final_bilateral_landing',
+  'final_contact_terminal_hold',
+  'finish_rule',
+  'first_recovery_step',
+  'flight',
+  'floor_access',
+  'grip',
+  'hamstring_length_control',
+  'hip_control',
+  'hip_motion',
+  'hold_first_landing',
+  'horizontal_braking',
+  'impact_concentration',
+  'intent',
+  'landing_location',
+  'landing_ownership',
+  'landing_support',
+  'laterality',
+  'leg_configuration',
+  'minimum_clearance',
+  'mobility',
+  'obstacle',
+  'opposite_leg_landing',
+  'pelvic_control',
+  'physical_difficulty',
+  'preserve_bilateral_contacts',
+  'preserve_opposite_leg_contacts',
+  'projection_intent',
+  'rack',
+  'reach',
+  'recovery',
+  'reduce_contact_count',
+  'reduce_horizontal_braking',
+  'reduce_intent',
+  'reduce_target_distance',
+  'remove_collision_risk',
+  'remove_elevated_target',
+  'remove_forward_displacement',
+  'remove_opposite_leg_sequence',
+  'remove_rebound',
+  'remove_rotation',
+  'remove_terminal_hold',
+  'same_directional_sequence',
+  'same_ordered_compound_sequence',
+  'same_target_hallux_action',
+  'side_accounting',
+  'side_dose',
+  'space',
+  'sprint_speed',
+  'stabilization',
+  'start_geometry',
+  'static_to_dynamic_action',
+  'supine_base',
+  'support',
+  'takeoff_support',
+  'target_distance',
+  'tempo',
+  'terminal_action',
+  'terminal_sprint',
+  'transition',
+  'trip_exposure',
+  'turn_angle',
+  'tuck_shape',
+  'unilateral_to_bilateral',
+  'velocity',
+  'vertical_to_forward_projection',
+  'weight_bearing',
 ])
 export const MOVEMENT_PLANES = Object.freeze(['sagittal', 'frontal', 'transverse', 'multiplanar'])
 export const LATERALITY_OPTIONS = Object.freeze([
@@ -65,6 +154,14 @@ function list(value) {
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function nonNegativeScore100(value, field) {
+  const number = Number(value)
+  if (!Number.isInteger(number) || number < 0 || number > 100) {
+    throw new RangeError(`${field} must be an integer from 0 to 100.`)
+  }
+  return number
 }
 
 function normalizeDifficulty(raw) {
@@ -271,21 +368,31 @@ export function normalizeCanonicalCardDraft(raw = {}) {
       requirements: variant.requirements && typeof variant.requirements === 'object' ? variant.requirements : {},
       programming: object(variant.programming ?? variant.programming_profile_json),
       loadProfile: {
-        gripDemand: variant.loadProfile?.gripDemand == null ? null : score100(variant.loadProfile.gripDemand),
+        gripDemand: variant.loadProfile?.gripDemand == null
+          ? null
+          : nonNegativeScore100(variant.loadProfile.gripDemand),
         spinalLoading: variant.loadProfile?.spinalLoading == null ? null : score100(variant.loadProfile.spinalLoading),
         eccentricStress: variant.loadProfile?.eccentricStress == null ? null : score100(variant.loadProfile.eccentricStress),
-        landingContactsPerRep: variant.loadProfile?.landingContactsPerRep == null
-          ? null
-          : Number(variant.loadProfile.landingContactsPerRep),
+        landingContactsPerRep: Number.isInteger(Number(variant.loadProfile?.landingContactsPerRep))
+          && Number(variant.loadProfile?.landingContactsPerRep) >= 0
+          ? Number(variant.loadProfile.landingContactsPerRep)
+          : null,
+        contactExposureModel: object(variant.loadProfile?.contactExposureModel),
         externalLoadMethod: text(variant.loadProfile?.externalLoadMethod) || null,
       },
       fatigueProfile: {
         localMuscleFatigue: variant.fatigueProfile?.localMuscleFatigue == null ? null : score100(variant.fatigueProfile.localMuscleFatigue),
-        gripFatigue: variant.fatigueProfile?.gripFatigue == null ? null : score100(variant.fatigueProfile.gripFatigue),
+        gripFatigue: variant.fatigueProfile?.gripFatigue == null
+          ? null
+          : nonNegativeScore100(variant.fatigueProfile.gripFatigue),
         technicalFatigueSensitivity: variant.fatigueProfile?.technicalFatigueSensitivity == null
           ? null
           : score100(variant.fatigueProfile.technicalFatigueSensitivity),
-        impactAccumulation: variant.fatigueProfile?.impactAccumulation == null ? null : score100(variant.fatigueProfile.impactAccumulation),
+        // Zero is meaningful here: a task can have no accumulated impact while
+        // still carrying local or technical fatigue. Difficulty scores remain 1–100.
+        impactAccumulation: variant.fatigueProfile?.impactAccumulation == null
+          ? null
+          : nonNegativeScore100(variant.fatigueProfile.impactAccumulation, 'impactAccumulation'),
         recoveryHours: variant.fatigueProfile?.recoveryHours == null ? null : Number(variant.fatigueProfile.recoveryHours),
       },
       profiles: list(variant.profiles).map((profile) => ({
@@ -339,6 +446,17 @@ export function validateCanonicalCardDraft(raw) {
     if (variant.loadProfile.landingContactsPerRep != null
       && (!Number.isInteger(variant.loadProfile.landingContactsPerRep) || variant.loadProfile.landingContactsPerRep < 0)) {
       errors.push(`Variant ${variantIndex + 1} landing contacts must be a non-negative integer.`)
+    }
+    const contactModel = variant.loadProfile.contactExposureModel
+    if (Object.keys(contactModel).length > 0) {
+      const minimum = Number(contactModel.minimumContactsPerSet)
+      const planningDefault = Number(contactModel.planningDefaultContactsPerSet)
+      const maximum = Number(contactModel.maximumContactsPerSet)
+      if (contactModel.model !== 'per_set_range'
+        || !Number.isInteger(minimum) || !Number.isInteger(planningDefault) || !Number.isInteger(maximum)
+        || minimum < 0 || planningDefault < minimum || maximum < planningDefault) {
+        errors.push(`Variant ${variantIndex + 1} contactExposureModel must be a valid per_set_range.`)
+      }
     }
     if (variant.loadProfile.externalLoadMethod != null
       && !EXTERNAL_LOAD_METHODS.includes(variant.loadProfile.externalLoadMethod)) {

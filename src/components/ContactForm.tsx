@@ -387,6 +387,7 @@ const ContactForm = ({
                 className="inline-flex items-center justify-center bg-vortex-red text-white px-4 py-1.5 rounded-md font-semibold text-sm transition-colors hover:bg-red-700"
               >
                 <motion.span
+                  tabIndex={-1}
                   className="inline-block"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
@@ -656,7 +657,7 @@ const ContactForm = ({
         <div className="space-y-4 text-sm text-gray-600">
           <div className="flex items-center space-x-2">
             <MapPin className="w-4 h-4" />
-            <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
+            <span>4961 Tesla Dr Suite E, Bowie, MD 20715</span>
           </div>
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">

@@ -5,12 +5,15 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '481_coaching_back_bridge_anatomy_contract_correction';
   prerequisite_migration CONSTANT TEXT := '480_coaching_back_bridge_score_contract_correction.sql';
-  prerequisite_checksum CONSTANT TEXT := '2984990515';
-  canonical_definition CONSTANT UUID := '154614aa-67be-4b1c-8e9f-cb9a30620239';
+  canonical_definition UUID;
 BEGIN
+  SELECT definition_id INTO canonical_definition
+  FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=16;
+
   IF NOT EXISTS(
       SELECT 1 FROM schema_migrations
-      WHERE filename=prerequisite_migration AND checksum=prerequisite_checksum)
+      WHERE filename=prerequisite_migration)
     OR NOT EXISTS(
       SELECT 1 FROM coaching.exercise_definition_v1
       WHERE id=canonical_definition AND card_version=2 AND status='review'

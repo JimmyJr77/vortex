@@ -1,0 +1,471 @@
+{
+  "facilityId": 1,
+  "slug": "9090-hip-switch",
+  "researchVersion": "2026-08-10.117",
+  "assessmentSummary": {
+    "identity": "One 90/90 Hip Switch cycle starts seated in a controlled bent-knee 90/90 position, transitions both legs to the opposite 90/90 side through a comfortable hip-rotation range, then returns under control without rising. Optional hands behind the body support the base but do not change the no-rise identity. This is not a shin-box get-up, walking task, lunge, kick, assessment, or run.",
+    "currentCardFindings": [
+      "Source 54 omits a cycle boundary, hand-support/elevation contract, range, fatigue, substitution, and review contract.",
+      "Shin Box Get-Up adds a rise and is a new definition; no-hands lift-off changes the support/base contract and is a new variant.",
+      "Five oEmbed candidates are recorded without playback, exact-match, accessibility, quality, or approval claims."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "hip_internal_rotation",
+        "hip_external_rotation",
+        "seated_transition"
+      ],
+      "laterality": "alternating bilateral hip positions; a full left-to-right-to-left return is one cycle",
+      "planes": [
+        "transverse_hip_rotation",
+        "sagittal_frontal_trunk_pelvis_organization"
+      ],
+      "equipment": [
+        "floor_or_mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 8,
+      "physicalDifficulty": 8,
+      "coordinationDemand": 30,
+      "supervisionDemand": 10,
+      "failureConsequence": 10,
+      "impact": 1,
+      "workCapacityDemand": 8,
+      "baseOverallDifficulty": 28,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "programmingDecision": "Candidate-only seated hip-rotation preparation: validate exact base, range, support/elevation, duration, fatigue, logistics, substitutions, and downstream work; recompute after any change.",
+    "calibrationEvidence": {
+      "uncertainty": "No universal range, dose, recovery, readiness, outcome, or score is established; independent human review remains required."
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T02:40:00.000Z",
+      "cardVersion": 6,
+      "status": "review",
+      "description": "On a clear stable floor or mat, sit in a comfortable bent-knee 90/90 position with optional light hands behind the body. Transition both legs under control to the opposite 90/90 side through the available hip-rotation range, then return without rising. One cycle is left 90/90 to right 90/90 and back. This excludes a shin-box get-up, walking, lunge, kick, assessment, and forced end range.",
+      "familyKey": "seated_hip_rotation_switch",
+      "movementPatterns": [
+        "rotate"
+      ],
+      "bodyRegions": [
+        "hip",
+        "knee",
+        "pelvis",
+        "spine",
+        "core",
+        "shoulder",
+        "elbow"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional",
+        "support_optional",
+        "bench_or_box"
+      ],
+      "variantKey": "seated-optional-hands-9090-hip-switch",
+      "environment": {
+        "surface": "clear stable floor or mat",
+        "space": "room for bilateral knee rotation and hand placement",
+        "stationCapacity": 1,
+        "inspection": [
+          "floor or mat stability",
+          "clear transition space",
+          "communication and exit route"
+        ],
+        "changeRule": "Changing base height, hand support, rise, locomotion, range, hinge, intent, or dose requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "comfortable seated base and controlled bilateral knee transition",
+          "clear stable surface and optional hand support",
+          "understands comfortable range and stop signal",
+          "session logistics and downstream demands fit"
+        ],
+        "excludeOrEscalate": [
+          "symptom, restriction, unsafe surface, or communication conflict",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal hip angle, hand support, dose, recovery, outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 28,
+        "absoluteLoadDemand": 8,
+        "physicalDifficulty": 8,
+        "coordinationDemand": 30,
+        "supervisionDemand": 10,
+        "failureConsequence": 10,
+        "impact": 1,
+        "workCapacityDemand": 8,
+        "baseOverallDifficulty": 28
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_seated_bilateral_9090_hip_rotation_transition",
+        "impactClass": "near_zero_no_flight",
+        "gripDemand": "none",
+        "spinalLoading": "minimal",
+        "eccentricStress": "low",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "hip_rotation_range_and_control",
+          "seated_trunk_pelvis_organization"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 7,
+        "gripFatigue": 1,
+        "technicalFatigueSensitivity": 16,
+        "impactAccumulation": 1,
+        "recoveryHours": 2,
+        "recoveryHoursPlanningEstimate": 2,
+        "cumulativeBudget": {
+          "hip_rotation": 12,
+          "ground_transition": 8,
+          "trunk_control": 6
+        },
+        "tracking": [
+          "cycles",
+          "side",
+          "range",
+          "handSupport",
+          "baseHeight",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic-stretching categories do not make seated hip-rotation sequences, shin-box transitions, and rises identical.",
+        "The candidate stays seated, moves both bent legs from one 90/90 side to the other under control, and returns without a rise; it excludes a get-up, travel, lunge, kick, test, and forced end range."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Warm-up activity sequence matters.",
+        "Seated base, bilateral knee switch, paired hip internal/external rotation positions, optional hand support, no rise, and no travel distinguish the base contract from a shin-box get-up and standing mobility tasks."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37962709/",
+      "sourceTitle": "Acute Effects of Various Stretching Techniques on Range of Motion: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Acute stretching evidence does not justify isolated-muscle or outcome claims.",
+        "The card records hip rotation, knee position, pelvis, trunk, and optional hand-support roles without diagnosis or guaranteed tissue change."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic stretching is controlled movement, not a mandate to force end range.",
+        "A valid candidate repetition transitions from one seated 90/90 side through the controlled switch to the opposite side and returns, without collapsing posture or adding a rise."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Activity-specific warm-up conditions differ.",
+        "Scores describe exercise coordination and physical demand only; they do not classify athlete proficiency, age, or skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "sourceTitle": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "sourcePublisher": "Applied Physiology, Nutrition, and Metabolism",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Acute effects depend on type, dose, timing, and surrounding activity.",
+        "Track side transitions, repetitions, range, hand support, surface, symptoms, and downstream work; no universal recovery or readiness claim is made."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction, supervision, environment, and progressive exposure are relevant safeguards.",
+        "Use a clear stable floor or mat, optional hand support, controlled range, communication, and an exit without demographic classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic-stretching dose varies across protocols.",
+        "Candidate cycle and range proposals remain review-only and stop before forced knee-to-floor pressure, hip or knee pain, loss of posture, or compensatory momentum."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Implementation matters to the activity that follows.",
+        "Cue a seated setup, comfortable 90/90 positions, optional light hands behind, tall trunk, slow side-to-side switch, and no added rise without promising transfer."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe training requires appropriate instruction and environment.",
+        "Stop for pain, neurologic or circulation symptoms, dizziness, unsafe floor/support, inability to communicate, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "sourceTitle": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "sourcePublisher": "Applied Physiology, Nutrition, and Metabolism",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Interpret acute stretching in view of dose and subsequent dynamic activity.",
+        "Select only after session inputs, logistics, duration, fatigue, substitutions, and downstream demands are validated."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "A single dynamic movement is not a guaranteed intervention.",
+        "Use plain range, breathing, posture, and stop checks; use hands, elevation, or another reviewed task rather than forcing the switch."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24149201/",
+      "sourceTitle": "Effects of dynamic and static stretching within general and activity specific warm-up protocols",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Warm-up components are context-dependent.",
+        "Observe base, knee positions, hand support, trunk/pelvis compensation, range, controlled transition, and symptoms without diagnosing restriction."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction and safe environments are implementation safeguards.",
+        "Captions, transcript, still sequence, tactile floor markers, optional hand support, elevation, and verbal cueing remain candidate supports; media accessibility is not assumed."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29063454/",
+      "sourceTitle": "Acute Effects of Dynamic Stretching on Muscle Flexibility and Performance: An Analysis of the Current Literature",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Dynamic-movement categories do not establish mechanical equivalence.",
+        "The alternate review separates elevation, hand support, hinge, shin-box base, no-hands lift-off, get-up, travel, assessment, and range from the seated no-rise 90/90 switch contract."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Task-specific instruction remains a safeguard.",
+        "Two oEmbed titles identify a 90/90 hip switch, two identify rotation/stretch, and one is a short; every item remains candidate-only pending full human media review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=m51AZSXMvEA",
+      "title": "90 90 Hip Switch",
+      "channelName": "The Active Life",
+      "sourceQuery": "legacy 90-90-hip-switch candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:40:00.000Z"
+      },
+      "notes": "oEmbed metadata only; title names the base task, but exact mechanics, captions, accessibility, safety, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qq_Z7sAmVrA",
+      "title": "90/90 Hip Switch (Improve Hip Health & Mobility)",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "legacy 90-90-hip-switch candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:40:00.000Z"
+      },
+      "notes": "oEmbed metadata only; title names the base task but outcome language is not adopted; exact mechanics, accessibility, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=f_7qIPxw6nE",
+      "title": "How To Do 90 90 Hip Rotations",
+      "channelName": "PureGym",
+      "sourceQuery": "legacy 90-90-hip-switch candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:40:00.000Z"
+      },
+      "notes": "oEmbed metadata only; title names hip rotations but does not establish the exact no-rise cycle; full human review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=t4Zz6-aG8Iw",
+      "title": "90 90 Hip Stretch (Best Hip Mobility Exercise!)",
+      "channelName": "Jack Hanrahan Fitness",
+      "sourceQuery": "legacy 90-90-hip-switch candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:40:00.000Z"
+      },
+      "notes": "Metadata calls this a stretch and asserts an outcome, so it is not treated as an exact base-variant match; full human review remains required."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CVVg8haOYlQ",
+      "title": "90/90 Hip Switch You Can Actually Do (Even With Tight Hips)",
+      "channelName": "Christina Nicci",
+      "sourceQuery": "legacy 90-90-hip-switch candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-10T02:40:00.000Z"
+      },
+      "notes": "oEmbed metadata only; short-form playback, exact mechanics, accessibility, safety, quality, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Seated 90/90 Hip Switch with Optional Hands",
+      "classification": "same_identity",
+      "rationale": "Exact candidate contract.",
+      "distinguishingDimensions": {
+        "base": "seated_no_rise"
+      }
+    },
+    {
+      "name": "Shin Box Switch",
+      "classification": "same_identity",
+      "rationale": "Migration 302 consolidates this nomenclature for the same seated no-rise bilateral 90/90 hip-rotation switch; optional hand support and cadence remain task dimensions.",
+      "distinguishingDimensions": {
+        "resolution": "duplicate_consolidated",
+        "label": "shin_box"
+      }
+    },
+    {
+      "name": "Range, Cadence, Repetition, or Comfortable Hinge Change",
+      "classification": "modifier_annotation",
+      "rationale": "Same seated no-rise switch when the controlled bilateral rotation cycle remains intact.",
+      "distinguishingDimensions": {
+        "annotation": "range_cadence_dose_or_optional_hinge"
+      }
+    },
+    {
+      "name": "Elevated 90/90 Hip Switch",
+      "classification": "new_variant",
+      "rationale": "Changes base height and compression/support contract.",
+      "distinguishingDimensions": {
+        "baseHeight": "elevated"
+      }
+    },
+    {
+      "name": "No-Hands 90/90 Lift-Off Switch",
+      "classification": "new_variant",
+      "rationale": "Changes hand support and base/loading contract.",
+      "distinguishingDimensions": {
+        "handSupport": "none_with_lift_off"
+      }
+    },
+    {
+      "name": "Shin Box Get-Up",
+      "classification": "new_definition",
+      "rationale": "Adds a rise and return sequence.",
+      "distinguishingDimensions": {
+        "addedAction": "rise"
+      }
+    },
+    {
+      "name": "Walking Hip Rotation Drill",
+      "classification": "new_definition",
+      "rationale": "Adds locomotion and changes the cycle.",
+      "distinguishingDimensions": {
+        "locomotion": "walking"
+      }
+    },
+    {
+      "name": "90/90 Hip-Rotation Assessment",
+      "classification": "new_definition",
+      "rationale": "Assessment changes intent and governance.",
+      "distinguishingDimensions": {
+        "intent": "assessment"
+      }
+    }
+  ]
+}

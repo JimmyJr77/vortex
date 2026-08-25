@@ -1,0 +1,615 @@
+{
+  "facilityId": 1,
+  "slug": "bird-dog",
+  "researchVersion": "2026-08-10.122",
+  "assessmentSummary": {
+    "identity": "Bird Dog is a quadruped contralateral reach-and-return cycle. From supported hands and knees, reach one arm and the opposite leg through a comfortable active range, return under control, then repeat the other diagonal. One cycle is one controlled reach-return on each diagonal. It is not a same-side, arm-only, leg-only, static, row, crawl, bear, dead-bug, assessment, forced-range, or undeclared-resistance task.",
+    "currentCardFindings": [
+      "Source 67 names the task but lacks an exact cycle, diagonal/support boundary, fatigue tracking, contextual delivery, alternate classification, calibration, and review gates.",
+      "Bird Dog ISO Hold and band-row variations already represented elsewhere materially change contraction or resistance and are not automatic progressions.",
+      "Three legacy YouTube URLs are preserved as unverified candidate media only."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace"
+      ],
+      "jointActions": [
+        "contralateral_shoulder_flexion",
+        "contralateral_hip_extension",
+        "trunk_pelvis_anti_rotation",
+        "quadruped_upper_lower_limb_support"
+      ],
+      "planes": [
+        "sagittal_limb_reach",
+        "frontal_transverse_trunk_pelvis_control"
+      ],
+      "laterality": "alternating contralateral diagonal reduced-support base",
+      "intent": "low-load quadruped contralateral trunk and limb-control practice"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "abdominal_wall",
+        "spinal_stabilizers",
+        "gluteal_complex",
+        "shoulder_girdle"
+      ],
+      "secondaryMuscles": [
+        "hip_extensors",
+        "shoulder_flexors",
+        "wrist_hand_support",
+        "quadriceps"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 14,
+      "physicalDifficulty": 14,
+      "coordinationDemand": 30,
+      "supervisionDemand": 12,
+      "failureConsequence": 10,
+      "impact": 1,
+      "workCapacityDemand": 12,
+      "baseOverallDifficulty": 30,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "loadingType": "low_load_bodyweight_quadruped_contralateral_reach",
+      "impactClass": "none",
+      "externalLoadMethod": "bodyweight_only_for_baseline",
+      "primaryStress": [
+        "contralateral_limb_reach",
+        "trunk_pelvis_control",
+        "hand_knee_support"
+      ],
+      "fatigueProfile": [
+        "trunk_pelvis_rotation_or_extension",
+        "shoulder_wrist_or_knee_support_discomfort",
+        "rushed_return_or_breath_holding"
+      ],
+      "recoveryHours": "minimal_when_low_dose_and_quality_limited"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_non_slip_floor_or_mat"
+      ],
+      "optionalEquipment": [
+        "knee_padding",
+        "elevated_hand_support",
+        "visual_sequence_card"
+      ],
+      "environment": [
+        "clear_exit_path_from_floor",
+        "stable_hand_support_when_elevated",
+        "coach_sightline_to_trunk_and_pelvis"
+      ],
+      "population": [
+        "can_use_the_assigned_quadruped_or_elevated_hand_base",
+        "can_complete_a_small_diagonal_reach_return_without_symptom_escalation"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "1-3_sets_of_3-6_quality_cycles_per_side",
+      "tempo": "slow_controlled_reach_and_return_without_rushing",
+      "restSeconds": "20-45_as_needed_to_restore_quality",
+      "intensity": "low_effort_bodyweight_control_not_maximal_range",
+      "measurement": "cycles_per_side_range_base_width_tempo_compensation_and_symptoms",
+      "progressWhen": "the assigned base and diagonal cycle stay controlled without symptoms or compensation"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Set hands and knees on the assigned stable base",
+        "Reach one arm and the opposite leg without twisting",
+        "Return quietly before changing diagonal",
+        "Make the range smaller before forcing height"
+      ],
+      "athleteInstructions": [
+        "Set up on hands and knees and breathe",
+        "Reach one arm and the opposite leg only as far as you can stay quiet",
+        "Return under control and switch sides",
+        "Stop before pain, pinching, or loss of support"
+      ],
+      "commonFaults": [
+        "same_side_pairing",
+        "trunk_or_pelvis_rotation",
+        "lumbar_extension_to_gain_range",
+        "hand_wrist_or_knee_support_collapse",
+        "rushed_return",
+        "breath_holding"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable_floor_or_mat_and_exit_route",
+        "assigned_hand_knee_or_elevated_hand_support",
+        "small_controlled_diagonal_reach_return_without_stop_symptom",
+        "understood_stop_signal"
+      ],
+      "qualityGates": [
+        "assigned_quadruped_base_remains_stable",
+        "opposite_arm_and_leg_pairing_is_clear",
+        "reach_and_return_are_slow_and_controlled",
+        "trunk_pelvis_and_support_remain_organised",
+        "no_stop_symptom"
+      ],
+      "stopRules": [
+        "sharp_or_increasing_shoulder_wrist_hip_knee_back_or_other_pain",
+        "numbness_tingling_dizziness_or_unusual_symptoms",
+        "unsafe_support_or_inability_to_exit",
+        "repeated_compensation_that_does_not_resolve_with_smaller_range_rest_or_base_change"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access",
+        "dose": "1-2_sets_of_3-5_quality_cycles_per_side",
+        "purpose": "candidate_low-dose_quadruped_contralateral_control_preparation"
+      },
+      {
+        "context": "resilience_or_control",
+        "dose": "1-3_sets_of_3-6_quality_cycles_per_side_with_rest",
+        "purpose": "candidate_control_observation_not_fatigue_work"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "shorter_reach_with_wider_base",
+        "elevated_hand_bird_dog_after_revalidation"
+      ],
+      "progressions": [
+        "brief_pause_after_review",
+        "declared_resistance_or_row_after_separate_assessment"
+      ],
+      "substitutions": [
+        "reviewed_low-load_trunk_control_task_with_matching_constraints"
+      ],
+      "doNotSubstitute": [
+        "same_side_quadruped_reach",
+        "quadruped_arm_or_leg_reach_only",
+        "bird_dog_iso_hold",
+        "bird_dog_row",
+        "bear_crawl",
+        "dead_bug"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "diagonal_pairing_still_sequence",
+        "shorter-range_prompt",
+        "symptom_and_stop_prompt"
+      ],
+      "coach": [
+        "floor_support_and_exit_check",
+        "diagonal_pairing_and_trunk_observation_rubric",
+        "range_dose_and_symptom_log",
+        "substitution_revalidation_prompt"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "professional core instruction, quadruped task research, legacy comparison, and inherited metadata-unverified media candidates",
+      "uncertainty": "No source establishes a unique Bird Dog score, dose, recovery period, clinical outcome, or transfer effect.",
+      "reviewNeeded": [
+        "qualified_coach_or_clinician_content_review",
+        "difficulty_anchor_comparison",
+        "quadruped_accessibility_test",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Materialize Bird Dog as its own candidate-only quadruped contralateral reach-return definition. Treat a brief pause, assigned reach range, base width, and tempo as explicit modifiers. Keep same-side, single-limb, isometric, row, crawl, bear, dead-bug, loaded, and assessment tasks separate.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T12:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From a supported hands-and-knees position, reach one arm and the opposite leg through a comfortable active range, return under control, then repeat the other diagonal. One cycle is one controlled reach-return on each diagonal. This excludes same-side, arm-only, leg-only, static, row, crawl, bear, dead-bug, assessment, forced-range, and undeclared-resistance tasks.",
+      "familyKey": "quadruped_contralateral_reach_return",
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "hip",
+        "knee",
+        "spine",
+        "core"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "floor_mat",
+        "knee_padding",
+        "elevated_hand_support"
+      ],
+      "variantKey": "bodyweight-quadruped-alternating-contralateral-bird-dog",
+      "environment": {
+        "surface": "clear non-slip floor or mat",
+        "space": "room to enter, use, and exit a quadruped hand-and-knee base",
+        "stationCapacity": 1,
+        "inspection": [
+          "floor or mat stability",
+          "clear exit path",
+          "stable elevated support when assigned",
+          "communication and coach sightline"
+        ],
+        "changeRule": "Changing hand height, base width, limb pairing, resistance, range, hold, tempo, dose, surface, or intent requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "can use the assigned quadruped or elevated-hand base and exit safely",
+          "can perform a small contralateral reach-return without symptom escalation or persistent trunk/pelvis loss",
+          "clear stable surface and communication",
+          "session logistics and downstream demands fit"
+        ],
+        "excludeOrEscalate": [
+          "symptom, restriction, unsafe base, surface, support, or communication conflict",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal limb height, base width, spinal position, dose, recovery, outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 30,
+        "absoluteLoadDemand": 14,
+        "physicalDifficulty": 14,
+        "coordinationDemand": 30,
+        "supervisionDemand": 12,
+        "failureConsequence": 10,
+        "impact": 1,
+        "workCapacityDemand": 12,
+        "baseOverallDifficulty": 30
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_quadruped_contralateral_limb_reach",
+        "impactClass": "none_no_flight",
+        "primaryExposure": [
+          "contralateral_limb_reach",
+          "trunk_pelvis_control",
+          "hand_knee_support"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 10,
+        "technicalFatigueSensitivity": 20,
+        "impactAccumulation": 1,
+        "recoveryHoursPlanningEstimate": 4,
+        "cumulativeBudget": {
+          "trunk_control": 12,
+          "quadruped_shoulder_support": 10,
+          "hip_extension_control": 10
+        },
+        "tracking": [
+          "cyclesPerSide",
+          "range",
+          "baseWidth",
+          "tempo",
+          "compensation",
+          "support",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Bird Dog is a quadruped contralateral reach-and-return cycle: one hand and the opposite knee remain supported while the other arm and leg reach, return, and the other diagonal repeats.",
+        "It excludes same-side reaches, arm-only or leg-only reaches, static holds, rows, crawling, bear work, dead bugs, testing, forced range, and undeclared resistance."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Quadruped support, contralateral diagonal limb reach, a controlled return, and alternating sides are identity boundaries for this candidate.",
+        "A brief pause or declared range/tempo can be a delivery modifier only when the hand-and-knee base, diagonal reach-return, and alternating cycle are preserved."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36117695/",
+      "sourceTitle": "Perceived exertion, postural control, and muscle recruitment in three different quadruped exercises performed by healthy women",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Record trunk, hip, shoulder, wrist, knee, and contralateral support roles as task anatomy without claiming a diagnosis, isolated-muscle outcome, or clinical effect.",
+        "The task does not establish a universal limb height, spinal position, range, tissue target, readiness threshold, or therapeutic result."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10824310/",
+      "sourceTitle": "Trunk Muscle Thickness During Supine and Crawling Exercises",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "One candidate repetition is a controlled diagonal reach and return from an assigned quadruped base; alternating left/right sides is recorded explicitly.",
+        "Reduce limb range, base demand, or dosage rather than accepting persistent trunk/pelvis rotation, lumbar extension, support collapse, or forced reach."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Difficulty values describe only exact exercise complexity and physical demand, never participant skill, proficiency, age, or classification.",
+        "The unloaded baseline has low external load but requires contralateral coordination, hand/knee support, shoulder/hip range, trunk organisation, and controlled return; independent calibration remains required."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Dose, effort, range, support, and context affect acute response; no universal readiness, recovery period, or performance outcome is claimed.",
+        "Track cycles per side, limb range, base width, tempo, trunk/pelvis compensation, support symptoms, and downstream work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "A clear stable floor or mat, space to enter and exit quadruped, optional knee padding or elevated hand support, and clear communication are practical safeguards.",
+        "Selection is based on the exact task and current workout inputs, not an exercise-card population or skill label."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "No source establishes a universal Bird Dog dose, limb height, hold length, cadence, or readiness threshold.",
+        "Use a conservative quality-limited candidate dose and stop before pain, symptoms, unsafe support, breath holding, or persistent loss of the assigned diagonal reach-return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Exact instructions name the hand-and-knee base, opposite arm-and-leg reach, quiet trunk/pelvis boundary, controlled return, side change, and reset.",
+        "Use a shorter reach, smaller range, wider hand/knee base, padding, or another reviewed task before forcing limb height or volume."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Appropriate instruction, supervision, environment, and progressive exposure are safeguards.",
+        "Stop for sharp or increasing pain, new neurologic/circulation/breathing/dizziness symptoms, unsafe support or surface, inability to restore quality, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Use Bird Dog only when the exact low-load quadruped contralateral control task fits objectives, logistics, fatigue, and downstream demands; it does not promise treatment, injury prevention, or transfer.",
+        "Any change to base, reach, laterality, hold, resistance, load, range, tempo, dose, or substitution reruns selection, logistics, duration, fatigue, and validation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athlete support should show the quadruped base, opposite arm/leg pairing, quiet trunk, controlled return, self-check, and stop prompt in plain language.",
+        "Media accessibility, exact variant match, captions, quality, and safety remain unverified until human review."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Coach support should include floor/mat and exit checks, exact diagonal pairing, front/side observation of trunk and pelvis, support tolerance, range/tempo logging, and escalation for unresolved symptoms.",
+        "Do not diagnose a stability deficit or use a generic quadruped task as an automatic substitution."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Candidate accessibility supports include knee padding, elevated hands, stable hand contact, a still sequence, captions, transcript, audio description, clear stop instructions, and a reviewed substitution when floor quadruped work is inaccessible.",
+        "These supports do not verify individual readiness or make an inaccessible base acceptable."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A brief pause, assigned reach range, base width, and tempo are modifiers only under the fixed contralateral quadruped reach-return contract.",
+        "Same-side, arm-only, leg-only, isometric, rowing, crawling, bear, dead-bug, loaded, and assessment tasks change support, action, contraction, resistance, or task boundary and require separate assessment."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Three inherited direct YouTube URLs are retained solely as unverified candidates; no playback, embedding, exact task match, captions, accessibility, quality, safety, reviewer, or approval claim is made.",
+        "Privacy-enhanced embed URLs are review artifacts only and remain non-embeddable until human verification."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=xEDnlOxeJH4",
+      "title": "Legacy Bird Dog candidate 1 — human review required",
+      "channelName": null,
+      "sourceQuery": "legacy Bird Dog media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "legacy_url_inventory_only",
+        "verifiedAt": "2026-08-10T12:00:00Z",
+        "scope": "Direct URL retained from legacy migration; no network, playback, embed, title, channel, or content verification."
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QQot16miua8",
+      "title": "Legacy Bird Dog candidate 2 — human review required",
+      "channelName": null,
+      "sourceQuery": "legacy Bird Dog media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "legacy_url_inventory_only",
+        "verifiedAt": "2026-08-10T12:00:00Z",
+        "scope": "Direct URL retained from legacy migration; no network, playback, embed, title, channel, or content verification."
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KA0ekfSePrQ",
+      "title": "Legacy Bird Dog candidate 3 — human review required",
+      "channelName": null,
+      "sourceQuery": "legacy Bird Dog media list",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": {
+        "method": "legacy_url_inventory_only",
+        "verifiedAt": "2026-08-10T12:00:00Z",
+        "scope": "Direct URL retained from legacy migration; no network, playback, embed, title, channel, or content verification."
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bird Dog with Brief Pause",
+      "classification": "modifier_annotation",
+      "rationale": "A declared short pause changes cadence only when the quadruped contralateral reach-return cycle remains intact.",
+      "distinguishingDimensions": {
+        "tempo": "brief_pause"
+      }
+    },
+    {
+      "name": "Bird Dog with Shorter Reach",
+      "classification": "modifier_annotation",
+      "rationale": "A declared reduced limb range preserves the same hand/knee base, diagonal pairing, and reach-return cycle.",
+      "distinguishingDimensions": {
+        "range": "shorter_comfortable_reach"
+      }
+    },
+    {
+      "name": "Elevated-Hands Bird Dog",
+      "classification": "new_variant",
+      "rationale": "Changing hand height changes shoulder/wrist loading and trunk angle while preserving the declared quadruped diagonal reach-return task.",
+      "distinguishingDimensions": {
+        "handSupport": "elevated_stable_surface"
+      }
+    },
+    {
+      "name": "Same-Side Quadruped Reach",
+      "classification": "new_definition",
+      "rationale": "Ipsilateral arm/leg pairing changes the diagonal coordination and trunk-demand boundary.",
+      "distinguishingDimensions": {
+        "limbPairing": "ipsilateral"
+      }
+    },
+    {
+      "name": "Quadruped Arm Reach",
+      "classification": "new_definition",
+      "rationale": "Removing the leg action changes the primary task and coordination boundary.",
+      "distinguishingDimensions": {
+        "limbAction": "arm_only"
+      }
+    },
+    {
+      "name": "Quadruped Leg Reach",
+      "classification": "new_definition",
+      "rationale": "Removing the arm action changes the primary task and support boundary.",
+      "distinguishingDimensions": {
+        "limbAction": "leg_only"
+      }
+    },
+    {
+      "name": "Bird Dog ISO Hold",
+      "classification": "new_definition",
+      "rationale": "A terminal hold changes the contraction mode, dose, and repetition boundary.",
+      "distinguishingDimensions": {
+        "contraction": "isometric_hold"
+      }
+    },
+    {
+      "name": "Bird Dog Row",
+      "classification": "new_definition",
+      "rationale": "Added row resistance changes the load path, shoulder demand, fatigue, and progression requirements.",
+      "distinguishingDimensions": {
+        "externalLoad": "row_resistance"
+      }
+    },
+    {
+      "name": "Bear Crawl",
+      "classification": "new_definition",
+      "rationale": "Knees-off-ground locomotion changes support, action, fatigue, and environmental demands.",
+      "distinguishingDimensions": {
+        "action": "locomotion"
+      }
+    },
+    {
+      "name": "Dead Bug",
+      "classification": "new_definition",
+      "rationale": "A supine support base and movement geometry define a separate task.",
+      "distinguishingDimensions": {
+        "base": "supine"
+      }
+    }
+  ]
+}

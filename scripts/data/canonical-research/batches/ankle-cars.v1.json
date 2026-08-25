@@ -1,0 +1,140 @@
+{
+  "batchKey": "ankle-cars-v1",
+  "researchVersion": "2026-08-09.109",
+  "snapshotAt": "2026-08-10T15:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/ankle-cars",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "ankle-cars",
+      "assessmentSummary": {
+        "identity": "One seated Ankle Controlled Articular Rotation uses a stable bench, the non-target foot planted, the target thigh supported, and the target foot clear of the floor. The hands may lightly monitor the thigh and tibia but do not move the foot. Starting from a declared comfortable dorsiflexed position, actively trace one slow circuit through inversion, plantarflexion, eversion, and back to the same dorsiflexed start while the knee, tibia, pelvis, and trunk remain quiet; that closed circuit is one repetition in the first direction. Reverse the ordered path for one repetition in the other direction. Comfortable active range, knee angle, light non-assisting monitoring, trace cue, direction order, tempo, brief non-forced pauses, breathing, repetitions, sets, rest, and workout context are annotations. Standing balance, another body position, external resistance or load, passive or clinician-applied motion, weight bearing, an isometric quadrant hold, an ankle pump, ankle alphabet, calf raise, clinical measurement, or added sport action changes the task.",
+        "currentCardFindings": [
+          "Source 42 has one stable canonical definition and no direct duplicate definition, but its baseline variant is skeletal and combines seated, standing, and thigh-supported bases without an exact support or count contract.",
+          "The current card lacks exact anatomy, joint-action sequence, controlled support contacts, all task-difficulty dimensions, load, fatigue, recovery, equipment, environment, population constraints, dosage, duration, substitutions, persistence, coach support, athlete support, evidence, calibration, and automated test gates.",
+          "The legacy prose says draw a circle and reverse direction but does not define the start point, ordered circuit, whether each direction is separately counted, what lower-leg movement invalidates a repetition, or whether standing balance is part of the task. The proposed seated contract makes those facts explicit and requires qualified human review.",
+          "The legacy age floor, publication state, dose, scores, and three historical media IDs are not exact-card approvals. Five current oEmbed responses establish metadata health only; playback, exact seated mechanics, captions, accessibility, quality, safety, reviewer, and approval remain unverified."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["rotate", "brace"],
+          "bodyRegions": ["foot", "ankle", "calf", "knee", "hip", "core"],
+          "support": "seated_stable_bench_target_thigh_supported_target_foot_clear_non_target_foot_planted",
+          "laterality": "unilateral_target_ankle_each_side_and_direction_recorded",
+          "planes": ["sagittal", "frontal", "transverse", "multiplanar_stabilization"],
+          "equipment": ["bench"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 24,
+          "absoluteLoadDemand": 12,
+          "physicalDifficulty": 12,
+          "coordinationDemand": 22,
+          "supervisionDemand": 12,
+          "failureConsequence": 10,
+          "impact": 1,
+          "workCapacityDemand": 10,
+          "baseOverallDifficulty": 24,
+          "variantScores": {
+            "seatedActiveAnkleCircuit": {
+              "technicalComplexity": 24,
+              "absoluteLoadDemand": 12,
+              "physicalDifficulty": 12,
+              "coordinationDemand": 22,
+              "supervisionDemand": 12,
+              "failureConsequence": 10,
+              "impact": 1,
+              "workCapacityDemand": 10,
+              "baseOverallDifficulty": 24
+            }
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "unloaded_active_non_weight_bearing_ankle_joint_complex_circuit_with_seated_support",
+          "impactClass": "none",
+          "primaryExposure": [
+            "active_ankle_dorsiflexion_plantarflexion_inversion_and_eversion",
+            "foot_and_lower_leg_motor_control",
+            "tibia_knee_pelvis_and_trunk_stabilization",
+            "attention_to_ordered_path_and_closed_circuit_count"
+          ],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "circuitsPerDirectionPerSide": "2-5",
+          "secondsPerCircuit": "4-10",
+          "rest": "10-45_seconds_or_as_needed_to_preserve_active_range_ordered_path_tibia_knee_pelvis_trunk_control_breathing_and_symptom_rules",
+          "durationRule": "bench_and_body_setup_plus_actual_valid_circuit_seconds_plus direction_and_side_changes_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit"
+        },
+        "programmingDecision": "Select only when a stable inspected bench, nonslip floor, foot clearance, seated transfer, target-thigh support, non-target-foot support, exact active circuit and directional count comprehension, symptoms, dose, duration, and cumulative foot, ankle, lower-leg, calf, balance, landing, sprint, cutting, kicking, and lower-body budgets fit. Do not silently stand, close the eyes, add weight bearing, resistance, load, passive or clinician force, forced range, an isometric hold, pumps, alphabet tracing, calf raises, clinical measurement, or claim the circuit diagnoses restriction, proves readiness, prevents injury, or guarantees transfer. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Peer-reviewed descriptions of unconstrained active ankle-joint-complex motion, active inversion and eversion measurement, ankle biomechanics, professional CAR instruction, current YouTube oEmbed metadata, and exact comparison with full-body CAR flow, weight-bearing rocker, dorsiflexor strengthening, calf strengthening, ankle pumps, alphabet, resisted, passive, and clinical-measurement neighbors",
+          "uncertainty": "The evidence describes ankle motion, measurement, biomechanics, or general CAR instruction; it does not validate the complete Vortex seated support, ordered start point, circuit count, universal range, knee angle, tempo, dose, frequency, fatigue ceiling, recovery interval, progression order, population eligibility, warm-up outcome, injury-prevention effect, or Vortex score. No media candidate has been watched in full.",
+          "reviewNeeded": [
+            "qualified_content_review",
+            "independent_difficulty_calibration",
+            "support_sequence_and_count_contract_review",
+            "ankle_joint_complex_anatomy_and_load_review",
+            "bench_transfer_and_floor_safety_review",
+            "clinical_scope_and_stop_rule_review",
+            "full_video_review",
+            "coach_and_athlete_comprehension_test"
+          ]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"ace_controlled_articular_rotations_2024","claims":["CARs are described as slow deliberate rotational movements through active pain-free joint range.","Vortex's seated support, declared dorsiflexed start, ordered circuit, separate direction count, and invalidation rules are explicit candidate details requiring review."]},
+        {"sectionKey":"taxonomy","sourceKey":"ankle_joint_complex_active_rom_1993","claims":["Unconstrained active ankle-joint-complex motion can be described across dorsiflexion-plantarflexion, inversion-eversion, and abduction-adduction components.","The task is a multiplanar active rotation and brace task; it does not classify participant skill or proficiency."]},
+        {"sectionKey":"anatomy","sourceKey":"ankle_biomechanics_review_2016","claims":["Ankle and foot motion is distributed across the ankle joint complex rather than belonging to one isolated hinge.","The card names foot, talocrural, subtalar, midfoot, lower-leg, knee, thigh, and trunk roles without claiming one tissue or joint is isolated."]},
+        {"sectionKey":"biomechanics","sourceKey":"ankle_joint_complex_active_rom_1993","claims":["Active ankle-joint-complex range includes coupled motion in multiple angular components and maximum values need not occur from neutral.","Vortex uses an ordered active circuit and observable quiet-leg rule while avoiding claims that a drawn circle represents one pure anatomical axis."]},
+        {"sectionKey":"difficulty","sourceKey":"ankle_active_inversion_eversion_reliability_2006","claims":["Active inversion and eversion can be repeated in seated testing, but observed reliability depends on protocol and observer conditions.","The 24/12/24 proposal describes exercise complexity and physical difficulty only and remains queued for independent calibration."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"ankle_biomechanics_review_2016","claims":["The ankle joint complex permits multiplanar motion, but the review does not establish fatigue or recovery for slow unloaded circles.","Track actual circuits, seconds, range, compensation, symptoms, and overlapping ankle and lower-leg work; recovery values remain planning estimates."]},
+        {"sectionKey":"constraints","sourceKey":"ankle_active_inversion_eversion_reliability_2006","claims":["Active ankle ROM findings depend on position, direction, observer, and session.","Selection therefore requires exact support, foot clearance, transfer, symptoms, communication, and workout-budget checks rather than demographic or diagnostic thresholds."]},
+        {"sectionKey":"dosage","sourceKey":"ace_controlled_articular_rotations_2024","claims":["Professional guidance supports slow deliberate active motion but does not establish one universal ankle-CAR dose.","Vortex's one to three sets of two to five circuits per direction per side is quarantined guidance and stops before path, support, breathing, or symptoms degrade."]},
+        {"sectionKey":"instructions","sourceKey":"ace_controlled_articular_rotations_2024","claims":["CAR instruction emphasizes slow active rotation through available pain-free range.","Vortex adds stable seated support, foot clearance, declared start, exact action order, reverse-direction count, invalidating compensation, transfer, and persistence rules."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"ankle_biomechanics_review_2016","claims":["Ankle motion is multijoint and variable; the evidence does not define a universal safe endpoint or normal circle.","Stop for sharp, increasing, unfamiliar, unstable, neurologic, circulatory, systemic, or transfer symptoms; lost control; unsafe bench or floor; or participant request, then follow facility escalation rules."]},
+        {"sectionKey":"programming","sourceKey":"ankle_joint_complex_active_rom_1993","claims":["Active range can be quantified across multiple components, but the study does not show that an ankle circuit transfers to sport tasks.","Use only as low-load preparation or restore work when constraints fit; do not claim guaranteed squat, balance, landing, sprint, cutting, or kicking outcomes."]},
+        {"sectionKey":"athlete_support","sourceKey":"ace_controlled_articular_rotations_2024","claims":["Slow deliberate rotation offers visible path and pace checkpoints.","Athlete support must also explain stable seated support, foot clearance, the ordered first circuit, reversal, smaller active range, unexpected symptoms, and safe stopping."]},
+        {"sectionKey":"coach_support","sourceKey":"ankle_active_inversion_eversion_reliability_2006","claims":["Repeatability depends on standardized positioning and observation.","Coach support must observe bench, thigh, foot clearance, tibia, knee, pelvis, trunk, path, start/end, direction, pace, first fault, actual exposure, and symptoms without diagnosing restriction."]},
+        {"sectionKey":"accessibility","sourceKey":"ace_controlled_articular_rotations_2024","claims":["The movement can be taught with a slow visual demonstration and active pain-free range.","A smaller range, slower pace, fewer circuits, more rest, path diagram, captions, still images, or live instruction can preserve the seated task; standing, passive, resisted, or loaded versions require separate review."]},
+        {"sectionKey":"alternates","sourceKey":"ankle_biomechanics_review_2016","claims":["Sagittal and frontal components and multijoint contributions should not be collapsed into every ankle exercise.","Weight-bearing rockers, pumps, alphabet tracing, resisted four-way work, calf raises, balance tasks, passive mobilization, and clinical measurement remain distinct alternatives."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-10.","oEmbed health does not prove playback, exact seated support, active ordered circuit, direction count, lack of compensation, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=BDNGAnp7u7s","title":"Controlled Articular Rotations (CARs) - Ankle","channelName":"Tangelo - Seattle Chiropractor + Rehab","sourceQuery":"Source 42 legacy candidate checked by YouTube oEmbed; full exact seated-circuit review pending","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T14:35:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=fyShbLKXMkY","title":"How To Do Ankle CARs","channelName":"Alex Murphy","sourceQuery":"Source 42 legacy candidate checked by YouTube oEmbed; full exact seated-circuit review pending","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T14:35:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=M2hhS_XJjww","title":"Ankle MOBILITY \"Ankle CARs\" for Joint Health Controlled Articular Rotations","channelName":"Coach Rich Thurman","sourceQuery":"Source 42 legacy candidate checked by YouTube oEmbed; full exact seated-circuit review pending","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T14:35:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=IYdRxX95vNE","title":"Ankle CARS: Controlled Articular Rotations","channelName":"Osteopathic Movement","sourceQuery":"Ankle CAR candidate checked by YouTube oEmbed; full exact seated-circuit review pending","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T14:35:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=gLtItpjgi3M","title":"Ankle Controlled Articular Rotations","channelName":"Movement As Medicine","sourceQuery":"Ankle CAR candidate checked by YouTube oEmbed; full exact seated-circuit review pending","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-10T14:35:00.000Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Ankle CARs","classification":"same_identity","rationale":"Source 42's name maps to the exact seated active ankle-circuit contract.","distinguishingDimensions":{"legacySourceId":42}},
+        {"name":"Seated Active Ankle Circumduction","classification":"same_identity","rationale":"This alias preserves seated support, active ordered path, quiet tibia, and closed-circuit count.","distinguishingDimensions":{"alias":true}},
+        {"name":"Comfortable Active Range","classification":"modifier_annotation","rationale":"A smaller symptom-free path changes amplitude without changing support, ordered action, or count.","distinguishingDimensions":{"modifier":"range"}},
+        {"name":"Controlled Tempo","classification":"modifier_annotation","rationale":"Slower pace changes exposure time while preserving the same active circuit.","distinguishingDimensions":{"modifier":"tempo"}},
+        {"name":"Brief Non-Forced Quadrant Pause","classification":"modifier_annotation","rationale":"A brief pause changes timing but not the continuous ordered circuit when no isometric dose is prescribed.","distinguishingDimensions":{"modifier":"pause"}},
+        {"name":"Circuit Count Sets Rest or Direction Order","classification":"modifier_annotation","rationale":"Volume, recovery, and first direction change delivery rather than identity.","distinguishingDimensions":{"modifiers":["circuits","sets","rest","direction_order"]}},
+        {"name":"Declared Comfortable Seated Knee Angle","classification":"modifier_annotation","rationale":"A recorded comfortable knee angle is setup when the thigh remains supported and the foot remains clear.","distinguishingDimensions":{"modifier":"knee_angle"}},
+        {"name":"Light Hands Monitoring Thigh or Tibia","classification":"modifier_annotation","rationale":"Light non-assisting monitoring helps detect compensation without moving the foot.","distinguishingDimensions":{"modifier":"monitoring_contact"}},
+        {"name":"Visual Toe-Trace Cue","classification":"modifier_annotation","rationale":"A non-contact visual trace clarifies the path without adding load or an external target contact.","distinguishingDimensions":{"modifier":"visual_cue"}},
+        {"name":"Breathing Prompt Side Order or Workout Context","classification":"modifier_annotation","rationale":"Breathing, side sequence, and delivery context do not change the exact circuit.","distinguishingDimensions":{"modifiers":["breathing","side_order","context"]}},
+        {"name":"Standing Hand-Supported Ankle CAR","classification":"new_variant","rationale":"Standing adds weight-bearing, balance, fall exposure, and hand-support requirements.","distinguishingDimensions":{"support":"standing_hand_supported"}},
+        {"name":"Long-Sit Ankle CAR","classification":"new_variant","rationale":"Long sitting changes hip, knee, hamstring, trunk, and support constraints.","distinguishingDimensions":{"base":"long_sit"}},
+        {"name":"Supine Ankle CAR","classification":"new_variant","rationale":"Supine support changes sightline, transfer, trunk demand, and station logistics.","distinguishingDimensions":{"base":"supine"}},
+        {"name":"Prone Knee-Flexed Ankle CAR","classification":"new_variant","rationale":"Prone knee flexion changes muscle length, visibility, support, and transfer demands.","distinguishingDimensions":{"base":"prone_knee_flexed"}},
+        {"name":"Eyes-Closed Seated Ankle CAR","classification":"new_variant","rationale":"Removing vision changes sensory constraints, supervision, and stop rules.","distinguishingDimensions":{"vision":"eyes_closed"}},
+        {"name":"Band-Resisted Ankle CAR","classification":"new_variant","rationale":"External resistance changes force direction, anchor safety, load, fatigue, and progression.","distinguishingDimensions":{"externalForce":"resistance_band"}},
+        {"name":"Ankle-Weighted Seated CAR","classification":"new_variant","rationale":"Added distal load changes torque, fatigue, failure consequences, and supervision.","distinguishingDimensions":{"externalLoad":"ankle_weight"}},
+        {"name":"Ankle Pumps","classification":"new_definition","rationale":"Repeated dorsiflexion and plantarflexion omit the inversion-eversion circuit and use a different count.","distinguishingDimensions":{"action":"sagittal_oscillation"}},
+        {"name":"Ankle Alphabet","classification":"new_definition","rationale":"Tracing letters uses a variable multi-stroke sequence rather than one fixed closed circuit.","distinguishingDimensions":{"action":"alphabet_trace"}},
+        {"name":"Four-Way Band Ankle Strengthening","classification":"new_definition","rationale":"Separate resisted directional repetitions use external force and strength dosage.","distinguishingDimensions":{"action":"resisted_four_direction_strength"}},
+        {"name":"Standing Knee-to-Wall Ankle Rocker","classification":"new_definition","rationale":"Source 40 is a weight-bearing sagittal forward-and-return cycle.","distinguishingDimensions":{"targetDefinitionId":"c12b9ae2-11a4-4cdf-96dd-280b291ca71c"}},
+        {"name":"Calf Raise to Controlled Heel Drop","classification":"new_definition","rationale":"Source 44 lifts and lowers the body through plantarflexion and eccentric return.","distinguishingDimensions":{"targetDefinitionId":"292eabbb-1676-4d7f-9eed-147f6adcf8f4"}},
+        {"name":"Full-Body Joint CARs Flow","classification":"new_definition","rationale":"Source 23 is an ordered multi-region flow rather than an ankle-only circuit.","distinguishingDimensions":{"targetDefinitionId":"c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3"}},
+        {"name":"Clinical Ankle Range-of-Motion Assessment","classification":"new_definition","rationale":"Standardized maximal measurement adds examiner procedure, interpretation, comparison, documentation, consent, and clinical scope.","distinguishingDimensions":{"scope":"clinical_measurement"}}
+      ]
+    }
+  ]
+}

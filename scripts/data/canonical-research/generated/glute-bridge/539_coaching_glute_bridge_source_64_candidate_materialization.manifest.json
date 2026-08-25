@@ -1,0 +1,14 @@
+{
+  "migrationKey": "539_coaching_glute_bridge_source_64_candidate_materialization",
+  "researchVersion": "2026-08-10.120",
+  "generatedAt": "2026-08-10T08:00:00.000Z",
+  "cards": [
+    {
+      "slug": "glute-bridge",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 7,
+      "cardVersion": 2
+    }
+  ]
+}

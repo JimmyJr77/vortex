@@ -1,0 +1,14 @@
+{
+  "migrationKey": "705_coaching_flying_sprint_source_128_candidate_materialization",
+  "researchVersion": "2026-07-25.2",
+  "generatedAt": "2026-07-25T23:45:00.000Z",
+  "cards": [
+    {
+      "slug": "flying-10",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 3
+    }
+  ]
+}

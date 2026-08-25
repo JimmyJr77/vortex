@@ -7,21 +7,35 @@ DO $migration$
 DECLARE
   migration_key CONSTANT TEXT := '495_coaching_neck_cars_identity_and_family_audit_hardening';
   research_version CONSTANT TEXT := '2026-08-02.92';
-  canonical_definition CONSTANT UUID := 'ee59b220-042c-482a-b7b5-5923d644c800';
-  duplicate_definition CONSTANT UUID := 'b0142272-15c6-4c52-bc27-c715a0fc41a8';
-  wall_rotation_definition CONSTANT UUID := '9f724fc9-6861-49a0-8f2d-f279543ca303';
-  full_body_definition CONSTANT UUID := 'c6e2b1c7-e42f-47b6-ac34-2549b32f8dd3';
-  source_variant CONSTANT UUID := '444a2645-e29e-473f-8956-1bb624a771b4';
-  duplicate_variant CONSTANT UUID := 'fce891ab-7041-4edb-92b6-b464ce6a5d64';
-  wall_rotation_variant CONSTANT UUID := 'adf40d54-16bb-454f-9b75-ceb557afd2ec';
-  full_body_variant CONSTANT UUID := 'c3eea4b0-3dfd-420c-b7ca-dcdf6a96b21c';
-  standing_variant CONSTANT UUID := 'e66a4cc2-c8ac-4242-9340-948fd0329394';
-  seated_variant CONSTANT UUID := 'd55e8b63-019a-448d-af26-9b8a5a21cd68';
-  active_variant_ids CONSTANT UUID[] := ARRAY[standing_variant,seated_variant];
-  all_owned_variant_ids CONSTANT UUID[] := ARRAY[
-    source_variant,duplicate_variant,standing_variant,seated_variant];
+  canonical_definition UUID;
+  duplicate_definition UUID;
+  wall_rotation_definition UUID;
+  full_body_definition UUID;
+  source_variant UUID;
+  duplicate_variant UUID;
+  wall_rotation_variant UUID;
+  full_body_variant UUID;
+  standing_variant UUID;
+  seated_variant UUID;
+  active_variant_ids UUID[];
+  all_owned_variant_ids UUID[];
   protected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO canonical_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=24;
+  SELECT id INTO duplicate_definition FROM coaching.exercise_definition_v1 WHERE legacy_exercise_id=897;
+  SELECT id INTO wall_rotation_definition FROM coaching.exercise_definition_v1 WHERE legacy_exercise_id=898;
+  SELECT definition_id INTO full_body_definition FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=23;
+  SELECT id INTO source_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='baseline';
+  SELECT id INTO duplicate_variant FROM coaching.exercise_variant_v1 WHERE definition_id=duplicate_definition AND variant_key='baseline';
+  SELECT id INTO wall_rotation_variant FROM coaching.exercise_variant_v1 WHERE definition_id=wall_rotation_definition AND variant_key='baseline';
+  SELECT id INTO full_body_variant FROM coaching.exercise_variant_v1 WHERE definition_id=full_body_definition AND variant_key='standing-independent-eight-region-sequence';
+  SELECT id INTO standing_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='standing-independent-complete-cervical-car';
+  standing_variant := coalesce(standing_variant,gen_random_uuid());
+  SELECT id INTO seated_variant FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_definition AND variant_key='seated-supported-complete-cervical-car';
+  seated_variant := coalesce(seated_variant,gen_random_uuid());
+  active_variant_ids := ARRAY[standing_variant,seated_variant];
+  all_owned_variant_ids := ARRAY[source_variant,duplicate_variant,standing_variant,seated_variant];
+
   IF NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=24 AND facility_id=1)
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=897 AND facility_id=1)
     OR NOT EXISTS(SELECT 1 FROM coaching.exercise WHERE id=898 AND facility_id=1)

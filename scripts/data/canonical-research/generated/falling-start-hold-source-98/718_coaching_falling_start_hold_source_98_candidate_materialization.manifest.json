@@ -1,0 +1,14 @@
+{
+  "migrationKey": "718_coaching_falling_start_hold_source_98_candidate_materialization",
+  "researchVersion": "2026-07-25.11",
+  "generatedAt": "2026-07-26T07:05:00.000Z",
+  "cards": [
+    {
+      "slug": "falling-start-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 3
+    }
+  ]
+}

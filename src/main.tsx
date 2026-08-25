@@ -25,6 +25,28 @@ const GymnasticsApp = lazyWithRetry(() => import('./apps/gymnastics/GymnasticsAp
 
 const appLoader = <div className="min-h-screen bg-black" aria-busy="true" />
 
+/**
+ * Production route snapshots contain a complete SEO head for non-JavaScript
+ * crawlers. This app mounts with createRoot rather than hydrateRoot; in React
+ * 19, document metadata is hoisted into <head>, so leaving the snapshot tags in
+ * place would create a second title/canonical/meta set after mount. Remove only
+ * the route-owned search/share tags immediately before React recreates them.
+ */
+const clearPrerenderedSeoHead = () => {
+  const selectors = [
+    'head > title',
+    'head > meta[name="description"]',
+    'head > meta[name="robots"]',
+    'head > meta[property^="og:"]',
+    'head > meta[name^="twitter:"]',
+    'head > link[rel="canonical"]',
+    'head > link[rel="preload"][as="image"]',
+  ]
+  document.querySelectorAll(selectors.join(',')).forEach((node) => node.remove())
+}
+
+clearPrerenderedSeoHead()
+
 initChunkLoadRecovery()
 clearChunkReloadFlag()
 

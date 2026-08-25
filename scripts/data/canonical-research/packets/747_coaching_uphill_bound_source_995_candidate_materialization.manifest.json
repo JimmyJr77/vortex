@@ -1,0 +1,14 @@
+{
+  "migrationKey": "747_coaching_uphill_bound_source_995_candidate_materialization",
+  "researchVersion": "2026-07-25.6",
+  "generatedAt": "2026-07-26T00:30:00.000Z",
+  "cards": [
+    {
+      "slug": "uphill-bound",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 2
+    }
+  ]
+}

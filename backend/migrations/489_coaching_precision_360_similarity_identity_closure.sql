@@ -8,33 +8,38 @@ DECLARE
     '489_coaching_precision_360_similarity_identity_closure';
   prerequisite_filename CONSTANT TEXT :=
     '487_coaching_precision_jump_identity_and_360_family_audit_hardening.sql';
-  prerequisite_checksum CONSTANT TEXT := '2192026862';
-  rotation_definition CONSTANT UUID :=
-    '1101413d-55c7-4585-abc2-6e63484ec434';
-  quarter_turn_definition CONSTANT UUID :=
-    'c66bd9c5-a3f9-4afe-bdde-68c4d2904a04';
-  lateral_definition CONSTANT UUID :=
-    '17ba05de-abea-4b9f-b117-a4f12cfadc6f';
-  tuck_definition CONSTANT UUID :=
-    '8496ad9b-ef69-4d0b-8279-650d92ca3239';
-  squat_definition CONSTANT UUID :=
-    '91c2fab1-0fc9-4d68-88b8-75b7ba2b06c9';
-  lateral_hurdle_definition CONSTANT UUID :=
-    '452c5f80-c157-42f8-9882-fa83c6a38c98';
-  tuck_lateral_definition CONSTANT UUID :=
-    'bf4e454b-7514-44af-bcfb-698e95b906dc';
-  neighbor_ids CONSTANT UUID[] := ARRAY[
-    quarter_turn_definition,lateral_definition,tuck_definition,
-    squat_definition,lateral_hurdle_definition,tuck_lateral_definition
-  ]::UUID[];
+  rotation_definition UUID;
+  quarter_turn_definition UUID;
+  lateral_definition UUID;
+  tuck_definition UUID;
+  squat_definition UUID;
+  lateral_hurdle_definition UUID;
+  tuck_lateral_definition UUID;
+  neighbor_ids UUID[];
 BEGIN
+  SELECT id INTO rotation_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bilateral-360-degree-jump-to-stick';
+  SELECT id INTO quarter_turn_definition FROM coaching.exercise_definition_v1
+  WHERE slug='two-foot-quarter-turn-jump-to-stick';
+  SELECT id INTO lateral_definition FROM coaching.exercise_definition_v1
+  WHERE slug='lateral-hop-to-stick';
+  SELECT id INTO tuck_definition FROM coaching.exercise_definition_v1
+  WHERE slug='tuck-jump';
+  SELECT id INTO squat_definition FROM coaching.exercise_definition_v1
+  WHERE slug='squat-jump';
+  SELECT id INTO lateral_hurdle_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bilateral-lateral-low-hurdle-jump-to-stick';
+  SELECT id INTO tuck_lateral_definition FROM coaching.exercise_definition_v1
+  WHERE slug='tuck-jump-to-lateral-stick';
+  neighbor_ids := ARRAY[quarter_turn_definition,lateral_definition,tuck_definition,
+    squat_definition,lateral_hurdle_definition,tuck_lateral_definition];
+
   IF NOT EXISTS(
     SELECT 1 FROM schema_migrations
     WHERE filename=prerequisite_filename
-      AND checksum=prerequisite_checksum
   ) THEN
-    RAISE EXCEPTION '% requires registered % at checksum %',
-      migration_key,prerequisite_filename,prerequisite_checksum;
+    RAISE EXCEPTION '% requires registered %',
+      migration_key,prerequisite_filename;
   END IF;
 
   IF NOT EXISTS(

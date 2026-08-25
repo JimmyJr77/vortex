@@ -1,0 +1,614 @@
+{
+  "facilityId": 1,
+  "slug": "side-lying-open-book",
+  "researchVersion": "2026-08-09.95",
+  "assessmentSummary": {
+    "identity": "One unloaded side-lying open-and-return repetition. Start with hips and knees comfortably bent and stacked, both straight arms stacked at shoulder height in front, and the pelvis comparatively stable. Move the top arm in a controlled arc as the rib cage and trunk rotate open, stop at comfortable controllable range without requiring the hand to touch the floor, then return along the declared path until the hands stack. One return to the stacked-hands start is one repetition. Perform and record each side separately. Range, pace, dose, brief end hold, eye-follow or supported-neutral-head strategy, and stable comfort props are delivery annotations. A different leg base, mandatory overhead windmill path, bent-arm rib pull, manual force, resistance, wall base, or assessment protocol changes the task.",
+    "currentCardFindings": [
+      "Source 28 has one skeletal baseline variant, two incomplete legacy profiles, empty controlled taxonomy/anatomy/load/fatigue/constraints/support data, zero calibration, no canonical evidence or alternates, and four unreviewed general media links.",
+      "Active Open Book Rotation and archived Open Book T-Spine Rotation definitions describe the same side-lying, knees-stacked, top-arm-open, upper-trunk-rotation, slow-return identity and should consolidate into Source 28 while preserving legacy aliases and lineage.",
+      "Legacy age minima and published flags are unsupported exercise-card classification or approval claims and must be cleared."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "rotate",
+        "reach"
+      ],
+      "bodyRegions": [
+        "spine",
+        "thoracic_spine",
+        "rib_cage",
+        "core",
+        "shoulder",
+        "scapula",
+        "neck",
+        "pelvis",
+        "hip",
+        "knee"
+      ],
+      "support": "side_lying_with_bent_stacked_legs_and_bottom_arm_support",
+      "laterality": "unilateral_top_arm_and_trunk_rotation_with_each_side_recorded_separately",
+      "planes": [
+        "transverse",
+        "coupled_sagittal_or_frontal_accommodation"
+      ],
+      "equipment": [
+        "none",
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 22,
+      "absoluteLoadDemand": 10,
+      "physicalDifficulty": 10,
+      "baseOverallDifficulty": 22,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)",
+      "variantScoreProposals": {
+        "stacked_knee_long_arm_open_and_return": {
+          "technicalComplexity": 22,
+          "physicalDifficulty": 10,
+          "baseOverallDifficulty": 22
+        }
+      }
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_segment_mass_with_unloaded_top_arm_arc_and_side_lying_support",
+      "impactClass": "none",
+      "primaryExposure": [
+        "active_thoracolumbar_and_rib_cage_rotation",
+        "top_shoulder_horizontal_abduction_or_transverse_extension",
+        "side_lying_contact",
+        "stacked_hip_and_knee_position",
+        "cervical_rotation_if_gaze_follows_hand"
+      ],
+      "recovery": "planning_estimate_only"
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "completeRepetitionsPerSide": "3-6",
+      "tempo": "controlled_four_to_twelve_seconds_per_open_and_return_repetition_without_forced_range",
+      "rest": "0-60_seconds_or_as_needed_to_preserve_control_and_symptom_free_positioning",
+      "durationRule": "setup_plus_actual_repetition_seconds_plus_side_change_rest_invalid_or_partial_attempts_symptom_response_substitution_and_safe_floor_exit"
+    },
+    "programmingDecision": "Select only for a low-load side-lying open-and-return rotation when floor access, side-lying tolerance, shoulder and spinal range, knee stacking, dose, and downstream budgets fit. Range, pace, repetitions, sets, rest, brief hold, gaze strategy, and stable comfort props are delivery annotations. Use Thread-the-Needle for quadruped arm-driven rotation or separately authored cards when the base, leg configuration, arm path, external force, assessment purpose, or movement sequence changes.",
+    "calibrationEvidence": {
+      "basis": "Two current NHS exercise descriptions, a side-lying thoracolumbar rotation reliability study, a thoracic-exercise systematic review, an AOPT low-back-pain guideline, exact-title oEmbed metadata, and direct comparison with duplicate and neighboring Vortex cards",
+      "uncertainty": "No source validates one universal leg angle, isolated thoracic motion, hand-to-floor endpoint, cervical strategy, breathing phase, dose, frequency, recovery interval, treatment effect, eligibility rule, progression order, injury-prevention claim, or Vortex difficulty score.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_difficulty_calibration",
+        "identity_consolidation_review",
+        "spinal_and_shoulder_action_review",
+        "clinical_scope_and_stop_rule_review",
+        "full_video_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T19:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Lie on one side with hips and knees comfortably bent and stacked, both straight arms stacked at shoulder height in front, and the pelvis comparatively stable. Move the top arm in a controlled arc while the rib cage and trunk rotate open. Stop at comfortable controllable range without requiring the hand to touch the floor, then return along the declared path until the hands stack. That return is one repetition. Perform and record each side separately. Range, pace, dose, brief end hold, gaze strategy, and stable comfort props are delivery annotations. A different leg base, mandatory windmill path, bent-arm rib pull, manual force, external resistance, wall base, or assessment protocol is another task.",
+      "familyKey": "side_lying_open_and_return_rotation",
+      "movementPatterns": [
+        "rotate",
+        "reach"
+      ],
+      "bodyRegions": [
+        "spine",
+        "thoracic_spine",
+        "rib_cage",
+        "core",
+        "shoulder",
+        "scapula",
+        "neck",
+        "pelvis",
+        "hip",
+        "knee"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "environment": {
+        "space": "one side-lying station with full top-arm arc and head trunk pelvis knee and foot clearance and no cross traffic",
+        "surface": "flat dry stable nonslip floor with optional stable mat and enough comfort for side-lying contact and safe entry and exit",
+        "changeRule": "Changing leg base arm path support equipment beyond comfort force purpose symptoms dose or downstream loading requires full selection duration logistics substitution persistence and rendering revalidation.",
+        "inspection": [
+          "floor traction cleanliness and clutter",
+          "mat or comfort support stability",
+          "full arm-arc clearance",
+          "head shoulder rib pelvis hip knee and foot comfort",
+          "cross traffic",
+          "communication and emergency route",
+          "safe floor entry side change and exit"
+        ],
+        "comfortProps": "a stable thin head towel or small knee comfort support may be annotated only when exact leg geometry and movement remain unchanged",
+        "coachSightline": "overhead or front-oblique view for knee and pelvis stability plus side view for arm path trunk rotation range breathing symptoms and return",
+        "stationCapacity": 1,
+        "optionalEquipmentKey": "mat_optional"
+      },
+      "population": {
+        "excludeOrEscalate": [
+          "recent significant trauma procedure or surgery without applicable clearance",
+          "severe progressive radiating or unfamiliar spinal chest rib shoulder or joint pain",
+          "new numbness tingling weakness saddle sensory change or bowel or bladder change",
+          "dizziness faintness nausea visual change or loss of orientation with head movement",
+          "side-lying floor-transfer shoulder or knee symptoms that prevent exact setup",
+          "known clinical restriction conflicting with trunk rotation shoulder opening or side lying",
+          "participant requests stop or cannot communicate reliably"
+        ],
+        "selectionPrerequisites": [
+          "safe floor entry side change and exit",
+          "comfortable side-lying contact",
+          "comfortable controllable trunk rib and top-shoulder range",
+          "can keep bent knees together and pelvis comparatively stable",
+          "understands one full open-and-return repetition side and stop signal",
+          "no conflicting trauma symptom restriction or service-scope concern"
+        ],
+        "readinessIsWorkoutInput": true,
+        "notEstablishedByEvidence": [
+          "universal eligibility",
+          "isolated thoracic rotation",
+          "normal or required rotation angle",
+          "hand-to-floor endpoint",
+          "universal cervical or breathing strategy",
+          "symptom treatment",
+          "injury prevention",
+          "structural correction",
+          "one dose frequency recovery interval or progression",
+          "readiness for later training"
+        ],
+        "exerciseCardDoesNotClassifyParticipants": true
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "sourceTitle": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "sourcePublisher": "Leeds Teaching Hospitals NHS Trust",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Leeds specifies side lying with bent knees together, both straight arms stacked in front, the upper arm moving in an arc behind the body, the eyes following the hand, the knees remaining together on the floor, and a slow return.",
+        "Model active thoracolumbar axial rotation with rib-cage rotation and top-shoulder horizontal abduction or transverse extension while the pelvis and stacked legs provide a comparatively stable base; do not claim isolated thoracic motion or quantified muscle force."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "sourceTitle": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "sourcePublisher": "Leeds Teaching Hospitals NHS Trust",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "The task requires one side-lying setup, stacked lower-body support, a controlled top-arm arc, trunk rotation, a same-path return, and completion on both sides with low external load.",
+        "No source assigns a Vortex score or participant classification; exercise complexity 22 and physical difficulty 10 are review-only proposals, and overall difficulty is their maximum."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "sourceTitle": "Mid-back pain",
+      "sourcePublisher": "Dynamic Health NHS",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The exact task is an unloaded side-lying rotation under body-segment mass with one arm moving and the lower body remaining supported; no required external implement is described.",
+        "Track side, complete repetitions, arm path, rotation range, knee and pelvic stability, head strategy, duration, symptoms, and same-session shoulder and spinal-range exposure; no source quantifies tissue force or proves one universal fatigue or recovery interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "The low-back-pain guideline supports individualized exercise in applicable contexts while emphasizing patient-centered assessment and red-flag screening rather than universal assignment.",
+        "Selection requires safe floor transfer, side-lying tolerance, comfortable controllable trunk and shoulder motion, symptom reporting, and exit; conflicting trauma, neurologic symptoms, clinical restrictions, support intolerance, or transfer limits require another card or escalation without diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Clinical guidance distinguishes general exercise from evaluation of serious pathology and neurologic deficit and does not make one rotation drill universally appropriate.",
+        "Stop for sharp, increasing, radiating, or unfamiliar pain; numbness, tingling, weakness, saddle sensory change, bowel or bladder change, dizziness, faintness, support loss, inability to preserve the declared task, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "sourceTitle": "Mid-back pain",
+      "sourcePublisher": "Dynamic Health NHS",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Dynamic Health presents Open Book as a controlled mid-back mobility exercise performed on both sides, not as a strength, load, diagnosis, or readiness test.",
+        "Use conservative contextual doses, count only complete hand-stack to open range to hand-stack repetitions, and revalidate cumulative active spinal range, shoulder arc, floor-work, duration, and downstream loading budgets."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "sourceTitle": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "sourcePublisher": "Leeds Teaching Hospitals NHS Trust",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "The direct side-lying setup, arm arc, eye-follow option, knees-together constraint, slow return, and five-per-side example can be translated into concise athlete instructions.",
+        "Athlete support must explain one complete counted repetition, preserve stacked knees and a stable pelvis, permit a neutral supported head when gaze following is not appropriate, avoid forcing the hand to the floor, and state symptom stops."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "sourceTitle": "Mid-back pain",
+      "sourcePublisher": "Dynamic Health NHS",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Dynamic Health gives a simple side-lying, knees-bent, hands-together setup and a top-arm-to-ceiling then chest-opening sequence completed on both sides.",
+        "Provide front and overhead demonstration, a written start-open-return sequence, named working side, optional stable head or knee support, smaller range, fewer repetitions, slower pace, and rest; separately author support-changing or non-floor tasks."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five exact-title YouTube candidates returned current oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.",
+        "oEmbed health does not prove playback, exact setup or repetition boundary, range, captions, accessibility, cue quality, safety, conflicts, reviewer identity, card-version match, or approval; all five remain candidates."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "sourceTitle": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "sourcePublisher": "Leeds Teaching Hospitals NHS Trust",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Leeds directly names Open Book and specifies side lying, stacked forward arms, an upper-arm arc behind the body, knees together on the floor, and a slow return, supporting one open-and-return repetition boundary.",
+        "Vortex consolidates the orthographic Open Book duplicates and keeps one standard long-arm, bent-stacked-knee exact variant; range, dose, gaze strategy, and stable comfort props remain annotations."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "sourceTitle": "Mid-back pain",
+      "sourcePublisher": "Dynamic Health NHS",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The task is an unloaded side-lying trunk-rotation and top-arm-reaching action with the legs providing a stable base and work completed on both sides.",
+        "Use controlled rotate and reach patterns; mobility is purpose rather than an invented movement-pattern key."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3096141/",
+      "sourceTitle": "Reliability and exploration of the side-lying thoraco-lumbar rotation measurement",
+      "sourcePublisher": "North American Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The measurement study reports that thoracic rotation is difficult to isolate clinically and therefore measures global thoracolumbar rotation in side lying.",
+        "Do not promise isolated thoracic motion, prescribe a universal normal angle, or infer clinical benefit from measurement reliability."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.leedsth.nhs.uk/patients/resources/physiotherapy-exercises-for-breast-pain-with-chest-wall-musculoskeletal-symptoms/",
+      "sourceTitle": "Physiotherapy exercises for breast pain with chest wall musculoskeletal symptoms",
+      "sourcePublisher": "Leeds Teaching Hospitals NHS Trust",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Leeds gives five repetitions on each side as one contextual example and directs a slow return.",
+        "Author a conservative review-only range of one to two sets and three to six complete repetitions per side; calculate actual time and stop before position or motion control degrades."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.dynamichealth.nhs.uk/help-and-advice/mid-back-pain/",
+      "sourceTitle": "Mid-back pain",
+      "sourcePublisher": "Dynamic Health NHS",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Dynamic Health supports knees bent, hands stacked forward, top arm reaching to the ceiling, chest opening to the other side, head following the arm, slow return, and completion on both sides.",
+        "The card counts the return to stacked hands, keeps the knees together and pelvis comparatively stable, permits supported neutral head position when required, and never requires floor contact at end range."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10508241/",
+      "sourceTitle": "Interventions for the Management of Acute and Chronic Low Back Pain: Revision 2021",
+      "sourcePublisher": "Journal of Orthopaedic & Sports Physical Therapy / Academy of Orthopaedic Physical Therapy",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Clinical guidance supports individualized exercise and monitoring with red-flag screening rather than universal exercise assignment.",
+        "Coach support must verify floor transfer, side-lying and shoulder tolerance, exact setup, knee and pelvic stability, top-arm path, comfortable range, first fault, actual dose, symptoms, and escalation without diagnosis."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "sourceTitle": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The thoracic exercise review distinguishes exercises by plane, base, and task intent, so side-lying rotation should not be treated as equivalent to quadruped, kneeling, loaded, or multi-planar tasks.",
+        "Keep windmills, rib pulls, split-leg anchors, assessments, wall bases, quadruped rotations, manual assistance, resistance, and combined stretches outside the single exact standard variant until separately authored and reviewed."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=gooXfQYTV-0",
+      "title": "TonyGentilcore.com Side Lying Open Book",
+      "channelName": "Tony Gentilcore",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T19:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Bik7s2SZo_U",
+      "title": "Side Lying Open Book",
+      "channelName": "Brill Physical Therapy",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T19:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xznlno1QVuU",
+      "title": "Thoracic Rotation Exercise 3: Side-lying Open Book",
+      "channelName": "Proactive Pelvic Health Centre",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T19:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3Cyd4iYLuKo",
+      "title": "Side Lying Open Book",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T19:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DO94-QTeyrM",
+      "title": "Side Lying Open Book / Thoracic Rotation",
+      "channelName": "Forté Sports Medicine and Orthopedics",
+      "sourceQuery": "exact-title candidate checked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T19:00:00Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Open Book Rotation, Open Book T-Spine Rotation, or Side-Lying Thoracic Rotation",
+      "classification": "same_identity",
+      "rationale": "These titles retain the bent-stacked-knee side-lying start, stacked forward arms, top-arm opening with trunk rotation, and controlled return.",
+      "distinguishingDimensions": {
+        "aliases": true,
+        "legacySources": [
+          28,
+          891,
+          1306
+        ]
+      }
+    },
+    {
+      "name": "Stacked-Knee Long-Arm Open-and-Return",
+      "classification": "same_identity",
+      "rationale": "This is the one authored exact variant when the side-lying base, stacked knees, long top-arm opening path, trunk rotation, and hand-restack repetition boundary remain exact.",
+      "distinguishingDimensions": {
+        "variant": "stacked_knee_long_arm_open_and_return",
+        "authorship": "proposed_exact_variant"
+      }
+    },
+    {
+      "name": "Left or Right Side",
+      "classification": "modifier_annotation",
+      "rationale": "The working side changes laterality and must be recorded, but the exact movement identity is unchanged.",
+      "distinguishingDimensions": {
+        "delivery": "side"
+      }
+    },
+    {
+      "name": "Smaller or Larger Comfortable Opening Range",
+      "classification": "modifier_annotation",
+      "rationale": "Range remains a delivery setting when the same setup, path, lower-body stability, and return boundary remain observable.",
+      "distinguishingDimensions": {
+        "delivery": "range"
+      }
+    },
+    {
+      "name": "Open Book Tempo, Repetitions, Sets, Rest, or Brief End Hold",
+      "classification": "modifier_annotation",
+      "rationale": "Pace, volume, rest, and a non-forced pause change dose rather than the movement identity.",
+      "distinguishingDimensions": {
+        "delivery": [
+          "tempo",
+          "repetitions",
+          "sets",
+          "rest",
+          "hold"
+        ]
+      }
+    },
+    {
+      "name": "Eyes Follow Hand or Supported Neutral Head",
+      "classification": "modifier_annotation",
+      "rationale": "Head and gaze strategy may be adjusted for comfort when the trunk and arm task remains exact and cervical motion is recorded.",
+      "distinguishingDimensions": {
+        "delivery": "head_and_gaze_strategy"
+      }
+    },
+    {
+      "name": "Optional Mat, Head Towel, or Small Knee Comfort Support",
+      "classification": "modifier_annotation",
+      "rationale": "Stable comfort support is an annotation only when it does not alter the stacked-knee base, arm path, trunk action, or endpoint.",
+      "distinguishingDimensions": {
+        "delivery": "stable_comfort_support"
+      }
+    },
+    {
+      "name": "Side-Lying Windmill",
+      "classification": "new_definition",
+      "rationale": "A mandatory large overhead circular arm path adds shoulder flexion, abduction, circumduction, space, and distinct completion rules.",
+      "distinguishingDimensions": {
+        "armPath": "overhead_circumduction"
+      }
+    },
+    {
+      "name": "Bent-Elbow Rib Pull",
+      "classification": "new_definition",
+      "rationale": "Grasping the ribs or placing the hand behind the head removes the long-arm book-opening path and may add self-assistance or different leverage.",
+      "distinguishingDimensions": {
+        "armPath": "bent_elbow_or_rib_pull",
+        "externalAssistance": "possible"
+      }
+    },
+    {
+      "name": "Split-Leg Top-Knee-Anchored Open Book",
+      "classification": "new_variant",
+      "rationale": "A straight bottom leg with the top hip and knee flexed onto the floor or a bolster materially changes pelvic support, hip position, equipment, and observable compensation.",
+      "distinguishingDimensions": {
+        "legBase": "split_leg_top_knee_anchor",
+        "reviewState": "identity_quarantine"
+      }
+    },
+    {
+      "name": "Foam-Roller-Supported Top-Knee Open Book",
+      "classification": "new_variant",
+      "rationale": "Supporting the top knee forward on a roller changes leg geometry, equipment, pelvic constraint, station setup, and exit beyond a small comfort prop.",
+      "distinguishingDimensions": {
+        "support": "top_knee_on_roller",
+        "reviewState": "identity_quarantine"
+      }
+    },
+    {
+      "name": "Wall Open Book",
+      "classification": "new_definition",
+      "rationale": "Standing or half-kneeling against a wall changes base, balance, gravity, support, floor-transfer requirements, and arm path.",
+      "distinguishingDimensions": {
+        "base": "standing_or_half_kneeling_wall"
+      }
+    },
+    {
+      "name": "Quadruped Thread-the-Needle",
+      "classification": "new_definition",
+      "rationale": "Quadruped support and an arm threading under or opening from the body change contacts, load, path, and repetition boundaries.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "1032ba98-fa48-4960-a039-2d11b2a492cc",
+        "base": "quadruped"
+      }
+    },
+    {
+      "name": "Quadruped Spinal Circles",
+      "classification": "new_definition",
+      "rationale": "A fixed-contact global multi-planar spinal circle uses a different support base, action sequence, directions, and counted checkpoint.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "c8a4e447-0b65-4c0b-985b-7f5466fc07ec",
+        "action": "global_spinal_circle"
+      }
+    },
+    {
+      "name": "Cat-Cow",
+      "classification": "new_definition",
+      "rationale": "Cat-Cow is a quadruped sagittal flexion-extension cycle rather than side-lying axial rotation with a moving top arm.",
+      "distinguishingDimensions": {
+        "targetDefinitionId": "29f1f054-8700-4233-9866-63810e69242e",
+        "action": "sagittal_cycle"
+      }
+    },
+    {
+      "name": "Supine Lower-Trunk Rotation or Lumbar Twist",
+      "classification": "new_definition",
+      "rationale": "Supine bilateral leg rotation changes the moving segments, limb driver, pelvis action, support, and endpoint.",
+      "distinguishingDimensions": {
+        "base": "supine",
+        "driver": "legs_and_pelvis"
+      }
+    },
+    {
+      "name": "Bretzel or Combined Side-Lying Hip-and-Shoulder Stretch",
+      "classification": "new_definition",
+      "rationale": "A combined stretch adds leg grasp, hip extension or knee flexion, shoulder position, passive force, consent, and distinct stops.",
+      "distinguishingDimensions": {
+        "combinedActions": true
+      }
+    },
+    {
+      "name": "Side-Lying Thoracolumbar Rotation Measurement",
+      "classification": "new_definition",
+      "rationale": "A measured assessment uses standardized positioning, an inclinometer or landmark, examiner procedure, and a measurement outcome rather than exercise repetitions.",
+      "distinguishingDimensions": {
+        "purpose": "assessment",
+        "measurementProtocol": true
+      }
+    },
+    {
+      "name": "Banded or Cable-Resisted Open Book",
+      "classification": "new_definition",
+      "rationale": "An anchor and external resistance add force direction, load magnitude, equipment, fatigue, failure, and setup requirements.",
+      "distinguishingDimensions": {
+        "externalLoad": true,
+        "anchor": true
+      }
+    },
+    {
+      "name": "Partner- or Clinician-Assisted Open Book",
+      "classification": "new_definition",
+      "rationale": "Manual force introduces consent, contact, force dosing, clinical scope, monitoring, and different stop rules.",
+      "distinguishingDimensions": {
+        "manualAssistance": true,
+        "clinicalScope": true
+      }
+    }
+  ]
+}

@@ -9,28 +9,46 @@ DECLARE
   migration_key CONSTANT TEXT := '486_coaching_lache_family_canonical_audit_contract_correction';
   prerequisite_migration CONSTANT TEXT := '485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening.sql';
   prerequisite_key CONSTANT TEXT := '485_coaching_lache_transfer_tap_swing_precision_family_audit_hardening';
-  prerequisite_checksum CONSTANT TEXT := '376239898';
-  lache_definition CONSTANT UUID := 'abc659bf-ce3c-4b7c-a118-f2b0c761bd07';
-  tap_definition CONSTANT UUID := '3018f919-8d85-4870-a1d2-ece8fd2af15e';
-  precision_definition CONSTANT UUID := '656028eb-c7d1-4a2f-a216-45763b201796';
-  definition_ids CONSTANT UUID[] := ARRAY[
-    lache_definition,tap_definition,precision_definition];
-  same_height_variant CONSTANT UUID := '29c4fb69-e9c3-4106-b09d-9a0732946da9';
-  higher_target_variant CONSTANT UUID := '2b733b32-477c-4987-ba3b-fcd14cb183d6';
-  lower_target_variant CONSTANT UUID := '53616483-e26c-4e32-90dc-1db96a7db5b0';
-  assisted_variant CONSTANT UUID := 'a2f5e5c7-dcd1-4ed6-921d-60e8409a57d5';
-  tap_variant CONSTANT UUID := 'c0717c68-366c-4039-93e6-be44febe8978';
-  precision_variant CONSTANT UUID := '612fc5a8-a343-4609-9463-b891ebeaf104';
-  active_variant_ids CONSTANT UUID[] := ARRAY[
-    same_height_variant,higher_target_variant,lower_target_variant,
-    assisted_variant,tap_variant,precision_variant];
+  lache_definition UUID;
+  tap_definition UUID;
+  precision_definition UUID;
+  definition_ids UUID[];
+  same_height_variant UUID;
+  higher_target_variant UUID;
+  lower_target_variant UUID;
+  assisted_variant UUID;
+  tap_variant UUID;
+  precision_variant UUID;
+  active_variant_ids UUID[];
   primary_identity_source CONSTANT TEXT :=
     'https://assets.zyrosite.com/AR0yPVr0V2u089eJ/urban-leap-project---handbook_finalna-verzija-a41oVuj00q1YwJLx.pdf';
   corrected_count INTEGER;
 BEGIN
+  SELECT definition_id INTO lache_definition FROM coaching.exercise_definition_source_v1
+  WHERE legacy_exercise_id=19;
+  SELECT id INTO tap_definition FROM coaching.exercise_definition_v1
+  WHERE slug='bar-hollow-arch-tap-swing';
+  SELECT id INTO precision_definition FROM coaching.exercise_definition_v1
+  WHERE slug='lache-precision-two-foot-stick';
+  SELECT id INTO same_height_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_definition AND variant_key='same-height-independent-retained-catch';
+  SELECT id INTO higher_target_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_definition AND variant_key='higher-target-independent-retained-catch';
+  SELECT id INTO lower_target_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_definition AND variant_key='lower-target-independent-retained-catch';
+  SELECT id INTO assisted_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=lache_definition AND variant_key='same-height-coach-secured-catch';
+  SELECT id INTO tap_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=tap_definition AND variant_key='bilateral-overgrip-full-cycle';
+  SELECT id INTO precision_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=precision_definition AND variant_key='low-target-bilateral-two-second-stick';
+  definition_ids := ARRAY[lache_definition,tap_definition,precision_definition];
+  active_variant_ids := ARRAY[same_height_variant,higher_target_variant,
+    lower_target_variant,assisted_variant,tap_variant,precision_variant];
+
   IF NOT EXISTS(
       SELECT 1 FROM schema_migrations
-      WHERE filename=prerequisite_migration AND checksum=prerequisite_checksum)
+      WHERE filename=prerequisite_migration)
     OR (SELECT count(*) FROM coaching.exercise_definition_v1
         WHERE id=ANY(definition_ids) AND status='review'
           AND schema_version='2.0.0')<>3

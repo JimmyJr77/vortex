@@ -1,0 +1,14 @@
+{
+  "migrationKey": "712_coaching_ankle_pogo_source_48_candidate_materialization",
+  "researchVersion": "2026-07-25.7",
+  "generatedAt": "2026-07-26T02:10:00.000Z",
+  "cards": [
+    {
+      "slug": "ankle-pogo-in-place",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 4
+    }
+  ]
+}

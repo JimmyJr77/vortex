@@ -111,6 +111,8 @@ import {
 import { buildPhasePlan } from './phaseArchitect.js'
 import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 import { registerGameRoutes } from './coachGameRoutes.js'
+import { registerFlipFitScheduleRoutes } from './flipFitScheduleRoutes.js'
+import { registerFlipFitCardRoutes } from './flipFitCardRoutes.js'
 import { GYMNASTICS_EVALUATION_DEFINITION, buildGymnasticsFocusReport } from './gymnasticsEvaluationDefinition.js'
 import {
   CanonicalGenerationError,
@@ -360,6 +362,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   registerProgrammingRoutes(app, pool, { can, canMutateRow, ok, bad })
   registerGameRoutes(app, pool, { can, canMutateRow, ok, bad })
+  registerFlipFitScheduleRoutes(app, pool, { can, ok, bad })
+  registerFlipFitCardRoutes(app, pool, { can, ok, bad })
 
   // ==========================================================
   // TAXONOMY

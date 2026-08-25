@@ -5,6 +5,8 @@ declare global {
   interface Window {
     dataLayer?: unknown[]
     gtag?: (...args: unknown[]) => void
+    loadVortexAnalytics?: () => void
+    __vortexAnalyticsLoaded?: boolean
   }
 }
 
@@ -34,6 +36,9 @@ export const updateGoogleConsent = (analytics: boolean, marketing: boolean) => {
     ad_user_data: marketing ? 'granted' : 'denied',
     ad_personalization: marketing ? 'granted' : 'denied',
   })
+  if (analytics || marketing) {
+    window.loadVortexAnalytics?.()
+  }
 }
 
 /** Preserve client id when visitors move between Vortex domains (hub, gymnastics, stubs). */

@@ -1,0 +1,111 @@
+{
+  "migrationKey": "742_coaching_medicine_ball_overhead_slam_source_152_candidate_materialization",
+  "researchVersion": "2026-08-10.122",
+  "batchFile": "../batches/ball-slam-foundations.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 152,
+        "slug": "medicine-ball-overhead-slam",
+        "canonicalName": "Medicine Ball Overhead Slam",
+        "displayName": "Medicine Ball Overhead Slam",
+        "aliases": ["Overhead Medicine Ball Slam", "Med Ball Slam", "Standing Overhead Slam", "Slam Ball Overhead Slam"],
+        "description": "From a bilateral standing base over a marked, clear floor target, hold an intact impact-rated medicine ball or slam ball with both hands, load through the hips and legs, extend to take the ball overhead, brace, and release it straight down into the target. Complete the declared dead-ball retrieval or controlled catch before resetting. One repetition is not a scoop slam, a rotational side slam, a throw to a wall or partner, a rebound-to-catch task, or a tall-kneeling slam.",
+        "familyKey": "standing_overhead_to_floor_ball_slam",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 2,
+        "status": "review",
+        "identityContract": "bilateral_standing_hip_and_leg_load_to_overhead_straight_vertical_floor_release_with_declared_dead_ball_retrieval_or_controlled_catch_reset",
+        "confidence": {"content": 80, "scoring": 60, "media": 50},
+        "movementPatterns": ["hinge", "throw", "vertical_projection"],
+        "bodyRegions": ["foot", "ankle", "knee", "hip", "pelvis", "core", "spine", "scapula", "shoulder", "elbow", "wrist", "hand"],
+        "requiredEquipment": ["medicine_ball", "floor_marks"],
+        "optionalEquipment": ["slam_ball", "video_capture", "orientation_target"],
+        "environment": {
+          "surface": "dry stable non-slip impact-suitable floor with an overhead-clear and clearly marked release, rebound, and retrieval zone",
+          "space": "one athlete at a time in a protected floor-impact and retrieval zone with no bystanders or cross traffic",
+          "stationCapacity": 1,
+          "inspection": ["verify the ball is intact and appropriate for repeated floor impact", "verify floor target, floor surface, overhead clearance, and retrieval path", "keep other people out of the impact and rebound zone", "confirm grip, footwear, communication, and controlled stop path"],
+          "changeRule": "Changing support position, ball construction or mass, start, target, force vector, release, rebound or catch rule, cadence, dose, or purpose requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": ["safe bilateral standing base, grip, hinge, overhead path, and clear floor-impact/retrieval zone", "can follow the declared dead-ball retrieval or controlled catch rule", "current shoulder, trunk, grip, ballistic-throw, and session-fatigue budgets fit", "understands the target, reset, and stop signal"],
+          "excludeOrEscalate": ["symptom, restriction, unsafe equipment, floor, overhead, rebound, retrieval, spacing, or communication conflict", "pain, loss of grip, dizziness, neurologic, circulation, breathing, chest, balance, or communication concern", "participant requests stop"],
+          "notEstablishedByEvidence": ["universal ball mass, recovery dose, readiness threshold, speed target, performance outcome, or clinical clearance"]
+        },
+        "provenance": {
+          "legacySources": [152, 1161, 1167],
+          "identityAuthority": "Source 152 plus ball-slam-foundations-v1 packet. Sources 1161 and 1167 remain separately archived duplicate lineage; implement construction and split stance are controlled variants, while kneeling and rotational slams are distinct definitions.",
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true,
+          "externalPlaybackVerificationPerformed": false
+        },
+        "anatomy": {
+          "primaryMuscles": ["gluteus_maximus", "quadriceps", "hamstrings", "latissimus_dorsi", "rectus_abdominis", "serratus_anterior"],
+          "secondaryMuscles": ["plantar_flexors", "obliques", "spinal_stabilizers", "deltoids", "triceps_brachii", "rotator_cuff", "forearm_flexors"],
+          "joints": ["foot", "ankle", "knee", "hip", "pelvis", "thoracolumbar_spine", "scapulothoracic_articulation", "shoulder", "elbow", "wrist", "hand"],
+          "jointActions": ["ankle_knee_hip_extension", "hip_hinge", "shoulder_flexion", "scapular_upward_rotation", "trunk_bracing", "shoulder_extension_to_ball_release", "bilateral_grip_control"],
+          "planes": ["sagittal_primary", "frontal_and_transverse_stabilization"],
+          "laterality": "bilateral symmetric standing stance and two-hand ball handling",
+          "claimsBoundary": "Task mechanics and likely loading sites only; no diagnosis, treatment, injury-prevention, isolated activation, or guaranteed performance claim."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate standing overhead-to-floor ballistic throw exposure when the exact ball, target, retrieval, timing, and session budgets fit.",
+          "primaryCue": "Load through the hips, get tall with the ball, brace, then throw straight through the floor target and reset safely.",
+          "secondaryCues": ["use a ball that stays fast and controllable", "keep the target directly below the release path", "catch only when that rule is assigned", "end the set before it becomes a slow arm-only effort"],
+          "expectedSensations": ["whole-body leg, trunk, shoulder, and grip effort", "brief high-intent ballistic effort followed by a deliberate reset"],
+          "unexpectedSensations": ["back, shoulder, elbow, wrist, hand, knee, or foot pain", "loss of grip, unsafe rebound, dizziness, or loss of balance"],
+          "selfChecks": ["ball is intact and the zone is clear", "release remains straight into the marked target", "trunk stays organized without a backward lean or uncontrolled fold", "the assigned catch or retrieval is controlled"],
+          "accessibility": {"captionsRequired": true, "transcriptRequired": true, "stillSequenceRequired": true, "audioDescriptionRequired": true}
+        },
+        "coachSupport": {
+          "observationChecklist": ["exact standing bilateral overhead-to-floor identity, not scoop, rotation, wall throw, kneeling, or reactive rebound catch", "ball construction/mass, floor target, ceiling, spacing, rebound and retrieval route", "hip and leg load, overhead path, trunk organization, target accuracy, grip, catch/retrieval, speed loss, symptoms, and first quality loss"],
+          "faultCorrections": {"arm_only_or_slow_slam": "reduce ball mass or repetitions, restore hip-and-leg load and overhead path, then end the set if speed does not return", "backward_lean_or_lumbar_dominance": "reduce load and range of counter-movement, restore rib-pelvis organization, or stop", "target_drift_or_unsafe_rebound": "reset the marked zone and dead-ball retrieval rule; do not count or continue uncontrolled releases"},
+          "doNotUseWhen": ["a rotational, scoop-start, tall-kneeling, wall/partner throw, or rebound-catch objective is intended", "the ball, floor, overhead clearance, target, rebound/retrieval path, or communication is unsafe", "the exact task conflicts with symptoms, restrictions, or current ballistic-throw/fatigue budget"]
+        },
+        "supportOperations": {
+          "issueCategories": ["ball_or_floor_safety", "overhead_or_trunk_position", "target_rebound_or_retrieval", "dose_speed_or_fatigue", "substitution"],
+          "supportEscalation": "Stop unresolved equipment, target, rebound, symptom, or quality concerns and follow facility escalation policy.",
+          "changeImpactPolicy": "Any change to ball, mass, support, target, release, rebound/catch, cadence, dose, or substitution reruns selection, logistics, duration, fatigue, substitutions, and validation."
+        }
+      },
+      "sourceVariant": {
+        "lookupKey": "baseline",
+        "archiveKey": "superseded-source-152-skeleton",
+        "displayName": "Medicine Ball Overhead Slam Legacy Skeleton — Source 152",
+        "archiveReason": "Source 152 lacks declared ball construction/mass, standing base, target/floor interface, release route, rebound or retrieval rule, load/fatigue, exact dose, alternate boundaries, and review contract."
+      },
+      "snapshot": {
+        "capturedAt": "2026-08-10T00:00:00.000Z",
+        "cardVersion": 1,
+        "status": "review",
+        "description": "Output-phase explosiveness drill for rapid overhead-to-floor power and trunk stiffness.",
+        "familyKey": "Medicine Ball / Total-Body Power"
+      },
+      "variants": [
+        {
+          "id": "152eafbc-e7e4-4c7e-bf13-1c2fc5001521",
+          "key": "standing-bilateral-overhead-to-floor-slam",
+          "displayName": "Standing Bilateral Overhead-to-Floor Slam",
+          "modifierKeys": ["standing", "bilateral", "overhead_start", "vertical_floor_release", "declared_retrieval_or_catch"],
+          "difficulty": {"technicalComplexity": 44, "absoluteLoadDemand": 32, "physicalDifficulty": 32, "coordinationDemand": 48, "supervisionDemand": 52, "failureConsequence": 50, "impact": 22, "workCapacityDemand": 45, "baseOverallDifficulty": 44},
+          "requirements": {"equipment": ["medicine_ball", "floor_marks"], "laterality": "bilateral_symmetric", "support": "standing_bilateral_base", "start": "two_hand_ball_from_standing_to_overhead", "forceVector": "straight_vertical_overhead_to_marked_floor_target", "reboundRule": "declare_dead_ball_retrieval_or_controlled_catch_before_each_set", "finish": "controlled_retrieval_or_catch_then_full_reset", "surface": "dry_stable_non_slip_impact_suitable_floor"},
+          "loadProfile": {"externalLoadMethod": "impact_rated_medicine_or_slam_ball_with_mass_selected_for_fast_overhead_redirection", "impactClass": "low_body_impact_with_ball_floor_impact_and_optional_controlled_rebound_catch", "gripDemand": 28, "spinalLoading": 30, "eccentricStress": 24, "landingContactsPerRep": 0, "contactExposureModel": {"per_set_range": "record slams, ball mass, ball construction, catches/retrievals, target accuracy, and other ballistic throwing work"}, "primaryExposure": ["hip_leg_extension", "trunk_bracing_and_hinge", "overhead_shoulder_path", "grip", "ball_floor_impact", "optional_rebound_catch"]},
+          "fatigueProfile": {"localMuscleFatigue": 38, "gripFatigue": 24, "technicalFatigueSensitivity": 46, "impactAccumulation": 22, "recoveryHours": 24, "recoveryHoursPlanningEstimate": 24, "cumulativeBudget": {"high_intent_ball_slams": 20, "overhead_ballistic_throws": 24, "ball_floor_impacts": 20, "grip_and_overhead_exposure": 24}, "tracking": ["sets", "slams", "ballMass", "ballConstruction", "reboundRule", "targetAccuracy", "speedOrTime", "qualityLoss", "symptoms", "otherBallisticThrowing"]},
+          "programmingProfile": {"selectionStatus": "candidate_exact_variant_required", "exerciseScoresDescribeTaskOnly": true, "trainingStimuli": ["standing_overhead_to_floor_ballistic_output", "whole_body_extension_and_redirection", "trunk_and_grip_control"], "stimulusDose": "low_rep_high_intent_slams_with_full_reset", "pairingCompatibility": "May precede noncompeting strength, sprint, sport-skill, or conditioning work only after equipment, space, recovery, and cumulative ballistic exposure validate.", "interferenceRules": "Do not stack with exhaustive overhead, trunk, grip, or ballistic throwing work when target accuracy or ball speed degrades.", "recomputeAfterSubstitution": true, "publicationQuarantined": true},
+          "deliveryProfiles": [
+            {"key": "output-standing-overhead-slam", "phase": "output", "role": "conditional", "purpose": "Candidate high-intent standing overhead-to-floor power work when the exact ball, target, retrieval, and recovery contract fits.", "suitability": 76, "methodologyAlignment": 72, "objectiveRelevance": {"total_body_ballistic_power": 78, "overhead_ballistic_output": 74}, "dosage": {"sets": "3-5", "repetitions": "3-5", "restSeconds": "60-180", "intensity": "maximal_safe_ball_speed_with_full_reset", "countRule": "count only slams that use the assigned ball, straight marked floor target, safe release, declared catch or retrieval, and full reset"}, "qualityGate": "Every counted rep uses the exact standing bilateral overhead-to-floor path; ball speed and target accuracy remain high; trunk and grip stay controlled; the declared rebound/catch or retrieval rule is safe; and no stop event occurs.", "stopRules": ["stop on pain, loss of grip, unsafe ball/floor/ceiling/rebound/retrieval zone, loss of balance, or participant request", "stop when ball speed, target accuracy, trunk organization, overhead path, safe catch/retrieval, or recovery cannot be restored", "stop after two slow, inaccurate, or uncontrolled attempts rather than turning the task into conditioning"], "coachInstructions": "Inspect ball, floor, clearance, target, and retrieval zone; declare mass, catch/retrieval rule, count rule, and rest; observe from the side and front; record high-quality slams and end the profile at the first unrecoverable speed or safety loss.", "athleteInstructions": "Use the assigned ball, load through the hips, take it overhead, brace, slam straight into the marked floor target, then retrieve or catch it exactly as assigned before resetting.", "expectedAdaptation": "Candidate task-specific ballistic ball exposure only; no universal power, sport, or injury outcome is guaranteed.", "equipmentRequired": ["medicine_ball", "floor_marks"], "logistics": {"stationCapacity": 1, "setupSeconds": 45, "transitionSeconds": 30, "clearanceRequired": true}, "substitutionIds": [], "timeModel": {"setupSeconds": 45, "perSetSeconds": 35, "resetSeconds": 90, "recomputeAfterSubstitution": true}, "doseScaling": {"reduce": "lighter appropriate ball, fewer slams, longer rest, a dead-ball retrieval rule, or another reviewed task after revalidation", "doNotAutoProgress": "Do not add rotation, scoop start, tall kneeling, wall/partner target, mandatory rebound catch, continuous cadence, or conditioning volume without revalidation."}, "measurement": {"record": ["sets", "slams", "ballMass", "ballConstruction", "reboundRule", "targetAccuracy", "speedOrTime", "qualityLoss", "symptoms", "rest"]}, "supportPrompts": {"athlete": "Fast overhead path, straight floor target, safe reset.", "coach": "Ball construction and rebound rule are not incidental details."}}
+          ]
+        }
+      ],
+      "legacy": {"description": "Archived Source 152 remains traceable as an underspecified generic overhead-slam skeleton; duplicate source lineages 1161 and 1167 remain archived separately.", "defaultSets": 3, "defaultReps": 4, "defaultWorkSeconds": 12, "defaultRestSeconds": 90, "tempo": null, "loadNote": "Candidate-only; record exact ball construction/mass, floor target, rebound or retrieval rule, valid slams, rest, quality loss, and symptoms.", "estimatedSecondsPerSet": 105, "cardSummary": "Source 152 is represented by an exact standing overhead-to-floor candidate rather than generic power prose.", "coachLanguage": "Use the exact candidate only after ball, floor, clearance, target, retrieval, duration, fatigue, and downstream-demand checks.", "athleteLanguage": "Use the assigned ball, hit the marked floor target, and reset safely before the next slam.", "programmingLogic": {"sourceDisposition": "candidate_reauthored", "selectable": false, "humanReviewRequired": true}, "scalableVariables": ["ball_mass", "slams", "sets", "rest", "rebound_rule", "target", "retrieval"], "movementFamily": "standing_overhead_to_floor_ball_slam", "primaryPhaseKey": "output", "phaseSubrole": "total_body_ballistic_power", "primaryOrderSlot": "medicine_ball_power", "movementRequirements": {"selectable": false, "sourceIdentityReauthored": true}, "coachingExecution": {"quality_gate": "Legacy source is not selectable; use exact candidate contract.", "stop_signs": ["pain", "loss_of_grip", "unsafe_ball_or_floor", "unsafe_rebound", "target_drift", "speed_loss"]}, "pairingLogic": {"revalidateAfterSubstitution": true}, "mediaLibrary": {"reviewState": "candidate_only"}, "participantStructure": "individual", "programmingKind": "exercise"},
+      "safety": {"riskLevel": 2, "impactLevel": 1, "requiresSpotting": false, "coachSupervision": "recommended", "prerequisiteNotes": "Readiness is the exact ball, standing base, floor target, overhead clearance, catch/retrieval rule, symptoms, planned dose, and current ballistic exposure—not a participant classification.", "readinessChecks": ["confirm intact appropriate ball, dry impact-suitable floor, target, overhead clearance, retrieval zone, and stop signal", "confirm controlled hip load, overhead path, straight release, and assigned catch/retrieval", "review current shoulder, trunk, grip, and ballistic throwing exposure"], "stopSigns": ["pain, loss of grip, participant request, dizziness, chest, breathing, neurologic, or circulation symptoms", "unsafe ball, floor, ceiling, target, rebound, retrieval, spacing, or communication", "repeated slow or inaccurate slams, lumbar-dominant motion, target drift, unsafe catch/retrieval, or inability to recover"], "contraindications": ["symptom, restriction, or unsafe-setting conflict with the exact standing overhead-to-floor task", "rotational, scoop-start, kneeling, wall/partner throw, mandatory rebound catch, or conditioning intent"], "commonSubstitutions": ["Use another reviewed task only after requirements, duration, fatigue, and impact budgets are recomputed.", "Do not treat a rotational slam, scoop slam, kneeling slam, wall throw, or rebound-to-catch drill as an automatic substitution."]},
+      "score": {"technicalComplexity": 44, "absoluteLoadDemand": 32, "coordinationDemand": 48, "impact": 22, "supervisionDemand": 52, "confidence": 60, "reviewNotes": "Candidate task-only reassessment; base overall difficulty is max(technical complexity 44, absolute load demand 32). Independent calibration remains required.", "legacyScores": {"physicalDifficulty": 32, "failureConsequence": 50, "workCapacityDemand": 45}, "difficultyProfile": {"technical": 4.4, "complexity": 4.4, "load": 3.2, "overall": 4.4, "attentionDemand": "moderate_to_high", "notes": "Exact standing bilateral overhead-to-floor slam only; no athlete skill-level classification."}},
+      "testPacket": {"auditVersion": "canonical-card-audit-v2", "status": "quarantined", "humanReviewRequired": true, "checks": {"identity": "candidate_complete", "taxonomy": "candidate_complete", "difficulty": "candidate_complete", "media": "human_review_required", "relationships": "human_review_required", "calibration": "human_review_required", "publication": "human_review_required"}, "blockingIssues": [{"code": "CARD-MEDIA-01", "severity": "P0", "message": "Exact-match media requires human review."}, {"code": "CARD-GRAPH-03", "severity": "P1", "message": "Relationships require human review."}, {"code": "CARD-CALIBRATION-01", "severity": "P1", "message": "Independent score calibration is required."}, {"code": "CARD-PUBLISH-01", "severity": "P0", "message": "Publication requires current two-person approval."}]}
+    }
+  ]
+}

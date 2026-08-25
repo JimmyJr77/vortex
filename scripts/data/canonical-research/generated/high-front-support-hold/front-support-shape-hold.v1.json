@@ -1,0 +1,487 @@
+{
+  "facilityId": 1,
+  "slug": "front-support-shape-hold",
+  "researchVersion": "2026-08-10.121",
+  "assessmentSummary": {
+    "identity": "A High Front Support Shape Hold starts on a stable floor or mat with both palms and forefeet fixed, straight elbows, shoulders over wrists, ribs and pelvis organized, glutes active, and heels reaching back. It counts only valid continuous hold seconds and ends by controlled knee lowering. It is not a forearm plank, a scapular push-up or protraction hold, a push-up, a bear hover, a limb-lift plank, a moving plank-to-pike cycle, raised or unstable support, an assessment, or a clinical intervention.",
+    "currentCardFindings": [
+      "Source 75 identifies a straight-arm hand-support hold, whereas existing Front Plank variants use bilateral forearm support; these are not interchangeable identities.",
+      "The source omits exact contacts, hold validity, entry and exit, anatomy, dosage, fatigue, relationships, quality gates, stop rules, media review, and calibration; this candidate supplies those contracts without inferring participant skill or readiness.",
+      "Three direct YouTube search results are stored only as unverified, non-embedded media candidates. Search visibility does not verify playback, exact task match, accessibility, quality, safety, reviewer, or approval."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "push"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "support": "bilateral_palms_and_forefeet_on_stable_floor",
+      "laterality": "bilateral_symmetric",
+      "planes": [
+        "sagittal_anti_extension_primary",
+        "frontal_and_transverse_anti_motion_control"
+      ],
+      "equipment": [
+        "mat_optional"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 32,
+      "absoluteLoadDemand": 30,
+      "physicalDifficulty": 30,
+      "coordinationDemand": 30,
+      "supervisionDemand": 18,
+      "failureConsequence": 18,
+      "impact": 1,
+      "workCapacityDemand": 30,
+      "baseOverallDifficulty": 32,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_shared_across_bilateral_palms_and_forefeet",
+      "impactClass": "no_landing_or_external_impact",
+      "primaryExposure": [
+        "closed_chain_wrist_and_straight_elbow_support",
+        "shoulder_and_scapular_support",
+        "trunk_anti_extension",
+        "hip_extension_position",
+        "forefoot_support"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual valid seconds, tension, symptoms, and overlapping hand-support, pressing, crawling, and trunk work"
+    },
+    "proposedDosage": {
+      "sets": "1-3",
+      "validHoldSeconds": "5-30 per set",
+      "rest": "30-90 seconds or enough to restore exact support, breathing, and shape",
+      "durationRule": "include floor setup, demonstration, valid and failed hold seconds, rest, substitutions, cleaning, and controlled exit"
+    },
+    "programmingDecision": "Select only when exact palm-and-forefoot support, straight elbows, stable floor access, wrist/shoulder/trunk tolerance, communication, current fatigue and impact budgets, duration, logistics, and downstream demands fit. Changing support, elbow action, limb contact, height, instability, load, motion, intent, symptoms, or substitution reruns selection, logistics, duration, fatigue, relationships, persistence, and validation.",
+    "calibrationEvidence": {
+      "basis": "Source 75 lineage, high-plank shoulder/scapular activity research as adjacent load context, task mechanics, and comparison with forearm plank, scapular push-up, push-up, bear-hover, and moving high-plank families.",
+      "uncertainty": "No source establishes universal hand or foot spacing, body line, tension, hold duration, recovery, readiness, safety threshold, outcome, transfer, or Vortex score. Independent human calibration remains required.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "load_fatigue_recovery_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-10T04:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Hold a high front support on a clean stable floor or mat with both palms and forefeet fixed, straight elbows, shoulders over wrists, ribs and pelvis organized, glutes active, and heels reaching back. Count only continuous seconds that retain the exact support and shape; lower both knees under control before unloading the hands. Hand placement, foot stance, breath, tension, hold seconds, sets, rest, mat use, and cueing are delivery annotations. Forearm planks, scapular push-up or protraction holds, push-ups, bear hovers, limb lifts, shoulder taps, plank-to-pike cycles, knee support, raised support, instability, external load, assessments, and clinical interventions are different tasks requiring their own reviewed definition or variant.",
+      "familyKey": "high_front_support_shape_hold",
+      "movementPatterns": [
+        "brace",
+        "push"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "mat_optional"
+      ],
+      "variantKey": "stable-floor-palms-forefeet-straight-arm-shape-hold",
+      "environment": {
+        "surface": "clean dry level stable floor or mat with secure palm traction",
+        "space": "one full-body-length station with safe kneeling entry and exit",
+        "stationCapacity": 1,
+        "inspection": [
+          "palm traction and clear floor",
+          "full body and coach sightline clearance",
+          "communication and controlled exit path"
+        ],
+        "changeRule": "Changing hand or forefoot support, elbow action, limb contacts, height, instability, external load, motion, tension intent, symptoms, or substitution requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe floor transfer, bilateral palm and forefoot support, and communication",
+          "can establish shoulders-over-wrists, straight elbows, organized rib-pelvis shape, and continuous breathing without symptoms",
+          "current wrist, shoulder, trunk, push, crawl, and hand-support budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms, restrictions, or unsafe setting conflicting with exact hand-support hold",
+          "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern",
+          "unsafe station or participant request to stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal hand or foot placement, body line, hold duration, recovery, readiness, clearance, outcome, or transfer"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 32,
+        "absoluteLoadDemand": 30,
+        "physicalDifficulty": 30,
+        "coordinationDemand": 30,
+        "supervisionDemand": 18,
+        "failureConsequence": 18,
+        "impact": 1,
+        "workCapacityDemand": 30,
+        "baseOverallDifficulty": 32
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_shared_across_bilateral_palms_and_forefeet",
+        "impactClass": "no_landing_or_external_impact",
+        "landingContactsPerRep": 0,
+        "primaryExposure": [
+          "wrist_extension_and_palm_loading",
+          "straight_elbow_and_shoulder_support",
+          "trunk_anti_extension",
+          "hip_extension_position",
+          "forefoot_support"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 30,
+        "technicalFatigueSensitivity": 32,
+        "impactAccumulation": 0,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "high_front_support_seconds": 120,
+          "palm_wrist_support_seconds": 160,
+          "shoulder_support_seconds": 160,
+          "trunk_anti_extension_seconds": 160,
+          "same_session_push_crawl_gymnastics_support_required": true
+        },
+        "tracking": [
+          "validSeconds",
+          "failedSeconds",
+          "handFootSetup",
+          "shapeQuality",
+          "breathing",
+          "symptoms",
+          "overlappingHandSupportWork"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE describes a high-plank start with palm and forefoot support and shoulders over wrists.",
+        "The candidate is the static high-support endpoint only, not ACE's moving Down-Dog cycle or a forearm plank."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Gymnastics instruction should use task-specific progression and conditions.",
+        "Support, elbow action, contacts, and static versus moving action are task dimensions, never participant labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-plank configuration changes shoulder and scapular muscle activity in a limited study population.",
+        "The card records observable support and anti-extension task roles without isolation, diagnosis, treatment, or outcome claims."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE identifies palms, forefeet, long arms, and shoulders over wrists in high plank.",
+        "Vortex makes hold seconds, fixed contacts, straight elbows, controlled exit, and identity boundaries explicit."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High- and low-plank configurations have different shoulder and scapular activity in the study conditions.",
+        "The 32/30/32 proposal describes exercise complexity and physical difficulty only, not participant proficiency, age, or readiness."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-plank loading is configuration dependent.",
+        "Track valid support seconds, tension, body line, symptoms, and overlapping hand-support, push, crawl, and trunk work; recovery remains a planning estimate."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe instruction depends on task-specific conditions and progressions.",
+        "Use a clean stable floor, clear station and exit, communication, exact contact checks, and symptom monitoring."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/prosource/february-2014/3680/reality-check-are-planks-really-the-best-core-exercise/",
+      "sourceTitle": "Reality Check: Are Planks Really the Best Core Exercise?",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 83,
+      "claims": [
+        "Plank exercise context varies by goal and execution.",
+        "Candidate holds and rest are quality-limited planning proposals, not universal prescription or recovery claims."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "ACE provides observable high-plank alignment cues including shoulders over wrists and long limbs.",
+        "Instructions add fixed-contact, hold-count, quality, breathing, and exit requirements without presenting them as treatment effects."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Safe gymnastics instruction depends on conditions and task-specific progressions.",
+        "Stop for pain, new systemic or neurologic concern, unsafe support, persistent shape loss, inability to breathe, or participant request."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/prosource/february-2014/3680/reality-check-are-planks-really-the-best-core-exercise/",
+      "sourceTitle": "Reality Check: Are Planks Really the Best Core Exercise?",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 83,
+      "claims": [
+        "Planks are context-dependent exercises rather than universally interchangeable core work.",
+        "Use only when the exact high-support task fits current objective, logistics, symptoms, duration, and cumulative budgets; no transfer or treatment promise is made."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/18/downward-facing-dog/",
+      "sourceTitle": "Downward-Facing Dog",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 88,
+      "claims": [
+        "High-plank instruction can name observable hand, foot, arm, and shoulder positions.",
+        "Athlete support needs plain-language start, hold, self-check, stop, and help prompts."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Shoulder and scapular activity changes across plank configurations.",
+        "Coach support must observe exact contacts, elbow action, body line, breathing, symptoms, valid seconds, and first quality loss without diagnosing pathology."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://is.muni.cz/do/fsps/e-learning/safe_gymnastics_4all/pages_en/didactic_guidelines.html",
+      "sourceTitle": "Safe Gymnastics 4all — General Didactic Guidelines",
+      "sourcePublisher": "Masaryk University Faculty of Sports Studies",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Instruction conditions and progressions should be matched to the task.",
+        "Use captions, transcript, still sequence, audio description, and verbal cueing; changed support height or base requires a separately reviewed task."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37815235/",
+      "sourceTitle": "Shoulder and Scapular Muscle Activity During Low and High Plank Variations With Different Body-Weight-Bearing Statuses",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "High- and low-plank configurations are mechanically distinct study conditions.",
+        "Forearm support, knee support, limb lift, added motion, elbow flexion, elevation, instability, resistance, and assessment are not automatic substitutes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Direct YouTube URLs can be retained as candidates without claiming approval.",
+        "Three search-discovered high-plank URLs are unverified and non-embedded; exact hold, playback, accessibility, quality, and approval remain pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=EKZfeoVuPbE",
+      "title": "The High Plank | Plank Progressions",
+      "channelName": "Dr. Carl Baird",
+      "sourceQuery": "YouTube search: high plank hold exercise form",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered candidate. Playback, exact straight-arm hold match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fSaYfvSpAMI",
+      "title": "Do It Right - High Plank | LifeFit 360 | Denise Austin",
+      "channelName": "Denise Austin",
+      "sourceQuery": "YouTube search: high plank hold exercise form",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered candidate. Playback, exact straight-arm hold match, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FBMNuzQPjWw",
+      "title": "High Plank Hold | Core Strength & Modified Plank Exercise Tutorial",
+      "channelName": "Lift With Michelle - Exercise Form Tutorials",
+      "sourceQuery": "YouTube search: high plank hold exercise form",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Search-discovered candidate. It may include a modified support; playback, exact variant assignment, safety, captions, accessibility, quality, reviewer, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "High Front Support Shape Hold",
+      "classification": "same_identity",
+      "rationale": "This is the exact fixed palm-and-forefoot, straight-arm hold contract.",
+      "distinguishingDimensions": {
+        "support": "bilateral_palms_forefeet",
+        "action": "static_hold"
+      }
+    },
+    {
+      "name": "Shorter Quality Hold or Longer Rest",
+      "classification": "modifier_annotation",
+      "rationale": "Duration and rest change delivery while contacts and shape remain exact.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "hold_seconds",
+          "rest"
+        ]
+      }
+    },
+    {
+      "name": "Forearm Plank",
+      "classification": "new_definition",
+      "rationale": "Forearm support changes wrist loading, elbow position, shoulder angle, base, and task contract.",
+      "distinguishingDimensions": {
+        "upperSupport": "forearms",
+        "targetLegacyExerciseId": 827
+      }
+    },
+    {
+      "name": "High-Plank Scapular Protraction Hold",
+      "classification": "new_definition",
+      "rationale": "Required scapular protraction changes action, tension intent, quality gate, and stimulus.",
+      "distinguishingDimensions": {
+        "action": "scapular_protraction_hold",
+        "targetLegacyExerciseId": 33
+      }
+    },
+    {
+      "name": "Knee-Supported High Plank",
+      "classification": "new_variant",
+      "rationale": "Knee rather than forefoot support changes load distribution, lower-body contacts, and fatigue.",
+      "distinguishingDimensions": {
+        "lowerSupport": "knees"
+      }
+    },
+    {
+      "name": "High-Plank Limb Lift or Shoulder Tap",
+      "classification": "new_definition",
+      "rationale": "Removing contact or adding a limb action changes laterality, anti-rotation demand, count, and failure modes.",
+      "distinguishingDimensions": {
+        "action": "limb_lift_or_tap"
+      }
+    },
+    {
+      "name": "Push-Up",
+      "classification": "new_definition",
+      "rationale": "Elbow flexion and extension add vertical displacement, pressing phases, and a repetition count.",
+      "distinguishingDimensions": {
+        "action": "elbow_flexion_extension",
+        "targetLegacyExerciseId": 186
+      }
+    },
+    {
+      "name": "Raised, Unstable, or Loaded High Plank",
+      "classification": "new_variant",
+      "rationale": "Support height, instability, or external load changes equipment, mechanics, logistics, fatigue, and risk.",
+      "distinguishingDimensions": {
+        "supportOrLoad": "changed"
+      }
+    }
+  ]
+}

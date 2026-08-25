@@ -64,7 +64,9 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 <img 
                   src={HUB_HEADER_LOGO} 
                   alt="Vortex Athletics" 
-                  className="h-10 max-w-full w-auto min-[1075px]:h-12"
+                  width="512"
+                  height="47"
+                  className="h-auto w-full max-w-64 min-[1075px]:max-w-80"
                 />
               </motion.div>
             </Link>
@@ -108,18 +110,19 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 {/* Classes & Events Button */}
                 <Link
                   to="/read-board"
-                  className="min-w-[3rem] flex-none min-[1075px]:min-w-0"
+                  className="flex min-w-[3rem] flex-none items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-gray-100 hover:shadow-lg min-[1075px]:min-w-0 min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
                   aria-label="Classes and Events"
                   title="Classes & Events"
                 >
-                  <motion.button
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border-0 bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
+                  <motion.span
+                    tabIndex={-1}
+                    className="flex items-center justify-center gap-2"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="hidden min-[1075px]:inline">Classes &amp; Events</span>
-                  </motion.button>
+                  </motion.span>
                 </Link>
               </>
             )}
@@ -140,6 +143,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0 text-center"
               >
                 <motion.span
+                  tabIndex={-1}
                   className="inline-block"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

@@ -3,12 +3,13 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
-import { MapPin, Target, Info, Shield } from 'lucide-react'
+import { Info, MapPin, PlayCircle, Shield, Target } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import RotatingOfferHeadline from './RotatingOfferHeadline'
 import About, { StrategicLocation } from './About'
 import Technology from './Technology'
+import { BUSINESS_NAP, GOOGLE_MAPS_URL } from '../config/contact'
 import { HOME_FAQS } from '../config/faqs'
 
 interface HomePageProps {
@@ -72,6 +73,7 @@ const HomePage = ({
     }
   ]
   const [selectedVideo, setSelectedVideo] = useState(videoLibrary[0])
+  const [isVideoEmbedLoaded, setIsVideoEmbedLoaded] = useState(false)
 
   type TriadTab = 'what' | 'how' | 'why'
   const [triadTab, setTriadTab] = useState<TriadTab>('what')
@@ -169,7 +171,7 @@ const HomePage = ({
             >
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm md:text-base">
                 {[
-                  'Ninja training', 'Acrobatics', 'Trampoline work', 'Resistance training',
+                  'Sports conditioning', 'Acrobatics', 'Trampoline work', 'Resistance training',
                   'Plyometrics', 'Calisthenics', 'Isometrics', 'Reflex training',
                   'Neural priming', 'Rapid direction change', 'Mobility', 'Tendon conditioning',
                   'Eccentric training', 'Coordination games', 'Gymnastics',
@@ -197,6 +199,7 @@ const HomePage = ({
                   className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
                 >
                   <motion.span
+                    tabIndex={-1}
                     className="inline-block"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -246,7 +249,7 @@ const HomePage = ({
               viewport={{ once: true }}
             >
               <div className="relative aspect-video w-full min-h-[400px]">
-                {selectedVideo.embedUrl ? (
+                {selectedVideo.embedUrl && isVideoEmbedLoaded ? (
                   <iframe
                     className="absolute inset-0 w-full h-full"
                     src={selectedVideo.embedUrl}
@@ -255,6 +258,28 @@ const HomePage = ({
                     allowFullScreen
                     loading="lazy"
                   />
+                ) : selectedVideo.embedUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsVideoEmbedLoaded(true)}
+                    className="group absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden text-white"
+                    aria-label="Play Vortex Athletics highlights on YouTube"
+                  >
+                    <img
+                      src="/main_hero_bg-1600.webp"
+                      alt=""
+                      width="1600"
+                      height="1067"
+                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span className="absolute inset-0 bg-black/35" aria-hidden="true" />
+                    <span className="relative z-10 flex flex-col items-center gap-3 rounded-2xl bg-black/65 px-7 py-5 font-semibold shadow-xl">
+                      <PlayCircle className="h-14 w-14 text-vortex-red" aria-hidden="true" />
+                      Play Vortex highlights
+                    </span>
+                  </button>
                 ) : 'reelUrl' in selectedVideo && selectedVideo.reelUrl ? (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/80 overflow-auto p-4">
                     <blockquote
@@ -318,7 +343,11 @@ const HomePage = ({
                   <button
                     key={video.id}
                     type="button"
-                    onClick={() => !disabled && setSelectedVideo(video)}
+                    onClick={() => {
+                      if (disabled) return
+                      setSelectedVideo(video)
+                      setIsVideoEmbedLoaded(false)
+                    }}
                     disabled={disabled}
                     className={`flex w-full flex-col rounded-2xl px-6 py-5 text-left transition ${
                       disabled
@@ -422,9 +451,9 @@ const HomePage = ({
                     <span
                       className="flex-shrink-0 rounded-full p-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 cursor-help"
                       title={triadTooltip}
-                      aria-label="More about how triads work together"
                     >
-                      <Info className="w-5 h-5" />
+                      <Info className="w-5 h-5" aria-hidden="true" />
+                      <span className="sr-only">More about how triads work together</span>
                     </span>
                   </div>
                   <p className="text-gray-700 leading-relaxed">
@@ -588,6 +617,7 @@ const HomePage = ({
                   className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
                 >
                   <motion.span
+                    tabIndex={-1}
                     className="inline-block"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -622,10 +652,13 @@ const HomePage = ({
             <div className="flex flex-col items-center space-y-4 mb-8">
               <div className="flex items-center space-x-2 text-xl">
                 <MapPin className="w-6 h-6 text-vortex-red" />
-                <span>4961 Tesla Dr, Ste E, Bowie, MD 20715</span>
+                <span>
+                  {BUSINESS_NAP.streetAddress}, {BUSINESS_NAP.addressLocality},{' '}
+                  {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
+                </span>
               </div>
               <a 
-                href="https://www.google.com/maps/place/Vortex+Athletics+and+Gymnastics/@38.9529792,-76.7165051,14z/data=!4m6!3m5!1s0x89b7ed0013e38567:0xd3ce87a1d2da30a5!8m2!3d38.9564345!4d-76.7076355!16s%2Fg%2F11mrrvn3bt?hl=en&entry=ttu"
+                href={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-vortex-red hover:text-red-400 font-semibold transition-colors text-lg underline"
@@ -640,6 +673,7 @@ const HomePage = ({
                 className="inline-block bg-vortex-red text-white px-12 py-6 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
               >
                 <motion.span
+                  tabIndex={-1}
                   className="inline-block"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

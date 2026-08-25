@@ -23,6 +23,7 @@ const ProgramBuilder = lazyWithRetry(() => import('./ProgramBuilder'))
 const FrameworkPanel = lazyWithRetry(() => import('./FrameworkPanel'))
 const TrainingBlockBuilder = lazyWithRetry(() => import('./TrainingBlockBuilder'))
 const RegimenBuilder = lazyWithRetry(() => import('./RegimenBuilder'))
+const FlipFitSchedulePanel = lazyWithRetry(() => import('./FlipFitSchedulePanel'))
 const ChallengeBuilder = lazyWithRetry(() => import('./ChallengeBuilder'))
 const AssignPanel = lazyWithRetry(() => import('./AssignPanel'))
 const InsightsPanel = lazyWithRetry(() => import('./InsightsPanel'))
@@ -42,6 +43,7 @@ export type CoachTab =
   | 'framework'
   | 'training-blocks'
   | 'regimens'
+  | 'flip-fit'
   | 'challenges'
   | 'assign'
   | 'insights'
@@ -76,6 +78,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'programs', label: 'Programs', icon: CalendarRange },
   { tab: 'training-blocks', label: 'Blocks', icon: Blocks },
   { tab: 'regimens', label: 'Regimens', icon: Layers },
+  { tab: 'flip-fit', label: 'Flip & Fit', icon: CalendarRange },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'gymnastics-evaluations', label: 'Evaluation Form', icon: ClipboardCheck },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
@@ -188,6 +191,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <TrainingBlockBuilder />
       case 'regimens':
         return <RegimenBuilder />
+      case 'flip-fit':
+        return <FlipFitSchedulePanel />
       case 'challenges':
         return <ChallengeBuilder />
       case 'gymnastics-evaluations':
@@ -234,7 +239,12 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
       <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
+            <button
+              type="button"
+              className="lg:hidden text-white"
+              aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={() => setNavOpen((o) => !o)}
+            >
               {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div>

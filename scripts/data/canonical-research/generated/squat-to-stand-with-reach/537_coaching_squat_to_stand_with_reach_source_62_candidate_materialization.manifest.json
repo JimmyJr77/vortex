@@ -1,0 +1,14 @@
+{
+  "migrationKey": "537_coaching_squat_to_stand_with_reach_source_62_candidate_materialization",
+  "researchVersion": "2026-08-10.119",
+  "generatedAt": "2026-08-10T07:00:00.000Z",
+  "cards": [
+    {
+      "slug": "squat-to-stand-with-reach",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8,
+      "cardVersion": 2
+    }
+  ]
+}

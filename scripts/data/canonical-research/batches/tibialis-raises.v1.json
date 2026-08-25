@@ -1,0 +1,295 @@
+{
+  "facilityId": 1,
+  "batchKey": "tibialis-raises-v1",
+  "researchVersion": "2026-08-09.110",
+  "snapshotAt": "2026-08-10T16:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/tibialis-raises",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "wall-supported-bilateral-tibialis-raise",
+      "assessmentSummary": {
+        "identity": "One wall-supported bilateral tibialis raise begins with the back and pelvis supported by a stable wall, both heels planted on a dry nonslip floor, the feet slightly forward, both forefeet resting lightly, and the knees mostly straight without forced locking. Keeping the heels and wall support fixed, lift both forefeet toward the shins through comfortable active ankle dorsiflexion, then lower both forefeet under control to light floor contact. One complete lift-and-controlled-return cycle is one repetition. Foot distance, stance width, comfortable range, tempo, a brief non-dose top pause, breathing, repetitions, sets, rest, footwear, and delivery context are annotations. Unilateral, alternating, bent-knee, heel-elevated, unsupported, seated, resisted, externally loaded, isometric-only, eccentric-only, heel-walking, toe-dissociation, ankle-pump, calf-raise, assessment, and added sport-action tasks change the variant or definition.",
+        "currentCardFindings": [
+          "Source 43 has a stable definition, but the current baseline variant and profiles omit exact support contacts, starting floor contact, bilateral action, return endpoint, repetition count, anatomy, complete task-difficulty dimensions, load, fatigue, recovery, logistics, duration, persistence, substitution, support, evidence, and machine gates.",
+          "Source 214 was merged by name despite omitting wall contact, exact stance, laterality, start, endpoint, and repetition contract. Its Distance Jump and Kicking descendants add context but still do not recover those facts, so all three sources must return to their archived definition and remain nonselectable pending human identity review.",
+          "The existing 40/20/40 scores, age floor, publication state, generic strength dose, performance claims, and three inherited video URLs are not card-specific approvals. Exercise difficulty must describe the task only, never participant skill, proficiency, readiness, or age.",
+          "Five current YouTube oEmbed responses establish title, channel, thumbnail, and iframe metadata only. No candidate has been watched in full or approved for exact support, bilateral action, heel contact, range, return, count, captions, accessibility, cue quality, safety, or version match."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace"],
+          "bodyRegions": ["foot", "ankle", "calf", "knee", "hip", "core"],
+          "support": "back_and_pelvis_supported_by_wall_bilateral_heels_planted_forefeet_lift_and_return",
+          "laterality": "bilateral_simultaneous",
+          "planes": ["sagittal", "frontal_and_transverse_stabilization"],
+          "equipment": ["wall"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 18,
+          "absoluteLoadDemand": 24,
+          "physicalDifficulty": 24,
+          "coordinationDemand": 16,
+          "supervisionDemand": 10,
+          "failureConsequence": 8,
+          "impact": 1,
+          "workCapacityDemand": 22,
+          "baseOverallDifficulty": 24,
+          "variantScores": {
+            "wallSupportedBilateralTibialisRaise": {
+              "technicalComplexity": 18,
+              "absoluteLoadDemand": 24,
+              "physicalDifficulty": 24,
+              "coordinationDemand": 16,
+              "supervisionDemand": 10,
+              "failureConsequence": 8,
+              "impact": 1,
+              "workCapacityDemand": 22,
+              "baseOverallDifficulty": 24
+            }
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "bodyweight_leverage_with_wall_support_and_bilateral_heel_contact",
+          "impactClass": "none",
+          "primaryExposure": [
+            "active_ankle_dorsiflexion",
+            "controlled_return_toward_plantarflexion",
+            "anterior_lower_leg_local_loading",
+            "heel_pressure_and_wall_supported_body_line",
+            "bilateral_timing_and_foot_alignment"
+          ],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "prepare": "1-2_sets_of_6-12_quality_repetitions",
+          "capacity": "2-4_sets_of_8-20_quality_repetitions",
+          "tempo": "about_1-2_seconds_up_and_2-3_seconds_down_without_forefoot_slap",
+          "rest": "20-90_seconds_or_as_needed_to_restore_range_control_breathing_and_symptom_rules",
+          "durationRule": "wall_and_floor_setup_plus_actual_valid_repetition_seconds_plus_rest_invalid_partial_or_symptom_limited_attempts_substitution_station_reset_and_exit"
+        },
+        "programmingDecision": "Select only when the exact wall-supported bilateral task, stable wall and nonslip floor, heel contact, comfortable active dorsiflexion, mostly-straight-knee tolerance, symptoms, footwear, station, dose, duration, and cumulative anterior-shin, ankle, calf, running, landing, jumping, cutting, kicking, and lower-body budgets fit. Do not silently change laterality, support, knee position, heel height, resistance, load, contraction-only emphasis, locomotion, sport action, or clinical scope. Recompute identity, logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Peer-reviewed tibialis-anterior anatomy, experimental swing-dorsiflexion kinetics, standardized dorsiflexion force and EMG measurement, current resistance-training guidance, youth resistance-training safeguards, the exact Source 43 legacy contract, five current YouTube oEmbed records, and comparison with isometric, eccentric-only, heel-walk, ankle-pump, toe-control, calf, resisted, loaded, unsupported, and clinical neighbors",
+          "uncertainty": "The research does not test the exact Vortex wall-supported bilateral lift-and-return cycle or validate one wall distance, stance, range, tempo, dose, frequency, fatigue ceiling, recovery interval, warm-up effect, injury-prevention claim, performance transfer, population threshold, or Vortex difficulty score. No video candidate has been watched in full.",
+          "reviewNeeded": [
+            "qualified_content_review",
+            "independent_difficulty_calibration",
+            "source_214_1113_1399_identity_adjudication",
+            "wall_support_and_floor_safety_review",
+            "anatomy_load_and_recovery_review",
+            "clinical_scope_and_stop_rule_review",
+            "full_video_review",
+            "coach_and_athlete_comprehension_test"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "tibialis_anterior_attachment_anatomy_2022",
+          "claims": [
+            "Tibialis anterior is a major ankle dorsiflexor and also contributes to inversion; the exact wall-supported bilateral cycle comes from Source 43 rather than this anatomy study.",
+            "Vortex makes wall support, heel contact, simultaneous bilateral lift, controlled return, endpoint, count, and invalidation explicit while quarantining less-specific same-name sources."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ankle_biomechanics_review_2016",
+          "claims": [
+            "Ankle motion and loading occur across the ankle-foot complex rather than one isolated structure.",
+            "The card uses controlled foot, ankle, calf, knee, hip, and core terms and does not classify participant skill or proficiency."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "tibialis_anterior_attachment_anatomy_2022",
+          "claims": [
+            "Tibialis anterior is the largest ankle dorsiflexor and contributes to inversion and medial-arch function.",
+            "The card also records long toe-extensor, fibularis-tertius, foot, knee, hip, and trunk contributions without claiming tibialis-anterior isolation."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "swing_dorsiflexion_clearance_kinetics_2024",
+          "claims": [
+            "Experimental increased swing-phase clearance used greater ankle dorsiflexion and estimated increased tibialis-anterior force with soleus coactivation.",
+            "This supports a dorsiflexion-demand rationale but does not prove transfer from wall raises to walking, running, landing, or injury prevention."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "isometric_dorsiflexion_protocol_2015",
+          "claims": [
+            "Dorsiflexion force and tibialis-anterior EMG depend on a standardized position and fixation protocol.",
+            "The 18/24/24 proposal describes the exercise task only and remains queued for independent calibration."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "acsm_resistance_training_position_stand_2026",
+          "claims": [
+            "Resistance-training adaptation depends on appropriately prescribed effort, volume, frequency, and progression rather than one universal scheme.",
+            "Wall distance, actual repetitions, tempo, range, local fatigue, symptoms, and overlapping lower-leg work must be tracked; numeric recovery remains a planning estimate."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "isometric_dorsiflexion_protocol_2015",
+          "claims": [
+            "Dorsiflexion force and EMG interpretation changes with stabilization and toe fixation.",
+            "Selection therefore requires the exact wall, floor, heel, knee, range, symptom, and communication conditions rather than a demographic or diagnostic shortcut."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "acsm_resistance_training_position_stand_2026",
+          "claims": [
+            "Current resistance-training guidance supports individualizing sets, repetitions, effort, rest, and progression to the desired adaptation.",
+            "Vortex prepare and capacity ranges are quarantined planning ranges, not universal prescriptions, and stop before forefoot control, range, breathing, or symptoms degrade."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "isometric_dorsiflexion_protocol_2015",
+          "claims": [
+            "Standardized ankle and toe conditions matter when dorsiflexion force and muscle activity are assessed.",
+            "Vortex instructions therefore state wall contact, bilateral heel support, forefoot start, comfortable lift, controlled return, count, faults, and stop rules explicitly."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Youth resistance training guidance emphasizes qualified instruction, safe equipment and environment, appropriate progression, and technique supervision.",
+            "No age floor or participant level is inferred; current symptoms, exact-task control, environment, communication, cumulative load, and facility escalation policy govern selection."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "swing_dorsiflexion_clearance_kinetics_2024",
+          "claims": [
+            "Ankle dorsiflexion contributes to foot-ground clearance during gait, but the experiment was not a wall-raise training trial.",
+            "Use the card for preparation or capacity only when the workout purpose and lower-leg budget fit; do not guarantee gait, sprint, jump, landing, or injury outcomes."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "tibialis_anterior_attachment_anatomy_2022",
+          "claims": [
+            "The target action is ankle dorsiflexion, with tibialis anterior as a major contributor rather than the only working tissue.",
+            "Athlete support uses observable heel, forefoot, wall-contact, knee, pace, range, and symptom checks instead of anatomical promises."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "isometric_dorsiflexion_protocol_2015",
+          "claims": [
+            "Reliable dorsiflexion testing requires standardized positioning and restraint conditions.",
+            "Coach support must record wall distance, contact, heels, bilateral timing, range, return control, first fault, actual dose, symptoms, and downstream load without treating the exercise as a diagnostic test."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Instruction, supervision, environment, and progression should fit the participant and task.",
+            "Demonstration, written cues, reduced wall distance or range, fewer repetitions, more rest, captions, still images, or live instruction may preserve the exact task; a changed support or action needs separate validation."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "ankle_biomechanics_review_2016",
+          "claims": [
+            "Dorsiflexion, plantarflexion, inversion, eversion, and coupled ankle-foot mechanics should not be collapsed into one exercise identity.",
+            "Isometric, eccentric-only, heel-walk, ankle-pump, toe-yoga, calf-raise, loaded, unsupported, and clinical tasks retain separate variant or definition boundaries."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-10.",
+            "oEmbed health does not prove playback, exact wall and heel support, bilateral lift and return, count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=RHWRxiBe1iU",
+          "title": "Anterior Tibialis Raise",
+          "channelName": "Elite Performance Institute",
+          "sourceQuery": "Source 43 legacy candidate checked by YouTube oEmbed; full exact wall-supported bilateral review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-10T16:00:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=VzIcGAgBiaM",
+          "title": "Tibialis Wall Raises (Exercise Demo)",
+          "channelName": "The Barefoot Sprinter",
+          "sourceQuery": "Source 43 legacy candidate checked by YouTube oEmbed; full exact wall-supported bilateral review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-10T16:00:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=psaTKDL1zUw",
+          "title": "Tibialis Raise | Kneesovertoesguy Favorite Exercise #AskKenneth",
+          "channelName": "Lo Kenneth",
+          "sourceQuery": "Source 43 legacy candidate checked by YouTube oEmbed; full exact wall-supported bilateral review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-10T16:00:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=k9NvBCZfSWg",
+          "title": "Wall Tibialis Raise",
+          "channelName": "Loretta Hogg",
+          "sourceQuery": "Wall tibialis raise candidate checked by YouTube oEmbed; full exact wall-supported bilateral review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-10T16:00:00.000Z"}
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=0o2GAg2yX5M",
+          "title": "Wall Tibialis Raise",
+          "channelName": "Cardinal Strength and Conditioning",
+          "sourceQuery": "Wall tibialis raise candidate checked by YouTube oEmbed; full exact wall-supported bilateral review pending",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {"method": "youtube_oembed", "verifiedAt": "2026-08-10T16:00:00.000Z"}
+        }
+      ],
+      "alternateAssessments": [
+        {"name": "Tibialis Raises", "classification": "same_identity", "rationale": "Source 43 pluralizes repetitions of the exact wall-supported bilateral cycle.", "distinguishingDimensions": {"legacySourceId": 43}},
+        {"name": "Wall-Supported Bilateral Tibialis Raise", "classification": "same_identity", "rationale": "This name makes the support and simultaneous laterality explicit without changing the task.", "distinguishingDimensions": {"alias": true}},
+        {"name": "Wall Distance or Body-Lean Lever", "classification": "modifier_annotation", "rationale": "Foot distance changes leverage and physical demand while wall contact, heel contact, action, and count remain unchanged.", "distinguishingDimensions": {"modifier": "wall_distance"}},
+        {"name": "Comfortable Dorsiflexion Range", "classification": "modifier_annotation", "rationale": "A smaller active lift changes amplitude without changing the support, action, return, or count.", "distinguishingDimensions": {"modifier": "range"}},
+        {"name": "Controlled Concentric and Return Tempo", "classification": "modifier_annotation", "rationale": "Tempo changes time under tension while preserving the complete active lift-and-return cycle.", "distinguishingDimensions": {"modifier": "tempo"}},
+        {"name": "Brief Non-Dose Top Pause", "classification": "modifier_annotation", "rationale": "A brief checkpoint does not create an isometric task unless the hold itself receives prescribed duration or effort.", "distinguishingDimensions": {"modifier": "brief_pause"}},
+        {"name": "Repetitions Sets Rest or Effort Target", "classification": "modifier_annotation", "rationale": "Volume and effort change delivery rather than task identity.", "distinguishingDimensions": {"modifiers": ["repetitions", "sets", "rest", "effort"]}},
+        {"name": "Stance Width and Foot Angle Within Control", "classification": "modifier_annotation", "rationale": "Recorded comfortable stance changes setup detail while the same bilateral heel-supported sagittal cycle remains.", "distinguishingDimensions": {"modifiers": ["stance_width", "foot_angle"]}},
+        {"name": "Footwear or Thin Heel Cushion", "classification": "modifier_annotation", "rationale": "Footwear and a thin noncompressing comfort layer are equipment annotations only when traction, heel height, range, and mechanics remain valid.", "distinguishingDimensions": {"modifier": "footwear"}},
+        {"name": "Breathing Prompt or Workout Context", "classification": "modifier_annotation", "rationale": "Breathing and prepare-versus-capacity delivery do not change the exact movement cycle.", "distinguishingDimensions": {"modifiers": ["breathing", "context"]}},
+        {"name": "Wall-Supported Single-Leg Tibialis Raise", "classification": "new_variant", "rationale": "Unilateral loading changes force, asymmetry, fatigue, balance, and count.", "distinguishingDimensions": {"laterality": "unilateral"}},
+        {"name": "Alternating Wall-Supported Tibialis Raise", "classification": "new_variant", "rationale": "Alternation changes timing, unilateral exposure, balance, and repetition accounting.", "distinguishingDimensions": {"laterality": "alternating"}},
+        {"name": "Bent-Knee Wall Tibialis Raise", "classification": "new_variant", "rationale": "Sustained knee flexion changes support, muscle length, lower-body demand, and fault rules.", "distinguishingDimensions": {"kneePosition": "flexed"}},
+        {"name": "Heel-Elevated Deficit Wall Tibialis Raise", "classification": "new_variant", "rationale": "Heel elevation changes available range, leverage, equipment, edge safety, and load.", "distinguishingDimensions": {"equipment": "heel_wedge_or_step"}},
+        {"name": "Freestanding Bilateral Tibialis Raise", "classification": "new_variant", "rationale": "Removing wall support changes balance, body position, failure consequences, and supervision.", "distinguishingDimensions": {"support": "unsupported_standing"}},
+        {"name": "Seated Heel-Planted Tibialis Raise", "classification": "new_variant", "rationale": "Seated support changes the bodyweight lever, trunk and knee geometry, load, and logistics.", "distinguishingDimensions": {"support": "seated"}},
+        {"name": "Band-Resisted Wall Tibialis Raise", "classification": "new_variant", "rationale": "External elastic force adds anchor safety, resistance direction, load, and fatigue requirements.", "distinguishingDimensions": {"externalForce": "resistance_band"}},
+        {"name": "Tib-Bar Loaded Dorsiflexion Raise", "classification": "new_variant", "rationale": "A tib bar adds distal external load, apparatus fit, bilateral restraint, torque, and different failure consequences.", "distinguishingDimensions": {"equipment": "tib_bar"}},
+        {"name": "Generic Tibialis Raise Sources 214, 1113, and 1399", "classification": "new_definition", "rationale": "These sources omit exact wall contact, stance, laterality, start, endpoint, and count, so they stay archived rather than being guessed into Source 43.", "distinguishingDimensions": {"identityStatus": "needs_human_review"}},
+        {"name": "Tibialis Raise Iso Hold", "classification": "new_definition", "rationale": "A sustained toe-up position is counted by hold time or effort rather than lift-and-return repetitions.", "distinguishingDimensions": {"action": "isometric_dorsiflexion_hold"}},
+        {"name": "Assisted-Up Tibialis Eccentric-Only Lower", "classification": "new_definition", "rationale": "Assistance creates the top position and only the controlled lower is trained, changing action and count.", "distinguishingDimensions": {"action": "eccentric_only"}},
+        {"name": "Heel Walk", "classification": "new_definition", "rationale": "Locomotion on the heels adds gait cycles, travel, balance, contacts, and distance or time counting.", "distinguishingDimensions": {"action": "heel_supported_locomotion"}},
+        {"name": "Ankle Pumps", "classification": "new_definition", "rationale": "Non-weight-bearing dorsiflexion and plantarflexion oscillation uses a different base, load, and count.", "distinguishingDimensions": {"action": "non_weight_bearing_sagittal_oscillation"}},
+        {"name": "Toe Yoga", "classification": "new_definition", "rationale": "Big-toe and lesser-toe dissociation targets digit control rather than the whole-forefoot ankle cycle.", "distinguishingDimensions": {"targetDefinitionId": "18cec0fe-4ea4-4e28-9f75-41f192f94005"}},
+        {"name": "Calf Raise to Controlled Heel Drop", "classification": "new_definition", "rationale": "The heel lifts and body mass moves through plantarflexion instead of the heel staying planted during dorsiflexion.", "distinguishingDimensions": {"targetDefinitionId": "292eabbb-1676-4d7f-9eed-147f6adcf8f4"}},
+        {"name": "Clinical Dorsiflexor Strength Assessment", "classification": "new_definition", "rationale": "Maximal testing adds standardized restraint, force measurement, interpretation, consent, documentation, and clinical scope.", "distinguishingDimensions": {"scope": "clinical_strength_measurement"}}
+      ]
+    }
+  ]
+}

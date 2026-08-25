@@ -196,6 +196,28 @@ test('anatomy load profile supplies landing contacts when a dosage override is a
   assert.equal(prescription.loadProfile.externalLoadMethod, 'bodyweight')
 })
 
+test('bounded contact exposure profiles use their documented planning default for workout budgets', () => {
+  const cards = library()
+  const outputCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'output')
+  outputCard.difficulty.impact = 60
+  outputCard.loadProfile = {
+    gripDemand: 1,
+    spinalLoading: 5,
+    eccentricStress: 30,
+    contactExposureModel: {
+      model: 'per_set_range',
+      minimumContactsPerSet: 8,
+      planningDefaultContactsPerSet: 12,
+      maximumContactsPerSet: 16,
+    },
+    externalLoadMethod: 'bodyweight',
+  }
+  const output = generateCanonicalWorkout({ ...intent, maxHighImpactContacts: 100 }, cards)
+  const prescription = output.phases.find((phase) => phase.phaseKey === 'output').prescriptions[0]
+  assert.equal(prescription.dose.contacts, prescription.dose.sets * 12)
+  assert.equal(output.validation.impactBudget.highImpactContacts, prescription.dose.contacts)
+})
+
 test('cumulative fatigue budgets fail closed before selecting an over-budget phase', () => {
   const cards = library().map((entry) => ({
     ...entry,

@@ -77,7 +77,10 @@ export function mapProgramRow(row, { hasSchedulingCols = false, hasDescription =
   }
 }
 
+let programsSchedulingSchemaReady = false
+
 export async function ensureProgramsSchedulingSchema(pool) {
+  if (programsSchedulingSchemaReady) return
   const fs = await import('fs')
   const path = await import('path')
   const { fileURLToPath } = await import('url')
@@ -86,6 +89,7 @@ export async function ensureProgramsSchedulingSchema(pool) {
   if (!fs.existsSync(migrationPath)) return
   const sql = fs.readFileSync(migrationPath, 'utf8')
   await pool.query(sql)
+  programsSchedulingSchemaReady = true
 }
 
 let disciplineTagsSchemaReady = false

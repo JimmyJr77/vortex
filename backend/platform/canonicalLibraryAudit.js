@@ -26,6 +26,22 @@ function hasKeys(value) {
   return Object.keys(asObject(value)).length > 0
 }
 
+function hasContactEstimate(variant) {
+  const fixedContacts = variant.loadProfile?.landingContactsPerRep
+  if (Number.isInteger(fixedContacts) && fixedContacts >= 0) return true
+  const model = asObject(variant.loadProfile?.contactExposureModel)
+  const minimum = Number(model.minimumContactsPerSet)
+  const planningDefault = Number(model.planningDefaultContactsPerSet)
+  const maximum = Number(model.maximumContactsPerSet)
+  return model.model === 'per_set_range'
+    && Number.isInteger(minimum)
+    && Number.isInteger(planningDefault)
+    && Number.isInteger(maximum)
+    && minimum >= 0
+    && planningDefault >= minimum
+    && maximum >= planningDefault
+}
+
 function rowToCard(definition, variants, profilesByVariant) {
   return {
     id: String(definition.id),
@@ -176,10 +192,12 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
       category: 'load_profile',
       priority: 'P1',
       status: variants.length > 0 && variants.every((variant) => (
-        requiredLoad.every((field) => variant.loadProfile?.[field] != null)
+        requiredLoad.filter((field) => field !== 'landingContactsPerRep')
+          .every((field) => variant.loadProfile?.[field] != null)
+        && hasContactEstimate(variant)
       )) ? 'passed' : 'failed',
-      evidence: { requiredFields: requiredLoad },
-      message: 'Every variant has a complete loading profile.',
+      evidence: { requiredFields: requiredLoad, contactAlternative: 'contactExposureModel.per_set_range' },
+      message: 'Every variant has a complete loading profile with fixed per-rep or bounded per-set contact exposure.',
     },
     {
       id: 'CARD-FATIGUE-01',

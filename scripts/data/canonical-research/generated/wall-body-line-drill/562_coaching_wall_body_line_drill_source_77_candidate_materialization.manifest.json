@@ -1,0 +1,14 @@
+{
+  "migrationKey": "562_coaching_wall_body_line_drill_source_77_candidate_materialization",
+  "researchVersion": "2026-08-10.123",
+  "generatedAt": "2026-08-10T06:30:00.000Z",
+  "cards": [
+    {
+      "slug": "wall-body-line-drill",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 6,
+      "cardVersion": 2
+    }
+  ]
+}

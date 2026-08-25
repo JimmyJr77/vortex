@@ -3,7 +3,7 @@ import { getStubSportSiteUrl } from './sportSite'
 
 export { GYMNASTICS_ORIGIN }
 
-/** URL for the Vortex Gymnastics site (vortex-gymnastics.com). */
+/** URL for the canonical Vortex Gymnastics site. */
 export function getGymnasticsSiteUrl(path = '/'): string {
   return getStubSportSiteUrl('gymnastics', path)
 }

@@ -1,11 +1,7 @@
 import DisciplineLandingPage from '../components/DisciplineLandingPage'
 import { RHYTHMIC_LANDING } from '../data/disciplineLandings'
 
-interface RhythmicGymnasticsPageProps {
-  onSignUpClick?: () => void
-}
-
-const RhythmicGymnasticsPage = ({ onSignUpClick: _onSignUpClick }: RhythmicGymnasticsPageProps) => {
+const RhythmicGymnasticsPage = () => {
   return <DisciplineLandingPage config={RHYTHMIC_LANDING} />
 }
 

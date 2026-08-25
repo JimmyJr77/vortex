@@ -1,0 +1,98 @@
+{
+  "migrationKey": "740_coaching_shin_box_get_up_equipment_taxonomy_correction",
+  "researchVersion": "2026-08-10.120",
+  "batchFile": "../batches/9090-shin-box-foundations.v1.json",
+  "cards": [
+    {
+      "definition": {
+        "facilityId": 1,
+        "legacyExerciseId": 56,
+        "slug": "shin-box-get-up",
+        "canonicalName": "Shin Box Get-Up",
+        "displayName": "Shin Box Get-Up",
+        "aliases": ["Shin-Box Get Up", "90/90 Shin Box Get-Up", "Shin Box to Stand"],
+        "description": "On a clear padded non-slip floor, begin seated in a comfortable shin-box or staggered 90/90 position. Rotate and extend into tall kneeling, move through half kneeling, stand, then reverse the same path under control before changing sides. A repetition includes the complete ground-to-stand and controlled return sequence; the seated switch and a tall-kneeling hip lift are distinct tasks or variants.",
+        "familyKey": "ground_to_stand_transition",
+        "schemaVersion": "2.0.0",
+        "cardVersion": 6,
+        "status": "review",
+        "identityContract": "seated_shin_box_or_staggered_9090_to_tall_kneeling_half_kneeling_standing_and_controlled_return",
+        "confidence": {"content": 78, "scoring": 50, "media": 50},
+        "movementPatterns": ["rotate", "squat", "brace", "locomote"],
+        "bodyRegions": ["hip", "knee", "ankle", "spine", "core", "full_body"],
+        "requiredEquipment": [],
+        "optionalEquipment": ["floor_mat", "stable_hand_support", "knee_padding", "bench_or_box", "kettlebell"],
+        "environment": {
+          "surface": "level padded non-slip floor",
+          "space": "clear seated, kneeling, half-kneeling, standing, and return path",
+          "stationCapacity": 1,
+          "inspection": ["floor traction and padding", "clear standing path", "stable support if assigned", "coach sightline for descent and return"],
+          "changeRule": "Changing assistance, endpoint, arm task, load, cadence, support, surface, or dose requires revalidation."
+        },
+        "population": {
+          "exerciseCardDoesNotClassifyParticipants": true,
+          "readinessIsWorkoutInput": true,
+          "selectionPrerequisites": ["comfortable modified shin-box base", "pain-free kneeling and controlled half-kneeling rise", "safe floor transfer and clear space", "can understand the stop signal and controlled return"],
+          "excludeOrEscalate": ["symptom, restriction, floor-transfer, support, or communication conflict", "sharp, increasing, unfamiliar, neurologic, circulation, breathing, chest, balance, or communication concern", "participant requests stop"],
+          "notEstablishedByEvidence": ["universal hip angle, assistance level, load, dose, recovery, outcome, readiness threshold, or clinical clearance"]
+        },
+        "provenance": {
+          "legacySources": [56],
+          "identityAuthority": "Source 56 and the peer-reviewed illustrated shin-box get-up sequence; Source 55 is the separately consolidated seated-switch nomenclature duplicate.",
+          "humanReviewRequired": true,
+          "approvalsCreated": false,
+          "publicationQuarantined": true,
+          "externalPlaybackVerificationPerformed": false,
+          "oEmbedMetadataChecked": true
+        },
+        "anatomy": {
+          "primaryMuscles": ["gluteus_maximus", "quadriceps", "deep_hip_rotators", "gluteus_medius_and_minimus", "adductors"],
+          "secondaryMuscles": ["hamstrings", "calf_complex", "iliopsoas", "foot_intrinsics", "obliques", "spinal_stabilizers", "shoulder_and_arm_support_muscles_when_assisted"],
+          "joints": ["foot", "ankle", "knee", "hip", "lumbopelvic_complex", "thoracic_spine", "shoulder_wrist_and_hand_when_supported"],
+          "jointActions": ["reciprocal_hip_internal_and_external_rotation", "hip_extension", "knee_extension", "ankle_control", "trunk_bracing", "controlled_floor_return"],
+          "planes": ["transverse_hip_rotation", "sagittal_ground_to_stand", "frontal_stabilization"],
+          "laterality": "alternating asymmetric; complete the full sequence and return on each assigned side",
+          "claimsBoundary": "Task mechanics only; no diagnosis, treatment, injury-prevention, flexibility, or performance claim."
+        },
+        "athleteSupport": {
+          "whyItMatters": "Candidate ground-to-stand preparation or control work only when the exact base, assistance, environment, and dose fit.",
+          "primaryCue": "Own each position, stand through the front foot, then reverse the same path quietly.",
+          "secondaryCues": ["use assigned hand support rather than forcing range", "do not twist through the knee", "own tall kneeling and half kneeling", "stop before a drop or loss of balance"],
+          "expectedSensations": ["comfortable hip and leg effort", "controlled balance and trunk work"],
+          "unexpectedSensations": ["pain, numbness, tingling, catching, giving way, dizziness, or an uncontrolled return"],
+          "selfChecks": ["each stage is controlled", "standing and return are both completed", "both sides receive the assigned dose", "no stop symptom"],
+          "accessibility": {"captionsRequired": true, "transcriptRequired": true, "stillSequenceRequired": true, "audioDescriptionRequired": true}
+        },
+        "coachSupport": {
+          "observationChecklist": ["exact base, assistance, and endpoint", "knee tracking and hip rotation", "tall-kneeling and half-kneeling ownership", "standing balance, descent, surface, symptoms, and first quality loss"],
+          "faultCorrections": {"forced_knee_or_hip_range": "open the base, add elevation or hand support, shorten the endpoint, or stop", "uncontrolled_descent": "reduce dose or use a reviewed partial-range regression", "added_load_or_speed": "return to bodyweight control and revalidate the changed task"},
+          "doNotUseWhen": ["the floor, space, support, or communication is unsafe", "the task conflicts with symptoms or restrictions", "a seated-only hip switch or Turkish get-up is intended instead"]
+        },
+        "supportOperations": {"issueCategories": ["floor_transfer_or_symptoms", "base_or_assistance", "surface_or_logistics", "dose_or_duration", "substitution"], "supportEscalation": "Stop unresolved safety, symptom, base, balance, or quality issues.", "changeImpactPolicy": "Any task change reruns selection, logistics, duration, fatigue, substitutions, and validation."}
+      },
+      "sourceVariant": {"lookupKey": "baseline", "archiveKey": "superseded-source-56-skeleton", "displayName": "Shin Box Get-Up Legacy Skeleton — Source 56", "archiveReason": "The source stops short of a full ground-to-stand identity and lacks exact assistance, return, fatigue, delivery, alternate, and review contracts."},
+      "snapshot": {"capturedAt": "2026-08-02T18:30:00.000Z", "cardVersion": 1, "status": "review", "description": "Rise from shin box to kneeling or standing.", "familyKey": "full_body_flow"},
+      "variants": [
+        {
+          "id": "56aefbce-7e4e-4c7e-bf13-1c2fc5005601",
+          "key": "bodyweight-full-sequence-shin-box-get-up",
+          "displayName": "Bodyweight Full-Sequence Shin Box Get-Up",
+          "modifierKeys": ["bodyweight", "full_ground_to_stand", "controlled_return"],
+          "difficulty": {"technicalComplexity": 54, "absoluteLoadDemand": 30, "physicalDifficulty": 30, "coordinationDemand": 58, "supervisionDemand": 32, "failureConsequence": 32, "impact": 4, "workCapacityDemand": 28, "baseOverallDifficulty": 54},
+          "requirements": {"equipment": [], "laterality": "alternating asymmetric full sequences", "support": "hands_or_stable_support_only_when_assigned", "cycleRule": "seated shin-box to standing and controlled return is one full sequence", "rangeRule": "comfortable modified shin-box and pain-free kneeling range only", "surface": "level_padded_non_slip_floor_with_clear_standing_path"},
+          "loadProfile": {"externalLoadMethod": "bodyweight_multi_position_ground_to_stand", "impactClass": "very_low_no_flight", "gripDemand": 1, "spinalLoading": 12, "eccentricStress": 18, "landingContactsPerRep": 0, "primaryExposure": ["active_hip_rotation", "hip_and_knee_extension", "half_kneeling_and_single_leg_stability", "eccentric_floor_return", "trunk_control"]},
+          "fatigueProfile": {"localMuscleFatigue": 28, "gripFatigue": 1, "technicalFatigueSensitivity": 42, "impactAccumulation": 4, "recoveryHours": 24, "recoveryHoursPlanningEstimate": 24, "cumulativeBudget": {"hip_rotation": 24, "ground_transition": 32, "kneeling_lunge": 24, "trunk_control": 18}, "tracking": ["fullSequences", "side", "assistance", "load", "balanceErrors", "descentControl", "symptoms"]},
+          "programmingProfile": {"selectionStatus": "candidate_exact_variant_required", "exerciseScoresDescribeTaskOnly": true, "trainingStimuli": ["controlled_ground_to_stand", "hip_rotation_to_extension", "balance_and_eccentric_return"], "stimulusDose": "full_sequences_per_side_with_quality", "recomputeAfterSubstitution": true, "publicationQuarantined": true},
+          "deliveryProfiles": [
+            {"key": "prepare-full-sequence-shin-box-get-up", "phase": "prepare_and_access", "role": "conditional", "purpose": "Candidate integration of hip rotation with a low-volume controlled ground-to-stand sequence.", "suitability": 60, "methodologyAlignment": 52, "objectiveRelevance": {"ground_transition": 65, "hip_rotation": 55, "movement_preparation": 50}, "dosage": {"sets": "1-2", "sequencesPerSide": "2-3", "restSeconds": "45-90", "countRule": "count only a controlled seated-to-standing-to-seated full sequence on each assigned side"}, "qualityGate": "Each seated, tall-kneeling, half-kneeling, standing, and return stage is owned; knee motion is not forced, balance is controlled, and the floor return is quiet.", "stopRules": ["stop on pain, new symptoms, numbness, tingling, catching, giving way, dizziness, unsafe space, or participant request", "stop when knee twist, balance loss, uncontrolled descent, or trunk collapse cannot be corrected"], "coachInstructions": "Set the surface and path, demonstrate the whole return, observe both sides, and reduce endpoint or add assigned support before forcing range.", "athleteInstructions": "Move from shin box to tall kneeling, half kneeling, and standing; then step back and reverse the same path slowly.", "expectedAdaptation": "Candidate preparation only; no outcome is guaranteed.", "equipmentRequired": ["none"], "logistics": {"stationCapacity": 1, "setupSeconds": 30, "transitionSeconds": 25, "clearanceRequired": true}, "substitutionIds": [], "timeModel": {"setupSeconds": 30, "perSetSeconds": 75, "resetSeconds": 30}, "doseScaling": {"reduce": "use hand support, elevation, a shorter endpoint, fewer sequences, slower cadence, or another reviewed task", "doNotAutoProgress": "Do not remove assistance, add load, add a single-leg finish, or increase speed without revalidation."}, "measurement": {"record": ["fullSequences", "side", "assistance", "load", "balanceErrors", "descentControl", "symptoms"]}, "supportPrompts": {"athlete": "Own every stage and return quietly.", "coach": "A partial lift, a seated switch, and a Turkish get-up are not automatic substitutions."}},
+            {"key": "capacity-full-sequence-shin-box-get-up", "phase": "capacity", "role": "conditional", "purpose": "Candidate bodyweight transition-strength exposure after exact readiness and fatigue-budget checks.", "suitability": 46, "methodologyAlignment": 42, "objectiveRelevance": {"ground_transition": 62, "bodyweight_capacity": 46}, "dosage": {"sets": "2-3", "sequencesPerSide": "3-5", "restSeconds": "60-120", "countRule": "end the set at the first non-restorable stage-quality loss"}, "qualityGate": "The assigned assistance, full return, balance, knee path, and quiet descent remain repeatable on both sides.", "stopRules": ["stop on any prepare-profile stop rule", "stop when fatigue converts the task to momentum, dropping, or repeated knee twist"], "coachInstructions": "Use only after the candidate baseline is controlled; log cumulative ground-transition and hip-rotation exposure and stop before fatigue changes identity.", "athleteInstructions": "Keep every repetition smooth; rest before you need momentum.", "expectedAdaptation": "Candidate capacity exposure only; no outcome is guaranteed.", "equipmentRequired": ["none"], "logistics": {"stationCapacity": 1, "setupSeconds": 30, "transitionSeconds": 30, "clearanceRequired": true}, "substitutionIds": [], "timeModel": {"setupSeconds": 30, "perSetSeconds": 120, "resetSeconds": 45}, "doseScaling": {"reduce": "return to the prepare profile or a reviewed regression", "doNotAutoProgress": "Do not add load, speed, or a single-leg finish without revalidation."}, "measurement": {"record": ["fullSequences", "side", "assistance", "balanceErrors", "descentControl", "symptoms", "cumulativeGroundTransitionBudget"]}, "supportPrompts": {"athlete": "Quality first; stop before the floor return gets loud.", "coach": "Recompute fatigue, logistics, and duration after any change."}}
+          ]
+        }
+      ],
+      "legacy": {"preserveArchived": true, "description": "Archived Source 56 remains traceable as a partial shin-box-to-kneeling-or-standing skeleton.", "defaultSets": null, "defaultReps": null, "defaultWorkSeconds": null, "defaultRestSeconds": null, "tempo": null, "loadNote": "Candidate-only; use exact full-sequence delivery and record side, assistance, balance, descent, and symptoms.", "estimatedSecondsPerSet": null, "cardSummary": "Source 56 is represented by exact candidate variants, not the vague legacy row.", "coachLanguage": "Use an exact candidate only after floor-transfer, support, duration, fatigue, and downstream-demand checks.", "athleteLanguage": "Own each stage and return to the floor under control.", "programmingLogic": {"sourceDisposition": "candidate_reauthored", "selectable": false, "humanReviewRequired": true}, "scalableVariables": ["full_sequences", "endpoint", "assistance", "load", "cadence", "rest"], "movementFamily": "ground_to_stand_transition", "primaryPhaseKey": "prepare_and_access", "phaseSubrole": "integrate", "primaryOrderSlot": "hip_transition", "movementRequirements": {"selectable": false, "sourceIdentityReauthored": true}, "coachingExecution": {"quality_gate": "Legacy source is not selectable; use exact candidate contract.", "stop_signs": ["pain", "symptoms", "unsafe surface", "uncontrolled descent"]}, "pairingLogic": {"revalidateAfterSubstitution": true}, "mediaLibrary": {"reviewState": "candidate_only"}, "participantStructure": "individual", "programmingKind": "exercise"},
+      "safety": {"riskLevel": 2, "impactLevel": 0, "requiresSpotting": false, "coachSupervision": "recommended", "prerequisiteNotes": "Readiness is the exact variant, floor transfer, assistance, controlled return, symptoms, communication, dose, and downstream task—not a participant classification.", "readinessChecks": ["confirm padded non-slip surface and clear standing path", "confirm comfortable modified shin-box, kneeling, and half-kneeling stages", "confirm controlled return and stop signal"], "stopSigns": ["pain or stop request", "dizziness, chest, neurologic, circulation, catching, or giving-way symptoms", "unsafe space, balance loss, knee twist, or persistent quality loss"], "contraindications": ["symptom/restriction or unsafe-setting conflict", "a seated-only switch or Turkish get-up intent"], "commonSubstitutions": ["Use another reviewed task only after revalidation.", "Do not treat a partial hip lift, seated switch, assisted floor transfer, or Turkish get-up as an automatic substitution."]},
+      "score": {"technicalComplexity": 54, "absoluteLoadDemand": 30, "coordinationDemand": 58, "impact": 4, "supervisionDemand": 32, "confidence": 50, "reviewNotes": "Candidate task-only reassessment; independent calibration required.", "legacyScores": {"physicalDifficulty": 30, "failureConsequence": 32, "workCapacityDemand": 28}, "difficultyProfile": {"technical": 5.4, "complexity": 5.4, "load": 3, "overall": 5.4, "attentionDemand": "moderate_to_high", "notes": "Exact bodyweight full ground-to-stand and controlled-return variant only."}},
+      "testPacket": {"auditVersion": "canonical-card-audit-v2", "status": "quarantined", "humanReviewRequired": true, "checks": {"identity": "candidate_complete", "taxonomy": "candidate_complete", "difficulty": "candidate_complete", "media": "human_review_required", "relationships": "human_review_required", "calibration": "human_review_required", "publication": "human_review_required"}, "blockingIssues": [{"code": "CARD-MEDIA-01", "severity": "P0", "message": "Exact-match media requires human review."}, {"code": "CARD-GRAPH-03", "severity": "P1", "message": "Relationships require human review."}, {"code": "CARD-CALIBRATION-01", "severity": "P1", "message": "Independent score calibration is required."}, {"code": "CARD-PUBLISH-01", "severity": "P0", "message": "Publication requires current two-person approval."}]}
+    }
+  ]
+}

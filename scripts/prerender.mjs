@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_OG_IMAGE,
   GYMNASTICS_HOST_PAGES,
+  GYMNASTICS_NOINDEX_PRERENDER_PATHS,
   GYMNASTICS_PRERENDER_PATHS,
   HUB_PRERENDER_PATHS,
   SITE_NAME,
@@ -50,6 +51,7 @@ const buildSeoHeadBlock = ({
   title,
   description,
   canonical,
+  siteName = SITE_NAME,
   robots,
   ogImage = DEFAULT_OG_IMAGE,
   ogImageAlt = SITE_NAME,
@@ -67,7 +69,7 @@ ${robotsTag}    <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:image:alt" content="${escapeAttr(ogImageAlt)}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:site_name" content="${escapeAttr(SITE_NAME)}" />
+    <meta property="og:site_name" content="${escapeAttr(siteName)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(description)}" />
@@ -118,6 +120,7 @@ const generateStubHostHtml = () => {
       title: stub.title,
       description: stub.description,
       canonical: stub.canonical,
+      robots: stub.robots,
     })
     const outPath = join(seoDir, `${stub.host}.html`)
     writeFileSync(outPath, html, 'utf8')
@@ -145,6 +148,7 @@ const generateGymHostBaseline = () => {
       title: page.title,
       description: page.description,
       canonical: page.canonical,
+      siteName: page.siteName,
       ogImage: page.ogImage,
       ogImageAlt: page.ogImageAlt,
     })
@@ -271,7 +275,7 @@ const prerenderAppRoutes = async () => {
       ...GYMNASTICS_PRERENDER_PATHS.map((routePath) => ({
         url: `${previewOrigin}${routePath}?sport=gymnastics`,
         outFile: join(distDir, routePath.replace(/^\//, ''), 'index.html'),
-        stripNoindex: true,
+        stripNoindex: !GYMNASTICS_NOINDEX_PRERENDER_PATHS.includes(routePath),
       })),
       // Gymnastics routes whose paths collide with the hub (/, /read-board):
       // snapshot into dedicated _gym/* files served via host rules.

@@ -1,0 +1,555 @@
+{
+  "facilityId": 1,
+  "slug": "jump-rope-bounce",
+  "researchVersion": "2026-08-09.115",
+  "assessmentSummary": {
+    "identity": "One Jump Rope Bounce repetition is one rope revolution with a low simultaneous bilateral takeoff and landing on a clean, level, non-slip surface while a hand-held rope passes under both feet. The basic-bounce card is a low-amplitude two-foot rope rhythm task, not mimed jumping, alternating-foot skipping, boxer step, single-leg skipping, double-under, weighted-rope work, conditioning intervals, power jumping, or a landing assessment.",
+    "currentCardFindings": [
+      "Source 49, Jump Rope Easy Bounce, was deterministically consolidated into the jump-rope-bounce survivor. Its old variant is an archived source skeleton and must remain traceable rather than being silently selectable.",
+      "Source labels such as easy and low describe candidate amplitude, pace, contacts, and duration. They do not establish participant skill, age, readiness, clinical eligibility, or a universal dose.",
+      "Four direct YouTube candidates returned oEmbed metadata on 2026-08-09. Playback, current availability, embedding, exact mechanics, captions, accessibility, quality, and approval remain human-review work."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "jump",
+        "land"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core",
+        "shoulder",
+        "wrist"
+      ],
+      "support": "bilateral_repeated_rope_clearance",
+      "laterality": "simultaneous_bilateral_takeoff_and_landing",
+      "planes": [
+        "sagittal_ankle_knee_hip_motion",
+        "frontal_plane_limb_stabilization",
+        "transverse_rope_rotation_control"
+      ],
+      "equipment": [
+        "jump_rope"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 38,
+      "absoluteLoadDemand": 24,
+      "physicalDifficulty": 24,
+      "coordinationDemand": 40,
+      "supervisionDemand": 14,
+      "failureConsequence": 14,
+      "impact": 28,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 38,
+      "overallFormula": "max(exercise_complexity,physical_difficulty)"
+    },
+    "proposedLoadProfile": {
+      "externalLoadMethod": "bodyweight_repeated_bilateral_rope_clearance_with_handheld_rope_rotation",
+      "impactClass": "repeated_low_amplitude_bilateral_contacts",
+      "primaryExposure": [
+        "ankle_plantarflexion_and_dorsiflexion_control",
+        "foot_and_metatarsophalangeal_loading",
+        "calf_achilles_exposure",
+        "repeated_landing_contacts",
+        "wrist_and_shoulder_rope_rotation"
+      ],
+      "recovery": "candidate planning estimate only; recompute from actual contacts, cadence, surface, footwear, symptoms, and overlapping impact work"
+    },
+    "proposedDosage": {
+      "prepare": "1-3 short bouts with only clean, counted rope passes and full reset before contact quality declines",
+      "tempo": "candidate low, regular cadence; cadence is recorded rather than assumed",
+      "rest": "restore breathing, rope control, contact quality, and symptoms before the next bout",
+      "durationRule": "include rope sizing, clear station, valid passes, misses and resets, rest, substitutions, cleaning, and exit"
+    },
+    "programmingDecision": "Select only when the exact two-foot rope-pass contract, rope length and handle condition, clean level non-slip surface, ceiling and lateral clearance, footwear or approved bare-foot policy, contact budget, symptoms, communication, staffing, and downstream running, jumping, landing, and calf exposure fit. Recompute selection, fatigue, impact, duration, logistics, substitution, persistence, and rendering after any change.",
+    "calibrationEvidence": {
+      "basis": "Direct jump-rope footwear and alternating-foot biomechanics studies, a professional supervised-training standard, the merged Source 49 lineage, and comparison with low pogos, rope power singles, alternating-foot rope skipping, boxer step, double-under, and interval work.",
+      "uncertainty": "The studies do not establish a universal cadence, amplitude, contact ceiling, dose, recovery interval, participant threshold, outcome, or Vortex score. Human review is required for every score, relationship, and video.",
+      "reviewNeeded": [
+        "qualified_content_review",
+        "independent_variant_difficulty_calibration",
+        "contact_and_surface_review",
+        "load_fatigue_recovery_review",
+        "full_video_review_and_variant_assignment",
+        "relationship_review",
+        "coach_and_athlete_comprehension_test"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-08-09T23:20:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand on a clean, level, non-slip surface with a correctly sized unweighted jump rope held in both hands. Rotate the rope with the hands and wrists so it passes under both feet once. Make one low simultaneous bilateral takeoff, clear the rope, and land quietly on both feet before the next pass. One rope revolution with one bilateral takeoff and landing is one repetition. Record valid passes, misses, actual contact count, cadence, rope type, surface, footwear, symptoms, and rest. Alternating-foot, boxer, single-leg, double-under, mimed, weighted-rope, high-output, interval, assessment, and other changed tasks require their own reviewed variant or definition.",
+      "familyKey": "jump_rope_basic_bounce",
+      "movementPatterns": [
+        "jump",
+        "land"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "calf",
+        "knee",
+        "hip",
+        "core",
+        "shoulder",
+        "wrist"
+      ],
+      "requiredEquipment": [
+        "jump_rope"
+      ],
+      "optionalEquipment": [],
+      "variantKey": "bilateral-low-amplitude-basic-rope-bounce",
+      "environment": {
+        "surface": "clean, level, dry, non-slip impact-appropriate floor",
+        "space": "clear overhead, forward, rear, and lateral rope arc with no traffic",
+        "stationCapacity": 1,
+        "inspection": [
+          "rope length, handles, cord, and attachment condition",
+          "surface traction, debris, moisture, and clearance",
+          "footwear or approved barefoot policy",
+          "communication, line of sight, entry, and exit"
+        ],
+        "changeRule": "Changing rope mass, rope length beyond setup fit, contact pattern, amplitude, cadence, surface, footwear, support, intent, dose, or symptoms requires revalidation."
+      },
+      "population": {
+        "exerciseCardDoesNotClassifyParticipants": true,
+        "readinessIsWorkoutInput": true,
+        "selectionPrerequisites": [
+          "safe clear rope station",
+          "comfortable low bilateral rope pass and landing",
+          "understands counted pass, miss, stop signal, and exit",
+          "same-session impact, calf, foot, and lower-body budgets fit"
+        ],
+        "excludeOrEscalate": [
+          "symptoms or restriction conflicting with repeated impact",
+          "sharp, increasing, unfamiliar, neurologic, circulation, skin, breathing, chest, balance, or communication concern",
+          "unsafe rope, surface, clearance, footwear, supervision, or exit",
+          "participant requests stop"
+        ],
+        "notEstablishedByEvidence": [
+          "universal contact cap, cadence, dose, recovery, outcome, readiness threshold, or clinical clearance"
+        ]
+      },
+      "difficulty": {
+        "technicalComplexity": 38,
+        "absoluteLoadDemand": 24,
+        "physicalDifficulty": 24,
+        "coordinationDemand": 40,
+        "supervisionDemand": 14,
+        "failureConsequence": 14,
+        "impact": 28,
+        "workCapacityDemand": 24,
+        "baseOverallDifficulty": 38
+      },
+      "loadProfile": {
+        "externalLoadMethod": "bodyweight_with_unweighted_handheld_rope",
+        "impactClass": "repeated_low_amplitude_bilateral_contacts",
+        "landingContactsPerRep": 2,
+        "primaryExposure": [
+          "foot_ankle_calf",
+          "repeated_impact",
+          "rope_rotation"
+        ]
+      },
+      "fatigueProfile": {
+        "localMuscleFatigue": 24,
+        "technicalFatigueSensitivity": 32,
+        "impactAccumulation": 28,
+        "recoveryHoursPlanningEstimate": 12,
+        "cumulativeBudget": {
+          "rope_contacts": 80,
+          "foot": 22,
+          "calf": 22,
+          "impact": 30,
+          "lower_body": 18
+        },
+        "tracking": [
+          "validPasses",
+          "contactCount",
+          "cadence",
+          "misses",
+          "surface",
+          "footwear",
+          "symptoms"
+        ]
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The study distinguishes one- and two-leg jump-rope landing conditions.",
+        "Vortex defines this candidate as the simultaneous bilateral basic-bounce condition only."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37892884/",
+      "sourceTitle": "Effects of Barefoot and Shod Conditions on the Kinematics and Kinetics of the Lower Extremities in Alternating Jump Rope Skipping",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Alternating jump-rope skipping is a separately studied task.",
+        "Alternating-foot, boxer-step, and single-leg patterns remain separate variants or definitions rather than annotations."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The study measured plantar pressure and lower-extremity muscle activity during jump rope.",
+        "The card records foot, ankle, calf, knee, hip, trunk, shoulder, and wrist roles without claiming isolated activation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37892884/",
+      "sourceTitle": "Effects of Barefoot and Shod Conditions on the Kinematics and Kinetics of the Lower Extremities in Alternating Jump Rope Skipping",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Ankle and metatarsophalangeal kinematics and kinetics are relevant during alternating rope skipping.",
+        "Rope clearance, bilateral contacts, low amplitude, and hand-driven rope rotation are explicit observable mechanics for this candidate."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "One- and two-leg landing conditions had different measured loading characteristics.",
+        "Candidate scores describe exercise complexity and physical demand only, never a person's skill or age."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Repeated jump rope produces measured ground-reaction force, plantar-pressure, and muscle-activity exposure.",
+        "The card counts valid contacts and records surface, footwear, cadence, misses, symptoms, and overlapping impact instead of asserting a universal recovery time."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe environment, instruction, supervision, and progressive exposure are relevant to supervised exercise.",
+        "Vortex requires rope, clearance, surface, visibility, communication, and exit checks without demographic classification."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The laboratory task does not establish a universal workout dose.",
+        "Candidate bout and contact proposals remain review-only and stop before repeated-contact quality declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37892884/",
+      "sourceTitle": "Effects of Barefoot and Shod Conditions on the Kinematics and Kinetics of the Lower Extremities in Alternating Jump Rope Skipping",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Rope skipping has distinct landing and lower-limb phases.",
+        "Vortex cues a low bilateral pass, quiet landing, wrist-driven rope rotation, and counted valid passes without prescribing a clinical technique."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Supervision and safe training conditions should be matched to the task and setting.",
+        "Stop for pain, new neurologic or circulation symptoms, repeated trips, unsafe clearance, loud or uncontrolled contacts, or inability to communicate."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Footwear and landing condition changed measured jump-rope loading characteristics.",
+        "Any change of footwear, landing pattern, amplitude, cadence, rope type, surface, or dose requires revalidation of exposure and selection."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction and supervision are relevant safeguards for resistance and conditioning activity.",
+        "Athlete support uses plain cues, a clear stop signal, and an option to stop rather than chase continuous passes."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/35447695/",
+      "sourceTitle": "Effects of Jump-Rope-Specific Footwear Selection on Lower Extremity Biomechanics",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The study measured differences between landing conditions.",
+        "Coaches observe rope clearance, bilateral contact pattern, amplitude, surface, footwear, contact sound, trips, symptoms, and actual passes without diagnosing impairment."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction and supervised progression should be matched to the task and setting.",
+        "Captions, transcript, still sequence, visual station markers, live verbal cueing, and a different reviewed task remain candidate supports; a mimed task is not automatically equivalent."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37892884/",
+      "sourceTitle": "Effects of Barefoot and Shod Conditions on the Kinematics and Kinetics of the Lower Extremities in Alternating Jump Rope Skipping",
+      "sourcePublisher": "Bioengineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Alternating jump-rope skipping differs from bilateral basic bouncing in lower-extremity mechanics.",
+        "The alternate review explicitly separates contact pattern, rope requirement, amplitude, pace, external load, and interval intent."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Instruction and supervision need task-specific review.",
+        "Four oEmbed-metadata candidates are recorded without claiming playback, exact-match mechanics, captions, quality, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=knhqqXCtoEU",
+      "title": "JUMP ROPE 101 - Learn The Basic Bounce",
+      "channelName": "Lauren Jumps",
+      "sourceQuery": "basic-bounce candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:20:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact bilateral basic-bounce mechanics, captions, accessibility, safety, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=aFoektJK9dU",
+      "title": "How To Jump Rope For Beginners",
+      "channelName": "Jump Rope Dudes",
+      "sourceQuery": "basic-bounce candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:20:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact task, accessibility, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LIVpKPL6Z94",
+      "title": "The Ultimate Jump Rope Guide To Mastering the Basic Bounce",
+      "channelName": "Jump Rope Masters",
+      "sourceQuery": "basic-bounce candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:20:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact task, accessibility, quality, and approval remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=L74fTx4PoAE",
+      "title": "Jump Rope | Basic Bounce Tutorial",
+      "channelName": "Razzy Ezzel Nulud",
+      "sourceQuery": "basic-bounce candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-08-09T23:20:00.000Z"
+      },
+      "notes": "oEmbed metadata only; exact task, accessibility, quality, and approval remain unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Low Amplitude Bilateral Basic Rope Bounce",
+      "classification": "same_identity",
+      "rationale": "This is the exact candidate contract.",
+      "distinguishingDimensions": {
+        "contactPattern": "simultaneous_bilateral",
+        "amplitude": "low"
+      }
+    },
+    {
+      "name": "Rope Length Adjustment",
+      "classification": "modifier_annotation",
+      "rationale": "Rope sizing changes setup but not the physical contract when the same clean pass is retained.",
+      "distinguishingDimensions": {
+        "annotation": "rope_length"
+      }
+    },
+    {
+      "name": "Clean-Pass Bout Duration",
+      "classification": "modifier_annotation",
+      "rationale": "Duration changes exposure and is recorded in delivery.",
+      "distinguishingDimensions": {
+        "annotation": "duration"
+      }
+    },
+    {
+      "name": "Cadence Within the Same Low Bounce",
+      "classification": "modifier_annotation",
+      "rationale": "Cadence is delivery only when amplitude, bilateral contacts, and task intent remain unchanged.",
+      "distinguishingDimensions": {
+        "annotation": "cadence"
+      }
+    },
+    {
+      "name": "Footwear Within Approved Surface Policy",
+      "classification": "modifier_annotation",
+      "rationale": "Footwear is operational only when the exact task and safety checks remain valid.",
+      "distinguishingDimensions": {
+        "annotation": "footwear"
+      }
+    },
+    {
+      "name": "Mimed Bilateral Bounce",
+      "classification": "new_variant",
+      "rationale": "Removing the rope removes rope-clearance timing and hand rotation.",
+      "distinguishingDimensions": {
+        "ropeRequired": false
+      }
+    },
+    {
+      "name": "Alternating-Foot Rope Skip",
+      "classification": "new_variant",
+      "rationale": "Alternating foot contact changes laterality and measured mechanics.",
+      "distinguishingDimensions": {
+        "contactPattern": "alternating"
+      }
+    },
+    {
+      "name": "Boxer Step Rope Skip",
+      "classification": "new_variant",
+      "rationale": "Weight transfer and contact timing change the movement contract.",
+      "distinguishingDimensions": {
+        "contactPattern": "asymmetric_weight_shift"
+      }
+    },
+    {
+      "name": "Single-Leg Rope Skip",
+      "classification": "new_variant",
+      "rationale": "Unilateral support changes load, balance, and failure behavior.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral"
+      }
+    },
+    {
+      "name": "Double-Under",
+      "classification": "new_variant",
+      "rationale": "Two rope revolutions per jump change timing, rope speed, and error consequence.",
+      "distinguishingDimensions": {
+        "ropeRevolutionsPerJump": 2
+      }
+    },
+    {
+      "name": "Weighted Rope Bounce",
+      "classification": "new_variant",
+      "rationale": "Rope mass changes upper-limb and trunk load.",
+      "distinguishingDimensions": {
+        "externalLoad": "weighted_rope"
+      }
+    },
+    {
+      "name": "Jump Rope Power Singles",
+      "classification": "new_definition",
+      "rationale": "High-output elastic intent is not the preparation basic-bounce stimulus.",
+      "distinguishingDimensions": {
+        "primaryStimulus": "output_power"
+      }
+    },
+    {
+      "name": "Jump Rope Interval Conditioning",
+      "classification": "new_definition",
+      "rationale": "Interval work changes primary stimulus, fatigue, and dosage logic.",
+      "distinguishingDimensions": {
+        "primaryStimulus": "conditioning"
+      }
+    },
+    {
+      "name": "Low Pogos",
+      "classification": "new_definition",
+      "rationale": "Low pogos omit rope-clearance timing and hand rotation.",
+      "distinguishingDimensions": {
+        "ropeRequired": false,
+        "primaryAction": "pogo"
+      }
+    },
+    {
+      "name": "Jump-Rope Landing Assessment",
+      "classification": "new_definition",
+      "rationale": "Assessment changes measurement, intent, stop rules, and governance.",
+      "distinguishingDimensions": {
+        "intent": "assessment"
+      }
+    }
+  ]
+}

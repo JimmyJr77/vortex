@@ -76,7 +76,7 @@ const CookieConsent = () => {
                 use cookies to build advertising audiences from children&apos;s information. See our{' '}
                 <a
                   href={getHubSiteUrl('/privacy-policy')}
-                  className="text-vortex-red hover:underline"
+                  className="font-medium text-red-400 hover:underline"
                 >
                   Privacy Policy
                 </a>

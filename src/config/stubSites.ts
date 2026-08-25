@@ -1,4 +1,4 @@
-import { buildStubCanonical, type SeoMeta } from '../utils/seo'
+import { buildStubCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
 
 export interface StubSiteConfig {
   key: string
@@ -9,7 +9,7 @@ export interface StubSiteConfig {
   ogImage?: string
 }
 
-const MAIN_SITE_URL = 'https://www.vortexathletics.com'
+const MAIN_SITE_URL = HUB_ORIGIN
 
 export const HUB_URL = MAIN_SITE_URL
 
@@ -18,7 +18,7 @@ export const STUB_SITES: Record<string, StubSiteConfig> = {
     key: 'gymnastics',
     sportLabel: 'Gymnastics',
     headline: 'Vortex Gymnastics',
-    canonicalHost: 'vortex-gymnastics.com',
+    canonicalHost: 'www.vortex-gymnastics.com',
     description:
       'Vortex Gymnastics offers progressive training for all ages. Programs, classes, events, and development-first coaching at Vortex Athletics.',
   },
@@ -117,7 +117,7 @@ export const getStubSeo = (
   description: config.description,
   canonical: buildStubCanonical(config.canonicalHost),
   ogImage: config.ogImage,
-  robots: options?.isPreview ? 'noindex, nofollow' : undefined,
+  robots: options?.isPreview ? 'noindex, nofollow' : 'noindex, follow',
 })
 
 export const isStubPreviewOnNonStubHost = (

@@ -8,7 +8,7 @@ export const HOME_FAQS: Faq[] = [
   {
     question: 'Where are you located?',
     answer:
-      'Our facility is located at 4961 Tesla Dr, Ste E, Bowie, MD 20715. We serve athletes across Bowie and central Maryland, including Crofton, Mitchellville, Upper Marlboro, and Prince George\u2019s and Anne Arundel Counties.',
+      'Our facility is located at 4961 Tesla Dr Suite E, Bowie, MD 20715. We serve athletes across Bowie and central Maryland, including Crofton, Mitchellville, Upper Marlboro, and Prince George\u2019s and Anne Arundel Counties.',
   },
   {
     question: 'What ages do you serve?',
@@ -33,7 +33,7 @@ export const HOME_FAQS: Faq[] = [
   {
     question: 'What programs do you offer?',
     answer:
-      'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus our Athleticism Accelerator program for cross-sport development, developmental classes, ninja classes, and private coaching.',
+      'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus youth sports performance training, Fit & Flip, developmental classes, drop-in options, and private coaching. Ninja classes are temporarily on hold.',
   },
   {
     question: 'What is the "Fail your way to success" mindset?',

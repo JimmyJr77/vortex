@@ -16,15 +16,21 @@ const GymnasticsSeo = ({ isPreview = false }: GymnasticsSeoProps) => {
   // Preload the first hero image (LCP) only on the gymnastics home route.
   const preloadImage =
     pathname === '/'
-      ? '/campaign_early_dev_hero.jpg'
+      ? '/campaign_early_dev_hero-1600.webp'
       : pathname === '/summer-camp-26'
         ? '/summer-camp-2026-flyer-front.png'
         : undefined
+  const preloadImageSrcSet =
+    pathname === '/'
+      ? '/campaign_early_dev_hero-720.webp 720w, /campaign_early_dev_hero-1600.webp 1600w'
+      : undefined
   return (
     <SeoHead
       {...seo}
       schema={getGymnasticsSchema(pathname)}
       preloadImage={preloadImage}
+      preloadImageSrcSet={preloadImageSrcSet}
+      preloadImageSizes={preloadImageSrcSet ? '100vw' : undefined}
     />
   )
 }

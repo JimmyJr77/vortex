@@ -7,31 +7,17 @@ DO $$
 DECLARE
   migration_key CONSTANT TEXT := '459_coaching_suitcase_carry_family_completion';
   research_version CONSTANT TEXT := '2026-08-02.71';
-  canonical_id CONSTANT UUID := 'd200b890-4a90-4b00-b0fc-242a688635a7';
-  dumbbell_variant CONSTANT UUID := '7885a1a8-1272-48c3-901c-b9d21cc4f6cb';
-  kettlebell_variant CONSTANT UUID := 'cbf861ef-a0c5-46f9-8f46-858702831c87';
-  line_walk_variant CONSTANT UUID := 'e9d09f99-aaf3-43e4-843d-c739aa5fee3a';
-  farmer_definition CONSTANT UUID := '0092862f-f6c2-452f-8b46-1133dbd166c3';
-  farmer_variant CONSTANT UUID := '6fdc05b7-5a97-4cec-b4ce-f5c840d83e07';
-  hold_definition CONSTANT UUID := '50b9b7a7-b6d7-4385-a19d-8d130fe6d88e';
-  hold_variant CONSTANT UUID := 'c3ae55e4-8d95-4c9c-bd92-aedcf27788f7';
+  canonical_id UUID;
+  dumbbell_variant UUID;
+  kettlebell_variant UUID;
+  line_walk_variant UUID;
+  farmer_definition UUID;
+  farmer_variant UUID;
+  hold_definition UUID;
+  hold_variant UUID;
   source_ids CONSTANT BIGINT[] := ARRAY[204,452,504,559,1028,1340,1470];
-  source_variant_ids CONSTANT UUID[] := ARRAY[
-    '61a71fda-4ea2-417d-8f88-1fcd64d8b6b5'::UUID,
-    '500e9c0b-5522-4454-aa68-a44d0bfab2b6'::UUID,
-    '9ae38dd0-94cf-4e04-a969-75d9329e24fd'::UUID,
-    '658c9f35-c2a4-4883-acb2-f66c9835ac3e'::UUID,
-    '1f1443d9-7bed-4d7d-8259-e534352c925c'::UUID,
-    'e39a9fb6-f49c-433b-bb69-fbca6f65b4e5'::UUID,
-    '4dbf904a-d885-46e2-bd9e-4d5d8d2cb21c'::UUID];
-  active_variant_ids CONSTANT UUID[] := ARRAY[dumbbell_variant,kettlebell_variant,line_walk_variant];
-  archived_definition_ids CONSTANT UUID[] := ARRAY[
-    '5ae1d70d-8cdf-4f91-beb4-002943f868ba'::UUID,
-    'ad7bbfdf-6e61-4688-b3a4-571df7bcc261'::UUID,
-    '440f1793-fe1f-4f28-ad53-dc0e5653c6c8'::UUID,
-    'b496264e-e2b1-4520-aa50-ed0528fa79d3'::UUID,
-    '2dbd8941-ccd0-4ab4-b43c-2decb8d36ed5'::UUID,
-    'ad58ced5-6716-40e4-aaf3-51cd65714e15'::UUID];
+  source_variant_ids UUID[];
+  active_variant_ids UUID[];
   current_video_ids CONSTANT TEXT[] := ARRAY[
     'zFje79PZsxQ','IZ0aGhu24c8','z4WJXcx19WQ','LJaq4BS7KpE','Fko5Hp537us'];
   evidence_payload JSONB := $json$
@@ -89,11 +75,45 @@ DECLARE
   ]
   $json$::JSONB;
 BEGIN
+  -- Fresh library bootstraps generate UUIDs. Source IDs and exact lineage
+  -- keys carry the durable identity, including the distinct Carry/Hold
+  -- anchors below.
+  SELECT definition_id INTO canonical_id
+  FROM coaching.exercise_definition_source_v1 WHERE legacy_exercise_id=204;
+  SELECT id INTO dumbbell_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='straight-lane-dumbbell';
+  IF dumbbell_variant IS NULL THEN dumbbell_variant := gen_random_uuid(); END IF;
+  SELECT id INTO kettlebell_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='straight-lane-kettlebell';
+  IF kettlebell_variant IS NULL THEN kettlebell_variant := gen_random_uuid(); END IF;
+  SELECT id INTO line_walk_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=canonical_id AND variant_key='single-line-dumbbell';
+  IF line_walk_variant IS NULL THEN line_walk_variant := gen_random_uuid(); END IF;
+  SELECT id INTO farmer_definition FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='farmer-carry';
+  SELECT id INTO farmer_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=farmer_definition AND variant_key='baseline';
+  SELECT id INTO hold_definition FROM coaching.exercise_definition_v1
+  WHERE facility_id=1 AND slug='suitcase-hold';
+  SELECT id INTO hold_variant FROM coaching.exercise_variant_v1
+  WHERE definition_id=hold_definition AND variant_key='baseline';
+  SELECT ARRAY[
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-452-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-504-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-559-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1028-baseline'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='baseline-source-1340'),
+    (SELECT id FROM coaching.exercise_variant_v1 WHERE definition_id=canonical_id AND variant_key='legacy-source-1470-baseline')]
+  INTO source_variant_ids;
+  active_variant_ids := ARRAY[dumbbell_variant,kettlebell_variant,line_walk_variant];
   IF (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id=canonical_id AND facility_id=1 AND slug='suitcase-carry')<>1
     OR (SELECT count(*) FROM coaching.exercise WHERE id=ANY(source_ids))<>7
     OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
       WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids))<>7
+    OR canonical_id IS NULL OR farmer_definition IS NULL OR hold_definition IS NULL
+    OR farmer_variant IS NULL OR hold_variant IS NULL
     OR (SELECT count(*) FROM coaching.exercise_variant_v1 WHERE id=ANY(source_variant_ids))<>7
     OR (SELECT count(*) FROM coaching.exercise_definition_v1
       WHERE id IN (farmer_definition,hold_definition) AND status<>'archived')<>2
@@ -129,19 +149,19 @@ BEGIN
     requirements_json=jsonb_build_object(
       'selectable',FALSE,'representation','identity_quarantine',
       'sourceLegacyExerciseId',CASE id
-        WHEN '61a71fda-4ea2-417d-8f88-1fcd64d8b6b5'::UUID THEN 204
-        WHEN '500e9c0b-5522-4454-aa68-a44d0bfab2b6'::UUID THEN 452
-        WHEN '9ae38dd0-94cf-4e04-a969-75d9329e24fd'::UUID THEN 504
-        WHEN '658c9f35-c2a4-4883-acb2-f66c9835ac3e'::UUID THEN 559
-        WHEN '1f1443d9-7bed-4d7d-8259-e534352c925c'::UUID THEN 1028
-        WHEN 'e39a9fb6-f49c-433b-bb69-fbca6f65b4e5'::UUID THEN 1340 ELSE 1470 END,
+        WHEN source_variant_ids[1] THEN 204
+        WHEN source_variant_ids[2] THEN 452
+        WHEN source_variant_ids[3] THEN 504
+        WHEN source_variant_ids[4] THEN 559
+        WHEN source_variant_ids[5] THEN 1028
+        WHEN source_variant_ids[6] THEN 1340 ELSE 1470 END,
       'archiveReason',CASE id
-        WHEN '61a71fda-4ea2-417d-8f88-1fcd64d8b6b5'::UUID THEN 'generic_db_or_kb_record_omits_exact_implement_route_turn_distance_pace_pickup_and_setdown_contract'
-        WHEN '500e9c0b-5522-4454-aa68-a44d0bfab2b6'::UUID THEN 'dumbbell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract'
-        WHEN '9ae38dd0-94cf-4e04-a969-75d9329e24fd'::UUID THEN 'kettlebell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract'
-        WHEN '658c9f35-c2a4-4883-acb2-f66c9835ac3e'::UUID THEN 'line_walk_record_omits_exact_foot_on_line_rule_turn_finish_and_setdown_contract'
-        WHEN '1f1443d9-7bed-4d7d-8259-e534352c925c'::UUID THEN 'sandbag_record_omits_exact_grip_handle_position_clearance_pickup_and_setdown_contract'
-        WHEN 'e39a9fb6-f49c-433b-bb69-fbca6f65b4e5'::UUID THEN 'throwing_record_has_no_executable_carry_route_position_pace_pickup_or_setdown_contract'
+        WHEN source_variant_ids[1] THEN 'generic_db_or_kb_record_omits_exact_implement_route_turn_distance_pace_pickup_and_setdown_contract'
+        WHEN source_variant_ids[2] THEN 'dumbbell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract'
+        WHEN source_variant_ids[3] THEN 'kettlebell_record_omits_exact_route_turn_distance_pace_hand_order_and_terminal_contract'
+        WHEN source_variant_ids[4] THEN 'line_walk_record_omits_exact_foot_on_line_rule_turn_finish_and_setdown_contract'
+        WHEN source_variant_ids[5] THEN 'sandbag_record_omits_exact_grip_handle_position_clearance_pickup_and_setdown_contract'
+        WHEN source_variant_ids[6] THEN 'throwing_record_has_no_executable_carry_route_position_pace_pickup_or_setdown_contract'
         ELSE 'march_record_omits_in_place_or_traveling_identity_step_height_cadence_route_and_terminal_contract' END,
       'originalAuthoritativeEvidenceRequired',TRUE,'humanReviewRequired',TRUE),
     load_profile_json=coalesce(load_profile_json,'{}'::JSONB)||jsonb_build_object('selectable',FALSE),
@@ -423,23 +443,16 @@ BEGIN
   INSERT INTO coaching.exercise_identity_resolution_v1(
     facility_id,survivor_definition_id,resolved_definition_id,decision,
     rationale,evidence_json,resolution_source,reviewed_by)
-  SELECT 1,canonical_id,definition_id,
-    CASE WHEN definition_id IN ('b496264e-e2b1-4520-aa50-ed0528fa79d3'::UUID,
-      '2dbd8941-ccd0-4ab4-b43c-2decb8d36ed5'::UUID,
-      'ad58ced5-6716-40e4-aaf3-51cd65714e15'::UUID)
-      THEN 'needs_human_review' ELSE 'duplicate_consolidated' END,
-    CASE definition_id
-      WHEN '5ae1d70d-8cdf-4f91-beb4-002943f868ba'::UUID THEN 'Dumbbell Suitcase Carry is the same unilateral loaded-locomotion family; the research-authored dumbbell working specification makes route, turn, hand, pace, pickup, finish, and set-down explicit while the source row remains nonselectable.'
-      WHEN 'ad7bbfdf-6e61-4688-b3a4-571df7bcc261'::UUID THEN 'Single Kettlebell Suitcase Carry is the same unilateral loaded-locomotion family; kettlebell handle and geometry are represented by an explicit research-authored variant while the underspecified source row remains nonselectable.'
-      WHEN '440f1793-fe1f-4f28-ad53-dc0e5653c6c8'::UUID THEN 'Suitcase Carry Line Walk is the same unilateral carry family with a narrower route and explicit foot-centering rule represented by a research-authored line variant.'
-      WHEN 'b496264e-e2b1-4520-aa50-ed0528fa79d3'::UUID THEN 'Sandbag Suitcase Carry may belong to this family, but its source omits exact handle, grip, side position, deformation, clearance, pickup, and set-down facts.'
-      WHEN '2dbd8941-ccd0-4ab4-b43c-2decb8d36ed5'::UUID THEN 'The throwing-athlete row shares the name but does not supply an executable loaded-hand, implement, route, pace, pickup, finish, or set-down contract.'
-      ELSE 'Suitcase Carry March may be in-place or traveling and omits knee-height, cadence, route, foot path, terminal action, and complete dosage facts.' END,
-    jsonb_build_object('migration',migration_key,
-      'identityBoundary','unilateral_loaded_locomotion_family_with_exact_implement_route_and_step_dimensions',
-      'sourceVariantSelectable',FALSE,'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
+  -- Historical UUID-only definition records cannot be safely replayed in a
+  -- clean bootstrap. Quarantined source lineage and archived variants retain
+  -- the evidence without inventing foreign-key identity targets.
+  SELECT 1,canonical_id,historical.definition_id,'needs_human_review',
+    'Historical UUID-only identity boundary is retained by quarantined source lineage; no foreign-key target is fabricated during clean bootstrap.',
+    jsonb_build_object('migration',migration_key,'historicalBoundaryNotReplayed',TRUE,
+      'humanReviewRequired',TRUE,'approvalsCreated',FALSE),
     'deterministic_identity_equivalence',NULL
-  FROM unnest(archived_definition_ids) definition_id
+  FROM (SELECT NULL::UUID AS definition_id) historical
+  WHERE FALSE
   ON CONFLICT(survivor_definition_id,resolved_definition_id) DO UPDATE SET
     decision=EXCLUDED.decision,rationale=EXCLUDED.rationale,
     evidence_json=EXCLUDED.evidence_json,resolution_source=EXCLUDED.resolution_source,
@@ -566,9 +579,9 @@ BEGIN
     OR (SELECT count(*) FROM coaching.exercise_score_calibration_v1
       WHERE variant_id=ANY(active_variant_ids) AND status='review'
         AND version=1 AND reviewed_by IS NULL)<>6
-    OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
-      WHERE survivor_definition_id=canonical_id AND resolved_definition_id=ANY(archived_definition_ids)
-        AND reviewed_by IS NULL)<>6
+    OR (SELECT count(*) FROM coaching.exercise_definition_source_v1
+      WHERE definition_id=canonical_id AND legacy_exercise_id=ANY(source_ids)
+        AND provenance_json->>'sourceDisposition'='identity_quarantine')<>7
     OR (SELECT count(*) FROM coaching.exercise_identity_resolution_v1
       WHERE survivor_definition_id=canonical_id
         AND resolved_definition_id IN (farmer_definition,hold_definition)

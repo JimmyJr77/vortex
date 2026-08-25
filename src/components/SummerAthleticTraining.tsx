@@ -326,6 +326,7 @@ const SummerAthleticTraining = () => {
           <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
             {skills.map((skill, index) => (
               <motion.span
+                tabIndex={-1}
                 key={skill}
                 className="inline-flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-full px-5 py-2.5 text-gray-800 font-semibold text-sm md:text-base"
                 initial={{ opacity: 0, scale: 0.9 }}

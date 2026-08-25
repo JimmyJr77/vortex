@@ -1,5 +1,10 @@
 # Vortex Athletics SEO Audit & Optimization (2026)
 
+> **Historical audit.** The canonical domains, NAP, route inventory, sitemap
+> membership, expired-program status, and release process below were superseded
+> by the August 17, 2026 implementation. Use `docs/SEO.md` as the current source
+> of truth and retain this document for research context only.
+
 Two domains audited: `vortexathletics.com` (hub) and `vortex-gymnastics.com` (gymnastics).
 Business: Vortex Athletics, a gymnastics + youth athletic development facility at **4961 Tesla Dr, Ste E, Bowie, MD 20715**, phone **+1 (443) 422-4794**, email **team@vortexathletics.com**.
 
@@ -40,9 +45,9 @@ Vortex is a strong, modern brand with a serious technical SEO problem and a larg
 - **Visible FAQ + `FAQPage` schema** on both home pages.
 - **Per-host sitemaps.** `sitemap.xml` (hub + coming-soon stubs) and `sitemap-gymnastics.xml` (gymnastics), each referenced from its own host's `robots.txt`. `/campaigns/*` and the `/` vs `/gymnastics` near-duplicate are consolidated via canonical.
 - **NAP consistency** standardized to `4961 Tesla Dr, Ste E, Bowie, MD 20715`; `robots.txt` disallows `/admin`, `/admin.html`, and `/*?sport=`.
-- **Open Graph / Twitter** hardened: per-origin default image (hub vs gymnastics branding), `og:image:alt`, `og:locale`, `twitter:image:alt`. (No new image binaries were committed; existing brand logos are reused.)
+- **Open Graph / Twitter** hardened: per-origin 1200x630 share images, `og:image:alt`, `og:locale`, `og:site_name`, and `twitter:image:alt`.
 - **Canonical/URL consistency.** Schema builders reuse `buildCanonical`, so root URLs in canonical, schema, OG, and both sitemaps all use the same no-trailing-slash form.
-- **LCP hints.** Hero poster (hub) and first hero image (gymnastics) get `fetchpriority="high"` + a route-scoped `<link rel="preload" as="image">`; below-fold gymnastics hero images and the home video iframe are lazy-loaded.
+- **Page-quality and performance hardening.** Responsive WebP heroes/cards, stable non-autoplay LCP imagery, self-hosted fonts, consent-gated analytics, click-to-load YouTube, route-scoped responsive image preloads, semantic main landmarks, and accessibility corrections now protect crawl and user experience.
 
 **Notes / acceptable trade-offs:**
 - JSON-LD currently renders in `<body>` (inside `#root`) rather than `<head>`. This is **valid** per Google's structured-data guidelines (JSON-LD may appear anywhere on the page) and is fully crawlable in the prerendered HTML.

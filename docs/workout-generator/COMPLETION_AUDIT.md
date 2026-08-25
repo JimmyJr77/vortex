@@ -3008,6 +3008,7 @@ disposable PostgreSQL. The remaining gates are:
   calibration anchors, 8 explicit distinct-identity boundaries, and one
   canonical audit packet with exactly the four media, graph, calibration, and
   publication human gates.
+
 - Final committed bytes passed two unchanged direct PostgreSQL executions,
   production-runner registration, stored/file checksum comparison, normal-
   runner skip, and exact-file re-entry. Registered filename/checksum/time are
@@ -3413,3 +3414,922 @@ disposable PostgreSQL. The remaining gates are:
   identity decisions, 5 graph proposals, 4 score anchors, content, and
   publication. The next exact machine-incomplete family is Source 26
   `Quadruped Spinal Circles`.
+
+## Source 26 Quadruped Spinal Circles completion — 2026-08-09
+
+- Migration 497
+  (`497_coaching_quadruped_spinal_circles_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `3770465916`, timestamp
+  `2026-08-09 14:20:35.857954-04`. The exact file passed two unchanged direct
+  executions, normal-runner registration, a third idempotent execution during
+  registration, and checksum-safe runner skip.
+- Source 26 remains the stable definition
+  `c8a4e447-0b65-4c0b-985b-7f5466fc07ec`, card/schema version 2. The skeletal
+  baseline `b274f28a-6d80-4ecf-bbff-4fa426f789b4` is archived and replaced by
+  one exact selectable review variant,
+  `a1fc7842-8a5c-4b87-aabc-75ff18086572`. Its contract is fixed bilateral
+  hand-and-knee contact through rounded, named-first-side lateral, arched,
+  opposite-side lateral, and counted rounded checkpoints, followed by reverse
+  direction and a neutral exit. Direction, range, pace, dose, rest, and
+  optional mat are delivery settings; no unsupported second variant was
+  invented.
+- The exact variant is exercise complexity / physical difficulty / derived
+  maximum `32/12/32`. Its two contextual profiles cover Prepare & Access and
+  Restore. Both include dose and actual-duration formulas, cumulative complete-
+  circle/direction/quadruped-support/active-spinal-range budgets, logistics,
+  fixed contacts, stop rules, substitution revalidation, athlete and coach
+  rendering, accessibility, persistence, incident escalation, and support
+  operations. Legacy `age_min=8`, skill fields, linked skill, and false
+  publication state are cleared.
+- Persisted current-version scope is 1 selectable variant, 2 review delivery
+  profiles, 16 candidate evidence applications, 5 current healthy oEmbed-only
+  media candidates, 20 alternate assessments, 4 controlled-dimension review-
+  only relationships, 2 review-only complexity/physical-difficulty anchors, 4
+  relevant distinct identity boundaries, and 1 quarantined test packet. The
+  packet contains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Definition, media, graph,
+  calibration, content, and publication approvals remain zero.
+- Registry `2026-08-09.94` contains 399 parsed sources. Direct identity and
+  example-dose evidence comes from GMB; NAPA supplies adjacent quadruped
+  support boundaries; the thoracic review supplies adjacent plane-
+  classification context; and the AOPT guideline supplies clinical scope and
+  red-flag context. None is represented as validating universal shape, axial
+  rotation, range, dose, recovery, treatment, outcome, or numeric score.
+- Focused research/difficulty tests pass 236/236; the platform directory suite
+  passes 788/788; the complete backend suite passes 1,042 tests with 20
+  intentional skips and no failure. Focused ESLint, registry/batch/generated/
+  manifest JSON parsing, `git diff --check`, batch generation, database row
+  invariants, canonical and Needs Engine audits, release reporting, and the
+  production build pass. Existing browser-data freshness and greater-than-
+  500-kB Admin chunk notices remain nonblocking advisories.
+- The fresh-database rehearsal exposed two pre-existing bootstrap-order
+  defects outside migration 497. The numbered `--all` path reaches
+  `426_drop_in_notification_tracking.sql` before the unnumbered
+  `add_drop_in_entitlements.sql` prerequisite creates
+  `drop_in_registration`; later family migrations also hard-code canonical
+  UUIDs whose migration-243 origins are generated nondeterministically on a
+  fresh database. Source 26 was therefore validated after a disposable-only
+  normalization and faithful 493–496 reconstruction. No repository or target
+  data was altered to hide this defect. A truly clean full migration rehearsal
+  remains a production blocker.
+- The disposable per-card canonical audit returns only the four intended human
+  blockers for Source 26. Source 27 `Quadruped Thread-the-Needle` is already
+  machine-complete with the same four human gates. The next exact machine-
+  incomplete legacy family is Source 28 `Side-Lying Open Book`.
+
+## Source 28 Side-Lying Open Book completion — 2026-08-09
+
+- Migration 498
+  (`498_coaching_side_lying_open_book_identity_and_family_audit_hardening.sql`)
+  is registered in disposable PostgreSQL at checksum `18231930`, timestamp
+  `2026-08-09 14:42:56.792789-04`. The exact file passed two unchanged direct
+  executions, normal-runner registration, and checksum-safe runner skip.
+- Source 28 remains the stable definition
+  `73f542c1-d9b9-4f40-9427-7a2bd1918b1d`. Source 891 `Open Book Rotation` and
+  Source 1306 `Open Book T-Spine Rotation` are consolidated as exact
+  duplicates; both retired definitions and all three skeletal variants are
+  archived while their legacy mapping, aliases, and lineage move to the
+  survivor. No source record or provenance was discarded.
+- The survivor has one selectable review variant,
+  `e64b6441-eb5f-4821-b914-26a0352347f1`, at exercise complexity / physical
+  difficulty / derived maximum `22/10/22`. One repetition starts side lying
+  with bent stacked knees and straight arms stacked forward, opens the top arm
+  with controlled rib-cage/trunk rotation to comfortable range, and returns
+  until the hands stack. Each side is recorded. Range, pace, dose, brief hold,
+  gaze strategy, and stable comfort props are delivery annotations; changed
+  leg base, mandatory windmill, bent-arm rib pull, manual force, resistance,
+  wall base, or assessment protocol changes identity.
+- Two contextual review profiles cover Prepare & Access and Restore with
+  explicit dose/time formulas, cumulative rotation/support/shoulder budgets,
+  logistics, constraints, quality gates, stop rules, substitution
+  revalidation, persistence, coach/athlete rendering, accessibility, incident
+  escalation, and support operations. Legacy skill/age classifications,
+  publication claims, linked skills, reviewers, approvers, and approved video
+  remain absent.
+- Current-version scope is 16 candidate evidence applications, 5 healthy
+  oEmbed-only media candidates, 20 alternate assessments, 4 review-only graph
+  proposals, 2 review-only score anchors, 5 identity decisions, and one packet
+  containing exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. No playback, exactness,
+  evidence, identity, graph, calibration, content, or publication approval was
+  fabricated.
+- Registry `2026-08-09.95` contains 402 parsed sources. Focused research and
+  difficulty tests pass 238/238, the platform suite passes 790/790, and the
+  complete backend suite passes 1,044 tests with 20 intentional skips.
+  Focused ESLint, JSON/generated-artifact checks, `git diff --check`, repeated
+  PostgreSQL application, runner registration/skip, persisted invariants,
+  canonical and Needs Engine audits, release reporting, and the production
+  build pass. All 1,589 currently published legacy exercises pass the Needs
+  Engine audit.
+- The current disposable canonical audit has 1,676/1,676 legacy mappings,
+  1,071 active definitions, zero exact collision, 29 unresolved similarity
+  pairs at score 72 or above, and no active consolidated pair. Source 28 has
+  only the four intended human gates. Release remains blocked with zero
+  published canonical definitions, approved graph edges, approved calibration
+  anchors, or real coach-pilot reviews.
+- The known clean-bootstrap defects remain: the numbered `--all` path reaches
+  migration 426 before its unnumbered `drop_in_registration` prerequisite, and
+  later family migrations reference UUIDs generated nondeterministically by
+  migration 243. Source 28 was therefore validated through the disposable
+  faithful reconstruction and direct production runner; no production data or
+  unrelated scheduling code was altered. Source 29 `Inchworm Walkout` is the
+  next exact machine-incomplete family.
+
+## Source 29 Inchworm Walkout completion — 2026-08-09
+
+- Migration 499
+  (`499_coaching_inchworm_walkout_family_audit_hardening.sql`) is registered in
+  disposable PostgreSQL at checksum `1634112643`, timestamp
+  `2026-08-09 15:00:59.573218-04`. Migration 500
+  (`500_coaching_inchworm_pallof_step_out_identity_boundary.sql`) closes the
+  subsequently exposed Pallof Step-Out false positive at checksum `546720287`,
+  timestamp `2026-08-09 15:03:27.036112-04`. Both files passed repeated direct
+  execution before runner registration, and the production runner skips their
+  registered checksums unchanged.
+- Source 29 remains stable definition
+  `abade5c1-6124-407b-894d-e803e3b63674`. Its ambiguous skeletal variant is
+  archived and replaced by two exact selectable review variants: stationary
+  hands-out-and-back `4c0e8b1b-4df0-4bcb-9f43-1ca03d524fdd` at `30/24/30`, and
+  traveling hands-out/feet-in `59af8f44-6258-4f8b-89eb-1963e06bd5be` at
+  `34/26/34`. Both start and finish standing, walk the hands to controlled high
+  plank, declare the return mode, and exclude a push-up. Overall difficulty is
+  the maximum of exercise complexity and physical difficulty; no participant
+  skill, proficiency, or age classification is stored.
+- Four contextual review profiles cover Prepare & Access and Movement
+  Intelligence for both return modes. They include exact dose and actual-time
+  formulas, fixed-station versus forward-lane logistics, cumulative hand-
+  support/fatigue/impact/downstream budgets, constraints, coach and athlete
+  instructions, quality gates, stop rules, accessibility, substitution
+  revalidation, persistence, incident escalation, and support operations.
+- Current-version scope is 2 active variants, 4 review profiles, 16 candidate
+  evidence applications, 5 healthy oEmbed-only media candidates, 20 alternate
+  assessments, 5 review-only graph proposals, 4 review-only score anchors, 5
+  explicit distinct-identity decisions, and exactly four human blockers:
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`. No playback, exactness, evidence, identity, graph,
+  calibration, content, or publication approval was fabricated.
+- Registry `2026-08-09.96` contains 405 parsed sources. Focused research and
+  difficulty tests pass 241/241, the platform suite passes 793/793, and the
+  complete backend suite passes 1,047 tests with 20 intentional skips. Focused
+  ESLint, JSON/generated-artifact checks, `git diff --check`, repeated
+  PostgreSQL application, runner registration/skip, persisted invariants,
+  canonical and Needs Engine audits, and the production build pass. All 1,588
+  currently published legacy exercises pass the Needs Engine audit.
+- The disposable canonical audit has 1,676/1,676 legacy mappings, 1,071 active
+  definitions, zero exact collision, and 29 unresolved score-72-or-higher
+  similarity pairs. Release remains blocked with zero published canonical
+  definitions, approved graph edges, approved calibration anchors, or real
+  coach-pilot reviews.
+- The known clean-bootstrap defects remain unchanged: migration 426 precedes
+  its unnumbered `drop_in_registration` prerequisite, and later family
+  migrations reference migration-243 UUIDs that are nondeterministic on an
+  empty database. No production data or unrelated scheduling code was altered.
+  Source 30 `Wrist Rockers — Palms Down` is the next exact machine-incomplete
+  family.
+
+## Source 30 Wrist Rockers — Palms Down completion — 2026-08-09
+
+- Migration 501
+  (`501_coaching_wrist_rockers_palms_down_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `3818017833`, timestamp
+  `2026-08-09 15:25:48.943002-04`. Repeated direct application passes, and the
+  production runner skips the registered checksum unchanged.
+- Source 30 remains stable definition
+  `eaf703e4-1e0d-48ac-a1a3-9a3fe7d55122`. Its skeletal source variant is
+  archived and replaced by one exact selectable review variant,
+  `166cdd2e-e50a-4e1d-821a-be9c5a88e4d6`, at exercise complexity / physical
+  difficulty / derived maximum `22/16/22`. It is a bilateral quadruped,
+  palms-flat, fingers-forward, controlled forward wrist-extension load and
+  complete backward-return cycle. No participant skill, proficiency, age, or
+  linked-skill classification is stored.
+- Two contextual review profiles cover Prepare & Access and Movement
+  Intelligence. The card includes controlled taxonomy, anatomy, task-only
+  difficulty, load/fatigue/recovery, exact selection and environment
+  constraints, dose and actual-duration models, cumulative wrist/hand-support
+  budgets, logistics, quality gates, stop rules, substitution revalidation,
+  persistence, coach/athlete rendering, accessibility, incidents, and support
+  operations.
+- Current-version scope is 1 active and 1 archived variant, 2 review profiles,
+  16 evidence candidates, 5 healthy oEmbed-only media candidates, 20 alternate
+  assessments, 4 review-only graph proposals, 2 review-only score anchors, and
+  4 deterministic distinct-identity decisions. The canonical audit packet has
+  exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`; no playback, exactness, graph, calibration, content, or
+  publication approval was fabricated.
+- Registry `2026-08-09.97` contains 409 parsed sources. Focused tests pass
+  243/243, the platform suite passes 795/795, and the complete backend suite
+  passes 1,049 tests with 20 intentional skips. Focused ESLint, JSON/generated
+  artifacts, diff integrity, repeated PostgreSQL application, runner
+  registration/skip, persisted invariants, canonical/Needs Engine/identity/
+  release reporting, and the production build pass. All 1,587 currently
+  published legacy exercises pass the Needs Engine audit.
+- The disposable canonical audit retains complete 1,676/1,676 legacy mapping,
+  1,071 active definitions, zero exact identity collision, and 29 unresolved
+  score-72-or-higher similarity pairs. Release remains intentionally blocked:
+  0 canonical definitions are published, every phase has zero published depth,
+  0 graph edges and calibration anchors are approved, and 0 real coach-pilot
+  reviews exist.
+- The known clean-bootstrap blockers remain unchanged: migration 426 precedes
+  its unnumbered `drop_in_registration` prerequisite, and later family
+  migrations depend on nondeterministic migration-243 UUIDs. No production
+  data or unrelated scheduling work was altered. Source 31 `Wrist Rockers —
+  Palms Up / Flexor Bias` is the next exact machine-incomplete family.
+
+## Source 31 Wrist Rockers — Backs of Hands Down / Wrist-Flexion Bias completion — 2026-08-09
+
+- Migration 502
+  (`502_coaching_wrist_rockers_palms_up_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `436621732`, timestamp
+  `2026-08-09 15:42:49.800572-04`. Repeated direct execution passes, and the
+  production runner skips the registered migration unchanged.
+- Source 31 remains stable definition
+  `97e7daff-8b45-4a6e-98a6-30e78d1092bb`. The ambiguous inherited name
+  `Wrist Rockers — Palms Up / Flexor Bias` is retained as an alias, while the
+  display name now describes the observable task rather than implying an
+  isolated muscle target. Its skeletal source variant is archived and one
+  exact selectable review variant,
+  `0dd6ea69-c786-424a-8d86-584ca35ea62a`, is authored at exercise complexity /
+  physical difficulty / derived maximum `26/18/26`.
+- The exact contract is bilateral quadruped support on a clean, firm,
+  nonabrasive surface with the backs of both hands down, palms up, fingers
+  toward the knees, elbows extended without forced lockout, and very light
+  pressure. A controlled backward shift toward the heels reaches only a
+  comfortable wrist-flexion endpoint; the forward return completes one
+  repetition. No participant skill, proficiency, or age classification is
+  stored.
+- Two contextual review profiles cover Prepare & Access and Movement
+  Intelligence. Controlled taxonomy, anatomy, load/fatigue/recovery, exact
+  constraints, dose and actual-duration formulas, cumulative wrist and
+  hand-support budgets, logistics, quality gates, stop rules, substitutions,
+  persistence, coach/athlete rendering, accessibility, incidents, and support
+  operations are present.
+- Current-version scope is 1 active and 1 archived variant, 2 review profiles,
+  16 evidence candidates, 5 healthy oEmbed-only media candidates, 20 alternate
+  assessments, 4 review-only graph proposals, 2 review-only score anchors, and
+  4 deterministic distinct-identity decisions. The canonical audit packet has
+  exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`; no playback, exactness, graph, calibration, content, or
+  publication approval was fabricated.
+- Registry `2026-08-09.98` contains 410 parsed sources. Focused tests pass
+  245/245, the platform suite passes 797/797, and the complete backend suite
+  passes 1,051 tests with 20 intentional skips. Focused lint, JSON/generated
+  artifacts, migration execution and runner registration/skip, persisted
+  invariants, canonical/Needs Engine/identity/release audits, and the
+  production build pass. All 1,586 currently published legacy exercises pass
+  the Needs Engine audit.
+- The disposable canonical audit retains 1,676 legacy mappings, 1,071 active
+  definitions, zero exact collision, and 29 unresolved score-72-or-higher
+  similarity pairs. Release remains intentionally blocked: 0 canonical
+  definitions are published, every phase has zero published depth, 0/442 graph
+  edges and 0/663 calibration anchors are approved, and no real coach-pilot
+  review exists.
+- The known clean-bootstrap blockers remain unchanged: migration 426 precedes
+  its unnumbered `drop_in_registration` prerequisite, and later family
+  migrations depend on nondeterministic migration-243 UUIDs. No production
+  data, handoff record, or unrelated scheduling work was altered. Source 32
+  `Finger Pulses / Palm Lifts` is the next exact machine-incomplete family.
+
+## Source 32 Finger Pulses / Palm Lifts completion — 2026-08-09
+
+- Migration 503
+  (`503_coaching_finger_pulses_palm_lifts_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `2010872005`, timestamp
+  `2026-08-09 16:03:19.391018-04`. Repeated direct execution passes, and the
+  production runner skips the registered migration unchanged.
+- Source 32 remains stable definition
+  `5a8116cc-5cd4-4e2c-8396-0548ee96f167`. Its combined skeletal variant is
+  archived and replaced by two explicit selectable review variants: Finger
+  Pulses `9bb10693-04eb-4682-a608-df23aa9e601a` at `24/18/24`, and Palm Lifts
+  `c4f6e97e-caf1-4896-b4a3-8714514c46ee` at `28/22/28`, using exercise
+  complexity / physical difficulty / their derived maximum only.
+- Finger Pulses retain bilateral quadruped palm, finger, and knee contact while
+  pressure through the fingers and flexed first knuckles increases and
+  releases without bouncing. Palm Lifts retain bilateral finger, distal-palm,
+  and knee contact while both palm heels lift and lower quietly. Each complete
+  increase-and-release or lift-and-lower cycle is one repetition. The actions,
+  contacts, and count rules cannot be mixed implicitly. No participant skill,
+  proficiency, or age classification is stored.
+- Four contextual review profiles cover Prepare & Access and Movement
+  Intelligence for both variants. Controlled taxonomy, anatomy,
+  load/fatigue/recovery, exact constraints, dose and actual-duration formulas,
+  cumulative hand/wrist/grip and downstream-support budgets, logistics,
+  quality gates, stops, substitutions, persistence, coach/athlete rendering,
+  accessibility, incidents, and support operations are present.
+- Current-version scope is 2 active and 1 archived variant, 4 review profiles,
+  16 evidence candidates, 4 healthy oEmbed-only media candidates, 20 alternate
+  assessments, 5 review-only graph proposals, 4 review-only score anchors, and
+  5 deterministic distinct-identity decisions. Four earlier media candidates
+  are retained as superseded version-1 history. The canonical audit packet has
+  exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`; no playback, exactness, graph, calibration, content, or
+  publication approval was fabricated.
+- Registry `2026-08-09.99` contains 410 parsed sources. Focused tests pass
+  247/247, the platform suite passes 799/799, and the complete backend suite
+  passes 1,053 tests with 20 intentional skips. Focused ESLint,
+  JSON/generated artifacts, migration execution and runner registration/skip,
+  persisted invariants, canonical/Needs Engine/identity/release audits, and the
+  production build pass. All 1,585 currently published legacy exercises pass
+  the Needs Engine audit.
+- The disposable canonical audit retains 1,676 legacy mappings, 1,071 active
+  definitions, zero exact collision, and 29 unresolved score-72-or-higher
+  similarity pairs. Release remains intentionally blocked: 0 canonical
+  definitions are published, every phase has zero published depth, 0/447 graph
+  edges and 0/667 calibration anchors are approved, and no real coach-pilot
+  review exists.
+- The known clean-bootstrap blockers remain unchanged: migration 426 precedes
+  its unnumbered `drop_in_registration` prerequisite, and later family
+  migrations depend on nondeterministic migration-243 UUIDs. No production
+  data, handoff record, or unrelated scheduling work was altered. Source 33 is
+  the next exact machine-incomplete family.
+
+## Source 33 Scapular Push-Up completion — 2026-08-09
+
+- Migration 504
+  (`504_coaching_scapular_push_up_family_audit_hardening.sql`) is registered
+  in disposable PostgreSQL at checksum `3861180580`, timestamp
+  `2026-08-09 16:31:06.581181-04`. Identity-closure migration 505
+  (`505_coaching_scapular_push_up_source_900_identity_closure.sql`) is
+  registered at checksum `2304250950`, timestamp
+  `2026-08-09 16:36:18.611299-04`. Repeated execution and immutable runner
+  skips pass.
+- Stable definition `ae22d70e-e68f-4d40-9402-6dd39a6420f1` now has four
+  explicit selectable review variants: Quadruped Dynamic Cycle `24/18/24`,
+  High-Plank Dynamic Cycle `32/30/32`, Quadruped Protraction Hold `22/18/22`,
+  and High-Plank Protraction Hold `28/30/30`, expressed only as exercise
+  complexity / physical difficulty / their derived maximum. Three inherited
+  skeletons are archived. No participant skill, proficiency, or age
+  classification is stored.
+- The identity contract fixes bilateral straight-arm hand support, quadruped
+  hands-and-knees or high-plank hands-and-toes base, and either one complete
+  retraction-to-protraction cycle or measured valid protraction-hold seconds.
+  Elbow flexion, full push-up work, raised support, knee hover, unilateral or
+  unstable support, resistance, perturbation, and clinical assessment remain
+  explicit identity boundaries.
+- Current-version scope is 4 active and 3 archived variants, 8 contextual
+  profiles, 16 evidence applications, 5 healthy oEmbed-metadata-only current
+  media candidates plus 13 superseded candidates, 24 alternate assessments,
+  6 review-only graph proposals, 8 review-only calibration anchors, and 6
+  deterministic identity decisions. Source 900 `Quadruped Scapular
+  Protraction-Retraction` was confirmed as an exact duplicate, mapped to the
+  quadruped dynamic variant, and archived while preserving legacy exercise 900
+  as a traceable source record. Unrelated PMID 32707142 was removed from active research-source
+  provenance; no approval or external playback verification was claimed.
+- The audit packet contains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Registry `2026-08-09.100`
+  contains 417 parsed sources. Focused tests pass 250/250, platform tests
+  802/802, and the complete backend suite passes 1,056 tests with 20
+  intentional skips out of 1,076. Focused ESLint, batch generation, migration
+  execution/registration, persisted invariants, audits, diff integrity, and
+  the production build pass.
+- The disposable audit retains 1,676 legacy mappings, 1,070 active canonical
+  definitions, zero exact collision, and 29 unresolved score-72-or-higher
+  pairs. All 1,583 published legacy exercises pass the Needs Engine audit.
+  Release remains intentionally blocked: 0 canonical definitions or phase
+  depth are published, 0/453 graph edges and 0/675 calibration anchors are
+  approved, and no real coach-pilot review exists. The known clean-bootstrap
+  blockers remain unchanged; no production data, handoff record, or unrelated
+  dirty work was altered. Source 34 is next.
+
+## 2026-08-09 — Source 34 Quadruped Shoulder Circles completion checkpoint
+
+- Migration 506
+  (`506_coaching_quadruped_shoulder_circles_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `3738284647`, timestamp
+  `2026-08-09 16:53:54.541567-04`. Repeated direct execution, immutable runner
+  skip, and persisted-state assertions pass.
+- Stable definition `51ca966b-7d25-419a-8629-7961e45933c0` now exposes one
+  exact selectable review variant,
+  `65bd128f-11f2-4667-8557-41cf7d1865a3`: a bilateral hands-and-knees,
+  straight-arm, fixed-contact, continuous scapular circle performed in both
+  directions. One repetition requires protraction, the declared first
+  vertical checkpoint, retraction, the opposite vertical checkpoint, and a
+  return to protraction. Direction, comfortable range, tempo, checkpoint
+  pauses, repetitions, sets, rest, and stable knee cushioning are annotations,
+  not new identities. The inherited source skeleton is archived.
+- Exercise complexity / physical difficulty / derived maximum is `30/18/30`.
+  Legacy `skill_level`, `age_min`, and `age_max` are null; the score describes
+  the task and does not classify participant proficiency or age.
+- Current-version scope is 1 review and 1 archived variant, 2 review profiles
+  plus 1 archived legacy profile, 16 candidate evidence sections, 5 current
+  oEmbed-metadata-only media candidates plus 4 superseded records, 22
+  alternate assessments, 4 review-only graph proposals, 2 review-only
+  calibration anchors, and 4 Source-34-owned deterministic distinct-identity
+  decisions. All five current media rows retain null captions, exact-match,
+  quality, reviewer, and review-time fields. No playback, exact-media match,
+  content review, relationship approval, calibration approval, or publication
+  approval is claimed.
+- Wall, raised-support, high-plank, hover, unilateral, resisted, and unstable
+  versions remain proposed variants. Arm Circles or Shoulder CARs, Quadruped
+  Spinal Circles, Scapular Push-Ups, clinical assessment, and Source 1311
+  `Quadruped Scapular Clock` remain distinct definitions. Source 1311 stays
+  quarantined because its planted-versus-moving-hand rule, discrete-versus-
+  continuous path, checkpoints, and count contract are not exact enough to
+  merge.
+- Registry `2026-08-09.101` contains 422 parsed sources. The Source 33 research
+  batch was also corrected to point its descriptive neighbor annotations to
+  actual legacy exercises 186 and 1311; migrations 504 and 505 were already
+  correct and were not rewritten.
+- Focused card tests pass 252/252, the platform suite passes 804/804, and the
+  complete backend suite passes 1,058 with 20 intentional skips out of 1,078.
+  Focused ESLint, generated packet checks, migration execution/registration,
+  persisted invariants, the production build, and diff integrity pass.
+- The refreshed disposable audit has 1,676 legacy exercises, 1,070 canonical
+  definitions, 628 raw name-similarity pairs, 599 adjudicated-distinct pairs,
+  29 unresolved score-72-or-higher pairs, and zero exact collision. All
+  1,582 currently published legacy exercises pass the Needs Engine audit.
+  Release remains intentionally blocked: 0 canonical definitions are
+  published, every required phase has zero published depth, 0/457 graph edges
+  and 0/677 calibration anchors are approved, and no real coach-pilot review
+  exists. The packet retains exactly the media, graph, calibration, and
+  publication human gates.
+
+## 2026-08-09 — Source 35 Wall Slides with Lift-Off completion checkpoint
+
+- Migration 507
+  (`507_coaching_wall_slides_lift_off_family_audit_hardening.sql`) is
+  registered in disposable PostgreSQL at checksum `939129674`, timestamp
+  `2026-08-09 17:18:51.59162-04`. Direct execution, repeat execution,
+  production-runner registration, immutable skip, and persisted assertions
+  pass.
+- Stable definition `d073cdeb-c74b-4d1c-a7da-83ad75d8fa01` now exposes one
+  exact selectable review variant,
+  `80f08e09-2bd9-4973-980d-2d1adf365fe8`: bilateral standing with fixed
+  feet; vertical, shoulder-width forearms on a smooth wall; both forearms
+  retained through the upward slide; a required terminal full-arm lift-off;
+  forearm replacement; and return to the same start. One full cycle is one
+  repetition. Range, wall distance, lift-off amplitude, tempo, pauses,
+  breathing, dose, rest, and a thin fixed comfort layer are annotations.
+- Source 899 is an exact legacy duplicate and maps to the stable survivor.
+  Source 1309 `Wall Slide with Lift-Off — Throwing` is returned to its own
+  archived definition because wall contacts, path, terminal lift-off, and
+  count are missing; no name-only equivalence is claimed. The three inherited
+  source variants and profiles are archived and nonselectable.
+- Exercise complexity / physical difficulty / derived maximum is `30/16/30`.
+  Sources 35, 899, and 1309 have null participant skill and age fields and are
+  unpublished. Difficulty describes the task, never participant proficiency.
+- Current-version scope is 1 review and 3 archived variants, 2 review and 3
+  archived profiles, 16 candidate evidence sections, 5 current and 5
+  superseded media candidates, 26 candidate alternate assessments, 4
+  review-only graph proposals, 2 review-only calibration anchors, and 4
+  deterministic identity decisions: 1 duplicate consolidation and 3 distinct
+  neighbors. All five current media rows retain null captions, exact-match,
+  quality, reviewer, and review-time fields. No playback, exact-media match,
+  content review, graph approval, calibration approval, or publication
+  approval is claimed.
+- Registry `2026-08-09.102` contains 428 parsed sources. Focused tests pass
+  254/254, the platform suite passes 806/806, and the full backend suite passes
+  1,060 with 20 intentional skips out of 1,080. Focused ESLint, generated
+  packet checks, PostgreSQL migration checks, persisted invariants, the
+  production build, JSON parsing, and diff integrity pass.
+- The refreshed disposable audit has 1,676 legacy exercises, 1,070 canonical
+  definitions, 629 raw name-similarity pairs, 600 adjudicated-distinct pairs,
+  29 unresolved score-72-or-higher pairs, and zero exact collision. All 1,579
+  still-published legacy exercises pass the Needs Engine audit. Release stays
+  intentionally blocked: 0 canonical definitions and phase depth are
+  published, 0/461 graph edges and 0/679 calibration anchors are approved,
+  and no real coach-pilot review exists. The card test packet retains exactly
+  the media, graph, calibration, and publication blockers.
+
+## 2026-08-09 — Source 36 Bilateral Band External Rotation completion checkpoint
+
+- Migration 508
+  (`508_coaching_bilateral_band_external_rotation_family_audit_hardening.sql`)
+  is registered in disposable PostgreSQL at checksum `2642450056`, timestamp
+  `2026-08-09 17:40:55.159597-04`. Direct execution, repeat execution,
+  production-runner registration, immutable skip, checksum equality, and
+  persisted assertions pass.
+- Stable definition `ad178aca-b009-4a28-9a5f-ca2695f42eba` now exposes exact
+  review variant `58581698-7741-42b0-bbc2-443128eb3eb8`: bilateral standing
+  with fixed feet; one intact unanchored band held between both hands; elbows
+  near 90 degrees; upper arms beside the ribs; symmetric outward shoulder
+  rotation through comfortable range; and controlled return to the same start.
+  One outward-and-return cycle is one repetition. Grip, hand spacing, light
+  tension, range, tempo, pause, breathing, dose, rest, and a fixed towel elbow
+  checkpoint are annotations.
+- Seated, supine, half-kneeling, unilateral anchored, wrist-loop, 45-degree,
+  90/90, isometric, deliberate scapular-retraction, face-pull, pull-apart,
+  internal-rotation, and clinical-assessment tasks are not silently merged.
+  Source 1348 Eccentric Band External Rotation remains in
+  `needs_human_review` because its elbow position, shoulder angle, start,
+  return assistance, contraction phase, and count are incomplete.
+- Exercise complexity / physical difficulty / derived maximum is `26/18/26`.
+  Legacy participant skill and age fields are null and Source 36 is
+  unpublished; the scores describe only the exercise task.
+- Current-version scope is 1 review and 1 archived variant, 2 review profiles
+  plus 1 archived source profile, 16 candidate evidence sections, 5 current
+  metadata-only media candidates, 26 alternate assessments, 4 review-only
+  graph proposals, 2 review-only calibration anchors, and 4 identity
+  decisions: 3 distinct boundaries and 1 unresolved collision. Media captions,
+  exactness, quality, reviewer, and review timestamps are all null. No
+  playback, content, graph, calibration, or publication approval is claimed.
+- Registry `2026-08-09.103` contains 434 parsed sources. Focused tests pass
+  256/256, platform tests pass 808/808, and the full backend suite passes 1,062
+  with 20 intentional skips out of 1,082. Focused ESLint, JSON parsing,
+  generated packets, PostgreSQL checks, persisted invariants, the production
+  build, and diff integrity pass.
+- The refreshed disposable audit has 1,676 legacy exercises, 1,070 canonical
+  definitions, 630 raw similarity pairs, 601 adjudicated-distinct pairs, 29
+  unresolved score-72-or-higher pairs, and zero exact collision. All 1,578
+  still-published legacy exercises pass the Needs Engine audit. Release stays
+  intentionally blocked: 0 canonical definitions and phase depth are
+  published, 0/465 graph edges and 0/681 calibration anchors are approved,
+  and no real coach-pilot review exists. The packet retains exactly the media,
+  graph, calibration, and publication blockers.
+
+## 2026-08-09 — Source 37 Shoulder CAR / Arm Circles identity-split checkpoint
+
+- Migration 509
+  (`509_coaching_standing_shoulder_car_and_arm_circles_identity_split.sql`) is
+  registered in disposable PostgreSQL at checksum `3691112942`, timestamp
+  `2026-08-09 18:12:28.636467-04`. Repeated execution, finalized runner
+  registration, immutable skip, packet regeneration, and persisted-state
+  assertions pass.
+- Stable Source-37 definition `32610be3-19c7-4eed-8752-5f49bcbbf276` is now
+  `Standing Single-Arm Shoulder CAR`, with exact review variant
+  `8143fc29-ecb4-4b3a-83a5-6078dc981cea`. One complete fixed-foot, unilateral,
+  active, momentum-free, return-to-start loop in one declared direction is one
+  repetition; side and direction are recorded separately.
+- The slash-label collision is split rather than hidden. New review definition
+  `047ab835-9ef2-49d0-810b-1652acb09677`, `Standing Bilateral Arm Circles`,
+  exposes exact review variant `6505f5e0-42ed-40ca-86e5-a4efe1de1497` for
+  simultaneous small shoulder-height circles. The mixed skeleton is archived.
+- Exercise complexity / physical difficulty / derived maximum is `30/12/30`
+  for Shoulder CAR and `16/14/16` for Arm Circles. Source 37 has null skill and
+  age fields and is unpublished; scores describe exercise tasks only.
+- Combined scope is 2 review definitions, 2 review variants, 1 archived source
+  variant, 3 review profiles, 32 candidate evidence sections, 9 healthy
+  oEmbed-metadata-only media candidates, 43 alternate assessments, 6 review-
+  only graph proposals, 4 review-only calibration anchors, and 7 deterministic
+  distinct-identity decisions. The Shoulder CAR versus Neck CAR name-
+  similarity false positive is explicitly closed without human approval.
+- Both packets retain exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`. Playback, exact-media match,
+  captions, accessibility, content, graph, calibration, and publication
+  approval remain unclaimed and human-gated.
+- Registry `2026-08-09.104` contains 440 sources. Focused tests pass 258/258,
+  platform tests 810/810, and the backend suite passes 1,064 with 20 intentional
+  skips out of 1,084. Focused ESLint, JSON and generated artifacts, PostgreSQL
+  checks, audits, diff integrity, and the production build pass.
+- The disposable audit has 1,676 legacy mappings, 1,071 canonical definitions,
+  631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved score-72-or-
+  higher pairs, and zero exact collision. All 1,577 published legacy exercises
+  pass the Needs Engine audit. Release remains intentionally blocked: 0
+  definitions and phase depth are published, 0/469 graph edges and 0/685
+  calibration anchors are approved, and no real coach-pilot review exists. No
+  production data, handoff record, or unrelated dirty work was changed.
+
+## 2026-08-09 — Source 38 Bear Crawl Rock-Back completion checkpoint
+
+- Migration 510
+  (`510_coaching_bear_crawl_rock_back_identity_and_family_audit_hardening.sql`)
+  is registered in disposable PostgreSQL at checksum `1098400606`, timestamp
+  `2026-08-09 18:31:20.658721-04`. Application-runner registration, immutable
+  skip, checksum equality, packet regeneration, and persisted assertions pass.
+- Stable definition `9418c33f-80fa-40cb-97e0-f7c01c982b56` exposes exact
+  review variant `c18462d2-2384-4e10-8280-e9e67b4aef74`: fixed palms and
+  forefeet, continuous bilateral knee hover, long arms, backward hip shift
+  through comfortable range, and forward return to the same start. One full
+  back-and-forward return is one repetition.
+- Source 912 was removed from the false exact-duplicate consolidation. Its
+  source mapping and archived variant now point to archived definition
+  `9ee51bb0-c415-40de-8b29-3f3a55756c5a`, with
+  `needs_human_review` because optional knee contact and exact start, endpoint,
+  contact-continuity, and count facts remain unresolved.
+- Exercise complexity / physical difficulty / derived maximum is `30/24/30`.
+  Sources 38 and 912 have null skill and age fields and are unpublished; the
+  score describes the Source-38 exercise task only.
+- Current scope is 1 review and 2 archived variants, 2 review and 2 archived
+  profiles, 16 candidate evidence sections, 5 healthy oEmbed-metadata-only
+  media candidates, 24 alternate assessments, 4 review-only graph proposals,
+  2 review-only calibration anchors, and 5 identity decisions. No playback,
+  exact-media, caption, accessibility, content, graph, calibration, identity,
+  or publication approval is claimed.
+- The packet retains five blockers: media, Source-912 identity, graph,
+  calibration, and publication. Registry `2026-08-09.105` contains 445
+  sources. Focused tests pass 260/260, platform tests 812/812, and the backend
+  suite passes 1,066 with 20 intentional skips out of 1,086. Focused ESLint,
+  JSON and generated artifacts, PostgreSQL checks, audits, diff integrity, and
+  the production build pass.
+- The disposable audit remains at 1,676 legacy exercises, 1,071 canonical
+  definitions, 631 raw similarity pairs, 602 adjudicated-distinct pairs, 29
+  unresolved score-72-or-higher pairs, and zero exact collision. All 1,575
+  still-published legacy exercises pass the Needs Engine audit. Release stays
+  intentionally blocked: 0 canonical definitions and phase depth are
+  published, 0/473 graph edges and 0/687 calibration anchors are approved,
+  and no real coach-pilot review exists. The handoff file and unrelated dirty
+  work were not changed.
+
+## 2026-08-09 — Source 39 Plank-to-Down-Dog completion checkpoint
+
+- Migration 511 deterministically consolidates Sources 39, 675, and 795 under
+  one exact fixed-support Plank-to-Down-Dog definition. Sources 675 and 795,
+  all three inherited skeleton variants, and their published legacy state are
+  archived without deleting lineage.
+- The replacement has one `30/28/30` task-only difficulty variant, Prepare &
+  Access and Resilience profiles, full anatomy/load/fatigue/constraint/
+  duration/substitution/persistence/support contracts, 16 candidate evidence
+  sections, 5 metadata-only media candidates, 24 alternates, 4 review-only
+  graph proposals, 2 review-only calibration anchors, and 5 identity
+  decisions. No playback, exact-media, graph, calibration, content, or
+  publication approval is claimed.
+- The packet retains four blockers: media, graph, calibration, and
+  publication. Registry `2026-08-09.106` contains 450 sources. The migration
+  passed a rolled-back PostgreSQL validation, applied through the platform
+  runner at checksum `2611839779`, passed persisted-state assertions, and was
+  recognized as already applied on re-entry. Focused tests pass 262/262,
+  platform tests pass 814/814, and the full backend suite passes 1,068 tests
+  with 20 intentional skips out of 1,088. Focused ESLint, JSON/generated
+  artifact checks, diff integrity, and the production build pass.
+- The disposable canonical audit is 1,676 legacy exercises, 1,070 canonical
+  definitions, 631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved
+  pairs, and zero exact collision. All 1,572 published legacy cards pass the
+  Needs Engine audit. Release remains intentionally blocked with 0 published
+  canonical definitions, 0/476 approved graph edges, 0/689 approved
+  calibration anchors, zero phase depth, and no real coach pilot. The handoff
+  file was not changed.
+
+## 2026-08-09 — Source 40 Knee-to-Wall Ankle Rocker completion checkpoint
+
+- Migrations 512, 513, and 514 consolidate Sources 40, 875, and 1359 under
+  stable definition `c12b9ae2-11a4-4cdf-96dd-280b291ca71c` and exact variant
+  `52bdd7ff-7f6f-4be7-95ec-7ae4a28d1d89`. The three skeletal variants and
+  duplicate definitions are archived without deleting aliases or lineage.
+- The exact task is a standing staggered-stance, planted target-foot-tripod,
+  comfortable knee-forward and controlled-return cycle. Kicking, plant, and
+  pivot wording is delivery context unless a physical sport action is added.
+  Half-kneeling pulses, wall isometric presses, Ankle CARs, and foot-tripod
+  shifts retain deterministic distinct identities.
+- Exercise complexity / physical difficulty / derived overall is `18/12/18`.
+  Coordination `16`, supervision `12`, failure consequence `12`, work-capacity
+  demand `12`, and impact `1` complete the review-only normalized vector.
+  Score-floor migration 513 maps zero score-like grip and impact dimensions to
+  `1` while preserving zero landing contacts, zero hand-impact contacts, zero
+  planned-impact budget, and `impactClass=none`. No participant skill, age,
+  readiness, proficiency, calibration approval, or publication authority is
+  created.
+- The card has 2 contextual review profiles, 16 candidate evidence sections,
+  5 oEmbed-metadata-only media candidates, 24 alternates, 4 review-only graph
+  proposals, 2 review-only calibration anchors, and 5 identity decisions. Its
+  persisted packet passes every machine-owned check and retains exactly media,
+  graph, calibration, and publication human gates.
+- Disposable PostgreSQL registered migrations 512–514 at checksums
+  `1469215636`, `4053192554`, and `1242308153`; transactional validation,
+  normal-runner application, immutable re-entry, and persisted assertions
+  pass. Registry `2026-08-09.107` contains 455 sources. Focused tests pass
+  266/266, platform tests 818/818, and the full backend suite passes 1,072 with
+  20 intentional skips out of 1,092. Focused lint, JSON and generated packet
+  checks, diff integrity, audits, and the production build pass.
+- The refreshed audit has 1,676 legacy exercises, 1,069 canonical definitions,
+  631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved score-72-or-
+  higher pairs, and zero exact collision. All 1,569 still-published legacy
+  exercises pass the Needs Engine audit. Release remains intentionally blocked
+  with 0 published canonical definitions, zero published phase depth, 0/480
+  approved graph edges, 0/691 approved calibration anchors, and no real coach
+  pilot.
+
+## 2026-08-09 — Source 41 Half-Kneeling Ankle Dorsiflexion Pulse completion checkpoint
+
+- Migration 515 replaces the Source 41 skeleton with exact review variant
+  `49e6b0fa-2091-4c06-b0b5-966107062876` under stable definition
+  `ab9faf95-7a17-4c30-ad90-a087ae774b5e`. The old baseline variant is
+  archived without deleting the source mapping or aliases.
+- The exact task uses a padded rear knee and lower leg plus a planted front
+  heel and tripod. The initial knee-forward move establishes a comfortable
+  endpoint and is not counted. One small partial retreat and re-advance to the
+  same endpoint is one pulse. Full return, standing, wall loading, a hold,
+  band, kettlebell, elevation, active dorsiflexor lift, clinician force, calf
+  raise, clinical measurement, or added sport action changes the task.
+- The task-only vector is complexity `22`, physical difficulty `14`,
+  coordination `20`, supervision `14`, failure consequence `14`, work-
+  capacity demand `14`, impact `1`, and overall `22` by maximum. Score-like
+  load and fatigue fields use the valid floor of `1`; physical landing,
+  hand-impact, and cumulative-impact counts remain `0`. No participant level,
+  age floor, readiness classification, approval, or publication authority is
+  created.
+- The card contains 2 contextual profiles, 16 candidate evidence sections, 5
+  oEmbed-metadata-only media candidates, 24 alternates, 4 review-only graph
+  proposals, 2 review-only calibrations, and 5 deterministic distinct-task
+  decisions. Exactly media, graph, calibration, and publication remain human
+  blockers. The kettlebell and end-range-activation video titles are recorded
+  as adjacent-variant mismatches, not exact matches.
+- Disposable PostgreSQL registered migration 515 at checksum `2816286728`.
+  Rolled-back execution, normal-runner application, persisted row assertions,
+  batch generation, and 269 focused tests pass. The platform suite passes
+  821/821; the full backend suite passes 1,075 tests with 20 intentional skips
+  out of 1,095. Focused lint, JSON/generated-artifact validation, diff
+  integrity, and the production build also pass. Registry `2026-08-09.108`
+  contains 458 sources. The research builder now snapshots a deterministic
+  active exact variant when no `baseline` variant remains.
+- The refreshed audit has 1,676 legacy exercises, 1,069 canonical definitions,
+  631 raw pairs, 602 adjudicated-distinct pairs, 29 unresolved score-72-or-
+  higher pairs, and zero exact collision. All 1,568 still-published legacy
+  exercises pass Needs Engine validation. Release remains intentionally
+  blocked with 0 published canonical definitions, zero phase depth, 0/483
+  approved graph edges, 0/693 approved calibration anchors, and no real coach
+  pilot.
+
+## 2026-08-09 — Source 42 Ankle CARs completion checkpoint
+
+- Migrations 516–518 replace the mixed seated/standing skeleton with exact
+  review variant `b0aade12-bc8b-4571-af9b-bde0b85520ec` under stable
+  definition `2157c8df-d013-4946-a6dd-2e0dedc3fe42`, close the new Neck CARs
+  and Standing Single-Arm Shoulder CAR similarity pairs, correct canonical
+  taxonomy and user/coach/support schemas, and enforce the 240-character
+  athlete-instruction limit. The legacy baseline remains archived and
+  traceable.
+- The exact task uses a stable bench, supported target thigh, planted
+  non-target foot, and target foot clear of the floor. One active circuit runs
+  from a declared comfortable dorsiflexed start through inversion,
+  plantarflexion, eversion, and back to the same start; reverse direction is
+  counted separately. Standing, alternate bases, eyes closed, resistance,
+  load, passive force, weight bearing, pumps, alphabet tracing, calf raises,
+  clinical measurement, and sport actions remain explicit variants or
+  distinct tasks.
+- Task-only complexity / physical difficulty / derived overall is `24/12/24`.
+  Coordination is `22`; supervision and absolute-load demand are `12`;
+  failure consequence and work-capacity demand are `10`; impact is the
+  normalized score floor `1` while physical impact contacts and cumulative
+  impact budget remain `0`. No participant skill, age, proficiency, readiness,
+  approval, or publication authority is created.
+- The card has 2 contextual profiles, 16 candidate evidence sections, 5
+  oEmbed-metadata-only media candidates, 24 alternates, 4 review-only graph
+  proposals, 2 review-only calibrations, and 7 deterministic distinct-task
+  decisions. The regenerated automated packet passes every machine-owned
+  check and retains exactly `CARD-MEDIA-01`, `CARD-GRAPH-03`,
+  `CARD-CALIBRATION-01`, and `CARD-PUBLISH-01`.
+- Disposable PostgreSQL registered migrations 516–518 at checksums
+  `1682906775`, `2211057671`, and `2204393135`. Transactional rollback,
+  normal-runner application, immutable re-entry, persisted assertions, batch
+  generation, JSON checks, and focused lint pass. Registry `2026-08-09.109`
+  contains 461 sources. Focused tests pass 272/272, platform tests 825/825,
+  and the full backend suite passes 1,079 with 20 intentional skips out of
+  1,099. Diff integrity and the production build pass.
+- The refreshed audit has 1,676 legacy exercises, 1,069 canonical definitions,
+  633 raw pairs, 604 adjudicated-distinct pairs, 29 unresolved score-72-or-
+  higher pairs, and zero exact collision. All 1,567 still-published legacy
+  exercises pass Needs Engine validation. Release remains intentionally
+  blocked with 0 published canonical definitions, zero phase depth, 0/484
+  approved graph edges, 0/695 approved calibration anchors, and no real coach
+  pilot.
+
+## 2026-08-09 — Source 43 Wall-Supported Bilateral Tibialis Raise completion checkpoint
+
+- Migration 519 replaces the Source 43 skeleton with exact review variant
+  `2da2a17b-bfc2-4049-93ad-f8cbde5bb053` under stable definition
+  `17ea43fe-0d11-42b1-9be0-214bccd08616`. The old Source 43 variant is
+  archived. Incomplete Sources 214, 1113, and 1399 return to archived
+  definition `1a0512d9-4a9b-4962-8e16-771eab45ba2c` for human identity review.
+- The exact task is wall-supported and bilateral: back and pelvis contact a
+  stable wall, both heels remain planted, the knees stay mostly straight
+  without forced locking, both forefeet lift together through comfortable
+  active dorsiflexion, and a controlled quiet return to light floor contact
+  completes one repetition. Unilateral, alternating, bent-knee, heel-elevated,
+  unsupported, seated, resisted, loaded, isometric-only, eccentric-only,
+  locomotor, foot-intrinsic, calf-raise, clinical, and sport-added tasks are
+  explicit variant or definition boundaries.
+- Task-only complexity / physical difficulty / derived overall is `18/24/24`.
+  Coordination is `16`, supervision `10`, failure consequence `8`, work-
+  capacity demand `22`, and impact the normalized floor `1`; physical landing,
+  hand-impact, and cumulative-impact counts remain `0`. No participant skill,
+  proficiency, age, readiness, clearance, approval, or publication authority
+  is created.
+- The exact card has 2 contextual profiles, 16 candidate evidence sections, 5
+  oEmbed-metadata-only media candidates, 26 alternate assessments, 4 review-
+  only graph proposals, 2 review-only calibration anchors, 6 deterministic
+  distinct-task decisions, and 1 unresolved ambiguous-source decision. Its
+  computed packet passes every machine-owned check and retains exactly
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+- Disposable PostgreSQL registered migration 519 at checksum `304965183`;
+  transactional validation, normal-runner application, immutable re-entry,
+  persisted assertions, batch generation, and JSON validation pass. Registry
+  `2026-08-09.110` contains 464 sources. Research/migration focused tests pass
+  275/275 and the focused single-workout flow passes 65/65. The full platform
+  suite passes 827/827; the backend suite passes 1,081 with 20 intentional
+  skips out of 1,101. Focused lint, diff integrity, and the production build
+  pass.
+- The refreshed audit remains at 1,676 legacy exercises and 1,069 canonical
+  definitions, with 633 raw pairs, 604 adjudicated-distinct pairs, 29
+  unresolved score-72-or-higher pairs, and zero exact collision. All 1,563
+  still-published legacy exercises pass Needs Engine validation. Release is
+  intentionally blocked with 0 published definitions, zero phase depth,
+  0/487 approved graph edges, 0/697 approved calibration anchors, and no real
+  coach pilot.
+
+## 2026-08-09 — Source 44 Standing Calf Raise completion checkpoint
+
+- Migration 520 consolidates Source 44, the Source 762 eccentric definition,
+  and the Sources 841/1104 isometric definition into the stable Standing Calf
+  Raise survivor `4db2b9a5-5182-4e0c-921a-26dd229f0859`. It transfers the
+  legacy pointer to Source 44 and exposes only exact review variant
+  `7219f09b-05ca-456e-ba2d-482f9440b893`: both hands lightly supported on a
+  stable wall, bilateral flat-floor full-foot start, mostly straight knees,
+  simultaneous heel rise, brief untimed checkpoint, and controlled return to
+  the same full-foot contact. Nine old family source variants are archived and
+  traceable, not silently treated as selectable equivalents.
+- The card now covers controlled taxonomy; muscles, joints, actions, planes,
+  laterality, contacts, and sequence; environment and population constraints;
+  task-only difficulty; load, fatigue, recovery, and cumulative budgets;
+  prepare/capacity dosage and duration; logistics; quality gates and stop
+  rules; persistence; substitutions; and distinct athlete, coach,
+  accessibility, user-support, and operations contracts. Its task vector is
+  complexity `22`, physical difficulty `32`, overall `32` by maximum,
+  coordination `20`, supervision `12`, failure consequence `10`, work-
+  capacity demand `30`, and normalized impact floor `1`; no participant skill,
+  proficiency, age, readiness, clearance, approval, or publication state is
+  inferred.
+- The exact card has 2 contextual profiles, 16 candidate evidence sections, 5
+  oEmbed-metadata-only media candidates, 28 alternate assessments, 4 review-
+  only graph proposals, and 2 review-only calibration anchors. Three identity
+  decisions consolidate duplicate movement definitions and six distinguish
+  bent-knee, static-hold, impact, locomotor, foot-intrinsic compound, and
+  dorsiflexor neighbors. Its machine packet retains exactly
+  `CARD-MEDIA-01`, `CARD-GRAPH-03`, `CARD-CALIBRATION-01`, and
+  `CARD-PUBLISH-01`.
+- Disposable PostgreSQL registered migration 520 at immutable checksum
+  `745227028`; rollback validation, normal-runner application, re-entry,
+  persisted assertions, JSON validation, and packet generation pass. Registry
+  `2026-08-09.111` contains 467 sources. The research/migration slice passes
+  277/277, the focused single-workout flow passes 65/65, the full platform
+  suite passes 829/829, and the backend suite passes 1,083 with 20 intentional
+  skips out of 1,103. Focused lint, diff integrity, and the production build
+  pass.
+- The refreshed audit covers all 1,676 legacy rows and 1,066 canonical
+  definitions, with 634 raw similarity pairs, 602 adjudicated-distinct pairs,
+  32 unresolved lower-score pairs, and zero unresolved exact collisions or
+  score-85-or-higher pairs. All 1,554 still-published legacy exercises pass
+  Needs Engine validation. Release remains intentionally blocked with 0
+  published definitions, zero depth in all seven phases, 0/490 approved graph
+  edges, 0/699 approved calibration anchors, and no real coach pilot.
+
+## 2026-08-09 — Source 45 Toe Yoga completion checkpoint
+
+- Migration 521 consolidates the direct Source 45 / Source 524 collision into
+  stable Toe Yoga definition `18cec0fe-4ea4-4e28-9f75-41f192f94005` and
+  archives both skeletal source variants. It creates exact standing hands-
+  free, standing wall-touch, and seated-bench review variants. One repetition
+  is one target-foot great-toe lift and return followed by lesser-toe lift and
+  return; left and right counts remain separate.
+- The card now covers stable identity and aliases; controlled taxonomy;
+  anatomy, joints, actions, planes, laterality, contacts, and sequence;
+  environment, population, surface, hygiene, visibility, wall, and bench
+  constraints; load, fatigue, recovery, impact, and downstream budgets;
+  contextual dosage, duration, logistics, substitutions, persistence,
+  coach/athlete/accessibility/support rendering, quality gates, and stop
+  rules. Task vectors are `42/8/42`, `38/7/38`, and `34/5/34`; no participant
+  skill, proficiency, age, readiness, clearance, approval, or publication
+  state is inferred.
+- Persisted scope is 3 active and 2 archived variants, 4 delivery profiles,
+  16 evidence rows, 5 candidate media rows with no variant assignment, 28
+  alternate assessments, 8 review-only relationships, 6 review-only
+  calibration rows, and 2 legacy-source mappings. Five identity decisions
+  consolidate one duplicate and preserve four distinct neighbors. Fabricated
+  approval count is zero, and the packet retains exactly 4 human blockers.
+- Disposable PostgreSQL registered migration 521 at immutable checksum
+  `3898034578`; rollback validation, normal application, immutable re-entry,
+  persisted assertions, deterministic standing-variant snapshot generation,
+  and JSON validation pass. Registry `2026-08-09.112` contains 472 sources.
+  Focused validation passes 279/279, the platform suite 831/831, and the full
+  backend suite 1,085 passes with 20 intentional skips out of 1,105. Focused
+  lint, diff integrity, and the production build pass with only the existing
+  browser-data and greater-than-500-kB bundle advisories.
+- The refreshed audit covers all 1,676 legacy rows and 1,065 active canonical
+  definitions, with 634 raw pairs, 602 adjudicated-distinct pairs, 32
+  unresolved score-72-or-higher pairs, zero exact collisions, and zero
+  unresolved score-85-or-higher pairs. All 1,552 still-published legacy
+  exercises pass Needs Engine validation. Release remains intentionally
+  blocked with 0 published definitions, zero depth in all seven phases,
+  0/497 approved graph edges, 0/705 approved calibration anchors, and no real
+  coach pilot.
+
+## 2026-08-09 — Source 46 Short-Foot Drill completion checkpoint
+
+- Migration 522 reauthors stable definition
+  `f8e6217e-1f08-465c-b533-308316c8602e` around one target-foot dome,
+  prescribed comfortable submaximal isometric hold, and controlled relaxation
+  to the same supported start. Standing hands-free, standing wall-touch, and
+  seated-bench support are exact variants; the skeletal stand-or-sit variant
+  is archived.
+- The card supplies all planning, delivery, logistics, cumulative fatigue and
+  impact, persistence, substitution, coach, athlete, accessibility,
+  user-support, and support-operations contracts. Candidate task vectors are
+  `44/8/44`, `40/7/40`, and `36/5/36`. The legacy age floor is removed, and no
+  participant skill, proficiency, readiness, approval, or publication state
+  is inferred.
+- Persisted scope is 3 active and 1 archived variant, 4 delivery profiles, 16
+  evidence rows, 5 unassigned media candidates, 28 alternate assessments, 8
+  review-only relationships, 6 review-only calibration rows, 5 deterministic
+  distinct-neighbor decisions, and exactly 4 human blockers. Fabricated
+  approval count is zero.
+- Disposable PostgreSQL registered migration 522 at immutable checksum
+  `3569596322`; direct and repeated execution, rollback-only validation,
+  production-runner registration and re-entry, persisted assertions,
+  deterministic standing-variant snapshot generation, JSON validation, and
+  diff integrity pass. Registry `2026-08-09.113` contains 476 sources.
+- The audit covers 1,676 legacy rows and 1,065 active definitions, with 634
+  raw similarity pairs, 602 adjudicated-distinct pairs, 32 unresolved
+  score-72-or-higher pairs, zero exact collisions, and zero unresolved
+  score-85-or-higher pairs. All 1,551 still-published legacy exercises pass
+  Needs Engine validation. Release remains intentionally blocked with zero
+  published canonical definitions, zero phase depth, 0/504 approved graph
+  edges, 0/711 approved calibration anchors, and no real coach pilot.

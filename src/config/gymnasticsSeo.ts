@@ -1,12 +1,16 @@
 import { buildCanonical, type SeoMeta } from '../utils/seo'
 
-export const GYMNASTICS_ORIGIN = 'https://vortex-gymnastics.com'
+/** Canonical gymnastics origin. Production redirects the apex host to www. */
+export const GYMNASTICS_ORIGIN = 'https://www.vortex-gymnastics.com'
+export const GYMNASTICS_SITE_NAME = 'Vortex Gymnastics'
 
 /** Header wordmark on vortex-gymnastics.com (wide banner). */
-export const GYMNASTICS_HEADER_LOGO = '/vortex_gymnastics_logo.png'
+export const GYMNASTICS_HEADER_LOGO = '/vortex-gymnastics-logo.webp'
 
 /** Per-origin Open Graph image so gymnastics shares use gymnastics branding. */
-export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex_gymnastics_logo.png`
+export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex-gymnastics-og.jpg`
+export const GYMNASTICS_OG_IMAGE_ALT =
+  'A Vortex Gymnastics athlete training on a trampoline in Bowie, Maryland'
 
 export const SUMMER_CAMP_2026_OG_IMAGE = `${GYMNASTICS_ORIGIN}/summer-camp-2026-flyer-front.png`
 
@@ -139,6 +143,9 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
     title: 'Gymnastics Summer Camp 2026 (Ages 6–14) | Bowie, MD',
     description:
       'Vortex Gymnastics Summer Camp 2026 in Bowie, MD for ages 6–14. Five themed weeks: gymnastics, sports, dance, crafts, games & movies. Register today.',
+    // The final 2026 session ended July 31. Keep the useful archive reachable,
+    // but remove it from search until a future camp schedule replaces it.
+    robots: 'noindex, follow',
     ogImage: SUMMER_CAMP_2026_OG_IMAGE,
     ogImageAlt:
       'Vortex Gymnastics Summer Camp 2026 flyer — five themed weeks, ages 6–14, Bowie MD',
@@ -157,8 +164,9 @@ export const getGymnasticsSeoForPath = (
       title: 'Vortex Gymnastics | Bowie, MD',
       description: GYMNASTICS_ROUTES[0].description,
       canonical: buildCanonical(GYMNASTICS_ORIGIN, pathname),
+      siteName: GYMNASTICS_SITE_NAME,
       ogImage: GYMNASTICS_OG_IMAGE,
-      ogImageAlt: 'Vortex Gymnastics',
+      ogImageAlt: GYMNASTICS_OG_IMAGE_ALT,
       robots: options?.robots ?? 'noindex, follow',
     }
   }
@@ -166,8 +174,9 @@ export const getGymnasticsSeoForPath = (
     title: route.title,
     description: route.description,
     canonical: buildCanonical(GYMNASTICS_ORIGIN, route.canonicalPath ?? route.path),
+    siteName: GYMNASTICS_SITE_NAME,
     ogImage: route.ogImage ?? GYMNASTICS_OG_IMAGE,
-    ogImageAlt: route.ogImageAlt ?? 'Vortex Gymnastics',
+    ogImageAlt: route.ogImageAlt ?? GYMNASTICS_OG_IMAGE_ALT,
     // Preview override (noindex) wins; otherwise use the route's own robots.
     robots: options?.robots ?? route.robots,
   }

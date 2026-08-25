@@ -1,0 +1,114 @@
+{
+  "batchKey": "wall-slides-with-lift-off-v1",
+  "researchVersion": "2026-08-09.102",
+  "snapshotAt": "2026-08-09T23:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated/wall-slides-with-lift-off",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "wall-slides-with-lift-off",
+      "assessmentSummary": {
+        "identity": "One bilateral standing forearm wall-slide cycle with a required terminal full-arm lift-off. Begin facing a smooth wall with both vertical forearms shoulder-width apart on the wall, elbows near 90 degrees, feet fixed, and trunk organized. Maintain bilateral forearm contact while sliding upward into the declared comfortable overhead range, extend the elbows as range permits, lift both arms and forearms clear of the wall without moving the feet or borrowing lumbar extension, replace both forearms on the wall, and slide to the same start. One complete return is one repetition. Comfortable range, foot distance or stance, lift-off amplitude, tempo, brief pauses, breathing prompts, repetitions, sets, rest, and a stable forearm comfort layer are annotations. Omitting lift-off, changing the sliding interface, adding resistance, changing base or laterality, using a roller, adding another action, or performing assessment changes the task.",
+        "currentCardFindings": [
+          "Source 35 and consolidated Source 899 retain two selectable skeletal variants and two incomplete profiles even though the names and exact forearm-slide-plus-lift-off mechanics are one identity.",
+          "The source description makes lift-off optional and says hands or forearms, so it does not define a reproducible terminal contact rule or one-repetition cycle.",
+          "Source 1309 was consolidated by name through archived Source 899 even though its throwing-context card omits exact wall contacts, slide path, lift-off mechanics, and count. That chain is not evidence of exact identity and must remain nonselectable and quarantined.",
+          "The legacy age floor of eight, publication state, generic dose, sparse 20/10/20 score, and five unreviewed media rows lack card-specific calibration, playback, exactness, accessibility, quality, safety, and approval evidence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": ["brace", "push", "reach"],
+          "bodyRegions": ["wrist", "elbow", "shoulder", "scapula", "thoracic_spine", "core"],
+          "support": "standing_feet_fixed_bilateral_forearm_wall_slide_then_terminal_open_chain_lift_off",
+          "laterality": "bilateral",
+          "planes": ["scapular", "sagittal", "multiplanar_scapulothoracic"],
+          "equipment": ["wall"]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 30,
+          "absoluteLoadDemand": 16,
+          "physicalDifficulty": 16,
+          "baseOverallDifficulty": 30,
+          "variantScores": {
+            "bilateralForearmSlideTerminalLiftOff": {"technicalComplexity": 30, "absoluteLoadDemand": 16, "physicalDifficulty": 16, "baseOverallDifficulty": 30}
+          },
+          "overallFormula": "max(exercise_complexity,physical_difficulty)"
+        },
+        "proposedLoadProfile": {
+          "externalLoadMethod": "arm_segment_weight_plus_light_bilateral_forearm_wall_pressure_then_terminal_open_chain_arm_support",
+          "impactClass": "none",
+          "primaryExposure": ["scapular_upward_rotation_and_posterior_tilt_control", "shoulder_flexion_or_scaption", "elbow_extension", "forearm_wall_pressure", "terminal_lift_off", "trunk_anti_extension"],
+          "recovery": "planning_estimate_only"
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "completeCycles": "5-10",
+          "terminalLiftOffHoldSeconds": "0-3",
+          "secondsPerCycle": "4-10",
+          "rest": "20-60_seconds_or_as_needed_to_preserve_declared_contacts_path_terminal_lift_off_fixed_feet_trunk_control_breathing_and_symptom_free_range",
+          "durationRule": "setup_plus_actual_valid_cycle_and_lift_off_seconds_plus_rest_invalid_or_partial_attempts_symptom_response_substitution_and_station_reset"
+        },
+        "programmingDecision": "Select only when a smooth wall, safe standing station, bilateral forearm slide, required terminal full-arm lift-off, shoulder and elbow range, trunk control, symptoms, dose, duration, and cumulative overhead, shoulder, scapular, and trunk-control budgets fit. Do not silently omit the lift-off or change the wall interface, resistance, base, laterality, equipment, action sequence, clinical scope, or count. Recompute logistics, duration, fatigue, substitutions, persistence, and coach and athlete rendering after any change.",
+        "calibrationEvidence": {
+          "basis": "Direct Physitrack and Catalyst lift-off instructions, peer-reviewed wall-slide EMG and resistance-position studies, a small condition-specific wall-slide trial used only as an outcome boundary, a rotator-cuff-tendinopathy clinical-practice scope boundary, current YouTube oEmbed metadata, and comparison with exact no-lift-off reach, foam-roller, wall-angel, wall-push-up-plus, prone-Y, resisted, and incompletely specified throwing neighbors",
+          "uncertainty": "No source validates one universal wall distance, shoulder angle, forearm pressure, lift-off height, scapular position, muscle force, activation target, dose, frequency, recovery interval, prevention or treatment result, progression order, or Vortex score. General wall-slide studies do not validate the terminal lift-off phase, and no media candidate has been watched in full.",
+          "reviewNeeded": ["qualified_content_review", "independent_difficulty_calibration", "identity_boundary_review", "anatomy_and_load_review", "clinical_scope_and_stop_rule_review", "full_video_review", "coach_and_athlete_comprehension_test"]
+        }
+      },
+      "evidence": [
+        {"sectionKey":"identity","sourceKey":"physitrack_forearm_wall_slide_lift_off","claims":["Physitrack specifies standing facing a wall, vertical shoulder-width forearms on the wall, an upward forearm slide, a top arm lift-off, replacement of the forearms, and return to start.","Vortex fixes the bilateral contact, terminal full-arm clearance, fixed-foot, trunk-control, and return-to-start count boundaries without claiming one universal range."]},
+        {"sectionKey":"taxonomy","sourceKey":"catalyst_wall_slide_lift_off","claims":["Catalyst describes parallel forearms against a smooth wall, upward sliding, full extension, straight-arm lift-off, and controlled return.","Brace, push, and reach are controlled planning terms rather than source-authored outcome guarantees."]},
+        {"sectionKey":"anatomy","sourceKey":"wall_slide_serratus_emg_2006","claims":["A wall-slide study measured serratus anterior activity at 90, 120, and 140 degrees of humeral elevation and found activity increased with elevation.","The study supports shoulder-elevation and scapular-muscle involvement but did not test this exact terminal lift-off or establish isolated activation, force, normal range, or eligibility."]},
+        {"sectionKey":"biomechanics","sourceKey":"wall_slide_theraband_emg_2022","claims":["The laboratory protocol standardized scapular-plane shoulder flexion, elbow flexion, ulnar-forearm wall contact, ascent, hold, and descent.","It tested regular and banded wall slides without the exact lift-off, so it supports contact, plane, phase, and resistance boundaries rather than the complete Source 35 identity."]},
+        {"sectionKey":"difficulty","sourceKey":"catalyst_wall_slide_lift_off","claims":["The direct task adds a controlled straight-arm lift-off after the supported slide while the trunk remains braced.","The 30/16/30 proposal describes this exercise task only and requires independent calibration; it is not a participant skill or age level."]},
+        {"sectionKey":"load_fatigue_recovery","sourceKey":"wall_slide_serratus_emg_2006","claims":["Wall slides produce angle-dependent serratus anterior activity under low external loading.","Track complete cycles, terminal lift-off seconds, wall-contact seconds, faults, symptoms, and overlapping overhead work; tissue thresholds and recovery hours remain planning estimates."]},
+        {"sectionKey":"constraints","sourceKey":"rotator_cuff_tendinopathy_cpg_2025","claims":["The clinical guideline addresses assessment, treatment, prognosis, and return to function for adults with suspected rotator-cuff tendinopathy.","A workout card cannot diagnose, treat, clear return to sport, or replace individualized clinical care; symptom, post-trauma, neurologic, and scope escalation remains mandatory."]},
+        {"sectionKey":"dosage","sourceKey":"catalyst_wall_slide_lift_off","claims":["Catalyst gives a preparatory example of one to three sets of eight to ten repetitions.","That example is not a universal prescription and does not validate Vortex duration, budget, frequency, recovery, or population rules."]},
+        {"sectionKey":"instructions","sourceKey":"physitrack_forearm_wall_slide_lift_off","claims":["The direct sequence is forearms on wall, upward slide, top lift-off, forearms back to wall, then slide down.","Vortex adds explicit valid-repetition, fixed-foot, compensation, stop, persistence, and actual-duration rules without presenting them as source-validated treatment effects."]},
+        {"sectionKey":"safety_stop_rules","sourceKey":"rotator_cuff_tendinopathy_cpg_2025","claims":["Clinical diagnosis, medical care, rehabilitation, prognosis, and return-to-sport decisions require an appropriate professional context.","Stop and escalation rules must distinguish ordinary effort from sharp or escalating pain, neurologic symptoms, trauma, recurrent instability, cardiopulmonary symptoms, and other emergencies."]},
+        {"sectionKey":"programming","sourceKey":"wall_slide_alignment_pain_trial_2016","claims":["A small four-week study in 22 people with scapular downward rotation compared wall and sling slides and reported condition-specific changes.","The population, protocol, and no-lift-off task do not justify universal treatment, prevention, posture-correction, readiness, or performance claims for this card."]},
+        {"sectionKey":"athlete_support","sourceKey":"physitrack_forearm_wall_slide_lift_off","claims":["The direct page names wall setup, forearm contact, controlled upward motion, top lift-off, and controlled return.","Athlete support must explain expected light-to-moderate local effort, exact contacts and sequence, permitted range changes, unexpected symptoms, and how to stop and ask for help."]},
+        {"sectionKey":"coach_support","sourceKey":"wall_slide_theraband_emg_2022","claims":["Wall-slide phase, shoulder angle, forearm orientation, contact, tempo, and resistance position materially define the tested task and muscle-activity context.","Coach support must observe the exact interface, path, first fault, actual exposure, downstream overhead demand, and escalation without diagnosing scapular pathology."]},
+        {"sectionKey":"accessibility","sourceKey":"physitrack_forearm_wall_slide_lift_off","claims":["The source uses a wall and body position that can be explained with stepwise contact and direction prompts.","Smaller comfortable range, lower lift-off amplitude, slower tempo, fewer repetitions, visual checkpoint prompts, and a stable forearm comfort layer are annotations; omitting lift-off or changing base requires another card."]},
+        {"sectionKey":"alternates","sourceKey":"wall_slide_theraband_emg_2022","claims":["Band placement at the wrists or elbows changes muscle-activation patterns compared with a regular wall slide.","Resistance, interface, base, laterality, equipment, terminal action, or clinical purpose changes remain proposed variants or distinct definitions rather than silent annotations."]},
+        {"sectionKey":"media","sourceKey":"youtube_embed_help","claims":["Five candidates returned current YouTube oEmbed title, channel, thumbnail, and iframe metadata on 2026-08-09.","oEmbed health does not prove playback, exact forearm contacts, terminal full-arm lift-off, fixed feet, return count, captions, accessibility, cue quality, safety, reviewer identity, card-version match, or approval."]}
+      ],
+      "mediaCandidates": [
+        {"url":"https://www.youtube.com/watch?v=3blA9Ba2TFI","title":"How to Do Wall Slides With Lift-Off (Shoulder Mobility + Control)","channelName":"Nottingham Physio","sourceQuery":"legacy Source 35 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=6fCDq1SMhsk","title":"Wall Slides with Lift Off","channelName":"Champion Physical Therapy and Performance","sourceQuery":"legacy Source 35 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=DwqcX8VVpkU","title":"Wall Slide with Lift -Off | Olympic Weightlifting Exercise Library","channelName":"Catalyst Athletics","sourceQuery":"legacy Source 899 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=OKfgrx-Qeqk","title":"Wall Slides with Lift-off","channelName":"Synchronicity Health","sourceQuery":"legacy Source 35 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00.000Z"}},
+        {"url":"https://www.youtube.com/watch?v=ykw9BWnZtlY","title":"DPT Wall Slide with Lift Off","channelName":"DeWitt Physical Therapy","sourceQuery":"legacy Source 899 candidate checked by YouTube oEmbed","linkStatus":"healthy","embeddingAllowed":true,"externalVerification":{"method":"youtube_oembed","verifiedAt":"2026-08-09T23:30:00.000Z"}}
+      ],
+      "alternateAssessments": [
+        {"name":"Wall Slide with Lift-Off or Wall Slides with Lift-Off","classification":"same_identity","rationale":"Singular, plural, and hyphenation differences preserve the exact bilateral forearm-slide and terminal full-arm lift-off cycle.","distinguishingDimensions":{"variant":"bilateral_forearm_slide_terminal_full_arm_lift_off"}},
+        {"name":"Forearm Wall Slide with Lift-Off","classification":"same_identity","rationale":"The label is an alias only when both forearms slide on the wall and both full arms clear the wall at the terminal position before returning.","distinguishingDimensions":{"variant":"bilateral_forearm_slide_terminal_full_arm_lift_off"}},
+        {"name":"Y Wall Slide with Lift-Off","classification":"same_identity","rationale":"Y describes the terminal overhead shape only when the exact forearm interface, lift-off, and return count remain unchanged.","distinguishingDimensions":{"variant":"bilateral_forearm_slide_terminal_full_arm_lift_off"}},
+        {"name":"Comfortable Top Range","classification":"modifier_annotation","rationale":"Self-selected symptom-free shoulder elevation changes range without changing contacts, sequence, or count.","distinguishingDimensions":{"modifier":"range"}},
+        {"name":"Parallel or Staggered Stable Foot Stance","classification":"modifier_annotation","rationale":"A stable stance annotation may change balance assistance while feet stay fixed and the upper-limb task remains exact.","distinguishingDimensions":{"modifier":"stance"}},
+        {"name":"Wall Distance","classification":"modifier_annotation","rationale":"Individualized foot-to-wall distance changes starting geometry within the same fixed-foot forearm-slide task.","distinguishingDimensions":{"modifier":"wall_distance"}},
+        {"name":"Comfortable Lift-Off Amplitude","classification":"modifier_annotation","rationale":"Lift-off height changes range only when both full arms clearly leave the wall without compensation.","distinguishingDimensions":{"modifier":"lift_off_amplitude"}},
+        {"name":"Brief Terminal Lift-Off Pause","classification":"modifier_annotation","rationale":"A short pause changes tempo while the complete contact and return sequence remains.","distinguishingDimensions":{"modifier":"terminal_pause"}},
+        {"name":"Controlled Tempo","classification":"modifier_annotation","rationale":"Tempo changes dose rather than the supported-slide and unsupported-lift-off identity.","distinguishingDimensions":{"modifier":"tempo"}},
+        {"name":"Repetitions Sets or Rest","classification":"modifier_annotation","rationale":"Volume and recovery alter dosage, not exercise identity.","distinguishingDimensions":{"modifiers":["repetitions","sets","rest"]}},
+        {"name":"Breathing Prompt","classification":"modifier_annotation","rationale":"Exhale or continuous-breath cues change delivery without changing mechanics.","distinguishingDimensions":{"modifier":"breathing_prompt"}},
+        {"name":"Stable Forearm Comfort Layer","classification":"modifier_annotation","rationale":"A thin stable comfort layer changes skin comfort without adding a rolling interface or changing the path.","distinguishingDimensions":{"modifier":"forearm_comfort"}},
+        {"name":"Mini-Band-at-Wrists Wall Slide with Lift-Off","classification":"new_variant","rationale":"Band resistance changes equipment, force direction, muscle-activity context, release risk, loading, and fatigue.","distinguishingDimensions":{"resistance":"mini_band_wrists"}},
+        {"name":"Band-at-Elbows Wall Slide with Lift-Off","classification":"new_variant","rationale":"Elbow-level resistance changes equipment, force direction, contact strategy, loading, and fatigue.","distinguishingDimensions":{"resistance":"band_elbows"}},
+        {"name":"Band-Behind-Back Wall Slide with Lift-Off","classification":"new_variant","rationale":"A band around the trunk and hands changes the resistance vector, setup, loading, and release risk.","distinguishingDimensions":{"resistance":"band_behind_back"}},
+        {"name":"Unilateral Wall Slide with Lift-Off","classification":"new_variant","rationale":"One-arm execution changes laterality, trunk rotation demand, wall interface, loading, and comparison rules.","distinguishingDimensions":{"laterality":"unilateral"}},
+        {"name":"Half-Kneeling Wall Slide with Lift-Off","classification":"new_variant","rationale":"Half-kneeling changes base, laterality, floor transfer, balance, hip and trunk demand, and logistics.","distinguishingDimensions":{"base":"half_kneeling"}},
+        {"name":"Seated Wall Slide with Lift-Off","classification":"new_variant","rationale":"Seated execution changes base, equipment, trunk constraints, access, and logistics.","distinguishingDimensions":{"base":"seated"}},
+        {"name":"Hands-Only Lift-Off with Elbows or Forearms Retained","classification":"new_variant","rationale":"Keeping proximal forearm contact while only hands or wrists lift changes elbow, shoulder, scapular, contact, and count mechanics.","distinguishingDimensions":{"terminal_contact":"proximal_forearm_retained"}},
+        {"name":"Forearm Wall Slide with Reach","classification":"new_definition","rationale":"Source 905 maintains the forearm wall interface and returns without the required terminal full-arm lift-off.","distinguishingDimensions":{"targetLegacyExerciseId":905,"terminal_action":"no_lift_off"}},
+        {"name":"Serratus Foam-Roller Wall Slide","classification":"new_definition","rationale":"Source 1310 adds a rolling interface and does not specify the same terminal lift-off, changing equipment, friction, contact, path, and count.","distinguishingDimensions":{"targetLegacyExerciseId":1310,"interface":"foam_roller"}},
+        {"name":"Wall Slide with Lift-Off — Throwing","classification":"new_definition","rationale":"Source 1309 names a throwing context but lacks reproducible wall contacts, slide path, lift-off mechanics, and count; exact identity cannot be inferred from the label.","distinguishingDimensions":{"targetLegacyExerciseId":1309,"status":"identity_contract_incomplete"}},
+        {"name":"Back-to-Wall Wall Angel","classification":"new_definition","rationale":"Back-to-wall contact, arm orientation, sliding surface, and scapular intent differ from facing-wall forearm sliding and terminal lift-off.","distinguishingDimensions":{"support":"back_to_wall"}},
+        {"name":"Wall Push-Up Plus","classification":"new_definition","rationale":"Elbow flexion and extension plus terminal scapular protraction changes support, action sequence, loading, and count.","distinguishingDimensions":{"action":"wall_push_up_plus"}},
+        {"name":"Prone Y or Trap-3 Raise","classification":"new_definition","rationale":"Prone open-chain lifting changes base, gravity vector, support, equipment, loading, and failure consequence.","distinguishingDimensions":{"targetLegacyExerciseId":1345,"base":"prone"}},
+        {"name":"Clinical Shoulder or Scapular Assessment","classification":"new_definition","rationale":"Assessment adds examiner protocol, measurement, consent, clinical interpretation, and escalation.","distinguishingDimensions":{"scope":"clinical_assessment"}}
+      ]
+    }
+  ]
+}

@@ -326,27 +326,27 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route path="/waivers-memberships" element={<WaiversMembershipsPage />} />
           <Route
             path="/acro-gymnastics"
-            element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}
+            element={<AcroGymnasticsPage />}
           />
           <Route
             path="/artistic-gymnastics"
             element={
-              <ArtisticGymnasticsDisciplinePage onSignUpClick={handleContactClick} />
+              <ArtisticGymnasticsDisciplinePage />
             }
           />
           <Route
             path="/rhythmic-gymnastics"
-            element={<RhythmicGymnasticsPage onSignUpClick={handleContactClick} />}
+            element={<RhythmicGymnasticsPage />}
           />
           <Route
             path="/trampoline-tumbling"
             element={
-              <TrampolineTumblingGymnasticsPage onSignUpClick={handleContactClick} />
+              <TrampolineTumblingGymnasticsPage />
             }
           />
           <Route
             path="/aerobic-gymnastics"
-            element={<AerobicGymnasticsPage onSignUpClick={handleContactClick} />}
+            element={<AerobicGymnasticsPage />}
           />
           <Route path="/beginner-gymnastics" element={<BeginnerGymnasticsPage />} />
           <Route path="/homeschool-gymnastics" element={<HomeschoolGymnasticsPage />} />

@@ -36,7 +36,7 @@ const trainingElements: TrainingElement[] = [
       'Conditioning sessions train work capacity without turning practice into random fatigue. Athletes learn pacing, recovery between efforts, and how to keep movement quality high when tired—so fitness shows up in games, meets, and long training days.',
     beginnerNote:
       'Think of it as sport-ready engine work: stronger repeats, cleaner mechanics, and better durability.',
-    image: '/multisport.jpeg',
+    image: '/multisport-card.webp',
     imageAlt: 'Young athletes completing sports conditioning drills at Vortex',
     icon: Flame,
   },
@@ -48,7 +48,7 @@ const trainingElements: TrainingElement[] = [
       'Body control work blends tumbling, coordination, and spatial awareness. Athletes progress from safe shapes and landings into connected skills, learning how to organize the body in the air and on the ground with confidence.',
     beginnerNote:
       'No advanced flipping experience is required—control and safe landings come first.',
-    image: '/fit-and-flip.jpeg',
+    image: '/fit-and-flip-card.webp',
     imageAlt: 'Young athlete performing a flip on a trampoline at Vortex',
     icon: Activity,
   },
@@ -60,7 +60,7 @@ const trainingElements: TrainingElement[] = [
       'Speed and agility blocks focus on first-step quickness, deceleration, and change-of-direction mechanics. Athletes train posture, footwork, and reactive decisions so they can move fast without losing balance or control.',
     beginnerNote:
       'Speed is coached, not just chased—clean angles and timing create faster athletes.',
-    image: '/agility.jpeg',
+    image: '/agility-card.webp',
     imageAlt: 'Athlete completing a cone agility drill at Vortex',
     icon: Wind,
   },
@@ -72,7 +72,7 @@ const trainingElements: TrainingElement[] = [
       'Strength and explosiveness sessions develop force production and rate of force development. Athletes learn how to produce power through jumps, throws, and loaded patterns that transfer to sprinting, tumbling, and sport-specific actions.',
     beginnerNote:
       'Power is trained with intent and recovery—quality reps beat exhausted grinding.',
-    image: '/strength.jpeg',
+    image: '/strength-card.webp',
     imageAlt: 'Strength and explosiveness training at Vortex Athletics',
     icon: Zap,
   },
@@ -83,7 +83,7 @@ const trainingElements: TrainingElement[] = [
       'Mobility and balance training expand usable range of motion and teach athletes to own positions under control. Better joint mobility and stability support safer skill progressions and more efficient movement in every sport.',
     beginnerNote:
       'Mobility is trained as athletic skill—positions you can control, not just stretch into.',
-    image: '/balance.jpeg',
+    image: '/balance-card.webp',
     imageAlt: 'Athlete developing mobility and balance at Vortex',
     icon: Scale,
   },
@@ -94,7 +94,7 @@ const trainingElements: TrainingElement[] = [
       'Lifting fundamentals teach squat, hinge, push, and pull patterns with technique-first coaching. Athletes build barbell and free-weight literacy so strength work stays safe, progressive, and useful for long-term athletic development.',
     beginnerNote:
       'Available for ages 8 and up. Form and consistency come before load.',
-    image: '/lifting-fundamentals.jpeg',
+    image: '/lifting-fundamentals-card.webp',
     imageAlt: 'Young athlete practicing a barbell lift at Vortex',
     icon: Dumbbell,
   },
@@ -120,7 +120,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
               Foundational Athletic Training
             </p>
             <h1 className="text-5xl font-display font-bold leading-[.95] sm:text-6xl lg:text-7xl">
-              Fit <span className="text-vortex-red">&amp;</span> Flip
+              Fit <span className="text-vortex-red">&amp;</span> Flip Youth Training
             </h1>
             <p className="mt-7 max-w-2xl text-xl leading-relaxed text-gray-200 md:text-2xl">
               Advanced athletics training with tumbling, coordination, and body control—built on the
@@ -136,7 +136,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
           >
             <div className="relative h-full min-h-[24rem] overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl lg:rounded-l-3xl lg:rounded-r-none lg:border-y-0 lg:border-r-0">
               <img
-                src="/strength.jpeg"
+                src="/strength-1600.webp"
                 alt="Strength and explosiveness training at Vortex Athletics"
                 className="absolute inset-0 h-full w-full scale-[1.15] object-cover object-center"
                 loading="eager"
@@ -185,7 +185,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
             </h2>
             <div className="mt-6 space-y-5 text-lg leading-relaxed text-gray-700">
               <p>
-                <strong className="text-black">Fit &amp; Flip</strong> is Vortex Athletic&apos;s
+                <strong className="text-black">Fit &amp; Flip</strong> is Vortex Athletics&apos;
                 foundational athletics training program. Athletes train in 1.5 hour blocks and combine
                 advanced athletics training with tumbling, coordination, and body control.
               </p>

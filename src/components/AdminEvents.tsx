@@ -659,7 +659,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     datesAndTimes: [],
     keyDetails: [],
     images: [],
-    address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+    address: 'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715',
     tagType: 'all_classes_and_parents',
     tagClassIds: [],
     tagCategoryIds: [],
@@ -1019,7 +1019,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
           datesAndTimes: [],
           keyDetails: [],
           images: [],
-          address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+          address: 'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715',
           tagType: 'all_classes_and_parents',
           tagClassIds: [],
           tagCategoryIds: [],
@@ -1059,7 +1059,9 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       datesAndTimes,
       keyDetails: event.keyDetails || [],
       images: event.images || [],
-      address: event.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+      address:
+        event.address ||
+        'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715',
       tagType: event.tagType || 'all_classes_and_parents',
       tagClassIds: event.tagClassIds || [],
       tagCategoryIds: event.tagCategoryIds || [],
@@ -1494,7 +1496,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   type: 'event',
                   datesAndTimes: [],
                   keyDetails: [],
-                  address: 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715',
+                  address:
+                    'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715',
                   tagType: 'all_classes_and_parents',
                   tagClassIds: [],
                   tagCategoryIds: [],
@@ -1694,7 +1697,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Address</label>
                   <input
                     type="text"
-                    value={eventFormData.address || 'Vortex Athletics, 4961 Tesla Dr, Bowie, MD 20715'}
+                    value={
+                      eventFormData.address ||
+                      'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715'
+                    }
                     onChange={(e) => setEventFormData({ ...eventFormData, address: e.target.value })}
                     className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
                   />
@@ -2557,4 +2563,3 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     </>
   )
 }
-

@@ -1,0 +1,14 @@
+{
+  "migrationKey": "720_coaching_180_turn_shuttle_source_160_candidate_materialization",
+  "researchVersion": "2026-07-25.22",
+  "generatedAt": "2026-07-26T04:00:00.000Z",
+  "cards": [
+    {
+      "slug": "180-degree-turn-shuttle-cut",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5,
+      "cardVersion": 3
+    }
+  ]
+}

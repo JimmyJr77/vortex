@@ -2,6 +2,81 @@
 
 Audit baseline: 2026-07-26, disposable PostgreSQL 15, facility 1.
 
+## Current authoritative snapshot (2026-08-11)
+
+Historical snapshots below are retained as migration evidence. The current
+disposable PostgreSQL audit is authoritative: all 1,676 legacy rows are
+source-covered by 206 active canonical definitions, all quarantined in
+`review`; none is published. The audit finds 217 raw name-similarity pairs,
+216 adjudicated distinct, one low-score unresolved pair, and zero unresolved
+exact identity collisions.
+
+All 206 active review cards now pass the machine-checkable card contract:
+candidate research sections, anatomy, taxonomy, difficulty, load/fatigue,
+delivery/support, alternate assessments, candidate media, provenance, and
+automated test-packet coverage are complete. Each has a three-to-five candidate
+video set; 99.51% currently have three to five healthy embeddable metadata
+records. None has a fabricated exact-match, accessibility,
+or reviewer approval.
+
+Migration 748 reauthors Source 1170 as the distinct Medicine Ball Rebound Slam
+to Catch candidate. The contract requires a predictable rebound and controlled
+two-hand catch before the declared reset or re-output; it expressly excludes a
+dead-ball slam/retrieval. All five links have healthy oEmbed metadata only, and
+the identity, media, graph, calibration, and publication gates remain open.
+
+Migration 747 reauthors Source 995 Uphill Bound as an exact candidate incline
+alternating-bound task. It specifies grade, lane, traction/weather inspection,
+contact/duration, walk-down recovery, fatigue budgets, and alternate boundaries.
+Its five healthy oEmbed records are metadata only; all human gates remain open.
+
+Migration 746 reauthors Source 1166's generic Kneeling Slam Ball Slam skeleton
+as a candidate within the existing Source 1320 Tall-Kneeling Overhead Medicine
+Ball Slam identity, preserving both source IDs. It has 16 candidate evidence
+sections and five healthy oEmbed records only; exact-match media, identity,
+graph, calibration, and publication remain human-gated.
+
+Migration 743 adds the Source 283 planned 45-Degree Cut and Reaccelerate candidate
+with two contextual delivery profiles, and retains its terminal-stick/90-degree/bound
+boundaries. Migration 742 adds the Source 152 standing Medicine Ball Overhead Slam
+candidate and preserves Sources 1161/1167 as archived source skeletons. Its
+five links have healthy oEmbed metadata only; no exact-match, content, media,
+relationship, calibration, or publication approval was created.
+
+Migration 744 maps Source 710 Prone Pop-Up to Sprint to the existing Ground-Start
+Sprint fully-prone variant with a deterministic candidate-only duplicate resolution.
+It does not create an approval or make either card publishable.
+
+The remaining audit blockers are intentionally human-controlled:
+
+- exact media verification and approval;
+- coach review of progression/regression/substitution relationships;
+- independent calibration approval;
+- two-person publication approval and a released phase-depth cohort.
+
+### Source-review queue
+
+Run `backend/scripts/report-canonical-source-review-coverage.mjs` against the
+target database before selecting a new tranche. Migration coverage is not
+content completion: the current report distinguishes source rows attached to
+active review cards from source rows retained only under archived identities,
+and lists the archived source rows that already have a complete local research
+packet. Work those packet-backed rows before opening a new research effort.
+Archived rows must be resolved through research-backed reauthorization,
+explicit consolidation, or an evidence-backed quarantine; they must not be
+bulk-promoted from labels alone.
+
+The current source-coverage report has 599 review-source rows (598 distinct
+sources) and 1,080 archived source rows. Thirty-five archived sources have a
+complete local research packet; the next tranche must still pass the explicit
+identity boundary before materialization.
+
+Migration 749 closes the machine-readable archived-source disposition gap:
+every archived source row now carries either a reviewed source disposition or
+an explicit nonselectable identity-quarantine variant. This is a lineage and
+review-state guarantee only; it does not turn archived content into a reviewed
+candidate, verify media, or authorize publication.
+
 ## Identity completion update (2026-07-27)
 
 The score-72+ identity queue is fully classified after migrations 391–396:
@@ -2727,6 +2802,149 @@ approvals; exact 3–5 current-card healthy embeddable video coverage is
 76/1,047. Back Squat remains quarantined only by media, graph, calibration, and
 publication review.
 
+## Source 42 — Ankle CARs
+
+Migrations 516–518 retain stable definition
+`2157c8df-d013-4946-a6dd-2e0dedc3fe42`, archive its mixed-base skeleton, and
+author exact review variant `b0aade12-bc8b-4571-af9b-bde0b85520ec`. The base
+is seated on a stable bench with the target thigh supported, non-target foot
+planted, and target foot clear. One active repetition follows a declared
+dorsiflexed start through inversion, plantarflexion, eversion, and return to
+the same start; the reverse path is a separately counted repetition.
+
+Comfortable active range, knee angle, light non-assisting monitoring, a visual
+trace, direction order, tempo, brief non-forced pauses, breathing, dose, rest,
+side order, and delivery context are annotations. Standing or alternate-body-
+position execution, eyes closed, external resistance or load, passive force,
+weight bearing, isometric holds, ankle pumps, ankle alphabet, calf raises,
+clinical measurement, and sport actions require variant or distinct-task
+review.
+
+The canonical definition uses controlled `foot`, `ankle`, `calf`, `knee`,
+`hip`, and `core` regions and complete required member, coach, and support
+operations keys. Difficulty is task-only at complexity / physical / derived
+overall `24/12/24`; no participant level, age, proficiency, readiness, or
+linked skill is stored. Two delivery profiles specify selection, dose,
+duration, bench logistics, cumulative ankle/lower-leg and impact budgets,
+scaling, substitutions, persistence, rendering, and stop/escalation behavior.
+
+The research packet contains 16 candidate evidence sections, five current
+oEmbed-metadata-only videos, 24 alternates, four review-only graph proposals,
+two review-only score anchors, and seven distinct-task identity decisions.
+The automated packet passes all machine checks and remains quarantined only
+for qualified media review, graph approval, calibration approval, and separate
+publication review.
+
+## Source 41 — Half-Kneeling Ankle Dorsiflexion Pulse
+
+Migration 515 authors stable definition
+`ab9faf95-7a17-4c30-ad90-a087ae774b5e` and exact review variant
+`49e6b0fa-2091-4c06-b0b5-966107062876`. The support contract is a padded rear
+knee and lower leg with the target front heel, first metatarsal head, and fifth
+metatarsal head planted. The initial forward move establishes a comfortable
+endpoint and is setup. One small partial retreat and same-endpoint re-advance
+is one pulse. The old skeletal baseline is archived and traceable.
+
+Comfortable endpoint, retreat amplitude, front-foot placement, pad thickness,
+light fingertips on the front thigh without unloading, visual target, tempo,
+brief endpoint pause, breathing, dose, rest, side order, and delivery context
+are annotations. A full return to upright half-kneeling, standing support,
+meaningful wall-hand loading, isometric press, band force, kettlebell load,
+elevated front foot, active dorsiflexor lift, clinician force, calf raise,
+clinical measurement, or sport action is a variant or distinct definition.
+
+The card specifies controlled taxonomy; muscles, joints, actions, planes,
+laterality, contacts, and sequence; complete task-only difficulty; load,
+fatigue, recovery, kneeling, and cumulative budgets; mat, surface, space,
+footwear, symptom, population, and clinical-scope constraints; dosage and
+actual-duration formulas; substitutions; persistence; coach and athlete
+rendering; accessibility; incidents; and stop rules. The exact task vector is
+`22/14/22` for complexity / physical difficulty / overall, plus coordination
+`20`, supervision `14`, failure consequence `14`, work-capacity demand `14`,
+and impact `1`. It stores no participant level.
+
+Current scope is 1 exact review and 1 archived source variant, 2 review
+profiles, 16 evidence candidates, 5 media candidates, 24 alternates, 4 graph
+proposals, 2 calibrations, and 5 identity decisions. The generated artifact
+now includes the active exact variant's difficulty, load, and fatigue snapshot.
+Migration checksum is `2816286728`; registry `2026-08-09.108` has 458 sources.
+The packet remains quarantined only by media, graph, calibration, and
+publication review.
+
+## Source 40 — Knee-to-Wall Ankle Rocker
+
+Migrations 512–514 consolidate Source 40 `Knee-to-Wall Ankle Rockers`, Source
+875 `Ankle Knee-to-Wall Rocker`, and Source 1359 `Ankle Knee-to-Wall
+Mobilization` under stable definition
+`c12b9ae2-11a4-4cdf-96dd-280b291ca71c`. Their shared exact contract is a
+standing staggered stance facing a stable wall or upright, fixed target heel
+and foot tripod, target-knee travel toward the wall over the declared
+middle-toe corridor through comfortable range, and controlled return to the
+same start. One complete forward-and-return cycle is one repetition.
+
+The exact review variant `52bdd7ff-7f6f-4be7-95ec-7ae4a28d1d89` has Prepare
+& Access and kicking plant/pivot-context profiles. Foot distance, comfortable
+range, a visual knee target, light fingertip balance support, tempo, pauses,
+breathing, dose, side order, and sport context are annotations. Kneeling,
+straight-knee stretching, sustained isometric pressing, added band force,
+elevation, external load, rotation, calf raising, clinical measurement, or a
+missing return changes the task. Half-Kneeling Ankle Dorsiflexion Pulse, Wall
+Ankle Dorsiflexion Iso Press, Ankle CARs, and Foot Tripod Weight Shifts remain
+distinct definitions.
+
+The card specifies controlled taxonomy; foot, ankle, knee, hip, and trunk
+anatomy; joints, actions, planes, laterality, contacts, and sequence; task-only
+difficulty; load, fatigue, recovery, and cumulative budgets; wall, surface,
+space, footwear, balance, symptom, population, and clinical-scope constraints;
+dosage and actual-duration formulas; logistics; quality and stop rules;
+substitutions; persistence; coach and athlete rendering; accessibility;
+incidents; retention; and support escalation. Its complete candidate task
+vector is complexity `18`, physical difficulty `12`, coordination `16`,
+supervision `12`, failure consequence `12`, work-capacity demand `12`, impact
+`1`, and derived overall `18`. It stores no participant level.
+
+Current scope is 1 exact review and 3 archived source variants, 2 review
+profiles, 16 candidate evidence sections, 5 current media candidates, 24
+alternates, 4 review-only graph proposals, 2 review-only difficulty anchors,
+and 5 identity decisions. oEmbed metadata for `33-GE3x-xQM`, `ElrpduJn92Y`,
+`Y1IZXkdPPdw`, `qjrNGnubve4`, and `YH7xjrkq7ic` does not establish playback,
+standing-versus-kneeling support, exact mechanics, captions, accessibility,
+quality, safety, version match, or approval.
+
+Migrations 512–514 are registered at checksums `1469215636`, `4053192554`,
+and `1242308153`; registry `2026-08-09.107` contains 455 sources. The
+refreshed audit has 1,069 definitions, 29 unresolved score-72-or-higher pairs,
+and zero exact collision. The Source 40 packet has only media, graph,
+calibration, and publication blockers and remains review-only.
+
+## 2026-08-09 — Source 39 Plank-to-Down-Dog family audit
+
+Source 39 is now one exact fixed-support high-plank to comfortable inverted-V
+and same-plank return cycle. The audit also discovered and consolidated Source
+675 Plank to Pike, in addition to the existing Source 795 Rocking Plank to
+Down Dog merge. Both duplicate legacy cards and all three skeletal variants
+are archived; their source mappings and aliases remain traceable. The
+canonical card contains 1 exact review variant, 2 review delivery profiles,
+16 candidate evidence sections, 5 oEmbed-metadata-only media candidates, 24
+alternate assessments, 4 review-only graph proposals, 2 review-only
+difficulty anchors, and 5 deterministic identity decisions. It has no
+reviewer, approver, approved video, graph approval, calibration approval, or
+publication state.
+
+Migration 511 is registered at checksum `2611839779`, timestamp
+`2026-08-09 18:49:40.611401-04`; registry `2026-08-09.106` contains 450
+sources. The disposable audit now reports 1,676 legacy exercises, 1,070
+canonical definitions, 631 raw similarity pairs, 602 adjudicated-distinct
+pairs, 29 unresolved score-72-or-higher pairs, and zero exact collisions. All
+1,572 still-published legacy cards pass the Needs Engine audit. The card
+remains quarantined behind media, graph, calibration, content, comprehension,
+and separate publication review.
+
+Validation passes 262 focused tests, 814 platform tests, and 1,068 backend
+tests with 20 intentional skips out of 1,088. Focused ESLint, JSON/generated
+artifact checks, PostgreSQL migration/runner checks, diff integrity, and the
+production build are green.
+
 ## Box Jump family audit hardening (migration 462)
 
 The complete nine-source Box Jump lineage now shares stable UUID
@@ -3534,3 +3752,650 @@ incomplete cards, 102 healthy current embeddable 3–5-candidate sets, 628/628
 adjudicated similarity pairs, zero unresolved pair or collision, 755/0 graph
 review/approved, 965/0 calibration review/approved, and zero published. Source
 26 `Quadruped Spinal Circles` is the next machine-incomplete exact family.
+
+## 2026-08-09 — Source 26 Quadruped Spinal Circles library contract
+
+`Quadruped Spinal Circles` is machine-complete and human-review quarantined
+through migration 497 (`3770465916`). One complete repetition keeps both hands
+and knees planted while moving from a rounded checkpoint toward the named
+first side, through a lateral checkpoint and comfortable arch, through the
+opposite side, and back to the same rounded checkpoint. Both directions are
+recorded separately; neutral setup and final neutral exit are not counted.
+Coupled axial motion may occur naturally, but axial rotation is not a
+separately required phase.
+
+Controlled taxonomy uses `brace`, the spinal/pelvic/support body regions,
+`none`, and `mat_optional`. The single exact variant contains task-only
+`32/12/32` difficulty, anatomy and support contacts, sagittal/frontal/coupled
+multi-planar actions, load and planning recovery, cumulative fatigue and impact
+budgets, environmental and population constraints, complete dose/time models,
+quality and stop rules, logistics, substitutions, coach and athlete
+instructions, accessibility, persistence, and support-operation contracts.
+Direction, range, tempo, repetitions, sets, rest, and optional mat remain
+delivery annotations. Support height/interface, segmental sequence, moving
+region, base, contact removal, locomotion, hover, limb lift, external force,
+instability, and manual or clinical assistance require reviewed variants or
+distinct definitions.
+
+Current-version scope is 1 selectable variant, 2 review profiles, 16 candidate
+evidence sections, 5 healthy/embeddable oEmbed candidates, 20 alternate
+assessments, 4 review-only graph rows, 2 review-only anchors, 4 relevant
+identity boundaries, and one four-blocker packet. The five media IDs are
+`F8tiHAb_WQI`, `LywxamPqa9k`, `b4fwyPYXFkY`, `u2HkVRxxioA`, and
+`vdgvP8CqwRw`; oEmbed health proves metadata/embed response only. No playback,
+exactness, caption, accessibility, cue-quality, safety, reviewer, or approval
+state was inferred.
+
+Registry `2026-08-09.94` contains 399 sources. Focused tests pass 236/236, the
+platform suite 788/788, and the backend suite 1,042 plus 20 intentional skips.
+Focused lint, JSON and diff checks, generated research artifacts, repeated
+PostgreSQL application, runner registration/skip, persisted invariants, audits,
+and the production build pass. The next machine-incomplete source is 28
+`Side-Lying Open Book`; Source 27 is already machine-complete and remains
+human-review quarantined.
+
+## 2026-08-09 — Source 28 Side-Lying Open Book library contract
+
+`Side-Lying Open Book` is machine-complete and human-review quarantined through
+migration 498 (`18231930`). Sources 891 `Open Book Rotation` and 1306 `Open
+Book T-Spine Rotation` are exact duplicate titles for the same bent-stacked-
+knee, forward-stacked-arm, top-arm opening, trunk-rotation, and controlled-
+return action. Their definitions and skeletal variants are archived, and their
+legacy mappings, aliases, and provenance are retained on Source 28.
+
+The one exact selectable review variant is `22/10/22`: exercise complexity,
+physical difficulty, and their derived maximum. It models side-lying support,
+bent stacked hips and knees, straight forward-stacked arms, a controlled top-
+arm arc with global thoracolumbar/rib-cage rotation, comfortable rather than
+forced range, hand-restack repetition completion, and separate side records.
+The anatomy does not claim isolated thoracic motion. Range, tempo, dose, brief
+hold, gaze strategy, and stable comfort props remain annotations. Changed leg
+base, windmill path, bent-arm rib pull, manual force, resistance, wall base, or
+assessment protocol requires a reviewed variant or distinct definition.
+
+The card contains controlled taxonomy, anatomy, actions, planes, laterality,
+load and fatigue/recovery profiles, no-impact contacts, cumulative budgets,
+equipment, environment and population constraints, two contextual delivery
+profiles, dose and actual-duration formulas, quality and stop rules,
+substitution revalidation, coach and athlete content, accessibility,
+persistence, incident handling, and support operations. Participant skill,
+proficiency, and age classifications are absent.
+
+Current-version scope is 1 variant, 2 review profiles, 16 candidate evidence
+sections, 5 healthy/embeddable oEmbed candidates, 20 alternate assessments, 4
+review-only graph proposals, 2 review-only difficulty anchors, 5 identity
+decisions, and one four-blocker packet. The media IDs are `gooXfQYTV-0`,
+`Bik7s2SZo_U`, `xznlno1QVuU`, `3Cyd4iYLuKo`, and `DO94-QTeyrM`. oEmbed health
+does not establish playback, task exactness, accessibility, safety, or human
+approval.
+
+Registry `2026-08-09.95` contains 402 sources. Focused tests pass 238/238,
+platform tests 790/790, and backend tests 1,044 with 20 intentional skips.
+Lint, JSON/generated-artifact validation, diff integrity, disposable database
+idempotency and runner checks, canonical/Needs Engine/release audits, and the
+production build pass. Source 29 `Inchworm Walkout` is the next machine-
+incomplete exact family.
+
+## 2026-08-09 — Source 29 Inchworm Walkout library contract
+
+`Inchworm Walkout` is machine-complete and human-review quarantined through
+migrations 499 (`1634112643`) and 500 (`546720287`). Source 29 remains the
+stable identity. Its ambiguous source skeleton is archived and replaced by a
+stationary hands-out-and-back variant (`30/24/30`) and a traveling hands-out/
+feet-in variant (`34/26/34`). Both use a standing start, safe hinge or knee bend,
+sequential hand walk to controlled high plank, declared return mode, controlled
+standing finish, and no push-up. Return mode changes selection, locomotion,
+space, contacts, counting, and logistics, so it is not a silent annotation.
+
+The card contains controlled taxonomy, anatomy, joint actions, planes,
+laterality, load and fatigue/recovery profiles, no-impact contacts, cumulative
+budgets, no-equipment sentinel, floor and lane constraints, four contextual
+delivery profiles, dose and actual-duration formulas, quality and stop rules,
+substitution revalidation, coach and athlete content, accessibility,
+persistence, incident handling, and support operations. Step size, safe knee
+bend, pace, brief plank pause, volume, rest, and floor markers are annotations.
+Push-ups, jumps, raised or unstable support, load, added lunges or rotation,
+Down Dog phases, and plank-only endpoints require another reviewed identity.
+Participant skill, proficiency, and age classifications are absent.
+
+Current-version scope is 2 active variants, 4 review profiles, 16 evidence
+candidates, 5 oEmbed metadata candidates, 20 alternate assessments, 5
+review-only graph proposals, 4 review-only difficulty anchors, and 5 explicit
+distinct-identity decisions. The media IDs are `BXRL_AC8om4`, `ttxQ_UPOwWc`,
+`aFkv2m9FTGs`, `-FW8DNKsAh8`, and `ZvhfaibmpwU`. oEmbed metadata health does
+not establish playback, exact task match, accessibility, safety, or approval.
+
+Registry `2026-08-09.96` contains 405 sources. Focused tests pass 241/241,
+platform tests 793/793, and backend tests 1,047 with 20 intentional skips.
+Lint, JSON/generated-artifact validation, diff integrity, disposable database
+idempotency and runner checks, canonical/Needs Engine/release audits, and the
+production build pass. Source 30 `Wrist Rockers — Palms Down` is the next
+machine-incomplete exact family.
+
+## 2026-08-09 — Source 30 Wrist Rockers — Palms Down library contract
+
+`Wrist Rockers — Palms Down` is machine-complete and human-review quarantined
+through migration 501 (`3818017833`). Source 30 remains the stable definition;
+its underspecified skeleton is archived. The one selectable review variant is
+`22/16/22` for exercise complexity, physical difficulty, and their derived
+maximum. It requires bilateral hands-and-knees support, palms flat, fingers
+forward, elbows extended without forced lockout, a controlled comfortable
+forward weight shift, and a complete return. One forward-and-back cycle is one
+repetition.
+
+The card uses only controlled movement and body-region taxonomy while retaining
+forearm detail in anatomy and support text. It supplies full anatomy, joint
+actions, planes, laterality, load and fatigue/recovery profiles, no-impact
+contacts, cumulative wrist and hand-support budgets, equipment/environment/
+population constraints, two contextual profiles, duration and dose formulas,
+quality and stop rules, coach/athlete/accessibility content, substitution
+revalidation, persistence, incidents, and support operations. Range, pace,
+brief comfortable pause, sets, repetitions, rest, and knee cushioning are
+delivery annotations. Palms up, backs of hands down, changed finger direction,
+unilateral emphasis, circles, palm lifts, holds, raised or tall-plank support,
+external force, or assessment changes the task. Participant skill, proficiency,
+and age classifications are absent.
+
+Current-version scope is 1 active variant, 2 review profiles, 16 evidence
+candidates, 5 oEmbed metadata candidates, 20 alternate assessments, 4
+review-only graph proposals, 2 review-only difficulty anchors, and 4 explicit
+distinct-identity decisions. The media IDs are `9KYKYqoVBSA`, `5mil82fqj30`,
+`54khDyn0qn8`, `O_S9TKHwnsE`, and `4dRox1rxhfU`. oEmbed metadata health does
+not establish playback, exact task match, captions, accessibility, cue quality,
+safety, or approval.
+
+Registry `2026-08-09.97` contains 409 sources. Focused tests pass 243/243,
+platform tests 795/795, and backend tests 1,049 with 20 intentional skips.
+Lint, JSON/generated artifacts, diff integrity, migration idempotency and
+runner checks, persisted card gates, all library audits, expected blocked
+release reporting, and the production build pass. Source 31 `Wrist Rockers —
+Palms Up / Flexor Bias` is next.
+
+## 2026-08-09 — Source 31 Wrist Rockers — Backs of Hands Down / Wrist-Flexion Bias library contract
+
+Source 31 is machine-complete and human-review quarantined through migration
+502 (`436621732`). Stable definition
+`97e7daff-8b45-4a6e-98a6-30e78d1092bb` retains the legacy palms-up/flexor-bias
+label as an alias, but its display name now states the observable dorsal-hand
+wrist-flexion task. The inherited skeleton is archived. The one selectable
+review variant is `26/18/26` for exercise complexity, physical difficulty, and
+their derived maximum.
+
+The exact variant requires a bilateral hands-and-knees base, backs of both
+hands on a clean firm nonabrasive surface, palms up, fingers toward the knees,
+very light pressure, and elbows extended without forced lockout. It shifts
+backward toward the heels only to a comfortable wrist-flexion endpoint and
+returns forward to the declared start. One complete backward-and-forward cycle
+is one repetition. Range, pace, a brief comfortable pause, dose, rest, and knee
+cushioning remain delivery annotations. Changed hand surface, finger direction,
+laterality, support height, path, hold, external force, padding, or clinical
+assessment requires a reviewed variant or distinct definition.
+
+The card includes controlled taxonomy; muscles, joints, actions, planes,
+laterality, and contacts; load and fatigue/recovery profiles; no-impact and
+cumulative wrist/hand-support budgets; equipment, surface, floor-access,
+symptom, population, and scope constraints; two contextual profiles; dose and
+actual-duration formulas; quality and stop rules; substitution revalidation;
+coach, athlete, accessibility, persistence, incident, and support content. No
+participant skill, proficiency, or age classification is stored.
+
+Current-version scope is 1 active and 1 archived variant, 2 review profiles,
+16 evidence candidates, 5 current oEmbed metadata candidates, 20 alternate
+assessments, 4 review-only graph proposals, 2 review-only difficulty anchors,
+and 4 deterministic identity decisions. Four earlier media rows remain marked
+`superseded` at card version 1 and are not current candidates. Current video
+IDs are `GYlgQSLqNRI`, `MGmCC35rSB8`, `CjPVImbUXfA`, `M9UC3QezhCo`, and
+`PNRoKMw96Ew`; metadata health does not establish playback, task exactness,
+captions, accessibility, cue quality, safety, or approval.
+
+Registry `2026-08-09.98` contains 410 sources. Focused tests pass 245/245,
+platform tests 797/797, and backend tests 1,051 with 20 intentional skips.
+Lint, JSON/generated artifacts, migration and runner checks, persisted
+invariants, canonical/Needs Engine/identity/release audits, and the production
+build pass. Source 32 `Finger Pulses / Palm Lifts` is next.
+
+## 2026-08-09 — Source 32 Finger Pulses / Palm Lifts library contract
+
+Source 32 is machine-complete and human-review quarantined through migration
+503 (`2010872005`). Stable definition
+`5a8116cc-5cd4-4e2c-8396-0548ee96f167` retains the family aliases while
+archiving the inherited combined skeleton. The selectable review variants are
+Finger Pulses `9bb10693-04eb-4682-a608-df23aa9e601a` at `24/18/24` and Palm
+Lifts `c4f6e97e-caf1-4896-b4a3-8714514c46ee` at `28/22/28` for exercise
+complexity, physical difficulty, and their derived maximum.
+
+Both variants use a bilateral hands-and-knees base on a clean, firm,
+nonabrasive surface. Finger Pulses keep the palms and fingers down, retain
+first-knuckle flexion, increase finger pressure, and release it without a
+bounce. Palm Lifts keep the fingers and distal palms down, lift both palm
+heels, and lower them quietly. One complete action cycle is one repetition.
+Pace, comfortable range, repetitions, sets, rest, hand spacing, finger spread,
+body-mass distribution, and stable knee cushioning are delivery annotations.
+Changing base, moving contact, laterality, support height, path, hold, force,
+assessment purpose, or added action requires a reviewed variant or distinct
+definition.
+
+The card includes controlled taxonomy; muscles, joints, actions, planes,
+laterality, and contacts; load and fatigue/recovery profiles; no-impact and
+cumulative finger/hand/wrist/grip/support budgets; environment, floor-access,
+symptom, population, and scope constraints; four contextual profiles; dose and
+actual-duration formulas; quality and stop rules; substitution revalidation;
+coach, athlete, accessibility, persistence, incident, and support content. No
+participant skill, proficiency, or age classification is stored.
+
+Current-version scope is 2 active and 1 archived variant, 4 review profiles,
+16 evidence candidates, 4 current oEmbed metadata candidates, 20 alternate
+assessments, 5 review-only graph proposals, 4 review-only difficulty anchors,
+and 5 deterministic identity decisions. Four version-1 media rows remain
+superseded. Current video IDs are `TBvEMTrLLp8`, `V9Lw__srIbM`,
+`WTcreH1yVjU`, and `nM7wB89NlwE`; metadata health does not establish playback,
+exact task match, captions, accessibility, cue quality, safety, or approval.
+
+Registry `2026-08-09.99` contains 410 sources. Focused tests pass 247/247,
+platform tests 799/799, and backend tests 1,053 with 20 intentional skips.
+Lint, JSON/generated artifacts, migration and runner checks, persisted
+invariants, canonical/Needs Engine/identity/release audits, and the production
+build pass. Source 33 is next.
+
+## Source 33 — Scapular Push-Up
+
+Migrations 504 and 505 complete the machine-audited family and duplicate
+closure. Stable definition `ae22d70e-e68f-4d40-9402-6dd39a6420f1` exposes
+four exact bilateral straight-arm variants: quadruped dynamic `24/18/24`,
+high-plank dynamic `32/30/32`, quadruped hold `22/18/22`, and high-plank hold
+`28/30/30`. Dynamic variants count a complete scapular
+retraction-to-protraction cycle; holds count actual valid seconds in
+protraction. Quadruped preserves hands and knees, while high plank preserves
+hands and toes. Elbow flexion, a full push-up or push-up plus, raised support,
+knee hover, unilateral or unstable support, resistance, perturbation, and
+clinical assessment are not silently interchangeable. No participant skill,
+proficiency, or age classification is stored.
+
+Eight delivery profiles cover Prepare & Access and Movement Intelligence for
+all four variants, with controlled taxonomy, anatomy, actions, planes,
+laterality, exact contacts, load/fatigue/recovery, constraints, dose and
+actual-duration formulas, cumulative hand/wrist/shoulder/trunk-support
+budgets, logistics, quality gates, stops, substitution revalidation,
+persistence, coach/athlete/accessibility rendering, incidents, and support
+operations.
+
+Current-version scope is 4 active and 3 archived variants, 8 profiles, 16
+evidence applications, 5 current oEmbed candidates, 13 superseded media
+records, 24 alternate assessments, 6 review-only graph proposals, 8
+review-only difficulty anchors, and 6 deterministic identity decisions.
+Current video IDs are `WJraJbTJY_E`, `S9NhochxIhY`, `5YHZnEsE9hA`,
+`ccxY-ax5SC8`, and `d0bfBjxEa4s`; metadata health does not establish playback,
+exact task match, captions, accessibility, cue quality, safety, or approval.
+Source 900 was consolidated as an exact quadruped-dynamic duplicate and
+archived; unrelated PMID 32707142 was removed from current research-source
+provenance.
+
+Registry `2026-08-09.100` contains 417 sources. Focused tests pass 250/250,
+platform tests 802/802, and backend tests pass 1,056 with 20 intentional skips
+out of 1,076. Lint, JSON/generated artifacts, migration and runner checks,
+persisted invariants, canonical/Needs Engine/identity/release audits, diff
+integrity, and the production build pass. Source 34 is next.
+
+## Source 34 — Quadruped Shoulder Circles
+
+Migration 506 replaces the ambiguous source skeleton with one exact review
+variant under stable definition `51ca966b-7d25-419a-8629-7961e45933c0`.
+The task is bilateral hands-and-knees support with fixed palms, extended
+elbows, and a continuous scapular circle in both directions. A valid repetition
+passes protraction, the declared first vertical checkpoint, retraction, the
+opposite vertical checkpoint, and returns to protraction without changing hand
+or knee support. Direction, comfortable range, tempo, checkpoint pauses,
+repetitions, sets, rest, and stable knee cushioning are card annotations.
+Exercise complexity / physical difficulty / derived maximum is `30/18/30`;
+participant skill, proficiency, and age classifications are absent.
+
+Two contextual profiles cover Prepare & Access and Movement Intelligence.
+Together the definition, variant, and profiles specify controlled taxonomy;
+muscles, joints, actions, planes, laterality, contacts, and sequence; load,
+fatigue, recovery, and overlap budgets; floor transfer, wrist/shoulder support,
+space, traffic, equipment, environment, population, and clinical-scope
+constraints; dose, time formulas, station logistics, quality gates, stops,
+progressions, regressions, substitution revalidation, persistence, coach and
+athlete rendering, accessibility fallbacks, feedback, incidents, retention,
+and support escalation.
+
+Current-version scope is 1 exact review and 1 archived source variant, 2 review
+and 1 archived profiles, 16 evidence applications, 5 current and 4 superseded
+media candidates, 22 alternate assessments, 4 review-only graph proposals, 2
+review-only difficulty anchors, and 4 Source-34-owned identity decisions. The
+five current video IDs are `XtGilhjp8OQ`, `R1D5vuq9nJM`, `d8SmV7z6CyQ`,
+`7p5ujyokvtY`, and `B-U015U3wGk`. Current oEmbed metadata and embedding health
+do not establish playback, exact contacts or path, captions, accessibility,
+cue quality, safety, card-version match, or approval; all corresponding review
+fields remain null.
+
+Wall, raised, high-plank, hover, unilateral, resisted, and unstable tasks are
+proposed variants. Arm Circles/Shoulder CARs, Quadruped Spinal Circles,
+Scapular Push-Ups, clinical assessments, and Source 1311 Quadruped Scapular
+Clock remain distinct definitions. Source 1311 is not merged while its planted
+or moving hand, discrete or continuous path, checkpoint, and repetition rules
+remain incomplete.
+
+Migration 506 is registered at checksum `3738284647` and timestamp
+`2026-08-09 16:53:54.541567-04`. Registry `2026-08-09.101` contains 422
+sources. Focused tests pass 252/252, platform tests 804/804, and backend tests
+pass 1,058 with 20 intentional skips out of 1,078. Lint, generated artifacts,
+migration/runner checks, persisted invariants, the production build, and
+canonical/Needs Engine/identity/release audits pass. The library remains
+quarantined behind media, graph, calibration, and publication review.
+
+## Source 35 — Wall Slides with Lift-Off
+
+Migration 507 replaces chained name-only lineage with one exact review variant
+under stable definition `d073cdeb-c74b-4d1c-a7da-83ad75d8fa01`. The base task
+is bilateral standing with fixed feet, vertical shoulder-width forearms on a
+smooth wall, both forearms retained during the upward slide, a required
+terminal full-arm lift-off, forearm replacement, and controlled return to the
+same start. The full slide, lift, replacement, and return is one repetition.
+Range, wall distance, lift amplitude, tempo, pauses, breathing, dose, rest, and
+a thin fixed comfort layer are annotations. Bands, unilateral execution,
+half-kneeling, seated, and hands-only lift-off require separate variants.
+
+Source 899 is an exact duplicate source and now maps directly to the survivor.
+Source 1309 remains on its own archived quarantine definition because its
+throwing label and short description do not establish wall contacts, slide
+path, terminal lift-off, or a count cycle. A no-lift-off supported reach, a
+foam-roller wall slide, a wall angel, a wall push-up plus, a prone Y raise, and
+clinical assessment remain different exercise identities or purposes.
+
+Two contextual profiles cover Prepare & Access and Movement Intelligence.
+Together the definition, exact variant, and profiles specify controlled
+taxonomy; anatomy, actions, planes, laterality, contacts, and sequence; load,
+fatigue, recovery, and overlapping-demand budgets; wall, floor, space,
+traffic, equipment, environment, population, and clinical-scope constraints;
+dose and time formulas; station logistics; quality gates and stops;
+substitution revalidation; persistence; coach and athlete rendering;
+accessibility; feedback; incidents; retention; and support escalation.
+Exercise complexity / physical difficulty / derived maximum is `30/16/30`,
+with no participant skill, proficiency, or age classification.
+
+Current-version scope is 1 exact review and 3 archived source variants, 2
+review and 3 archived profiles, 16 evidence applications, 5 current and 5
+superseded media candidates, 26 alternate assessments, 4 review-only graph
+proposals, 2 review-only difficulty anchors, and 4 Source-35-owned identity
+decisions. The current video IDs are `3blA9Ba2TFI`, `6fCDq1SMhsk`,
+`DwqcX8VVpkU`, `OKfgrx-Qeqk`, and `ykw9BWnZtlY`. oEmbed metadata and embedding
+health do not establish playback, exact mechanics, captions, accessibility,
+cue quality, safety, version match, or approval; all human-review fields are
+null.
+
+Migration 507 is registered at checksum `939129674`, timestamp
+`2026-08-09 17:18:51.59162-04`. Registry `2026-08-09.102` contains 428
+sources. Focused tests pass 254/254, platform tests 806/806, and backend tests
+pass 1,060 with 20 intentional skips out of 1,080. Lint, generated artifacts,
+migration/runner checks, persisted invariants, the production build, and
+canonical, Needs Engine, identity, and release audits pass. The library remains
+quarantined behind qualified media, graph, calibration, content, and separate
+publication review.
+
+## Source 36 — Bilateral Band External Rotation, Elbows at Sides
+
+Migration 508 archives the skeletal mixed-label source variant and authors one
+exact review variant under stable definition
+`ad178aca-b009-4a28-9a5f-ca2695f42eba`. The task is bilateral standing with
+fixed feet, an intact unanchored band between both hands, elbows near 90
+degrees, upper arms retained beside the ribs, organized wrists and trunk,
+symmetric outward rotation through comfortable range, and a slow return to the
+same start. The complete outward-and-return cycle is one repetition. Grip,
+hand spacing, tension, range, tempo, pause, breathing, dose, rest, and a fixed
+towel elbow checkpoint are annotations.
+
+Two review profiles cover Prepare & Access and Resilience. Together the
+definition, exact variant, and profiles specify taxonomy; anatomy and exact
+actions; elastic load, fatigue, recovery estimates, and overlapping shoulder
+and grip budgets; band condition, recoil, standing, space, environment,
+population, and clinical-scope constraints; dosage and duration; logistics;
+quality gates and stops; scaling and substitution revalidation; persistence;
+coach and athlete rendering; accessibility; incidents; retention; and support
+escalation. Exercise complexity / physical difficulty / derived maximum is
+`26/18/26`; participant skill, proficiency, and age classifications are absent.
+
+Current-version scope is 1 exact review and 1 archived source variant, 2
+review and 1 archived profiles, 16 evidence applications, 5 current media
+candidates, 26 alternates, 4 review-only graph proposals, 2 review-only
+difficulty anchors, and 4 identity decisions. The video IDs are
+`_UvmPNGtlPM`, `4tpl-huz060`, `_thyHbdB7nI`, `_G0feLqXA0E`, and
+`DZP1RF7uyIs`. oEmbed health does not establish playback, exact setup, action,
+count, captions, accessibility, quality, safety, version match, or approval;
+all human-review fields are null.
+
+Source 1348 remains unresolved because its elbow position, shoulder angle,
+start, assisted return, contraction phase, and count are missing. The 90/90,
+face-pull, and wall-slide neighbors are deterministic distinct tasks.
+Migration 508 is registered at checksum `2642450056`, timestamp
+`2026-08-09 17:40:55.159597-04`. Registry `2026-08-09.103` contains 434
+sources. Focused tests pass 256/256, platform tests 808/808, and backend tests
+pass 1,062 with 20 intentional skips out of 1,082. The library remains
+quarantined behind qualified media, identity, graph, calibration, content, and
+separate publication review.
+
+## Source 37 — Standing Shoulder CAR and Standing Bilateral Arm Circles
+
+Migration 509 resolves `Arm Circles / Shoulder CARs` as two identities. Stable
+Source-37 definition `32610be3-19c7-4eed-8752-5f49bcbbf276` becomes `Standing
+Single-Arm Shoulder CAR` with exact variant
+`8143fc29-ecb4-4b3a-83a5-6078dc981cea`. Separate definition
+`047ab835-9ef2-49d0-810b-1652acb09677` and variant
+`6505f5e0-42ed-40ca-86e5-a4efe1de1497` represent simultaneous bilateral
+small circles near shoulder height. The mixed source skeleton is archived.
+
+The cards cover stable aliases, controlled taxonomy, anatomy, task-only
+difficulty, load, fatigue/recovery estimates, cumulative shoulder and overhead
+budgets, constraints, contextual dose and duration, logistics, quality and
+stop rules, substitutions, persistence, coach/athlete rendering,
+accessibility, incidents, retention, and support escalation. Difficulty is
+`30/12/30` for Shoulder CAR and `16/14/16` for Arm Circles; neither card stores
+participant skill, proficiency, age, readiness, or clinical eligibility.
+
+Combined scope is 2 review definitions, 2 exact review variants, 1 archived
+source variant, 3 review profiles, 32 evidence applications, 9 media
+candidates, 43 alternates, 6 review-only graph proposals, 4 review-only
+difficulty anchors, and 7 deterministic identity decisions. The media IDs are
+`2hyNG1U5wYs`, `898QrvpmRWc`, `CLWFwun1BfQ`, `P6p0IamojmE`, `Ag1yVYbPXeg`,
+`mwDgFY86zck`, `ndmSvkEdNQQ`, `vTx_ldn6MCA`, and `hniUI4ykF64`. oEmbed
+metadata does not establish playback, exact mechanics, captions,
+accessibility, quality, safety, version match, or approval.
+
+The Shoulder CAR versus Neck CAR boundary returns the unresolved queue to 29
+pairs and zero exact collision. Migration 509 is registered at checksum
+`3691112942`; registry `2026-08-09.104` contains 440 sources. Both cards remain
+quarantined behind qualified media, graph, calibration, content,
+comprehension, and separate publication review.
+
+## Source 38 — Bear Crawl Rock-Back
+
+Migration 510 archives the skeletal Source 38 variant and exposes one exact
+review variant under stable definition
+`9418c33f-80fa-40cb-97e0-f7c01c982b56`. The task uses fixed bilateral palms
+and forefeet, continuous knee hover, long arms, active palm pressure, an
+organized trunk and level pelvis, a comfortable backward hip shift toward the
+heels, and a controlled forward return to the same start. One complete return
+cycle is one repetition. Range, hover height, foot stance, endpoint, tempo,
+pause, breathing, dose, rest, and a visual hip target are annotations.
+
+Two review profiles cover Prepare & Access and Movement Intelligence. The
+definition, exact variant, and profiles specify controlled taxonomy; anatomy,
+joints, actions, planes, laterality, and contacts; load, fatigue, recovery,
+and cumulative budgets; floor-transfer, environment, population, support, and
+clinical-scope constraints; contextual dosage and duration; logistics;
+quality gates and stop rules; scaling, relationships, and substitutions;
+persistence; coach and athlete rendering; accessibility; incidents;
+retention; and support escalation. Exercise complexity / physical difficulty /
+derived maximum is `30/24/30`; participant skill, proficiency, age, readiness,
+and clinical eligibility are absent.
+
+Source 912 is restored to its own archived definition and variant rather than
+kept as an exact duplicate. Optional knee contact plus missing start,
+endpoint, contact-continuity, and count facts remain human-review blockers.
+Current Source-38 scope is 1 exact review and 2 archived source variants, 2
+review and 2 archived profiles, 16 candidate evidence sections, 5 current
+media candidates, 24 alternates, 4 review-only graph proposals, 2 review-only
+difficulty anchors, and 5 identity decisions. oEmbed metadata for
+`LAZ9HYjUwvk`, `X4eMdNmq0e8`, `YJ05ptsucvY`, `s4MQVrvrXBU`, and
+`b9fsav8zSm4` does not establish playback, exact mechanics, captions,
+accessibility, quality, safety, version match, or approval.
+
+Migration 510 is registered at checksum `1098400606`, timestamp
+`2026-08-09 18:31:20.658721-04`; registry `2026-08-09.105` contains 445
+sources. Focused tests pass 260/260, platform tests pass 812/812, and backend
+tests pass 1,066 with 20 intentional skips out of 1,086. Focused lint, JSON
+and generated artifacts, the migration runner and immutable skip, persisted
+invariants, canonical and Needs Engine audits, diff integrity, and the
+production build pass. The card remains quarantined behind qualified Source
+912 identity, media, graph, calibration, content, comprehension, and separate
+publication review.
+
+## Source 43 — Wall-Supported Bilateral Tibialis Raise
+
+Migration 519 preserves stable definition
+`17ea43fe-0d11-42b1-9be0-214bccd08616`, archives its skeletal source variant,
+and creates exact review variant `2da2a17b-bfc2-4049-93ad-f8cbde5bb053`.
+The task uses back and pelvis wall support, bilateral planted heels, a mostly
+straight but unlocked knee position, simultaneous active forefoot lift, and
+a controlled return to light floor contact. One lift-and-return cycle is one
+repetition.
+
+The card covers stable aliases; controlled taxonomy; anatomy, joints,
+actions, planes, laterality, contacts, and isolation boundary; task-only
+difficulty; load, fatigue, recovery, and overlapping lower-leg budgets;
+wall, floor, footwear, space, population, and symptom constraints; contextual
+dosage and duration; logistics; quality and stop rules; substitutions;
+persistence; coach, athlete, accessibility, user-support, and support-
+operations contracts. Complexity / physical difficulty / overall is
+`18/24/24`; no exercise skill level or participant classification is stored.
+
+Current exact-card scope is 1 review variant, 2 review delivery profiles, 16
+candidate evidence sections, 5 media candidates, 26 alternate assessments,
+4 review-only graph proposals, 2 review-only calibration anchors, 6
+deterministic distinct-task decisions, and 1 human-review identity decision.
+Sources 214, 1113, and 1399 are archived under the ambiguous definition
+because their wall contact, stance, laterality, start, endpoint, and count
+cannot be recovered. They are not fabricated as equivalents or distinct
+tasks.
+
+The current candidate videos are `RHWRxiBe1iU`, `VzIcGAgBiaM`,
+`psaTKDL1zUw`, `k9NvBCZfSWg`, and `0o2GAg2yX5M`. oEmbed metadata does not
+establish playback, exact mechanics, captions, accessibility, quality,
+safety, current-version match, or approval. Migration 519 is registered at
+checksum `304965183`; registry `2026-08-09.110` contains 464 sources. All
+machine-owned card checks, the migration and research slices, the full
+platform/backend suites, the Needs Engine audit, focused lint, generated-
+artifact validation, diff integrity, and the production build pass. Human
+media, identity, graph, calibration, content, comprehension, and separate
+publication review remain quarantined.
+
+## Source 44 — Wall-Supported Bilateral Standing Calf Raise
+
+Migration 520 consolidates three direct definition collisions into stable
+survivor `4db2b9a5-5182-4e0c-921a-26dd229f0859` and transfers its legacy
+projection to Source 44. Exact variant
+`7219f09b-05ca-456e-ba2d-482f9440b893` starts facing a stable wall with both
+hands in light continuous contact, full feet on a dry level nonslip floor,
+and knees mostly straight without forced locking. Both heels rise together
+through comfortable plantarflexion, reach a brief untimed checkpoint, and
+return under control to the same full-foot contact. One full rise-and-return
+cycle is one repetition.
+
+Stance width, small foot-angle changes, comfortable range, tempo, the brief
+non-dose checkpoint, breathing, repetitions, sets, rest, effort, footwear,
+and delivery context are modifiers. Step or below-neutral range, unilateral
+or alternating action, unsupported balance, external load, sustained
+isometric work, assisted-rise eccentric-only lowering, and fast elastic
+action require a reviewed variant. Bent-knee or seated calf work, static calf
+stretching, tibialis raises, knee-to-wall rockers, pogos, locomotor or foot-
+intrinsic compound actions, clinical testing, and sport actions require a
+distinct card or explicit identity review.
+
+The exact card supplies controlled taxonomy; muscles, joints, actions, planes,
+laterality, contacts, and sequence; wall, floor, footwear, space, population,
+and symptom constraints; prepare and capacity delivery; dosage, duration,
+logistics, fatigue, recovery, cumulative budgets, quality and stop rules;
+substitution, persistence, athlete, coach, accessibility, user-support, and
+support-operations contracts. Complexity / physical difficulty / overall is
+`22/32/32`; exercise cards retain no participant skill or proficiency level.
+
+Current scope is 1 selectable review variant, 2 review delivery profiles, 16
+candidate evidence sections, 5 candidate media rows, 28 alternate
+assessments, 4 review-only graph proposals, 2 review-only calibration anchors,
+3 duplicate-definition decisions, and 6 distinct-neighbor decisions. Nine
+old family source variants remain archived and traceable. Videos
+`_B6o13eoAuU`, `88D6QOBlCWA`, `Dgf9hougTdc`, `CtpPV2FBkG4`, and
+`584joZQZvRg` have oEmbed metadata only; no full playback, exactness,
+captions, accessibility, quality, safety, scope, card-version, or approval
+claim is made.
+
+Migration 520 is registered at checksum `745227028`; registry
+`2026-08-09.111` contains 467 sources. Database assertions, generated packet,
+focused and full tests, Needs Engine audit, lint, diff integrity, and the
+production build pass. Human media, graph, calibration, content,
+comprehension, and separate publication review remain quarantined.
+
+## Source 45 — Single-Target-Foot Toe Yoga
+
+Migration 521 consolidates Source 524 into stable survivor
+`18cec0fe-4ea4-4e28-9f75-41f192f94005`, archives both skeletal source
+variants, and creates three exact review variants: standing hands-free
+`e5c8a16f-8e18-4447-b5a4-2ceee0a59342`, standing light wall touch
+`d9067320-2f1a-470d-8f5c-370886d85fe5`, and seated stable bench
+`636380b8-f16e-41dd-a3fb-ce25fe5588d5`. Source 45 remains the unpublished
+legacy projection; Source 524 is archived and unpublished.
+
+The card defines one target-foot great-toe lift-and-return plus lesser-toe
+lift-and-return as one repetition and records each foot separately. It covers
+stable aliases; controlled taxonomy; muscles, joints, actions, planes,
+laterality, contacts, and sequence; task-only difficulty; load, fatigue,
+recovery, impact, and overlapping downstream budgets; exact support,
+surface, hygiene, visibility, wall, bench, environment, population, and
+symptom constraints; contextual dosage and duration; logistics; quality and
+stop rules; substitutions; persistence; and coach, athlete, accessibility,
+user-support, and support-operations contracts. No participant skill,
+proficiency, age, readiness, or clinical classification is stored.
+
+Current scope is 3 selectable review variants, 4 review delivery profiles, 16
+candidate evidence sections, 5 unassigned candidate media rows, 28 alternate
+assessments, 8 review-only graph proposals, 6 review-only calibration
+anchors, 1 duplicate-consolidation decision, and 4 distinct-neighbor
+decisions. The media candidates have oEmbed metadata only and have not been
+watched, assigned to exact variants, or approved. The machine packet retains
+exactly the media, graph, calibration, and publication blockers.
+
+Migration 521 is registered at immutable checksum `3898034578`; registry
+`2026-08-09.112` contains 472 sources. Rollback validation, normal
+application, immutable re-entry, persisted assertions, generated packet,
+focused lint and tests, complete platform/backend suites, Needs Engine audit,
+diff integrity, and the production build pass. Human media, graph,
+calibration, content, comprehension, and separate publication review remain
+quarantined.
+
+## 2026-08-09 — Source 46 Short-Foot Drill completion
+
+Migration 522 replaces Source 46's ambiguous stand-or-sit skeleton with three
+exact review variants: standing hands-free, standing wall-touch, and seated
+bench. The stable definition now covers identity and aliases; controlled
+taxonomy; muscles, joints, actions, planes, laterality, contacts, and
+sequence; task-only difficulty; load, fatigue, recovery, and cumulative
+budgets; equipment, surface, hygiene, visibility, support, environment,
+population, symptom, and logistics constraints; contextual dosage and
+duration; substitutions; persistence; and coach, athlete, accessibility,
+user-support, and support-operations contracts. Source 46's inherited age
+floor is removed; no exercise skill, proficiency, age, readiness, or clinical
+classification is stored.
+
+Persisted scope is 3 selectable and 1 archived skeletal variant, 4 delivery
+profiles, 16 candidate evidence sections, 5 unassigned candidate media rows,
+28 alternate assessments, 8 review-only graph proposals, 6 review-only score
+anchors, and exactly 4 human blockers. No media, relationship, calibration,
+content, or publication approval was fabricated.
+
+Migration 522 is registered in disposable PostgreSQL at immutable checksum
+`3569596322`. Registry `2026-08-09.113` contains 476 sources. Direct,
+repeated, rollback-only, production-runner, checksum-reentry, persisted-row,
+generated-packet, JSON, and diff-integrity checks pass. The refreshed audit
+still covers all 1,676 legacy rows and 1,065 active definitions with zero
+exact identity collisions. Needs Engine validation passes all 1,551 remaining
+published legacy exercises.
