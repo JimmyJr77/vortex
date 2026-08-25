@@ -30,7 +30,9 @@ import {
   storePendingEnrollmentId,
   fetchAnnualMembershipOffer,
   createAnnualMembershipCheckoutSession,
+  previewAnnualMembershipCheckout,
   type AnnualMembershipOffer,
+  type AnnualMembershipPreview,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
 import { flushEvents, trackEvent } from '../../utils/analyticsClient'
@@ -137,6 +139,9 @@ export default function MemberClassesOfferedEnroll({
   const [membershipLoading, setMembershipLoading] = useState(false)
   const [membershipCheckoutLoading, setMembershipCheckoutLoading] = useState(false)
   const [membershipError, setMembershipError] = useState<string | null>(null)
+  const [membershipPromoCode, setMembershipPromoCode] = useState('')
+  const [membershipPreview, setMembershipPreview] = useState<AnnualMembershipPreview | null>(null)
+  const [membershipPromoLoading, setMembershipPromoLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState<string>('all')
   const [programFilter, setProgramFilter] = useState<number | typeof ANNUAL_MEMBERSHIP_PROGRAM_FILTER | 'all'>(
@@ -253,6 +258,8 @@ export default function MemberClassesOfferedEnroll({
     let cancelled = false
     setMembershipLoading(true)
     setMembershipError(null)
+    setMembershipPromoCode('')
+    setMembershipPreview(null)
     void fetchAnnualMembershipOffer(memberToken, selectedMemberId)
       .then((offer) => {
         if (!cancelled) setMembershipOffer(offer)
@@ -271,6 +278,42 @@ export default function MemberClassesOfferedEnroll({
     }
   }, [memberToken, selectedMemberId])
 
+  useEffect(() => {
+    if (!membershipOffer || membershipOffer.active || !membershipOffer.available) {
+      setMembershipPreview(null)
+      setMembershipPromoLoading(false)
+      return
+    }
+    let cancelled = false
+    setMembershipPromoLoading(true)
+    const timer = window.setTimeout(() => {
+      void previewAnnualMembershipCheckout(memberToken, {
+        memberId: selectedMemberId,
+        promoCode: membershipPromoCode.trim() || undefined,
+      })
+        .then((result) => {
+          if (!cancelled) setMembershipPreview(result)
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            setMembershipPreview(null)
+            setMembershipError(err instanceof Error ? err.message : 'Failed to validate membership discount code.')
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setMembershipPromoLoading(false)
+        })
+    }, 250)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [memberToken, membershipOffer, membershipPromoCode, selectedMemberId])
+
+  const membershipPreviewLine = membershipPreview?.athletes.find(
+    (athlete) => athlete.memberId === selectedMemberId,
+  )
+
   const purchaseAnnualMembership = async () => {
     if (!stripeEnabled || membershipOffer?.active) return
     setMembershipCheckoutLoading(true)
@@ -278,7 +321,13 @@ export default function MemberClassesOfferedEnroll({
     try {
       const session = await createAnnualMembershipCheckoutSession(memberToken, {
         memberId: selectedMemberId,
+        promoCode: membershipPromoCode.trim() || undefined,
       })
+      if (session.free) {
+        setMembershipOffer((current) => current ? { ...current, active: true } : current)
+        setMembershipPreview(null)
+        return
+      }
       if (!session?.url) throw new Error('Checkout did not return a payment link.')
       window.location.href = session.url
     } catch (err) {
@@ -558,13 +607,16 @@ export default function MemberClassesOfferedEnroll({
 
   const promoCodeSection = (
     <div className="rounded-xl border border-gray-200 px-4 py-3 space-y-2">
-      <label className="block text-xs font-semibold text-gray-600">Promo code</label>
+      <label className="block text-xs font-semibold text-gray-600">Discount / promo code</label>
+      <p className="text-xs text-gray-500">
+        Membership discount codes are applied here when annual membership is included in this order.
+      </p>
       <div className="flex gap-2">
         <input
           type="text"
           value={promoInput}
           onChange={(e) => setPromoInput(e.target.value)}
-          placeholder="Enter code"
+          placeholder="Enter discount code"
           className="h-9 flex-1 rounded-lg border border-gray-300 px-3 text-sm"
         />
         <button
@@ -930,9 +982,14 @@ export default function MemberClassesOfferedEnroll({
               <p className="text-xl font-bold text-gray-900">
                 {membershipLoading
                   ? '…'
-                  : formatMoney((membershipOffer?.amountCents ?? 0) / 100)}
+                  : formatMoney((membershipPreviewLine?.netCents ?? membershipOffer?.amountCents ?? 0) / 100)}
                 <span className="text-sm font-semibold text-gray-500">/yr</span>
               </p>
+              {membershipPreviewLine && membershipPreviewLine.discountCents > 0 ? (
+                <p className="text-xs font-semibold text-green-700 mt-1">
+                  {formatMoney(membershipPreviewLine.discountCents / 100)} discount applied
+                </p>
+              ) : null}
               {membershipOffer?.active && membershipOffer.renewsOn ? (
                 <p className="text-xs text-gray-500 mt-1">
                   Active · renews {formatMembershipDate(membershipOffer.renewsOn)}
@@ -941,6 +998,36 @@ export default function MemberClassesOfferedEnroll({
             </div>
           </div>
           {membershipError ? <p className="text-sm text-red-600">{membershipError}</p> : null}
+          {!membershipOffer?.active && membershipOffer?.available && (
+            <div className="max-w-md">
+              <label className="block text-sm font-semibold text-gray-800" htmlFor="annual-membership-discount-code">
+                Membership discount code <span className="font-normal text-gray-500">(optional)</span>
+              </label>
+              <input
+                id="annual-membership-discount-code"
+                type="text"
+                value={membershipPromoCode}
+                onChange={(event) => {
+                  setMembershipPromoCode(event.target.value.toUpperCase())
+                  setMembershipError(null)
+                }}
+                placeholder="Enter membership discount code"
+                disabled={membershipLoading || membershipCheckoutLoading}
+                className="mt-1 h-10 w-full rounded-lg border border-gray-300 px-3 text-sm uppercase"
+              />
+              {membershipPromoLoading ? (
+                <p className="mt-1 text-xs text-gray-500">Checking membership discount…</p>
+              ) : null}
+              {membershipPreviewLine?.promoError ? (
+                <p className="mt-1 text-xs text-red-600">{membershipPreviewLine.promoError}</p>
+              ) : null}
+              {membershipPreviewLine?.waived ? (
+                <p className="mt-1 text-xs text-green-700">
+                  This code covers the full annual membership. No payment will be required.
+                </p>
+              ) : null}
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -949,7 +1036,8 @@ export default function MemberClassesOfferedEnroll({
                 membershipLoading ||
                 membershipCheckoutLoading ||
                 Boolean(membershipOffer?.active) ||
-                !membershipOffer?.available
+                !membershipOffer?.available ||
+                Boolean(membershipPreviewLine?.promoError)
               }
               onClick={() => void purchaseAnnualMembership()}
               className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
@@ -958,7 +1046,9 @@ export default function MemberClassesOfferedEnroll({
                 ? 'Starting checkout…'
                 : membershipOffer?.active
                   ? 'Membership active'
-                  : 'Purchase annual membership'}
+                  : membershipPreviewLine?.waived
+                    ? 'Activate free annual membership'
+                    : 'Purchase annual membership'}
             </button>
             {!stripeEnabled ? (
               <span className="text-xs text-gray-500">Online payments are not enabled yet.</span>

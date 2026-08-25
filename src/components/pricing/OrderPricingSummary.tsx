@@ -156,6 +156,10 @@ export default function OrderPricingSummary({
 
   const hasAdditionalFees =
     preview.additionalFees?.enabled && (preview.additionalFees.items.length ?? 0) > 0
+  const annualMembershipFees = (preview.additionalFees?.items ?? []).filter(
+    (item) => item.triggerType === 'once_per_year' || item.applyBasis === 'per_year',
+  )
+  const hasAnnualMembershipDue = annualMembershipFees.length > 0
   const hasProratedAccounts = Boolean(firstMonth?.items.length)
   const currentCycleDueCents =
     Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
@@ -303,6 +307,20 @@ export default function OrderPricingSummary({
         </div>
       )}
 
+      {hasAnnualMembershipDue && (
+        <div
+          className="rounded-xl border border-vortex-red bg-red-50 px-4 py-3 text-sm text-red-950"
+          role="status"
+        >
+          <p className="font-semibold">Annual membership needed for this enrollment</p>
+          <p className="mt-1 text-red-900">
+            We checked this account and no active annual membership was found. It has been added to
+            today&apos;s order. If you have a membership discount code, enter it below before
+            continuing.
+          </p>
+        </div>
+      )}
+
       {promoCodeSection}
 
       {totalDiscounts > 0 && (
@@ -359,16 +377,32 @@ export default function OrderPricingSummary({
                   Additional fees
                 </h6>
                 <ul className="space-y-1">
-                  {preview.additionalFees!.items.map((item, i) => (
-                    <li key={`fee-${i}`} className="flex justify-between text-amber-950">
-                      <span>
-                        {item.name}
-                        {item.quantity > 1 ? ` × ${item.quantity}` : ''}
-                        {item.recurring ? '/mo' : ''}
-                      </span>
-                      <span>+{formatMoney(item.amountCents / 100)}</span>
-                    </li>
-                  ))}
+                  {preview.additionalFees!.items.map((item, i) => {
+                    const hasDiscount = (item.discountCents ?? 0) > 0
+                    return (
+                      <li key={`fee-${i}`} className="flex items-start justify-between gap-3 text-amber-950">
+                        <span>
+                          {item.name}
+                          {item.quantity > 1 ? ` × ${item.quantity}` : ''}
+                          {item.recurring ? '/mo' : ''}
+                          {hasDiscount && (
+                            <span className="block mt-0.5 text-xs text-green-700">
+                              {item.promoCode ? `Membership code ${item.promoCode}` : 'Membership discount'}
+                              {' '}applied · -{formatMoney((item.discountCents ?? 0) / 100)}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-right">
+                          {hasDiscount && item.grossAmountCents != null && (
+                            <span className="mr-1 text-xs text-amber-800 line-through">
+                              {formatMoney(item.grossAmountCents / 100)}
+                            </span>
+                          )}
+                          +{formatMoney(item.amountCents / 100)}
+                        </span>
+                      </li>
+                    )
+                  })}
                 </ul>
               </section>
             )}

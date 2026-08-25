@@ -259,6 +259,11 @@ export interface AdditionalFeeLineItem {
   triggerType: AdditionalFeeTriggerType
   quantity: number
   amountCents: number
+  /** Price before a membership discount code is applied. */
+  grossAmountCents?: number
+  /** One-time discount applied by an annual-membership promo code. */
+  discountCents?: number
+  promoCode?: string | null
   recurring: boolean
   scopeLevel: DiscountScopeLevel
 }

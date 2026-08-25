@@ -75,6 +75,7 @@ function memberDisplayName(member: FamilyMemberRow): string {
 
 export default function WaiversMembershipsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const isClassEnrollmentMembershipPrompt = searchParams.get('source') === 'class-enrollment'
   const [phase, setPhase] = useState<Phase>('loading')
   const [token, setToken] = useState<string | null>(null)
   const [account, setAccount] = useState<PortalAccount | null>(null)
@@ -296,7 +297,11 @@ export default function WaiversMembershipsPage() {
           setBusy(true)
           const members = await loadFamilyMembers(stored.token)
           setFamilyMembers(members)
-          setPhase('ask-register-more')
+          if (isClassEnrollmentMembershipPrompt) {
+            await goToMembershipOrThanks(stored.token, members)
+          } else {
+            setPhase('ask-register-more')
+          }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to load family.')
           setPhase('ask-register-more')
@@ -312,6 +317,7 @@ export default function WaiversMembershipsPage() {
     applySession,
     goToMembershipOrThanks,
     loadFamilyMembers,
+    isClassEnrollmentMembershipPrompt,
     searchParams,
     setSearchParams,
   ])
@@ -607,7 +613,9 @@ export default function WaiversMembershipsPage() {
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Waivers & Memberships</h1>
           <p className="text-sm text-gray-600 mt-1">
-            Register your family, sign waivers, and optionally purchase annual memberships — all in one place.
+            {isClassEnrollmentMembershipPrompt
+              ? 'We are checking annual membership for the athletes in your class enrollment.'
+              : 'Register your family, sign waivers, and optionally purchase annual memberships — all in one place.'}
           </p>
         </div>
 
@@ -842,9 +850,15 @@ export default function WaiversMembershipsPage() {
         {phase === 'membership-upsell' && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Annual Membership</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                {isClassEnrollmentMembershipPrompt
+                  ? 'Annual Membership for Class Enrollment'
+                  : 'Annual Membership'}
+              </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Membership is per athlete. Select who needs one and pay once in a single checkout.
+                {isClassEnrollmentMembershipPrompt
+                  ? 'We found athletes without an active membership. Select who needs one and pay once in a single checkout.'
+                  : 'Membership is per athlete. Select who needs one and pay once in a single checkout.'}
               </p>
             </div>
 

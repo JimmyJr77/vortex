@@ -1437,13 +1437,16 @@ const SchedulingSignupEmbed = ({
 
   const promoCodeSection = (
     <div className="rounded-xl border border-gray-200 px-4 py-3 space-y-2">
-      <label className="block text-sm font-semibold text-black">Promo code</label>
+      <label className="block text-sm font-semibold text-black">Discount / promo code</label>
+      <p className="text-xs text-gray-600">
+        Membership discount codes are applied here when an annual membership is included in your order.
+      </p>
       <div className="flex flex-wrap gap-2">
         <input
           type="text"
           value={promoInput}
           onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-          placeholder="Enter code"
+          placeholder="Enter discount code"
           className="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase h-9"
         />
         <button
