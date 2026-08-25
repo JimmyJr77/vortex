@@ -4,10 +4,12 @@ Audit date: 2026-07-26
 
 ## Outcome
 
-The canonical v1 implementation slice is complete behind
-`CANONICAL_WORKOUT_GENERATOR_ENABLED`. It does not replace or mutate the legacy
+The canonical v1 implementation slice is complete behind the global
+`CANONICAL_WORKOUT_GENERATOR_ENABLED` emergency kill switch and a separate,
+fail-closed facility rollout enrollment. It does not replace or mutate the legacy
 generator. Production enablement still depends on applying migrations, publishing
-a reviewed library release, and completing the human coach pilot described in the
+a reviewed library release, explicitly enrolling an approved facility, and
+completing the human coach pilot described in the
 rollout plan.
 
 ## Required deliverables

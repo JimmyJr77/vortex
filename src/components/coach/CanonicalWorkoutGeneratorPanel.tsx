@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Loader2, ShieldCheck, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Loader2, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
+import type { TaxonomyV2Catalog } from '../../coach/taxonomy'
 
 interface CanonicalPrescription {
   exerciseId: string
@@ -70,12 +71,22 @@ interface CanonicalWorkoutResult {
       maximum: Record<string, number>
       withinBudget: boolean
     }
+    stressBudget: {
+      cumulative: Record<string, number>
+      maximum: Record<string, number>
+      withinBudget: boolean
+    }
   }
   diagnostics: {
     rejectionCounts: Record<string, number>
     candidatePoolDepthByPhase: Record<string, number>
     repairs: string[]
     unmetPreferences: string[]
+  }
+  selectionArchitecture: {
+    strategy: 'anchor_first'
+    anchorPhaseKeys: string[]
+    selectionOrder: string[]
   }
 }
 
@@ -91,6 +102,20 @@ interface CanonicalSwapCandidate {
   rationale: string
 }
 
+interface CanonicalRolloutStatus {
+  coachGeneration: {
+    enabled: boolean
+    reason: 'environment_disabled' | 'facility_not_enrolled' | 'facility_flag_disabled' | 'rollout_schema_unavailable' | null
+  }
+  aiIntent: {
+    enabled: boolean
+    reason: 'environment_disabled' | 'facility_not_enrolled' | 'facility_flag_disabled' | 'rollout_schema_unavailable' | null
+  }
+  rollout: {
+    rolloutStage: 'disabled' | 'shadow' | 'coach' | 'member'
+  } | null
+}
+
 const OBJECTIVES = [
   ['general_athletic_development', 'General athletic development'],
   ['speed_priority', 'Speed'],
@@ -101,6 +126,76 @@ const OBJECTIVES = [
   ['fitness_priority', 'Conditioning'],
   ['recovery_low_intensity', 'Recovery / low intensity'],
 ] as const
+
+const PHASES = [
+  ['prepare_and_access', 'Prepare & Access'],
+  ['movement_intelligence', 'Movement Intelligence'],
+  ['output', 'Output'],
+  ['capacity', 'Capacity'],
+  ['resilience', 'Resilience'],
+  ['sustained_capacity', 'Sustained Capacity'],
+  ['restore', 'Restore'],
+] as const
+
+const FOCUS_FACETS = [
+  ['training_family', 'Training Family'],
+  ['athletic_niche', 'Athletic Niche'],
+  ['tenet', 'Tenet'],
+  ['methodology', 'Methodology'],
+  ['force_velocity', 'Force–Velocity'],
+  ['movement_character', 'Movement Character'],
+  ['programming_set_structure', 'Set Structure'],
+  ['programming_clock_structure', 'Clock Structure'],
+  ['conditioning_protocol', 'Conditioning Protocol'],
+  ['physiology_mechanism', 'Physiology Mechanism'],
+] as const
+
+const FOCUS_SCOPES = [
+  ['anchor_exercises', 'Anchor exercises'],
+  ['main_work', 'Main work'],
+  ['prepare_restore', 'Prepare + Restore'],
+  ['accessories', 'Accessories'],
+  ['conditioning', 'Conditioning'],
+  ['whole_session', 'Whole session'],
+  ...PHASES,
+] as const
+
+/**
+ * These are the controlled equipment keys exposed to coaches. “Bodyweight” is
+ * retained as the request alias for `none` so legacy availability matching and
+ * the user-facing language remain compatible.
+ */
+const EQUIPMENT_OPTIONS = [
+  ['bodyweight', 'Bodyweight (none)'],
+  ['kettlebell', 'Kettlebell'],
+  ['medicine_ball', 'Medicine ball'],
+  ['wall_ball', 'Wall ball'],
+  ['slam_ball', 'Slam ball'],
+  ['jump_rope', 'Jump rope'],
+  ['barbell', 'Barbell'],
+  ['dumbbell', 'Dumbbell'],
+  ['battle_rope', 'Rope — battle'],
+  ['climbing_rope', 'Rope — climbing'],
+  ['resistance_band', 'Bands — resistance'],
+  ['mini_band', 'Bands — mini'],
+  ['cones', 'Cones'],
+  ['mini_hurdles', 'Mini-hurdles'],
+  ['trap_bar', 'Trap bar'],
+  ['sandbag', 'Sandbags'],
+  ['agility_ladder', 'Agility ladder'],
+  ['timing_gates', 'Timing gates'],
+  ['force_plate', 'Force plate'],
+] as const
+
+interface WorkoutFocusDraft {
+  id: string
+  facet: string
+  value: string
+  scope: string
+  strength: 'required' | 'strong_preference' | 'preferred' | 'exclude'
+  weight: number
+  preserveOnSubstitution: boolean
+}
 
 function parseList(value: string): string[] {
   return [...new Set(value.split(',').map((entry) => entry.trim()).filter(Boolean))]
@@ -118,6 +213,20 @@ function parseEquipment(value: string): { available: string[]; quantities: Recor
     }
   }
   return { available, quantities }
+}
+
+function serializeEquipment(available: string[], quantities: Record<string, number>): string {
+  return [...new Set(available)].map((key) => (
+    quantities[key] == null ? key : `${key}:${quantities[key]}`
+  )).join(', ')
+}
+
+function rolloutMessage(reason: CanonicalRolloutStatus['coachGeneration']['reason']): string {
+  if (reason === 'environment_disabled') return 'The global canonical-generator kill switch is off.'
+  if (reason === 'rollout_schema_unavailable') return 'The facility rollout migration is unavailable; generation stays disabled until deployment is complete.'
+  if (reason === 'facility_not_enrolled') return 'This facility has not been enrolled in the canonical-generator pilot.'
+  if (reason === 'facility_flag_disabled') return 'This facility is enrolled, but coach generation is not enabled at its current rollout stage.'
+  return 'Canonical coach generation is enabled for this facility.'
 }
 
 export function CanonicalWorkoutGeneratorPanel() {
@@ -148,8 +257,87 @@ export function CanonicalWorkoutGeneratorPanel() {
     impactAccumulation: 55,
     technicalSensitivity: 60,
   })
+  const [stressBudgets, setStressBudgets] = useState({
+    jointStress: 55,
+    tissueStress: 55,
+    neuralDemand: 65,
+    impactStress: 55,
+    localMuscularFatigue: 65,
+    systemicFatigue: 65,
+    gripFatigue: 65,
+    conditioningFatigue: 65,
+    recoveryCost: 65,
+  })
+  const [taxonomyV2, setTaxonomyV2] = useState<TaxonomyV2Catalog | null>(null)
+  const [rolloutStatus, setRolloutStatus] = useState<CanonicalRolloutStatus | null>(null)
+  const [phaseEmphasis, setPhaseEmphasis] = useState<Record<string, number>>(
+    Object.fromEntries(PHASES.map(([key]) => [key, 50])),
+  )
+  const [focuses, setFocuses] = useState<WorkoutFocusDraft[]>([])
   const [swapCandidates, setSwapCandidates] = useState<Record<string, CanonicalSwapCandidate[]>>({})
   const [swapLoadingKey, setSwapLoadingKey] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!expanded || (taxonomyV2 && rolloutStatus)) return
+    const taxonomyRequest = taxonomyV2
+      ? Promise.resolve(taxonomyV2)
+      : coachFetch<TaxonomyV2Catalog>('/api/coach/taxonomy-v2')
+    const rolloutRequest = rolloutStatus
+      ? Promise.resolve(rolloutStatus)
+      : coachFetch<CanonicalRolloutStatus>('/api/coach/canonical/rollout-status')
+    void Promise.all([taxonomyRequest, rolloutRequest])
+      .then(([taxonomy, rollout]) => {
+        setTaxonomyV2(taxonomy)
+        setRolloutStatus(rollout)
+      })
+      .catch(() => undefined)
+  }, [expanded, rolloutStatus, taxonomyV2])
+
+  const addFocus = () => {
+    const facet = FOCUS_FACETS[0][0]
+    setFocuses((current) => [...current, {
+      id: globalThis.crypto?.randomUUID?.() ?? `focus-${Date.now()}-${current.length}`,
+      facet,
+      value: taxonomyV2?.facets[facet]?.[0]?.key ?? '',
+      scope: 'anchor_exercises',
+      strength: 'preferred',
+      weight: 85,
+      preserveOnSubstitution: true,
+    }])
+  }
+
+  const updateFocus = (id: string, patch: Partial<WorkoutFocusDraft>) => {
+    setFocuses((current) => current.map((focus) => {
+      if (focus.id !== id) return focus
+      const next = { ...focus, ...patch }
+      if (patch.facet) next.value = taxonomyV2?.facets[patch.facet]?.[0]?.key ?? ''
+      return next
+    }))
+  }
+
+  const updateAvailableEquipment = (available: string[]) => {
+    setEquipment((current) => {
+      const parsed = parseEquipment(current)
+      return serializeEquipment(available, parsed.quantities)
+    })
+  }
+
+  const updateEquipmentQuantity = (key: string, rawQuantity: string) => {
+    setEquipment((current) => {
+      const parsed = parseEquipment(current)
+      const quantities = { ...parsed.quantities }
+      if (rawQuantity === '') delete quantities[key]
+      else {
+        const quantity = Number(rawQuantity)
+        if (!Number.isInteger(quantity) || quantity < 0 || quantity > 1000) return current
+        quantities[key] = quantity
+      }
+      return serializeEquipment(parsed.available, quantities)
+    })
+  }
+
+  const availableEquipment = parseEquipment(equipment)
+  const avoidedEquipment = parseList(equipmentAvoid)
 
   const generate = async () => {
     setLoading(true)
@@ -174,6 +362,16 @@ export function CanonicalWorkoutGeneratorPanel() {
         maxDifficulty,
         maxTechnicalRisk,
         fatigueBudgets,
+        stressBudgets,
+        phaseEmphasis,
+        focuses: focuses.map((focus) => ({
+          facet: focus.facet,
+          value: focus.value,
+          scope: focus.scope,
+          strength: focus.strength,
+          weight: focus.weight,
+          preserveOnSubstitution: focus.preserveOnSubstitution,
+        })),
         space: { environment: 'indoor' },
       }
       const endpoint = mode === 'ai_assisted'
@@ -188,7 +386,7 @@ export function CanonicalWorkoutGeneratorPanel() {
     } catch (caught) {
       const requestError = caught as Error & { status?: number; details?: { code?: string } }
       if (requestError.status === 404) {
-        setError('The canonical generator pilot is not enabled for this environment.')
+        setError(rolloutMessage(rolloutStatus?.coachGeneration.reason ?? null))
       } else if (requestError.status === 409) {
         setError(requestError.message)
       } else {
@@ -269,6 +467,13 @@ export function CanonicalWorkoutGeneratorPanel() {
 
       {expanded && (
         <div className="space-y-4 border-t border-indigo-200 p-4">
+          {rolloutStatus && (
+            <div role="status" className={`rounded-lg border p-3 text-sm ${rolloutStatus.coachGeneration.enabled ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+              <p className="font-semibold">{rolloutStatus.coachGeneration.enabled ? 'Coach pilot enabled' : 'Coach pilot not enabled'}</p>
+              <p className="mt-1 text-xs">{rolloutMessage(rolloutStatus.coachGeneration.reason)}{rolloutStatus.rollout ? ` Current rollout stage: ${rolloutStatus.rollout.rolloutStage}.` : ''}</p>
+              {rolloutStatus.coachGeneration.enabled && !rolloutStatus.aiIntent.enabled && <p className="mt-1 text-xs">AI-assisted intent remains off for this facility; deterministic generation is still available.</p>}
+            </div>
+          )}
           <fieldset>
             <legend className="text-sm font-semibold text-gray-800">Generation mode</legend>
             <div className="mt-2 flex flex-wrap gap-3">
@@ -277,7 +482,7 @@ export function CanonicalWorkoutGeneratorPanel() {
                 Deterministic
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="radio" name="canonical-mode" checked={mode === 'ai_assisted'} onChange={() => setMode('ai_assisted')} />
+                <input type="radio" name="canonical-mode" disabled={rolloutStatus != null && !rolloutStatus.aiIntent.enabled} checked={mode === 'ai_assisted'} onChange={() => setMode('ai_assisted')} />
                 AI-assisted intent
               </label>
             </div>
@@ -342,15 +547,49 @@ export function CanonicalWorkoutGeneratorPanel() {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-2">
-            <label className="text-sm">
-              <span className="font-medium text-gray-700">Available equipment</span>
-              <input value={equipment} onChange={(event) => setEquipment(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="bodyweight, dumbbell:8, medicine_ball:4" />
-              <span className="mt-1 block text-xs text-gray-500">Comma-separated controlled keys; append :quantity when limited.</span>
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-gray-700">Avoid equipment</span>
-              <input value={equipmentAvoid} onChange={(event) => setEquipmentAvoid(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="barbell, plyo_box" />
-            </label>
+            <fieldset className="text-sm">
+              <legend className="font-medium text-gray-700">Available equipment</legend>
+              <select
+                multiple
+                value={availableEquipment.available}
+                onChange={(event) => updateAvailableEquipment([...event.currentTarget.selectedOptions].map((option) => option.value))}
+                className="mt-1 h-40 w-full rounded-lg border border-gray-300 px-3 py-2"
+                aria-describedby="canonical-equipment-help"
+              >
+                {EQUIPMENT_OPTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              </select>
+              <span id="canonical-equipment-help" className="mt-1 block text-xs text-gray-500">Select all equipment on hand. Rope and band types remain distinct so a card cannot silently substitute one for another.</span>
+              {availableEquipment.available.filter((key) => key !== 'bodyweight').length > 0 && (
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {availableEquipment.available.filter((key) => key !== 'bodyweight').map((key) => (
+                    <label key={key} className="text-xs text-gray-600">
+                      {EQUIPMENT_OPTIONS.find(([optionKey]) => optionKey === key)?.[1] ?? key} quantity (optional)
+                      <input
+                        type="number"
+                        min={0}
+                        max={1000}
+                        value={availableEquipment.quantities[key] ?? ''}
+                        onChange={(event) => updateEquipmentQuantity(key, event.target.value)}
+                        className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5"
+                        placeholder="Unlimited / untracked"
+                      />
+                    </label>
+                  ))}
+                </div>
+              )}
+            </fieldset>
+            <fieldset className="text-sm">
+              <legend className="font-medium text-gray-700">Avoid equipment</legend>
+              <select
+                multiple
+                value={avoidedEquipment}
+                onChange={(event) => setEquipmentAvoid([...event.currentTarget.selectedOptions].map((option) => option.value).join(','))}
+                className="mt-1 h-40 w-full rounded-lg border border-gray-300 px-3 py-2"
+              >
+                {EQUIPMENT_OPTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              </select>
+              <span className="mt-1 block text-xs text-gray-500">Excluded equipment is a hard constraint, even when it is available.</span>
+            </fieldset>
             <label className="text-sm">
               <span className="font-medium text-gray-700">Limitations</span>
               <input value={limitations} onChange={(event) => setLimitations(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="no_jumping, low_impact" />
@@ -368,6 +607,88 @@ export function CanonicalWorkoutGeneratorPanel() {
           </div>
 
           <fieldset className="rounded-lg border border-indigo-200 bg-white p-3">
+            <legend className="px-1 text-sm font-semibold text-gray-800">Phase emphasis</legend>
+            <p className="mb-3 text-xs text-gray-500">Weights change minute allocation, never the canonical phase sequence.</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {PHASES.map(([phaseKey, label]) => (
+                <label key={phaseKey} className="text-xs text-gray-700">
+                  <span className="flex justify-between gap-2"><span>{label}</span><strong>{phaseEmphasis[phaseKey]}</strong></span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={phaseEmphasis[phaseKey]}
+                    onChange={(event) => setPhaseEmphasis((current) => ({
+                      ...current,
+                      [phaseKey]: Number(event.target.value),
+                    }))}
+                    className="mt-1 w-full"
+                  />
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-indigo-200 bg-white p-3">
+            <legend className="px-1 text-sm font-semibold text-gray-800">Exact-variant stress budgets</legend>
+            <p className="mb-3 text-xs text-gray-500">Independent joint, tissue, neural, impact, local, systemic, grip, conditioning, and recovery limits prevent hidden stress stacking.</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(stressBudgets).map(([field, value]) => (
+                <label key={field} className="text-xs">{field.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                  <input type="number" min={1} max={100} value={value} onChange={(event) => setStressBudgets((current) => ({ ...current, [field]: Number(event.target.value) }))} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5" />
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-indigo-200 bg-white p-3">
+            <legend className="px-1 text-sm font-semibold text-gray-800">Scoped workout focuses</legend>
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+              <p className="max-w-3xl text-xs text-gray-500">Required and excluded focuses are hard constraints. Preferences influence scoring. “Preserve” prevents reviewed substitutions from changing the reason an exercise was selected.</p>
+              <button type="button" onClick={addFocus} disabled={!taxonomyV2} className="inline-flex items-center gap-1 rounded border border-indigo-300 px-2 py-1 text-xs font-semibold text-indigo-800 disabled:opacity-50">
+                <Plus className="h-3.5 w-3.5" /> Add focus
+              </button>
+            </div>
+            {!taxonomyV2 && <p className="text-xs text-gray-500">Loading controlled taxonomy…</p>}
+            <div className="space-y-2">
+              {focuses.map((focus) => (
+                <div key={focus.id} className="grid gap-2 rounded border border-gray-200 bg-gray-50 p-2 md:grid-cols-[1.1fr_1.3fr_1.1fr_1.1fr_auto_auto]">
+                  <label className="text-xs">Facet
+                    <select value={focus.facet} onChange={(event) => updateFocus(focus.id, { facet: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5">
+                      {FOCUS_FACETS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-xs">Value
+                    <select value={focus.value} onChange={(event) => updateFocus(focus.id, { value: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5">
+                      {(taxonomyV2?.facets[focus.facet] ?? []).map((term) => <option key={term.key} value={term.key}>{term.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-xs">Scope
+                    <select value={focus.scope} onChange={(event) => updateFocus(focus.id, { scope: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5">
+                      {FOCUS_SCOPES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-xs">Strength
+                    <select value={focus.strength} onChange={(event) => updateFocus(focus.id, { strength: event.target.value as WorkoutFocusDraft['strength'] })} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5">
+                      <option value="required">Required</option>
+                      <option value="strong_preference">Strong preference</option>
+                      <option value="preferred">Preferred</option>
+                      <option value="exclude">Exclude</option>
+                    </select>
+                  </label>
+                  <label className="flex items-center gap-1 self-end pb-1 text-xs">
+                    <input type="checkbox" checked={focus.preserveOnSubstitution} onChange={(event) => updateFocus(focus.id, { preserveOnSubstitution: event.target.checked })} /> Preserve
+                  </label>
+                  <button type="button" aria-label="Remove focus" onClick={() => setFocuses((current) => current.filter((entry) => entry.id !== focus.id))} className="self-end rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-indigo-200 bg-white p-3">
             <legend className="px-1 text-sm font-semibold text-gray-800">Cumulative fatigue budgets</legend>
             <p className="mb-3 text-xs text-gray-500">The selector rejects exercises whose projected contribution would exceed any session-wide budget.</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -379,7 +700,7 @@ export function CanonicalWorkoutGeneratorPanel() {
             </div>
           </fieldset>
 
-          <button type="button" onClick={() => void generate()} disabled={loading || !seed.trim() || (mode === 'ai_assisted' && !coachRequest.trim())} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-700 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
+          <button type="button" onClick={() => void generate()} disabled={loading || !seed.trim() || (mode === 'ai_assisted' && !coachRequest.trim()) || (rolloutStatus != null && (!rolloutStatus.coachGeneration.enabled || (mode === 'ai_assisted' && !rolloutStatus.aiIntent.enabled)))} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-700 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Generate validated workout
           </button>
@@ -465,8 +786,10 @@ export function CanonicalWorkoutGeneratorPanel() {
                 <div className="mt-2 space-y-1 text-xs text-gray-600">
                   <p>Stored result: <span className="font-mono">{result.persistedWorkoutId}</span></p>
                   <p>Generator: {result.generatorVersion} · Rules: {result.ruleVersion}</p>
+                  <p>Selection: anchor-first · anchors {result.selectionArchitecture.anchorPhaseKeys.map((key) => key.replaceAll('_', ' ')).join(', ')}</p>
                   <p>Duration: {result.validation.durationReconciliation.estimatedMinutes}/{result.validation.durationReconciliation.requestedMinutes} min</p>
                   <p>Fatigue budgets: {Object.entries(result.validation.fatigueBudget.cumulative).map(([key, value]) => `${key} ${value}/${result.validation.fatigueBudget.maximum[key]}`).join(' · ')}</p>
+                  <p>Stress budgets: {Object.entries(result.validation.stressBudget.cumulative).map(([key, value]) => `${key} ${value}/${result.validation.stressBudget.maximum[key]}`).join(' · ')}</p>
                   <p>Rejected candidates: {Object.values(result.diagnostics.rejectionCounts).reduce((sum, count) => sum + count, 0)}</p>
                 </div>
               </details>

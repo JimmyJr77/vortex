@@ -22,6 +22,7 @@
     "audit:needs-engine-library": "node scripts/audit-needs-engine-exercise-library.mjs",
     "check:canonical-release": "node scripts/check-canonical-release-readiness.mjs",
     "report:canonical-identity-queue": "node scripts/report-canonical-identity-queue.mjs",
+    "report:canonical-structured-profile-queue": "node scripts/report-canonical-structured-profile-queue.mjs",
     "export:canonical-research-queue": "node scripts/export-canonical-research-queue.mjs",
     "import:canonical-research": "node scripts/import-canonical-research-packet.mjs",
     "discover:canonical-youtube": "node scripts/discover-canonical-youtube-candidates.mjs",

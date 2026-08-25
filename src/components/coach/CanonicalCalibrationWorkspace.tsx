@@ -185,12 +185,12 @@ export function CanonicalCalibrationWorkspace() {
               <p className="mt-1 text-xs text-gray-500">Proposed by {item.creator_name ?? 'unknown reviewer'}{item.reviewer_name ? ` · reviewed by ${item.reviewer_name}` : ''}</p>
               {item.status === 'review' && (
                 <div className="mt-3">
-                  <label className="text-sm">Independent review notes
-                    <textarea rows={2} value={reviewNotes[item.id] ?? ''} onChange={(event) => setReviewNotes((current) => ({ ...current, [item.id]: event.target.value }))} className="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
+                  <label className="text-sm">Independent review evidence
+                    <textarea rows={2} minLength={20} value={reviewNotes[item.id] ?? ''} onChange={(event) => setReviewNotes((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="Document observed comparison evidence (20+ characters)." className="mt-1 w-full rounded border border-gray-300 px-3 py-2" />
                   </label>
                   <div className="mt-2 flex gap-2">
-                    <button type="button" disabled={saving || (reviewNotes[item.id]?.trim().length ?? 0) < 10} onClick={() => void review(item.id, 'approved')} className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" />Approve anchor</button>
-                    <button type="button" disabled={saving || (reviewNotes[item.id]?.trim().length ?? 0) < 10} onClick={() => void review(item.id, 'rejected')} className="inline-flex items-center gap-1 rounded bg-red-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><XCircle className="h-4 w-4" />Reject</button>
+                    <button type="button" disabled={saving || (reviewNotes[item.id]?.trim().length ?? 0) < 20} onClick={() => void review(item.id, 'approved')} className="inline-flex items-center gap-1 rounded bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" />Approve anchor</button>
+                    <button type="button" disabled={saving || (reviewNotes[item.id]?.trim().length ?? 0) < 20} onClick={() => void review(item.id, 'rejected')} className="inline-flex items-center gap-1 rounded bg-red-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><XCircle className="h-4 w-4" />Reject</button>
                   </div>
                 </div>
               )}

@@ -43,12 +43,26 @@ function card(phaseKey, overrides = {}) {
     difficulty: {
       technicalComplexity: 25,
       absoluteLoadDemand: 35,
-      supervisionDemand: 20,
-      failureConsequence: 15,
-      impact: 20,
-      workCapacityDemand: 35,
       baseOverallDifficulty: 35,
     },
+    movementGeometry: { planes: ['sagittal'], projections: [], directions: ['forward'], supports: ['bilateral'], stances: ['square'], limbRelationships: ['symmetrical'] },
+    anatomyProfile: { assignments: [{ key: 'total_body', kind: 'body_region', role: 'primary_target' }] },
+    equipmentRoles: [{ key: 'none', role: 'required', quantityPerStation: 0, conditions: {} }],
+    taskDemands: {
+      strengthDemand: 35, powerDemand: 25, mobilityDemand: 20, balanceDemand: 20,
+      coordinationDemand: 25, conditioningDemand: 35, impactToleranceDemand: 20,
+      eccentricControlDemand: 20, bodyControlDemand: 25, perceptualDemand: 15,
+      attentionDemand: 20, supervisionDemand: 20, failureConsequence: 15,
+    },
+    stressProfile: {
+      jointStress: 15, tissueStress: 20, neuralDemand: 25, impactStress: 20,
+      localMuscularFatigue: 35, systemicFatigue: 30, gripFatigue: 1,
+      conditioningFatigue: 35, recoveryCost: 20,
+      bodyRegionStress: ['total_body'], jointStressTargets: [], tissueStressTargets: [],
+    },
+    scalingHandles: [{ dimension: 'volume', boundary: 'prescription', easier: 'reduce repetitions', harder: 'add repetitions within the profile cap', limits: {} }],
+    compositionProfile: { preparesFor: [], preferredAfter: [], avoidAfter: [], avoidSameSession: [], pairsWith: [], acceptablePairs: [], interferenceRules: [] },
+    structuredProfileReview: { reviewStatus: 'approved', reviewedBy: 'coach-2', reviewedAt: '2026-08-01T00:00:00.000Z' },
     media: { approvedVideoUrl: `https://media.example/${slug}` },
     deliveryProfiles: [{
       id: `${slug}-${phaseKey}`,
@@ -73,6 +87,20 @@ function library() {
   return SESSION_PHASE_ORDER.map((phaseKey) => card(phaseKey))
 }
 
+function approvedTaxonomy(facetType, key, scope = 'definition') {
+  return {
+    facetType,
+    key,
+    scope,
+    role: 'primary',
+    weight: 5,
+    confidence: 95,
+    reviewStatus: 'approved',
+    reviewedBy: 'coach-2',
+    reviewedAt: '2026-08-01T00:00:00.000Z',
+  }
+}
+
 const intent = {
   durationMinutes: 60,
   athleteCount: 12,
@@ -92,6 +120,86 @@ test('same canonical intent and seed produces identical workout', () => {
   assert.deepEqual(first.phases.map((phase) => phase.phaseKey), SESSION_PHASE_ORDER)
   assert.equal(first.phases.reduce((sum, phase) => sum + phase.targetMinutes, 0), 60)
   assert.ok(first.phases.every((phase) => phase.prescriptions[0].deliveryProfileId))
+})
+
+test('reviewed machine composition constraints reject incompatible same-session candidates', () => {
+  const cards = library()
+  const prepare = cards.find((entry) => entry.id === 'march-and-reach')
+  prepare.compositionProfile.constraints = [{
+    type: 'avoid_same_session', targetType: 'variant', targetKey: 'balance-line-walk',
+  }]
+  let thrown = null
+  try {
+    generateCanonicalWorkout(intent, cards)
+  } catch (error) {
+    thrown = error
+  }
+  assert.ok(thrown instanceof CanonicalGenerationError)
+  assert.equal(thrown.code, 'unsatisfiable_workload_budget')
+  assert.ok(thrown.details.rejectionCounts['composition_avoid_same_session:variant:balance-line-walk'] > 0)
+})
+
+test('phase emphasis reallocates minutes while preserving canonical order', () => {
+  const output = generateCanonicalWorkout({
+    ...intent,
+    phaseEmphasis: { output: 100, capacity: 20, sustained_capacity: 10 },
+  }, library())
+  const outputPhase = output.phases.find((phase) => phase.phaseKey === 'output')
+  const capacityPhase = output.phases.find((phase) => phase.phaseKey === 'capacity')
+  assert.deepEqual(output.phases.map((phase) => phase.phaseKey), SESSION_PHASE_ORDER)
+  assert.equal(output.phases.reduce((sum, phase) => sum + phase.targetMinutes, 0), 60)
+  assert.ok(outputPhase.targetMinutes > capacityPhase.targetMinutes)
+  assert.equal(output.selectionArchitecture.strategy, 'anchor_first')
+  assert.deepEqual(output.selectionArchitecture.selectionOrder.slice(0, 2), ['output', 'capacity'])
+})
+
+test('required scoped training family is enforced only in anchor phases', () => {
+  const cards = library()
+  for (const entry of cards.filter((candidate) => ['output', 'capacity'].includes(candidate.deliveryProfiles[0].phaseKey))) {
+    entry.taxonomyV2 = {
+      assignments: [approvedTaxonomy('training_family', 'olympic_weightlifting')],
+      decisions: [],
+    }
+  }
+  const output = generateCanonicalWorkout({
+    ...intent,
+    focuses: [{
+      facet: 'training_family', value: 'olympic_weightlifting',
+      scope: 'anchor_exercises', strength: 'required', weight: 100,
+    }],
+  }, cards)
+  const anchorPhases = new Set(output.selectionArchitecture.anchorPhaseKeys)
+  assert.ok(output.phases.filter((phase) => anchorPhases.has(phase.phaseKey)).every((phase) => (
+    phase.prescriptions.every((item) => item.taxonomyV2Assignments.some((assignment) => (
+      assignment.facetType === 'training_family' && assignment.key === 'olympic_weightlifting'
+    )))
+  )))
+  assert.ok(output.phases.find((phase) => phase.phaseKey === 'prepare_and_access').prescriptions.length > 0)
+})
+
+test('support selection uses the anchor demand signature', () => {
+  const cards = library()
+  const anchor = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'capacity')
+  anchor.bodyRegions = ['hip']
+  const matchingPrepare = card('prepare_and_access', {
+    id: 'hip-access', slug: 'hip-access', canonicalName: 'Hip Access', displayName: 'Hip Access',
+    familyId: 'hip-access', bodyRegions: ['hip'],
+  })
+  matchingPrepare.deliveryProfiles[0].phaseSuitability = 92
+  const unmatchedPrepare = card('prepare_and_access', {
+    id: 'wrist-access', slug: 'wrist-access', canonicalName: 'Wrist Access', displayName: 'Wrist Access',
+    familyId: 'wrist-access', bodyRegions: ['wrist'],
+  })
+  unmatchedPrepare.deliveryProfiles[0].phaseSuitability = 95
+  const output = generateCanonicalWorkout({ ...intent, objective: 'strength_priority' }, [
+    ...cards,
+    matchingPrepare,
+    unmatchedPrepare,
+  ])
+  const prepareIds = output.phases.find((phase) => phase.phaseKey === 'prepare_and_access')
+    .prescriptions.map((item) => item.exerciseId)
+  assert.ok(prepareIds.includes('hip-access'))
+  assert.ok(output.selectionArchitecture.anchorDemandSignature.bodyRegions.includes('hip'))
 })
 
 test('generation remains deterministic and completes against a 7,000-card published pool', () => {
@@ -134,6 +242,7 @@ test('unavailable equipment fails closed with traceable rejection', () => {
   const cards = library()
   const outputCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'output')
   outputCard.equipment = { required: ['barbell'], quantityPerStation: { barbell: 1 } }
+  outputCard.equipmentRoles = [{ key: 'barbell', role: 'required', quantityPerStation: 1, conditions: {} }]
   assert.throws(
     () => generateCanonicalWorkout(intent, cards),
     (error) => error instanceof CanonicalGenerationError
@@ -146,6 +255,7 @@ test('station equipment quantity infeasibility is removed before selection', () 
   const cards = library()
   const capacityCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'capacity')
   capacityCard.equipment = { required: ['dumbbell'], quantityPerStation: { dumbbell: 2 } }
+  capacityCard.equipmentRoles = [{ key: 'dumbbell', role: 'required', quantityPerStation: 2, conditions: {} }]
   capacityCard.environment.stationCapacity = 3
   assert.throws(
     () => generateCanonicalWorkout({
@@ -162,7 +272,8 @@ test('station equipment quantity infeasibility is removed before selection', () 
 test('bounded deterministic repair reduces high-impact dose and records before/after evidence', () => {
   const cards = library()
   const outputCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'output')
-  outputCard.difficulty.impact = 60
+  outputCard.taskDemands.impactToleranceDemand = 60
+  outputCard.stressProfile.impactStress = 60
   outputCard.deliveryProfiles[0].dosage.contactsPerSet = 6
   const output = generateCanonicalWorkout({ ...intent, maxHighImpactContacts: 4 }, cards)
   assert.equal(output.validation.impactBudget.highImpactContacts, 4)
@@ -175,7 +286,8 @@ test('bounded deterministic repair reduces high-impact dose and records before/a
 test('anatomy load profile supplies landing contacts when a dosage override is absent', () => {
   const cards = library()
   const outputCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'output')
-  outputCard.difficulty.impact = 60
+  outputCard.taskDemands.impactToleranceDemand = 60
+  outputCard.stressProfile.impactStress = 60
   outputCard.loadProfile = {
     gripDemand: 1,
     spinalLoading: 5,
@@ -199,7 +311,8 @@ test('anatomy load profile supplies landing contacts when a dosage override is a
 test('bounded contact exposure profiles use their documented planning default for workout budgets', () => {
   const cards = library()
   const outputCard = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'output')
-  outputCard.difficulty.impact = 60
+  outputCard.taskDemands.impactToleranceDemand = 60
+  outputCard.stressProfile.impactStress = 60
   outputCard.loadProfile = {
     gripDemand: 1,
     spinalLoading: 5,
@@ -249,8 +362,24 @@ test('cumulative fatigue budgets fail closed before selecting an over-budget pha
       },
     }, cards),
     (error) => error instanceof CanonicalGenerationError
-      && error.code === 'unsatisfiable_fatigue_budget'
+      && error.code === 'unsatisfiable_workload_budget'
       && error.details.fatigueBudgets.grip === 1,
+  )
+})
+
+test('cumulative exact-variant stress budgets fail closed before composition', () => {
+  const cards = library().map((entry) => ({
+    ...entry,
+    stressProfile: { ...entry.stressProfile, jointStress: 100 },
+  }))
+  assert.throws(
+    () => generateCanonicalWorkout({
+      ...intent,
+      stressBudgets: { jointStress: 1 },
+    }, cards),
+    (error) => error instanceof CanonicalGenerationError
+      && error.code === 'unsatisfiable_workload_budget'
+      && error.details.stressBudgets.jointStress === 1,
   )
 })
 
@@ -284,6 +413,7 @@ test('swap candidates use only approved loaded graph edges and reapply hard gate
     canonicalName: 'Barbell Bench Press',
     familyId: 'press',
     equipment: { required: ['barbell'], quantityPerStation: { barbell: 1 } },
+    equipmentRoles: [{ key: 'barbell', role: 'required', quantityPerStation: 1, conditions: {} }],
   })
   source.relationships = [
     {
@@ -310,6 +440,47 @@ test('swap candidates use only approved loaded graph edges and reapply hard gate
   })
   assert.deepEqual(swaps.map((swap) => swap.variantId), ['incline-push-up-variant'])
   assert.equal(swaps[0].relationshipType, 'regression')
+})
+
+test('substitution graph cannot discard an explicitly preserved focus', () => {
+  const cards = library()
+  const source = cards.find((entry) => entry.deliveryProfiles[0].phaseKey === 'capacity')
+  source.taxonomyV2 = {
+    assignments: [approvedTaxonomy('training_family', 'calisthenics')],
+    decisions: [],
+  }
+  const nonMatching = card('capacity', {
+    id: 'dumbbell-press',
+    variantId: 'dumbbell-press-variant',
+    slug: 'dumbbell-press',
+    canonicalName: 'Dumbbell Press',
+    familyId: 'press',
+  })
+  nonMatching.taxonomyV2 = {
+    assignments: [approvedTaxonomy('training_family', 'general_resistance')],
+    decisions: [],
+  }
+  source.relationships = [{
+    id: 'edge-family-loss',
+    toVariantId: nonMatching.variantId,
+    type: 'lateral_substitution',
+    similarityScore: 96,
+    dimensions: ['training_family'],
+    reason: 'Similar press pattern but a different requested training family.',
+  }]
+  const swaps = listCanonicalSwapCandidates({
+    ...intent,
+    objective: 'strength_priority',
+    focuses: [{
+      facet: 'training_family', value: 'calisthenics', scope: 'anchor_exercises',
+      strength: 'preferred', preserveOnSubstitution: true,
+    }],
+  }, [...cards, nonMatching], {
+    exerciseId: source.id,
+    variantId: source.variantId ?? source.id,
+    phaseKey: 'capacity',
+  })
+  assert.deepEqual(swaps, [])
 })
 
 test('controlled swap replaces only the requested prescription and revalidates the whole workout', () => {

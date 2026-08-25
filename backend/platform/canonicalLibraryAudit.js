@@ -78,6 +78,19 @@ function rowToCard(definition, variants, profilesByVariant) {
       programming: asObject(variant.programming_profile_json),
       loadProfile: asObject(variant.load_profile_json),
       fatigueProfile: asObject(variant.fatigue_profile_json),
+      movementGeometry: asObject(variant.movement_geometry_json),
+      anatomyProfile: asObject(variant.anatomy_profile_json),
+      equipmentRoles: asArray(variant.equipment_roles_json),
+      taskDemands: asObject(variant.task_demands_json),
+      stressProfile: asObject(variant.stress_profile_json),
+      scalingHandles: asArray(variant.scaling_handles_json),
+      compositionProfile: asObject(variant.composition_profile_json),
+      structuredProfileReview: {
+        reviewStatus: variant.structured_profile_review_status,
+        provenance: asObject(variant.structured_profile_provenance_json),
+        reviewedBy: variant.structured_profile_reviewed_by,
+        reviewedAt: variant.structured_profile_reviewed_at,
+      },
       status: variant.status,
       profiles: asArray(profilesByVariant.get(String(variant.id))).map((profile) => ({
         id: String(profile.id),
@@ -514,6 +527,7 @@ export async function auditCanonicalExerciseLibrary(pool, {
       exactVariantMatch: media.exact_variant_match,
       demonstrationQualityScore: media.demonstration_quality_score,
       linkStatus: media.link_status,
+      reviewBasis: media.review_basis_json ?? {},
     } : null
     const invalidTaxonomyKeys = [
       ...card.movementPatterns.filter((key) => !taxonomy.get('movementPatterns')?.has(key))
@@ -535,12 +549,31 @@ export async function auditCanonicalExerciseLibrary(pool, {
     const unresolvedDuplicates = duplicates.filter((duplicate) => (
       !RESOLVED_IDENTITY_DECISIONS.has(duplicate.identityResolution?.decision)
     ))
-    const basePacket = buildCanonicalCardTestPacket(card, {
-      mediaReview,
-      invalidTaxonomyKeys,
-      duplicates: unresolvedDuplicates,
-      relationships,
-    })
+    let basePacket
+    try {
+      basePacket = buildCanonicalCardTestPacket(card, {
+        mediaReview,
+        invalidTaxonomyKeys,
+        duplicates: unresolvedDuplicates,
+        relationships,
+      })
+    } catch (error) {
+      // The audit must report every active card even while a legacy or draft
+      // row cannot satisfy the strict canonical contract. Treat that row as a
+      // P0 quarantine finding; do not let it hide the rest of the library.
+      basePacket = {
+        checks: [{
+          id: 'CARD-CANONICAL-CONTRACT-01',
+          category: 'canonical_contract',
+          priority: 'P0',
+          status: 'failed',
+          evidence: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+          message: 'The card cannot be normalized against the strict canonical contract.',
+        }],
+      }
+    }
     const checks = [
       ...basePacket.checks,
       ...additionalChecks({

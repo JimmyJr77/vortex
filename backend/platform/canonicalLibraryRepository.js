@@ -3,7 +3,7 @@
  * invisible until definition, variant, profile, scores, and media are approved.
  */
 export async function loadPublishedCanonicalLibrary(pool, facilityId) {
-  const [result, relationshipResult] = await Promise.all([
+  const [result, relationshipResult, taxonomyResult] = await Promise.all([
     pool.query(
     `
       SELECT
@@ -17,6 +17,10 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
         d.approved_video_url, d.approved_by,
         v.id AS variant_id, v.difficulty_json, v.requirements_json,
         v.load_profile_json, v.fatigue_profile_json, v.programming_profile_json,
+        v.movement_geometry_json, v.anatomy_profile_json, v.equipment_roles_json,
+        v.task_demands_json, v.stress_profile_json, v.scaling_handles_json,
+        v.composition_profile_json, v.structured_profile_review_status,
+        v.structured_profile_reviewed_by, v.structured_profile_reviewed_at,
         p.id AS profile_id, p.profile_key, p.phase_key, p.role, p.purpose,
         p.phase_suitability, p.methodology_alignment,
         p.objective_relevance_json, p.dosage_json, p.quality_gate,
@@ -32,7 +36,88 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
       WHERE d.facility_id = $1
         AND d.status = 'published'
         AND d.approved_by IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM coaching.exercise_card_review_v1 card_review
+          WHERE card_review.definition_id=d.id
+            AND card_review.reviewed_card_version=d.card_version
+            AND card_review.decision='approve'
+            AND card_review.reviewer_user_id=d.approved_by
+            AND length(btrim(card_review.notes)) >= 20
+        )
         AND d.approved_video_url IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM coaching.exercise_media_review_v1 media
+          WHERE media.definition_id=d.id
+            AND media.url=d.approved_video_url
+            AND media.reviewed_card_version=d.card_version
+            AND media.link_status='healthy'
+            AND media.exact_variant_match IS TRUE
+            AND media.demonstration_quality_score >= 80
+            AND length(btrim(media.notes)) >= 20
+            AND media.review_basis_json @> jsonb_build_object(
+              'reviewMethod','manual_playback',
+              'playbackReviewed',true,
+              'exactVariantCompared',true,
+              'linkChecked',true,
+              'accessibilityChecked',true
+            )
+        )
+        AND v.structured_profile_review_status = 'approved'
+        AND v.structured_profile_reviewed_by IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM coaching.exercise_structured_profile_review_v2 structured_evidence
+          WHERE structured_evidence.variant_id=v.id
+            AND structured_evidence.outcome='approved'
+            AND structured_evidence.reviewer_user_id=v.structured_profile_reviewed_by
+            AND length(btrim(structured_evidence.notes)) >= 20
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM coaching.exercise_taxonomy_assignment_v2 assignment
+          WHERE (
+            assignment.definition_id=d.id
+            OR assignment.variant_id=v.id
+            OR assignment.delivery_profile_id=p.id
+          )
+            AND (
+              assignment.review_status IS DISTINCT FROM 'approved'
+              OR assignment.reviewed_by IS NULL
+              OR NOT EXISTS (
+                SELECT 1
+                FROM coaching.exercise_taxonomy_review_v2 taxonomy_evidence
+                WHERE taxonomy_evidence.record_type='assignment'
+                  AND taxonomy_evidence.record_id=assignment.id
+                  AND taxonomy_evidence.outcome='approved'
+                  AND taxonomy_evidence.reviewer_user_id=assignment.reviewed_by
+                  AND length(btrim(taxonomy_evidence.notes)) >= 20
+              )
+            )
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM coaching.exercise_taxonomy_decision_v2 decision
+          WHERE (
+            decision.definition_id=d.id
+            OR decision.variant_id=v.id
+            OR decision.delivery_profile_id=p.id
+          )
+            AND (
+              decision.review_status IS DISTINCT FROM 'approved'
+              OR decision.reviewed_by IS NULL
+              OR NOT EXISTS (
+                SELECT 1
+                FROM coaching.exercise_taxonomy_review_v2 taxonomy_evidence
+                WHERE taxonomy_evidence.record_type='decision'
+                  AND taxonomy_evidence.record_id=decision.id
+                  AND taxonomy_evidence.outcome='approved'
+                  AND taxonomy_evidence.reviewer_user_id=decision.reviewed_by
+                  AND length(btrim(taxonomy_evidence.notes)) >= 20
+              )
+            )
+        )
       ORDER BY d.slug, v.variant_key, p.phase_key, p.profile_key
     `,
     [facilityId],
@@ -48,10 +133,75 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
        JOIN coaching.exercise_definition_v1 td ON td.id=tv.definition_id
          AND td.facility_id=$1 AND td.status='published'
        WHERE r.review_status='approved'
+         AND r.reviewed_by IS NOT NULL
+         AND EXISTS (
+           SELECT 1
+           FROM coaching.exercise_relationship_review_v2 review_evidence
+           WHERE review_evidence.relationship_id=r.id
+             AND review_evidence.outcome='approved'
+             AND review_evidence.reviewer_user_id=r.reviewed_by
+             AND length(btrim(review_evidence.notes)) >= 20
+         )
        ORDER BY r.from_variant_id, r.relationship, r.similarity_score DESC`,
       [facilityId],
     ),
+    pool.query(
+      `SELECT a.subject_scope,
+              COALESCE(a.definition_id, a.variant_id, a.delivery_profile_id) AS subject_id,
+              t.facet_type, t.key AS term_key, a.assignment_role, a.weight,
+              a.confidence, a.review_status, a.reviewed_by, a.reviewed_at
+       FROM coaching.exercise_taxonomy_assignment_v2 a
+       JOIN coaching.taxonomy_term_v2 t ON t.id = a.term_id
+       LEFT JOIN coaching.exercise_definition_v1 direct_definition
+         ON direct_definition.id = a.definition_id
+       LEFT JOIN coaching.exercise_variant_v1 variant
+         ON variant.id = a.variant_id
+       LEFT JOIN coaching.exercise_definition_v1 variant_definition
+         ON variant_definition.id = variant.definition_id
+       LEFT JOIN coaching.exercise_delivery_profile_v1 profile
+         ON profile.id = a.delivery_profile_id
+       LEFT JOIN coaching.exercise_variant_v1 profile_variant
+         ON profile_variant.id = profile.variant_id
+       LEFT JOIN coaching.exercise_definition_v1 profile_definition
+         ON profile_definition.id = profile_variant.definition_id
+       WHERE a.review_status = 'approved'
+         AND a.reviewed_by IS NOT NULL
+         AND EXISTS (
+           SELECT 1
+           FROM coaching.exercise_taxonomy_review_v2 review_evidence
+           WHERE review_evidence.record_type='assignment'
+             AND review_evidence.record_id=a.id
+             AND review_evidence.outcome='approved'
+             AND review_evidence.reviewer_user_id=a.reviewed_by
+             AND length(btrim(review_evidence.notes)) >= 20
+         )
+         AND COALESCE(
+           direct_definition.facility_id,
+           variant_definition.facility_id,
+           profile_definition.facility_id
+         ) = $1
+       ORDER BY a.subject_scope, subject_id, t.facet_type, a.assignment_role, t.key`,
+      [facilityId],
+    ),
   ])
+
+  const taxonomyBySubject = new Map()
+  for (const row of taxonomyResult.rows) {
+    const key = `${row.subject_scope}:${row.subject_id}`
+    const assignments = taxonomyBySubject.get(key) ?? []
+    assignments.push({
+      facetType: row.facet_type,
+      key: row.term_key,
+      scope: row.subject_scope,
+      role: row.assignment_role,
+      weight: Number(row.weight),
+      confidence: Number(row.confidence),
+      reviewStatus: row.review_status,
+      reviewedBy: row.reviewed_by == null ? null : String(row.reviewed_by),
+      reviewedAt: row.reviewed_at,
+    })
+    taxonomyBySubject.set(key, assignments)
+  }
 
   const cards = new Map()
   for (const row of result.rows) {
@@ -86,10 +236,30 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
         supportOperations: row.support_operations_json ?? {},
         anatomy: row.anatomy_json ?? {},
         difficulty: row.difficulty_json ?? {},
+        movementGeometry: row.movement_geometry_json ?? {},
+        anatomyProfile: row.anatomy_profile_json ?? {},
+        equipmentRoles: row.equipment_roles_json ?? [],
+        taskDemands: row.task_demands_json ?? {},
+        stressProfile: row.stress_profile_json ?? {},
+        scalingHandles: row.scaling_handles_json ?? [],
+        compositionProfile: row.composition_profile_json ?? {},
+        structuredProfileReview: {
+          reviewStatus: row.structured_profile_review_status,
+          reviewedBy: row.structured_profile_reviewed_by == null ? null : String(row.structured_profile_reviewed_by),
+          reviewedAt: row.structured_profile_reviewed_at,
+        },
         loadProfile: row.load_profile_json ?? {},
         fatigueProfile: row.fatigue_profile_json ?? {},
         programming: row.programming_profile_json ?? {},
         media: { approvedVideoUrl: row.approved_video_url },
+        taxonomyV2: {
+          assignments: taxonomyBySubject.get(`definition:${row.definition_id}`) ?? [],
+          decisions: [],
+        },
+        variantTaxonomyV2: {
+          assignments: taxonomyBySubject.get(`variant:${row.variant_id}`) ?? [],
+          decisions: [],
+        },
         deliveryProfiles: [],
       }
       cards.set(key, card)
@@ -115,6 +285,10 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
       doseScaling: row.dose_scaling_json ?? {},
       measurement: row.measurement_json ?? {},
       supportPrompts: row.support_prompts_json ?? {},
+      taxonomyV2: {
+        assignments: taxonomyBySubject.get(`delivery_profile:${row.profile_id}`) ?? [],
+        decisions: [],
+      },
       ...(row.logistics_json ?? {}),
     })
   }

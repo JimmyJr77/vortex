@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Loader2, Save, ShieldCheck, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
-import type { CanonicalCard, CanonicalCardStatus, CanonicalVariant } from './canonicalCardTypes'
+import type { TaxonomyV2Catalog } from '../../coach/taxonomy'
+import { useTaxonomy } from './useTaxonomy'
+import type {
+  CanonicalCard,
+  CanonicalCardStatus,
+  CanonicalTaxonomyV2Block,
+  CanonicalVariant,
+} from './canonicalCardTypes'
 
 const PHASES = [
   'prepare_and_access',
@@ -16,19 +23,11 @@ const PHASES = [
 const EDITABLE_DIFFICULTY_FIELDS = [
   'technicalComplexity',
   'absoluteLoadDemand',
-  'supervisionDemand',
-  'failureConsequence',
-  'impact',
-  'workCapacityDemand',
 ] as const
 
 const DIFFICULTY_LABELS: Record<(typeof EDITABLE_DIFFICULTY_FIELDS)[number], string> = {
   technicalComplexity: 'Technical complexity',
   absoluteLoadDemand: 'Physical difficulty',
-  supervisionDemand: 'Supervision demand',
-  failureConsequence: 'Failure consequence',
-  impact: 'Impact',
-  workCapacityDemand: 'Work-capacity demand',
 }
 
 const LOAD_FIELDS = ['gripDemand', 'spinalLoading', 'eccentricStress'] as const
@@ -36,6 +35,185 @@ const FATIGUE_FIELDS = ['localMuscleFatigue', 'gripFatigue', 'technicalFatigueSe
 const PLANES = ['sagittal', 'frontal', 'transverse', 'multiplanar'] as const
 const LATERALITY = ['bilateral', 'unilateral', 'alternating', 'asymmetrical'] as const
 const LOAD_METHODS = ['bodyweight', 'fixed_external', 'relative_external', 'velocity_targeted', 'distance_targeted', 'coach_selected'] as const
+const TASK_DEMAND_FIELDS = [
+  'strengthDemand', 'powerDemand', 'mobilityDemand', 'balanceDemand',
+  'coordinationDemand', 'conditioningDemand', 'impactToleranceDemand',
+  'eccentricControlDemand', 'bodyControlDemand', 'perceptualDemand',
+  'attentionDemand', 'supervisionDemand', 'failureConsequence',
+] as const
+const SCALING_DIMENSIONS = [
+  'external_load', 'range_of_motion', 'movement_velocity', 'height', 'impact',
+  'stability', 'base_of_support', 'complexity', 'coordination', 'reactive_uncertainty',
+  'assistance', 'resistance', 'volume', 'work_duration', 'rest_duration', 'distance',
+  'contacts', 'partner_pressure', 'laterality',
+] as const
+const SCALING_BOUNDARIES = [
+  'prescription', 'delivery_profile', 'exact_variant', 'exercise_definition',
+] as const
+const GEOMETRY_OPTIONS = {
+  planes: ['sagittal', 'frontal', 'transverse', 'multiplanar'],
+  projections: ['vertical', 'horizontal', 'diagonal', 'rotational'],
+  directions: ['forward', 'backward', 'lateral', 'multidirectional'],
+  supports: ['bilateral', 'unilateral', 'alternating'],
+  stances: ['square', 'split', 'staggered', 'tandem'],
+  limbRelationships: ['symmetrical', 'asymmetrical', 'ipsilateral', 'contralateral'],
+} as const
+
+const TAXONOMY_FACETS_BY_SCOPE = {
+  definition: ['training_family', 'movement_character'],
+  variant: ['movement_character', 'force_velocity'],
+  delivery_profile: [
+    'tenet',
+    'methodology',
+    'athletic_niche',
+    'programming_set_structure',
+    'programming_clock_structure',
+    'conditioning_protocol',
+    'physiology_mechanism',
+  ],
+} as const
+
+const TAXONOMY_FACET_LABELS: Record<string, string> = {
+  tenet: 'Athleticism tenet',
+  methodology: 'Methodology',
+  training_family: 'Training family',
+  athletic_niche: 'Athletic niche',
+  force_velocity: 'Force–velocity emphasis',
+  movement_character: 'Movement character',
+  programming_set_structure: 'Set structure',
+  programming_clock_structure: 'Clock structure',
+  conditioning_protocol: 'Conditioning protocol',
+  physiology_mechanism: 'Physiology mechanism',
+}
+
+function TaxonomyV2ScopeEditor({
+  title,
+  scope,
+  block,
+  catalog,
+  disabled,
+  onChange,
+}: {
+  title: string
+  scope: keyof typeof TAXONOMY_FACETS_BY_SCOPE
+  block: CanonicalTaxonomyV2Block | null | undefined
+  catalog: TaxonomyV2Catalog | undefined
+  disabled: boolean
+  onChange: (next: CanonicalTaxonomyV2Block) => void
+}) {
+  const value = block ?? { assignments: [], decisions: [] }
+  const updateDecision = (facetType: string, decision: 'classified' | 'not_applicable' | null) => {
+    const withoutFacet = value.decisions.filter((entry) => entry.facetType !== facetType)
+    onChange({
+      ...value,
+      assignments: decision === 'not_applicable'
+        ? value.assignments.filter((entry) => entry.facetType !== facetType)
+        : value.assignments,
+      decisions: decision == null ? withoutFacet : [...withoutFacet, {
+        facetType,
+        scope,
+        decision,
+        rationale: decision === 'not_applicable' ? '' : null,
+        confidence: 50,
+        reviewStatus: 'suggested',
+      }],
+    })
+  }
+  return (
+    <fieldset className="rounded-lg border border-gray-200 p-3">
+      <legend className="px-1 text-sm font-semibold text-gray-900">{title}</legend>
+      <div className="space-y-3">
+        {TAXONOMY_FACETS_BY_SCOPE[scope].map((facetType) => {
+          const assignments = value.assignments.filter((entry) => entry.facetType === facetType)
+          const decision = value.decisions.find((entry) => entry.facetType === facetType)
+          const terms = catalog?.facets[facetType] ?? []
+          return (
+            <div key={facetType} className="rounded border border-gray-100 bg-gray-50 p-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-semibold text-gray-800">{TAXONOMY_FACET_LABELS[facetType] ?? facetType}</span>
+                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${assignments.length || decision?.decision === 'not_applicable' ? decision?.reviewStatus === 'approved' || assignments.some((entry) => entry.reviewStatus === 'approved') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                  {assignments.length || decision?.decision === 'not_applicable'
+                    ? decision?.reviewStatus === 'approved' || assignments.some((entry) => entry.reviewStatus === 'approved') ? 'reviewed' : 'review required'
+                    : 'missing'}
+                </span>
+              </div>
+              {!disabled && decision?.decision !== 'not_applicable' && (
+                <select
+                  value=""
+                  onChange={(event) => {
+                    const term = terms.find((entry) => entry.key === event.target.value)
+                    if (!term || assignments.some((entry) => entry.key === term.key)) return
+                    onChange({
+                      assignments: [...value.assignments, {
+                        facetType,
+                        key: term.key,
+                        name: term.name,
+                        scope,
+                        role: assignments.length === 0 ? 'primary' : 'secondary',
+                        weight: assignments.length === 0 ? 5 : 3,
+                        confidence: 50,
+                        reviewStatus: 'suggested',
+                      }],
+                      decisions: [
+                        ...value.decisions.filter((entry) => entry.facetType !== facetType),
+                        { facetType, scope, decision: 'classified', confidence: 50, reviewStatus: 'suggested' },
+                      ],
+                    })
+                  }}
+                  className="mt-2 w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-xs"
+                >
+                  <option value="">Add controlled term…</option>
+                  {terms.filter((term) => !assignments.some((entry) => entry.key === term.key)).map((term) => (
+                    <option key={term.id} value={term.key}>{term.name}{term.domain ? ` · ${term.domain.replaceAll('_', ' ')}` : ''}</option>
+                  ))}
+                </select>
+              )}
+              <div className="mt-2 space-y-1">
+                {assignments.map((assignment) => (
+                  <div key={`${facetType}:${assignment.key}`} className="flex flex-wrap items-center gap-2 rounded bg-white px-2 py-1 text-xs">
+                    <span className="min-w-32 flex-1 font-medium">{assignment.name ?? terms.find((term) => term.key === assignment.key)?.name ?? assignment.key}</span>
+                    <select disabled={disabled} value={assignment.role} onChange={(event) => onChange({
+                      ...value,
+                      assignments: value.assignments.map((entry) => entry === assignment ? { ...entry, role: event.target.value as typeof entry.role, reviewStatus: 'suggested' } : entry),
+                    })} className="rounded border border-gray-300 px-1 py-0.5">
+                      {['primary', 'secondary', 'compatible', 'incompatible', 'default'].map((role) => <option key={role}>{role}</option>)}
+                    </select>
+                    <label>weight <input disabled={disabled} type="number" min={1} max={5} value={assignment.weight} onChange={(event) => onChange({
+                      ...value,
+                      assignments: value.assignments.map((entry) => entry === assignment ? { ...entry, weight: Number(event.target.value), reviewStatus: 'suggested' } : entry),
+                    })} className="w-12 rounded border border-gray-300 px-1 py-0.5" /></label>
+                    {!disabled && <button type="button" onClick={() => {
+                      const remaining = value.assignments.filter((entry) => entry !== assignment)
+                      onChange({
+                        assignments: remaining,
+                        decisions: remaining.some((entry) => entry.facetType === facetType)
+                          ? value.decisions
+                          : value.decisions.filter((entry) => entry.facetType !== facetType),
+                      })
+                    }} className="text-red-700">Remove</button>}
+                  </div>
+                ))}
+              </div>
+              {!disabled && assignments.length === 0 && (
+                <button type="button" onClick={() => updateDecision(facetType, decision?.decision === 'not_applicable' ? null : 'not_applicable')} className="mt-2 text-xs font-medium text-indigo-700">
+                  {decision?.decision === 'not_applicable' ? 'Clear not-applicable decision' : 'Mark not applicable'}
+                </button>
+              )}
+              {decision?.decision === 'not_applicable' && (
+                <label className="mt-2 block text-xs">Required rationale
+                  <input disabled={disabled} value={decision.rationale ?? ''} onChange={(event) => onChange({
+                    ...value,
+                    decisions: value.decisions.map((entry) => entry === decision ? { ...entry, rationale: event.target.value, reviewStatus: 'suggested' } : entry),
+                  })} className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5" />
+                </label>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </fieldset>
+  )
+}
 
 function splitList(value: string): string[] {
   return [...new Set(value.split(',').map((item) => item.trim()).filter(Boolean))]
@@ -71,6 +249,25 @@ function initialVariant(): CanonicalVariant {
       ...Object.fromEntries(EDITABLE_DIFFICULTY_FIELDS.map((field) => [field, 50])),
       baseOverallDifficulty: 50,
     },
+    movementGeometry: {
+      planes: [], projections: [], directions: [], supports: [],
+      stances: [], limbRelationships: [],
+    },
+    anatomyProfile: { assignments: [] },
+    equipmentRoles: [],
+    taskDemands: Object.fromEntries(TASK_DEMAND_FIELDS.map((field) => [field, null])),
+    stressProfile: {
+      jointStress: null, tissueStress: null, neuralDemand: null, impactStress: null,
+      localMuscularFatigue: null, systemicFatigue: null, gripFatigue: null,
+      conditioningFatigue: null, recoveryCost: null,
+      bodyRegionStress: [], jointStressTargets: [], tissueStressTargets: [],
+    },
+    scalingHandles: [],
+    compositionProfile: {},
+    structuredProfileReview: {
+      reviewStatus: 'suggested',
+      provenance: { sourceType: 'canonical_authoring', humanReviewRequired: true, approvalCreated: false },
+    },
     loadProfile: {
       gripDemand: 1,
       spinalLoading: 1,
@@ -87,6 +284,7 @@ function initialVariant(): CanonicalVariant {
     },
     requirements: {},
     programming: {},
+    taxonomyV2: { assignments: [], decisions: [] },
     profiles: [{
       profileKey: 'capacity-strength',
       phaseKey: 'capacity',
@@ -107,6 +305,7 @@ function initialVariant(): CanonicalVariant {
       doseScaling: {},
       measurement: {},
       supportPrompts: {},
+      taxonomyV2: { assignments: [], decisions: [] },
     }],
   }
 }
@@ -142,23 +341,53 @@ function initialCard(): CanonicalCard {
       laterality: 'bilateral',
     },
     approvedVideoUrl: null,
+    taxonomyV2: { assignments: [], decisions: [] },
     variants: [initialVariant()],
   }
 }
 
 interface CanonicalCardEditorProps {
   source: CanonicalCard | null
+  initialVariantId?: string | null
   onClose: () => void
   onSaved: (card: CanonicalCard) => void
 }
 
-export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardEditorProps) {
+export function CanonicalCardEditor({ source, initialVariantId = null, onClose, onSaved }: CanonicalCardEditorProps) {
+  const { taxonomy } = useTaxonomy()
   const [card, setCard] = useState<CanonicalCard>(() => source ?? initialCard())
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(() => (
+    source?.variants.find((item) => item.id === initialVariantId)?.id
+      ?? source?.variants[0]?.id
+      ?? null
+  ))
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(() => (
+    source?.variants.find((item) => item.id === initialVariantId)?.profiles[0]?.id
+      ?? source?.variants[0]?.profiles[0]?.id
+      ?? null
+  ))
+  useEffect(() => {
+    const next = source ?? initialCard()
+    const selected = next.variants.find((item) => item.id === initialVariantId) ?? next.variants[0]
+    setCard(next)
+    setSelectedVariantId(selected?.id ?? null)
+    setSelectedProfileId(selected?.profiles[0]?.id ?? null)
+  }, [initialVariantId, source])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [changeSummary, setChangeSummary] = useState('')
   const [reviewNotes, setReviewNotes] = useState('')
-  const [mediaScore, setMediaScore] = useState(90)
+  const [relationshipReviewNotes, setRelationshipReviewNotes] = useState<Record<string, string>>({})
+  const [mediaScore, setMediaScore] = useState<number | ''>('')
+  const [mediaLinkStatus, setMediaLinkStatus] = useState<'healthy' | 'broken' | 'mismatched' | ''>('')
+  const [mediaExactVariantMatch, setMediaExactVariantMatch] = useState<boolean | null>(null)
+  const [mediaReviewNotes, setMediaReviewNotes] = useState('')
+  const [mediaReviewBasis, setMediaReviewBasis] = useState({
+    playbackReviewed: false,
+    exactVariantCompared: false,
+    linkChecked: false,
+    accessibilityChecked: false,
+  })
   const [duplicateCandidates, setDuplicateCandidates] = useState<Array<{
     id: string
     displayName: string
@@ -180,20 +409,44 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
       setError(`${label} ${caught instanceof Error ? caught.message : 'must be valid JSON'}.`)
     }
   }
+  const updateJsonArray = (
+    label: string,
+    value: string,
+    apply: (parsed: unknown[]) => void,
+  ) => {
+    try {
+      const parsed: unknown = JSON.parse(value)
+      if (!Array.isArray(parsed)) throw new Error('must be a JSON array')
+      apply(parsed)
+      setError(null)
+    } catch (caught) {
+      setError(`${label} ${caught instanceof Error ? caught.message : 'must be valid JSON'}.`)
+    }
+  }
   const [duplicateAcknowledged, setDuplicateAcknowledged] = useState(false)
-  const variant = card.variants[0] ?? initialVariant()
-  const profile = variant.profiles[0] ?? initialVariant().profiles[0]
+  const variant = card.variants.find((item) => item.id === selectedVariantId) ?? card.variants[0] ?? initialVariant()
+  const profile = variant.profiles.find((item) => item.id === selectedProfileId) ?? variant.profiles[0] ?? initialVariant().profiles[0]
   const editable = ['draft', 'review'].includes(card.status)
 
   const updateVariant = (updates: Partial<CanonicalVariant>) => {
     setCard((current) => ({
       ...current,
-      variants: [{ ...variant, ...updates }, ...current.variants.slice(1)],
+      variants: current.variants.map((item) => (
+        item === variant || (variant.id != null && item.id === variant.id)
+          ? { ...item, ...updates }
+          : item
+      )),
     }))
   }
 
   const updateProfile = (updates: Partial<typeof profile>) => {
-    updateVariant({ profiles: [{ ...profile, ...updates }, ...variant.profiles.slice(1)] })
+    updateVariant({
+      profiles: variant.profiles.map((item) => (
+        item === profile || (profile.id != null && item.id === profile.id)
+          ? { ...item, ...updates }
+          : item
+      )),
+    })
   }
 
   const updateDifficulty = (
@@ -261,7 +514,7 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
   }
 
   const review = async (decision: 'approve' | 'request_changes') => {
-    if (!card.id || !reviewNotes.trim()) return
+    if (!card.id || reviewNotes.trim().length < 20) return
     setSaving(true)
     setError(null)
     try {
@@ -281,7 +534,9 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
   }
 
   const reviewMedia = async () => {
-    if (!card.id || !card.approvedVideoUrl) return
+    if (!card.id || !card.approvedVideoUrl || typeof mediaScore !== 'number'
+      || !mediaLinkStatus || mediaExactVariantMatch == null || mediaReviewNotes.trim().length < 20
+      || !Object.values(mediaReviewBasis).every(Boolean)) return
     setSaving(true)
     setError(null)
     try {
@@ -289,15 +544,26 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
         method: 'POST',
         body: JSON.stringify({
           url: card.approvedVideoUrl,
-          exactVariantMatch: true,
+          exactVariantMatch: mediaExactVariantMatch,
           demonstrationQualityScore: mediaScore,
-          linkStatus: 'healthy',
-          notes: 'Reviewed in canonical card authoring.',
+          linkStatus: mediaLinkStatus,
+          notes: mediaReviewNotes.trim(),
+          reviewBasis: { reviewMethod: 'manual_playback', ...mediaReviewBasis },
         }),
       })
       const refreshed = await coachFetch<CanonicalCard>(`/api/coach/canonical/cards/${card.id}`)
       setCard(refreshed)
       onSaved(refreshed)
+      setMediaReviewNotes('')
+      setMediaExactVariantMatch(null)
+      setMediaLinkStatus('')
+      setMediaScore('')
+      setMediaReviewBasis({
+        playbackReviewed: false,
+        exactVariantCompared: false,
+        linkChecked: false,
+        accessibilityChecked: false,
+      })
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not record media review.')
     } finally {
@@ -306,17 +572,19 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
   }
 
   const reviewRelationship = async (relationshipId: string, decision: 'approved' | 'rejected') => {
-    if (!card.id) return
+    const notes = String(relationshipReviewNotes[relationshipId] ?? '').trim()
+    if (!card.id || notes.length < 20) return
     setSaving(true)
     setError(null)
     try {
       await coachFetch(`/api/coach/canonical/relationships/${relationshipId}/review`, {
         method: 'POST',
-        body: JSON.stringify({ decision }),
+        body: JSON.stringify({ decision, notes }),
       })
       const refreshed = await coachFetch<CanonicalCard>(`/api/coach/canonical/cards/${card.id}`)
       setCard(refreshed)
       onSaved(refreshed)
+      setRelationshipReviewNotes((current) => ({ ...current, [relationshipId]: '' }))
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not review relationship.')
     } finally {
@@ -378,6 +646,46 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
             )}
           </section>
 
+          <section aria-labelledby="variant-context-heading" className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+            <h3 id="variant-context-heading" className="text-sm font-semibold text-indigo-950">Exact-variant editing context</h3>
+            <p className="mt-1 text-xs text-indigo-800">All exact variants and their delivery profiles are independently selectable. Review-queue links open the specific variant, not an arbitrary baseline.</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <label className="text-sm text-indigo-950">Exact variant
+                <select
+                  value={variant.id ?? ''}
+                  onChange={(event) => {
+                    const next = card.variants.find((item) => item.id === event.target.value)
+                    if (!next) return
+                    setSelectedVariantId(next.id ?? null)
+                    setSelectedProfileId(next.profiles[0]?.id ?? null)
+                  }}
+                  className="mt-1 w-full rounded border border-indigo-200 bg-white px-3 py-2"
+                >
+                  {card.variants.map((item) => <option key={item.id ?? item.variantKey} value={item.id ?? ''}>{item.displayName} · {item.variantKey}</option>)}
+                </select>
+              </label>
+              <label className="text-sm text-indigo-950">Delivery profile
+                <select
+                  value={profile.id ?? ''}
+                  onChange={(event) => setSelectedProfileId(event.target.value || null)}
+                  className="mt-1 w-full rounded border border-indigo-200 bg-white px-3 py-2"
+                >
+                  {variant.profiles.map((item) => <option key={item.id ?? item.profileKey} value={item.id ?? ''}>{item.profileKey} · {item.phaseKey}</option>)}
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section aria-labelledby="taxonomy-v2-heading">
+            <h3 id="taxonomy-v2-heading" className="font-semibold text-gray-900">Taxonomy v2 classification</h3>
+            <p className="mt-1 text-xs text-gray-500">Assignments are scoped to where they are true. Saving creates review-required suggestions; it never creates an approval.</p>
+            <div className="mt-3 grid gap-3 lg:grid-cols-3">
+              <TaxonomyV2ScopeEditor title="Exercise concept" scope="definition" block={card.taxonomyV2} catalog={taxonomy?.taxonomyV2} disabled={!editable} onChange={(taxonomyV2) => setCard({ ...card, taxonomyV2 })} />
+              <TaxonomyV2ScopeEditor title="Exact variant" scope="variant" block={variant.taxonomyV2} catalog={taxonomy?.taxonomyV2} disabled={!editable} onChange={(taxonomyV2) => updateVariant({ taxonomyV2 })} />
+              <TaxonomyV2ScopeEditor title="Delivery profile" scope="delivery_profile" block={profile.taxonomyV2} catalog={taxonomy?.taxonomyV2} disabled={!editable} onChange={(taxonomyV2) => updateProfile({ taxonomyV2 })} />
+            </div>
+          </section>
+
           <section aria-labelledby="anatomy-heading">
             <h3 id="anatomy-heading" className="font-semibold text-gray-900">Anatomy and movement loading</h3>
             <p className="mt-1 text-xs text-gray-500">Structured fields support coverage scoring, fatigue controls, and safer substitutions.</p>
@@ -418,6 +726,186 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
                 ))}
               </div>
             </fieldset>
+          </section>
+
+          <section aria-labelledby="structured-profile-heading">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 id="structured-profile-heading" className="font-semibold text-gray-900">Exact-variant movement, fit, stress, and composition</h3>
+                <p className="mt-1 text-xs text-gray-500">These fields are separate from difficulty. Saving a revision resets them to human review-required evidence.</p>
+              </div>
+              <span className={`rounded-full px-2 py-1 text-xs font-semibold ${variant.structuredProfileReview.reviewStatus === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                {variant.structuredProfileReview.reviewStatus === 'approved' ? 'independently reviewed' : 'review required'}
+              </span>
+            </div>
+
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              {Object.entries(GEOMETRY_OPTIONS).map(([field, options]) => {
+                const geometryField = field as keyof CanonicalVariant['movementGeometry']
+                return (
+                  <fieldset key={field} className="rounded border border-gray-200 p-2">
+                    <legend className="px-1 text-xs font-semibold text-gray-700">{field.replace(/([A-Z])/g, ' $1').toLowerCase()}</legend>
+                    <div className="flex flex-wrap gap-2">
+                      {options.map((option) => (
+                        <label key={option} className="flex items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            disabled={!editable}
+                            checked={variant.movementGeometry[geometryField].includes(option)}
+                            onChange={(event) => updateVariant({
+                              movementGeometry: {
+                                ...variant.movementGeometry,
+                                [geometryField]: event.target.checked
+                                  ? [...new Set([...variant.movementGeometry[geometryField], option])]
+                                  : variant.movementGeometry[geometryField].filter((value) => value !== option),
+                              },
+                            })}
+                          />
+                          {option.replaceAll('_', ' ')}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                )
+              })}
+            </div>
+
+            <fieldset className="mt-3 rounded border border-gray-200 p-3">
+              <legend className="px-1 text-sm font-semibold text-gray-800">Athlete task demands (1–100; null only when genuinely irrelevant)</legend>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {TASK_DEMAND_FIELDS.map((field) => (
+                  <label key={field} className="text-xs">{field.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                    <input
+                      disabled={!editable}
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={variant.taskDemands[field] ?? ''}
+                      onChange={(event) => updateVariant({
+                        taskDemands: {
+                          ...variant.taskDemands,
+                          [field]: event.target.value === '' ? null : Number(event.target.value),
+                        },
+                      })}
+                      className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 disabled:bg-gray-100"
+                    />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <label className="text-sm">Anatomy assignments with role
+                <textarea disabled={!editable} rows={8} defaultValue={JSON.stringify(variant.anatomyProfile.assignments, null, 2)} onBlur={(event) => updateJsonArray('Anatomy assignments', event.target.value, (assignments) => updateVariant({ anatomyProfile: { assignments: assignments as CanonicalVariant['anatomyProfile']['assignments'] } }))} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs disabled:bg-gray-100" />
+              </label>
+              <label className="text-sm">Equipment assignments with role
+                <textarea disabled={!editable} rows={8} defaultValue={JSON.stringify(variant.equipmentRoles, null, 2)} onBlur={(event) => updateJsonArray('Equipment assignments', event.target.value, (equipmentRoles) => updateVariant({ equipmentRoles: equipmentRoles as CanonicalVariant['equipmentRoles'] }))} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs disabled:bg-gray-100" />
+              </label>
+              <label className="text-sm">Stress vector
+                <textarea disabled={!editable} rows={9} defaultValue={JSON.stringify(variant.stressProfile, null, 2)} onBlur={(event) => updateJsonObject('Stress vector', event.target.value, (stressProfile) => updateVariant({ stressProfile: stressProfile as CanonicalVariant['stressProfile'] }))} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs disabled:bg-gray-100" />
+              </label>
+              <fieldset className="rounded border border-gray-200 p-3 md:col-span-2">
+                <legend className="px-1 text-sm font-semibold text-gray-800">Scaling handles and identity boundaries</legend>
+                <p className="text-xs text-gray-500">Document an approved scaling direction for this exact variant. The boundary states whether changing the handle preserves this prescription, delivery profile, exact variant, or only the broader exercise concept.</p>
+                <div className="mt-3 space-y-3">
+                  {(variant.scalingHandles ?? []).map((handle, index) => (
+                    <div key={`${handle.dimension}-${handle.boundary}-${index}`} className="rounded border border-gray-200 bg-gray-50 p-3">
+                      <div className="grid gap-2 md:grid-cols-2">
+                        <label className="text-xs">Scaling dimension
+                          <select
+                            disabled={!editable}
+                            value={handle.dimension}
+                            onChange={(event) => updateVariant({
+                              scalingHandles: variant.scalingHandles.map((item, itemIndex) => itemIndex === index ? { ...item, dimension: event.target.value } : item),
+                            })}
+                            className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5 disabled:bg-gray-100"
+                          >
+                            {SCALING_DIMENSIONS.map((dimension) => <option key={dimension} value={dimension}>{dimension.replaceAll('_', ' ')}</option>)}
+                          </select>
+                        </label>
+                        <label className="text-xs">Identity boundary
+                          <select
+                            disabled={!editable}
+                            value={handle.boundary}
+                            onChange={(event) => updateVariant({
+                              scalingHandles: variant.scalingHandles.map((item, itemIndex) => itemIndex === index ? { ...item, boundary: event.target.value as CanonicalVariant['scalingHandles'][number]['boundary'] } : item),
+                            })}
+                            className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5 disabled:bg-gray-100"
+                          >
+                            {SCALING_BOUNDARIES.map((boundary) => <option key={boundary} value={boundary}>{boundary.replaceAll('_', ' ')}</option>)}
+                          </select>
+                        </label>
+                        <label className="text-xs">Easier direction
+                          <input
+                            disabled={!editable}
+                            value={handle.easier ?? ''}
+                            onChange={(event) => updateVariant({
+                              scalingHandles: variant.scalingHandles.map((item, itemIndex) => itemIndex === index ? { ...item, easier: event.target.value || null } : item),
+                            })}
+                            placeholder="For example: reduce repetitions"
+                            className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5 disabled:bg-gray-100"
+                          />
+                        </label>
+                        <label className="text-xs">Harder direction
+                          <input
+                            disabled={!editable}
+                            value={handle.harder ?? ''}
+                            onChange={(event) => updateVariant({
+                              scalingHandles: variant.scalingHandles.map((item, itemIndex) => itemIndex === index ? { ...item, harder: event.target.value || null } : item),
+                            })}
+                            placeholder="For example: add repetitions within the profile cap"
+                            className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5 disabled:bg-gray-100"
+                          />
+                        </label>
+                      </div>
+                      <label className="mt-2 block text-xs">Author limits (optional JSON object)
+                        <textarea
+                          key={`${handle.dimension}-${handle.boundary}-${index}-${JSON.stringify(handle.limits)}`}
+                          disabled={!editable}
+                          rows={2}
+                          defaultValue={JSON.stringify(handle.limits, null, 2)}
+                          onBlur={(event) => updateJsonObject('Scaling handle limits', event.target.value, (limits) => updateVariant({
+                            scalingHandles: variant.scalingHandles.map((item, itemIndex) => itemIndex === index ? { ...item, limits } : item),
+                          }))}
+                          className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1.5 font-mono text-xs disabled:bg-gray-100"
+                        />
+                      </label>
+                      {editable && (
+                        <button
+                          type="button"
+                          onClick={() => updateVariant({ scalingHandles: variant.scalingHandles.filter((_, itemIndex) => itemIndex !== index) })}
+                          className="mt-2 text-xs font-medium text-red-700"
+                        >
+                          Remove handle
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {editable && (
+                  <button
+                    type="button"
+                    onClick={() => updateVariant({
+                      scalingHandles: [...(variant.scalingHandles ?? []), {
+                        dimension: 'volume',
+                        boundary: 'prescription',
+                        easier: null,
+                        harder: null,
+                        limits: {},
+                      }],
+                    })}
+                    className="mt-3 rounded border border-indigo-300 bg-white px-2 py-1 text-xs font-medium text-indigo-700"
+                  >
+                    Add scaling handle
+                  </button>
+                )}
+                {(variant.scalingHandles ?? []).length === 0 && <p className="mt-3 text-xs text-amber-700">No scaling handle is recorded. Add only directions supported by your review evidence.</p>}
+              </fieldset>
+              <label className="text-sm md:col-span-2">Composition and interference profile
+                <textarea disabled={!editable} rows={8} defaultValue={JSON.stringify(variant.compositionProfile, null, 2)} onBlur={(event) => updateJsonObject('Composition profile', event.target.value, (compositionProfile) => updateVariant({ compositionProfile }))} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs disabled:bg-gray-100" />
+                <span className="mt-1 block text-xs text-gray-500">Narrative pairing and interference guidance remains review context. Deterministic constraints must use <code>constraints</code> with <code>avoid_same_session</code> or <code>avoid_after</code>, targeting a variant, definition, family, movement pattern, body region, or approved taxonomy term. They take effect only after independent structured-profile review.</span>
+              </label>
+            </div>
           </section>
 
           <section aria-labelledby="support-heading">
@@ -529,15 +1017,30 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
               )}
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <label className="text-sm">Revision summary<input value={changeSummary} onChange={(event) => setChangeSummary(event.target.value)} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
-                <label className="text-sm">Media quality (1–100)<input type="number" min={1} max={100} value={mediaScore} onChange={(event) => setMediaScore(Number(event.target.value))} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
+                <label className="text-sm">Observed demonstration quality (1–100)<input type="number" min={1} max={100} value={mediaScore} onChange={(event) => setMediaScore(event.target.value === '' ? '' : Number(event.target.value))} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
+                <label className="text-sm">Playback status<select value={mediaLinkStatus} onChange={(event) => setMediaLinkStatus(event.target.value as typeof mediaLinkStatus)} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2"><option value="">Select observed status</option><option value="healthy">Healthy</option><option value="broken">Broken</option><option value="mismatched">Mismatched</option></select></label>
+                <label className="text-sm">Exact card match<select value={mediaExactVariantMatch == null ? '' : mediaExactVariantMatch ? 'yes' : 'no'} onChange={(event) => setMediaExactVariantMatch(event.target.value === '' ? null : event.target.value === 'yes')} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2"><option value="">Select observed match</option><option value="yes">Yes — exact match</option><option value="no">No — not exact</option></select></label>
               </div>
-              <button type="button" disabled={saving || !card.approvedVideoUrl} onClick={() => void reviewMedia()} className="mt-2 rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-900 disabled:opacity-50">Record exact-match media review</button>
+              <label className="mt-3 block text-sm">Observed review evidence<textarea rows={3} minLength={20} value={mediaReviewNotes} onChange={(event) => setMediaReviewNotes(event.target.value)} placeholder="Document playback behavior, exact task comparison, and any accessibility limitation observed." className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
+              <fieldset className="mt-3 rounded border border-indigo-200 bg-white p-3">
+                <legend className="px-1 text-xs font-semibold text-indigo-950">Manual-review attestations</legend>
+                <p className="mb-2 text-xs text-indigo-900">These record what you personally checked; they do not make a candidate video approved on their own.</p>
+                {([
+                  ['playbackReviewed', 'I watched the current asset through its relevant demonstration.'],
+                  ['exactVariantCompared', 'I compared the demonstrated task with this card’s exact variant.'],
+                  ['linkChecked', 'I checked that the selected URL resolves to the observed asset.'],
+                  ['accessibilityChecked', 'I checked captions, transcript, stills, or other access support that is available.'],
+                ] as const).map(([key, label]) => (
+                  <label key={key} className="mt-1 flex items-start gap-2 text-xs text-gray-800"><input type="checkbox" checked={mediaReviewBasis[key]} onChange={(event) => setMediaReviewBasis((current) => ({ ...current, [key]: event.target.checked }))} />{label}</label>
+                ))}
+              </fieldset>
+              <button type="button" disabled={saving || !card.approvedVideoUrl || typeof mediaScore !== 'number' || mediaScore < 1 || mediaScore > 100 || !mediaLinkStatus || mediaExactVariantMatch == null || mediaReviewNotes.trim().length < 20 || !Object.values(mediaReviewBasis).every(Boolean)} onClick={() => void reviewMedia()} className="mt-2 rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-900 disabled:opacity-50">Record documented media review</button>
               {card.status === 'review' && (
                 <div className="mt-4">
-                  <label className="text-sm">Reviewer notes<textarea rows={2} value={reviewNotes} onChange={(event) => setReviewNotes(event.target.value)} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
+                  <label className="text-sm">Reviewer evidence<textarea rows={2} minLength={20} value={reviewNotes} onChange={(event) => setReviewNotes(event.target.value)} placeholder="Document observed evidence and the review decision (20+ characters)." className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
                   <div className="mt-2 flex gap-2">
-                    <button type="button" disabled={saving || !reviewNotes.trim()} onClick={() => void review('approve')} className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Approve</button>
-                    <button type="button" disabled={saving || !reviewNotes.trim()} onClick={() => void review('request_changes')} className="rounded bg-amber-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Request changes</button>
+                    <button type="button" disabled={saving || reviewNotes.trim().length < 20 || !card.readiness?.ready || card.testPacket?.status === 'failed'} onClick={() => void review('approve')} className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Approve</button>
+                    <button type="button" disabled={saving || reviewNotes.trim().length < 20} onClick={() => void review('request_changes')} className="rounded bg-amber-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Request changes</button>
                   </div>
                 </div>
               )}
@@ -578,9 +1081,14 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
                     <p className="mt-2 text-sm text-gray-700">{edge.reason}</p>
                     {edge.dimensions.length > 0 && <p className="mt-1 text-xs text-gray-500">Changes: {edge.dimensions.join(', ')}</p>}
                     {edge.review_status === 'review' && (
-                      <div className="mt-3 flex gap-2">
-                        <button type="button" disabled={saving} onClick={() => void reviewRelationship(edge.id, 'approved')} className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Approve edge</button>
-                        <button type="button" disabled={saving} onClick={() => void reviewRelationship(edge.id, 'rejected')} className="rounded bg-red-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Reject edge</button>
+                      <div className="mt-3">
+                        <label className="text-xs text-gray-700">Independent relationship review evidence
+                          <textarea rows={2} minLength={20} value={relationshipReviewNotes[edge.id] ?? ''} onChange={(event) => setRelationshipReviewNotes((current) => ({ ...current, [edge.id]: event.target.value }))} placeholder="Document why this exact relationship is safe and appropriate (20+ characters)." className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5" />
+                        </label>
+                        <div className="mt-2 flex gap-2">
+                          <button type="button" disabled={saving || (relationshipReviewNotes[edge.id]?.trim().length ?? 0) < 20} onClick={() => void reviewRelationship(edge.id, 'approved')} className="rounded bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Approve edge</button>
+                          <button type="button" disabled={saving || (relationshipReviewNotes[edge.id]?.trim().length ?? 0) < 20} onClick={() => void reviewRelationship(edge.id, 'rejected')} className="rounded bg-red-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Reject edge</button>
+                        </div>
                       </div>
                     )}
                   </article>

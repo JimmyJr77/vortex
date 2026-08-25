@@ -29,7 +29,47 @@ The command exits non-zero until the published pool, per-phase substitution
 depth, approved relationship graph, calibration anchors, media governance, and
 coach-pilot outcomes meet the controlled thresholds in
 `canonicalOperationalReadiness.js`. A blocked result is expected before the
-human review program finishes.
+human review program finishes. It always emits a JSON result: unavailable
+database configuration, unavailable canonical schema, and malformed facility
+input are explicit non-human blocked failures rather than an ambiguous stack
+trace.
+
+Use the stricter deployment check immediately before enabling coach generation:
+
+```sh
+cd backend
+npm run check:canonical-release -- --facility=<facility-id> --require-coach-opt-in
+```
+
+The normal command establishes whether the library and human-evidence cohort
+are ready to enroll. The stricter command additionally blocks until the named
+facility has a valid explicit coach rollout configuration.
+
+## Facility-scoped rollout gate
+
+`CANONICAL_WORKOUT_GENERATOR_ENABLED` remains a global emergency kill switch.
+Even when it is true, canonical generation and swaps are fail-closed unless the
+facility has an explicit row in
+`coaching.canonical_generator_facility_rollout_v1`. The row is created disabled
+by default; migration 755 does not enroll or enable any facility.
+
+The rollout controls are intentionally separate:
+
+- `canonical_contract_read`
+- `canonical_score_shadow`
+- `canonical_generator_shadow`
+- `canonical_generator_coach_opt_in`
+- `canonical_ai_intent`
+- `canonical_generator_default`
+
+Coach generation and swaps require `canonical_generator_coach_opt_in` in
+addition to the global switch. AI intent also requires `canonical_ai_intent`.
+This permits shadow and coach-pilot work without accidentally exposing the
+generator to every facility. Change the row only through an audited operational
+runbook; retain the disabled/default state until the applicable release gates
+are met. If application code arrives before migration 755, the generator fails
+closed with `rollout_schema_unavailable`; it never falls back to global
+enablement.
 
 ## Human-reviewed cohort
 
@@ -75,7 +115,7 @@ required fields exist; human comprehension testing remains mandatory.
 3. Generate shadow workouts without showing them to members.
 4. Compare selected cards, duration, fatigue, equipment, and substitutions with
    the coach-authored workout.
-5. Enable coach-only generation behind a facility-scoped feature flag.
+5. Enroll one approved pilot facility with `canonical_generator_coach_opt_in`.
 6. Enable member rendering only after coach acceptance and accessibility gates.
 7. Expand the published cohort gradually while monitoring rejection, latency,
    swaps, dose edits, duration error, support reports, and stop events.

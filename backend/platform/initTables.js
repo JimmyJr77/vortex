@@ -751,8 +751,18 @@ export async function initPlatformTables(pool) {
     '747_coaching_uphill_bound_source_995_candidate_materialization.sql',
     '748_coaching_medicine_ball_rebound_slam_source_1170_candidate_materialization.sql',
     '749_coaching_archived_identity_disposition_backfill.sql',
-    '750_coaching_flip_fit_schedule.sql',
-    '751_coaching_flip_fit_card_references.sql',
+    '750_coaching_taxonomy_v2_foundation.sql',
+    '751_coaching_taxonomy_v2_review_suggestions.sql',
+    '752_coaching_programming_experience_and_aerobic_zones.sql',
+    '753_coaching_canonical_structured_variant_profiles_v2.sql',
+    '754_coaching_structured_profile_plane_normalization.sql',
+    '755_coaching_canonical_generator_facility_rollout.sql',
+    '756_coaching_media_review_verification_basis.sql',
+    '757_coaching_relationship_review_evidence.sql',
+    '758_coaching_human_review_evidence_minimum.sql',
+    '759_coaching_overhead_slam_strict_press_identity_boundary.sql',
+    '760_coaching_flip_fit_schedule.sql',
+    '761_coaching_flip_fit_card_references.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

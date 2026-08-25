@@ -481,6 +481,16 @@ export interface Exercise {
   difficulty_profile?: ExerciseDifficultyProfile | null
   regimen_rule?: ExerciseRegimenRule | null
   why?: ExerciseWhy | null
+  taxonomy_v2?: Array<{
+    facetType: string
+    key: string
+    name: string
+    domain?: string | null
+    role: string
+    weight: number
+    confidence: number
+    reviewStatus: 'suggested' | 'review' | 'approved' | 'rejected'
+  }>
 }
 
 export interface SplitAlternate {

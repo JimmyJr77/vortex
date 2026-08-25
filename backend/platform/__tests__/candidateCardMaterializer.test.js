@@ -105,6 +105,36 @@ const contractFilename = path.join(
   repoRoot,
   'scripts/data/canonical-research/contracts/foot-control-trio.v1.json',
 )
+const cleanInstallCandidateFixtures = [
+  {
+    contract: path.join(
+      repoRoot,
+      'scripts/data/canonical-research/contracts/seated-tuck-rock-to-stand.v1.json',
+    ),
+    migration: path.join(
+      backendRoot,
+      'migrations/566_coaching_seated_tuck_rock_to_stand_source_81_candidate_materialization.sql',
+    ),
+    requiredTokens: [
+      '"movementPatterns":["brace","squat","transition"]',
+      '"bodyRegions":["head","neck"',
+    ],
+  },
+  {
+    contract: path.join(
+      repoRoot,
+      'scripts/data/canonical-research/contracts/45-degree-cut-and-reaccelerate.v1.json',
+    ),
+    migration: path.join(
+      backendRoot,
+      'migrations/743_coaching_45_degree_cut_reaccelerate_source_283_candidate_materialization.sql',
+    ),
+    requiredTokens: [
+      '"movementPatterns":["decelerate","locomote","transition"]',
+      '"archiveKey":"superseded-source-283-skeleton"',
+    ],
+  },
+]
 const generatedManifest = JSON.parse(readFileSync(path.join(
   repoRoot,
   'scripts/data/canonical-research/generated/foot-control-trio',
@@ -304,4 +334,25 @@ test('candidate materializer generator rebuilds the three-card migration determi
     result.cards.map((card) => [card.evidence, card.media]),
     [[16, 3], [16, 5], [16, 5]],
   )
+})
+test('clean-install candidate contracts retain controlled taxonomy and archived source references', () => {
+  for (const fixture of cleanInstallCandidateFixtures) {
+    const contract = JSON.parse(readFileSync(fixture.contract, 'utf8'))
+    const migration = readFileSync(fixture.migration, 'utf8')
+    const output = execFileSync(
+      process.execPath,
+      [
+        path.join(backendRoot, 'scripts', 'build-canonical-candidate-migration.mjs'),
+        '--contract=' + fixture.contract,
+        '--output=' + path.join(repoRoot, 'tmp-clean-install-candidate.sql'),
+      ],
+      { cwd: repoRoot, encoding: 'utf8' },
+    )
+
+    assert.equal(JSON.parse(output).status, 'valid_dry_run')
+    assert.equal(contract.cards.length, 1)
+    for (const requiredToken of fixture.requiredTokens) {
+      assert.equal(migration.includes(requiredToken), true)
+    }
+  }
 })

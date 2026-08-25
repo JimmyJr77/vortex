@@ -141,7 +141,7 @@ export default function SkillLibraryPanel() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Skills</h2>
-          <p className="text-sm text-gray-500">Demonstrated abilities — evaluated by execution quality, hold duration, or rep count. May link to a related exercise for training.</p>
+          <p className="text-sm text-gray-500">Demonstrated abilities — evaluated by execution quality, hold duration, or rep count. Proficiency levels belong here; linked exercise cards use complexity and physical difficulty instead.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
           <LibraryExportControls

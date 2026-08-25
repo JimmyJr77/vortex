@@ -30,6 +30,13 @@ const mediaReview = {
   demonstrationQualityScore: 95,
   linkStatus: 'healthy',
   reviewedCardVersion: 1,
+  reviewBasis: {
+    reviewMethod: 'manual_playback',
+    playbackReviewed: true,
+    exactVariantCompared: true,
+    linkChecked: true,
+    accessibilityChecked: true,
+  },
 }
 
 test('reference card covers generation, athlete, coach, and operational support contracts', () => {
@@ -72,12 +79,20 @@ test('reference card data reaches generator and distinct coach/member projection
     card.familyId = `family-${phaseKey}`
     card.media = { approvedVideoUrl: card.approvedVideoUrl }
     card.equipment = { required: [], quantityPerStation: {} }
+    card.equipmentRoles = [{ key: 'none', role: 'required', quantityPerStation: 0, conditions: {} }]
     card.variants[0].profiles[0].phaseKey = phaseKey
     card.deliveryProfiles = card.variants[0].profiles
     card.difficulty = card.variants[0].difficulty
     card.loadProfile = card.variants[0].loadProfile
     card.fatigueProfile = card.variants[0].fatigueProfile
     card.programming = card.variants[0].programming
+    card.movementGeometry = card.variants[0].movementGeometry
+    card.anatomyProfile = card.variants[0].anatomyProfile
+    card.taskDemands = card.variants[0].taskDemands
+    card.stressProfile = card.variants[0].stressProfile
+    card.scalingHandles = card.variants[0].scalingHandles
+    card.compositionProfile = card.variants[0].compositionProfile
+    card.structuredProfileReview = card.variants[0].structuredProfileReview
     return card
   })
   reference.variantId = reference.variants[0].id
@@ -89,6 +104,14 @@ test('reference card data reaches generator and distinct coach/member projection
   reference.loadProfile = reference.variants[0].loadProfile
   reference.fatigueProfile = reference.variants[0].fatigueProfile
   reference.programming = reference.variants[0].programming
+  reference.movementGeometry = reference.variants[0].movementGeometry
+  reference.anatomyProfile = reference.variants[0].anatomyProfile
+  reference.equipmentRoles = reference.variants[0].equipmentRoles
+  reference.taskDemands = reference.variants[0].taskDemands
+  reference.stressProfile = reference.variants[0].stressProfile
+  reference.scalingHandles = reference.variants[0].scalingHandles
+  reference.compositionProfile = reference.variants[0].compositionProfile
+  reference.structuredProfileReview = reference.variants[0].structuredProfileReview
   const workout = generateCanonicalWorkout({
     durationMinutes: 60,
     athleteCount: 2,
@@ -109,6 +132,8 @@ test('reference card data reaches generator and distinct coach/member projection
   assert.equal(coachReference.coachSupport.faultCorrections.length, 4)
   assert.equal(coachReference.measurement.primaryMetric, 'clean_repetitions')
   assert.equal(athleteReference.support.primaryCue, 'Move your chest and hips together.')
+  assert.equal(athleteReference.qualityGate, 'Every repetition uses the planned range with head, ribs, pelvis, and heels moving together.')
   assert.equal(athleteReference.measurement.primaryMetric, 'clean_repetitions')
+  assert.equal(athleteReference.coachSupport, undefined)
   assert.equal(athlete.diagnostics, undefined)
 })

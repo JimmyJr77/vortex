@@ -68,7 +68,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
             <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed mb-6">
               A multi-dimensional performance system built on our proprietary{' '}
               <span className="font-bold text-vortex-red">8 Tenets of Athleticism</span> and delivered through{' '}
-              <span className="font-bold text-vortex-red">10 integrated training methodologies</span>.
+              <span className="font-bold text-vortex-red">{TRAINING_METHODOLOGIES.length} integrated training methodologies</span>.
             </p>
             <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
               Every session—regardless of class focus—is intentionally designed to develop strength, power, speed, coordination, mobility, and neuromotor control in parallel. By aligning force production, movement mechanics, and decision-making demands, we ensure athletes don't just train isolated skills—they adapt, connect, and transform as complete performers.
@@ -235,7 +235,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
             </h3>
             <div className="max-w-4xl text-lg text-gray-300 leading-relaxed">
               <p>
-                At Vortex Athletics, we don't just run drills—we build athletes with purpose. Our training system is built on three connected layers: what we develop, how we train, and why it works. First, we focus on the core Tenets of Athleticism—strength, speed, agility, coordination, balance, flexibility, explosiveness, and body control—because these qualities form the foundation of success in every sport. Next, we apply the right training methodologies, such as resistance training, plyometrics, balance work, and mobility, to develop those qualities safely and progressively. Finally, every drill is chosen with a clear physiological emphasis, meaning we intentionally train the nervous system, muscles, tendons, and movement patterns that help athletes move faster, stronger, and with better control. This layered approach ensures athletes don't just work hard—they train smart, stay healthy, and build skills that transfer to any sport, now and in the future.
+              At Vortex Athletics, we don't just run drills—we build athletes with purpose. Our training system is built on three connected layers: what we develop, how we load it, and why it works. First, we focus on the core Tenets of Athleticism—strength, speed, agility, coordination, balance, flexibility, explosiveness, and body control—because these qualities form the foundation of success in every sport. Next, we apply an appropriate loading method, such as plyometric, ballistic, isometric, eccentric, tempo-controlled, or resisted work. Training families, equipment, programming formats, and athletic niches remain separate so they can be selected precisely. Finally, every drill is chosen with a clear physiological emphasis, meaning we intentionally train the nervous system, muscles, tendons, and movement patterns that help athletes move faster, stronger, and with better control. This layered approach ensures athletes don't just work hard—they train smart, stay healthy, and build skills that transfer to any sport, now and in the future.
               </p>
             </div>
           </motion.div>

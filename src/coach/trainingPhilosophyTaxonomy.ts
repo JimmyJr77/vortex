@@ -105,19 +105,19 @@ export const TENETS_HUB = {
 
 export const METHODOLOGIES_HUB = {
   title: 'Methodologies — how we load qualities',
-  intro: `Methodologies describe the training tool, not the session phase. Resistance & Calisthenics, Plyometrics, Isometrics, Eccentric/Negative Training, Neural Training, Balance & Stability, Mobility & Flexibility, Core & Body Control, and HIIT each have primary phase homes. A methodology can appear in secondary phases when dose and intent match — low pogos in Prepare as elastic prep, not max-depth rebounds.`,
+  intro: `Methodologies describe how a movement or load is manipulated, not the session phase, training family, athletic quality, physiology, or programming format. Plyometric, ballistic, isometric, eccentric, tempo-controlled, resisted, assisted/overspeed, accommodating, variable-resistance, perturbation, instability, blood-flow-restriction, and velocity-based work can appear in more than one phase only when dose and intent match.`,
   primaryHomes: [
-    { methodology: 'Resistance & Calisthenics', primary: 'Capacity', secondary: 'Control, Skill (technical calisthenics)' },
-    { methodology: 'Plyometrics', primary: 'Output', secondary: 'Prepare (low elastic prep), Skill (landing mechanics)' },
-    { methodology: 'Isometrics', primary: 'Prepare (light), Skill, Capacity, Control', secondary: 'Activation and yielding holds' },
-    { methodology: 'Eccentric/Negative', primary: 'Resilience', secondary: 'Capacity' },
-    { methodology: 'Neural', primary: 'Prepare, Skill, Output', secondary: 'High-intent coordination and speed' },
-    { methodology: 'Balance & Stability', primary: 'Control, Skill', secondary: 'Prepare (low level)' },
-    { methodology: 'Mobility & Flexibility', primary: 'Prepare (dynamic), Restore (static)', secondary: 'Never long static before power' },
-    { methodology: 'Core & Body Control', primary: 'Control, Skill', secondary: 'Prepare activation' },
-    { methodology: 'HIIT', primary: 'Sustained Capacity', secondary: 'Almost never before skill or output' },
+    { methodology: 'Plyometric', primary: 'Output', secondary: 'Prepare (low elastic prep), Movement Intelligence (landing mechanics)' },
+    { methodology: 'Ballistic', primary: 'Output', secondary: 'Movement Intelligence (technical learning)' },
+    { methodology: 'Isometric', primary: 'Prepare (light), Capacity, Resilience', secondary: 'Movement Intelligence (position learning)' },
+    { methodology: 'Eccentric Emphasis / Eccentric-Only / Overload', primary: 'Resilience', secondary: 'Capacity' },
+    { methodology: 'Tempo-Controlled / Paused', primary: 'Capacity, Resilience', secondary: 'Movement Intelligence' },
+    { methodology: 'Resisted / Variable / Accommodating', primary: 'Capacity', secondary: 'Output only when the exact profile supports it' },
+    { methodology: 'Perturbation / Instability', primary: 'Movement Intelligence, Resilience', secondary: 'Prepare at low challenge' },
+    { methodology: 'Assisted/Overspeed / Velocity-Based', primary: 'Output', secondary: 'Movement Intelligence with qualified supervision' },
+    { methodology: 'Blood-Flow Restriction', primary: 'Capacity only', secondary: 'Requires its own approved safeguards; never a generic default' },
   ],
-  misuse: `Using plyometrics as a finisher after leg day, isometric burnout before tumbling, or HIIT as a “warm-up” are methodology–phase mismatches. The taxonomy keeps the tool aligned with the phase intent.`,
+  misuse: `Calisthenics is a Training Family; hypertrophy is an adaptation; neural work is physiology and intent; balance and mobility are tenets and movement properties; core, grip, rotation, acceleration, deceleration, and jumping are Athletic Niches; HIIT is a programming protocol. Using any of those as a methodology blurs the reason an exercise was selected.`,
 } as const
 
 export const PHYSIOLOGY_HUB = {

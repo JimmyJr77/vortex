@@ -12,7 +12,7 @@ const CATEGORY_OPTIONS = [
   'Density Blocks',
   'Tempo Conditioning',
   'Repeat Sprint / Shuttle',
-  'Aerobic Base / Zone 2',
+  'Aerobic Conditioning (Zones 1-5)',
   'Mixed-Modal Conditioning',
   'Partner / Team Relay',
   'Game-Based Conditioning',

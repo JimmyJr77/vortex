@@ -144,10 +144,15 @@ import {
 } from './canonicalAiIntent.js'
 import {
   listCanonicalCards,
+  listCanonicalCardReviewQueue,
   findCanonicalCardDuplicates,
   loadCanonicalCard,
+  listCanonicalMediaVerificationQueue,
+  listCanonicalRelationshipReviewQueue,
+  listCanonicalStructuredProfileReviewQueue,
   recordCanonicalCardReview,
   recordCanonicalMediaReview,
+  reviewCanonicalStructuredProfile,
   reviewCanonicalRelationship,
   saveCanonicalCardDraft,
   saveCanonicalRelationship,
@@ -160,6 +165,13 @@ import {
   proposeCanonicalCalibration,
   reviewCanonicalCalibration,
 } from './canonicalCalibrationRepository.js'
+import {
+  loadTaxonomyV2Catalog,
+  loadTaxonomyV2GovernanceReport,
+  loadTaxonomyV2ReviewQueue,
+  reviewTaxonomyV2Record,
+} from './taxonomyV2Repository.js'
+import { canonicalFacilityFeatureAccess } from './canonicalFeatureFlags.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -380,7 +392,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         pool.query(`SELECT id, key, name, sort_order FROM coaching.body_region ORDER BY sort_order`),
       ])
 
-      const [sessionPhases, phaseOrderSlots, phaseSubroles] = await loadSessionPhaseTaxonomy(pool)
+      const [[sessionPhases, phaseOrderSlots, phaseSubroles], taxonomyV2] = await Promise.all([
+        loadSessionPhaseTaxonomy(pool),
+        loadTaxonomyV2Catalog(pool),
+      ])
 
       ok(res, {
         tenets: tenets.rows,
@@ -400,9 +415,122 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           ...subrole,
           phase_key: normalizePhaseKey(subrole.phase_key) ?? subrole.phase_key,
         })),
+        taxonomyV2,
       })
     } catch (error) {
       bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/taxonomy-v2', ...can('library.view'), async (_req, res) => {
+    try {
+      ok(res, await loadTaxonomyV2Catalog(pool))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/taxonomy-v2/governance', ...can('library.view'), async (req, res) => {
+    try {
+      ok(res, await loadTaxonomyV2GovernanceReport(pool, req.platformAuth.user.facility_id))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/taxonomy-v2/review-queue', ...can('library.manage'), async (req, res) => {
+    try {
+      ok(res, await loadTaxonomyV2ReviewQueue(pool, req.platformAuth.user.facility_id, {
+        limit: req.query.limit,
+      }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/taxonomy-v2/:recordType/:recordId/review', ...can('library.manage'), async (req, res) => {
+    if (!['assignment', 'decision'].includes(req.params.recordType) || !/^\d+$/.test(req.params.recordId)) {
+      return bad(res, 'A valid taxonomy review record is required.')
+    }
+    try {
+      ok(res, await reviewTaxonomyV2Record(
+        pool,
+        req.platformAuth.user.facility_id,
+        Number(req.platformAuth.user.id),
+        req.params.recordType,
+        Number(req.params.recordId),
+        req.body || {},
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.get('/api/coach/canonical/structured-profiles/review-queue', ...can('library.manage'), async (req, res) => {
+    try {
+      ok(res, await listCanonicalStructuredProfileReviewQueue(
+        pool, req.platformAuth.user.facility_id, {
+          limit: req.query.limit,
+          offset: req.query.offset,
+          status: req.query.status,
+          missingField: req.query.missingField,
+          sort: req.query.sort,
+        },
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.get('/api/coach/canonical/cards/review-queue', ...can('library.manage'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    try {
+      ok(res, await listCanonicalCardReviewQueue(
+        pool, req.platformAuth.user.facility_id, {
+          limit: req.query.limit,
+          offset: req.query.offset,
+        },
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.get('/api/coach/canonical/media-verification-queue', ...can('library.manage'), async (req, res) => {
+    try {
+      ok(res, await listCanonicalMediaVerificationQueue(
+        pool, req.platformAuth.user.facility_id, {
+          limit: req.query.limit,
+          offset: req.query.offset,
+        },
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.get('/api/coach/canonical/relationships/review-queue', ...can('library.manage'), async (req, res) => {
+    try {
+      ok(res, await listCanonicalRelationshipReviewQueue(
+        pool, req.platformAuth.user.facility_id, {
+          limit: req.query.limit,
+          offset: req.query.offset,
+        },
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.post('/api/coach/canonical/structured-profiles/:variantId/review', ...can('library.manage'), async (req, res) => {
+    if (!isUuid(req.params.variantId)) return bad(res, 'A valid exact variant ID is required.')
+    try {
+      ok(res, await reviewCanonicalStructuredProfile(
+        pool, req.platformAuth.user.facility_id, req.params.variantId,
+        Number(req.platformAuth.user.id), req.body || {},
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
     }
   })
 
@@ -553,6 +681,45 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const list = map.get(String(row.exercise_id)) ?? []
       list.push({ facetType: row.facet_type, facetId: Number(row.facet_id), weight: Number(row.weight) })
       map.set(String(row.exercise_id), list)
+    }
+    return map
+  }
+
+  async function loadExerciseTaxonomyV2(exerciseIds) {
+    if (exerciseIds.length === 0) return new Map()
+    const result = await pool.query(
+      `SELECT DISTINCT source.legacy_exercise_id AS exercise_id,
+              term.facet_type, term.key, term.name, term.domain,
+              assignment.assignment_role, assignment.weight,
+              assignment.confidence, assignment.review_status
+       FROM coaching.exercise_definition_source_v1 source
+       JOIN coaching.exercise_taxonomy_assignment_v2 assignment ON TRUE
+       JOIN coaching.taxonomy_term_v2 term ON term.id = assignment.term_id
+       LEFT JOIN coaching.exercise_variant_v1 variant ON variant.id = assignment.variant_id
+       LEFT JOIN coaching.exercise_delivery_profile_v1 profile ON profile.id = assignment.delivery_profile_id
+       LEFT JOIN coaching.exercise_variant_v1 profile_variant ON profile_variant.id = profile.variant_id
+       WHERE source.legacy_exercise_id = ANY($1::bigint[])
+         AND source.definition_id = COALESCE(
+           assignment.definition_id, variant.definition_id, profile_variant.definition_id
+         )
+         AND assignment.review_status != 'rejected'
+       ORDER BY source.legacy_exercise_id, term.facet_type, term.key`,
+      [exerciseIds],
+    )
+    const map = new Map()
+    for (const row of result.rows) {
+      const values = map.get(String(row.exercise_id)) ?? []
+      values.push({
+        facetType: row.facet_type,
+        key: row.key,
+        name: row.name,
+        domain: row.domain,
+        role: row.assignment_role,
+        weight: Number(row.weight),
+        confidence: Number(row.confidence),
+        reviewStatus: row.review_status,
+      })
+      map.set(String(row.exercise_id), values)
     }
     return map
   }
@@ -771,6 +938,42 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         )`)
       }
 
+      const taxonomyV2FacetMap = {
+        methodology: req.query.methodology_v2,
+        training_family: req.query.training_family,
+        athletic_niche: req.query.athletic_niche,
+        force_velocity: req.query.force_velocity,
+        movement_character: req.query.movement_character,
+        programming_set_structure: req.query.programming_set_structure,
+        programming_clock_structure: req.query.programming_clock_structure,
+        conditioning_protocol: req.query.conditioning_protocol,
+        physiology_mechanism: req.query.physiology_mechanism,
+      }
+      for (const [facetType, raw] of Object.entries(taxonomyV2FacetMap)) {
+        if (!raw) continue
+        const keys = String(raw).split(',').map((value) => value.trim()).filter(Boolean)
+        if (keys.length === 0) continue
+        params.push(facetType, keys)
+        const facetTypeIndex = params.length - 1
+        const keysIndex = params.length
+        where.push(`EXISTS (
+          SELECT 1
+          FROM coaching.exercise_definition_source_v1 source
+          JOIN coaching.exercise_taxonomy_assignment_v2 assignment ON TRUE
+          JOIN coaching.taxonomy_term_v2 term ON term.id = assignment.term_id
+          LEFT JOIN coaching.exercise_variant_v1 variant ON variant.id = assignment.variant_id
+          LEFT JOIN coaching.exercise_delivery_profile_v1 profile ON profile.id = assignment.delivery_profile_id
+          LEFT JOIN coaching.exercise_variant_v1 profile_variant ON profile_variant.id = profile.variant_id
+          WHERE source.legacy_exercise_id = e.id
+            AND source.definition_id = COALESCE(
+              assignment.definition_id, variant.definition_id, profile_variant.definition_id
+            )
+            AND term.facet_type = $${facetTypeIndex}
+            AND term.key = ANY($${keysIndex}::text[])
+            AND assignment.review_status != 'rejected'
+        )`)
+      }
+
       const whereSql = where.join(' AND ')
       const pagination = parseExerciseLibraryPagination(req)
       const orderSql = sortMode === 'difficulty_desc'
@@ -812,9 +1015,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const result = await pool.query(listSql, listParams)
       const ids = result.rows.map((r) => Number(r.id))
       const tagMap = await loadExerciseTags(ids)
+      const taxonomyV2Map = await loadExerciseTaxonomyV2(ids)
       const bundle = await loadExerciseProgrammingBundle(pool, ids)
       ok(res, {
-        items: result.rows.map((r) => ({ ...attachProgrammingToExercise(r, bundle, null), tags: tagMap.get(String(r.id)) ?? [] })),
+        items: result.rows.map((r) => ({
+          ...attachProgrammingToExercise(r, bundle, null),
+          tags: tagMap.get(String(r.id)) ?? [],
+          taxonomy_v2: taxonomyV2Map.get(String(r.id)) ?? [],
+        })),
         total,
         limit: pagination.limit,
         offset: pagination.offset,
@@ -1714,12 +1922,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   app.post('/api/coach/needs-engine/prescribe-canonical', ...can('library.view'), async (req, res) => {
-    const enabled = ['1', 'true', 'yes'].includes(
-      String(process.env.CANONICAL_WORKOUT_GENERATOR_ENABLED || '').toLowerCase(),
-    )
-    if (!enabled) return bad(res, 'Canonical workout generator is not enabled.', 404)
     try {
       const facilityId = req.platformAuth.user.facility_id
+      const access = await canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_generator_coach_opt_in')
+      if (!access.enabled) return bad(res, 'Canonical workout generator is not enabled for this facility.', 404, { reason: access.reason })
       const userId = Number(req.platformAuth.user.id)
       const release = await loadCurrentCanonicalLibraryRelease(pool, facilityId)
       if (!release) {
@@ -1741,19 +1947,24 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (error instanceof CanonicalGenerationError) {
         return bad(res, error.message, 422, { code: error.code, ...error.details })
       }
+      if (error instanceof TypeError || error instanceof RangeError) {
+        return bad(res, error.message, 400, { code: 'invalid_canonical_intent' })
+      }
       bad(res, error.message, 500)
     }
   })
 
   app.post('/api/coach/needs-engine/prescribe-canonical-ai', ...can('library.view'), async (req, res) => {
-    const enabled = ['1', 'true', 'yes'].includes(
-      String(process.env.CANONICAL_WORKOUT_GENERATOR_ENABLED || '').toLowerCase(),
-    )
-    if (!enabled) return bad(res, 'Canonical workout generator is not enabled.', 404)
+    const facilityId = req.platformAuth.user.facility_id
+    try {
+      const access = await canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_ai_intent')
+      if (!access.enabled) return bad(res, 'Canonical AI intent is not enabled for this facility.', 404, { reason: access.reason })
+    } catch (error) {
+      return bad(res, error.message, 500)
+    }
     const request = String(req.body?.request || '').trim()
     if (!request || request.length > 4000) return bad(res, 'A coach request from 1 to 4000 characters is required.')
     const defaults = req.body?.defaults && typeof req.body.defaults === 'object' ? req.body.defaults : {}
-    const facilityId = req.platformAuth.user.facility_id
     const userId = Number(req.platformAuth.user.id)
     const requestHash = crypto.createHash('sha256').update(request).digest('hex')
     let aiResult = null
@@ -1843,6 +2054,23 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.get('/api/coach/canonical/data-quality', ...can('library.view'), async (req, res) => {
     try {
       ok(res, await buildCanonicalDataQualityReport(pool, req.platformAuth.user.facility_id))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/canonical/rollout-status', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const [coachGeneration, aiIntent] = await Promise.all([
+        canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_generator_coach_opt_in'),
+        canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_ai_intent'),
+      ])
+      ok(res, {
+        coachGeneration,
+        aiIntent,
+        rollout: coachGeneration.rollout ?? aiIntent.rollout,
+      })
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -2218,7 +2446,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         req.platformAuth.user.facility_id,
         req.params.id,
         Number(req.platformAuth.user.id),
-        req.body?.decision,
+        req.body || {},
       ))
     } catch (error) {
       bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500), error.details)
@@ -2226,7 +2454,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/coach/canonical/workouts/:id/swaps', ...can('library.view'), async (req, res) => {
-    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical workout generator is not enabled.', 404)
     if (!isUuid(req.params.id)) return bad(res, 'A valid generated workout ID is required.')
     const variantId = String(req.query.variantId || '')
     const exerciseId = String(req.query.exerciseId || '')
@@ -2236,6 +2463,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
     try {
       const facilityId = req.platformAuth.user.facility_id
+      const access = await canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_generator_coach_opt_in')
+      if (!access.enabled) return bad(res, 'Canonical workout generator is not enabled for this facility.', 404, { reason: access.reason })
       const saved = await pool.query(
         `SELECT output_json FROM coaching.generated_workout_v1
          WHERE id=$1 AND facility_id=$2`,
@@ -2257,10 +2486,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   app.post('/api/coach/canonical/workouts/:id/swaps', ...can('workouts.manage'), async (req, res) => {
-    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical workout generator is not enabled.', 404)
     if (!isUuid(req.params.id)) return bad(res, 'A valid generated workout ID is required.')
     try {
       const facilityId = req.platformAuth.user.facility_id
+      const access = await canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_generator_coach_opt_in')
+      if (!access.enabled) return bad(res, 'Canonical workout generator is not enabled for this facility.', 404, { reason: access.reason })
       const userId = Number(req.platformAuth.user.id)
       const saved = await pool.query(
         `SELECT w.output_json, r.*

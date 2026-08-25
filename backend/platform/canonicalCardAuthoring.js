@@ -4,6 +4,22 @@ import {
   score100,
 } from './canonicalWorkoutContract.js'
 import { findExerciseSkillLevelPaths } from './exerciseCardSemantics.js'
+import {
+  evaluateTaxonomyV2Completeness,
+  normalizeTaxonomyV2Decision,
+  validateTaxonomyV2Assignments,
+} from './taxonomyV2.js'
+import {
+  normalizeAnatomyProfile,
+  normalizeCompositionProfile,
+  normalizeEquipmentRoles,
+  normalizeMovementGeometry,
+  normalizeScalingHandles,
+  normalizeStressProfile,
+  normalizeStructuredProfileReview,
+  normalizeTaskDemands,
+  structuredProfileCompleteness,
+} from './canonicalExerciseProfilesV2.js'
 
 export const CARD_STATUSES = Object.freeze(['draft', 'review', 'published', 'deprecated', 'archived'])
 export const RELATIONSHIP_TYPES = Object.freeze([
@@ -179,7 +195,6 @@ function normalizeDifficulty(raw) {
       field: 'absoluteLoadDemand',
     })
   return {
-    ...difficulty,
     technicalComplexity: technical,
     absoluteLoadDemand: physical,
     baseOverallDifficulty: technical == null || physical == null
@@ -194,6 +209,61 @@ function uniqueStrings(value) {
 
 function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+}
+
+const MEDIA_REVIEW_BASIS_FIELDS = Object.freeze([
+  'playbackReviewed',
+  'exactVariantCompared',
+  'linkChecked',
+  'accessibilityChecked',
+])
+
+export function normalizeMediaReviewBasis(raw) {
+  const basis = object(raw)
+  if (text(basis.reviewMethod) !== 'manual_playback') {
+    throw new TypeError('Media review evidence requires reviewMethod=manual_playback.')
+  }
+  const missing = MEDIA_REVIEW_BASIS_FIELDS.filter((field) => basis[field] !== true)
+  if (missing.length > 0) {
+    throw new TypeError(`Media review evidence requires: ${missing.join(', ')}.`)
+  }
+  return {
+    reviewMethod: 'manual_playback',
+    playbackReviewed: true,
+    exactVariantCompared: true,
+    linkChecked: true,
+    accessibilityChecked: true,
+  }
+}
+
+export function hasVerifiedMediaReviewBasis(raw) {
+  try {
+    normalizeMediaReviewBasis(raw)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function normalizeTaxonomyV2Block(raw, scope) {
+  if (raw == null) return null
+  const assignmentResult = validateTaxonomyV2Assignments(
+    list(raw.assignments).map((assignment) => ({ ...assignment, scope })),
+  )
+  if (!assignmentResult.valid) {
+    throw new TypeError(assignmentResult.errors.map((error) => error.message).join(' '))
+  }
+  const decisions = []
+  const seenFacets = new Set()
+  for (const decision of list(raw.decisions)) {
+    const normalized = normalizeTaxonomyV2Decision({ ...decision, scope })
+    if (seenFacets.has(normalized.facetType)) {
+      throw new TypeError(`Duplicate Taxonomy v2 decision: ${scope}:${normalized.facetType}.`)
+    }
+    seenFacets.add(normalized.facetType)
+    decisions.push(normalized)
+  }
+  return { assignments: assignmentResult.normalized, decisions }
 }
 
 export function assertExerciseCardHasNoSkillLevelMetadata(raw) {
@@ -359,6 +429,7 @@ export function normalizeCanonicalCardDraft(raw = {}) {
     scoringConfidence: raw.scoringConfidence == null ? null : score100(raw.scoringConfidence),
     mediaConfidence: raw.mediaConfidence == null ? null : score100(raw.mediaConfidence),
     approvedVideoUrl: text(raw.approvedVideoUrl ?? raw.approved_video_url) || null,
+    taxonomyV2: normalizeTaxonomyV2Block(raw.taxonomyV2 ?? raw.taxonomy_v2, 'definition'),
     variants: list(raw.variants).map((variant) => ({
       id: text(variant.id) || null,
       variantKey: text(variant.variantKey ?? variant.variant_key),
@@ -366,7 +437,53 @@ export function normalizeCanonicalCardDraft(raw = {}) {
       modifierKeys: uniqueStrings(variant.modifierKeys ?? variant.modifier_keys),
       difficulty: normalizeDifficulty(variant.difficulty),
       requirements: variant.requirements && typeof variant.requirements === 'object' ? variant.requirements : {},
+      movementGeometry: normalizeMovementGeometry(
+        variant.movementGeometry ?? variant.movement_geometry_json,
+        raw.anatomy,
+      ),
+      anatomyProfile: normalizeAnatomyProfile(
+        variant.anatomyProfile ?? variant.anatomy_profile_json,
+        raw.anatomy,
+      ),
+      equipmentRoles: normalizeEquipmentRoles(
+        variant.equipmentRoles ?? variant.equipment_roles_json,
+        {
+          required: raw.requiredEquipment ?? raw.required_equipment,
+          optional: raw.optionalEquipment ?? raw.optional_equipment,
+        },
+      ),
+      taskDemands: normalizeTaskDemands(
+        variant.taskDemands ?? variant.task_demands_json ?? variant.requirements?.taskDemands,
+        variant.difficulty,
+      ),
+      stressProfile: normalizeStressProfile(
+        variant.stressProfile ?? variant.stress_profile_json,
+        {
+          loadProfile: variant.loadProfile,
+          fatigueProfile: variant.fatigueProfile,
+          taskDemands: normalizeTaskDemands(
+            variant.taskDemands ?? variant.task_demands_json ?? variant.requirements?.taskDemands,
+            variant.difficulty,
+          ),
+        },
+      ),
+      scalingHandles: normalizeScalingHandles(
+        variant.scalingHandles ?? variant.scaling_handles_json,
+      ),
+      compositionProfile: normalizeCompositionProfile(
+        variant.compositionProfile ?? variant.composition_profile_json,
+        variant.programming ?? variant.programming_profile_json,
+      ),
+      structuredProfileReview: normalizeStructuredProfileReview(
+        variant.structuredProfileReview ?? {
+          review_status: variant.structured_profile_review_status,
+          provenance: variant.structured_profile_provenance_json,
+          reviewed_by: variant.structured_profile_reviewed_by,
+          reviewed_at: variant.structured_profile_reviewed_at,
+        },
+      ),
       programming: object(variant.programming ?? variant.programming_profile_json),
+      taxonomyV2: normalizeTaxonomyV2Block(variant.taxonomyV2 ?? variant.taxonomy_v2, 'variant'),
       loadProfile: {
         gripDemand: variant.loadProfile?.gripDemand == null
           ? null
@@ -418,6 +535,10 @@ export function normalizeCanonicalCardDraft(raw = {}) {
         doseScaling: object(profile.doseScaling ?? profile.dose_scaling_json),
         measurement: object(profile.measurement ?? profile.measurement_json),
         supportPrompts: object(profile.supportPrompts ?? profile.support_prompts_json),
+        taxonomyV2: normalizeTaxonomyV2Block(
+          profile.taxonomyV2 ?? profile.taxonomy_v2,
+          'delivery_profile',
+        ),
       })),
     })),
   }
@@ -513,6 +634,14 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
   for (const field of ['contentConfidence', 'scoringConfidence', 'mediaConfidence']) {
     if (card[field] == null) issues.push({ code: 'required', path: field, message: `${field} is required.` })
   }
+  const definitionTaxonomy = evaluateTaxonomyV2Completeness(card.taxonomyV2, 'definition')
+  for (const issue of definitionTaxonomy.issues) {
+    issues.push({
+      code: issue.code,
+      path: `taxonomyV2.${issue.facetType}`,
+      message: `${issue.facetType} requires a complete independently reviewed classification or not-applicable decision.`,
+    })
+  }
   for (const field of [
     'whyItMatters', 'primaryCue', 'expectedSensations', 'unexpectedSensations',
     'painGuidance', 'selfChecks', 'accessibility', 'mediaAlternatives',
@@ -544,11 +673,12 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
     issues.push({ code: 'approved_video', path: 'approvedVideoUrl', message: 'An approved HTTPS demonstration video is required.' })
   }
   if (!mediaReview || mediaReview.url !== card.approvedVideoUrl || mediaReview.linkStatus !== 'healthy'
-    || mediaReview.exactVariantMatch !== true || Number(mediaReview.demonstrationQualityScore) < 80) {
+    || mediaReview.exactVariantMatch !== true || Number(mediaReview.demonstrationQualityScore) < 80
+    || !hasVerifiedMediaReviewBasis(mediaReview.reviewBasis)) {
     issues.push({
       code: 'media_review',
       path: 'approvedVideoUrl',
-      message: 'The approved video needs a healthy exact-match review with quality of at least 80/100.',
+      message: 'The approved video needs a documented manual-playback exact-match review with quality of at least 80/100.',
     })
   }
   if (card.variants.length === 0) {
@@ -556,18 +686,31 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
   }
   card.variants.forEach((variant, variantIndex) => {
     const base = `variants.${variantIndex}`
+    const variantTaxonomy = evaluateTaxonomyV2Completeness(variant.taxonomyV2, 'variant')
+    for (const issue of variantTaxonomy.issues) {
+      issues.push({
+        code: issue.code,
+        path: `${base}.taxonomyV2.${issue.facetType}`,
+        message: `${issue.facetType} requires a complete independently reviewed classification or not-applicable decision.`,
+      })
+    }
     requireText(variant.variantKey, `${base}.variantKey`, 'Variant key')
     requireText(variant.displayName, `${base}.displayName`, 'Variant display name')
-    const difficultyFields = [
-      'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand', 'failureConsequence',
-      'impact', 'workCapacityDemand', 'baseOverallDifficulty',
-    ]
+    const difficultyFields = ['technicalComplexity', 'absoluteLoadDemand', 'baseOverallDifficulty']
     for (const field of difficultyFields) {
       try {
         score100(variant.difficulty[field], { nullable: false, field })
       } catch {
         issues.push({ code: 'difficulty_score', path: `${base}.difficulty.${field}`, message: `${field} must be an integer from 1 to 100.` })
       }
+    }
+    const structuredProfile = structuredProfileCompleteness(variant)
+    for (const issue of structuredProfile.issues) {
+      issues.push({
+        code: `structured_profile_${issue.code}`,
+        path: `${base}.${issue.field}`,
+        message: `${issue.field} requires complete exact-variant evidence and independent review.`,
+      })
     }
     if (
       Number.isInteger(variant.difficulty.technicalComplexity)
@@ -616,6 +759,14 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
     }
     variant.profiles.forEach((profile, profileIndex) => {
       const profileBase = `${base}.profiles.${profileIndex}`
+      const profileTaxonomy = evaluateTaxonomyV2Completeness(profile.taxonomyV2, 'delivery_profile')
+      for (const issue of profileTaxonomy.issues) {
+        issues.push({
+          code: issue.code,
+          path: `${profileBase}.taxonomyV2.${issue.facetType}`,
+          message: `${issue.facetType} requires a complete independently reviewed classification or not-applicable decision.`,
+        })
+      }
       requireText(profile.profileKey, `${profileBase}.profileKey`, 'Profile key')
       if (!SESSION_PHASE_ORDER.includes(profile.phaseKey)) {
         issues.push({ code: 'phase', path: `${profileBase}.phaseKey`, message: 'A canonical phase is required.' })
@@ -707,6 +858,16 @@ export function buildCanonicalCardTestPacket(raw, context = {}) {
     list(context.invalidTaxonomyKeys).length === 0,
     { invalidKeys: list(context.invalidTaxonomyKeys) },
     'All taxonomy keys are controlled.')
+  const taxonomyV2Issues = readiness.issues.filter((issue) => issue.path.includes('taxonomyV2.'))
+  add('CARD-TAXONOMY-V2-01', 'taxonomy', 'P1',
+    taxonomyV2Issues.length === 0,
+    { issues: taxonomyV2Issues },
+    'All required concept, exact-variant, and delivery-profile Taxonomy v2 facets are independently reviewed.')
+  const structuredProfileIssues = readiness.issues.filter((issue) => issue.code.startsWith('structured_profile_'))
+  add('CARD-STRUCTURED-PROFILE-V2-01', 'biomechanics', 'P1',
+    structuredProfileIssues.length === 0,
+    { issues: structuredProfileIssues },
+    'Movement geometry, anatomy roles, equipment roles, task demands, stress, scaling, and composition are complete and independently reviewed.')
   add('CARD-DUPLICATE-01', 'identity', 'P1',
     !duplicates.some((duplicate) => duplicate.exactCollision),
     { exactCollisions: duplicates.filter((duplicate) => duplicate.exactCollision) },

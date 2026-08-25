@@ -25,6 +25,33 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
         SELECT
           COUNT(DISTINCT d.id)::int AS total_definitions,
           COUNT(DISTINCT d.id) FILTER (WHERE d.status = 'published')::int AS published_definitions,
+          COUNT(DISTINCT d.id) FILTER (WHERE d.status = 'published' AND EXISTS (
+            SELECT 1
+            FROM coaching.exercise_card_review_v1 approved_card_review
+            WHERE approved_card_review.definition_id=d.id
+              AND approved_card_review.reviewed_card_version=d.card_version
+              AND approved_card_review.decision='approve'
+              AND approved_card_review.reviewer_user_id=d.approved_by
+              AND length(btrim(approved_card_review.notes)) >= 20
+          ))::int AS published_current_card_review_definitions,
+          COUNT(DISTINCT d.id) FILTER (WHERE d.status = 'published' AND EXISTS (
+            SELECT 1
+            FROM coaching.exercise_media_review_v1 verified_media
+            WHERE verified_media.definition_id=d.id
+              AND verified_media.url=d.approved_video_url
+              AND verified_media.reviewed_card_version=d.card_version
+              AND verified_media.link_status='healthy'
+              AND verified_media.exact_variant_match IS TRUE
+              AND verified_media.demonstration_quality_score >= 80
+              AND length(btrim(verified_media.notes)) >= 20
+              AND verified_media.review_basis_json @> jsonb_build_object(
+                'reviewMethod','manual_playback',
+                'playbackReviewed',true,
+                'exactVariantCompared',true,
+                'linkChecked',true,
+                'accessibilityChecked',true
+              )
+          ))::int AS published_verified_manual_media_definitions,
           COUNT(DISTINCT d.id) FILTER (WHERE d.approved_video_url IS NOT NULL)::int AS video_complete,
           COUNT(DISTINCT d.id) FILTER (WHERE d.content_confidence IS NOT NULL
             AND d.scoring_confidence IS NOT NULL AND d.media_confidence IS NOT NULL)::int AS confidence_complete,
@@ -33,9 +60,6 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
           COUNT(DISTINCT d.id) FILTER (WHERE
             v.difficulty_json ? 'technicalComplexity'
             AND v.difficulty_json ? 'absoluteLoadDemand'
-            AND v.difficulty_json ? 'supervisionDemand'
-            AND v.difficulty_json ? 'failureConsequence'
-            AND v.difficulty_json ? 'impact'
             AND v.difficulty_json ? 'baseOverallDifficulty'
             AND CASE
               WHEN jsonb_typeof(v.difficulty_json->'baseOverallDifficulty') = 'number'
@@ -48,6 +72,93 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
               ELSE FALSE
             END
           )::int AS score_complete,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 exact_variant
+            JOIN coaching.exercise_definition_v1 exact_definition ON exact_definition.id=exact_variant.definition_id
+            WHERE exact_definition.facility_id=$1 AND exact_definition.status!='archived' AND exact_variant.status!='archived'
+          ) AS total_variants,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 exact_variant
+            JOIN coaching.exercise_definition_v1 exact_definition ON exact_definition.id=exact_variant.definition_id
+            WHERE exact_definition.facility_id=$1 AND exact_definition.status!='archived' AND exact_variant.status!='archived'
+              AND jsonb_array_length(COALESCE(exact_variant.movement_geometry_json->'planes','[]'::jsonb)) > 0
+              AND jsonb_array_length(COALESCE(exact_variant.anatomy_profile_json->'assignments','[]'::jsonb)) > 0
+              AND jsonb_array_length(COALESCE(exact_variant.equipment_roles_json,'[]'::jsonb)) > 0
+              AND exact_variant.task_demands_json ?& ARRAY[
+                'strengthDemand','powerDemand','mobilityDemand','balanceDemand','coordinationDemand',
+                'conditioningDemand','impactToleranceDemand','eccentricControlDemand','bodyControlDemand',
+                'perceptualDemand','attentionDemand','supervisionDemand','failureConsequence'
+              ]
+              AND exact_variant.stress_profile_json ?& ARRAY[
+                'jointStress','tissueStress','neuralDemand','impactStress','localMuscularFatigue',
+                'systemicFatigue','gripFatigue','conditioningFatigue','recoveryCost'
+              ]
+              AND jsonb_array_length(COALESCE(exact_variant.scaling_handles_json,'[]'::jsonb)) > 0
+              AND exact_variant.composition_profile_json != '{}'::jsonb
+          ) AS structured_profile_complete_variants,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 published_variant
+            JOIN coaching.exercise_definition_v1 published_definition
+              ON published_definition.id=published_variant.definition_id
+            WHERE published_definition.facility_id=$1
+              AND published_definition.status='published'
+              AND published_variant.status='published'
+          ) AS published_variants,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 published_variant
+            JOIN coaching.exercise_definition_v1 published_definition
+              ON published_definition.id=published_variant.definition_id
+            WHERE published_definition.facility_id=$1
+              AND published_definition.status='published'
+              AND published_variant.status='published'
+              AND jsonb_array_length(COALESCE(published_variant.movement_geometry_json->'planes','[]'::jsonb)) > 0
+              AND jsonb_array_length(COALESCE(published_variant.anatomy_profile_json->'assignments','[]'::jsonb)) > 0
+              AND jsonb_array_length(COALESCE(published_variant.equipment_roles_json,'[]'::jsonb)) > 0
+              AND published_variant.task_demands_json ?& ARRAY[
+                'strengthDemand','powerDemand','mobilityDemand','balanceDemand','coordinationDemand',
+                'conditioningDemand','impactToleranceDemand','eccentricControlDemand','bodyControlDemand',
+                'perceptualDemand','attentionDemand','supervisionDemand','failureConsequence'
+              ]
+              AND published_variant.stress_profile_json ?& ARRAY[
+                'jointStress','tissueStress','neuralDemand','impactStress','localMuscularFatigue',
+                'systemicFatigue','gripFatigue','conditioningFatigue','recoveryCost'
+              ]
+              AND jsonb_array_length(COALESCE(published_variant.scaling_handles_json,'[]'::jsonb)) > 0
+              AND published_variant.composition_profile_json != '{}'::jsonb
+          ) AS published_structured_profile_complete_variants,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 exact_variant
+            JOIN coaching.exercise_definition_v1 exact_definition ON exact_definition.id=exact_variant.definition_id
+            WHERE exact_definition.facility_id=$1 AND exact_definition.status!='archived' AND exact_variant.status!='archived'
+              AND exact_variant.structured_profile_review_status='approved'
+              AND exact_variant.structured_profile_reviewed_by IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM coaching.exercise_structured_profile_review_v2 structured_evidence
+                WHERE structured_evidence.variant_id=exact_variant.id
+                  AND structured_evidence.outcome='approved'
+                  AND structured_evidence.reviewer_user_id=exact_variant.structured_profile_reviewed_by
+                  AND length(btrim(structured_evidence.notes)) >= 20
+              )
+          ) AS structured_profile_approved_variants,
+          (
+            SELECT count(*)::int FROM coaching.exercise_variant_v1 published_variant
+            JOIN coaching.exercise_definition_v1 published_definition
+              ON published_definition.id=published_variant.definition_id
+            WHERE published_definition.facility_id=$1
+              AND published_definition.status='published'
+              AND published_variant.status='published'
+              AND published_variant.structured_profile_review_status='approved'
+              AND published_variant.structured_profile_reviewed_by IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM coaching.exercise_structured_profile_review_v2 structured_evidence
+                WHERE structured_evidence.variant_id=published_variant.id
+                  AND structured_evidence.outcome='approved'
+                  AND structured_evidence.reviewer_user_id=published_variant.structured_profile_reviewed_by
+                  AND length(btrim(structured_evidence.notes)) >= 20
+              )
+          ) AS published_structured_profile_approved_variants,
           COUNT(DISTINCT d.id) FILTER (WHERE
             jsonb_array_length(COALESCE(d.anatomy_json->'joints', '[]'::jsonb)) > 0
             AND jsonb_array_length(COALESCE(d.anatomy_json->'planes', '[]'::jsonb)) > 0
@@ -176,8 +287,24 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
       `
         SELECT
           COUNT(*)::int AS total_edges,
-          COUNT(*) FILTER (WHERE r.review_status = 'approved')::int AS approved_edges,
-          COUNT(DISTINCT r.from_variant_id) FILTER (WHERE r.review_status = 'approved')::int AS connected_variants
+          COUNT(*) FILTER (WHERE r.review_status = 'approved'
+            AND r.reviewed_by IS NOT NULL
+            AND EXISTS (
+              SELECT 1 FROM coaching.exercise_relationship_review_v2 review_evidence
+              WHERE review_evidence.relationship_id=r.id
+                AND review_evidence.outcome='approved'
+                AND review_evidence.reviewer_user_id=r.reviewed_by
+                AND length(btrim(review_evidence.notes)) >= 20
+            ))::int AS approved_edges,
+          COUNT(DISTINCT r.from_variant_id) FILTER (WHERE r.review_status = 'approved'
+            AND r.reviewed_by IS NOT NULL
+            AND EXISTS (
+              SELECT 1 FROM coaching.exercise_relationship_review_v2 review_evidence
+              WHERE review_evidence.relationship_id=r.id
+                AND review_evidence.outcome='approved'
+                AND review_evidence.reviewer_user_id=r.reviewed_by
+                AND length(btrim(review_evidence.notes)) >= 20
+            ))::int AS connected_variants
         FROM coaching.exercise_relationship_v1 r
         JOIN coaching.exercise_variant_v1 v ON v.id = r.from_variant_id
         JOIN coaching.exercise_definition_v1 d ON d.id = v.definition_id
@@ -218,6 +345,8 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
           (
             SELECT COUNT(*)::int FROM coaching.exercise_score_calibration_v1 c
             WHERE c.facility_id=$1 AND c.status='approved'
+              AND c.reviewed_by IS NOT NULL
+              AND length(btrim(COALESCE(c.review_notes, ''))) >= 20
           ) AS approved_calibration_anchors,
           (
             WITH identity_names AS (
@@ -247,6 +376,26 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
               GROUP BY left_name.definition_id, right_name.definition_id
             ) exact_pairs
           ) AS exact_identity_collisions
+          ,(
+            SELECT COUNT(*)::int
+            FROM coaching.exercise_variant_v1 pending_variant
+            JOIN coaching.exercise_definition_v1 pending_definition ON pending_definition.id=pending_variant.definition_id
+            WHERE pending_definition.facility_id=$1 AND pending_definition.status!='archived'
+              AND pending_variant.status!='archived'
+              AND pending_variant.structured_profile_review_status!='approved'
+          ) AS structured_profiles_pending_review
+          ,(
+            SELECT COALESCE(jsonb_agg(pending_id ORDER BY pending_id), '[]'::jsonb)
+            FROM (
+              SELECT pending_variant.id::text AS pending_id
+              FROM coaching.exercise_variant_v1 pending_variant
+              JOIN coaching.exercise_definition_v1 pending_definition ON pending_definition.id=pending_variant.definition_id
+              WHERE pending_definition.facility_id=$1 AND pending_definition.status!='archived'
+                AND pending_variant.status!='archived'
+                AND pending_variant.structured_profile_review_status!='approved'
+              ORDER BY pending_variant.id LIMIT 200
+            ) pending
+          ) AS structured_profile_pending_variant_ids
         FROM coaching.exercise_definition_v1 d
         LEFT JOIN coaching.exercise_media_review_v1 mr ON mr.definition_id=d.id
         LEFT JOIN coaching.exercise_variant_v1 v ON v.definition_id=d.id
@@ -261,6 +410,7 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
   const reviews = reviewResult.rows[0] ?? {}
   const governance = governanceResult.rows[0] ?? {}
   const total = Number(coverage.total_definitions ?? 0)
+  const totalVariants = Number(coverage.total_variants ?? 0)
   const poolDepth = Object.fromEntries(phaseResult.rows.map((row) => [row.phase_key, Number(row.candidate_count)]))
   const requiredPhases = [
     'prepare_and_access', 'movement_intelligence', 'output', 'capacity',
@@ -273,7 +423,26 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
       totalDefinitions: total,
       publishedDefinitions: Number(coverage.published_definitions ?? 0),
       publicationPercent: percent(coverage.published_definitions, total),
+      publishedCurrentCardReviewPercent: percent(
+        coverage.published_current_card_review_definitions,
+        coverage.published_definitions,
+      ),
+      publishedVerifiedManualMediaPercent: percent(
+        coverage.published_verified_manual_media_definitions,
+        coverage.published_definitions,
+      ),
       scoreCompletePercent: percent(coverage.score_complete, total),
+      structuredProfileCompletePercent: percent(coverage.structured_profile_complete_variants, totalVariants),
+      structuredProfileApprovedPercent: percent(coverage.structured_profile_approved_variants, totalVariants),
+      publishedVariants: Number(coverage.published_variants ?? 0),
+      publishedStructuredProfileCompletePercent: percent(
+        coverage.published_structured_profile_complete_variants,
+        coverage.published_variants,
+      ),
+      publishedStructuredProfileApprovedPercent: percent(
+        coverage.published_structured_profile_approved_variants,
+        coverage.published_variants,
+      ),
       anatomyCompletePercent: percent(coverage.anatomy_complete, total),
       loadProfileCompletePercent: percent(coverage.load_profile_complete, total),
       fatigueProfileCompletePercent: percent(coverage.fatigue_profile_complete, total),
@@ -325,6 +494,8 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
       calibrationsInReview: Number(governance.calibrations_in_review ?? 0),
       approvedCalibrationAnchors: Number(governance.approved_calibration_anchors ?? 0),
       exactIdentityCollisions: Number(governance.exact_identity_collisions ?? 0),
+      structuredProfilesPendingReview: Number(governance.structured_profiles_pending_review ?? 0),
+      structuredProfilePendingVariantIds: governance.structured_profile_pending_variant_ids ?? [],
     },
   }
 }

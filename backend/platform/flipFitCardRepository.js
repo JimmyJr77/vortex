@@ -549,7 +549,7 @@ export function flipFitCardToCanonicalDraft(card, taxonomy = null) {
         },
         fatigueProfile: {
           localMuscleFatigue: card.phase === 'capacity' || card.phase === 'sustained_capacity' ? 60 : 30,
-          gripFatigue: /grip|hang|carry|row|pull/i.test(card.name) ? 55 : 0,
+          gripFatigue: /grip|hang|carry|row|pull/i.test(card.name) ? 55 : null,
           technicalFatigueSensitivity: card.freshnessRequirement === 'high' ? 75 : 45,
           impactAccumulation: card.impactLevel === 'high' ? 75 : card.impactLevel === 'moderate' ? 50 : 15,
           recoveryHours: card.impactLevel === 'high' ? 48 : 24,
