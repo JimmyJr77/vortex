@@ -16,6 +16,7 @@ import { promoteFromWaitlist } from './waitlist.js'
 import { syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
 import { safeRestorePassCreditsForSignup } from '../programs/multiClassPass.js'
 import { syncStripeForBillingSource } from '../billing/stripeSubscriptionSync.js'
+import { formatDateOnly } from './slotDisplayLabel.js'
 
 /** Discount resync can be slow; never block the cancel HTTP response on it. */
 function scheduleFamilyDiscountResync(pool, memberId) {
@@ -263,7 +264,7 @@ export async function requestMemberEnrollmentCancellation(pool, {
   }
 
   const effectiveDate = nextEnrollmentBillingChangeDate()
-  const programEndDate = signup.program_end_date ? String(signup.program_end_date).slice(0, 10) : null
+  const programEndDate = formatDateOnly(signup.program_end_date)
   const isFixedTerm = Boolean(programEndDate)
   const inserted = await pool.query(
     `INSERT INTO enrollment_cancellation_request (

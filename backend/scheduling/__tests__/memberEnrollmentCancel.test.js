@@ -36,7 +36,13 @@ function mockPool(state) {
       }
       if (text.includes('FROM enrollment_cancellation_request')) return { rows: [] }
       if (text.includes('INSERT INTO enrollment_cancellation_request')) {
-        state.request = { id: 91, signup_id: params[0], recommended_effective_date: params[4] }
+        state.request = {
+          id: 91,
+          signup_id: params[0],
+          recommended_effective_date: params[4],
+          is_fixed_term: params[5],
+          program_end_date: params[6],
+        }
         return { rows: [{ id: 91 }] }
       }
       if (text.includes('UPDATE scheduling_signup') && text.includes('cancel_effective_date')) {
@@ -96,6 +102,30 @@ test('requestMemberEnrollmentCancellation queues billing review without changing
   assert.equal(result.effectiveDate, nextEnrollmentBillingChangeDate())
   assert.equal(state.signup?.cancel_effective_date, null)
   assert.equal(state.request?.recommended_effective_date, result.effectiveDate)
+})
+
+test('requestMemberEnrollmentCancellation serializes database Date program end dates', async () => {
+  const state = {
+    signup: {
+      id: 43,
+      member_id: 7,
+      status: 'confirmed',
+      slot_group_id: 3,
+      cancel_effective_date: null,
+      orphaned_at: null,
+      program_end_date: new Date('2027-06-15T00:00:00.000Z'),
+    },
+  }
+  const pool = mockPool(state)
+
+  const result = await requestMemberEnrollmentCancellation(pool, {
+    signupId: 43,
+    allowedMemberIds: [7],
+  })
+
+  assert.equal(result.isFixedTerm, true)
+  assert.equal(state.request?.is_fixed_term, true)
+  assert.equal(state.request?.program_end_date, '2027-06-15')
 })
 
 test('requestMemberEnrollmentCancellation cancels waitlisted signups immediately', async () => {

@@ -21,7 +21,10 @@ function mockPool(request) {
 
 test('approval schedules enrollment and subscription end without immediate cancellation', async () => {
   const { pool, calls } = mockPool({
-    id: 8, signup_id: 42, status: 'pending', recommended_effective_date: '2026-08-01',
+    id: 8,
+    signup_id: 42,
+    status: 'pending',
+    recommended_effective_date: new Date('2026-08-01T00:00:00.000Z'),
   })
   const result = await reviewCancellationRequest(pool, {
     requestId: 8, decision: 'approved', reviewNote: 'Recurring membership; end paid period.', reviewedByUserId: 3,

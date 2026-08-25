@@ -1,6 +1,6 @@
 import type { KeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Calendar, Loader2, UserMinus, X, Zap } from 'lucide-react'
+import { Calendar, CheckCircle2, Loader2, UserMinus, X, Zap } from 'lucide-react'
 import { enrollmentClassHeading, enrichEnrollmentsFromClassesOffered, memberEnrollmentCancelHeading } from '../../utils/enrollmentDisplayLine'
 import { memberCancelEnrollment, type MemberEnrollmentCancelResult } from '../../utils/schedulingApi'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
@@ -62,6 +62,9 @@ interface Props {
 }
 
 type ViewMode = 'class' | 'member'
+
+const CANCELLATION_REQUEST_TOAST =
+  'Your cancellation request has been submitted and needs administrator review for final resolution. Cancellation is not automatic; the request will be approved or declined based on the cancellation policy.'
 
 type EnrollmentColumn = {
   key: string
@@ -451,13 +454,16 @@ function MemberEnrollmentActionModal({
 
               {confirming ? (
                 <div className="rounded-md bg-red-50 px-3 py-3 space-y-3">
-                  <p className="text-sm text-red-800">
-                    {isWaitlisted
-                      ? 'Remove this waitlist spot?'
-                      : 'Send this request to Billing for review? No access or billing change occurs until it is approved.'}
-                  </p>
+                  {isWaitlisted ? (
+                    <p className="text-sm text-red-800">Remove this waitlist spot?</p>
+                  ) : (
+                    <label htmlFor="cancellation-comments" className="block text-sm font-medium text-red-800">
+                      Comments
+                    </label>
+                  )}
                   {!isWaitlisted && (
                     <textarea
+                      id="cancellation-comments"
                       value={reason}
                       onChange={(event) => setReason(event.target.value)}
                       placeholder="Reason for cancellation (optional)"
@@ -473,7 +479,7 @@ function MemberEnrollmentActionModal({
                       className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
                     >
                       {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
-                      {isWaitlisted ? 'Remove from waitlist' : 'Send to Billing'}
+                      {isWaitlisted ? 'Remove from waitlist' : 'Request Cancellation'}
                     </button>
                     <button
                       type="button"
@@ -518,6 +524,13 @@ export default function MemberEnrollmentsPanel({
 }: Props) {
   const [view, setView] = useState<ViewMode>(defaultView)
   const [activeRow, setActiveRow] = useState<MemberEnrollmentRow | null>(null)
+  const [showCancellationToast, setShowCancellationToast] = useState(false)
+
+  useEffect(() => {
+    if (!showCancellationToast) return
+    const timer = window.setTimeout(() => setShowCancellationToast(false), 10_000)
+    return () => window.clearTimeout(timer)
+  }, [showCancellationToast])
 
   const displayEnrollments = useMemo(
     () => enrichEnrollmentsFromClassesOffered(enrollments, classesOffered),
@@ -556,7 +569,27 @@ export default function MemberEnrollmentsPanel({
   const handleManage = !readOnly && memberToken ? (row: MemberEnrollmentRow) => setActiveRow(row) : undefined
 
   return (
-    <div className={embedded ? 'overflow-hidden' : 'border border-gray-200 rounded-xl bg-white overflow-hidden'}>
+    <>
+      {showCancellationToast && (
+        <div
+          className="fixed right-4 top-4 z-[70] flex w-[min(28rem,calc(100vw-2rem))] items-start gap-3 rounded-xl border border-emerald-200 bg-white p-4 text-sm text-gray-700 shadow-xl"
+        >
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+          <div role="status" aria-live="polite">
+            <p className="font-bold text-gray-900">Cancellation request submitted</p>
+            <p className="mt-1 leading-relaxed">{CANCELLATION_REQUEST_TOAST}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowCancellationToast(false)}
+            aria-label="Dismiss cancellation request notification"
+            className="ml-auto shrink-0 text-gray-400 hover:text-gray-700"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      <div className={embedded ? 'overflow-hidden' : 'border border-gray-200 rounded-xl bg-white overflow-hidden'}>
       {!embedded && (
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
         <div>
@@ -669,10 +702,12 @@ export default function MemberEnrollmentsPanel({
           onClose={() => setActiveRow(null)}
           onChanged={async (result) => {
             await onEnrollmentsChanged?.(result)
+            if (result?.pendingReview) setShowCancellationToast(true)
             setActiveRow(null)
           }}
         />
       )}
-    </div>
+      </div>
+    </>
   )
 }

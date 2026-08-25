@@ -1,4 +1,5 @@
 import { scheduleSubscriptionEndAtFirst } from '../scheduling/memberEnrollmentCancel.js'
+import { formatDateOnly } from '../scheduling/slotDisplayLabel.js'
 import { syncStripeForBillingSource } from './stripeSubscriptionSync.js'
 
 export async function listCancellationRequests(pool, { status = 'pending' } = {}) {
@@ -43,8 +44,11 @@ export async function reviewCancellationRequest(pool, {
     if (!request) throw new Error('Pending cancellation request not found.')
 
     const approvedDate = decision === 'approved'
-      ? (effectiveDate || String(request.recommended_effective_date).slice(0, 10))
+      ? formatDateOnly(effectiveDate || request.recommended_effective_date)
       : null
+    if (decision === 'approved' && !approvedDate) {
+      throw new Error('A valid cancellation effective date is required.')
+    }
 
     if (decision === 'approved') {
       await client.query(
@@ -77,7 +81,7 @@ export async function reviewCancellationRequest(pool, {
   if (decision === 'approved') {
     void syncStripeForBillingSource(pool, {
       sourceType: 'scheduling_signup', sourceId: request.signup_id,
-      effectiveDate: String(request.approved_effective_date).slice(0, 10), immediate: false,
+      effectiveDate: formatDateOnly(request.approved_effective_date), immediate: false,
     }).catch((error) => console.warn('[cancellationReview] stripe sync:', error?.message ?? error))
   }
   return request

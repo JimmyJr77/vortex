@@ -2205,7 +2205,7 @@ export default function MemberDashboard({
                   onEnrollmentsChanged={async (result) => {
                     if (result?.immediate) {
                       setEnrollments((prev) => prev.filter((e) => e.id !== result.signupId))
-                    } else if (result?.effectiveDate) {
+                    } else if (result?.effectiveDate && !result.pendingReview) {
                       setEnrollments((prev) =>
                         prev.map((e) =>
                           e.id === result.signupId

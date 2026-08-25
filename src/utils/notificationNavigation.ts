@@ -37,6 +37,13 @@ export function resolveNotificationTarget(
 
   const payloadType = payload?.type != null ? String(payload.type) : null
 
+  if (
+    portal === 'admin' &&
+    (kind === 'cancellation_request' || payloadType === 'cancellation_request')
+  ) {
+    return { portal, group: 'pricingBilling', section: 'billing' }
+  }
+
   if (portal === 'coach' && (payloadType === 'form_review' || kind === 'form_review')) {
     const submissionId = positiveInt(payload?.submission_id ?? payload?.submissionId)
     if (submissionId != null) {
