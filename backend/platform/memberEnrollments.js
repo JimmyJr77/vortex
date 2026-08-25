@@ -5,6 +5,7 @@
 import {
   applyEnrollmentTaxonomy,
   buildEnrollmentContextLine,
+  formatDateOnly,
   loadEnrollmentTaxonomyByFormIds,
   loadGroupDisplayLabels,
   resolveEnrollmentOfferingDisplay,
@@ -137,23 +138,15 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
         offering_start_date: offering.offering_start_date,
         offering_end_date: offering.offering_end_date,
         offering_dates: offering.offering_dates,
-        enrollment_start_date: row.enrollment_start_date
-          ? String(row.enrollment_start_date).slice(0, 10)
-          : null,
+        enrollment_start_date: formatDateOnly(row.enrollment_start_date),
         status: row.status,
-        cancel_effective_date: row.cancel_effective_date
-          ? String(row.cancel_effective_date).slice(0, 10)
-          : null,
+        cancel_effective_date: formatDateOnly(row.cancel_effective_date),
         cancel_requested_at: row.cancel_requested_at ?? null,
         created_at: row.created_at,
         enrollment_type: row.enrollment_type,
         enrollmentType: row.enrollment_type,
-        attendance_date: row.schedule_mode === 'date' && row.specific_date
-          ? String(row.specific_date).slice(0, 10)
-          : null,
-        attendanceDate: row.schedule_mode === 'date' && row.specific_date
-          ? String(row.specific_date).slice(0, 10)
-          : null,
+        attendance_date: row.schedule_mode === 'date' ? formatDateOnly(row.specific_date) : null,
+        attendanceDate: row.schedule_mode === 'date' ? formatDateOnly(row.specific_date) : null,
         billing_type: row.billing_type,
         billingType: row.billing_type,
         source: 'scheduling',
@@ -199,7 +192,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
     const className = taxonomy?.className ?? row.class_name
     const programName = taxonomy?.programName ?? (row.program_name || null)
     const sportName = taxonomy?.sportName ?? (row.sport_name || null)
-    const attendanceDate = String(row.class_date).slice(0, 10)
+    const attendanceDate = formatDateOnly(row.class_date)
     return applyEnrollmentTaxonomy({
       id: Number(row.id),
       member_id: Number(row.member_id),

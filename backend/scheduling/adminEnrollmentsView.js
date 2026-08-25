@@ -17,12 +17,14 @@ import {
   loadEnrollmentTaxonomyByClassIds,
   applyEnrollmentTaxonomy,
   buildEnrollmentContextLine,
+  formatDateOnly,
 } from './slotDisplayLabel.js'
 import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './orderPricing.js'
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 import { classCostCentsFromPricingBreakdown } from './systemDiscounts.js'
 import { queryFamilyMemberEnrollments } from '../platform/memberEnrollments.js'
+import { processDueEnrollmentCancellations } from './memberEnrollmentCancel.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -103,6 +105,15 @@ function manualDiscountCents(classCostCents, row) {
  * @param {number} memberId
  */
 export async function buildAdminMemberEnrollments(pool, memberId) {
+  // Keep the Accounts view on the same lifecycle state as Member Portal → Classes.
+  // This finalizes any cancellation whose effective date has arrived before rows
+  // and billing details are read.
+  try {
+    await processDueEnrollmentCancellations(pool)
+  } catch (err) {
+    console.warn('[adminEnrollmentsView] process due cancellations:', err?.message ?? err)
+  }
+
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
   await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
@@ -228,6 +239,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
     `
       SELECT
         s.id, s.member_id, s.form_id, s.status, s.created_at, s.enrollment_start_date,
+        s.cancel_effective_date, s.cancel_requested_at,
         s.completed_at, s.paused_at,
         s.pause_effective_date, s.pause_mode,
         s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_reason, s.manual_discount_rule_id,
@@ -295,9 +307,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
     const enrollmentType = billingType === 'one_time'
       ? 'one_time'
       : row.offering_id != null ? 'temporary_block' : 'monthly'
-    const attendanceDate = row.schedule_mode === 'date' && row.specific_date
-      ? String(row.specific_date).slice(0, 10)
-      : null
+    const attendanceDate = row.schedule_mode === 'date' ? formatDateOnly(row.specific_date) : null
 
     const enriched = applyEnrollmentTaxonomy(
       {
@@ -313,11 +323,11 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         offering_id: row.offering_id != null ? Number(row.offering_id) : null,
         offering_label: offering.offering_label,
         offering_dates: offering.offering_dates,
-        enrollment_start_date: row.enrollment_start_date
-          ? String(row.enrollment_start_date).slice(0, 10)
-          : null,
+        enrollment_start_date: formatDateOnly(row.enrollment_start_date),
         schedule: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
         status: row.status,
+        cancel_effective_date: formatDateOnly(row.cancel_effective_date),
+        cancel_requested_at: row.cancel_requested_at ?? null,
         billing_status: sub?.status ?? null,
         class_cost_cents: classCostCents,
         adjusted_cost_cents: adjustedCostCents,
@@ -326,9 +336,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         manual_discount_reason:
           row.manual_discount_reason ?? groupDiscountLabel ?? null,
         manual_discount_rule_id: row.manual_discount_rule_id != null ? Number(row.manual_discount_rule_id) : null,
-        pause_effective_date: row.pause_effective_date
-          ? String(row.pause_effective_date).slice(0, 10)
-          : null,
+        pause_effective_date: formatDateOnly(row.pause_effective_date),
         pause_mode: row.pause_mode ?? null,
         completed_at: row.completed_at,
         created_at: row.created_at,

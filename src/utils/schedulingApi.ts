@@ -1702,6 +1702,8 @@ export interface AdminEnrollmentRow {
   enrollment_start_date: string | null
   schedule: string | null
   status: string
+  cancel_effective_date?: string | null
+  cancel_requested_at?: string | null
   billing_status: string | null
   class_cost_cents: number | null
   adjusted_cost_cents: number | null

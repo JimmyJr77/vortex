@@ -201,7 +201,7 @@ export async function requestMemberEnrollmentCancellation(pool, {
   const existing = await pool.query(
     `
       SELECT s.id, s.member_id, s.status, s.slot_group_id, s.cancel_effective_date, s.orphaned_at,
-             COALESCE(o.end_date, sg.active_end, sf.end_date) AS program_end_date,
+             TO_CHAR(COALESCE(o.end_date, sg.active_end, sf.end_date), 'YYYY-MM-DD') AS program_end_date,
              bs.family_billing_account_id
       FROM scheduling_signup s
       JOIN scheduling_form sf ON sf.id = s.form_id

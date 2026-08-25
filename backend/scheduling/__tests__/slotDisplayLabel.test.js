@@ -3,8 +3,16 @@ import assert from 'node:assert/strict'
 import {
   buildGroupDisplayLabel,
   buildSlotDisplayLabel,
+  formatDateOnly,
   slotLabelForSignupRow,
 } from '../slotDisplayLabel.js'
+
+test('formatDateOnly serializes database Date values as ISO dates', () => {
+  assert.equal(
+    formatDateOnly(new Date('2027-06-15T00:00:00.000Z')),
+    '2027-06-15',
+  )
+})
 
 test('buildSlotDisplayLabel formats day and time', () => {
   const label = buildSlotDisplayLabel({

@@ -51,11 +51,23 @@ function formatPauseDate(iso: string) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+function formatCancellationDate(iso: string) {
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
 export function AdminEnrollmentStatusBadge({
   row,
 }: {
-  row: Pick<AdminEnrollmentRow, 'status' | 'pause_effective_date'>
+  row: Pick<AdminEnrollmentRow, 'status' | 'pause_effective_date' | 'cancel_effective_date'>
 }) {
+  if (row.cancel_effective_date) {
+    return (
+      <span className="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-800">
+        Cancellation effective on {formatCancellationDate(row.cancel_effective_date)}
+      </span>
+    )
+  }
   if (row.pause_effective_date && normalizeAdminEnrollmentStatus(row.status) !== 'paused') {
     return (
       <span className="inline-flex flex-col gap-0.5">
