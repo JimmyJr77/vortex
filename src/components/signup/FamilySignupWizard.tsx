@@ -18,6 +18,7 @@ import {
   loadPublicEnrollmentCart,
 } from '../../utils/publicEnrollmentCart'
 import { pendingEnrollmentsToRows } from './signupEnrollmentUtils'
+import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 
 type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit' | 'waivers-memberships'
 type EmailSource = 'parent' | 'youth'
@@ -143,6 +144,7 @@ interface EnrollmentRow {
   timeSlotId?: number
   selectedPricingOptionKey?: ProgramPricingOptionKey
   locked?: boolean
+  enrollmentStartDate: string
 }
 
 function slotOptionKey(slotGroupId: number, timeSlotId: number) {
@@ -157,6 +159,7 @@ interface EnrollPrefill {
   offeringId?: number
   slotGroupId?: number
   timeSlotId?: number
+  enrollmentStartDate?: string
   classDisplayName?: string | null
   programDisplayName?: string | null
 }
@@ -188,6 +191,7 @@ const emptyEnrollment = (): EnrollmentRow => ({
   classEventId: '',
   offeringIds: [],
   selectedSlotKeys: [],
+  enrollmentStartDate: '',
 })
 
 interface FamilySignupWizardProps {
@@ -433,6 +437,7 @@ export default function FamilySignupWizard({
       const offeringId = url.searchParams.get('offeringId')
       const slotGroupId = url.searchParams.get('slotGroupId')
       const timeSlotId = url.searchParams.get('timeSlotId')
+      const enrollmentStartDate = url.searchParams.get('enrollmentStartDate')
       void fetch(`${apiUrl}/api/signup/catalog/prefill/${formId}`)
         .then((r) => r.json())
         .then((data) => {
@@ -445,6 +450,7 @@ export default function FamilySignupWizard({
             offeringId: offeringId ? Number(offeringId) : undefined,
             slotGroupId: slotGroupId ? Number(slotGroupId) : undefined,
             timeSlotId: timeSlotId ? Number(timeSlotId) : undefined,
+            enrollmentStartDate: enrollmentStartDate || undefined,
             classDisplayName: data.data.classDisplayName,
             programDisplayName: data.data.programDisplayName,
           })
@@ -506,6 +512,7 @@ export default function FamilySignupWizard({
         schedulingFormId: enrollPrefill.formId,
         slotGroupId: enrollPrefill.slotGroupId,
         timeSlotId: enrollPrefill.timeSlotId,
+        enrollmentStartDate: enrollPrefill.enrollmentStartDate ?? '',
       },
     ])
   }, [enrollPrefill, loadClassesForProgram, loadOfferingsForClass])
@@ -911,6 +918,9 @@ export default function FamilySignupWizard({
       if (!enrollments[i].memberClientId) {
         return `Select a family member for enrollment ${i + 1}.`
       }
+      if (enrollments[i].classEventId !== '' && !enrollments[i].enrollmentStartDate) {
+        return `Select an enrollment start date for enrollment ${i + 1}.`
+      }
     }
     return null
   }
@@ -1015,6 +1025,7 @@ export default function FamilySignupWizard({
         classActiveDates: pack?.classActiveDates ?? undefined,
         daysPerWeek: 1,
         selectedPricingOptionKey: row.selectedPricingOptionKey,
+        enrollmentStartDate: row.enrollmentStartDate || undefined,
       }
 
       if (row.selectedSlotKeys.length > 0) {
@@ -1408,6 +1419,13 @@ export default function FamilySignupWizard({
                 Class active dates: <span className="font-medium">{catalog.classActiveDates}</span>
               </p>
             )}
+
+            <EnrollmentStartDateField
+              id={`family-enrollment-start-date-${index}`}
+              value={row.enrollmentStartDate}
+              onChange={(value) => updateEnrollmentRow(index, { enrollmentStartDate: value })}
+              required={row.classEventId !== ''}
+            />
 
             {scheduleOptions.length > 0 && (
               <div className="space-y-4">

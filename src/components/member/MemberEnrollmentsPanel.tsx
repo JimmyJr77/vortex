@@ -23,6 +23,7 @@ export interface MemberEnrollmentRow {
   offering_start_date?: string | null
   offering_end_date?: string | null
   offering_dates?: string | null
+  enrollment_start_date?: string | null
   slot_label: string
   status: string
   cancel_effective_date?: string | null
@@ -86,6 +87,13 @@ const BY_CLASS_COLUMNS: EnrollmentColumn[] = [
     cell: (row) => offeringsCell(row),
   },
   {
+    key: 'start',
+    header: 'Starts',
+    width: 150,
+    minWidth: 120,
+    cell: (row) => enrollmentStartCell(row),
+  },
+  {
     key: 'slot',
     header: 'Time',
     width: 270,
@@ -131,6 +139,13 @@ const BY_MEMBER_COLUMNS: EnrollmentColumn[] = [
     cell: (row) => offeringsCell(row),
   },
   {
+    key: 'start',
+    header: 'Starts',
+    width: 150,
+    minWidth: 120,
+    cell: (row) => enrollmentStartCell(row),
+  },
+  {
     key: 'slot',
     header: 'Time',
     width: 210,
@@ -165,6 +180,10 @@ function formatCancelEffectiveDate(dateStr: string) {
 
 function offeringsCell(row: MemberEnrollmentRow) {
   return <span>{row.offering_dates?.trim() || '—'}</span>
+}
+
+function enrollmentStartCell(row: MemberEnrollmentRow) {
+  return <span>{row.enrollment_start_date ? formatCancelEffectiveDate(row.enrollment_start_date) : '—'}</span>
 }
 
 function timeCell(row: MemberEnrollmentRow) {

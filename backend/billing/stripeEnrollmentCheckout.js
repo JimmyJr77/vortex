@@ -30,6 +30,7 @@ import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
 import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
+import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 
 export { formatPerClassStripeProductName } from './stripeProductNaming.js'
 
@@ -729,6 +730,9 @@ export async function createEnrollmentCheckoutSession(
 
   const slotSignups = (batchPayload.signups ?? []).filter((s) => s.lineType !== 'multi_class_pass')
   const passSignups = (batchPayload.signups ?? []).filter((s) => s.lineType === 'multi_class_pass')
+  for (const signup of slotSignups) {
+    signup.enrollmentStartDate = requireEnrollmentStartDate(signup.enrollmentStartDate)
+  }
 
   // Fees, existing enrollments, and once-per-year redemptions are athlete-scoped.
   // The authenticated caller is usually the family payer — do not use payer id here
@@ -745,6 +749,7 @@ export async function createEnrollmentCheckoutSession(
         formTitle: s.formTitle,
         selectedPricingOptionKey: s.selectedPricingOptionKey,
         useMultiClassPass: s.useMultiClassPass,
+        enrollmentStartDate: s.enrollmentStartDate,
         lineType: 'slot',
       })),
       ...passSignups.map((p) => ({

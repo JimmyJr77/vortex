@@ -52,6 +52,7 @@ export interface SignupEnrollmentRow {
   schedulingFormId?: number
   slotGroupId?: number
   timeSlotId?: number
+  enrollmentStartDate: string
 }
 
 export interface PendingInviteEnrollment {
@@ -68,6 +69,7 @@ export interface PendingInviteEnrollment {
   scheduleLabel?: string
   priceLabel?: string
   classActiveDates?: string
+  enrollmentStartDate?: string
 }
 
 export function slotOptionKey(slotGroupId: number, timeSlotId: number) {
@@ -80,6 +82,7 @@ export function emptyEnrollmentRow(): SignupEnrollmentRow {
     classEventId: '',
     offeringIds: [],
     selectedSlotKeys: [],
+    enrollmentStartDate: '',
   }
 }
 
@@ -113,6 +116,9 @@ export function pendingEnrollmentsToRows(pending: PendingInviteEnrollment[]): Si
       schedulingFormId: first.schedulingFormId != null ? Number(first.schedulingFormId) : undefined,
       slotGroupId: first.slotGroupId != null ? Number(first.slotGroupId) : undefined,
       timeSlotId: first.timeSlotId != null ? Number(first.timeSlotId) : undefined,
+      enrollmentStartDate: typeof first.enrollmentStartDate === 'string'
+        ? first.enrollmentStartDate
+        : '',
     }
   })
 }
@@ -140,6 +146,7 @@ export function buildEnrollmentSubmitPayload(
       className: classOption?.displayName || classOption?.name,
       classActiveDates: pack?.classActiveDates ?? undefined,
       daysPerWeek: 1,
+      enrollmentStartDate: row.enrollmentStartDate || undefined,
     }
 
     if (row.selectedSlotKeys.length > 0) {

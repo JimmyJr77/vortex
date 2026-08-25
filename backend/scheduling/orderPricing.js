@@ -838,6 +838,7 @@ export async function buildSignupOrderPreview(
       lineType: 'slot',
       selectedPricingOptionKey: entry.selectedPricingOptionKey ?? null,
       useMultiClassPass: entry.useMultiClassPass !== false,
+      enrollmentStartDate: entry.enrollmentStartDate ?? null,
       programsId,
       costUnit,
       billingType,
@@ -1247,8 +1248,7 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
       todayDateOnly,
     } = await import('./firstMonthProration.js')
 
-    const fromDate = asOfDate ?? todayDateOnly()
-    const { monthEnd } = monthBounds(fromDate)
+    const defaultFromDate = asOfDate ?? todayDateOnly()
 
     const slotGroupIds = [...new Set(recurringItems.map((i) => i.slotGroupId).filter((id) => id != null))]
     const rowsByGroup = await loadCalendarRowsForSlotGroups(pool, slotGroupIds)
@@ -1306,12 +1306,16 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
     })
 
     const items = []
+    const servicePeriodStarts = []
+    const servicePeriodEnds = []
     let totalCents = 0
     let totalProratedCents = 0
     let totalPrepaidCents = 0
     for (const fact of lineFacts) {
       // Pass-covered / free lines carry no first-month charge.
       if (fact.baseCents <= 0) continue
+      const fromDate = fact.item.enrollmentStartDate || defaultFromDate
+      const { monthEnd } = monthBounds(fromDate)
       const proration = prorationForLine(calendarRows, {
         slotGroupId: fact.item.slotGroupId,
         timeSlotId: fact.item.timeSlotId ?? null,
@@ -1338,14 +1342,17 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         firstBillDate: proration.firstBillDate,
         firstServicePeriodStart: proration.firstServicePeriodStart ?? fromDate,
         firstServicePeriodEnd: proration.firstServicePeriodEnd ?? monthEnd,
+        enrollmentStartDate: fromDate,
       })
+      servicePeriodStarts.push(fromDate)
+      servicePeriodEnds.push(monthEnd)
     }
 
     if (!items.length) return empty
     return {
       enabled: true,
-      periodStart: fromDate,
-      periodEnd: monthEnd,
+      periodStart: servicePeriodStarts.sort()[0] ?? defaultFromDate,
+      periodEnd: servicePeriodEnds.sort().at(-1) ?? monthBounds(defaultFromDate).monthEnd,
       classesPerMonth: CLASSES_PER_MONTH,
       items,
       totalCents,

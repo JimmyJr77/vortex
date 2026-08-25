@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
@@ -7,6 +7,7 @@ import { fetchClassesOffered } from '../utils/publicClassesApi'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
+import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
@@ -30,6 +31,9 @@ export default function DropInPage() {
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [result, setResult] = useState<Awaited<ReturnType<typeof registerDropIn>> | null>(null)
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState('')
+  const [startDateError, setStartDateError] = useState<string | null>(null)
+  const startDateInputRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({
     firstName: loggedInAccount?.firstName?.trim() ?? '',
     lastName: loggedInAccount?.lastName?.trim() ?? '',
@@ -83,16 +87,19 @@ export default function DropInPage() {
       (sportFilter === 'all' || (row.sportName ?? UNSPECIFIED_SPORT) === sportFilter) &&
       (programFilter === 'all' || row.programId === programFilter) &&
       (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
+      (!enrollmentStartDate || sessions.some(
+        (session) => session.classId === row.classId && session.date === enrollmentStartDate,
+      )) &&
       (!query || [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription].filter(Boolean).join(' ').toLowerCase().includes(query)),
     )
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])
     return [...grouped.values()].sort((a, b) => (a[0]?.programName ?? '').localeCompare(b[0]?.programName ?? ''))
-  }, [classes, levelFilter, programFilter, searchQuery, sportFilter])
+  }, [classes, enrollmentStartDate, levelFilter, programFilter, searchQuery, sessions, sportFilter])
 
   const upcoming = useMemo(() => sessions
-    .filter((row) => row.classId === selectedClassId)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)), [selectedClassId, sessions])
+    .filter((row) => row.classId === selectedClassId && row.date === enrollmentStartDate)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime)), [enrollmentStartDate, selectedClassId, sessions])
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
   const hasFilters = searchQuery !== '' || sportFilter !== 'all' || programFilter !== 'all' || levelFilter !== 'all'
@@ -132,6 +139,20 @@ export default function DropInPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
             <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
+            <EnrollmentStartDateField
+              id="drop-in-enrollment-start-date"
+              value={enrollmentStartDate}
+              onChange={(value) => {
+                setEnrollmentStartDate(value)
+                setSelectedClassId(null)
+                setSelected(null)
+                if (value) setStartDateError(null)
+              }}
+              error={startDateError}
+              inputRef={startDateInputRef}
+              className="max-w-sm"
+              helpText="Choose the date you want to attend this drop-in class."
+            />
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Sport</span><select value={sportFilter} onChange={(event) => { setSportFilter(event.target.value); setProgramFilter('all') }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All sports</option>{sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}{sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}</select></label>
               <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((row) => <option key={row.programId} value={row.programId}>{row.programName}</option>)}</select></label>
@@ -142,8 +163,15 @@ export default function DropInPage() {
           {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || 'No classes match your search or filters.'}</div>}
           {programSections.map((rows) => <div key={rows[0].programId} className="space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">
             <div><h2 className="text-lg font-bold text-vortex-red">{rows[0].programName}</h2>{rows[0].programDescription && <p className="mt-1 text-sm text-gray-600">{rows[0].programDescription}</p>}</div>
-            {rows.map((row) => <button type="button" key={row.classId} onClick={() => setSelectedClassId(row.classId)} className={`block w-full rounded-xl border p-4 text-left transition-colors ${selectedClassId === row.classId ? 'border-vortex-red bg-red-50 ring-1 ring-red-200' : 'border-gray-100 bg-gray-50 hover:border-gray-300'}`}>
-              <h3 className="text-base font-bold text-gray-900">{row.className}</h3><div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500"><span>Age: {formatAgeRange(row.ageMin, row.ageMax)}</span><span>Level: {formatSkillLevel(row.skillLevel)}</span></div>{row.classDescription && <p className="mt-1 text-sm text-gray-600">{row.classDescription}</p>}<p className="mt-3 text-sm font-semibold text-vortex-red">View upcoming drop-in dates →</p>
+            {rows.map((row) => <button type="button" key={row.classId} onClick={() => {
+              if (!enrollmentStartDate) {
+                setStartDateError('Select an enrollment start date before choosing a class.')
+                startDateInputRef.current?.focus()
+                return
+              }
+              setSelectedClassId(row.classId)
+            }} className={`block w-full rounded-xl border p-4 text-left transition-colors ${selectedClassId === row.classId ? 'border-vortex-red bg-red-50 ring-1 ring-red-200' : 'border-gray-100 bg-gray-50 hover:border-gray-300'}`}>
+              <h3 className="text-base font-bold text-gray-900">{row.className}</h3><div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500"><span>Age: {formatAgeRange(row.ageMin, row.ageMax)}</span><span>Level: {formatSkillLevel(row.skillLevel)}</span></div>{row.classDescription && <p className="mt-1 text-sm text-gray-600">{row.classDescription}</p>}<p className="mt-3 text-sm font-semibold text-vortex-red">View drop-in times →</p>
             </button>)}
           </div>)}
         </div>

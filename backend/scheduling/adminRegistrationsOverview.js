@@ -245,7 +245,7 @@ export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId,
   const signupRes = await pool.query(
     `
       SELECT
-        s.id, s.member_id, s.form_id, s.status, s.created_at,
+        s.id, s.member_id, s.form_id, s.status, s.created_at, s.enrollment_start_date,
         s.completed_at, s.paused_at,
         s.pause_effective_date, s.pause_mode,
         s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_reason, s.manual_discount_rule_id,
@@ -370,6 +370,9 @@ export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId,
         offering_id: row.offering_id != null ? Number(row.offering_id) : null,
         offering_label: offering.offering_label,
         offering_dates: offering.offering_dates,
+        enrollment_start_date: row.enrollment_start_date
+          ? String(row.enrollment_start_date).slice(0, 10)
+          : null,
         schedule: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
         status: row.status,
         billing_status: sub?.status ?? null,

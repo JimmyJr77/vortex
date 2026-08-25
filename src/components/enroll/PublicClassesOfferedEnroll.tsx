@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LayoutGrid, Loader2, Search, ShoppingCart, Trash2, X } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
@@ -37,6 +37,7 @@ import {
 import ScheduleOptionCheckboxGrid, {
   groupScheduleOptions,
 } from '../signup/ScheduleOptionCheckboxGrid'
+import EnrollmentStartDateField from './EnrollmentStartDateField'
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
@@ -200,6 +201,11 @@ export default function PublicClassesOfferedEnroll({
   const [discountPreview, setDiscountPreview] = useState<SignupOrderPreview | null>(null)
   const [discountPreviewLoading, setDiscountPreviewLoading] = useState(false)
   const [discountPreviewUnavailable, setDiscountPreviewUnavailable] = useState(false)
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState(
+    () => loadPublicEnrollmentCart()[0]?.enrollmentStartDate ?? '',
+  )
+  const [startDateError, setStartDateError] = useState<string | null>(null)
+  const startDateInputRef = useRef<HTMLInputElement>(null)
 
   const classesWithForm = useMemo<CatalogClass[]>(() => {
     const result: CatalogClass[] = []
@@ -282,18 +288,20 @@ export default function PublicClassesOfferedEnroll({
     )
   }, [programs, sportFilter])
 
-  const filteredProgramSections = useMemo(() => {
+  const { filteredProgramSections, acrossFilterProgramSections } = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
-    return programs.flatMap((program) => {
-      if (programFilter !== 'all' && program.id !== programFilter) return []
-      if (
-        sportFilter !== 'all' &&
-        (program.primarySportName ?? UNSPECIFIED_SPORT) !== sportFilter
-      ) return []
+    const filteredSections: Array<{
+      program: PublicProgramOffered
+      programClasses: CatalogClass[]
+    }> = []
+    const acrossFilterSections: Array<{
+      program: PublicProgramOffered
+      programClasses: CatalogClass[]
+    }> = []
 
+    for (const program of programs) {
       const programClasses = classesWithForm
         .filter((classItem) => classItem.programsId === program.id)
-        .filter((classItem) => classMatchesLevel(classItem.skillLevel, levelFilter))
         .filter((classItem) => {
           if (!query) return true
           return [
@@ -305,8 +313,34 @@ export default function PublicClassesOfferedEnroll({
           ].join(' ').toLowerCase().includes(query)
         })
         .sort((a, b) => a.label.localeCompare(b.label))
-      return programClasses.length > 0 ? [{ program, programClasses }] : []
-    })
+
+      const programMatchesFilters =
+        (programFilter === 'all' || program.id === programFilter) &&
+        (sportFilter === 'all' ||
+          (program.primarySportName ?? UNSPECIFIED_SPORT) === sportFilter)
+      const classesWithinFilters = programMatchesFilters
+        ? programClasses.filter((classItem) => classMatchesLevel(classItem.skillLevel, levelFilter))
+        : []
+
+      if (classesWithinFilters.length > 0) {
+        filteredSections.push({ program, programClasses: classesWithinFilters })
+      }
+
+      if (query) {
+        const classesAcrossFilters = programClasses.filter(
+          (classItem) =>
+            !programMatchesFilters || !classMatchesLevel(classItem.skillLevel, levelFilter),
+        )
+        if (classesAcrossFilters.length > 0) {
+          acrossFilterSections.push({ program, programClasses: classesAcrossFilters })
+        }
+      }
+    }
+
+    return {
+      filteredProgramSections: filteredSections,
+      acrossFilterProgramSections: acrossFilterSections,
+    }
   }, [classesWithForm, levelFilter, programFilter, programs, searchQuery, sportFilter])
 
   const cartByProgram = useMemo(() => {
@@ -338,7 +372,7 @@ export default function PublicClassesOfferedEnroll({
   }, [cartByProgram, programs, selectedPricingByProgram])
 
   useEffect(() => {
-    if (cart.length === 0) {
+    if (cart.length === 0 || !enrollmentStartDate) {
       setDiscountPreview(null)
       setDiscountPreviewLoading(false)
       setDiscountPreviewUnavailable(false)
@@ -357,6 +391,7 @@ export default function PublicClassesOfferedEnroll({
           formId: item.schedulingFormId,
           slotGroupId: item.slotGroupId,
           timeSlotId: item.timeSlotId,
+          enrollmentStartDate,
           selectedPricingOptionKey:
             selectedPricingByProgram[item.programsId] ??
             defaultPricingKey(programs.find((program) => program.id === item.programsId)),
@@ -381,7 +416,7 @@ export default function PublicClassesOfferedEnroll({
       active = false
       window.clearTimeout(timer)
     }
-  }, [cart, programs, selectedPricingByProgram])
+  }, [cart, enrollmentStartDate, programs, selectedPricingByProgram])
 
   const appliedDiscount = useMemo(
     () => summarizeAppliedDiscounts(discountPreview),
@@ -398,8 +433,9 @@ export default function PublicClassesOfferedEnroll({
       selectedPricingOptionKey:
         selectedPricingByProgram[item.programsId] ??
         defaultPricingKey(programs.find((program) => program.id === item.programsId)!),
+      enrollmentStartDate: enrollmentStartDate || undefined,
     })))
-  }, [cart, programs, selectedPricingByProgram])
+  }, [cart, enrollmentStartDate, programs, selectedPricingByProgram])
 
   const toggleSlot = (
     classItem: CatalogClass,
@@ -443,6 +479,7 @@ export default function PublicClassesOfferedEnroll({
         priceCents: option.priceCents ?? undefined,
         priceLabel: option.priceLabel ?? undefined,
         classActiveDates: catalog.classActiveDates ?? undefined,
+        enrollmentStartDate: enrollmentStartDate || undefined,
       },
     ])
   }
@@ -464,11 +501,17 @@ export default function PublicClassesOfferedEnroll({
 
   const continueToAccount = () => {
     if (cart.length === 0) return
+    if (!enrollmentStartDate) {
+      setStartDateError('Select an enrollment start date before continuing.')
+      startDateInputRef.current?.focus()
+      return
+    }
     const items = cart.map((item) => ({
       ...item,
       selectedPricingOptionKey:
         selectedPricingByProgram[item.programsId] ??
         defaultPricingKey(programs.find((program) => program.id === item.programsId)!),
+      enrollmentStartDate,
     }))
     savePublicEnrollmentCart(items)
     trackEvent('begin_checkout', window.location.pathname, {
@@ -479,6 +522,10 @@ export default function PublicClassesOfferedEnroll({
 
   const hasFilters =
     searchQuery !== '' || sportFilter !== 'all' || programFilter !== 'all' || levelFilter !== 'all'
+  const displayedProgramSections = [
+    ...filteredProgramSections.map((section) => ({ ...section, resultGroup: 'filtered' as const })),
+    ...acrossFilterProgramSections.map((section) => ({ ...section, resultGroup: 'across' as const })),
+  ]
 
   return (
     <div className="space-y-6">
@@ -503,6 +550,17 @@ export default function PublicClassesOfferedEnroll({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
         </div>
+        <EnrollmentStartDateField
+          id="public-enrollment-start-date"
+          value={enrollmentStartDate}
+          onChange={(value) => {
+            setEnrollmentStartDate(value)
+            if (value) setStartDateError(null)
+          }}
+          error={startDateError}
+          inputRef={startDateInputRef}
+          className="max-w-sm"
+        />
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Sport</span>
@@ -535,20 +593,36 @@ export default function PublicClassesOfferedEnroll({
         </div>
       </div>
 
-      {filteredProgramSections.length === 0 && (
+      {displayedProgramSections.length === 0 && (
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">
           No classes match your search or filters.
         </div>
       )}
 
-      {filteredProgramSections.map(({ program, programClasses }) => {
+      {filteredProgramSections.length === 0 && acrossFilterProgramSections.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-white p-5 text-center text-sm text-gray-600">
+          No classes matching your search were found within the selected filters.
+        </div>
+      )}
+
+      {displayedProgramSections.map(({ program, programClasses, resultGroup }, index) => {
         const selectedCount = cartByProgram.get(program.id)?.length ?? 0
         const maxSlots = programUsesWeeklyTierPricing(program)
           ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
           : 0
         const options = nonWeeklyOptions(program)
         return (
-          <div key={program.id} className="rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm">
+          <Fragment key={`${resultGroup}:${program.id}`}>
+            {resultGroup === 'across' && index === filteredProgramSections.length && (
+              <div className="border-t border-gray-300 pt-6">
+                <h2 className="text-xl font-bold text-gray-900">Available classes across filters</h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  These classes match your search but fall outside one or more of the selected sport,
+                  program, or experience level filters.
+                </p>
+              </div>
+            )}
+            <div className="rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div>
               <h2 className="text-lg font-bold text-vortex-red">{program.displayName}</h2>
               {program.description && <p className="text-sm text-gray-600 mt-1">{program.description}</p>}
@@ -602,8 +676,9 @@ export default function PublicClassesOfferedEnroll({
                   )}
                 </div>
               )
-            })}
-          </div>
+              })}
+            </div>
+          </Fragment>
         )
       })}
 

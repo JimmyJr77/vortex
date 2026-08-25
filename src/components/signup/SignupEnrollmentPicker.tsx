@@ -8,6 +8,7 @@ import {
   type SignupEnrollmentRow,
   type SignupProgramOption,
 } from './signupEnrollmentUtils'
+import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 
 interface SignupEnrollmentPickerProps {
   apiUrl: string
@@ -199,6 +200,13 @@ export default function SignupEnrollmentPicker({
                 Class active dates: <span className="font-medium">{catalog.classActiveDates}</span>
               </p>
             )}
+
+            <EnrollmentStartDateField
+              id={`invite-enrollment-start-date-${index}`}
+              value={row.enrollmentStartDate}
+              onChange={(value) => updateRow(index, { enrollmentStartDate: value })}
+              required={row.classEventId !== ''}
+            />
 
             {scheduleOptions.length > 0 && (
               <div className="space-y-4">

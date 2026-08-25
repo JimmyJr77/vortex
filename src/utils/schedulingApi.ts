@@ -813,6 +813,7 @@ export interface SchedulingSignup {
   promotionEmailSentAt?: string | null
   demotionEmailSentAt?: string | null
   archivedAt?: string | null
+  enrollmentStartDate?: string | null
 }
 
 export interface SchedulingEmailCheckResult {
@@ -970,6 +971,7 @@ export async function fetchSignupOrderPreview(payload: {
     formId?: number
     slotGroupId?: number
     timeSlotId?: number
+    enrollmentStartDate?: string
     selectedPricingOptionKey?: string
     useMultiClassPass?: boolean
     programsId?: number
@@ -1164,6 +1166,7 @@ export async function submitSchedulingSignup(payload: {
   formId: number
   slotGroupId: number
   timeSlotId?: number
+  enrollmentStartDate: string
   responses: Record<string, string | boolean | number | string[]>
   signupAuthToken?: string
   password?: string
@@ -1183,6 +1186,7 @@ export async function submitSchedulingSignupBatch(payload: {
     formId?: number
     slotGroupId?: number
     timeSlotId?: number
+    enrollmentStartDate?: string
     selectedPricingOptionKey?: string
     useMultiClassPass?: boolean
     programsId?: number
@@ -1210,6 +1214,7 @@ export async function createEnrollmentCheckoutSession(
       formId?: number
       slotGroupId?: number
       timeSlotId?: number
+      enrollmentStartDate?: string
       selectedPricingOptionKey?: string
       useMultiClassPass?: boolean
       programsId?: number
@@ -1689,6 +1694,7 @@ export interface AdminEnrollmentRow {
   offering_id: number | null
   offering_label: string | null
   offering_dates: string | null
+  enrollment_start_date: string | null
   schedule: string | null
   status: string
   billing_status: string | null
@@ -1740,6 +1746,7 @@ export interface AdminPortalEnrollmentRow {
   offering_start_date?: string | null
   offering_end_date?: string | null
   offering_dates?: string | null
+  enrollment_start_date?: string | null
   slot_label: string
   status: string
   cancel_effective_date?: string | null
@@ -2193,6 +2200,7 @@ export async function adminCreateSignup(payload: {
   formId: number
   slotGroupId: number
   timeSlotId?: number
+  enrollmentStartDate: string
   memberId?: number
   email?: string
   firstName?: string

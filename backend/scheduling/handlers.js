@@ -96,6 +96,7 @@ import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
+import { normalizeEnrollmentStartDate } from './enrollmentStartDate.js'
 
 function enrollmentDueNowCents(preview) {
   if (!preview) return 0
@@ -192,6 +193,7 @@ async function insertSignupForMember(
     firstOccurrenceLabel,
     adminStub = false,
     pricingOptionKey = null,
+    enrollmentStartDate = null,
   },
 ) {
   const activeCount = await countActiveSignupsForPricingScope(client, formRow, memberId)
@@ -233,8 +235,9 @@ async function insertSignupForMember(
     INSERT INTO scheduling_signup
       (form_id, time_slot_id, slot_group_id, member_id,
        first_name, last_name, email, phone, field_responses, responses, status, admin_stub,
-       pricing_option_key)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       pricing_option_key, enrollment_start_date)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+            COALESCE($14::date, CURRENT_DATE))
     RETURNING *
     `,
     [
@@ -251,6 +254,7 @@ async function insertSignupForMember(
       signupStatus,
       adminStub,
       pricingOptionKey || null,
+      normalizeEnrollmentStartDate(enrollmentStartDate),
     ],
   )
 
@@ -907,6 +911,7 @@ function mapSignupRow(row, positions = {}) {
     promotionEmailSentAt: row.promotion_email_sent_at || null,
     demotionEmailSentAt: row.demotion_email_sent_at || null,
     archivedAt: row.archived_at || null,
+    enrollmentStartDate: formatDateOnly(row.enrollment_start_date),
     pricing: positions.pricing ?? undefined,
   }
 }
@@ -1238,6 +1243,19 @@ const slotBatchSchema = Joi.object({
   }),
 })
 
+const enrollmentStartDateSchema = Joi.string()
+  .trim()
+  .pattern(/^\d{4}-\d{2}-\d{2}$/)
+  .custom((value, helpers) =>
+    normalizeEnrollmentStartDate(value) ? value : helpers.error('any.invalid'),
+  )
+  .messages({
+    'any.invalid': 'Enrollment start date must be a valid date.',
+    'any.required': 'Enrollment start date is required.',
+    'string.empty': 'Enrollment start date is required.',
+    'string.pattern.base': 'Enrollment start date must use YYYY-MM-DD format.',
+  })
+
 const signupSchema = Joi.object({
   formId: Joi.number().integer().required(),
   slotGroupId: Joi.number().integer().required(),
@@ -1246,6 +1264,7 @@ const signupSchema = Joi.object({
   signupAuthToken: Joi.string().trim().optional(),
   password: Joi.string().min(6).optional(),
   promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
+  enrollmentStartDate: enrollmentStartDateSchema.required(),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.password) {
     return helpers.error('any.custom', { message: 'Sign in or set an account password to continue' })
@@ -1263,6 +1282,7 @@ const slotSignupItemSchema = Joi.object({
   timeSlotId: Joi.number().integer().optional(),
   selectedPricingOptionKey: Joi.string().trim().optional(),
   useMultiClassPass: Joi.boolean().optional(),
+  enrollmentStartDate: enrollmentStartDateSchema.required(),
 })
 
 const passSignupItemSchema = Joi.object({
@@ -1304,6 +1324,7 @@ const adminSignupSchema = Joi.object({
   phone: Joi.string().trim().allow('', null).optional(),
   responses: Joi.object().default({}),
   sendEmails: Joi.boolean().default(true),
+  enrollmentStartDate: enrollmentStartDateSchema.required(),
 }).custom((val, helpers) => {
   if (!val.memberId && !val.email) {
     return helpers.error('any.custom', { message: 'memberId or email required' })
@@ -2421,6 +2442,7 @@ export function createSchedulingHandlers(pool) {
                   slotGroupId: value.slotGroupId,
                   timeSlotId: firstOccurrence.id,
                   formTitle: detail.title,
+                  enrollmentStartDate: value.enrollmentStartDate,
                 },
               ],
               promoCodes: value.promoCodes || [],
@@ -2450,6 +2472,7 @@ export function createSchedulingHandlers(pool) {
             mandateWaiver: detail.mandateWaiver,
             groupDisplayLabel: group.displayLabel,
             firstOccurrenceLabel: firstOccurrence.displayLabel,
+            enrollmentStartDate: value.enrollmentStartDate,
           })
 
           const currentSchool = responses.current_school != null ? String(responses.current_school).trim() : ''
@@ -2723,6 +2746,7 @@ export function createSchedulingHandlers(pool) {
                   formTitle: resolved.detail.title,
                   selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
                   useMultiClassPass: resolved.entry.useMultiClassPass,
+                  enrollmentStartDate: resolved.entry.enrollmentStartDate,
                   lineType: 'slot',
                 })),
                 ...passSignups.map((p) => ({
@@ -2762,6 +2786,7 @@ export function createSchedulingHandlers(pool) {
               groupDisplayLabel: resolved.group.displayLabel,
               firstOccurrenceLabel: resolved.firstOccurrence.displayLabel,
               pricingOptionKey: resolved.entry.selectedPricingOptionKey ?? null,
+              enrollmentStartDate: resolved.entry.enrollmentStartDate,
             })
             signupResults.push(signupResult)
           }
@@ -4108,6 +4133,7 @@ export function createSchedulingHandlers(pool) {
             groupDisplayLabel: group.displayLabel,
             firstOccurrenceLabel: firstOccurrence.displayLabel,
             adminStub,
+            enrollmentStartDate: value.enrollmentStartDate,
           })
 
           const currentSchool =

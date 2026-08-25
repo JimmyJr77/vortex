@@ -2615,7 +2615,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data: { url: result.url, pendingEnrollmentId: result.pendingEnrollmentId } })
     } catch (err) {
       console.error('[stripe] enrollment-checkout-session:', err)
-      res.status(500).json({ success: false, message: err.message || 'Failed to start enrollment checkout.' })
+      const status = err?.code === 'ENROLLMENT_START_DATE_REQUIRED' ? 400 : 500
+      res.status(status).json({ success: false, message: err.message || 'Failed to start enrollment checkout.' })
     }
   })
 

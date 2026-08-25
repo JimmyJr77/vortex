@@ -68,6 +68,9 @@ export async function ensureEnrollmentLifecycleColumns(pool) {
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS cancel_requested_at TIMESTAMPTZ`)
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS pause_effective_date DATE`)
   await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS pause_mode VARCHAR(20)`)
+  await pool.query(`ALTER TABLE scheduling_signup ADD COLUMN IF NOT EXISTS enrollment_start_date DATE DEFAULT CURRENT_DATE`)
+  await pool.query(`UPDATE scheduling_signup SET enrollment_start_date = COALESCE(created_at::date, CURRENT_DATE) WHERE enrollment_start_date IS NULL`)
+  await pool.query(`ALTER TABLE scheduling_signup ALTER COLUMN enrollment_start_date SET NOT NULL`)
 
   const checksOk = await allStatusChecksAllowLifecycleStatuses(pool)
   if (schemaReady && checksOk) return

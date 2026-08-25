@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Loader2, Search, UserPlus, X } from 'lucide-react'
 import { getApiUrl } from '../../utils/api'
 import {
@@ -8,6 +8,7 @@ import {
   type SchedulingSlotGroup,
 } from '../../utils/schedulingApi'
 import { formatOfferingDates, formatSlotOccurrence } from '../../utils/classSchedulingSummary'
+import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 
 interface SearchMember {
   id: number
@@ -54,6 +55,9 @@ const AdminClassOfferingSignupModal = ({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState('')
+  const [startDateError, setStartDateError] = useState<string | null>(null)
+  const startDateInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -68,6 +72,8 @@ const AdminClassOfferingSignupModal = ({
     setEmailExists(false)
     setError(null)
     setSuccessMessage(null)
+    setEnrollmentStartDate('')
+    setStartDateError(null)
   }, [open])
 
   useEffect(() => {
@@ -122,6 +128,11 @@ const AdminClassOfferingSignupModal = ({
   }
 
   const handleSubmit = async () => {
+    if (!enrollmentStartDate) {
+      setStartDateError('Select an enrollment start date before confirming signup.')
+      startDateInputRef.current?.focus()
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -136,6 +147,7 @@ const AdminClassOfferingSignupModal = ({
           slotGroupId: slotGroup.id,
           timeSlotId,
           memberId: selectedMember.id,
+          enrollmentStartDate,
         })
       } else {
         const trimmedEmail = email.trim()
@@ -151,6 +163,7 @@ const AdminClassOfferingSignupModal = ({
           email: trimmedEmail,
           firstName: firstName.trim() || undefined,
           lastName: lastName.trim() || undefined,
+          enrollmentStartDate,
         })
       }
       setSuccessMessage('Signup created successfully')
@@ -195,6 +208,17 @@ const AdminClassOfferingSignupModal = ({
               )}
             </p>
           </div>
+
+          <EnrollmentStartDateField
+            id="admin-enrollment-start-date"
+            value={enrollmentStartDate}
+            onChange={(value) => {
+              setEnrollmentStartDate(value)
+              if (value) setStartDateError(null)
+            }}
+            error={startDateError}
+            inputRef={startDateInputRef}
+          />
 
           <div className="flex gap-2">
             <button

@@ -16,6 +16,7 @@ export interface PublicEnrollmentCartItem extends PendingInviteEnrollment {
   priceCents?: number
   priceLabel?: string
   selectedPricingOptionKey?: ProgramPricingOptionKey
+  enrollmentStartDate?: string
 }
 
 function isFiniteNumber(value: unknown): value is number {

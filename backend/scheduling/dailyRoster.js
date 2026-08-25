@@ -83,6 +83,7 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
         s.member_id,
         s.status,
         s.created_at,
+        s.enrollment_start_date,
         s.responses,
         s.field_responses,
         COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
@@ -143,6 +144,9 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
       programName: row.program_name || null,
       status: row.status,
       registeredAt: row.created_at,
+      enrollmentStartDate: row.enrollment_start_date
+        ? String(row.enrollment_start_date).slice(0, 10)
+        : null,
       chargedCents: cents(row.charged_cents),
       grossCents: cents(row.gross_cents),
       discountCents: cents(row.discount_cents),
@@ -201,6 +205,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
             AND s.status = 'confirmed'
             AND s.orphaned_at IS NULL
             AND s.archived_at IS NULL
+            AND s.enrollment_start_date <= $2::date
             AND (s.cancel_effective_date IS NULL OR s.cancel_effective_date > $2::date)
           ORDER BY last_name, first_name, s.id
         `,

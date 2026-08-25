@@ -35,6 +35,13 @@ function easternDate(): string {
   return `${values.year}-${values.month}-${values.day}`
 }
 
+function formatEnrollmentStartDate(date: string | null): string {
+  if (!date) return '—'
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', {
+    timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric',
+  })
+}
+
 function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
   const rows = [['Class', 'Program', 'Time', 'Athlete', 'Enrollment type', 'Status', 'Email', 'Phone', 'Amount']]
   for (const item of roster.classes) {
@@ -176,6 +183,7 @@ function AdminClassRosterPanel({
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-600">
                   <th className="py-2 pr-4 font-semibold">Member</th>
+                  <th className="py-2 pr-4 font-semibold">Starts</th>
                   <th className="py-2 pr-4 font-semibold">Status</th>
                   <th className="py-2 pr-4 font-semibold text-center">Actions</th>
                 </tr>
@@ -186,6 +194,9 @@ function AdminClassRosterPanel({
                   return (
                     <tr key={`${row.source}-${row.id}`} className="border-b border-gray-100">
                       <td className="py-3 pr-4 text-gray-900">{name}</td>
+                      <td className="py-3 pr-4 text-gray-600">
+                        {formatEnrollmentStartDate(row.enrollment_start_date)}
+                      </td>
                       <td className="py-3 pr-4">
                         <AdminEnrollmentStatusBadge row={row} />
                       </td>

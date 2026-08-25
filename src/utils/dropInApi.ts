@@ -85,6 +85,7 @@ export async function registerDropIn(input: {
     status: string
     benefitType: 'paid' | 'free_trial' | 'annual_credit' | 'admin_credit' | 'free_pass' | 'promo_code'
     totalCents: number
+    enrollmentStartDate: string
     accountRequired: boolean
     signupUrl: string | null
   }

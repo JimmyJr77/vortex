@@ -421,6 +421,26 @@ async function loadCatalog(pool, member, { includeExcluded = false } = {}) {
       Number(row.count),
     ]),
   )
+  const monthlyEnrollmentCounts = await pool.query(
+    `SELECT slot_group_id, enrollment_start_date, cancel_effective_date, COUNT(*)::int AS count
+       FROM scheduling_signup
+      WHERE status = 'confirmed'
+        AND slot_group_id IS NOT NULL
+        AND orphaned_at IS NULL
+        AND archived_at IS NULL
+      GROUP BY slot_group_id, enrollment_start_date, cancel_effective_date`,
+  )
+  const monthlyStartsByGroup = new Map()
+  for (const row of monthlyEnrollmentCounts.rows) {
+    const groupId = Number(row.slot_group_id)
+    const starts = monthlyStartsByGroup.get(groupId) ?? []
+    starts.push({
+      date: formatDateOnly(row.enrollment_start_date),
+      cancelEffectiveDate: formatDateOnly(row.cancel_effective_date),
+      count: Number(row.count),
+    })
+    monthlyStartsByGroup.set(groupId, starts)
+  }
   const sessions = []
   const classesById = new Map()
   for (const row of result.rows) {
@@ -456,7 +476,12 @@ async function loadCatalog(pool, member, { includeExcluded = false } = {}) {
       if (activeDates.activeEnd && date > activeDates.activeEnd) continue
       const availability = calculateDropInAvailability({
         maxParticipants: row.max_participants,
-        monthlyEnrolled: row.monthly_enrolled,
+        monthlyEnrolled: (monthlyStartsByGroup.get(Number(row.slot_group_id)) ?? [])
+          .filter((entry) =>
+            entry.date && entry.date <= date &&
+            (!entry.cancelEffectiveDate || entry.cancelEffectiveDate > date),
+          )
+          .reduce((sum, entry) => sum + entry.count, 0),
         dropInEnrolled: dropInCountByOccurrence.get(`${Number(row.slot_group_id)}:${date}`) ?? 0,
       })
       sessions.push({
@@ -653,7 +678,13 @@ export function registerDropInRoutes(app, pool) {
                COALESCE(top.pricing_cost_options,'[]'::jsonb) AS pricing_options,
                top.id AS program_id,
                COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
-               (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
+               (SELECT COUNT(*) FROM scheduling_signup s
+                 WHERE s.slot_group_id=sg.id
+                   AND s.status='confirmed'
+                   AND s.orphaned_at IS NULL
+                   AND s.archived_at IS NULL
+                   AND (s.cancel_effective_date IS NULL OR s.cancel_effective_date > $2::date)
+                   AND s.enrollment_start_date <= $2::date)::int AS monthly_enrolled
           FROM scheduling_slot_group sg
           JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
           JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
@@ -666,7 +697,7 @@ export function registerDropInRoutes(app, pool) {
            AND COALESCE(top.is_active, TRUE)=TRUE
            AND COALESCE(top.archived, FALSE)=FALSE
            AND COALESCE(top.exclude_from_drop_ins, FALSE)=FALSE
-         FOR UPDATE OF sg`, [slotGroupId])
+         FOR UPDATE OF sg`, [slotGroupId, classDate])
       if (!slot.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ success: false, message: 'Class not found.' }) }
       if (!slot.rows.some((row) => isActiveSlotOccurrence(row, classDate))) {
         await client.query('ROLLBACK'); return res.status(400).json({ success: false, message: 'That date is not an active occurrence of this class.' })
@@ -769,7 +800,7 @@ export function registerDropInRoutes(app, pool) {
           console.error('[drop-ins] confirmation notifications:', emailError?.message || emailError)
         }
       }
-      res.status(201).json({ success: true, data: { id: Number(inserted.rows[0].id), status, benefitType, ...price, accountRequired: status === 'account_required', signupUrl: status === 'account_required' ? `/signup/family?dropIn=${inserted.rows[0].id}` : null } })
+      res.status(201).json({ success: true, data: { id: Number(inserted.rows[0].id), status, benefitType, enrollmentStartDate: classDate, ...price, accountRequired: status === 'account_required', signupUrl: status === 'account_required' ? `/signup/family?dropIn=${inserted.rows[0].id}` : null } })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'This free trial or class date has already been registered.' })

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, CheckCircle, LayoutGrid, Loader2, Search, ShoppingCart } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import {
@@ -44,6 +44,8 @@ import ScheduleOptionCheckboxGrid, {
 } from '../signup/ScheduleOptionCheckboxGrid'
 import OrderPricingSummary from '../pricing/OrderPricingSummary'
 import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
+import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
+import { formatDateShort } from '../../utils/dateUtils'
 
 export interface EnrollableMember {
   id: number
@@ -141,6 +143,9 @@ export default function MemberClassesOfferedEnroll({
     'all',
   )
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState('')
+  const [startDateError, setStartDateError] = useState<string | null>(null)
+  const startDateInputRef = useRef<HTMLInputElement>(null)
 
   const classesWithForm = useMemo(() => {
     const out: Array<{
@@ -467,15 +472,21 @@ export default function MemberClassesOfferedEnroll({
         timeSlotId: c.timeSlotId!,
         selectedPricingOptionKey: pricingKey,
         useMultiClassPass: true,
+        enrollmentStartDate,
       }
     })
-  }, [cart, selectedPricingByProgram, programs])
+  }, [cart, enrollmentStartDate, selectedPricingByProgram, programs])
 
   const selectedMember =
     members.find((m) => Number(m.id) === Number(selectedMemberId)) ?? members[0]
 
   const goToCheckout = async () => {
     if (cart.length === 0) return
+    if (cart.some((item) => item.lineType === 'slot') && !enrollmentStartDate) {
+      setStartDateError('Select an enrollment start date before continuing.')
+      startDateInputRef.current?.focus()
+      return
+    }
     setView('checkout')
     await runPreview(promoCodes)
   }
@@ -483,6 +494,7 @@ export default function MemberClassesOfferedEnroll({
   const runPreview = useCallback(
     async (codes: string[]) => {
       if (cart.length === 0) return
+      if (cart.some((item) => item.lineType === 'slot') && !enrollmentStartDate) return
       setPreviewLoading(true)
       setPreviewError(null)
       try {
@@ -509,7 +521,7 @@ export default function MemberClassesOfferedEnroll({
         setPreviewLoading(false)
       }
     },
-    [cart, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm],
+    [cart, enrollmentStartDate, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm],
   )
 
   useEffect(() => {
@@ -650,6 +662,7 @@ export default function MemberClassesOfferedEnroll({
       setCart([])
       setPreview(null)
       setPromoCodes([])
+      setEnrollmentStartDate('')
       setView('done')
       onEnrolled()
     } catch (err) {
@@ -694,6 +707,9 @@ export default function MemberClassesOfferedEnroll({
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
           <p className="text-sm text-gray-600">Enrolling</p>
           <p className="text-base font-semibold text-gray-900">{selectedMember?.label}</p>
+          {enrollmentStartDate ? (
+            <p className="mt-1 text-sm text-gray-600">Starts {formatDateShort(enrollmentStartDate)}</p>
+          ) : null}
         </div>
 
         {!preview || previewLoading ? (
@@ -790,6 +806,17 @@ export default function MemberClassesOfferedEnroll({
             ))}
           </select>
         </div>
+        <EnrollmentStartDateField
+          id="member-enrollment-start-date"
+          value={enrollmentStartDate}
+          onChange={(value) => {
+            setEnrollmentStartDate(value)
+            if (value) setStartDateError(null)
+          }}
+          error={startDateError}
+          inputRef={startDateInputRef}
+          className="max-w-sm"
+        />
       </div>
 
       {(classesWithForm.length > 0 || showMembershipCard) && (

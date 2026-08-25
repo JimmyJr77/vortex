@@ -36,6 +36,16 @@ function memberLabel(member: { firstName?: string | null; lastName?: string | nu
   return `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Member'
 }
 
+function formatEnrollmentStartDate(date: string | null) {
+  if (!date) return '—'
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
 function EnrollmentTable({
   rows,
   onManage,
@@ -56,6 +66,7 @@ function EnrollmentTable({
             <th className="px-3 py-2 font-semibold">Program</th>
             <th className="px-3 py-2 font-semibold">Class</th>
             <th className="px-3 py-2 font-semibold">Active dates</th>
+            <th className="px-3 py-2 font-semibold">Starts</th>
             <th className="px-3 py-2 font-semibold">Schedule</th>
             <th className="px-3 py-2 font-semibold text-right">Class Cost</th>
             <th className="px-3 py-2 font-semibold text-right">Adjusted Cost</th>
@@ -78,6 +89,9 @@ function EnrollmentTable({
                 </td>
                 <td className="px-3 py-2 text-gray-600">
                   {row.offering_dates || '—'}
+                </td>
+                <td className="px-3 py-2 text-gray-600">
+                  {formatEnrollmentStartDate(row.enrollment_start_date)}
                 </td>
                 <td className="px-3 py-2 text-gray-600">{row.schedule || '—'}</td>
                 <td className="px-3 py-2 text-right text-gray-700">{money(row.class_cost_cents)}</td>

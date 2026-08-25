@@ -60,6 +60,7 @@ const SchedulingPage = () => {
   )
   const urlAuthToken = searchParams.get('auth')
   const urlEmail = searchParams.get('email')
+  const urlEnrollmentStartDate = searchParams.get('enrollmentStartDate')
   const shouldOpenSignupDirectly = Boolean(
     urlFormId != null && (urlAuthToken || urlOfferingId || urlSlotGroupId || urlTimeSlotId),
   )
@@ -125,13 +126,14 @@ const SchedulingPage = () => {
               <ArrowLeft className="w-4 h-4" /> {signupComplete ? 'Return to classes' : 'Back to classes'}
             </button>
             <SchedulingSignupEmbed
-              key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
+              key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}:${urlEnrollmentStartDate ?? 'none'}`}
               formId={selectedFormId}
               initialOfferingId={urlOfferingId}
               initialSlotGroupId={urlSlotGroupId}
               initialTimeSlotId={urlTimeSlotId}
               initialAuthToken={urlAuthToken}
               initialEmail={urlEmail ?? getLoggedInMemberEmail()}
+              initialEnrollmentStartDate={urlEnrollmentStartDate}
               onSignupComplete={handleSignupComplete}
             />
           </div>

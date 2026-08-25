@@ -32,18 +32,22 @@ import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSe
 import { trackEvent } from '../utils/analyticsClient'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
+import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
+import { formatDateShort } from '../utils/dateUtils'
 
 function buildSchedulingReturnUrl(
   formId: number,
   offeringId?: number | null | undefined,
   slotGroupId?: number | null,
   timeSlotId?: number | null,
+  enrollmentStartDate?: string | null,
 ) {
   const params = new URLSearchParams()
   params.set('form', String(formId))
   if (offeringId != null) params.set('offeringId', String(offeringId))
   if (slotGroupId != null) params.set('slotGroupId', String(slotGroupId))
   if (timeSlotId != null) params.set('timeSlotId', String(timeSlotId))
+  if (enrollmentStartDate) params.set('enrollmentStartDate', enrollmentStartDate)
   return `/enroll?${params.toString()}`
 }
 
@@ -496,6 +500,7 @@ interface Props {
   initialOfferingId?: number | null
   initialSlotGroupId?: number | null
   initialTimeSlotId?: number | null
+  initialEnrollmentStartDate?: string | null
   onSignupComplete?: (detail: SchedulingSignupCompleteDetail) => void
 }
 
@@ -508,6 +513,7 @@ const SchedulingSignupEmbed = ({
   initialOfferingId,
   initialSlotGroupId,
   initialTimeSlotId,
+  initialEnrollmentStartDate = null,
   onSignupComplete,
 }: Props) => {
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
@@ -544,6 +550,9 @@ const SchedulingSignupEmbed = ({
   const [appliedPromoCodes, setAppliedPromoCodes] = useState<string[]>([])
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState(initialEnrollmentStartDate || '')
+  const [startDateError, setStartDateError] = useState<string | null>(null)
+  const startDateInputRef = useRef<HTMLInputElement>(null)
   const programOptionsFetchKeyRef = useRef<string | null>(null)
   const signedUpSlotsFetchRef = useRef<{ key: string; promise: Promise<void> } | null>(null)
 
@@ -575,13 +584,15 @@ const SchedulingSignupEmbed = ({
     setAccountEmail(initialEmail || getLoggedInMemberEmail() || '')
     setAccountPassword('')
     setMagicLinkSent(false)
+    setEnrollmentStartDate(initialEnrollmentStartDate || '')
+    setStartDateError(null)
     fetchPublicSchedulingForm(formId, { fromEvent })
       .then((detail) => {
         setFormDetail(detail)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
       .finally(() => setLoading(false))
-  }, [formId, fromEvent])
+  }, [formId, fromEvent, initialEmail, initialEnrollmentStartDate])
 
   useEffect(() => {
     if (!formDetail) {
@@ -737,6 +748,7 @@ const SchedulingSignupEmbed = ({
         formId: item.formId,
         slotGroupId: item.slotGroupId,
         timeSlotId: item.timeSlotId,
+        enrollmentStartDate,
       })),
       promoCodes: appliedPromoCodes,
     })
@@ -763,6 +775,7 @@ const SchedulingSignupEmbed = ({
     signupAuthToken,
     formId,
     appliedPromoCodes,
+    enrollmentStartDate,
   ])
 
   const loadConfirmedOrderPreview = useCallback(async () => {
@@ -942,6 +955,11 @@ const SchedulingSignupEmbed = ({
   }, [slotGroupId, timeSlotId, signupAuthToken, identityPhase, identityLoading])
 
   const handleEmailContinue = async () => {
+    if (!enrollmentStartDate) {
+      setStartDateError('Select an enrollment start date before continuing.')
+      startDateInputRef.current?.focus()
+      return
+    }
     const email = accountEmail.trim()
     if (!email) {
       setError('Enter your email address')
@@ -961,7 +979,13 @@ const SchedulingSignupEmbed = ({
           setMagicLinkSent(true)
         }
       } else {
-        const returnTo = buildSchedulingReturnUrl(formId, offeringId, slotGroupId, timeSlotId)
+        const returnTo = buildSchedulingReturnUrl(
+          formId,
+          offeringId,
+          slotGroupId,
+          timeSlotId,
+          enrollmentStartDate,
+        )
         window.location.assign(`/signup/family?return=${encodeURIComponent(returnTo)}`)
       }
     } catch (err) {
@@ -1232,6 +1256,11 @@ const SchedulingSignupEmbed = ({
   const handleGoToReview = () => {
     if (!formDetail || !slotGroupId || !timeSlotId) return
     if (identityPhase !== 'ready') return
+    if (!enrollmentStartDate) {
+      setStartDateError('Select an enrollment start date before continuing.')
+      startDateInputRef.current?.focus()
+      return
+    }
     if (pendingSlotList.length < 1) {
       setError('Select at least one new class time to sign up')
       return
@@ -1260,6 +1289,7 @@ const SchedulingSignupEmbed = ({
           formId: item.formId,
           slotGroupId: item.slotGroupId,
           timeSlotId: item.timeSlotId,
+          enrollmentStartDate,
         })),
         responses: { email: accountEmail.trim() },
         signupAuthToken: signupAuthToken || undefined,
@@ -1473,6 +1503,19 @@ const SchedulingSignupEmbed = ({
       )}
 
       <form onSubmit={handleSubmit} className={compact ? 'space-y-4' : 'space-y-8'}>
+        <div className={sectionClass}>
+          <EnrollmentStartDateField
+            id={`direct-enrollment-start-date-${formId}`}
+            value={enrollmentStartDate}
+            onChange={(value) => {
+              setEnrollmentStartDate(value)
+              if (value) setStartDateError(null)
+            }}
+            error={startDateError}
+            inputRef={startDateInputRef}
+            className="max-w-sm"
+          />
+        </div>
         {showReview ? (
           <div className={sectionClass}>
             <h4 className={`font-bold text-black mb-2 ${compact ? 'text-base' : 'text-xl'}`}>
@@ -1481,6 +1524,11 @@ const SchedulingSignupEmbed = ({
             <p className="text-sm text-gray-600 mb-4">
               Confirm the classes below, or remove any you do not want before submitting.
             </p>
+            {enrollmentStartDate ? (
+              <p className="mb-4 text-sm font-semibold text-gray-800">
+                Enrollment starts {formatDateShort(enrollmentStartDate)}
+              </p>
+            ) : null}
             {cartItems.length === 0 ? (
               <p className="text-sm text-gray-600">No classes selected.</p>
             ) : (

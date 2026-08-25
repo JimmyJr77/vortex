@@ -221,6 +221,9 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           monthlyAmountCents: line.grossCents,
           discountAmountCents: subscriptionDiscount,
           pricingOptionKey: line.selectedPricingOptionKey,
+          fromDate: fm?.enrollmentStartDate
+            ? new Date(`${fm.enrollmentStartDate}T12:00:00Z`)
+            : new Date(),
           firstBillDate,
         })
         if (sub) {

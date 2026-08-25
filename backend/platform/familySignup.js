@@ -28,6 +28,7 @@ import {
   sortOccurrenceRows,
   sortScheduleCatalogOptions,
 } from '../scheduling/slotSort.js'
+import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 
 function isAdult(dateOfBirth) {
   if (!dateOfBirth) return true
@@ -554,6 +555,7 @@ async function applyEnrollmentRow(client, {
   const schedulingFormId = Number(enrollment.schedulingFormId)
   const slotGroupId = Number(enrollment.slotGroupId)
   if (Number.isFinite(schedulingFormId) && Number.isFinite(slotGroupId)) {
+    const enrollmentStartDate = requireEnrollmentStartDate(enrollment.enrollmentStartDate)
     const timeSlotId = Number(enrollment.timeSlotId)
     const offeringIds = enrollment.offeringId != null
       ? [Number(enrollment.offeringId)]
@@ -564,14 +566,16 @@ async function applyEnrollmentRow(client, {
       email: memberRow?.email || primaryAdultEmail || null,
       phone: memberRow?.phone,
       offering_ids: offeringIds,
+      enrollment_start_date: enrollmentStartDate,
     }
     const ssInsert = await client.query(
       `
         INSERT INTO scheduling_signup (
           form_id, time_slot_id, slot_group_id, member_id,
-          first_name, last_name, email, phone, field_responses, responses, status
+          first_name, last_name, email, phone, field_responses, responses, status,
+          enrollment_start_date
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed')
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed', $11)
         RETURNING id
       `,
       [
@@ -585,6 +589,7 @@ async function applyEnrollmentRow(client, {
         responses.phone,
         JSON.stringify(responses),
         JSON.stringify(responses),
+        enrollmentStartDate,
       ],
     )
     schedulingSignupId = Number(ssInsert.rows[0]?.id)
@@ -597,6 +602,7 @@ async function applyEnrollmentRow(client, {
     slotLabel: enrollment.scheduleLabel || '',
     status: 'confirmed',
     selectedDays: Array.isArray(enrollment.selectedDays) ? enrollment.selectedDays : [],
+    enrollmentStartDate: enrollment.enrollmentStartDate || null,
   }
 }
 

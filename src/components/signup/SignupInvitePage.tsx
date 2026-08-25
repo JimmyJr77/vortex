@@ -143,6 +143,13 @@ export default function SignupInvitePage() {
       setError('Passwords do not match.')
       return
     }
+    const missingStartDateIndex = enrollments.findIndex(
+      (row) => row.classEventId !== '' && !row.enrollmentStartDate,
+    )
+    if (missingStartDateIndex >= 0) {
+      setError(`Select an enrollment start date for class ${missingStartDateIndex + 1}.`)
+      return
+    }
 
     const enrollmentPayload = buildEnrollmentSubmitPayload(
       enrollments,

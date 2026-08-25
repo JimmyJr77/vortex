@@ -185,6 +185,36 @@ test('computeFirstMonthLayer allocates household discount across full account', 
   }
 })
 
+test('computeFirstMonthLayer prorates from the requested enrollment start date', async () => {
+  const pool = fakeCalendarPool([slotRow()])
+  const slotKey = '1:2:3'
+  const layer = await computeFirstMonthLayer(pool, {
+    newSignupItems: [{
+      slotKey,
+      formId: 1,
+      formTitle: 'Cyclones',
+      slotGroupId: 2,
+      timeSlotId: 3,
+      lineType: 'slot',
+      billingType: 'recurring',
+      incrementalMonthly: 150,
+      enrollmentStartDate: '2026-07-20',
+    }],
+    discounts: {
+      enabled: true,
+      lines: [{ key: slotKey, baseCents: 15000, finalCents: 15000, applied: [] }],
+      orderDiscounts: [],
+    },
+    asOfDate: '2026-07-08',
+  })
+
+  assert.equal(layer.periodStart, '2026-07-20')
+  assert.equal(layer.items[0].enrollmentStartDate, '2026-07-20')
+  assert.equal(layer.items[0].remainingClasses, 2)
+  assert.equal(layer.items[0].ratio, 0.5)
+  assert.equal(layer.items[0].proratedCents, 7500)
+})
+
 test('computeFirstMonthLayer prepays future-start classes and shows $0 prorated', async () => {
   const pool = fakeCalendarPool([
     slotRow({ offering_start_date: '2026-09-01', offering_end_date: '2027-06-15' }),

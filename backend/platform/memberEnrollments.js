@@ -37,6 +37,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
         s.form_id,
         s.status,
         s.created_at,
+        s.enrollment_start_date,
         s.cancel_effective_date,
         s.cancel_requested_at,
         m.first_name AS member_first_name,
@@ -136,6 +137,9 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
         offering_start_date: offering.offering_start_date,
         offering_end_date: offering.offering_end_date,
         offering_dates: offering.offering_dates,
+        enrollment_start_date: row.enrollment_start_date
+          ? String(row.enrollment_start_date).slice(0, 10)
+          : null,
         status: row.status,
         cancel_effective_date: row.cancel_effective_date
           ? String(row.cancel_effective_date).slice(0, 10)
@@ -214,6 +218,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
       offering_start_date: attendanceDate,
       offering_end_date: attendanceDate,
       offering_dates: attendanceDate,
+      enrollment_start_date: attendanceDate,
       slot_label: [attendanceDate, [formatTime(row.start_time), formatTime(row.end_time)].filter(Boolean).join('–')].filter(Boolean).join(' · '),
       status: row.status,
       created_at: row.created_at,
