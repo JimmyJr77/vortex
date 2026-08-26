@@ -61,6 +61,10 @@ import { startMessageThreadAutoArchiveScheduler } from './platform/messageThread
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
+import {
+  MemberPasswordResetDeliveryError,
+  resetMemberPasswordByEmail,
+} from './auth/memberPasswordReset.js'
 import { initOpportunityTables, registerOpportunityRoutes } from './opportunities/registerRoutes.js'
 
 const { Pool } = pkg
@@ -271,6 +275,17 @@ const limiter = rateLimit({
 })
 app.use('/api/', limiter)
 console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.PASSWORD_RESET_RATE_LIMIT_MAX) || 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many password reset attempts. Please wait 15 minutes and try again.',
+  },
+})
 
 // PostgreSQL Database setup. Local development sometimes points at the hosted
 // database via DATABASE_URL; hosted PostgreSQL still requires TLS even though
@@ -8183,44 +8198,38 @@ app.post('/api/members/login', async (req, res) => {
   }
 })
 
-app.post('/api/members/request-password-reset', async (req, res) => {
+app.post('/api/members/request-password-reset', passwordResetLimiter, async (req, res) => {
   try {
     const { error, value } = memberPasswordResetRequestSchema.validate(req.body)
     if (error) {
       return res.status(400).json({ success: false, message: 'Validation error' })
     }
 
-    const normalizedEmail = value.email.trim().toLowerCase()
-    const userResult = await pool.query(`
-      SELECT id, email, full_name
-      FROM app_user
-      WHERE LOWER(email) = $1
-        AND is_active = TRUE
-      LIMIT 1
-    `, [normalizedEmail])
-
-    if (userResult.rows.length > 0) {
-      const user = userResult.rows[0]
-      const temporaryPassword = generateTemporaryPassword(12)
-      const passwordHash = await bcrypt.hash(temporaryPassword, 10)
-      await pool.query(
-        `UPDATE app_user SET password_hash = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
-        [user.id, passwordHash],
-      )
-      await pool.query(
-        `UPDATE member SET must_change_password = TRUE, updated_at = CURRENT_TIMESTAMP WHERE app_user_id = $1`,
-        [user.id],
-      )
-      try {
-        await sendTemporaryPasswordEmail({
-          registrantFirstName: String(user.full_name || '').split(' ')[0] || 'there',
-          registrantEmail: user.email,
-          temporaryPassword,
+    let resetResult
+    try {
+      resetResult = await resetMemberPasswordByEmail(pool, value.email)
+    } catch (error) {
+      if (error instanceof MemberPasswordResetDeliveryError) {
+        console.error('[member-password-reset] temporary email delivery failed', {
+          requestId: req.requestId,
+          userId: error.userId,
+          reason: error.reason,
+          message: error.cause?.message || error.message,
         })
-      } catch (mailError) {
-        console.error('Member password reset email failed:', mailError.message)
+        return res.status(503).json({
+          success: false,
+          message: 'We could not send a temporary password right now. Your current password has not changed. Please try again or contact Vortex Athletics.',
+        })
       }
+      throw error
     }
+
+    console.info('[member-password-reset] request completed', {
+      requestId: req.requestId,
+      accountFound: resetResult.accountFound,
+      delivered: resetResult.sent,
+      userId: resetResult.userId,
+    })
 
     // Return generic success regardless of lookup result.
     res.json({

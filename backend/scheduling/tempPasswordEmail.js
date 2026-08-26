@@ -23,12 +23,13 @@ export function generateTemporaryPassword(length = 12) {
 
 /**
  * @param {{ registrantFirstName: string, registrantEmail: string, temporaryPassword: string }} params
+ * @param {{ send?: typeof sendEmail }} options
  */
 export async function sendTemporaryPasswordEmail({
   registrantFirstName,
   registrantEmail,
   temporaryPassword,
-}) {
+}, { send = sendEmail } = {}) {
   const firstName = registrantFirstName || 'there'
   const subject = 'Your temporary Vortex Athletics password'
 
@@ -58,5 +59,24 @@ ${TEAM_EMAIL}`
 </body>
 </html>`
 
-  return sendEmail({ to: registrantEmail, subject, text, html, category: 'password_reset', templateVersion: 'temp_password_v1' })
+  const delivery = await send({
+    to: registrantEmail,
+    subject,
+    text,
+    html,
+    category: 'password_reset',
+    templateVersion: 'temp_password_v1',
+    // Password resets have their own endpoint rate limit. A generic email
+    // cooldown must not silently discard a newly generated password.
+    skipPolicy: true,
+  })
+
+  if (!delivery?.sent) {
+    const error = new Error('Temporary password email was not accepted for delivery.')
+    error.code = 'TEMPORARY_PASSWORD_EMAIL_NOT_SENT'
+    error.reason = delivery?.reason || 'not_sent'
+    throw error
+  }
+
+  return delivery
 }
