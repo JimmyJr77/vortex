@@ -376,7 +376,7 @@ export default function MemberClassesOfferedEnroll({
         (row) =>
           Number(row.member_id) === Number(selectedMemberId) &&
           row.source === 'scheduling' &&
-          ['confirmed', 'active', 'waitlisted', 'paused'].includes(row.status) &&
+          ['confirmed', 'active', 'requested', 'waitlisted', 'paused'].includes(row.status) &&
           row.form_id != null,
       ),
     [enrollments, selectedMemberId],

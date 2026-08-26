@@ -228,7 +228,7 @@ export default function MemberEnrollmentsTab({
           }
           enrollmentKeys.add(key)
 
-          if (['confirmed', 'active', 'waitlisted', 'paused'].includes(row.status)) {
+          if (['confirmed', 'active', 'requested', 'waitlisted', 'paused'].includes(row.status)) {
             const classKey = [group.id, row.form_id, row.slot_group_id, row.time_slot_id].join(':')
             if (activeClassKeys.has(classKey)) {
               reconciliationWarnings.push(`Possible duplicate active registration for ${memberLabel(group)}: ${row.class_name || 'class'} (enrollment ${row.id}).`)
@@ -236,7 +236,7 @@ export default function MemberEnrollmentsTab({
             activeClassKeys.add(classKey)
           }
           const recurringEnrollment = row.source === 'scheduling' && (row.billingType ?? row.billing_type) !== 'one_time'
-          if (recurringEnrollment && ['confirmed', 'active'].includes(row.status) && !subscriptionSignupIds.has(row.id)) {
+          if (recurringEnrollment && ['confirmed', 'active', 'requested'].includes(row.status) && !subscriptionSignupIds.has(row.id)) {
             reconciliationWarnings.push(`${memberLabel(group)}'s ${row.class_name || 'class'} enrollment ${row.id} is not linked to recurring billing.`)
           }
         }

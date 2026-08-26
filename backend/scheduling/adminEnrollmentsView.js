@@ -240,6 +240,12 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       SELECT
         s.id, s.member_id, s.form_id, s.status, s.created_at, s.enrollment_start_date,
         s.cancel_effective_date, s.cancel_requested_at,
+        EXISTS (
+          SELECT 1
+          FROM enrollment_cancellation_request cancellation_request
+          WHERE cancellation_request.signup_id = s.id
+            AND cancellation_request.status = 'pending'
+        ) AS cancellation_requested,
         s.completed_at, s.paused_at,
         s.pause_effective_date, s.pause_mode,
         s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_reason, s.manual_discount_rule_id,
@@ -278,6 +284,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
   )
 
   const schedulingRows = schedulingResult.rows.map((row) => {
+    const displayStatus = row.cancellation_requested ? 'requested' : row.status
     const offering = resolveEnrollmentOfferingDisplay(row)
     const taxonomy = taxonomyByFormId.get(Number(row.form_id))
     const programName = taxonomy?.programName ?? (row.program_name || null)
@@ -325,7 +332,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         offering_dates: offering.offering_dates,
         enrollment_start_date: formatDateOnly(row.enrollment_start_date),
         schedule: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
-        status: row.status,
+        status: displayStatus,
         cancel_effective_date: formatDateOnly(row.cancel_effective_date),
         cancel_requested_at: row.cancel_requested_at ?? null,
         billing_status: sub?.status ?? null,

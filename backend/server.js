@@ -41,6 +41,7 @@ import { issueEmailVerification } from './email/emailVerificationService.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
+import { getMemberArchivePreflight, setMemberArchived } from './members/memberArchive.js'
 import { runCatalogRepairMigrations } from './programs/runCatalogRepairMigrations.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
@@ -1070,26 +1071,39 @@ export const initDatabase = async () => {
     } else {
       await initPlatformTables(pool)
     }
+
+    // Migration 090 removed the legacy member_program table. Historical
+    // databases can still retain this trigger, causing every member UPDATE to
+    // fail with "relation member_program does not exist" (including archive).
+    await pool.query(`DROP TRIGGER IF EXISTS trigger_update_athlete_status ON member`)
+    await pool.query(`DROP FUNCTION IF EXISTS update_member_athlete_status()`)
     // Marketing RBAC seeds depend on the role/permission tables created by the
     // platform migration set. Keep this after initPlatformTables so a brand-new
     // environment can boot without a partial marketing migration failure.
     await initMarketingTables(pool)
     
-    // Function to update family_is_active status
+    // Keep family activity in its dedicated boolean. Older versions also wrote
+    // a "family_active" member status here, which is rejected by newer member
+    // status constraints and made otherwise valid archive operations fail.
     await pool.query(`
       CREATE OR REPLACE FUNCTION update_family_active_status()
       RETURNS TRIGGER AS $$
+      DECLARE family_active BOOLEAN;
       BEGIN
-        -- Update all members in the same family
+        IF NEW.family_id IS NULL OR pg_trigger_depth() > 1 THEN
+          RETURN NEW;
+        END IF;
+
+        SELECT EXISTS (
+          SELECT 1 FROM member family_member
+          WHERE family_member.family_id = NEW.family_id
+            AND family_member.is_active = TRUE
+        ) INTO family_active;
+
         UPDATE member
-        SET family_is_active = TRUE,
-            status = CASE 
-              WHEN status = 'archived' THEN 'archived'
-              WHEN status = 'enrolled' THEN 'enrolled'
-              ELSE 'family_active'
-            END
+        SET family_is_active = family_active
         WHERE family_id = NEW.family_id
-          AND (NEW.family_is_active = TRUE OR NEW.is_active = TRUE);
+          AND family_is_active IS DISTINCT FROM family_active;
         
         RETURN NEW;
       END;
@@ -1111,26 +1125,18 @@ export const initDatabase = async () => {
       CREATE OR REPLACE FUNCTION calculate_family_active_status()
       RETURNS void AS $$
       BEGIN
-        -- Set family_is_active = TRUE for all members in families where at least one member is active
         UPDATE member m1
-        SET family_is_active = TRUE,
-            status = CASE 
-              WHEN m1.status = 'archived' THEN 'archived'
-              WHEN m1.status = 'enrolled' THEN 'enrolled'
-              WHEN EXISTS (
-                SELECT 1 FROM member m2 
-                WHERE m2.family_id = m1.family_id 
-                AND m2.is_active = TRUE
-                AND m2.id != m1.id
-              ) THEN 'family_active'
-              ELSE m1.status
-            END
-        WHERE EXISTS (
+        SET family_is_active = EXISTS (
           SELECT 1 FROM member m2 
           WHERE m2.family_id = m1.family_id 
-          AND m2.is_active = TRUE
-          AND m2.id != m1.id
-        );
+            AND m2.is_active = TRUE
+        )
+        WHERE m1.family_id IS NOT NULL
+          AND m1.family_is_active IS DISTINCT FROM EXISTS (
+            SELECT 1 FROM member m2
+            WHERE m2.family_id = m1.family_id
+              AND m2.is_active = TRUE
+          );
       END;
       $$ LANGUAGE plpgsql;
     `)
@@ -4333,130 +4339,96 @@ app.post('/api/admin/athletes', async (req, res) => {
   }
 })
 
-// Archive/Unarchive member (admin endpoint)
-app.patch('/api/admin/members/:id/archive', async (req, res) => {
+// Explain whether a member can be archived before showing the confirmation.
+app.get('/api/admin/members/:id/archive-check', async (req, res) => {
   try {
-    const { id } = req.params
-    const { archived } = req.body
-    
-    if (typeof archived !== 'boolean') {
-      return res.status(400).json({
+    const memberId = Number(req.params.id)
+    if (!Number.isInteger(memberId) || memberId <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid member id.' })
+    }
+
+    if (await isDefaultMasterMemberId(memberId)) {
+      const blocker = {
+        type: 'protected_account',
+        message: 'The default master admin account cannot be archived.',
+        details: [],
+      }
+      return res.status(409).json({
         success: false,
-        message: 'archived must be a boolean value'
+        code: 'MEMBER_ARCHIVE_BLOCKED',
+        message: blocker.message,
+        canArchive: false,
+        blockers: [blocker],
       })
     }
 
-    if (archived && (await isDefaultMasterMemberId(id))) {
+    const preflight = await getMemberArchivePreflight(pool, memberId)
+    if (!preflight.found) {
+      return res.status(404).json({ success: false, message: 'Member not found.' })
+    }
+
+    return res.json({
+      success: true,
+      canArchive: preflight.canArchive,
+      blockers: preflight.blockers,
+    })
+  } catch (error) {
+    console.error('Member archive preflight error:', error)
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to check whether this member can be archived.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    })
+  }
+})
+
+// Archive/Unarchive a member and its linked Vortex login atomically.
+app.patch('/api/admin/members/:id/archive', async (req, res) => {
+  try {
+    const memberId = Number(req.params.id)
+    const { archived } = req.body
+
+    if (!Number.isInteger(memberId) || memberId <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid member id.' })
+    }
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'archived must be a boolean value',
+      })
+    }
+    if (archived && (await isDefaultMasterMemberId(memberId))) {
       return res.status(400).json({
         success: false,
         message: 'The default master admin account cannot be archived.',
       })
     }
-    
-    // Check if member table exists
-    const tableCheck = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'member'
-      )
-    `)
-    
-    const hasMemberTable = tableCheck.rows[0].exists
-    
-    if (hasMemberTable) {
-      // Update member is_active (archived = true means is_active = false)
-      await pool.query(`
-        UPDATE member 
-        SET is_active = $1, 
-            status = CASE 
-              WHEN $1 = FALSE AND status = 'archived' THEN 'legacy'
-              WHEN $1 = FALSE THEN status
-              ELSE 'archived'
-            END,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
-      `, [!archived, id])
-      
-      // Update family_is_active for all family members
-      const memberResult = await pool.query(`
-        SELECT family_id FROM member WHERE id = $1
-      `, [id])
-      
-      if (memberResult.rows.length > 0 && memberResult.rows[0].family_id) {
-        const familyId = memberResult.rows[0].family_id
-        // Recalculate family_is_active for all members in this family
-        await pool.query(`
-          UPDATE member
-          SET family_is_active = EXISTS (
-            SELECT 1 FROM member m2 
-            WHERE m2.family_id = $1 
-            AND m2.is_active = TRUE
-          ),
-          status = CASE 
-            WHEN is_active = FALSE THEN 'archived'
-            WHEN status = 'archived' THEN 'archived'
-            WHEN EXISTS (
-              SELECT 1 FROM member m2 
-              WHERE m2.family_id = $1 
-              AND m2.is_active = TRUE
-              AND m2.id != member.id
-            ) THEN 'family_active'
-            WHEN EXISTS (
-              SELECT 1 FROM scheduling_signup ss WHERE ss.member_id = member.id AND ss.orphaned_at IS NULL
-            ) THEN 'enrolled'
-            ELSE 'legacy'
-          END
-          WHERE family_id = $1
-        `, [familyId])
-      }
-      
-      // Get updated member
-      const result = await pool.query(`
-        SELECT * FROM member WHERE id = $1
-      `, [id])
-      
-      if (result.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Member not found'
-        })
-      }
-      
-      res.json({
-        success: true,
-        message: archived ? 'Member archived successfully' : 'Member unarchived successfully',
-        data: result.rows[0]
-      })
-    } else {
-      // Fallback to legacy tables
-      // Try to update in app_user first
-      const userResult = await pool.query(`
-        UPDATE app_user 
-        SET is_active = $1, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
-        RETURNING *
-      `, [!archived, id])
-      
-      if (userResult.rows.length > 0) {
-        res.json({
-          success: true,
-          message: archived ? 'User archived successfully' : 'User unarchived successfully',
-          data: userResult.rows[0]
-        })
-      } else {
-        // Member table doesn't exist - return error (shouldn't happen in production)
-        res.status(404).json({
-          success: false,
-          message: 'Member table not found'
-        })
-      }
+
+    const result = await setMemberArchived(pool, memberId, archived)
+    if (!result.found) {
+      return res.status(404).json({ success: false, message: 'Member not found.' })
     }
+    if (archived && !result.canArchive) {
+      return res.status(409).json({
+        success: false,
+        code: 'MEMBER_ARCHIVE_BLOCKED',
+        message: 'This member cannot be archived yet.',
+        canArchive: false,
+        blockers: result.blockers,
+      })
+    }
+
+    return res.json({
+      success: true,
+      message: archived ? 'Member archived successfully' : 'Member unarchived successfully',
+      data: result.member,
+    })
   } catch (error) {
     console.error('Archive member error:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Unable to archive/unarchive this member.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     })
   }
 })

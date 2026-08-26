@@ -44,6 +44,21 @@ interface UnifiedMember {
   updatedAt: string
 }
 
+interface MemberArchiveBlocker {
+  type: string
+  message: string
+}
+
+function formatArchiveBlockers(blockers: MemberArchiveBlocker[]): string {
+  return [
+    'This member cannot be archived yet:',
+    '',
+    ...blockers.map((blocker) => `• ${blocker.message}`),
+    '',
+    'Resolve the items above, then try archiving again.',
+  ].join('\n')
+}
+
 const memberIconBtn =
   'p-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none'
 const memberThClass = 'py-3 pr-4 font-semibold whitespace-nowrap'
@@ -232,20 +247,45 @@ export default function AdminMembers() {
   }, [fetchMembers])
   
   const handleArchiveMember = async (id: number, archived: boolean): Promise<boolean> => {
-    if (!confirm(archived ? 'Are you sure you want to archive this member?' : 'Are you sure you want to unarchive this member?')) {
-      return false
-    }
     try {
+      if (archived) {
+        const preflightResponse = await adminApiRequest(`/api/admin/members/${id}/archive-check`)
+        const preflightData = await preflightResponse.json().catch(() => ({}))
+        const blockers = Array.isArray(preflightData.blockers)
+          ? preflightData.blockers as MemberArchiveBlocker[]
+          : []
+
+        if (blockers.length > 0) {
+          alert(formatArchiveBlockers(blockers))
+          return false
+        }
+        if (!preflightResponse.ok || preflightData.canArchive !== true) {
+          alert(preflightData.message || 'Unable to check whether this member can be archived.')
+          return false
+        }
+      }
+
+      if (!confirm(archived ? 'Are you sure you want to archive this member?' : 'Are you sure you want to unarchive this member?')) {
+        return false
+      }
+
       const response = await adminApiRequest(`/api/admin/members/${id}/archive`, {
         method: 'PATCH',
         body: JSON.stringify({ archived })
       })
+      const data = await response.json().catch(() => ({}))
       if (response.ok) {
         await fetchMembers()
         return true
       } else {
-        const data = await response.json()
-        alert(data.message || 'Failed to archive/unarchive member')
+        const blockers = Array.isArray(data.blockers)
+          ? data.blockers as MemberArchiveBlocker[]
+          : []
+        alert(
+          blockers.length > 0
+            ? formatArchiveBlockers(blockers)
+            : data.message || 'Failed to archive/unarchive member',
+        )
         return false
       }
     } catch (error) {

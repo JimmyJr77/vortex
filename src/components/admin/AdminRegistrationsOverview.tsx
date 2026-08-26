@@ -43,13 +43,12 @@ function formatEnrollmentStartDate(date: string | null): string {
 }
 
 function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
-  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Enrollment type', 'Status', 'Email', 'Phone', 'Amount']]
+  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Type', 'Email', 'Phone']]
   for (const item of roster.classes) {
     for (const athlete of item.athletes) {
       rows.push([
         item.className, item.programName || '', item.timeLabel, athlete.name,
-        athlete.enrollmentType.replaceAll('_', ' '), athlete.status, athlete.email, athlete.phone,
-        `$${(athlete.amountCents / 100).toFixed(2)}`,
+        enrollmentTypeLabel(athlete.enrollmentType), athlete.email, athlete.phone,
       ])
     }
   }
@@ -551,7 +550,7 @@ function addDays(date: string, amount: number): string {
 }
 
 function enrollmentTypeLabel(value: string): string {
-  return ({ monthly: 'Monthly', temporary_block: 'Temporary block', one_time: 'One-time', drop_in: 'Drop-in' })[value] || value
+  return ({ monthly: 'Monthly', temporary_block: 'Enrolled', one_time: 'One-time', drop_in: 'Drop-in' })[value] || value
 }
 
 function DailyEnrollmentsView() {
@@ -606,8 +605,8 @@ function DailyEnrollmentsView() {
               {item.athletes.length === 0 ? (
                 <p className="p-4 text-sm text-gray-500">No enrollments for this class.</p>
               ) : (
-                <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-gray-600"><th className="p-3">Athlete</th><th className="p-3">Type</th><th className="p-3">Status</th><th className="p-3">Contact</th><th className="p-3 text-right">Amount</th></tr></thead><tbody>{item.athletes.map((athlete) => (
-                  <tr key={`${athlete.source}:${athlete.signupId}`} className="border-b last:border-0"><td className="p-3 font-semibold text-gray-900">{athlete.name}</td><td className="p-3"><span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold">{enrollmentTypeLabel(athlete.enrollmentType)}</span></td><td className="p-3 capitalize">{athlete.status}</td><td className="p-3 text-gray-600"><span className="block">{athlete.email || '—'}</span><span>{athlete.phone || ''}</span></td><td className="p-3 text-right">${(athlete.amountCents / 100).toFixed(2)}{athlete.benefitType ? <span className="block text-xs capitalize text-gray-500">{athlete.benefitType.replaceAll('_', ' ')}</span> : null}</td></tr>
+                <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-gray-600"><th className="p-3">Athlete</th><th className="p-3">Type</th><th className="p-3">Email</th><th className="p-3">Phone</th></tr></thead><tbody>{item.athletes.map((athlete) => (
+                  <tr key={`${athlete.source}:${athlete.signupId}`} className="border-b last:border-0"><td className="p-3 font-semibold text-gray-900">{athlete.name}</td><td className="p-3"><span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold">{enrollmentTypeLabel(athlete.enrollmentType)}</span></td><td className="p-3 text-gray-600">{athlete.email || '—'}</td><td className="p-3 text-gray-600">{athlete.phone || '—'}</td></tr>
                 ))}</tbody></table></div>
               )}
             </section>

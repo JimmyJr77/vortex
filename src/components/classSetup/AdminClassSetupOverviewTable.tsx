@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Archive, Loader2, Search, Trash2, Users, X } from 'lucide-react'
+import { Archive, Copy, Loader2, Search, Trash2, Users, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
 import AdminClassSetupCopyConfirmModal from './AdminClassSetupCopyConfirmModal'
@@ -29,7 +29,7 @@ import {
   expandScheduleLines,
   type ClassSetupOverviewRow,
 } from '../../utils/classSetupOverviewApi'
-import { archiveClassEvent, deleteClassEvent } from '../../utils/programsApi'
+import { archiveClassEvent, deleteClassEvent, duplicateClassEvent } from '../../utils/programsApi'
 
 interface Props {
   rows: ClassSetupOverviewRow[]
@@ -44,7 +44,7 @@ interface Props {
 }
 
 const tdBase = 'px-3 py-2 align-top text-sm text-gray-900 border-b border-gray-100'
-const actionColumnWidth = 104
+const actionColumnWidth = 136
 
 type CopySource = { classId: number; columnId: OverviewColumnId }
 
@@ -78,7 +78,10 @@ const AdminClassSetupOverviewTable = ({
   const [smartFilter, setSmartFilter] = useState('')
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null)
   const [collapsedColumns, setCollapsedColumns] = useState<Set<OverviewColumnId>>(() => new Set())
-  const [pendingAction, setPendingAction] = useState<{ classId: number; kind: 'archive' | 'delete' } | null>(null)
+  const [pendingAction, setPendingAction] = useState<{
+    classId: number
+    kind: 'duplicate' | 'archive' | 'delete'
+  } | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [copySource, setCopySource] = useState<CopySource | null>(null)
   const [copyTargets, setCopyTargets] = useState<Set<string>>(() => new Set())
@@ -224,6 +227,7 @@ const AdminClassSetupOverviewTable = ({
   }
 
   const handleArchive = async (row: ClassSetupOverviewRow) => {
+    if (!unlocked || copyMode) return
     if (!window.confirm(`Archive "${row.className}"? It will become inactive and remain in the database.`)) return
     setPendingAction({ classId: row.classId, kind: 'archive' })
     setActionError(null)
@@ -238,6 +242,7 @@ const AdminClassSetupOverviewTable = ({
   }
 
   const handleDelete = async (row: ClassSetupOverviewRow) => {
+    if (!unlocked || copyMode) return
     const enrolleeWarning = row.enrolleeCount > 0
       ? ` This class currently has ${row.enrolleeCount} enrollee${row.enrolleeCount === 1 ? '' : 's'}.`
       : ''
@@ -249,6 +254,21 @@ const AdminClassSetupOverviewTable = ({
       await onRefresh()
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Failed to delete class')
+    } finally {
+      setPendingAction(null)
+    }
+  }
+
+  const handleDuplicate = async (row: ClassSetupOverviewRow) => {
+    if (!unlocked || copyMode) return
+    if (!window.confirm('Do you want to create a copy of this class?')) return
+    setPendingAction({ classId: row.classId, kind: 'duplicate' })
+    setActionError(null)
+    try {
+      await duplicateClassEvent(row.classId)
+      await onRefresh()
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Failed to duplicate class')
     } finally {
       setPendingAction(null)
     }
@@ -478,11 +498,23 @@ const AdminClassSetupOverviewTable = ({
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
+                        onClick={() => void handleDuplicate(row)}
+                        disabled={!unlocked || copyMode || pendingAction?.classId === row.classId}
+                        className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label={`Copy ${row.className}`}
+                        title={!unlocked ? 'Unlock editing to copy class' : 'Copy class'}
+                      >
+                        {pendingAction?.classId === row.classId && pendingAction.kind === 'duplicate'
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Copy className="h-4 w-4" />}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => void handleArchive(row)}
-                        disabled={copyMode || row.classArchived || pendingAction?.classId === row.classId}
+                        disabled={!unlocked || copyMode || row.classArchived || pendingAction?.classId === row.classId}
                         className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
                         aria-label={`Archive ${row.className}`}
-                        title={row.classArchived ? 'Already archived' : 'Archive class'}
+                        title={!unlocked ? 'Unlock editing to archive class' : row.classArchived ? 'Already archived' : 'Archive class'}
                       >
                         {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
                           ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -491,10 +523,10 @@ const AdminClassSetupOverviewTable = ({
                       <button
                         type="button"
                         onClick={() => void handleDelete(row)}
-                        disabled={copyMode || pendingAction?.classId === row.classId}
+                        disabled={!unlocked || copyMode || pendingAction?.classId === row.classId}
                         className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
                         aria-label={`Permanently delete ${row.className}`}
-                        title="Permanently delete class"
+                        title={!unlocked ? 'Unlock editing to delete class' : 'Permanently delete class'}
                       >
                         {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
                           ? <Loader2 className="h-4 w-4 animate-spin" />

@@ -218,6 +218,13 @@ function statusBadge(row: MemberEnrollmentRow) {
   }
 
   const normalized = row.status.toLowerCase()
+  if (normalized === 'requested') {
+    return (
+      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-violet-50 text-violet-800">
+        Requested
+      </span>
+    )
+  }
   if (normalized === 'paused') {
     return (
       <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-800 capitalize">
@@ -398,6 +405,7 @@ function MemberEnrollmentActionModal({
   const [confirming, setConfirming] = useState(false)
   const [reason, setReason] = useState('')
   const isWaitlisted = row.status.toLowerCase() === 'waitlisted'
+  const cancellationRequested = row.status.toLowerCase() === 'requested'
   const pendingCancel = Boolean(row.cancel_effective_date)
 
   const runCancel = async () => {
@@ -443,6 +451,10 @@ function MemberEnrollmentActionModal({
               Cancellation is effective on{' '}
               <span className="font-semibold">{formatCancelEffectiveDate(row.cancel_effective_date!)}</span>.
               You may continue attending through the current billing period; billing stops on that date.
+            </p>
+          ) : cancellationRequested ? (
+            <p className="text-sm text-gray-700">
+              Your cancellation request is awaiting Billing review. Your enrollment and billing remain active until an administrator approves or declines it.
             </p>
           ) : (
             <>

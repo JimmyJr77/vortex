@@ -41,6 +41,12 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
         s.enrollment_start_date,
         s.cancel_effective_date,
         s.cancel_requested_at,
+        EXISTS (
+          SELECT 1
+          FROM enrollment_cancellation_request cancellation_request
+          WHERE cancellation_request.signup_id = s.id
+            AND cancellation_request.status = 'pending'
+        ) AS cancellation_requested,
         m.first_name AS member_first_name,
         m.last_name AS member_last_name,
         COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
@@ -103,6 +109,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
   const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(pool, formIds)
 
   const schedulingRows = schedulingResult.rows.map((row) => {
+    const displayStatus = row.cancellation_requested ? 'requested' : row.status
     const offering = resolveEnrollmentOfferingDisplay(row)
     const taxonomy = taxonomyByFormId.get(Number(row.form_id))
     const programName = taxonomy?.programName ?? (row.program_name || null)
@@ -139,7 +146,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
         offering_end_date: offering.offering_end_date,
         offering_dates: offering.offering_dates,
         enrollment_start_date: formatDateOnly(row.enrollment_start_date),
-        status: row.status,
+        status: displayStatus,
         cancel_effective_date: formatDateOnly(row.cancel_effective_date),
         cancel_requested_at: row.cancel_requested_at ?? null,
         created_at: row.created_at,

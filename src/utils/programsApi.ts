@@ -301,6 +301,25 @@ export async function createClassEvent(
   return parseJson(res)
 }
 
+export interface DuplicateClassEventResult {
+  sourceClassId: number
+  classId: number
+  formId: number | null
+  offeringCount: number
+  slotGroupCount: number
+  timeSlotCount: number
+  coachAssignmentCount: number
+  benefitSelectionCount: number
+  enrollmentCount: 0
+}
+
+export async function duplicateClassEvent(id: number): Promise<DuplicateClassEventResult> {
+  const res = await adminApiRequest(`/api/admin/programs/${id}/duplicate`, {
+    method: 'POST',
+  })
+  return parseJson(res)
+}
+
 const VALID_SKILL_LEVELS = ['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const
 
 function coerceOptionalInt(value: number | null | undefined): number | null | undefined {

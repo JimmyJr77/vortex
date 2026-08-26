@@ -18,13 +18,15 @@ import {
   type DiscountRule,
 } from '../../../utils/schedulingApi'
 
-export type AdminEnrollmentStatusKey = 'active' | 'waitlisted' | 'paused' | 'completed' | 'cancelled'
+export type AdminEnrollmentStatusKey = 'active' | 'requested' | 'waitlisted' | 'paused' | 'completed' | 'cancelled'
 
 export function normalizeAdminEnrollmentStatus(raw: string): AdminEnrollmentStatusKey {
   switch (raw) {
     case 'confirmed':
     case 'active':
       return 'active'
+    case 'requested':
+      return 'requested'
     case 'waitlisted':
       return 'waitlisted'
     case 'paused':
@@ -40,6 +42,7 @@ export function normalizeAdminEnrollmentStatus(raw: string): AdminEnrollmentStat
 
 const STATUS_META: Record<AdminEnrollmentStatusKey, { label: string; className: string }> = {
   active: { label: 'Active', className: 'bg-green-100 text-green-800' },
+  requested: { label: 'Requested', className: 'bg-violet-100 text-violet-800' },
   waitlisted: { label: 'Waitlisted', className: 'bg-amber-100 text-amber-800' },
   paused: { label: 'Paused', className: 'bg-blue-100 text-blue-800' },
   completed: { label: 'Completed', className: 'bg-gray-200 text-gray-700' },

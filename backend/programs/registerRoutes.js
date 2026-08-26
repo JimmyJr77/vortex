@@ -12,6 +12,7 @@ import {
 } from './programPricingOptions.js'
 import { normalizeMultiClassPassPackages } from './multiClassPass.js'
 import { adminClassSetupOverviewHandler } from './classSetupOverview.js'
+import { duplicateClassEvent } from './duplicateClass.js'
 
 const disciplineTagSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
@@ -173,6 +174,26 @@ export function registerProgramsAdminRoutes(app, pool) {
   console.log('✅ Programs admin routes registered')
 
   app.get('/api/admin/class-setup/overview', (req, res) => adminClassSetupOverviewHandler(pool, req, res))
+
+  app.post('/api/admin/programs/:id/duplicate', async (req, res) => {
+    try {
+      const classId = Number(req.params.id)
+      if (!Number.isFinite(classId)) {
+        return res.status(400).json({ success: false, message: 'Invalid class id' })
+      }
+      await ensureProgramsSchedulingSchema(pool)
+      await ensureProgramPricingColumns(pool)
+      await ensureAbridgedNameColumns(pool)
+      const duplicate = await duplicateClassEvent(pool, classId)
+      if (!duplicate) {
+        return res.status(404).json({ success: false, message: 'Class not found' })
+      }
+      res.status(201).json({ success: true, data: duplicate })
+    } catch (err) {
+      console.error('[programs] duplicate class:', err)
+      res.status(500).json({ success: false, message: 'Failed to duplicate class' })
+    }
+  })
 
   app.get('/api/admin/programs/:programsId/class-events', async (req, res) => {
     try {
