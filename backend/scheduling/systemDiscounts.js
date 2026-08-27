@@ -248,12 +248,20 @@ function mapSignupRowToLine(row, { familyId = null } = {}) {
       listCents = Math.max(0, Number(row.gross_amount_cents))
     }
   }
-  if (listCents == null || listCents <= 0) return null
+  const hasPersistedManualDiscount =
+    row.manual_discount_cents != null ||
+    row.manual_discount_pct != null ||
+    row.manual_discount_rule_id != null
+  // Admin-created signups can predate their billing subscription and pricing
+  // snapshot. Keep those rows long enough for a live preview line to supply the
+  // list price while preserving the persisted manual-rule metadata.
+  if ((listCents == null || listCents <= 0) && !hasPersistedManualDiscount) return null
+  if (listCents == null) listCents = 0
   const finalCents =
     breakdown?.line?.finalCents != null
       ? Math.max(0, Number(breakdown.line.finalCents))
       : listCents
-  if (finalCents <= 0) return null
+  if (finalCents <= 0 && !hasPersistedManualDiscount) return null
   return {
     key: `account-db-${row.id}`,
     signupId: Number(row.id),
@@ -266,12 +274,20 @@ function mapSignupRowToLine(row, { familyId = null } = {}) {
     baseCents: listCents,
     listCents,
     finalCents,
+    manualDiscountCents:
+      row.manual_discount_cents != null ? Math.max(0, Number(row.manual_discount_cents)) : null,
+    manualDiscountPct:
+      row.manual_discount_pct != null ? Math.max(0, Number(row.manual_discount_pct)) : null,
+    manualDiscountRuleId:
+      row.manual_discount_rule_id != null ? Number(row.manual_discount_rule_id) : null,
+    manualDiscountReason: row.manual_discount_reason ?? null,
     includeInSubtotal: false,
     shadowOnly: true,
   }
 }
 
 const FAMILY_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_rule_id, s.manual_discount_reason,
         bs.monthly_amount_cents,
         bc.gross_amount_cents
  FROM scheduling_signup s
@@ -294,7 +310,8 @@ const FAMILY_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing
    AND s.orphaned_at IS NULL`
 
 // Environments without migration 053 lack billing_subscription / gross_amount_cents.
-const FAMILY_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+const FAMILY_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_rule_id, s.manual_discount_reason
  FROM scheduling_signup s
  JOIN member m ON m.id = s.member_id
  JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
@@ -319,6 +336,7 @@ export async function loadFamilyDbPaidLines(pool, familyId) {
 }
 
 const MEMBER_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_rule_id, s.manual_discount_reason,
         bs.monthly_amount_cents,
         bc.gross_amount_cents
  FROM scheduling_signup s
@@ -340,7 +358,8 @@ const MEMBER_PAID_LINES_SELECT = `SELECT s.id, s.member_id, s.form_id, s.pricing
    AND s.status = 'confirmed'
    AND s.orphaned_at IS NULL`
 
-const MEMBER_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id
+const MEMBER_PAID_LINES_SELECT_BASIC = `SELECT s.id, s.member_id, s.form_id, s.pricing_breakdown, sf.programs_id, m.family_id,
+        s.manual_discount_cents, s.manual_discount_pct, s.manual_discount_rule_id, s.manual_discount_reason
  FROM scheduling_signup s
  JOIN member m ON m.id = s.member_id
  JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
@@ -403,7 +422,9 @@ function mergePreviewExistingLines(dbLines, previewExistingLines = []) {
   }
   for (const line of previewExistingLines) {
     if (line.signupId == null) continue
+    const dbLine = bySignupId.get(Number(line.signupId)) ?? {}
     bySignupId.set(Number(line.signupId), {
+      ...dbLine,
       ...line,
       includeInSubtotal: false,
       shadowOnly: true,

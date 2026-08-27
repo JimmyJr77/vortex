@@ -37,6 +37,24 @@ const familySpendRule = {
   ],
 }
 
+const halfTimeRule = {
+  id: 9,
+  name: '50% Off',
+  type: 'promo_code',
+  active: true,
+  amountType: 'percent',
+  amountValue: 5000,
+  applyTo: 'order_total',
+  calcBase: 'pre',
+  priority: 1,
+  stackable: true,
+  exclusivityGroup: null,
+  scopeLevel: 'global',
+  scopeRefId: null,
+  config: { code: '50OFFVORTEX26', discountKind: 'amount' },
+  tiers: [],
+}
+
 function makeLine(overrides) {
   return {
     memberId: 1,
@@ -142,6 +160,42 @@ test('existing-only shadow lines receive proportional spend discount per class',
     assert.equal(line.finalCents, 11250)
     assert.equal(line.discountCents, 3750)
   }
+})
+
+test('persisted 50% rule reduces spend before the later family tier is selected', () => {
+  const lines = attachStats(
+    [96, 97, 98].map((id) =>
+      makeLine({
+        key: `account-db-${id}`,
+        signupId: id,
+        formId: 29,
+        baseCents: 15000,
+        listCents: 15000,
+        finalCents: 15000,
+        includeInSubtotal: false,
+        shadowOnly: true,
+        manualDiscountPct: 50,
+        manualDiscountRuleId: 9,
+        manualDiscountReason: 'half-time athlete',
+      }),
+    ),
+  )
+
+  const result = computeOrderDiscounts({
+    lines,
+    rules: [familySpendRule, halfTimeRule],
+    promoCodes: [],
+    caps: {},
+  })
+
+  // $450 -> 50% = $225 qualifying spend. At 3 classes, $225 earns the
+  // configured 5% family tier, so the final is $213.75 ($71.25/class).
+  assert.equal(result.totalDiscountCents, 23625)
+  assert.equal(result.accountLines.reduce((sum, line) => sum + line.finalCents, 0), 21375)
+  assert.deepEqual(result.accountLines.map((line) => line.finalCents), [7125, 7125, 7125])
+  const familyDiscount = result.orderDiscounts.find((entry) => entry.ruleId === 7)
+  assert.equal(familyDiscount.amountCents, 1125)
+  assert.equal(familyDiscount.qualifiedLabel, '5% off for a minimum of 2 Classes and $150')
 })
 
 test('2 classes at $300 total gets 15% and hint requires 1 more class at $150', () => {

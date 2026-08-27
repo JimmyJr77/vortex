@@ -27,6 +27,8 @@ import { sendWaiverEmail } from './waiverEmail.js'
 import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey, WeeklyTierSlotLimitError } from './orderPricing.js'
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
+import { getStripeClient } from '../billing/stripeBilling.js'
+import { createEnrollmentStripeSubscriptions } from '../billing/stripeEnrollmentCheckout.js'
 import {
   safeCancelSubscriptionsForSource,
   safeReactivateSubscriptionForSource,
@@ -1905,6 +1907,7 @@ export function createSchedulingHandlers(pool) {
           await client.query('ROLLBACK')
           return res.status(404).json({ success: false, message: 'Signup not found' })
         }
+        const discountMemberId = Number(existing.rows[0].member_id)
 
         let cents = null
         let pct = null
@@ -1985,6 +1988,17 @@ export function createSchedulingHandlers(pool) {
         )
 
         await client.query('COMMIT')
+        try {
+          const familyRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [
+            discountMemberId,
+          ])
+          const discountFamilyId = familyRes.rows[0]?.family_id
+          if (discountFamilyId != null) {
+            await syncFamilyEnrollmentDiscounts(pool, Number(discountFamilyId))
+          }
+        } catch (syncErr) {
+          console.warn('[scheduling] discount family billing sync:', syncErr.message)
+        }
         res.json({ success: true })
       } catch (err) {
         await client.query('ROLLBACK').catch(() => {})
@@ -4121,6 +4135,37 @@ export function createSchedulingHandlers(pool) {
             detail.mandateWaiver,
           )
 
+          let billingPreview = null
+          try {
+            billingPreview = await buildSignupOrderPreview(client, {
+              memberId,
+              newSignups: [
+                {
+                  formId: value.formId,
+                  slotGroupId: value.slotGroupId,
+                  timeSlotId: firstOccurrence.id,
+                  formTitle: detail.title,
+                  enrollmentStartDate: value.enrollmentStartDate,
+                },
+              ],
+              promoCodes: [],
+              memberContext: {
+                city: member.billing_city ?? null,
+                school:
+                  responses.current_school != null
+                    ? String(responses.current_school).trim()
+                    : null,
+                graduationYear:
+                  responses.graduation_year != null && responses.graduation_year !== ''
+                    ? Number(responses.graduation_year)
+                    : null,
+                familyId: member.family_id ?? null,
+              },
+            })
+          } catch (previewErr) {
+            console.warn('[scheduling] admin signup billing preview:', previewErr.message)
+          }
+
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
             formRow,
@@ -4149,6 +4194,51 @@ export function createSchedulingHandlers(pool) {
           }
 
           const { signupId, signupStatus, positions, pricing } = signupResult
+          if (signupStatus === 'confirmed' && billingPreview) {
+            try {
+              await persistSignupCharges(pool, {
+                memberId,
+                signups: [
+                  {
+                    signupId,
+                    formId: value.formId,
+                    slotGroupId: value.slotGroupId,
+                    timeSlotId: firstOccurrence.id,
+                    formTitle: detail.title,
+                    slotLabel: signupResult.slotLabel,
+                  },
+                ],
+                preview: billingPreview,
+              })
+
+              const accountRes = await pool.query(
+                `SELECT fba.id, m.family_id
+                 FROM member m
+                 LEFT JOIN family_billing_account fba ON fba.family_id = m.family_id
+                 WHERE m.id = $1
+                 LIMIT 1`,
+                [memberId],
+              )
+              const accountId = accountRes.rows[0]?.id
+              const familyId = accountRes.rows[0]?.family_id
+              if (accountId != null) {
+                const stripe = await getStripeClient()
+                if (stripe) {
+                  await createEnrollmentStripeSubscriptions(pool, stripe, {
+                    preview: billingPreview,
+                    stripeSession: null,
+                    signupIds: [signupId],
+                    familyBillingAccountId: Number(accountId),
+                  })
+                }
+              }
+              if (familyId != null) {
+                await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+              }
+            } catch (billingErr) {
+              console.warn('[scheduling] admin signup recurring billing:', billingErr.message)
+            }
+          }
           if (value.sendEmails) {
             await sendSignupNotificationEmails(pool, {
               signupStatus,

@@ -150,6 +150,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
   let priceById = new Map()
   let adjustedBySignupId = new Map()
   let discountLabelBySignupId = new Map()
+  let manualAppliedBySignupId = new Map()
   try {
     const preview = await buildSignupOrderPreview(pool, {
       memberId,
@@ -199,6 +200,10 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       })
       for (const line of discounts?.accountLines ?? []) {
         adjustedBySignupId.set(line.signupId, line.finalCents)
+        const manualApplied = (line.applied ?? [])
+          .filter((entry) => entry.source === 'manual')
+          .reduce((sum, entry) => sum + Math.max(0, Number(entry.amountCents) || 0), 0)
+        if (manualApplied > 0) manualAppliedBySignupId.set(line.signupId, manualApplied)
         if (line.baseCents > line.finalCents && line.applied?.length) {
           discountLabelBySignupId.set(
             line.signupId,
@@ -300,13 +305,20 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       0
     const isPaused = row.status === 'paused'
     const groupAdjustedCents = isPaused ? 0 : adjustedBySignupId.get(Number(row.id))
-    const manualCents = isPaused ? 0 : manualDiscountCents(groupAdjustedCents ?? classCostCents, row)
+    const engineManualCents = isPaused ? 0 : manualAppliedBySignupId.get(Number(row.id))
+    const manualCents = isPaused
+      ? 0
+      : engineManualCents ?? manualDiscountCents(groupAdjustedCents ?? classCostCents, row)
     const baseNet = isPaused
       ? 0
       : groupAdjustedCents ??
         (sub != null ? Number(sub.net_monthly_cents) : null) ??
         classCostCents
-    const adjustedCostCents = isPaused ? 0 : Math.max(0, baseNet - manualCents)
+    const adjustedCostCents = isPaused
+      ? 0
+      : engineManualCents != null
+        ? Math.max(0, baseNet)
+        : Math.max(0, baseNet - manualCents)
     const groupDiscountLabel = discountLabelBySignupId.get(Number(row.id)) ?? null
     const billingType = row.pricing_breakdown?.billingType === 'one_time' || row.pricing_breakdown?.billing_type === 'one_time'
       ? 'one_time'

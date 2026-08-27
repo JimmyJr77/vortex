@@ -495,6 +495,81 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     return 'cart:default'
   }
 
+  function persistedManualSpec(line, rule) {
+    if (
+      line?.shadowOnly !== true ||
+      line?.manualDiscountRuleId == null ||
+      Number(line.manualDiscountRuleId) !== Number(rule.id)
+    ) {
+      return null
+    }
+    if (line.manualDiscountCents != null) {
+      return { amountType: 'fixed', amountValue: Number(line.manualDiscountCents) }
+    }
+    if (line.manualDiscountPct != null) {
+      return { amountType: 'percent', amountValue: Number(line.manualDiscountPct) * 100 }
+    }
+    return null
+  }
+
+  // Admin-assigned order rules are persisted on existing signup rows. Reapply the
+  // selected rule to those shadow lines before later-priority household tiers run.
+  // This keeps both the spend qualifier and discount base on the post-rule amount.
+  function applyPersistedOrderDiscount(rule) {
+    const eligible = lineState
+      .map((ls) => ({ ls, spec: persistedManualSpec(ls.line, rule) }))
+      .filter(({ spec }) => spec != null)
+    if (eligible.length === 0) return 0
+
+    const spec = eligible[0].spec
+    const base = eligible.reduce(
+      (sum, { ls }) => sum + (rule.calcBase === 'post' ? ls.runningCents : ls.baseCents),
+      0,
+    )
+    let amount = discountAmountCents(base, spec.amountType, spec.amountValue)
+    if (rule.maxDiscountCents != null) amount = Math.min(amount, rule.maxDiscountCents)
+    amount = Math.min(
+      amount,
+      eligible.reduce((sum, { ls }) => sum + ls.runningCents, 0),
+    )
+    if (amount <= 0) return 0
+
+    const allocationBase = eligible.reduce(
+      (sum, { ls }) => sum + (rule.calcBase === 'post' ? ls.runningCents : ls.baseCents),
+      0,
+    )
+    let remaining = amount
+    for (let index = 0; index < eligible.length; index += 1) {
+      const { ls } = eligible[index]
+      const weight = rule.calcBase === 'post' ? ls.runningCents : ls.baseCents
+      const share =
+        index === eligible.length - 1
+          ? remaining
+          : Math.min(remaining, Math.round(amount * (weight / allocationBase)))
+      const applied = Math.min(share, ls.runningCents)
+      if (applied <= 0) continue
+      ls.runningCents -= applied
+      remaining -= applied
+      ls.applied.push({
+        ruleId: rule.id,
+        name: ls.line.manualDiscountReason || rule.name,
+        type: rule.type,
+        amountCents: applied,
+        kind: 'discount',
+        source: 'manual',
+        countedAsOrderDiscount: true,
+      })
+    }
+    orderDiscounts.push({
+      ruleId: rule.id,
+      name: eligible[0].ls.line.manualDiscountReason || rule.name,
+      type: rule.type,
+      amountCents: amount,
+      source: 'manual',
+    })
+    return amount
+  }
+
   function applyAccountSystemDiscount(rule, { pickTier, getTarget, passesGate, describeTier, nextTierHint }) {
     const target = getTarget(rule)
     const groups = new Map()
@@ -506,15 +581,6 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
 
     for (const groupLines of groups.values()) {
-      const sample = groupLines[0]?.line ?? {}
-      const stats = accountStatsFromLine(sample)
-      if (!passesGate(stats)) continue
-      const tier = pickTier(rule, stats)
-      if (!tier) continue
-
-      const qualifiedLabel = describeTier ? describeTier(tier) : null
-      const unlockHint = nextTierHint ? nextTierHint(tier, stats) : null
-
       const cartLines = groupLines.filter(
         (ls) => ls.includeInSubtotal !== false && ls.line.shadowOnly !== true,
       )
@@ -523,8 +589,33 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       // Existing enrollments are shadow-only (no checkout cart) — still apply household discounts.
       if (cartLines.length === 0 && !classLines.some((ls) => ls.line.shadowOnly === true)) continue
 
+      const sample = groupLines[0]?.line ?? {}
+      const stats = accountStatsFromLine(sample)
+      if (rule.calcBase === 'post') {
+        const cartGross = cartLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+        const priorCartOrderDiscount = Math.max(0, subtotalCents - orderRunning)
+        const groupCartOrderDiscount =
+          subtotalCents > 0
+            ? Math.min(cartGross, Math.round(priorCartOrderDiscount * (cartGross / subtotalCents)))
+            : 0
+        const shadowRunning = classLines
+          .filter((ls) => ls.line.shadowOnly === true)
+          .reduce((sum, ls) => sum + ls.runningCents, 0)
+        stats.accountMonthlyCents =
+          shadowRunning + Math.max(0, cartLines.reduce((sum, ls) => sum + ls.runningCents, 0) - groupCartOrderDiscount)
+        stats.familyMonthlyCents = stats.accountMonthlyCents
+      }
+      if (!passesGate(stats)) continue
+      const tier = pickTier(rule, stats)
+      if (!tier) continue
+
+      const qualifiedLabel = describeTier ? describeTier(tier) : null
+      const unlockHint = nextTierHint ? nextTierHint(tier, stats) : null
+
       if (target === 'total') {
-        const accountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+        const grossAccountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+        const accountSubtotal =
+          rule.calcBase === 'post' ? stats.accountMonthlyCents : grossAccountSubtotal
         let amount = discountAmountCents(accountSubtotal, tier.amountType, tier.amountValue)
         amount = applyTierMaxCap(rule, tier, amount)
         if (amount <= 0) continue
@@ -547,7 +638,14 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             const share =
               i === eligible.length - 1
                 ? remaining
-                : Math.min(remaining, Math.round(amount * (ls.baseCents / accountSubtotal)))
+                : Math.min(
+                    remaining,
+                    Math.round(
+                      amount *
+                        ((rule.calcBase === 'post' ? ls.runningCents : ls.baseCents) /
+                          accountSubtotal),
+                    ),
+                  )
             if (share <= 0) continue
             const applied = Math.min(share, ls.runningCents)
             ls.runningCents -= applied
@@ -739,6 +837,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       continue
     }
     if (rule.applyTo === 'order_total') {
+      applyPersistedOrderDiscount(rule)
       if (!orderRuleAllowedByCosts(rule)) continue
       // Order-level: compute on order subtotal/running, applied once, distributed across lines.
       let base = rule.calcBase === 'post' ? orderRunning : subtotalCents
@@ -789,6 +888,24 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
     // Per-class rules.
     for (const ls of lineState) {
+      const persistedSpec = persistedManualSpec(ls.line, rule)
+      if (persistedSpec) {
+        const amount = applyToLine(
+          ls,
+          rule,
+          persistedSpec.amountType,
+          persistedSpec.amountValue,
+          'discount',
+        )
+        if (amount > 0) {
+          const applied = ls.applied.at(-1)
+          if (applied) {
+            applied.name = ls.line.manualDiscountReason || applied.name
+            applied.source = 'manual'
+          }
+        }
+        continue
+      }
       if (isFreeGrantRule(rule)) {
         const cfg = rule.config || {}
         if (!offeringMatchesRule(rule, ls.line)) continue
@@ -843,6 +960,34 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
   }
 
+  // A free-form admin adjustment has no linked rule/priority. Preserve the
+  // established behavior by applying it after configured rules. This is also
+  // the fallback if a formerly linked rule has since been deactivated/deleted.
+  for (const ls of lineState) {
+    if (ls.line.shadowOnly !== true) continue
+    if (ls.applied.some((entry) => entry.source === 'manual')) continue
+    let amount = 0
+    if (ls.line.manualDiscountCents != null) {
+      amount = Math.min(ls.runningCents, Math.max(0, Math.round(Number(ls.line.manualDiscountCents))))
+    } else if (ls.line.manualDiscountPct != null) {
+      amount = discountAmountCents(
+        ls.runningCents,
+        'percent',
+        Math.max(0, Number(ls.line.manualDiscountPct)) * 100,
+      )
+    }
+    if (amount <= 0) continue
+    ls.runningCents -= amount
+    ls.applied.push({
+      ruleId: ls.line.manualDiscountRuleId ?? null,
+      name: ls.line.manualDiscountReason || 'Manual enrollment discount',
+      type: 'manual',
+      amountCents: amount,
+      kind: 'discount',
+      source: 'manual',
+    })
+  }
+
   const lineResults = lineState
     .filter((ls) => ls.includeInSubtotal !== false)
     .map((ls) => ({
@@ -867,7 +1012,16 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
   const lineDiscountTotal = lineResults.reduce((sum, l) => sum + l.discountCents, 0)
   const orderDiscountTotal = orderDiscounts.reduce((sum, d) => sum + d.amountCents, 0)
-  const totalDiscountCents = lineDiscountTotal + orderDiscountTotal
+  const shadowManualLineDiscountTotal = accountLines.reduce(
+    (sum, line) =>
+      sum +
+      (line.applied || [])
+        .filter((entry) => entry.source === 'manual' && entry.countedAsOrderDiscount !== true)
+        .reduce((lineSum, entry) => lineSum + Number(entry.amountCents || 0), 0),
+    0,
+  )
+  const totalDiscountCents =
+    lineDiscountTotal + orderDiscountTotal + shadowManualLineDiscountTotal
   const totalCents = Math.max(0, subtotalCents - totalDiscountCents)
 
   return {

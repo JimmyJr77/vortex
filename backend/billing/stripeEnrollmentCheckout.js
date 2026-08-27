@@ -389,22 +389,42 @@ export async function createEnrollmentStripeSubscriptions(
   stripe,
   { preview, stripeSession, signupIds, familyBillingAccountId },
 ) {
-  if (!stripe || !signupIds?.length) return
+  if (!stripe || !signupIds?.length) return []
 
   const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
-  if (!sessionId) return
+  let customerId = null
+  let defaultPaymentMethod = null
+  if (sessionId) {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
+    })
+    customerId = session.customer
+    defaultPaymentMethod =
+      session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
+  } else if (familyBillingAccountId != null) {
+    const accountRes = await pool.query(
+      `SELECT stripe_customer_id FROM family_billing_account WHERE id = $1`,
+      [familyBillingAccountId],
+    )
+    customerId = accountRes.rows[0]?.stripe_customer_id ?? null
+    if (customerId) {
+      const customer = await stripe.customers.retrieve(customerId, {
+        expand: ['invoice_settings.default_payment_method'],
+      })
+      if (!customer.deleted) {
+        defaultPaymentMethod = customer.invoice_settings?.default_payment_method ?? null
+      }
+    }
+  }
+  if (!customerId) return []
 
-  const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
-  })
-  const customerId = session.customer
-  if (!customerId) return
-
-  let defaultPaymentMethod =
-    session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
   if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
     defaultPaymentMethod = defaultPaymentMethod.id
   }
+  // A completed Checkout session can supply its payment method directly. An
+  // admin-created enrollment has no session, so only create automatic billing
+  // when the family's existing Stripe customer already has a default method.
+  if (!sessionId && !defaultPaymentMethod) return []
 
   if (defaultPaymentMethod) {
     try {
@@ -429,12 +449,13 @@ export async function createEnrollmentStripeSubscriptions(
     [signupIds.map(String)],
   )
 
+  const created = []
   for (const subRow of subsRes.rows) {
     const signupId = Number(subRow.source_id)
     const signupRes = await pool.query(
       `
         SELECT ss.form_id, ss.slot_group_id, ss.time_slot_id, ss.member_id,
-               sf.title AS form_title,
+               sf.title AS form_title, sf.programs_id,
                m.first_name, m.last_name,
                ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
                ts.start_time, ts.end_time
@@ -451,7 +472,10 @@ export async function createEnrollmentStripeSubscriptions(
 
     const slotKey = `${signup.form_id}:${signup.slot_group_id}:${signup.time_slot_id ?? 'none'}`
     const previewLine = (previewObj.newSignups ?? []).find((line) => line.slotKey === slotKey)
-    if (!previewLine || previewLine.billingType !== 'recurring' || previewLine.multiClassPassApplied) {
+    if (
+      (previewLine && previewLine.billingType !== 'recurring') ||
+      previewLine?.multiClassPassApplied
+    ) {
       continue
     }
 
@@ -482,10 +506,10 @@ export async function createEnrollmentStripeSubscriptions(
       athleteName,
     })
     const item = await buildPerClassStripeSubscriptionItem(pool, stripe, {
-      programsId: previewLine.programsId ?? null,
+      programsId: previewLine?.programsId ?? signup.programs_id ?? null,
       amountCents,
       productName,
-      selectedPricingOptionKey: previewLine.selectedPricingOptionKey || 'monthly_1x',
+      selectedPricingOptionKey: previewLine?.selectedPricingOptionKey || 'monthly_1x',
     })
 
     const stripeSub = await stripe.subscriptions.create({
@@ -510,6 +534,13 @@ export async function createEnrollmentStripeSubscriptions(
       `UPDATE billing_subscription SET stripe_subscription_id = $2, updated_at = now() WHERE id = $1`,
       [subRow.id, stripeSub.id],
     )
+    created.push({
+      billingSubscriptionId: Number(subRow.id),
+      stripeSubscriptionId: stripeSub.id,
+      signupId,
+      amountCents,
+      status: 'created',
+    })
   }
 
   // Recompute household spend discounts across all active enrollments and push
@@ -531,6 +562,7 @@ export async function createEnrollmentStripeSubscriptions(
       console.warn('[stripe] family discount sync after enrollment:', err?.message ?? err)
     }
   }
+  return created
 }
 
 /**
