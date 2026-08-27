@@ -4,7 +4,7 @@ test.describe('Client-critical smoke flows', () => {
   test('public homepage renders core CTAs', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('button', { name: 'Inquire' }).first()).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Classes & Events' }).first()).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Classes and Events', exact: true }).first()).toBeVisible()
   })
 
   test('account login modal opens from public flow', async ({ page }) => {

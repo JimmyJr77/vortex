@@ -1,5 +1,20 @@
 import { expect, test, type Page } from '@playwright/test'
 
+function addIsoDays(isoDate: string, days: number) {
+  const date = new Date(`${isoDate}T00:00:00.000Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+function formatShortDate(isoDate: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${isoDate}T00:00:00.000Z`))
+}
+
 const coachTabs = [
   'home', 'sessions', 'needs', 'library', 'framework', 'workout', 'programs',
   'training-blocks', 'regimens', 'flip-fit', 'challenges', 'gymnastics-evaluations',
@@ -83,7 +98,7 @@ async function openMockedCoachPortal(
             success: true,
             data: {
               startDate: body.startDate,
-              endDate: '2026-11-20',
+              endDate: addIsoDays(String(body.startDate), 81),
               settings: body.settings,
               sessionOverrides: body.sessionOverrides,
               updatedAt: '2026-08-17T12:00:00.000Z',
@@ -215,7 +230,9 @@ test.describe('Flip & Fit Schedule', () => {
     await page.getByRole('button', { name: 'Flip & Fit', exact: true }).click()
 
     const startDate = page.getByLabel('Program start · Monday')
-    await startDate.fill('2026-08-31')
+    const remappedStartDate = addIsoDays(await startDate.inputValue(), 7)
+    const remappedEndDate = addIsoDays(remappedStartDate, 81)
+    await startDate.fill(remappedStartDate)
     page.once('dialog', async (dialog) => {
       expect(dialog.message()).toContain('Remap all 60 Flip & Fit dates')
       await dialog.accept()
@@ -223,11 +240,11 @@ test.describe('Flip & Fit Schedule', () => {
     await page.getByRole('button', { name: 'Save schedule' }).click()
 
     await expect.poll(() => savedBodies.some((body) => (
-      body.startDate === '2026-08-31'
+      body.startDate === remappedStartDate
       && body.confirmRemap === true
       && typeof body.sessionOverrides === 'object'
     ))).toBe(true)
-    await expect(page.getByText('Ends Nov 20, 2026')).toBeVisible()
+    await expect(page.getByText(`Ends ${formatShortDate(remappedEndDate)}`)).toBeVisible()
     await expect(page.getByText(/Saved for the facility/)).toBeVisible()
   })
 

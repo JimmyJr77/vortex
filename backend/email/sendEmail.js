@@ -101,6 +101,25 @@ export function formatEmailError(err) {
 
 export const extractEmailAddress = extractAddr
 
+function smtpRecipientAddresses(value) {
+  const addresses = Array.isArray(value) ? value : value ? [value] : []
+  return addresses
+    .map((address) => normalizeEmail(extractEmailAddress(address)).toLowerCase())
+    .filter(Boolean)
+}
+
+/**
+ * Nodemailer can resolve a send even when the SMTP server rejects an envelope
+ * recipient. A password reset must only be considered sent when its specific
+ * recipient appears in the transport's accepted list.
+ */
+export function smtpAcceptedRecipient(info, recipient) {
+  const normalizedRecipient = normalizeEmail(extractEmailAddress(recipient)).toLowerCase()
+  const accepted = smtpRecipientAddresses(info?.accepted)
+  const rejected = smtpRecipientAddresses(info?.rejected)
+  return accepted.includes(normalizedRecipient) && !rejected.includes(normalizedRecipient)
+}
+
 export function getEmailConfigSummary() {
   const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim()
   const port = Number(process.env.SMTP_PORT || 587)
@@ -300,8 +319,14 @@ export async function sendEmail({
       // Account-security mail: never allow tracking pixels/redirects.
       ...(category && isSecurityCategory(category) ? { disableUrlAccess: false } : {}),
     })
+    if (!smtpAcceptedRecipient(info, normalizedTo)) {
+      const error = new Error('SMTP rejected the recipient address.')
+      error.code = 'EENVELOPE'
+      error.responseCode = Number(info?.responseCode) || undefined
+      throw error
+    }
     await updateDeliveryStatus(delivery.id, 'accepted', {
-      providerReason: Array.isArray(info?.rejected) && info.rejected.length ? 'partial_reject' : null,
+      providerReason: null,
     })
     return { sent: true, messageId: info?.messageId }
   } catch (err) {
@@ -309,7 +334,11 @@ export async function sendEmail({
       transporter = null
     }
     const code = Number(err?.responseCode) || null
-    const isHardBounce = code != null && code >= 500 && code < 600
+    // SMTP auth errors are 5xx responses too, but they say nothing about the
+    // recipient address. Never turn a sender-configuration error into a global
+    // recipient suppression.
+    const isSmtpAuthFailure = String(err?.code) === 'EAUTH' || code === 535
+    const isHardBounce = !isSmtpAuthFailure && code != null && code >= 500 && code < 600
     await updateDeliveryStatus(delivery.id, isHardBounce ? 'bounced' : 'failed', {
       smtpCode: code != null ? String(code) : null,
       providerReason: classifyFailure(err),
@@ -345,6 +374,7 @@ export function resolveValidatedReplyTo(explicit, category) {
 function classifyFailure(err) {
   const code = Number(err?.responseCode) || 0
   if (code === 535 || String(err?.code) === 'EAUTH') return 'auth_failed'
+  if (String(err?.code) === 'EENVELOPE') return 'recipient_rejected'
   if (code >= 500 && code < 600) return 'permanent_failure'
   if (code >= 400 && code < 500) return 'temporary_failure'
   return 'send_error'
