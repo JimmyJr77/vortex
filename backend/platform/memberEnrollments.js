@@ -164,7 +164,8 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
 
   const dropInResult = await pool.query(
     `SELECT d.id, d.member_id, d.form_id, d.slot_group_id, d.class_date,
-            d.status, d.created_at, d.amount_cents, d.benefit_type,
+            d.status, d.created_at, d.base_price_cents, d.discount_percent,
+            d.amount_cents, d.benefit_type, d.promo_code,
             m.first_name AS member_first_name, m.last_name AS member_last_name,
             COALESCE(NULLIF(TRIM(class_p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Class') AS class_name,
             COALESCE(sf.programs_id, class_p.${programFkColumn}) AS program_id,
@@ -228,8 +229,13 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
       attendanceDate,
       billing_type: 'one_time',
       billingType: 'one_time',
+      base_price_cents: Number(row.base_price_cents || 0),
+      basePriceCents: Number(row.base_price_cents || 0),
+      discount_percent: Number(row.discount_percent || 0),
+      discountPercent: Number(row.discount_percent || 0),
       amount_cents: Number(row.amount_cents || 0),
       benefit_type: row.benefit_type,
+      promo_code: row.promo_code ?? null,
       source: 'drop_in',
     }, taxonomy)
   })

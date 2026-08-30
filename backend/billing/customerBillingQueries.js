@@ -606,10 +606,15 @@ export async function buildCustomerBillingOverview(pool, {
   for (const group of enrollmentGroups) {
     for (const row of group.rows ?? []) {
       if (!relevantEnrollment(row)) continue
-      const rowAdjustments = adjustmentsBySignup.get(Number(row.id)) ?? []
-      const pricingLine =
-        displayPricingBySignup.get(Number(row.id)) ??
-        effectivePricingBySignup.get(Number(row.id))
+      const isDropIn = row.source === 'drop_in'
+      // Drop-in ids and scheduling-signup ids come from different sequences.
+      // Never allow an id collision to attach recurring pricing or tuition
+      // adjustments to a one-time attendance record.
+      const rowAdjustments = isDropIn ? [] : adjustmentsBySignup.get(Number(row.id)) ?? []
+      const pricingLine = isDropIn
+        ? null
+        : displayPricingBySignup.get(Number(row.id)) ??
+          effectivePricingBySignup.get(Number(row.id))
       const enrollmentPricingMonth = pricingLine?.pricingPeriodKey ?? pricingMonth
       const activeAdjustments = rowAdjustments.filter(
         (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, enrollmentPricingMonth),
@@ -662,7 +667,7 @@ export async function buildCustomerBillingOverview(pool, {
       }
       const mapped = {
         ...row,
-        status: customerEnrollmentStatus(row),
+        status: isDropIn ? 'drop_in' : customerEnrollmentStatus(row),
         memberId: group.member.id,
         memberName: group.member.name,
         classCostCents: grossCents,

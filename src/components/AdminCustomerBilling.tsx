@@ -408,7 +408,11 @@ function EnrollmentSection({
                       </td>
                       <td className="min-w-[320px] px-4 py-3 text-gray-600">
                         <div><span className="font-semibold text-gray-700">Active Class Dates:</span> {enrollment.offering_dates || 'Evergreen'}</div>
-                        <div className="mt-1"><span className="font-semibold text-gray-700">Enrollment Start Date:</span> {localDate(enrollment.enrollment_start_date || enrollment.created_at)}</div>
+                        {enrollment.source === 'drop_in' ? (
+                          <div className="mt-1 font-semibold text-gray-700">Drop-in</div>
+                        ) : (
+                          <div className="mt-1"><span className="font-semibold text-gray-700">Enrollment Start Date:</span> {localDate(enrollment.enrollment_start_date || enrollment.created_at)}</div>
+                        )}
                         <div className="mt-1"><span className="font-semibold text-gray-700">Schedule:</span> {enrollment.schedule || '—'}</div>
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-gray-700">{money(enrollment.classCostCents)}</td>
@@ -419,7 +423,7 @@ function EnrollmentSection({
                         {currentAdjustment?.kind === 'fixed_final_price' ? <div className="mt-1 text-gray-400">{monthLabel(currentAdjustment.effectiveFromMonth)} – {monthLabel(currentAdjustment.effectiveThroughMonth)} · current</div> : null}
                         {scheduledAdjustments.map((adjustment) => <div key={adjustment.id} className="mt-1 text-blue-700">{['promo_code', 'legacy_discount'].includes(adjustment.kind) ? `Code ${adjustment.promoCode}` : `Final ${money(adjustment.finalPriceCents)}`} · {monthLabel(adjustment.effectiveFromMonth)} – {monthLabel(adjustment.effectiveThroughMonth)} · {adjustment.status.replaceAll('_', ' ')}</div>)}
                       </td>
-                      <td className="px-4 py-3 text-right"><strong className="text-base text-gray-950">{money(enrollment.adjustedCostCents)}</strong><span className="block text-xs text-gray-400">per month</span></td>
+                      <td className="px-4 py-3 text-right"><strong className="text-base text-gray-950">{money(enrollment.adjustedCostCents)}</strong><span className="block text-xs text-gray-400">{enrollment.source === 'drop_in' ? 'one time' : 'per month'}</span></td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
                           <Badge
@@ -1077,7 +1081,7 @@ export default function AdminCustomerBilling() {
                   <label className="text-xs font-semibold text-gray-600">Billing phone<input disabled={!canManageContact} value={contactDraft.billingPhone} onChange={(event) => setContactDraft((current) => ({ ...current, billingPhone: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
                   <label className="text-xs font-semibold text-gray-600">Street<input disabled={!canManageContact} value={contactDraft.billingStreet} onChange={(event) => setContactDraft((current) => ({ ...current, billingStreet: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
                   <label className="text-xs font-semibold text-gray-600">City<input disabled={!canManageContact} value={contactDraft.billingCity} onChange={(event) => setContactDraft((current) => ({ ...current, billingCity: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <div className="grid grid-cols-[1fr_90px] gap-2"><label className="text-xs font-semibold text-gray-600">State<input disabled={!canManageContact} value={contactDraft.billingState} onChange={(event) => setContactDraft((current) => ({ ...current, billingState: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label><label className="text-xs font-semibold text-gray-600">ZIP<input disabled={!canManageContact} value={contactDraft.billingZip} onChange={(event) => setContactDraft((current) => ({ ...current, billingZip: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label></div>
+                  <div className="grid grid-cols-2 gap-2"><label className="text-xs font-semibold text-gray-600">State<input disabled={!canManageContact} value={contactDraft.billingState} onChange={(event) => setContactDraft((current) => ({ ...current, billingState: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label><label className="text-xs font-semibold text-gray-600">ZIP<input disabled={!canManageContact} value={contactDraft.billingZip} onChange={(event) => setContactDraft((current) => ({ ...current, billingZip: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label></div>
                   {canManageContact ? <button type="button" onClick={() => void saveContact()} disabled={saving} className="rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white sm:col-span-2 disabled:opacity-50">Save billing contact</button> : null}
                 </div>
               </details>

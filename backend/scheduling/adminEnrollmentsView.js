@@ -100,6 +100,45 @@ function manualDiscountCents(classCostCents, row) {
   return 0
 }
 
+function dropInBenefitLabel(row) {
+  switch (row.benefit_type) {
+    case 'free_trial':
+      return 'Free trial'
+    case 'annual_credit':
+      return 'Annual membership drop-in credit'
+    case 'admin_credit':
+      return 'Admin drop-in credit'
+    default:
+      return Number(row.discount_percent || 0) > 0 ? 'Drop-in member discount' : 'Drop-in discount'
+  }
+}
+
+/**
+ * A drop-in's stored base price is the membership-aware formula price at booking
+ * time (monthly tuition ÷ 3 for non-members or ÷ 4 for annual members). Preserve
+ * that gross amount in account views so free benefits appear as discounts instead
+ * of making the class itself look like it costs $0.
+ */
+export function mapDropInEnrollmentPricing(row) {
+  const finalCents = Math.max(0, Math.round(Number(row.amount_cents) || 0))
+  const storedBaseCents = Math.max(0, Math.round(Number(row.base_price_cents) || 0))
+  const grossCents = Math.max(storedBaseCents, finalCents)
+  const discountCents = Math.max(0, grossCents - finalCents)
+
+  return {
+    class_cost_cents: grossCents,
+    adjusted_cost_cents: finalCents,
+    discount_components: discountCents > 0
+      ? [{
+          name: dropInBenefitLabel(row),
+          amountCents: discountCents,
+          source: 'drop_in_benefit',
+          promoCode: row.promo_code ?? null,
+        }]
+      : [],
+  }
+}
+
 /**
  * Build unified enrollment rows for a single member.
  * @param {import('pg').Pool} pool
@@ -325,8 +364,7 @@ export async function buildAdminMemberEnrollments(
     .map((row) => ({
       ...row,
       schedule: row.slot_label,
-      class_cost_cents: Number(row.amount_cents || 0),
-      adjusted_cost_cents: Number(row.amount_cents || 0),
+      ...mapDropInEnrollmentPricing(row),
       billing_status: 'one_time',
       enrollment_type: 'drop_in',
       enrollmentType: 'drop_in',
