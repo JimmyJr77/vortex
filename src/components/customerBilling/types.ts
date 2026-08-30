@@ -174,7 +174,7 @@ export interface CustomerBillingOverview {
 }
 
 export interface BillingTransaction {
-  entryKind: 'charge' | 'payment' | 'refund'
+  entryKind: 'charge' | 'drop_in' | 'payment' | 'refund'
   entryType: string
   refId: number
   memberId: number | null

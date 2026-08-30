@@ -341,6 +341,8 @@ test('member-filtered transactions retain household payments and member-owned ch
   assert.equal(page.rows[0].details.referenceNumber, 85)
   assert.equal(page.rows[1].details.discountCode, 'MMBR01X26')
   assert.match(queryText, /one_time_discount/)
+  assert.match(queryText, /drop_in_registration/)
+  assert.match(queryText, /Free trial/)
   assert.equal(page.rows[1].entryType, 'one_time')
 })
 

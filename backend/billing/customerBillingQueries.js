@@ -912,6 +912,48 @@ export async function listCustomerBillingTransactions(pool, {
        ) charge_applications ON TRUE
        WHERE c.family_billing_account_id = $1
        UNION ALL
+       -- Free and discounted drop-ins do not create a billing_charge because their
+       -- net amount can be zero. Surface the immutable registration as a zero-net
+       -- one-time audit entry instead of making the benefit disappear from the
+       -- household's financial history.
+       SELECT
+         'drop_in'::text AS entry_kind,
+         'one_time'::text AS entry_type,
+         d.id::bigint AS ref_id,
+         d.member_id::bigint AS member_id,
+         CONCAT(COALESCE(NULLIF(TRIM(class_p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Drop-in'), ' · Drop-in')::text AS description,
+         d.amount_cents::int AS amount_cents,
+         0::int AS balance_amount_cents,
+         d.class_date::timestamptz AS occurred_at,
+         CASE WHEN d.amount_cents = 0 THEN 'settled' ELSE COALESCE(d.status, 'recorded') END::text AS status,
+         4::int AS sort_order,
+         jsonb_strip_nulls(jsonb_build_object(
+           'grossAmountCents', d.base_price_cents,
+           'discountAmountCents', GREATEST(0, d.base_price_cents - d.amount_cents),
+           'discountCode', NULLIF(d.promo_code, ''),
+           'discountBenefit', CASE d.benefit_type
+             WHEN 'free_trial' THEN 'Free trial'
+             WHEN 'annual_credit' THEN 'Annual membership drop-in credit'
+             WHEN 'admin_credit' THEN 'Admin drop-in credit'
+             ELSE CASE WHEN d.discount_percent > 0 THEN 'Drop-in member discount' ELSE NULL END
+           END,
+           'discountPercent', d.discount_percent,
+           'servicePeriodStart', d.class_date,
+           'servicePeriodEnd', d.class_date,
+           'sourceType', 'drop_in_registration',
+           'sourceId', d.id,
+           'benefitType', d.benefit_type,
+           'registrationStatus', d.status
+         )) AS details
+       FROM drop_in_registration d
+       JOIN member drop_in_member ON drop_in_member.id = d.member_id
+       JOIN family_billing_account drop_in_account
+         ON drop_in_account.family_id = drop_in_member.family_id
+        AND drop_in_account.id = $1
+       JOIN scheduling_form sf ON sf.id = d.form_id
+       LEFT JOIN program class_p ON class_p.id = sf.program_id
+       WHERE d.status IN ('confirmed', 'attended')
+       UNION ALL
        SELECT
          'payment', 'payment', p.id, NULL::bigint,
          COALESCE(NULLIF(p.method, ''), 'Payment'),

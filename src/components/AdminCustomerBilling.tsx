@@ -207,13 +207,13 @@ function DiscountBreakdown({
   }
 
   return (
-    <div className="ml-auto min-w-[220px] space-y-1">
+    <div className="space-y-1 text-sm font-medium">
       {rows.map((component, index) => {
         const detail = discountComponentDetail(component)
         return (
           <div key={`${component.ruleId ?? component.name}-${index}`}>
-            <div className="flex justify-between gap-3 text-gray-700">
-              <span className="text-left">{discountComponentLabel(component)}</span>
+            <div className="flex items-baseline gap-1.5 text-gray-700">
+              <span>{discountComponentLabel(component)}</span>
               <span className="shrink-0 text-emerald-700">−{money(component.amountCents)}</span>
             </div>
             {detail ? <div className="text-left text-[11px] text-gray-400">{detail}</div> : null}
@@ -221,7 +221,7 @@ function DiscountBreakdown({
         )
       })}
       {rows.length > 1 ? (
-        <div className="flex justify-between gap-3 border-t border-gray-200 pt-1 font-semibold text-emerald-700">
+        <div className="flex items-baseline gap-1.5 border-t border-gray-200 pt-1 font-semibold text-emerald-700">
           <span>Total discounts</span>
           <span>−{money(totalCents)}</span>
         </div>
@@ -368,7 +368,7 @@ function EnrollmentSection({
                   <th className="px-4 py-3">Class</th>
                   <th className="px-4 py-3">Class Schedule</th>
                   <th className="px-4 py-3 text-right">Class cost</th>
-                  <th className="px-4 py-3 text-right">Discounts</th>
+                  <th className="px-4 py-3">Discounts</th>
                   <th className="px-4 py-3 text-right">Final price</th>
                   <th className="px-4 py-3">Status / sync</th>
                   <th className="px-4 py-3 text-right">Actions</th>
@@ -416,7 +416,7 @@ function EnrollmentSection({
                         <div className="mt-1"><span className="font-semibold text-gray-700">Schedule:</span> {enrollment.schedule || '—'}</div>
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-gray-700">{money(enrollment.classCostCents)}</td>
-                      <td className="px-4 py-3 text-right text-xs">
+                      <td className="px-4 py-3 text-left">
                         <DiscountBreakdown totalCents={enrollment.automaticDiscountCents} components={enrollment.automaticDiscountComponents} />
                         {currentAdjustment?.kind === 'fixed_final_price' && enrollment.status === 'paused' ? <div className="text-blue-700">Stored final price {money(currentAdjustment.finalPriceCents)} · resumes with billing</div> : null}
                         {currentAdjustment?.kind === 'fixed_final_price' && enrollment.status !== 'paused' ? <div className={enrollment.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}>Manual final {enrollment.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(enrollment.manualAdjustmentCents))}</div> : null}
@@ -527,8 +527,11 @@ function TransactionsPanel({
               const key = `${row.entryKind}-${row.refId}`
               const isExpanded = expanded === key
               const canRefund = canManage && row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
-              const discountCode = row.entryKind === 'charge' && row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
+              const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
                 ? row.details.discountCode.trim()
+                : ''
+              const discountBenefit = row.entryType === 'one_time' && typeof row.details.discountBenefit === 'string'
+                ? row.details.discountBenefit.trim()
                 : ''
               const billingMonths = row.billingMonths ?? []
               const billingPeriod = billingMonths.length > 1
@@ -545,7 +548,7 @@ function TransactionsPanel({
                     <td className="max-w-[300px] px-4 py-3"><strong className="block truncate text-gray-900">{row.description}</strong>{billingPeriod ? <span className="text-xs text-gray-500">{billingPeriod}</span> : null}</td>
                     <td className="px-4 py-3 capitalize text-gray-600">{row.entryType.replaceAll('_', ' ')}</td>
                     <td className="px-4 py-3"><Badge value={row.status} /></td>
-                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : '—'}</td>
+                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
                     <td className="px-4 py-3"><div className="flex justify-end gap-1">{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
