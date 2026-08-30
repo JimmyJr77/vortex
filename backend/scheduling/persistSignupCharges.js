@@ -131,6 +131,102 @@ function chargeDescription(preview, signup) {
   return [signup.formTitle, signup.slotLabel].filter(Boolean).join(' — ') || 'Class enrollment'
 }
 
+async function persistSignupPricingSnapshots(pool, preview, signups) {
+  if (!preview || signups.length === 0) return
+  const discountLines = new Map(
+    (preview.discounts?.lines ?? []).map((line) => [line.key, line]),
+  )
+  for (const signup of signups) {
+    const slotKey = `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
+    const line = discountLines.get(slotKey)
+    const signupItem = (preview.newSignups ?? []).find((item) => item.slotKey === slotKey)
+    if (!line && !signupItem) continue
+    try {
+      await pool.query(
+        `UPDATE scheduling_signup
+         SET pricing_breakdown = COALESCE(pricing_breakdown, $2::jsonb)
+         WHERE id = $1`,
+        [
+          signup.signupId,
+          JSON.stringify({
+            line: line ?? null,
+            billingType: signupItem?.billingType ?? 'recurring',
+            selectedPricingOptionKey: signupItem?.selectedPricingOptionKey ?? null,
+            orderDiscounts: preview.discounts?.orderDiscounts ?? [],
+            totals: {
+              subtotalCents: preview.discounts?.subtotalCents ?? 0,
+              totalDiscountCents: preview.discounts?.totalDiscountCents ?? 0,
+              totalCents: preview.discounts?.totalCents ?? 0,
+            },
+          }),
+        ],
+      )
+    } catch (error) {
+      console.warn('[scheduling] persist signup pricing snapshot:', error?.message ?? error)
+    }
+  }
+}
+
+/**
+ * Order-level promo codes must survive after checkout. Persisting the selected
+ * rule on each recurring signup lets the existing-account pricing engine apply
+ * it once across the household, then select later post-discount spend tiers.
+ */
+async function persistRecurringOrderPromoAssignment(pool, preview, signups) {
+  const promoRuleIds = [...new Set(
+    (preview?.discounts?.orderDiscounts ?? [])
+      .filter((discount) => discount.type === 'promo_code' && discount.ruleId != null)
+      .map((discount) => Number(discount.ruleId))
+      .filter(Number.isFinite),
+  )]
+  if (promoRuleIds.length === 0) return 0
+
+  const rules = await pool.query(
+    `SELECT id, name, amount_type, amount_value
+     FROM discount_rule
+     WHERE id = ANY($1::bigint[]) AND type = 'promo_code'
+     ORDER BY priority, id`,
+    [promoRuleIds],
+  )
+  const rule = rules.rows[0]
+  if (!rule) return 0
+  if (rules.rows.length > 1) {
+    console.warn('[scheduling] multiple order-level promos resolved; persisting the highest-priority rule only')
+  }
+  const manualDiscountCents =
+    rule.amount_type === 'fixed'
+      ? Math.max(0, Math.round(Number(rule.amount_value)))
+      : null
+  const manualDiscountPct =
+    rule.amount_type === 'percent'
+      ? Math.max(0, Math.min(100, Number(rule.amount_value) / 100))
+      : null
+  if (manualDiscountCents == null && manualDiscountPct == null) return 0
+
+  let updated = 0
+  for (const signup of signups) {
+    const slotKey = `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
+    const signupItem = (preview.newSignups ?? []).find((item) => item.slotKey === slotKey)
+    if (signupItem?.billingType === 'one_time' || signupItem?.multiClassPassApplied) continue
+    const result = await pool.query(
+      `UPDATE scheduling_signup
+       SET manual_discount_cents = $2,
+           manual_discount_pct = $3,
+           manual_discount_reason = $4,
+           manual_discount_rule_id = $5
+       WHERE id = $1
+         AND (
+           (manual_discount_cents IS NULL AND manual_discount_pct IS NULL AND manual_discount_rule_id IS NULL)
+           OR manual_discount_rule_id = $5
+         )
+       RETURNING id`,
+      [signup.signupId, manualDiscountCents, manualDiscountPct, rule.name, Number(rule.id)],
+    )
+    updated += result.rows.length
+  }
+  return updated
+}
+
 /**
  * @param {import('pg').Pool} pool
  * @param {object} args
@@ -154,6 +250,13 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
 
   const account = await ensureBillingAccount(pool, familyId)
   if (!account) return { charges: 0, subscriptions: 0 }
+
+  await persistSignupPricingSnapshots(pool, preview, signups)
+  try {
+    await persistRecurringOrderPromoAssignment(pool, preview, signups)
+  } catch (error) {
+    console.warn('[scheduling] persist recurring order promo:', error?.message ?? error)
+  }
 
   const firstMonth = preview?.firstMonth?.enabled ? preview.firstMonth : null
   const firstMonthBySlotKey = new Map((firstMonth?.items || []).map((item) => [item.slotKey, item]))

@@ -145,7 +145,10 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
       try {
         const adjustment = await pool.query(
           `SELECT 1 FROM enrollment_price_adjustment
-           WHERE billing_subscription_id = $1 AND status = 'active' LIMIT 1`,
+           WHERE billing_subscription_id = $1
+             AND status = 'active'
+             AND kind <> 'legacy_discount'
+           LIMIT 1`,
           [row.id],
         )
         hasEffectiveDatedPrice = adjustment.rows.length > 0

@@ -380,6 +380,11 @@ async function buildCheckoutLineItems(pool, preview) {
   return lineItems
 }
 
+/** Stable across retries when Stripe succeeds before the local ID is recorded. */
+export function enrollmentStripeSubscriptionIdempotencyKey(billingSubscriptionId) {
+  return `enrollment-subscription:${Number(billingSubscriptionId)}:create-v1`
+}
+
 /**
  * After enrollment payment/setup, create one Stripe Subscription per class signup.
  * Amounts use Vortex net monthly (discounts already applied across total class count).
@@ -387,13 +392,20 @@ async function buildCheckoutLineItems(pool, preview) {
 export async function createEnrollmentStripeSubscriptions(
   pool,
   stripe,
-  { preview, stripeSession, signupIds, familyBillingAccountId },
+  {
+    preview,
+    stripeSession,
+    signupIds,
+    familyBillingAccountId,
+    customerId: suppliedCustomerId = null,
+    defaultPaymentMethodId: suppliedDefaultPaymentMethodId = null,
+  },
 ) {
   if (!stripe || !signupIds?.length) return []
 
   const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
-  let customerId = null
-  let defaultPaymentMethod = null
+  let customerId = suppliedCustomerId
+  let defaultPaymentMethod = suppliedDefaultPaymentMethodId
   if (sessionId) {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
@@ -401,7 +413,7 @@ export async function createEnrollmentStripeSubscriptions(
     customerId = session.customer
     defaultPaymentMethod =
       session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
-  } else if (familyBillingAccountId != null) {
+  } else if (!customerId && familyBillingAccountId != null) {
     const accountRes = await pool.query(
       `SELECT stripe_customer_id FROM family_billing_account WHERE id = $1`,
       [familyBillingAccountId],
@@ -528,6 +540,8 @@ export async function createEnrollmentStripeSubscriptions(
         checkoutType: 'enrollment',
         perClassSubscription: 'true',
       },
+    }, {
+      idempotencyKey: enrollmentStripeSubscriptionIdempotencyKey(subRow.id),
     })
 
     await pool.query(

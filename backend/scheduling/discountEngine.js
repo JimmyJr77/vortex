@@ -559,7 +559,10 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       remaining -= applied
       ls.applied.push({
         ruleId: rule.id,
-        name: ls.line.manualDiscountReason || rule.name,
+        // Keep the canonical rule name in billing breakdowns. The staff reason
+        // remains in the immutable adjustment/activity record, while promoCode
+        // below identifies the exact code the customer used.
+        name: rule.name,
         type: rule.type,
         amountCents: applied,
         kind: 'discount',
@@ -575,7 +578,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
     orderDiscounts.push({
       ruleId: rule.id,
-      name: eligible[0].ls.line.manualDiscountReason || rule.name,
+      name: rule.name,
       type: rule.type,
       amountCents: amount,
       source: 'manual',
@@ -928,7 +931,10 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         if (amount > 0) {
           const applied = ls.applied.at(-1)
           if (applied) {
-            applied.name = ls.line.manualDiscountReason || applied.name
+            applied.name =
+              rule.type === 'promo_code'
+                ? rule.name
+                : ls.line.manualDiscountReason || applied.name
             applied.source = 'manual'
           }
         }

@@ -149,6 +149,7 @@ export async function upsertSubscriptionForSource(db, {
   pricingOptionKey = null,
   fromDate = new Date(),
   firstBillDate = null,
+  subscriptionStartDate = null,
 }) {
   if (!familyBillingAccountId || sourceId == null) return null
   const netMonthly = Math.max(0, Math.round(Number(monthlyAmountCents) || 0) - Math.round(Number(discountAmountCents) || 0))
@@ -181,7 +182,7 @@ export async function upsertSubscriptionForSource(db, {
       Math.round(Number(monthlyAmountCents) || 0),
       Math.round(Number(discountAmountCents) || 0),
       netMonthly,
-      cycle.startDate,
+      subscriptionStartDate ?? cycle.startDate,
       cycle.anchorDay,
       cycle.nextBillDate,
       pricingOptionKey,

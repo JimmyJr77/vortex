@@ -207,7 +207,7 @@ test('persisted 50% rule reduces spend before the later family tier is selected'
         amountCents: promoDiscount.amountCents,
       },
       {
-        name: 'half-time athlete',
+        name: '50% Off',
         type: 'promo_code',
         source: 'manual',
         amountType: 'percent',

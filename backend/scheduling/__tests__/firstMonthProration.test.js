@@ -342,12 +342,31 @@ test('computeFirstMonthLayer skips one-time lines and pass-covered $0 lines', as
 })
 
 function fakeBillingPool() {
-  const calls = { subscriptions: [], charges: [], orderCredits: [], feeRedemptions: [] }
+  const calls = {
+    subscriptions: [],
+    charges: [],
+    orderCredits: [],
+    feeRedemptions: [],
+    pricingSnapshots: [],
+    promoAssignments: [],
+  }
   const pool = {
     calls,
+    discountRules: [],
     query: async (sql, params = []) => {
       if (/SELECT family_id FROM member/.test(sql)) return { rows: [{ family_id: 9 }] }
       if (/FROM family_billing_account WHERE family_id/.test(sql)) return { rows: [{ id: 77 }] }
+      if (/SELECT id, name, amount_type, amount_value\s+FROM discount_rule/.test(sql)) {
+        return { rows: pool.discountRules }
+      }
+      if (/UPDATE scheduling_signup\s+SET pricing_breakdown/.test(sql)) {
+        calls.pricingSnapshots.push(params)
+        return { rows: [] }
+      }
+      if (/UPDATE scheduling_signup\s+SET manual_discount_cents/.test(sql)) {
+        calls.promoAssignments.push(params)
+        return { rows: [{ id: params[0] }] }
+      }
       if (/INSERT INTO billing_subscription/.test(sql)) {
         calls.subscriptions.push(params)
         return { rows: [{ id: 500 + calls.subscriptions.length, created: true }] }
@@ -369,6 +388,44 @@ function fakeBillingPool() {
   }
   return pool
 }
+
+test('persistSignupCharges preserves an order promo on each recurring signup', async () => {
+  const pool = fakeBillingPool()
+  pool.discountRules = [
+    { id: 9, name: '50% Off', amount_type: 'percent', amount_value: 5000 },
+  ]
+  const recurringKey = '1:2:3'
+  const oneTimeKey = '1:4:5'
+  const preview = {
+    newSignups: [
+      { slotKey: recurringKey, formId: 1, billingType: 'recurring', incrementalMonthly: 150 },
+      { slotKey: oneTimeKey, formId: 1, billingType: 'one_time', incrementalMonthly: 85 },
+    ],
+    formSummaries: [],
+    discounts: {
+      enabled: true,
+      lines: [
+        { key: recurringKey, baseCents: 15000, applied: [] },
+        { key: oneTimeKey, baseCents: 8500, applied: [] },
+      ],
+      orderDiscounts: [
+        { ruleId: 9, name: '50% Off', type: 'promo_code', amountCents: 11750 },
+      ],
+    },
+  }
+
+  await persistSignupCharges(pool, {
+    memberId: 4,
+    signups: [
+      { signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3, formTitle: 'Team', slotLabel: '' },
+      { signupId: 12, formId: 1, slotGroupId: 4, timeSlotId: 5, formTitle: 'Clinic', slotLabel: '' },
+    ],
+    preview,
+  })
+
+  assert.equal(pool.calls.pricingSnapshots.length, 2)
+  assert.deepEqual(pool.calls.promoAssignments, [[11, null, 50, '50% Off', 9]])
+})
 
 test('persistSignupCharges posts the prorated first charge and prorated order credit', async () => {
   const pool = fakeBillingPool()
