@@ -2767,6 +2767,7 @@ app.get('/api/health', async (req, res) => {
   const payload = {
     status: dbConnected ? 'OK' : 'DEGRADED',
     buildId: API_BUILD_ID,
+    releaseCommit: process.env.RENDER_GIT_COMMIT?.slice(0, 12) ?? null,
     timestamp: new Date().toISOString(),
     emailConfigured: isEmailConfigured(),
     emailLayoutVersion: EMAIL_LAYOUT_VERSION,

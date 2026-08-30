@@ -24,6 +24,8 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   'add_scheduling_member_pricing.sql',
   'add_program_pricing_defaults.sql',
   '763_customer_billing_admin.sql',
+  '764_canonical_enrollment_promo_assignments.sql',
+  '765_restore_failed_customer_billing_promos.sql',
 ])
 
 function migrationChecksum(text) {

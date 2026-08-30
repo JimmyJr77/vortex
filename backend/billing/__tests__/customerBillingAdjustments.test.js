@@ -1,0 +1,112 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {
+  loadPostedSubscriptionAmountsByPeriod,
+  postedPriceDifferenceCents,
+  resolvePromoAdjustment,
+} from '../customerBillingAdjustments.js'
+
+test('billing managers may assign a globally scoped tuition promo without a public program allow-list', async () => {
+  const queries = []
+  const pool = {
+    async query(sql) {
+      queries.push(String(sql))
+      if (/FROM discount_rule/.test(String(sql))) {
+        return {
+          rows: [{
+            id: 9,
+            facility_id: 1,
+            name: '50% Off',
+            description: null,
+            type: 'promo_code',
+            amount_type: 'percent',
+            amount_value: 5000,
+            apply_to: 'order_total',
+            calc_base: 'pre',
+            priority: 1,
+            stackable: true,
+            exclusivity_group: null,
+            max_discount_cents: null,
+            max_redemptions: null,
+            redeemed_count: 0,
+            scope_level: 'global',
+            scope_ref_id: null,
+            starts_at: '2026-01-01T05:00:00.000Z',
+            ends_at: '2027-01-01T04:59:59.000Z',
+            active: true,
+            config: {
+              code: '50OFFVORTEX26',
+              eligibility_rules: [],
+            },
+          }],
+        }
+      }
+      if (/FROM discount_redemption/.test(String(sql))) {
+        return { rows: [{ total: 0, member_total: 0, family_total: 0 }] }
+      }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+
+  const promo = await resolvePromoAdjustment(
+    pool,
+    {
+      facility_id: 1,
+      member_id: 74,
+      family_id: 48,
+      sport_id: 1,
+      program_id: 13,
+      form_id: 29,
+      offering_id: 271,
+      responses: {},
+    },
+    '50offvortex26',
+    '2026-08-01',
+    null,
+  )
+
+  assert.equal(promo.code, '50OFFVORTEX26')
+  assert.equal(promo.effectiveFrom, '2026-08-01')
+  assert.equal(promo.effectiveThrough, '2026-12-01')
+  assert.equal(promo.snapshot.expiresOn, '2027-01-01')
+  assert.equal(
+    queries.some((sql) => /pricing_benefit_selection|pricing_promo_codes/.test(sql)),
+    false,
+  )
+})
+
+test('posted adjustment periods include enrollment-first-month and recurring-cycle charges', async () => {
+  let queryText = ''
+  let queryParams = []
+  const pool = {
+    async query(sql, params) {
+      queryText = String(sql)
+      queryParams = params
+      return {
+        rows: [
+          { period_key: '2026-08', amount_cents: 7125 },
+          { period_key: '2026-09', amount_cents: 12000 },
+        ],
+      }
+    },
+  }
+
+  const posted = await loadPostedSubscriptionAmountsByPeriod(pool, {
+    billingSubscriptionId: 27,
+    effectiveFrom: '2026-08-01',
+    effectiveThrough: '2026-09-01',
+  })
+
+  assert.match(queryText, /COALESCE\(service_period_start, created_at::date\)/)
+  assert.match(queryText, /subscription_id = \$1/)
+  assert.doesNotMatch(queryText, /source_type = 'billing_subscription'/)
+  assert.deepEqual(queryParams, [27, '2026-08-01', '2026-09-01'])
+  assert.equal(posted.get('2026-08'), 7125)
+  assert.equal(posted.get('2026-09'), 12000)
+})
+
+test('a posted charge changes the ledger balance even when its service month is still upcoming', () => {
+  assert.equal(postedPriceDifferenceCents(12000, 7125), 4875)
+  assert.equal(postedPriceDifferenceCents(7125, 12000), -4875)
+  assert.equal(postedPriceDifferenceCents(7125, null), 0)
+})

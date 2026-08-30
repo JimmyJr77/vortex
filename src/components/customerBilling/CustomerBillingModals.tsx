@@ -74,6 +74,14 @@ function newRequestKey(prefix: string) {
   return `${prefix}-${suffix}`
 }
 
+function defaultAdjustmentMonth(enrollment: CustomerBillingEnrollment) {
+  const currentMonth = currentMonthInput()
+  const enrollmentMonth = String(
+    enrollment.enrollment_start_date || enrollment.created_at || '',
+  ).slice(0, 7)
+  return enrollmentMonth && enrollmentMonth > currentMonth ? enrollmentMonth : currentMonth
+}
+
 export function PriceAdjustmentModal({
   enrollment,
   onClose,
@@ -89,7 +97,7 @@ export function PriceAdjustmentModal({
   const [kind, setKind] = useState<'fixed_final_price' | 'promo_code'>(currentPromo ? 'promo_code' : 'fixed_final_price')
   const [finalPrice, setFinalPrice] = useState((enrollment.adjustedCostCents / 100).toFixed(2))
   const [promoCode, setPromoCode] = useState('')
-  const [effectiveFromMonth, setEffectiveFromMonth] = useState(enrollment.pricingMonth?.slice(0, 7) || currentMonthInput())
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(defaultAdjustmentMonth(enrollment))
   const [effectiveThroughMonth, setEffectiveThroughMonth] = useState('')
   const [indefinite, setIndefinite] = useState(true)
   const [reason, setReason] = useState('')

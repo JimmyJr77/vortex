@@ -183,6 +183,14 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           actorUserId: actorId(req),
           input: req.body,
         })
+        console.info('[customer-billing] price adjustment created', {
+          adjustmentId: data.adjustment.id,
+          signupId: Number(req.params.signupId),
+          kind: data.adjustment.kind,
+          status: data.adjustment.status,
+          actorUserId: actorId(req),
+          resultingBalanceCents: data.preview?.resultingBalanceCents ?? null,
+        })
         const status = data.adjustment.status === 'sync_failed' ? 202 : 201
         res.status(status).json({ success: true, data })
       } catch (error) {
@@ -221,8 +229,19 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           actorUserId: actorId(req),
           reason: req.body?.reason,
         })
+        console.info('[customer-billing] price adjustment revoked', {
+          adjustmentId: Number(req.params.adjustmentId),
+          signupId: data.adjustment.signupId,
+          actorUserId: actorId(req),
+          correctionCount: data.corrections.length,
+          correctionTotalCents: data.corrections.reduce(
+            (sum, correction) => sum + Number(correction.amountCents || 0),
+            0,
+          ),
+        })
         res.json({ success: true, data })
       } catch (error) {
+        console.error('[customer-billing] revoke price adjustment:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Price change could not be revoked.' })
       }
     },

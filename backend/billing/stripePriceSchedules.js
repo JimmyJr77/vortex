@@ -124,7 +124,7 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
       ),
       pool.query(
         `SELECT * FROM billing_charge
-         WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`,
+         WHERE family_billing_account_id = $1 AND subscription_id IS NOT NULL`,
         [subscription.family_billing_account_id],
       ),
     ])
@@ -231,6 +231,19 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
       const line = priced.lines.find((candidate) => Number(candidate.subscriptionId) === Number(subscription.id))
       amountByMonth.set(periodKey, Number(line?.netCents ?? subscription.net_monthly_cents))
     }
+    const localTargetMonth = subscription.next_bill_date
+      ? [currentMonth, billingMonthKey(subscription.next_bill_date)].sort().at(-1)
+      : currentMonth
+    const localTargetPricing = await priceRecurringPeriod(pool, {
+      familyId: subscription.family_id,
+      subscriptions: familySubscriptions.rows,
+      charges: charges.rows,
+      periodKey: localTargetMonth,
+      proposedAdjustments: adjustments.filter((adjustment) => adjustment.status === 'pending_sync'),
+    })
+    const localResolvedLine = localTargetPricing.lines.find(
+      (candidate) => Number(candidate.subscriptionId) === Number(subscription.id),
+    )
 
     const currentPhaseStart =
       Number(schedule.current_phase?.start_date) ||
@@ -296,6 +309,20 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
         vortex_signup_id: String(subscription.source_id),
       },
     })
+    if (localResolvedLine) {
+      await pool.query(
+        `UPDATE billing_subscription
+         SET monthly_amount_cents = $2, discount_amount_cents = $3,
+             net_monthly_cents = $4, updated_at = now()
+         WHERE id = $1`,
+        [
+          subscription.id,
+          Number(localResolvedLine.grossCents),
+          Number(localResolvedLine.discountCents),
+          Number(localResolvedLine.netCents),
+        ],
+      )
+    }
     await setSyncState(pool, subscription.id, 'synced', { scheduleId })
     return { status: 'synced', mode: 'schedule', scheduleId, segments }
   } catch (error) {

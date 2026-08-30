@@ -14,8 +14,6 @@ import {
 } from './customerBillingPricing.js'
 import { normalizePromoCode } from '../scheduling/promoCodeRegistry.js'
 import { promoTargetsMembershipFee } from '../scheduling/discountEngine.js'
-import { resolveBenefitSelectionsForLine } from '../scheduling/benefitSelection.js'
-import { parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 
 function parseJson(value, fallback = {}) {
@@ -127,7 +125,7 @@ function scopeMatches(context, rule) {
   return false
 }
 
-async function resolvePromoAdjustment(pool, context, rawCode, requestedFrom, requestedThrough) {
+export async function resolvePromoAdjustment(pool, context, rawCode, requestedFrom, requestedThrough) {
   const code = normalizePromoCode(rawCode)
   if (!code) throw new Error('A valid promotional code is required.')
   const result = await pool.query(
@@ -151,20 +149,10 @@ async function resolvePromoAdjustment(pool, context, rawCode, requestedFrom, req
   if (!scopeMatches(context, rule)) throw new Error('This promotional code does not apply to the selected class.')
   if (!passesEligibility(context, config)) throw new Error('The member does not meet this promotional code’s eligibility rules.')
 
-  const benefits = await resolveBenefitSelectionsForLine(pool, {
-    programId: context.program_id,
-    formId: context.form_id,
-  })
-  if (benefits.usesCostSelections) {
-    const selected = benefits.selections.find(
-      (selection) => selection.benefitType === 'discount_rule' &&
-        selection.benefitId === Number(rule.id) && selection.allowMemberCode,
-    )
-    if (!selected) throw new Error('This class does not allow that promotional code to be entered manually.')
-  } else {
-    const allowed = parseProgramPromoCodes(context)
-    if (!allowed.includes(code)) throw new Error('This program does not allow that promotional code.')
-  }
+  // Customer Billing is an authorized administrative assignment surface. The
+  // public checkout allow-list controls which codes a customer may discover and
+  // enter themselves; it must not override the rule's canonical tuition scope,
+  // eligibility, validity window, or redemption limits for a billing manager.
 
   const counts = await pool.query(
     `SELECT
@@ -293,11 +281,39 @@ async function loadPeriodInputs(pool, context) {
     ),
     pool.query(
       `SELECT * FROM billing_charge
-       WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`,
+       WHERE family_billing_account_id = $1 AND subscription_id IS NOT NULL`,
       [context.family_billing_account_id],
     ),
   ])
   return { subscriptions: subscriptions.rows, charges: charges.rows }
+}
+
+export async function loadPostedSubscriptionAmountsByPeriod(pool, {
+  billingSubscriptionId,
+  effectiveFrom,
+  effectiveThrough,
+}) {
+  const result = await pool.query(
+    `SELECT to_char(COALESCE(service_period_start, created_at::date), 'YYYY-MM') AS period_key,
+            SUM(amount_cents)::int AS amount_cents
+     FROM billing_charge
+     WHERE subscription_id = $1
+       AND COALESCE(service_period_start, created_at::date) >= $2::date
+       AND (
+         $3::date IS NULL OR
+         COALESCE(service_period_start, created_at::date) <
+           (date_trunc('month', $3::date) + interval '1 month')::date
+       )
+     GROUP BY to_char(COALESCE(service_period_start, created_at::date), 'YYYY-MM')
+     ORDER BY period_key`,
+    [billingSubscriptionId, effectiveFrom, effectiveThrough],
+  )
+  return new Map(result.rows.map((row) => [row.period_key, Number(row.amount_cents)]))
+}
+
+export function postedPriceDifferenceCents(adjustedNetCents, postedAmountCents) {
+  if (postedAmountCents == null) return 0
+  return Number(adjustedNetCents) - Number(postedAmountCents)
 }
 
 export async function previewEnrollmentPriceAdjustment(pool, {
@@ -321,18 +337,11 @@ export async function previewEnrollmentPriceAdjustment(pool, {
   )
   const periodKeys = enumerateBillingMonths(normalized.effectiveFrom, previewThrough, { maxMonths: 120 })
   const periodInputs = await loadPeriodInputs(pool, context)
-  const postedResult = await pool.query(
-    `SELECT to_char(service_period_start, 'YYYY-MM') AS period_key,
-            SUM(amount_cents)::int AS amount_cents
-     FROM billing_charge
-     WHERE subscription_id = $1
-       AND source_type = 'billing_subscription'
-       AND service_period_start >= $2::date
-       AND service_period_start <= $3::date
-     GROUP BY to_char(service_period_start, 'YYYY-MM')`,
-    [context.billing_subscription_id, normalized.effectiveFrom, previewThrough],
-  )
-  const postedByPeriod = new Map(postedResult.rows.map((row) => [row.period_key, Number(row.amount_cents)]))
+  const postedByPeriod = await loadPostedSubscriptionAmountsByPeriod(pool, {
+    billingSubscriptionId: context.billing_subscription_id,
+    effectiveFrom: normalized.effectiveFrom,
+    effectiveThrough: previewThrough,
+  })
   const hypothetical = {
     id: -1,
     signup_id: Number(context.signup_id),
@@ -374,8 +383,8 @@ export async function previewEnrollmentPriceAdjustment(pool, {
       (line) => Number(line.subscriptionId) === Number(context.billing_subscription_id),
     ) ?? applyEnrollmentPriceAdjustment(baseline, hypothetical)
     const postedAmount = postedByPeriod.get(periodKey)
-    const retroactiveDifferenceCents =
-      periodKey <= currentMonth && postedAmount != null ? adjusted.netCents - postedAmount : 0
+    const alreadyPosted = postedAmount != null
+    const retroactiveDifferenceCents = postedPriceDifferenceCents(adjusted.netCents, postedAmount)
     months.push({
       periodKey,
       standardPriceCents: adjusted.grossCents,
@@ -386,7 +395,7 @@ export async function previewEnrollmentPriceAdjustment(pool, {
       discountComponents: adjusted.discountComponents ?? [],
       householdNetCents: adjustedPricing.netCents,
       postedAmountCents: postedAmount ?? null,
-      retroactive: periodKey <= currentMonth,
+      retroactive: alreadyPosted,
       retroactiveDifferenceCents,
     })
   }
@@ -869,18 +878,14 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
 
 async function buildRevocationCorrections(pool, adjustment) {
   const context = await loadEnrollmentPriceContext(pool, adjustment.signup_id)
-  const posted = await pool.query(
-    `SELECT DISTINCT to_char(service_period_start, 'YYYY-MM') AS period_key
-     FROM billing_charge
-     WHERE subscription_id = $1 AND source_type = 'billing_subscription'
-       AND service_period_start >= $2::date
-       AND ($3::date IS NULL OR service_period_start <= $3::date)
-     ORDER BY period_key`,
-    [adjustment.billing_subscription_id, adjustment.effective_from_month, adjustment.effective_through_month],
-  )
+  const postedByPeriod = await loadPostedSubscriptionAmountsByPeriod(pool, {
+    billingSubscriptionId: adjustment.billing_subscription_id,
+    effectiveFrom: adjustment.effective_from_month,
+    effectiveThrough: adjustment.effective_through_month,
+  })
   const periodInputs = await loadPeriodInputs(pool, context)
   const corrections = []
-  for (const { period_key: periodKey } of posted.rows) {
+  for (const periodKey of postedByPeriod.keys()) {
     const priced = await priceRecurringPeriod(pool, {
       familyId: context.family_id,
       subscriptions: periodInputs.subscriptions,
