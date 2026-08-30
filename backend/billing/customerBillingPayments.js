@@ -10,6 +10,7 @@ import { createBillingRefund } from './stripeOperations.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { ensureCustomerBillingAccount } from './customerBillingQueries.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
+import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.js'
 import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
 import { loadActiveAdditionalFees } from '../scheduling/additionalFeesEngine.js'
 import { memberHasActiveAnnualMembership } from '../scheduling/annualMembership.js'
@@ -23,6 +24,12 @@ import {
 function positiveCents(value, label = 'Amount') {
   const amount = Number(value)
   if (!Number.isInteger(amount) || amount <= 0) throw new Error(`${label} must be a positive whole-cent amount.`)
+  return amount
+}
+
+function nonNegativeCents(value, label = 'Amount') {
+  const amount = Number(value)
+  if (!Number.isInteger(amount) || amount < 0) throw new Error(`${label} must be a non-negative whole-cent amount.`)
   return amount
 }
 
@@ -171,6 +178,110 @@ async function loadCharge(pool, accountId, chargeId) {
   )
   if (!result.rows[0]) throw new Error('Custom charge was not found.')
   return result.rows[0]
+}
+
+/**
+ * Financial charges are immutable. A correction posts a linked debit or credit
+ * so the audit continues to show both the original bill and its correction.
+ */
+export async function adjustCustomerBillingCharge(pool, {
+  familyId,
+  facilityId = null,
+  actorUserId = null,
+  chargeId,
+  finalAmountCents,
+  reason,
+  idempotencyKey = null,
+}) {
+  const account = await ensureCustomerBillingAccount(pool, familyId, facilityId)
+  if (!account) throw new Error('Family billing account was not found.')
+  await ensureBillingChargeSchema(pool)
+  await ensureHouseholdMonthlyInvoiceSchema(pool)
+  const charge = await loadCharge(pool, account.id, chargeId)
+  if (Number(charge.amount_cents) <= 0 || ['credit', 'refund_offset', 'charge_adjustment'].includes(String(charge.source_type))) {
+    throw new Error('Only a positive bill can be modified.')
+  }
+  const targetAmount = nonNegativeCents(finalAmountCents, 'Modified bill amount')
+  const note = String(reason ?? '').trim()
+  if (!note) throw new Error('A reason is required when modifying a bill.')
+
+  const reserved = await pool.query(
+    `SELECT 1
+       FROM billing_monthly_invoice_line line
+       JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+      WHERE line.billing_charge_id = $1
+        AND invoice.status IN ('draft', 'open', 'payment_method_required', 'failed')
+      LIMIT 1`,
+    [charge.id],
+  )
+  if (reserved.rows[0]) {
+    throw new Error('This bill is already included in an open household monthly invoice. Modify it after that invoice is resolved.')
+  }
+
+  const prior = await pool.query(
+    `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
+       FROM billing_charge
+      WHERE family_billing_account_id = $1
+        AND related_charge_id = $2
+        AND source_type = 'charge_adjustment'`,
+    [account.id, charge.id],
+  )
+  const effectiveAmount = Number(charge.amount_cents) + Number(prior.rows[0]?.cents ?? 0)
+  const difference = targetAmount - effectiveAmount
+  if (difference === 0) {
+    return { account, charge, adjustment: null, effectiveAmountCents: effectiveAmount, replayed: true }
+  }
+
+  const requestKey = String(idempotencyKey ?? '').trim()
+  const sourceId = `charge:${charge.id}:${requestKey || randomUUID()}`
+  const inserted = await pool.query(
+    `INSERT INTO billing_charge (
+       family_billing_account_id, member_id, source_type, source_id, related_charge_id,
+       description, amount_cents, gross_amount_cents, discount_amount_cents,
+       charge_type, billing_interval, service_period_start, service_period_end,
+       collection_status, created_by_user_id, metadata
+     ) VALUES (
+       $1, $2, 'charge_adjustment', $3, $4,
+       $5, $6, $6, 0,
+       $7, 'one_time', $8, $9,
+       'none', $10, $11::jsonb
+     )
+     ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+     RETURNING *`,
+    [
+      account.id,
+      charge.member_id,
+      sourceId,
+      charge.id,
+      `${difference < 0 ? 'Credit' : 'Additional amount'} for ${charge.description}`,
+      difference,
+      difference < 0 ? 'credit' : 'adjustment',
+      charge.service_period_start,
+      charge.service_period_end,
+      actorUserId,
+      JSON.stringify({ originalChargeId: Number(charge.id), originalAmountCents: Number(charge.amount_cents), previousEffectiveAmountCents: effectiveAmount, finalAmountCents: targetAmount, reason: note }),
+    ],
+  )
+  const adjustment = inserted.rows[0] ?? await pool.query(
+    `SELECT * FROM billing_charge WHERE source_type = 'charge_adjustment' AND source_id = $1`,
+    [sourceId],
+  ).then((result) => result.rows[0] ?? null)
+  if (!adjustment) throw new Error('Bill adjustment could not be created.')
+
+  await recordBillingActivity(pool, {
+    eventKey: `billing-charge-adjusted:${adjustment.id}`,
+    accountId: account.id,
+    memberId: charge.member_id,
+    chargeId: charge.id,
+    eventType: 'billing_charge_adjusted',
+    summary: `${charge.description} was modified with a linked ${difference < 0 ? 'credit' : 'debit'}.`,
+    beforeValue: { effectiveAmountCents: effectiveAmount },
+    afterValue: { effectiveAmountCents: targetAmount, adjustmentChargeId: Number(adjustment.id), adjustmentAmountCents: difference, reason: note },
+    actorUserId,
+    actorType: 'admin',
+  })
+  await allocateHouseholdPayments(pool, { accountId: account.id, actorUserId, actorType: 'admin' })
+  return { account, charge, adjustment, effectiveAmountCents: targetAmount, replayed: false }
 }
 
 function assertCustomCharge(charge) {

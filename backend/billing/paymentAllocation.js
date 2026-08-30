@@ -306,8 +306,8 @@ export async function repairEnrollmentBillingCoverage(pool, {
   const candidates = await pool.query(
     `SELECT charge.id AS charge_id, charge.member_id, charge.family_billing_account_id,
             subscription.id AS subscription_id, subscription.source_id AS signup_id,
-            subscription.next_bill_date AS service_period_start,
-            (subscription.next_bill_date + INTERVAL '1 month - 1 day')::date AS service_period_end
+            signup.enrollment_start_date AS service_period_start,
+            (date_trunc('month', signup.enrollment_start_date) + INTERVAL '1 month - 1 day')::date AS service_period_end
      FROM billing_charge charge
      JOIN billing_subscription subscription ON subscription.id = charge.subscription_id
      JOIN scheduling_signup signup
@@ -319,10 +319,11 @@ export async function repairEnrollmentBillingCoverage(pool, {
        AND charge.source_type = 'scheduling_signup'
        AND charge.service_period_start IS NULL
        AND charge.service_period_end IS NULL
-       AND subscription.next_bill_date IS NOT NULL
-       AND charge.amount_cents = subscription.net_monthly_cents
-       AND signup.enrollment_start_date >= subscription.next_bill_date - 1
-       AND signup.enrollment_start_date < subscription.next_bill_date + INTERVAL '1 month'
+       -- A signup-sourced recurring charge is the initial enrollment bill.
+       -- Its service window always begins on the athlete's chosen start date,
+       -- even when the row was created before that month or the subscription
+       -- has since advanced after a payment.
+       AND signup.enrollment_start_date IS NOT NULL
      ORDER BY charge.id`,
     [Number(accountId)],
   )

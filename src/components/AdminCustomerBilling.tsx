@@ -21,7 +21,7 @@ import {
   WalletCards,
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { CustomChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
+import { CustomChargeModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
 import { billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
@@ -507,7 +507,7 @@ function TransactionsPanel({
   onExport,
   onRefund,
   onResendReceipt,
-  onModifyCourse,
+  onModifyBill,
 }: {
   rows: BillingTransaction[]
   members: CustomerBillingOverview['members']
@@ -521,7 +521,7 @@ function TransactionsPanel({
   onExport: () => void
   onRefund: (row: BillingTransaction) => void
   onResendReceipt: (row: BillingTransaction) => void
-  onModifyCourse: (row: BillingTransaction) => void
+  onModifyBill: (row: BillingTransaction) => void
 }) {
   const [expanded, setExpanded] = useState<string | null>(null)
   return (
@@ -542,7 +542,10 @@ function TransactionsPanel({
               const key = `${row.entryKind}-${row.refId}`
               const isExpanded = expanded === key
               const canRefund = canManage && row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
-              const canModifyCourse = canManage && row.entryKind === 'charge' && row.entryType === 'recurring' && Boolean(row.details.subscriptionId)
+              const canModifyBill = canManage && row.entryKind === 'charge' && row.amountCents > 0 && (
+                (row.entryType === 'recurring' && Boolean(row.details.subscriptionId)) ||
+                row.details.sourceType === 'additional_fee'
+              )
               const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
                 ? row.details.discountCode.trim()
                 : ''
@@ -567,7 +570,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
-                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyCourse ? <button type="button" onClick={() => onModifyCourse(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
+                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
                   </tr>
                   {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label} className={Array.isArray(value) ? 'sm:col-span-2 lg:col-span-4' : ''}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><AuditDetailValue label={label} value={value} /></div>)}</div></td></tr> : null}
                 </Fragment>
@@ -625,6 +628,7 @@ export default function AdminCustomerBilling() {
   const [success, setSuccess] = useState<string | null>(null)
   const [lastActionUrl, setLastActionUrl] = useState<string | null>(null)
   const [priceEnrollment, setPriceEnrollment] = useState<CustomerBillingEnrollment | null>(null)
+  const [chargeToModify, setChargeToModify] = useState<BillingTransaction | null>(null)
   const [customChargeOpen, setCustomChargeOpen] = useState(false)
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
   const [refundPayment, setRefundPayment] = useState<BillingTransaction | null>(null)
@@ -903,6 +907,10 @@ export default function AdminCustomerBilling() {
 
   const modifyCourseCharge = (row: BillingTransaction) => {
     if (!overview) return
+    if (row.details.sourceType === 'additional_fee') {
+      setChargeToModify(row)
+      return
+    }
     const subscriptionId = Number(row.details.subscriptionId)
     const subscription = overview.subscriptions.find((item) => item.id === subscriptionId)
     const enrollment = subscription?.signupId == null
@@ -1145,13 +1153,14 @@ export default function AdminCustomerBilling() {
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
-            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onModifyCourse={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
+            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 
         </>
       ) : null}
 
       {priceEnrollment ? <PriceAdjustmentModal enrollment={priceEnrollment} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} /> : null}
+      {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
       {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.balanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
       {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}

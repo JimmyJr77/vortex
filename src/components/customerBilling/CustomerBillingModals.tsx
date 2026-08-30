@@ -466,6 +466,60 @@ export function CustomChargeModal({
   )
 }
 
+export function ModifyChargeModal({
+  familyId,
+  charge,
+  onClose,
+  onSaved,
+}: {
+  familyId: number
+  charge: BillingTransaction
+  onClose: () => void
+  onSaved: (message: string) => void
+}) {
+  const [amount, setAmount] = useState((charge.amountCents / 100).toFixed(2))
+  const [reason, setReason] = useState('')
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [requestKey] = useState(() => newRequestKey('billing-charge-adjustment'))
+  const finalAmountCents = Math.round(Number(amount) * 100)
+  const differenceCents = finalAmountCents - charge.amountCents
+
+  const submit = async () => {
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/charges/${charge.refId}/adjustments`, {
+        method: 'POST',
+        headers: { 'Idempotency-Key': requestKey },
+        body: JSON.stringify({ finalAmountCents, reason: reason.trim() }),
+      })
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Bill modification failed.')
+      onSaved(differenceCents < 0 ? 'Bill reduced with a linked account credit.' : differenceCents > 0 ? 'Bill increased with a linked ledger debit.' : 'Bill already has that effective amount.')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Bill modification failed.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  return (
+    <ModalShell title="Modify bill" subtitle={`${charge.description} · original bill ${money(charge.amountCents)}`} onClose={onClose}>
+      <div className="space-y-4">
+        <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">The original bill remains in the audit. This change posts a linked {differenceCents < 0 ? 'credit' : differenceCents > 0 ? 'debit' : 'adjustment'} to reach the selected effective amount.</p>
+        <label className="block text-sm font-medium text-gray-700">Effective bill amount
+          <div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div>
+        </label>
+        <label className="block text-sm font-medium text-gray-700">Reason<textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="Why this bill amount is being corrected" /></label>
+        {Number.isFinite(finalAmountCents) ? <div className="rounded-lg bg-gray-50 p-3 text-sm"><span className="text-gray-500">Ledger effect: </span><strong>{differenceCents < 0 ? `${money(Math.abs(differenceCents))} future credit` : differenceCents > 0 ? `${money(differenceCents)} additional amount due` : 'No change'}</strong></div> : null}
+        {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+        <button type="button" onClick={() => void submit()} disabled={working || !Number.isFinite(finalAmountCents) || finalAmountCents < 0 || !reason.trim()} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save bill modification</button>
+      </div>
+    </ModalShell>
+  )
+}
+
 interface RefundPreview {
   remainingRefundableCents: number
   amountCents: number

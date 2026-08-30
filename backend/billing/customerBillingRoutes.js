@@ -18,6 +18,7 @@ import {
   collectCustomChargeWithSavedCard,
   collectOutstandingBalanceWithSavedCard,
   billAnnualMembershipNow,
+  adjustCustomerBillingCharge,
   createCustomerBillingCustomCharge,
   createCustomerBillingPaymentMethodLink,
   createCustomerBillingRefund,
@@ -110,6 +111,31 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.status(errorStatus(error)).json({
           success: false,
           message: error?.message ?? 'Annual membership bill could not be created.',
+        })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/charges/:chargeId/adjustments',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await adjustCustomerBillingCharge(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          chargeId: Number(req.params.chargeId),
+          finalAmountCents: req.body?.finalAmountCents,
+          reason: req.body?.reason,
+          idempotencyKey: idempotencyKey(req, 'billing-charge-adjustment'),
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] charge adjustment:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Bill adjustment could not be created.',
         })
       }
     },
