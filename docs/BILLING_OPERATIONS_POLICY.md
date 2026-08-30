@@ -80,6 +80,23 @@ Card payments must be refunded to the original payment method. Checks, cash, cre
 
 Refunds must never exceed the remaining refundable amount of the original payment. Partial refunds and prior refunds must be considered before approval.
 
+## 4A. Customer Billing account adjustments and collections
+
+The Customer Billing workspace is the authoritative staff view for a household's enrollment prices, recurring charges, transactions, and administrative activity. Staff must search for the individual, verify the family context and selected member, and review the post-action balance preview before a financial mutation.
+
+Enrollment price changes follow calendar billing months. They start on the first day of the selected month, end after the final selected month, and do not prorate partial months. A manually entered final price takes precedence over automatic and promotional discounts; suppressed discounts remain visible for explanation. Every change requires a reason, and an above-list price requires an additional explicit confirmation. Effective windows must not overlap. Posted charges are never edited: retroactive changes and corrections create linked debit or credit entries.
+
+Custom charges must state the exact positive amount, description, optional member, and optional service period. Collection is either a customer-present exact-amount Stripe Checkout link or an off-session attempt against the reusable default card. A saved-card attempt requires a retained authorization source, authorization date, note, and exact-amount confirmation. Staff never receive or enter raw card details. If authentication is required or collection fails, the charge remains outstanding and staff must offer the Checkout-link fallback.
+
+Every card refund must reference an eligible original Stripe payment and one ledger treatment:
+
+- **Reverse or waive a related charge:** create a linked credit equal to the successful refund.
+- **Return unapplied overpayment:** limit the refund to the account's unapplied credit balance.
+
+Refund approval must include the existing exception category, evidence, reason, and actor controls. Staff must review both the projected account balance and the payment's remaining refundable amount before confirmation. Failed or pending refunds do not change the account balance; ledger treatment is finalized only after Stripe reports success.
+
+Read access requires `billing.view`. Financial mutations require `billing.manage`; payer/contact changes require `family_billing.manage`; statements require `billing.statements.manage`. All checks are server-enforced.
+
 ## 5. Cancellation and proration
 
 ### Recurring memberships
@@ -141,6 +158,7 @@ The Billing dashboard should provide the following auditable work queues and act
 3. **Refund request:** select the original payment, validate refundable balance, record evidence, approve/deny, and issue the Stripe refund.
 4. **Dispute:** display Stripe deadline, assemble evidence, submit/accept, and record outcome.
 5. **Missed class:** record absence and approved accommodation on the athlete profile once the entry workflow is finalized.
+6. **Customer account:** inspect household/member pricing, post an effective-dated price change, collect an exact custom charge, issue a treatment-linked refund, generate a statement, or resend a receipt.
 
 Every consequential action must retain an immutable audit record of the actor, timestamp, prior state, resulting state, reason, and external Stripe identifier when applicable.
 
@@ -165,6 +183,6 @@ The following requirements are approved by this policy but must be verified or c
 - create Billing-dashboard cancellation review items, especially for multi-month programs;
 - capture Owner/Admin approval and evidence for refund exceptions;
 - provide a structured missed-class entry workflow on athlete profiles; and
-- preserve audit history for suspension, restoration, cancellation, refund, and dispute actions.
+- preserve audit history for suspension, restoration, cancellation, refund, dispute, price-change, payment-method, custom-collection, receipt, and statement actions.
 
 No sales tax is calculated or collected at checkout under the current Vortex policy.

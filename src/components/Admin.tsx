@@ -17,7 +17,7 @@ import AdminMultiClassPasses from './AdminMultiClassPasses'
 import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
-import AdminFamilyBilling from './AdminFamilyBilling'
+import AdminCustomerBilling from './AdminCustomerBilling'
 import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import CancellationReviewPanel from './billing/CancellationReviewPanel'
 import DisputeCasesPanel from './billing/DisputeCasesPanel'
@@ -81,7 +81,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -107,6 +107,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
   { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
   { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
+  { id: 'customerBilling', label: 'Customer Billing', permission: 'billing.view' },
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
@@ -144,7 +145,7 @@ const GROUPS: GroupDef[] = [
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
-  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
+  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'customerBilling', 'billing'] },
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
   { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
   { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
@@ -362,12 +363,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'competitors':
         return <AdminCompetitors />
       case 'access':
-        return (
-          <AdminAccess
-            isMasterAdmin={accessContext?.isMasterAdmin ?? false}
-            currentUserId={accessContext?.userId ?? null}
-          />
-        )
+        return <AdminAccess />
       case 'billing':
         return (
           <div className="space-y-6">
@@ -375,9 +371,10 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             <CancellationReviewPanel />
             <DisputeCasesPanel />
             <StripeOperationsPanel />
-            <AdminFamilyBilling />
           </div>
         )
+      case 'customerBilling':
+        return <AdminCustomerBilling />
       case 'waivers':
         return <AdminWaivers />
       case 'insurance':

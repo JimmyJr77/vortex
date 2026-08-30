@@ -103,8 +103,8 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
             (family_billing_account_id, member_id, source_type, source_id, description,
              amount_cents, gross_amount_cents, discount_amount_cents,
              charge_type, billing_interval, subscription_id,
-             service_period_start, service_period_end)
-          VALUES ($1, $2, 'billing_subscription', $3, $4, $5, $6, $7, 'recurring', 'month', $8, $9, $10)
+             service_period_start, service_period_end, price_adjustment_id)
+          VALUES ($1, $2, 'billing_subscription', $3, $4, $5, $6, $7, 'recurring', 'month', $8, $9, $10, $11)
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
           DO NOTHING
           RETURNING id
@@ -120,6 +120,7 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
           sub.id,
           periodStart,
           periodEnd,
+          periodLine?.priceAdjustmentId ?? null,
         ],
       )
       if (ins.rows.length > 0) chargesPosted += 1

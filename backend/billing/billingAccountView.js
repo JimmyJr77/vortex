@@ -168,6 +168,7 @@ export function buildLedgerFallback({ charges = [], payments = [], refunds = [] 
   }
   for (const r of refunds) {
     const mapped = typeof r.amountCents === 'number' ? r : mapRefund(r)
+    if (mapped.externalStatus && mapped.externalStatus !== 'succeeded') continue
     entries.push({
       entry_kind: 'refund',
       entry_type: 'refund',
@@ -275,6 +276,34 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     subscriptionHistory = []
   }
 
+  let recurringBreakpoints = []
+  try {
+    recurringBreakpoints = await buildRecurringBreakpoints(pool, {
+      familyId: account.family_id,
+      subscriptions: rawSubscriptions,
+      charges,
+    })
+  } catch (err) {
+    console.warn('[billingAccountView] recurring breakpoints:', err?.message ?? err)
+  }
+  const today = new Date()
+  const currentPricingKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+  const currentResolvedPricing = recurringBreakpoints.find((item) => item.periodKey === currentPricingKey)
+  if (currentResolvedPricing) {
+    const bySubscription = new Map(
+      currentResolvedPricing.lines.map((line) => [Number(line.subscriptionId), line]),
+    )
+    subscriptions = subscriptions.map((subscription) => {
+      const line = bySubscription.get(Number(subscription.id))
+      return line ? {
+        ...subscription,
+        monthlyAmountCents: line.grossCents,
+        discountAmountCents: line.discountCents,
+        netMonthlyCents: line.netCents,
+        discountComponents: line.discountComponents ?? [],
+      } : subscription
+    })
+  }
   const activeSubs = subscriptions.filter((s) => s.status === 'active' && !isAnnualMembershipSubscription(s))
   const monthlyTotals = activeSubs.reduce(
     (acc, s) => {
@@ -285,18 +314,6 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     },
     { grossCents: 0, discountCents: 0, netCents: 0 },
   )
-  let recurringBreakpoints = []
-  if (familyScope) {
-    try {
-      recurringBreakpoints = await buildRecurringBreakpoints(pool, {
-        familyId: account.family_id,
-        subscriptions: rawSubscriptions,
-        charges,
-      })
-    } catch (err) {
-      console.warn('[billingAccountView] recurring breakpoints:', err?.message ?? err)
-    }
-  }
 
   let membershipRedemptions = []
   try {
@@ -354,7 +371,9 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
         [account.id],
       )
       refunds = refundsRes.rows.map(mapRefund)
-      refundsCents = refunds.reduce((sum, r) => sum + r.amountCents, 0)
+      refundsCents = refunds
+        .filter((refund) => refund.externalStatus === 'succeeded')
+        .reduce((sum, refund) => sum + refund.amountCents, 0)
     } catch (err) {
       logBillingQueryError('refunds', err)
       refunds = []
@@ -421,9 +440,8 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     payments,
     subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
   })
-  const currentPricing = recurringBreakpoints.find((item) => item.periodKey === currentPeriod.key)
-  if (currentPricing) {
-    const bySubscription = new Map(currentPricing.lines.map((line) => [Number(line.subscriptionId), line]))
+  if (currentResolvedPricing) {
+    const bySubscription = new Map(currentResolvedPricing.lines.map((line) => [Number(line.subscriptionId), line]))
     currentPeriod.recurringEnrollments = currentPeriod.recurringEnrollments.map((subscription) => {
       const line = bySubscription.get(Number(subscription.id))
       return line ? {

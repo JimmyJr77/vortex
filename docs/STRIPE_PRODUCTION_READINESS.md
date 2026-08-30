@@ -43,6 +43,11 @@ The Billing admin provides:
 - strict manual-ledger validation: credits must be negative, refunds use the refund workflow,
   gross/discount/net values must reconcile, and every manual payment preserves method, note,
   and authenticated recorder.
+- a separate Customer Billing workspace for individual/family lookup, saved-card visibility,
+  effective-dated enrollment pricing, exact custom Checkout or authorized off-session
+  collection, refund balance previews, statements, receipts, and complete account activity.
+- retryable subscription-schedule synchronization alerts. A Stripe-backed price adjustment
+  stays inactive until all no-proration month-boundary phases have been accepted by Stripe.
 
 All mutating controls require `billing.manage`; read-only billing visibility requires
 `billing.view`.
@@ -56,6 +61,16 @@ All mutating controls require `billing.manage`; read-only billing visibility req
 - Stripe-generated ledger payments and purchase analytics are emitted only for the first
   successful insert.
 - Refunds validate the refundable remainder and use a stable Stripe idempotency key.
+- Refund ledger treatment is finalized only for successful Stripe refunds; pending and failed
+  refunds do not affect the Vortex account balance.
+- Exact custom collections create one payment-to-charge application. Checkout/webhook replay
+  and off-session retries cannot settle the same charge twice.
+- Off-session saved-card collection requires a recorded authorization source, date, note, and
+  exact-amount confirmation. Authentication-required and failed attempts leave the charge due
+  and provide customer-present Checkout as the fallback.
+- Temporary enrollment prices are represented by Subscription Schedule phases with
+  `proration_behavior=none`; finite changes restore the canonical resolved price after the final
+  month. Local/Stripe schedule drift remains a reconciliation failure.
 - Admin-created Stripe refunds do not send a second receipt when their webhook arrives.
 - Reconciliation recovers mappable missing payments and raises alerts for amount drift,
   unmapped money, disputes, stale processing, and failures.
@@ -118,6 +133,14 @@ transaction, confirm the same Stripe transaction context across:
 
 Do not fabricate a payment to claim this gate. Record the real transaction date and
 evidence in `BILLING_REQUIREMENTS_LOG.md`.
+
+Before a controlled live Customer Billing rollout, complete the same flow in Stripe test mode:
+
+1. create finite and indefinite enrollment price changes and verify month-boundary activation/reversion;
+2. force a schedule-sync failure, confirm the adjustment remains inactive, and verify retry recovery;
+3. collect one exact custom charge from a reusable test card and one through Checkout fallback;
+4. issue a partial refund with a linked charge credit and replay its webhook without duplication; and
+5. run reconciliation and confirm no amount, phase, schedule, payment-application, or refund-treatment drift.
 
 ## Incident response
 

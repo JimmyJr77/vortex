@@ -105,6 +105,7 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
   const res = await pool.query(
     `
       SELECT bs.id, bs.stripe_subscription_id, bs.net_monthly_cents, bs.description,
+             bs.stripe_subscription_schedule_id,
              sf.title AS form_title,
              m.first_name, m.last_name,
              ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
@@ -139,11 +140,28 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
       scheduleLabel,
       athleteName,
     })
-    const outcome = await updateStripeSubscriptionUnitAmount(
-      row.stripe_subscription_id,
-      row.net_monthly_cents,
-      { productName },
-    )
+    let hasEffectiveDatedPrice = Boolean(row.stripe_subscription_schedule_id)
+    if (!hasEffectiveDatedPrice) {
+      try {
+        const adjustment = await pool.query(
+          `SELECT 1 FROM enrollment_price_adjustment
+           WHERE billing_subscription_id = $1 AND status = 'active' LIMIT 1`,
+          [row.id],
+        )
+        hasEffectiveDatedPrice = adjustment.rows.length > 0
+      } catch (error) {
+        if (error?.code !== '42P01' && error?.code !== '42703') throw error
+      }
+    }
+    const outcome = hasEffectiveDatedPrice
+      ? await import('./stripePriceSchedules.js').then(({ syncEnrollmentStripePriceSchedule }) =>
+          syncEnrollmentStripePriceSchedule(pool, row.id),
+        )
+      : await updateStripeSubscriptionUnitAmount(
+          row.stripe_subscription_id,
+          row.net_monthly_cents,
+          { productName },
+        )
     results.push({
       billingSubscriptionId: Number(row.id),
       stripeSubscriptionId: row.stripe_subscription_id,

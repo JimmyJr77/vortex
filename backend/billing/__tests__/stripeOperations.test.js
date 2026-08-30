@@ -3,8 +3,16 @@ import assert from 'node:assert/strict'
 import {
   beginStripeWebhookEvent,
   createBillingRefund,
+  normalizeStripeRefundStatus,
   resolveStripeBillingAlert,
 } from '../stripeOperations.js'
+
+test('Stripe refund states remain pending until Stripe reports success', () => {
+  assert.equal(normalizeStripeRefundStatus('pending'), 'pending')
+  assert.equal(normalizeStripeRefundStatus('requires_action'), 'pending')
+  assert.equal(normalizeStripeRefundStatus('succeeded'), 'succeeded')
+  assert.equal(normalizeStripeRefundStatus('failed'), 'failed')
+})
 
 test('webhook claim treats an already processed event as a replay', async () => {
   const pool = {

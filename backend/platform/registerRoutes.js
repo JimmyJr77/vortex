@@ -87,6 +87,12 @@ import {
   validateManualChargeInput,
   validateManualPaymentInput,
 } from '../billing/billingManualControls.js'
+import { registerCustomerBillingRoutes } from '../billing/customerBillingRoutes.js'
+import { recordBillingActivityBestEffort } from '../billing/billingActivity.js'
+import {
+  finalizeRefundLedgerTreatment,
+  linkCustomerBillingPayment,
+} from '../billing/customerBillingPayments.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -336,10 +342,13 @@ async function deleteAppUserCompletely(client, userId, facilityId) {
   await client.query('DELETE FROM app_user WHERE id = $1 AND facility_id = $2', [userId, facilityId])
 }
 
-async function ensureBillingAccount(pool, familyId) {
+async function ensureBillingAccount(pool, familyId, facilityId = null) {
   const existing = await pool.query(
-    `SELECT * FROM family_billing_account WHERE family_id = $1`,
-    [familyId],
+    `SELECT fba.*
+     FROM family_billing_account fba
+     JOIN family f ON f.id = fba.family_id
+     WHERE fba.family_id = $1 AND ($2::bigint IS NULL OR f.facility_id = $2)`,
+    [familyId, facilityId],
   )
   if (existing.rows.length > 0) return existing.rows[0]
 
@@ -366,10 +375,10 @@ async function ensureBillingAccount(pool, familyId) {
         ORDER BY (email IS NULL), id
         LIMIT 1
       ) m ON TRUE
-      WHERE f.id = $1
+      WHERE f.id = $1 AND ($2::bigint IS NULL OR f.facility_id = $2)
       RETURNING *
     `,
-    [familyId],
+    [familyId, facilityId],
   )
   return created.rows[0] ?? null
 }
@@ -378,11 +387,13 @@ async function memberBelongsToFamily(pool, memberId, familyId) {
   if (!memberId) return true
   const res = await pool.query(
     `
-      SELECT 1
-      FROM family_member
-      WHERE member_id = $1
-        AND family_id = $2
-        AND is_active = TRUE
+      SELECT 1 FROM member m
+      WHERE m.id = $1 AND (
+        m.family_id = $2 OR EXISTS (
+          SELECT 1 FROM family_member fm
+          WHERE fm.member_id = m.id AND fm.family_id = $2 AND fm.is_active = TRUE
+        )
+      )
     `,
     [memberId, familyId],
   )
@@ -650,6 +661,7 @@ async function ensureCoachOperationalTables(pool) {
 }
 
 export function registerPlatformRoutes(app, pool, { jwtSecret }) {
+  registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission })
   app.get('/api/admin/access/me', authMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
     res.json({
@@ -1370,7 +1382,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   app.get('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
       const familyId = Number(req.params.familyId)
-      const account = await ensureBillingAccount(pool, familyId)
+      const account = await ensureBillingAccount(pool, familyId, req.platformAuth?.user?.facility_id ?? null)
       if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
       const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
       res.json({
@@ -1448,11 +1460,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), async (req, res) => {
     const familyId = Number(req.params.familyId)
+    const beforeAccount = await ensureBillingAccount(
+      pool,
+      familyId,
+      req.platformAuth?.user?.facility_id ?? null,
+    )
+    if (!beforeAccount) return res.status(404).json({ success: false, message: 'Family not found.' })
     const payerMemberId = req.body?.payerMemberId == null ? null : Number(req.body.payerMemberId)
     if (!(await memberBelongsToFamily(pool, payerMemberId, familyId))) {
       return res.status(400).json({ success: false, message: 'Payer must belong to this family.' })
     }
-    await ensureBillingAccount(pool, familyId)
     const updated = await pool.query(
       `
         UPDATE family_billing_account
@@ -1480,6 +1497,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         typeof req.body?.isActive === 'boolean' ? req.body.isActive : null,
       ],
     )
+    await recordBillingActivityBestEffort(pool, {
+      eventKey: `billing-contact-updated:${updated.rows[0].id}:${new Date(updated.rows[0].updated_at).getTime()}`,
+      accountId: updated.rows[0].id,
+      eventType: 'billing_contact_updated',
+      summary: 'Household billing contact was updated.',
+      beforeValue: mapBillingAccount(beforeAccount),
+      afterValue: mapBillingAccount(updated.rows[0]),
+      actorUserId: req.platformAuth?.user?.id ?? null,
+    })
     res.json({ success: true, data: mapBillingAccount(updated.rows[0]) })
   })
 
@@ -1528,6 +1554,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         validated.createdByUserId,
       ],
     )
+    await recordBillingActivityBestEffort(pool, {
+      eventKey: `legacy-charge-created:${charge.rows[0].id}`,
+      accountId: account.id,
+      memberId: charge.rows[0].member_id,
+      chargeId: charge.rows[0].id,
+      eventType: 'ledger_charge_created',
+      summary: `Ledger charge created: ${charge.rows[0].description}.`,
+      afterValue: mapCharge(charge.rows[0]),
+      actorUserId: req.platformAuth?.user?.id ?? null,
+    })
     res.json({ success: true, data: mapCharge(charge.rows[0]) })
   })
 
@@ -1617,6 +1653,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         recipientEmail: delivery.email,
         details: { recipientEmail: delivery.email },
       })
+      await recordBillingActivityBestEffort(pool, {
+        eventKey: `payment-link-sent:${action.id}`,
+        accountId: account.id,
+        eventType: 'payment_link_sent',
+        summary: `Secure ${balanceCents}-cent account-balance payment link sent.`,
+        details: { amountCents: balanceCents, recipientEmail: delivery.email, expiresAt: session.expiresAt },
+        stripeObjectId: session.id,
+        actorUserId: req.platformAuth?.user?.id ?? null,
+      })
       res.json({
         success: true,
         data: {
@@ -1640,7 +1685,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.post('/api/admin/families/:familyId/payments/:paymentId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const paymentResult = await pool.query(
       `SELECT * FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
@@ -1669,6 +1714,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         recipientEmail: delivery.email,
         details: { recipientEmail: delivery.email },
       })
+      await recordBillingActivityBestEffort(pool, {
+        eventKey: `payment-receipt-resent:${action.id}`,
+        accountId: account.id,
+        paymentId: payment.id,
+        eventType: 'payment_receipt_resent',
+        summary: `Payment #${payment.id} receipt was resent.`,
+        details: { recipientEmail: delivery.email },
+        actorUserId: req.platformAuth?.user?.id ?? null,
+      })
       res.json({ success: true, data: { recipientEmail: delivery.email } })
     } catch (error) {
       await finishBillingAdminAction(pool, action.id, {
@@ -1680,7 +1734,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.post('/api/admin/families/:familyId/refunds/:refundId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const refundResult = await pool.query(
       `SELECT * FROM billing_refund WHERE id = $1 AND family_billing_account_id = $2`,
@@ -1711,6 +1765,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         status: 'succeeded',
         recipientEmail: delivery.email,
         details: { recipientEmail: delivery.email },
+      })
+      await recordBillingActivityBestEffort(pool, {
+        eventKey: `refund-receipt-resent:${action.id}`,
+        accountId: account.id,
+        refundId: refund.id,
+        eventType: 'refund_receipt_resent',
+        summary: `Refund #${refund.id} receipt was resent.`,
+        details: { recipientEmail: delivery.email },
+        actorUserId: req.platformAuth?.user?.id ?? null,
       })
       res.json({ success: true, data: { recipientEmail: delivery.email } })
     } catch (error) {
@@ -1782,6 +1845,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       ],
     )
     const paymentRow = payment.rows[0]
+    await recordBillingActivityBestEffort(pool, {
+      eventKey: `manual-payment-recorded:${paymentRow.id}`,
+      accountId: account.id,
+      paymentId: paymentRow.id,
+      eventType: 'manual_payment_recorded',
+      summary: 'External or manual payment was recorded.',
+      afterValue: mapPayment(paymentRow),
+      actorUserId: req.platformAuth?.user?.id ?? null,
+    })
     res.json({ success: true, data: mapPayment(paymentRow) })
     notifyPaymentReceipt(pool, {
       account,
@@ -1809,6 +1881,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         createdByUserId: createdBy,
         exceptionCategory: req.body?.exceptionCategory ?? null,
         evidenceNote: req.body?.evidenceNote ?? null,
+      })
+      await recordBillingActivityBestEffort(pool, {
+        eventKey: `legacy-refund-created:${refund.id}`,
+        accountId: account.id,
+        paymentId,
+        refundId: refund.id,
+        eventType: refund.external_status === 'succeeded' ? 'refund_succeeded' : 'refund_created',
+        summary: `Refund #${refund.id} was created.`,
+        afterValue: { amountCents, status: refund.external_status },
+        stripeObjectId: refund.stripe_refund_id ?? null,
+        actorUserId: createdBy,
       })
       res.json({ success: true, data: refund })
       notifyRefundReceipt(pool, {
@@ -1853,6 +1936,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (updated.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Subscription not found or already cancelled.' })
     }
+    await recordBillingActivityBestEffort(pool, {
+      eventKey: `subscription-status:${id}:${status}:${new Date(updated.rows[0].updated_at).getTime()}`,
+      accountId: updated.rows[0].family_billing_account_id,
+      memberId: updated.rows[0].member_id,
+      signupId: updated.rows[0].source_type === 'scheduling_signup' ? Number(updated.rows[0].source_id) : null,
+      eventType: 'subscription_status_changed',
+      summary: `Recurring billing was changed from ${existing.rows[0].status} to ${status}.`,
+      beforeValue: existing.rows[0],
+      afterValue: updated.rows[0],
+      actorUserId: req.platformAuth?.user?.id ?? null,
+    })
     res.json({ success: true, data: updated.rows[0] })
   })
 
@@ -1904,7 +1998,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
-      const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+      const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
       if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
       const statements = await pool.query(
         `SELECT * FROM billing_statement WHERE family_billing_account_id = $1 ORDER BY statement_date DESC, id DESC`,
@@ -1940,7 +2034,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.post('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.statements.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const charges = await pool.query(
       `
@@ -1975,6 +2069,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         )
       }
       await pool.query('COMMIT')
+      await recordBillingActivityBestEffort(pool, {
+        eventKey: `statement-generated:${statement.rows[0].id}`,
+        accountId: account.id,
+        eventType: 'statement_generated',
+        summary: `Statement #${statement.rows[0].id} was generated.`,
+        afterValue: mapStatement(statement.rows[0], charges.rows),
+        actorUserId: req.platformAuth?.user?.id ?? null,
+      })
       res.json({ success: true, data: mapStatement(statement.rows[0], charges.rows) })
     } catch (error) {
       await pool.query('ROLLBACK')
@@ -1988,11 +2090,21 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!['draft', 'issued', 'paid', 'void'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid statement status.' })
     }
+    const beforeStatement = await pool.query(`SELECT * FROM billing_statement WHERE id = $1`, [statementId])
     const updated = await pool.query(
       `UPDATE billing_statement SET status = $2, updated_at = now() WHERE id = $1 RETURNING *`,
       [statementId, status],
     )
     if (updated.rows.length === 0) return res.status(404).json({ success: false, message: 'Statement not found.' })
+    await recordBillingActivityBestEffort(pool, {
+      eventKey: `statement-status:${statementId}:${status}:${new Date(updated.rows[0].updated_at).getTime()}`,
+      accountId: updated.rows[0].family_billing_account_id,
+      eventType: 'statement_status_changed',
+      summary: `Statement #${statementId} was marked ${status}.`,
+      beforeValue: beforeStatement.rows[0] ?? null,
+      afterValue: updated.rows[0],
+      actorUserId: req.platformAuth?.user?.id ?? null,
+    })
     res.json({ success: true, data: mapStatement(updated.rows[0]) })
   })
 
@@ -2728,6 +2840,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             customerId: obj.customer ?? null,
           })
         }
+        const customChargeId = Number(obj.metadata?.billingChargeId)
+        if (insertedPayment && accountId && Number.isFinite(customChargeId) && customChargeId > 0) {
+          await linkCustomerBillingPayment(pool, {
+            payment: insertedPayment,
+            chargeId: customChargeId,
+            accountId,
+            stripeObjectId: insertedPayment.stripe_payment_intent_id ?? obj.id,
+            actorType: 'stripe',
+          })
+        }
         // Emits only when this call inserted the payment row (newly_inserted);
         // the enrollment path usually emits inside commitPendingEnrollment instead.
         void emitStripePurchaseEvent(pool, {
@@ -2740,6 +2862,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               : 'outstanding_balance',
         })
         if (insertedPayment && accountId) {
+          await recordBillingActivityBestEffort(pool, {
+            eventKey: `stripe-payment-received:${insertedPayment.id}`,
+            accountId,
+            paymentId: insertedPayment.id,
+            eventType: 'payment_received',
+            summary: `Stripe payment #${insertedPayment.id} was received.`,
+            afterValue: mapPayment(insertedPayment),
+            stripeObjectId: insertedPayment.stripe_payment_intent_id ?? obj.id,
+            actorType: 'stripe',
+          })
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {
             notifyPaymentReceipt(pool, {
@@ -2754,6 +2886,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const stripe = await getStripeClient()
         const payment = await recordPaidStripeInvoice(pool, invoice, { stripe })
         if (payment) {
+          await recordBillingActivityBestEffort(pool, {
+            eventKey: `stripe-invoice-payment:${payment.id}`,
+            accountId: payment.family_billing_account_id,
+            paymentId: payment.id,
+            eventType: 'recurring_payment_received',
+            summary: `Recurring Stripe invoice payment #${payment.id} was received.`,
+            afterValue: mapPayment(payment),
+            stripeObjectId: payment.stripe_invoice_id ?? invoice.id,
+            actorType: 'stripe',
+          })
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [payment.family_billing_account_id])
           if (acct.rows[0]) {
             notifyPaymentReceipt(pool, {
@@ -2776,11 +2918,40 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         event.type === 'refund.updated' ||
         event.type === 'refund.failed'
       ) {
-        const refund = await syncStripeRefund(pool, event.data?.object ?? {})
-        // App-created refunds send immediately after the admin action. Only
-        // notify here for refunds originated directly in Stripe to avoid two receipts.
-        const originatedInVortex = Boolean(event.data?.object?.metadata?.vortexRefundId)
-        if (refund?.external_status === 'succeeded' && !originatedInVortex) {
+        let refund = await syncStripeRefund(pool, event.data?.object ?? {})
+        if (refund?.external_status === 'succeeded') {
+          refund = await finalizeRefundLedgerTreatment(pool, refund, { actorType: 'stripe' })
+          if (!refund.ledger_treatment) {
+            await recordBillingActivityBestEffort(pool, {
+              eventKey: `stripe-refund-succeeded:${refund.id}`,
+              accountId: refund.family_billing_account_id,
+              paymentId: refund.payment_id,
+              refundId: refund.id,
+              eventType: 'refund_succeeded',
+              summary: `Stripe refund #${refund.id} completed.`,
+              afterValue: { amountCents: Number(refund.amount_cents), status: refund.external_status },
+              stripeObjectId: refund.stripe_refund_id,
+              actorType: 'stripe',
+            })
+          }
+        }
+        if (refund?.external_status === 'failed') {
+          await recordBillingActivityBestEffort(pool, {
+            eventKey: `stripe-refund-failed:${refund.id}:${event.id}`,
+            accountId: refund.family_billing_account_id,
+            paymentId: refund.payment_id,
+            refundId: refund.id,
+            eventType: 'refund_failed',
+            summary: `Stripe refund #${refund.id} failed.`,
+            afterValue: { amountCents: Number(refund.amount_cents), status: refund.external_status },
+            details: { reason: refund.error_message ?? event.data?.object?.failure_reason ?? null },
+            stripeObjectId: refund.stripe_refund_id,
+            actorType: 'stripe',
+          })
+        }
+        // The notification layer keys receipts by refund id, so an immediate
+        // success and a later webhook replay cannot send duplicate receipts.
+        if (refund?.external_status === 'succeeded') {
           const acct = await pool.query(
             `SELECT * FROM family_billing_account WHERE id = $1`,
             [refund.family_billing_account_id],
@@ -2790,7 +2961,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               account: acct.rows[0],
               refund,
               billingUrl: `${publicAppUrl()}/?billing=portal-return`,
-              idempotencyKey: `stripe-refund-receipt-${event.id}`,
             }).catch(() => {})
           }
         }
@@ -2850,6 +3020,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           severity: 'warning',
           message: `Stripe payment failed${obj.id ? ` (${obj.id})` : ''}${failureReason ? `: ${failureReason}` : ''}`,
         })
+        if (accountId) {
+          await recordBillingActivityBestEffort(pool, {
+            eventKey: `stripe-payment-failed:${event.id}`,
+            accountId,
+            eventType: 'payment_failed',
+            summary: 'Stripe payment attempt failed.',
+            details: {
+              amountCents: obj.amount_due ?? obj.amount ?? obj.amount_total ?? 0,
+              reason: failureReason,
+            },
+            stripeObjectId: obj.id,
+            actorType: 'stripe',
+          })
+        }
         const shouldNotifyCustomer = event.type === 'invoice.payment_failed' || !obj.invoice
         if (accountId && shouldNotifyCustomer) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])

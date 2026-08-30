@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Archive, Loader2, Save, Trash2 } from 'lucide-react'
+import { Loader2, Save } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
 import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -78,12 +78,7 @@ function combineFullName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.trim()
 }
 
-interface AdminAccessProps {
-  isMasterAdmin?: boolean
-  currentUserId?: number | null
-}
-
-export default function AdminAccess({ isMasterAdmin = false, currentUserId = null }: AdminAccessProps) {
+export default function AdminAccess() {
   const [users, setUsers] = useState<AccessUser[]>([])
   const [roles, setRoles] = useState<AccessRole[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -102,8 +97,6 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
     username: '',
     password: '',
   })
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [deleteConfirmText, setDeleteConfirmText] = useState('')
 
   const selectedUser = useMemo(
     () => users.find((u) => u.id === selectedUserId) ?? null,
@@ -252,55 +245,6 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
     }
   }
 
-  const setAccountActive = async (userId: number, isActive: boolean) => {
-    if (!isActive && !confirm('Archive this account? They will lose login access until unarchived.')) {
-      return
-    }
-    setSaving(true)
-    setError(null)
-    try {
-      const res = await adminApiRequest(`/api/admin/access/users/${userId}/active`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive }),
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to update account status')
-      }
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update account status')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const deleteAccount = async () => {
-    if (!selectedUserId || deleteConfirmText.toLowerCase().trim() !== 'delete') {
-      alert('Please type "delete" to confirm permanent deletion')
-      return
-    }
-    setSaving(true)
-    setError(null)
-    try {
-      const res = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
-        method: 'DELETE',
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.message || 'Failed to delete account')
-      }
-      setDeleteConfirmOpen(false)
-      setDeleteConfirmText('')
-      setSelectedUserId(null)
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete account')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const rolePermissions = useMemo(() => {
     const set = new Set<string>()
     for (const role of roles) {
@@ -366,31 +310,6 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-end">
-                    {!selectedUserIsProtected && (
-                    <button
-                      type="button"
-                      onClick={() => void setAccountActive(selectedUser.id, !selectedUser.isActive)}
-                      disabled={saving || selectedUser.id === currentUserId}
-                      className="inline-flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-60"
-                    >
-                      <Archive className="w-4 h-4" />
-                      {selectedUser.isActive ? 'Archive' : 'Unarchive'}
-                    </button>
-                    )}
-                    {isMasterAdmin && selectedUser.id !== currentUserId && !selectedUserIsProtected && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDeleteConfirmOpen(true)
-                          setDeleteConfirmText('')
-                        }}
-                        disabled={saving}
-                        className="inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm disabled:opacity-60"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </button>
-                    )}
                     <button
                       type="button"
                       onClick={() => void saveProfileAndAccess()}
@@ -405,7 +324,7 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
 
                 {selectedUserIsProtected && (
                   <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    This is the permanent owner account. Only email and phone can be changed; it cannot be archived or deleted.
+                    This is the permanent owner account. Only email and phone can be changed.
                   </p>
                 )}
 
@@ -547,48 +466,6 @@ export default function AdminAccess({ isMasterAdmin = false, currentUserId = nul
             ) : (
               <p className="text-gray-500">Select an account to edit access.</p>
             )}
-          </div>
-        </div>
-      )}
-
-      {deleteConfirmOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-[200] p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Delete Account</h2>
-            <p className="text-gray-700 mb-4">
-              Permanently delete <strong>{selectedUser.fullName}</strong>? This removes their login,
-              linked member record, coach assignments, and access settings. This cannot be undone.
-            </p>
-            <p className="text-gray-600 mb-4 text-sm">
-              Type <strong>delete</strong> to confirm:
-            </p>
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
-              autoFocus
-            />
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => void deleteAccount()}
-                disabled={deleteConfirmText.toLowerCase().trim() !== 'delete' || saving}
-                className="flex-1 px-4 py-2 rounded-lg font-semibold bg-red-600 text-white disabled:opacity-50"
-              >
-                Delete Permanently
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setDeleteConfirmOpen(false)
-                  setDeleteConfirmText('')
-                }}
-                className="flex-1 px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-800"
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
       )}

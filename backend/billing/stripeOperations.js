@@ -105,6 +105,12 @@ function normalizeRefundReason(reason) {
   return 'requested_by_customer'
 }
 
+export function normalizeStripeRefundStatus(status) {
+  if (status === 'succeeded') return 'succeeded'
+  if (status === 'failed' || status === 'canceled') return 'failed'
+  return 'pending'
+}
+
 export async function createBillingRefund(pool, {
   accountId,
   paymentId = null,
@@ -114,6 +120,9 @@ export async function createBillingRefund(pool, {
   createdByUserId = null,
   exceptionCategory = null,
   evidenceNote = null,
+  ledgerTreatment = null,
+  relatedChargeId = null,
+  requestKey = null,
 }) {
   await ensureStripeOperationsSchema(pool)
   const amount = Math.round(Number(amountCents) || 0)
@@ -142,18 +151,35 @@ export async function createBillingRefund(pool, {
   }
 
   const usesStripe = Boolean(payment?.stripe_payment_intent_id && stripeEnabled())
-  const inserted = await pool.query(
-    `
-      INSERT INTO billing_refund
-        (family_billing_account_id, payment_id, amount_cents, reason, external_reference,
-         external_status, created_by_user_id, exception_category, evidence_note,
-         approved_by_user_id, approved_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $7, now())
-      RETURNING *
-    `,
-    [accountId, paymentId, amount, reason, externalReference, usesStripe ? 'pending' : 'succeeded', createdByUserId, exceptionCategory, String(evidenceNote).trim()],
-  )
-  const row = inserted.rows[0]
+  const inserted = requestKey
+    ? await pool.query(
+        `INSERT INTO billing_refund
+          (family_billing_account_id, payment_id, amount_cents, reason, external_reference,
+           external_status, created_by_user_id, exception_category, evidence_note,
+           approved_by_user_id, approved_at, ledger_treatment, related_charge_id, request_key)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $7, now(), $10, $11, $12)
+         ON CONFLICT (request_key) WHERE request_key IS NOT NULL DO NOTHING
+         RETURNING *`,
+        [accountId, paymentId, amount, reason, externalReference, usesStripe ? 'pending' : 'succeeded', createdByUserId, exceptionCategory, String(evidenceNote).trim(), ledgerTreatment, relatedChargeId, requestKey],
+      )
+    : await pool.query(
+        `INSERT INTO billing_refund
+          (family_billing_account_id, payment_id, amount_cents, reason, external_reference,
+           external_status, created_by_user_id, exception_category, evidence_note,
+           approved_by_user_id, approved_at, ledger_treatment, related_charge_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $7, now(), $10, $11)
+         RETURNING *`,
+        [accountId, paymentId, amount, reason, externalReference, usesStripe ? 'pending' : 'succeeded', createdByUserId, exceptionCategory, String(evidenceNote).trim(), ledgerTreatment, relatedChargeId],
+      )
+  let row = inserted.rows[0]
+  if (!row && requestKey) {
+    row = await pool.query(
+      `SELECT * FROM billing_refund WHERE request_key = $1`,
+      [requestKey],
+    ).then((result) => result.rows[0] ?? null)
+    if (!row) throw new Error('Refund request could not be recovered after an idempotency conflict.')
+    return { ...row, idempotency_replayed: true }
+  }
   if (!usesStripe) return row
 
   try {
@@ -177,7 +203,15 @@ export async function createBillingRefund(pool, {
        SET stripe_refund_id = $2, external_reference = $2, external_status = $3,
            error_message = NULL, updated_at = now()
        WHERE id = $1 RETURNING *`,
-      [row.id, refund.id, refund.status === 'failed' ? 'failed' : 'succeeded'],
+      [
+        row.id,
+        refund.id,
+        refund.status === 'failed' || refund.status === 'canceled'
+          ? 'failed'
+          : refund.status === 'succeeded'
+            ? 'succeeded'
+            : 'pending',
+      ],
     )
     return updated.rows[0]
   } catch (error) {
@@ -216,7 +250,7 @@ export async function syncStripeRefund(pool, refund) {
   if (!existing) {
     existing = await pool.query(`SELECT * FROM billing_refund WHERE stripe_refund_id = $1`, [refund.id]).then((r) => r.rows[0] ?? null)
   }
-  const status = refund.status === 'failed' || refund.status === 'canceled' ? 'failed' : 'succeeded'
+  const status = normalizeStripeRefundStatus(refund.status)
   if (existing) {
     return pool.query(
       `UPDATE billing_refund SET stripe_refund_id = $2, external_reference = $2,

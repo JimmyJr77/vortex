@@ -1,5 +1,13 @@
+import { createHash } from 'crypto'
 import { getStripeClient, recordStripePayment, stripeEnabled } from './stripeBilling.js'
 import { ensureStripeOperationsSchema, recordStripeBillingAlert } from './stripeOperations.js'
+import { recordBillingActivityBestEffort } from './billingActivity.js'
+import {
+  collectRecurringPricingBoundaries,
+  priceRecurringPeriod,
+} from './recurringPeriodPricing.js'
+import { addBillingMonths, billingMonthKey } from './customerBillingPricing.js'
+import { buildPriceScheduleSegments } from './stripePriceSchedules.js'
 
 let schemaEnsured = false
 
@@ -18,6 +26,74 @@ function stripeId(value) {
 
 export function paymentAmountsMismatch(localAmountCents, stripeAmountCents) {
   return Number(localAmountCents) !== Number(stripeAmountCents)
+}
+
+function monthStartUnix(month) {
+  const [year, value] = billingMonthKey(month).split('-').map(Number)
+  return Date.UTC(year, value - 1, 1) / 1000
+}
+
+function monthFromUnix(value) {
+  return billingMonthKey(new Date(Number(value) * 1000))
+}
+
+function phaseComparable(phase) {
+  return {
+    periodKey: phase.periodKey,
+    amountCents: Number(phase.amountCents),
+    endPeriodKey: phase.endPeriodKey ?? null,
+  }
+}
+
+export function subscriptionScheduleHasDrift(expected, actual) {
+  if (expected.length !== actual.length) return true
+  return expected.some((phase, index) => {
+    const left = phaseComparable(phase)
+    const right = phaseComparable(actual[index] ?? {})
+    return (
+      left.periodKey !== right.periodKey ||
+      left.amountCents !== right.amountCents ||
+      left.endPeriodKey !== right.endPeriodKey
+    )
+  })
+}
+
+function reconciliationKey(subscriptionId, kind, details) {
+  const digest = createHash('sha256').update(JSON.stringify(details)).digest('hex').slice(0, 16)
+  return `subscription:${subscriptionId}:${kind}:${digest}`
+}
+
+function scheduleReleaseAfterMonth(adjustments) {
+  if (adjustments.some((adjustment) => !adjustment.effective_through_month)) return null
+  const reversions = adjustments
+    .map((adjustment) => addBillingMonths(adjustment.effective_through_month, 1))
+    .sort()
+  return reversions.length > 0 ? addBillingMonths(reversions.at(-1), 1) : null
+}
+
+async function actualScheduleSnapshot(stripe, scheduleId, currentMonth) {
+  const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId, {
+    expand: ['phases.items.price'],
+  })
+  const currentStart = monthStartUnix(currentMonth)
+  const priceCache = new Map()
+  const phases = []
+  for (const phase of schedule.phases ?? []) {
+    if (phase.end_date && Number(phase.end_date) <= currentStart) continue
+    const item = phase.items?.[0]
+    let price = item?.price ?? item?.plan ?? null
+    if (typeof price === 'string') {
+      if (!priceCache.has(price)) priceCache.set(price, await stripe.prices.retrieve(price))
+      price = priceCache.get(price)
+    }
+    phases.push({
+      periodKey: Number(phase.start_date) <= currentStart ? currentMonth : monthFromUnix(phase.start_date),
+      amountCents: Number(price?.unit_amount ?? 0),
+      endPeriodKey: phase.end_date ? monthFromUnix(phase.end_date) : null,
+    })
+  }
+  phases.sort((left, right) => left.periodKey.localeCompare(right.periodKey))
+  return { schedule, phases }
 }
 
 export function buildStripeReadiness({
@@ -80,6 +156,218 @@ async function createReconciliationAlert(pool, key, type, severity, message, obj
   })
 }
 
+async function recordSubscriptionDrift(pool, subscription, kind, message, details) {
+  const key = reconciliationKey(subscription.id, kind, details)
+  await createReconciliationAlert(
+    pool,
+    key,
+    kind,
+    'critical',
+    message,
+    subscription.stripe_subscription_id,
+    {
+      metadata: { familyBillingAccountId: String(subscription.family_billing_account_id) },
+      reason: JSON.stringify(details).slice(0, 900),
+    },
+  )
+  await recordBillingActivityBestEffort(pool, {
+    eventKey: `reconciliation:${key}`,
+    accountId: subscription.family_billing_account_id,
+    memberId: subscription.member_id,
+    signupId: subscription.source_type === 'scheduling_signup' ? Number(subscription.source_id) : null,
+    eventType: kind,
+    summary: message,
+    details,
+    stripeObjectId: subscription.stripe_subscription_id,
+    actorType: 'system',
+  })
+}
+
+export async function reconcileStripeSubscriptionPrices(pool, stripe, { now = new Date() } = {}) {
+  let subscriptions
+  try {
+    subscriptions = await pool.query(
+      `SELECT bs.*, fba.family_id
+       FROM billing_subscription bs
+       JOIN family_billing_account fba ON fba.id = bs.family_billing_account_id
+       WHERE bs.status = 'active'
+         AND bs.source_type = 'scheduling_signup'
+         AND bs.stripe_subscription_id IS NOT NULL`,
+    )
+  } catch (error) {
+    if (error?.code === '42703' || error?.code === '42P01') {
+      return { subscriptionsChecked: 0, subscriptionDriftsFound: 0, skipped: true }
+    }
+    throw error
+  }
+
+  const currentMonth = billingMonthKey(now)
+  const accountContext = new Map()
+  const pricedPeriods = new Map()
+  let subscriptionsChecked = 0
+  let subscriptionDriftsFound = 0
+
+  async function contextFor(subscription) {
+    const accountId = Number(subscription.family_billing_account_id)
+    if (!accountContext.has(accountId)) {
+      const [accountSubscriptions, charges] = await Promise.all([
+        pool.query(
+          `SELECT * FROM billing_subscription
+           WHERE family_billing_account_id = $1 AND status = 'active'`,
+          [accountId],
+        ),
+        pool.query(
+          `SELECT * FROM billing_charge
+           WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`,
+          [accountId],
+        ),
+      ])
+      accountContext.set(accountId, {
+        subscriptions: accountSubscriptions.rows,
+        charges: charges.rows,
+      })
+    }
+    return accountContext.get(accountId)
+  }
+
+  async function pricingFor(subscription, periodKey) {
+    const cacheKey = `${subscription.family_billing_account_id}:${periodKey}`
+    if (!pricedPeriods.has(cacheKey)) {
+      const context = await contextFor(subscription)
+      pricedPeriods.set(cacheKey, await priceRecurringPeriod(pool, {
+        familyId: subscription.family_id,
+        subscriptions: context.subscriptions,
+        charges: context.charges,
+        periodKey,
+      }))
+    }
+    return pricedPeriods.get(cacheKey)
+  }
+
+  for (const subscription of subscriptions.rows) {
+    subscriptionsChecked += 1
+    const drifts = []
+    try {
+      const remote = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id, {
+        expand: ['items.data.price', 'schedule'],
+      })
+      const item = remote.items?.data?.[0]
+      if (!item?.price) throw new Error('Stripe subscription has no recurring price item.')
+      const currentPricing = await pricingFor(subscription, currentMonth)
+      const currentLine = currentPricing.lines.find(
+        (line) => Number(line.subscriptionId) === Number(subscription.id),
+      )
+      const expectedAmountCents = Number(currentLine?.netCents ?? subscription.net_monthly_cents)
+      const actualAmountCents = Number(item.price.unit_amount ?? 0)
+      if (paymentAmountsMismatch(expectedAmountCents, actualAmountCents)) {
+        drifts.push({
+          kind: 'subscription_price_drift',
+          message: `Stripe subscription ${remote.id} has a different current price than local billing.`,
+          details: { expectedAmountCents, actualAmountCents },
+        })
+      }
+
+      const adjustmentResult = await pool.query(
+        `SELECT * FROM enrollment_price_adjustment
+         WHERE billing_subscription_id = $1 AND status = 'active'
+         ORDER BY effective_from_month, id`,
+        [subscription.id],
+      )
+      const adjustments = adjustmentResult.rows.filter(
+        (adjustment) => !adjustment.effective_through_month || billingMonthKey(adjustment.effective_through_month) >= currentMonth,
+      )
+      const remoteScheduleId = stripeId(remote.schedule)
+      const localScheduleId = subscription.stripe_subscription_schedule_id ?? null
+      const scheduleExpected = adjustments.length > 0
+      if (
+        scheduleExpected !== Boolean(remoteScheduleId) ||
+        (remoteScheduleId && localScheduleId !== remoteScheduleId)
+      ) {
+        drifts.push({
+          kind: 'subscription_schedule_drift',
+          message: `Stripe subscription ${remote.id} has a local/remote schedule mismatch.`,
+          details: { scheduleExpected, localScheduleId, remoteScheduleId },
+        })
+      }
+
+      if (scheduleExpected && remoteScheduleId) {
+        const context = await contextFor(subscription)
+        const boundaries = collectRecurringPricingBoundaries({
+          subscriptions: context.subscriptions,
+          charges: context.charges,
+          adjustments,
+          currentMonth,
+        })
+        const releaseAfterMonth = scheduleReleaseAfterMonth(adjustments)
+        const scheduleBoundaries = boundaries.filter(
+          (key) => !releaseAfterMonth || key < billingMonthKey(releaseAfterMonth),
+        )
+        const amountByMonth = new Map()
+        for (const periodKey of scheduleBoundaries) {
+          const pricing = await pricingFor(subscription, periodKey)
+          const line = pricing.lines.find(
+            (candidate) => Number(candidate.subscriptionId) === Number(subscription.id),
+          )
+          amountByMonth.set(periodKey, Number(line?.netCents ?? subscription.net_monthly_cents))
+        }
+        const actual = await actualScheduleSnapshot(stripe, remoteScheduleId, currentMonth)
+        const currentPhaseStart = Number(actual.schedule.current_phase?.start_date) ||
+          Number(remote.current_period_start) || monthStartUnix(currentMonth)
+        const expected = buildPriceScheduleSegments({
+          currentMonth,
+          currentPhaseStart,
+          boundaries: scheduleBoundaries,
+          amountByMonth,
+          releaseAfterMonth,
+        }).map((phase) => ({
+          periodKey: phase.periodKey,
+          amountCents: phase.amountCents,
+          endPeriodKey: phase.endDate ? monthFromUnix(phase.endDate) : null,
+        }))
+        if (subscriptionScheduleHasDrift(expected, actual.phases)) {
+          drifts.push({
+            kind: 'subscription_phase_drift',
+            message: `Stripe subscription ${remote.id} has phases that differ from local effective-dated pricing.`,
+            details: { expected, actual: actual.phases },
+          })
+        }
+      }
+    } catch (error) {
+      drifts.push({
+        kind: 'subscription_reconciliation_failed',
+        message: `Stripe subscription ${subscription.stripe_subscription_id} could not be reconciled.`,
+        details: { reason: error?.message ?? String(error) },
+      })
+    }
+
+    if (drifts.length > 0) {
+      subscriptionDriftsFound += drifts.length
+      const combined = drifts.map((drift) => drift.message).join(' ')
+      await pool.query(
+        `UPDATE billing_subscription
+         SET price_sync_status = 'failed', price_sync_error = $2, updated_at = now()
+         WHERE id = $1`,
+        [subscription.id, `[reconciliation] ${combined}`.slice(0, 1000)],
+      )
+      for (const drift of drifts) {
+        await recordSubscriptionDrift(pool, subscription, drift.kind, drift.message, drift.details)
+      }
+    } else if (
+      subscription.price_sync_status === 'failed' &&
+      String(subscription.price_sync_error ?? '').startsWith('[reconciliation]')
+    ) {
+      await pool.query(
+        `UPDATE billing_subscription
+         SET price_sync_status = 'synced', price_sync_error = NULL, price_synced_at = now(), updated_at = now()
+         WHERE id = $1`,
+        [subscription.id],
+      )
+    }
+  }
+
+  return { subscriptionsChecked, subscriptionDriftsFound, skipped: false }
+}
+
 export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {}) {
   if (!stripeEnabled()) throw new Error('Stripe is disabled or not configured.')
   await ensureSchema(pool)
@@ -94,7 +382,14 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
     [startedAt, endedAt],
   )
   const runId = runResult.rows[0].id
-  const summary = { stripePaymentsChecked: 0, paymentsInserted: 0, mismatchesFound: 0, disputesChecked: 0 }
+  const summary = {
+    stripePaymentsChecked: 0,
+    paymentsInserted: 0,
+    mismatchesFound: 0,
+    disputesChecked: 0,
+    subscriptionsChecked: 0,
+    subscriptionDriftsFound: 0,
+  }
 
   try {
     for await (const intent of stripe.paymentIntents.list({
@@ -152,6 +447,11 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
         dispute.id, { status: dispute.status, reason: dispute.reason, amount: dispute.amount },
       )
     }
+
+    const subscriptionSummary = await reconcileStripeSubscriptionPrices(pool, stripe, { now: endedAt })
+    summary.subscriptionsChecked = subscriptionSummary.subscriptionsChecked
+    summary.subscriptionDriftsFound = subscriptionSummary.subscriptionDriftsFound
+    summary.mismatchesFound += subscriptionSummary.subscriptionDriftsFound
 
     const staleWebhooks = await pool.query(
       `SELECT event_id, event_type, status, last_error FROM stripe_webhook_event
