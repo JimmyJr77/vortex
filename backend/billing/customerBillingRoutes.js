@@ -127,6 +127,8 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           actorUserId: actorId(req),
           chargeId: Number(req.params.chargeId),
           finalAmountCents: req.body?.finalAmountCents,
+          promoCode: req.body?.promoCode,
+          appliesTo: req.body?.appliesTo,
           reason: req.body?.reason,
           idempotencyKey: idempotencyKey(req, 'billing-charge-adjustment'),
         })

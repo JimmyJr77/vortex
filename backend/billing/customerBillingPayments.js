@@ -14,6 +14,7 @@ import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.j
 import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
 import { loadActiveAdditionalFees } from '../scheduling/additionalFeesEngine.js'
 import { memberHasActiveAnnualMembership } from '../scheduling/annualMembership.js'
+import { membershipPromoDiscountCents, resolveMembershipFeePromo } from '../scheduling/discountEngine.js'
 import {
   applyExactPayment,
   allocateHouseholdPayments,
@@ -31,6 +32,16 @@ function nonNegativeCents(value, label = 'Amount') {
   const amount = Number(value)
   if (!Number.isInteger(amount) || amount < 0) throw new Error(`${label} must be a non-negative whole-cent amount.`)
   return amount
+}
+
+let annualMembershipRenewalPricingSchemaEnsured = false
+
+async function ensureAnnualMembershipRenewalPricingSchema(pool) {
+  if (annualMembershipRenewalPricingSchemaEnsured) return
+  const fs = await import('fs')
+  const migration = new URL('../migrations/775_annual_membership_renewal_pricing.sql', import.meta.url)
+  await pool.query(fs.readFileSync(migration, 'utf8'))
+  annualMembershipRenewalPricingSchemaEnsured = true
 }
 
 function optionalDate(value, label) {
@@ -180,6 +191,178 @@ async function loadCharge(pool, accountId, chargeId) {
   return result.rows[0]
 }
 
+function annualMembershipFeeId(charge) {
+  if (charge?.source_type !== 'additional_fee') return null
+  const feeId = Number(String(charge.source_id ?? '').split(':')[0])
+  return Number.isInteger(feeId) && feeId > 0 ? feeId : null
+}
+
+async function recordMembershipPromoRedemption(pool, { ruleId, memberId, discountCents }) {
+  await pool.query(
+    `INSERT INTO discount_redemption
+      (rule_id, member_id, signup_id, program_id, form_id, kind, units, amount_cents)
+     VALUES ($1, $2, NULL, NULL, NULL, 'discount', 0, $3)`,
+    [ruleId, memberId, discountCents],
+  )
+  await pool.query(
+    `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
+    [ruleId],
+  )
+}
+
+async function configureAnnualMembershipRenewalPricing(pool, {
+  account,
+  charge,
+  feeId,
+  pricing,
+  reason,
+  actorUserId,
+  idempotencyKey,
+}) {
+  await ensureAnnualMembershipRenewalPricingSchema(pool)
+  const subscription = await pool.query(
+    `SELECT *
+       FROM billing_subscription
+      WHERE family_billing_account_id = $1
+        AND member_id = $2
+        AND source_type = 'annual_membership'
+        AND source_id = $3
+        AND status <> 'cancelled'
+      ORDER BY id DESC
+      LIMIT 1`,
+    [account.id, charge.member_id, `${feeId}:${charge.member_id}`],
+  ).then((result) => result.rows[0] ?? null)
+  const existing = await pool.query(
+    `SELECT * FROM annual_membership_renewal_pricing
+      WHERE family_billing_account_id = $1 AND member_id = $2 AND additional_fee_id = $3`,
+    [account.id, charge.member_id, feeId],
+  ).then((result) => result.rows[0] ?? null)
+
+  const save = async ({ syncStatus, syncError = null, stripeSubscriptionId = null, stripeSubscriptionItemId = null, stripePriceId = null }) => pool.query(
+    `INSERT INTO annual_membership_renewal_pricing (
+       family_billing_account_id, member_id, additional_fee_id, pricing_kind,
+       final_amount_cents, promo_code, discount_rule_id, discount_rule_snapshot,
+       reason, stripe_subscription_id, stripe_subscription_item_id, stripe_price_id,
+       sync_status, sync_error, created_by_user_id
+     ) VALUES (
+       $1, $2, $3, $4, $5, $6, $7, $8::jsonb,
+       $9, $10, $11, $12, $13, $14, $15
+     ) ON CONFLICT (family_billing_account_id, member_id, additional_fee_id)
+     DO UPDATE SET
+       pricing_kind = EXCLUDED.pricing_kind,
+       final_amount_cents = EXCLUDED.final_amount_cents,
+       promo_code = EXCLUDED.promo_code,
+       discount_rule_id = EXCLUDED.discount_rule_id,
+       discount_rule_snapshot = EXCLUDED.discount_rule_snapshot,
+       reason = EXCLUDED.reason,
+       stripe_subscription_id = COALESCE(EXCLUDED.stripe_subscription_id, annual_membership_renewal_pricing.stripe_subscription_id),
+       stripe_subscription_item_id = COALESCE(EXCLUDED.stripe_subscription_item_id, annual_membership_renewal_pricing.stripe_subscription_item_id),
+       stripe_price_id = COALESCE(EXCLUDED.stripe_price_id, annual_membership_renewal_pricing.stripe_price_id),
+       sync_status = EXCLUDED.sync_status,
+       sync_error = EXCLUDED.sync_error,
+       created_by_user_id = EXCLUDED.created_by_user_id,
+       updated_at = now()
+     RETURNING *`,
+    [
+      account.id,
+      charge.member_id,
+      feeId,
+      pricing.kind,
+      pricing.finalAmountCents,
+      pricing.promoCode,
+      pricing.rule?.id ?? null,
+      pricing.rule ? JSON.stringify(pricing.rule) : null,
+      reason,
+      stripeSubscriptionId,
+      stripeSubscriptionItemId,
+      stripePriceId,
+      syncStatus,
+      syncError,
+      actorUserId,
+    ],
+  ).then((result) => result.rows[0] ?? null)
+
+  const activity = async (instruction, summary, eventType, stripeObjectId = null) => recordBillingActivity(pool, {
+    eventKey: idempotencyKey
+      ? `annual-membership-renewal-pricing:${idempotencyKey}:${eventType}`
+      : `annual-membership-renewal-pricing:${instruction.id}:${instruction.updated_at}:${eventType}`,
+    accountId: account.id,
+    memberId: charge.member_id,
+    chargeId: charge.id,
+    eventType,
+    summary,
+    beforeValue: existing,
+    afterValue: instruction,
+    stripeObjectId,
+    actorUserId,
+    actorType: 'admin',
+  })
+
+  if (!subscription?.stripe_subscription_id || !stripeEnabled()) {
+    const instruction = await save({ syncStatus: subscription ? 'pending' : 'not_required' })
+    await activity(instruction, 'Future annual membership renewal pricing was configured for this athlete.', 'annual_membership_renewal_price_configured')
+    return { instruction, syncStatus: instruction.sync_status }
+  }
+
+  const stripe = await getStripeClient()
+  if (!stripe) {
+    const instruction = await save({ syncStatus: 'pending', stripeSubscriptionId: subscription.stripe_subscription_id })
+    await activity(instruction, 'Future annual membership renewal pricing is pending Stripe synchronization.', 'annual_membership_renewal_price_configured')
+    return { instruction, syncStatus: instruction.sync_status }
+  }
+
+  try {
+    const remoteSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id)
+    const item = remoteSubscription.items?.data?.[0]
+    const product = typeof item?.price?.product === 'string' ? item.price.product : item?.price?.product?.id
+    if (!item?.id || !product) throw new Error('Annual membership Stripe subscription has no renewable item.')
+    const price = await stripe.prices.create({
+      product,
+      currency: 'usd',
+      unit_amount: pricing.finalAmountCents,
+      recurring: { interval: 'year' },
+      metadata: {
+        vortex_annual_membership: 'true',
+        vortex_fee_id: String(feeId),
+        vortex_member_id: String(charge.member_id),
+        annual_renewal_pricing: pricing.kind,
+        ...(pricing.promoCode ? { promo_code: pricing.promoCode } : {}),
+      },
+    }, idempotencyKey ? { idempotencyKey: `${idempotencyKey}:annual-renewal-price` } : undefined)
+    await stripe.subscriptions.update(remoteSubscription.id, {
+      items: [{ id: item.id, price: price.id }],
+      proration_behavior: 'none',
+      metadata: {
+        ...(remoteSubscription.metadata ?? {}),
+        annualRenewalPriceCents: String(pricing.finalAmountCents),
+        annualRenewalPricingKind: pricing.kind,
+        annualRenewalPromoCode: pricing.promoCode ?? '',
+        annualRenewalDiscountRuleId: pricing.rule?.id == null ? '' : String(pricing.rule.id),
+      },
+    }, idempotencyKey ? { idempotencyKey: `${idempotencyKey}:annual-renewal-subscription` } : undefined)
+    const instruction = await save({
+      syncStatus: 'synced',
+      stripeSubscriptionId: remoteSubscription.id,
+      stripeSubscriptionItemId: item.id,
+      stripePriceId: price.id,
+    })
+    await pool.query(
+      `UPDATE billing_subscription SET stripe_subscription_item_id = $2, updated_at = now() WHERE id = $1`,
+      [subscription.id, item.id],
+    )
+    await activity(instruction, 'Future annual membership renewal pricing was synchronized to Stripe.', 'annual_membership_renewal_price_configured', remoteSubscription.id)
+    return { instruction, syncStatus: instruction.sync_status }
+  } catch (error) {
+    const instruction = await save({
+      syncStatus: 'sync_failed',
+      syncError: String(error?.message ?? error).slice(0, 1000),
+      stripeSubscriptionId: subscription.stripe_subscription_id,
+    })
+    await activity(instruction, 'Future annual membership renewal pricing needs Stripe synchronization.', 'annual_membership_renewal_price_sync_failed', subscription.stripe_subscription_id)
+    throw new Error(`Renewal pricing was saved locally, but Stripe synchronization failed: ${error?.message ?? error}`)
+  }
+}
+
 /**
  * Financial charges are immutable. A correction posts a linked debit or credit
  * so the audit continues to show both the original bill and its correction.
@@ -189,7 +372,9 @@ export async function adjustCustomerBillingCharge(pool, {
   facilityId = null,
   actorUserId = null,
   chargeId,
-  finalAmountCents,
+  finalAmountCents = null,
+  promoCode = null,
+  appliesTo = 'current_term',
   reason,
   idempotencyKey = null,
 }) {
@@ -201,9 +386,70 @@ export async function adjustCustomerBillingCharge(pool, {
   if (Number(charge.amount_cents) <= 0 || ['credit', 'refund_offset', 'charge_adjustment'].includes(String(charge.source_type))) {
     throw new Error('Only a positive bill can be modified.')
   }
-  const targetAmount = nonNegativeCents(finalAmountCents, 'Modified bill amount')
   const note = String(reason ?? '').trim()
   if (!note) throw new Error('A reason is required when modifying a bill.')
+  const scope = String(appliesTo ?? 'current_term').trim()
+  if (!['current_term', 'renewals'].includes(scope)) {
+    throw new Error('Apply to must be current_term or renewals.')
+  }
+  const code = String(promoCode ?? '').trim()
+  if (code && finalAmountCents != null && finalAmountCents !== '') {
+    throw new Error('Choose either a discount code or a manual price, not both.')
+  }
+  if (!code && (finalAmountCents == null || finalAmountCents === '')) {
+    throw new Error('Enter a discount code or a modified bill amount.')
+  }
+
+  const feeId = annualMembershipFeeId(charge)
+  if (code && feeId == null) throw new Error('Discount codes can only be applied to annual membership fees here.')
+  const grossAmount = Math.max(0, Number(charge.gross_amount_cents ?? charge.amount_cents))
+  let pricing = {
+    kind: 'manual_final_price',
+    finalAmountCents: nonNegativeCents(finalAmountCents, 'Modified bill amount'),
+    promoCode: null,
+    rule: null,
+    discountCents: 0,
+  }
+  if (code) {
+    const resolved = await resolveMembershipFeePromo(pool, {
+      facilityId,
+      promoCodes: [code],
+      memberId: charge.member_id,
+      familyId: account.family_id,
+    })
+    if (!resolved) throw new Error('This discount code is not valid for annual membership.')
+    const discountCents = membershipPromoDiscountCents(resolved.rule, grossAmount)
+    pricing = {
+      kind: 'promo_code',
+      finalAmountCents: Math.max(0, grossAmount - discountCents),
+      promoCode: resolved.code,
+      rule: resolved.rule,
+      discountCents,
+    }
+  }
+
+  if (scope === 'renewals') {
+    if (feeId == null) throw new Error('Only annual membership fees can be applied to renewals.')
+    const renewal = await configureAnnualMembershipRenewalPricing(pool, {
+      account,
+      charge,
+      feeId,
+      pricing,
+      reason: note,
+      actorUserId,
+      idempotencyKey,
+    })
+    return {
+      account,
+      charge,
+      adjustment: null,
+      renewal,
+      effectiveAmountCents: Number(charge.amount_cents),
+      replayed: false,
+    }
+  }
+
+  const targetAmount = pricing.finalAmountCents
 
   const reserved = await pool.query(
     `SELECT 1
@@ -259,14 +505,34 @@ export async function adjustCustomerBillingCharge(pool, {
       charge.service_period_start,
       charge.service_period_end,
       actorUserId,
-      JSON.stringify({ originalChargeId: Number(charge.id), originalAmountCents: Number(charge.amount_cents), previousEffectiveAmountCents: effectiveAmount, finalAmountCents: targetAmount, reason: note }),
+      JSON.stringify({
+        originalChargeId: Number(charge.id),
+        originalAmountCents: Number(charge.amount_cents),
+        previousEffectiveAmountCents: effectiveAmount,
+        finalAmountCents: targetAmount,
+        reason: note,
+        ...(pricing.kind === 'promo_code' ? {
+          discountCode: pricing.promoCode,
+          discountRuleId: pricing.rule?.id ?? null,
+          discountAmountCents: pricing.discountCents,
+          discountRuleSnapshot: pricing.rule,
+        } : {}),
+      }),
     ],
   )
+  const created = Boolean(inserted.rows[0])
   const adjustment = inserted.rows[0] ?? await pool.query(
     `SELECT * FROM billing_charge WHERE source_type = 'charge_adjustment' AND source_id = $1`,
     [sourceId],
   ).then((result) => result.rows[0] ?? null)
   if (!adjustment) throw new Error('Bill adjustment could not be created.')
+  if (created && pricing.kind === 'promo_code' && pricing.rule?.id) {
+    await recordMembershipPromoRedemption(pool, {
+      ruleId: pricing.rule.id,
+      memberId: charge.member_id,
+      discountCents: pricing.discountCents,
+    })
+  }
 
   await recordBillingActivity(pool, {
     eventKey: `billing-charge-adjusted:${adjustment.id}`,
@@ -276,7 +542,13 @@ export async function adjustCustomerBillingCharge(pool, {
     eventType: 'billing_charge_adjusted',
     summary: `${charge.description} was modified with a linked ${difference < 0 ? 'credit' : 'debit'}.`,
     beforeValue: { effectiveAmountCents: effectiveAmount },
-    afterValue: { effectiveAmountCents: targetAmount, adjustmentChargeId: Number(adjustment.id), adjustmentAmountCents: difference, reason: note },
+    afterValue: {
+      effectiveAmountCents: targetAmount,
+      adjustmentChargeId: Number(adjustment.id),
+      adjustmentAmountCents: difference,
+      reason: note,
+      ...(pricing.kind === 'promo_code' ? { discountCode: pricing.promoCode, discountAmountCents: pricing.discountCents } : {}),
+    },
     actorUserId,
     actorType: 'admin',
   })

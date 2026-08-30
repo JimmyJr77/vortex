@@ -643,7 +643,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
   const created = []
 
   for (const fee of feeItems) {
-    const amountCents = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
+    const standardAmountCents = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
     const sourceId = `${fee.feeId}:${memberId}`
     const productName = [fee.name || 'Annual membership', athleteName]
       .filter(Boolean)
@@ -666,6 +666,24 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
       })
       continue
     }
+
+    // A staff member can configure a future renewal before the first annual
+    // subscription exists. Use that athlete-specific instruction here without
+    // changing the fee collected for the current membership term.
+    let renewalInstruction = null
+    try {
+      renewalInstruction = await pool.query(
+        `SELECT * FROM annual_membership_renewal_pricing
+          WHERE family_billing_account_id = $1 AND member_id = $2 AND additional_fee_id = $3
+          LIMIT 1`,
+        [familyBillingAccountId, memberId, fee.feeId],
+      ).then((result) => result.rows[0] ?? null)
+    } catch (error) {
+      if (error?.code !== '42P01') throw error
+    }
+    const amountCents = renewalInstruction
+      ? Math.max(0, Math.round(Number(renewalInstruction.final_amount_cents) || 0))
+      : standardAmountCents
 
     let billingSubId = existing.rows[0]?.id != null ? Number(existing.rows[0].id) : null
     if (billingSubId == null) {
@@ -721,6 +739,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
       metadata: {
         vortex_annual_membership: 'true',
         vortex_fee_id: String(fee.feeId),
+        ...(renewalInstruction?.promo_code ? { promo_code: renewalInstruction.promo_code } : {}),
       },
     })
 
@@ -740,6 +759,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
         checkoutType: 'enrollment',
         annualMembership: 'true',
         amountCents: String(amountCents),
+        ...(renewalInstruction?.promo_code ? { annualRenewalPromoCode: renewalInstruction.promo_code } : {}),
       },
     })
 
@@ -749,6 +769,19 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
        WHERE id = $1`,
       [billingSubId, stripeSub.id],
     )
+    if (renewalInstruction) {
+      await pool.query(
+        `UPDATE annual_membership_renewal_pricing
+            SET stripe_subscription_id = $2,
+                stripe_subscription_item_id = $3,
+                stripe_price_id = $4,
+                sync_status = 'synced',
+                sync_error = NULL,
+                updated_at = now()
+          WHERE id = $1`,
+        [renewalInstruction.id, stripeSub.id, stripeSub.items?.data?.[0]?.id ?? null, price.id],
+      )
+    }
     created.push({
       billingSubscriptionId: billingSubId,
       stripeSubscriptionId: stripeSub.id,

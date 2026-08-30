@@ -34,6 +34,7 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '771_membership_payment_allocation.sql',
   '772_payment_application_constraint_cleanup.sql',
   '773_enrollment_paid_through_billing_dates.sql',
+  '775_annual_membership_renewal_pricing.sql',
 ])
 
 function migrationChecksum(text) {
