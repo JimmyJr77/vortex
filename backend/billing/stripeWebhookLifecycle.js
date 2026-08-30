@@ -96,9 +96,12 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
       subscriptionId,
     ],
   )
-  const payment = result.rows[0] ?? null
+  const payment = result.rows[0] ?? await pool.query(
+    `SELECT * FROM billing_payment WHERE stripe_invoice_id = $1 LIMIT 1`,
+    [invoice.id],
+  ).then((lookup) => lookup.rows[0] ?? null)
   if (payment) {
-    payment.newly_inserted = true
+    payment.newly_inserted = Boolean(result.rows[0])
     if (subscriptionId) {
       const annualSubscription = await pool.query(
         `SELECT * FROM billing_subscription

@@ -50,6 +50,8 @@ test('annual membership rows use the paid date and active Stripe renewal', () =>
     renewalDate: '2027-09-01',
     autoRenewal: true,
     canManageAutoRenewal: true,
+    outstandingChargeId: null,
+    outstandingAmountCents: 0,
   }])
 })
 
@@ -114,6 +116,8 @@ test('cancelled renewal remains active through its paid-through date', () => {
     renewalDate: '2028-09-01',
     autoRenewal: false,
     canManageAutoRenewal: false,
+    outstandingChargeId: null,
+    outstandingAmountCents: 0,
   })
 })
 
@@ -158,6 +162,8 @@ test('cancelled auto-renewal preserves paid-through membership access', () => {
       renewalDate: '2027-08-27',
       autoRenewal: false,
       canManageAutoRenewal: false,
+      outstandingChargeId: null,
+      outstandingAmountCents: 0,
     },
     {
       memberId: 74,
@@ -168,6 +174,8 @@ test('cancelled auto-renewal preserves paid-through membership access', () => {
       renewalDate: null,
       autoRenewal: false,
       canManageAutoRenewal: false,
+      outstandingChargeId: null,
+      outstandingAmountCents: 0,
     },
   ])
 })
@@ -195,7 +203,29 @@ test('a paid annual membership charge restores an athlete membership when a lega
     renewalDate: '2027-08-27',
     autoRenewal: false,
     canManageAutoRenewal: false,
+    outstandingChargeId: null,
+    outstandingAmountCents: 0,
   }])
+})
+
+test('annual membership rows expose an outstanding athlete-specific fee for Bill now safety', () => {
+  const [row] = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 74, name: 'Zechariah Sherrill' }],
+    charges: [{
+      id: 123,
+      member_id: 74,
+      source_type: 'additional_fee',
+      source_id: '1:74:2027-08-30',
+      created_at: '2026-08-30T12:00:00.000Z',
+      collection_status: 'unpaid',
+      remaining_amount_cents: 8500,
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.equal(row.active, false)
+  assert.equal(row.outstandingChargeId, 123)
+  assert.equal(row.outstandingAmountCents, 8500)
 })
 
 test('internal migration instructions are not exposed as Stripe errors', () => {

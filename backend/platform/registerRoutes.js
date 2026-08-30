@@ -95,6 +95,7 @@ import {
   linkCustomerBillingPayment,
 } from '../billing/customerBillingPayments.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
+import { applyHouseholdMonthlyInvoicePayment } from '../billing/householdMonthlyInvoice.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2927,16 +2928,21 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const stripe = await getStripeClient()
         const payment = await recordPaidStripeInvoice(pool, invoice, { stripe })
         if (payment) {
-          await allocateHouseholdPayments(pool, {
-            accountId: payment.family_billing_account_id,
-            actorType: 'stripe',
-          })
+          const householdInvoice = await applyHouseholdMonthlyInvoicePayment(pool, { invoice, payment })
+          if (!householdInvoice) {
+            await allocateHouseholdPayments(pool, {
+              accountId: payment.family_billing_account_id,
+              actorType: 'stripe',
+            })
+          }
           await recordBillingActivityBestEffort(pool, {
             eventKey: `stripe-invoice-payment:${payment.id}`,
             accountId: payment.family_billing_account_id,
             paymentId: payment.id,
-            eventType: 'recurring_payment_received',
-            summary: `Recurring Stripe invoice payment #${payment.id} was received.`,
+            eventType: householdInvoice ? 'monthly_invoice_payment_received' : 'recurring_payment_received',
+            summary: householdInvoice
+              ? `Household monthly Stripe invoice payment #${payment.id} was received.`
+              : `Recurring Stripe invoice payment #${payment.id} was received.`,
             afterValue: mapPayment(payment),
             stripeObjectId: payment.stripe_invoice_id ?? invoice.id,
             actorType: 'stripe',

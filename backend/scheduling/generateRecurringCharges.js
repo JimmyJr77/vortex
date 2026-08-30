@@ -20,6 +20,7 @@ import {
 import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
 import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
+import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoice.js'
 
 /**
  * @param {import('pg').Pool} pool
@@ -154,10 +155,35 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
     }
   }
 
+  // The recurring ledger remains the source for tuition charges. On the first
+  // day, enabled households turn those charges plus all other open ledger items
+  // into one Stripe invoice. This is intentionally separate from charge posting
+  // so a daily job remains safe and catch-up charges stay immutable.
+  let householdInvoicesCreated = 0
+  if (asOfMidnight.getUTCDate() === 1) {
+    const accounts = await pool.query(
+      `SELECT * FROM family_billing_account
+        WHERE household_monthly_billing_enabled = TRUE
+        ORDER BY id`,
+    )
+    for (const account of accounts.rows) {
+      try {
+        const result = await createHouseholdMonthlyInvoice(pool, {
+          account,
+          billingMonth: asOfMidnight,
+        })
+        if (result.created) householdInvoicesCreated += 1
+      } catch (error) {
+        console.error('[billing] household monthly invoice:', account.id, error?.message ?? error)
+      }
+    }
+  }
+
   return {
     subscriptionsProcessed: due.rows.length,
     chargesPosted,
     periodsAdvanced,
     pauseCreditsPosted,
+    householdInvoicesCreated,
   }
 }

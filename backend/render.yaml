@@ -74,6 +74,42 @@ services:
       - key: DAILY_ROSTER_EMAIL
         value: team@vortexathletics.com
   - type: cron
+    name: vortex-recurring-billing
+    runtime: node
+    branch: main
+    autoDeployTrigger: commit
+    rootDir: backend
+    # Daily execution makes charge posting and the first-of-month household
+    # invoice build resilient to missed runs; both are idempotent.
+    schedule: "10 6 * * *"
+    buildCommand: npm install
+    startCommand: npm run billing:recurring
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: STRIPE_ENABLED
+        value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: BILLING_ALERT_EMAIL
+        value: billing@vortexathletics.com
+      - key: BILLING_REPLY_TO
+        value: billing@vortexathletics.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_REPLY_TO
+        sync: false
+  - type: cron
     name: vortex-stripe-reconciliation
     runtime: node
     branch: main

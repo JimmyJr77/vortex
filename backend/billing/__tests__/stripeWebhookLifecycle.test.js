@@ -46,6 +46,25 @@ test('records a renewal invoice once with Stripe identifiers', async () => {
   assert.match(insert.sql, /ON CONFLICT DO NOTHING/)
 })
 
+test('replayed invoice webhook returns its existing payment for idempotent line allocation', async () => {
+  const pool = {
+    query: async (sql) => {
+      if (String(sql).includes('SELECT id FROM family_billing_account')) return { rows: [{ id: 44 }] }
+      if (String(sql).includes('INSERT INTO billing_payment')) return { rows: [], rowCount: 0 }
+      if (String(sql).includes('SELECT * FROM billing_payment WHERE stripe_invoice_id')) {
+        return { rows: [{ id: 9, family_billing_account_id: 44, stripe_invoice_id: 'in_renewal' }] }
+      }
+      return { rows: [], rowCount: 0 }
+    },
+  }
+  const payment = await recordPaidStripeInvoice(pool, {
+    id: 'in_renewal', paid: true, status: 'paid', amount_paid: 15000,
+    customer: 'cus_family', payment_intent: 'pi_renewal',
+  })
+  assert.equal(payment.id, 9)
+  assert.equal(payment.newly_inserted, false)
+})
+
 test('subscription deletion cancels matching local subscriptions', async () => {
   const calls = []
   const pool = {

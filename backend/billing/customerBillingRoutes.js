@@ -17,6 +17,7 @@ import {
 import {
   collectCustomChargeWithSavedCard,
   collectOutstandingBalanceWithSavedCard,
+  billAnnualMembershipNow,
   createCustomerBillingCustomCharge,
   createCustomerBillingPaymentMethodLink,
   createCustomerBillingRefund,
@@ -87,6 +88,29 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] search:', error)
         res.status(500).json({ success: false, message: 'Customer billing search failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/annual-memberships/:memberId/bill-now',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await billAnnualMembershipNow(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          memberId: Number(req.params.memberId),
+          actorUserId: actorId(req),
+          idempotencyKey: idempotencyKey(req, 'annual-membership-bill'),
+        })
+        res.status(data.created ? 201 : 200).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] annual membership bill:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Annual membership bill could not be created.',
+        })
       }
     },
   )
@@ -381,6 +405,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
         const data = await collectOutstandingBalanceWithSavedCard(pool, {
           account,
+          amountCents: req.body?.amountCents,
           authorization: req.body?.authorization,
           actorUserId: actorId(req),
           attemptKey: idempotencyKey(req, 'outstanding-balance'),

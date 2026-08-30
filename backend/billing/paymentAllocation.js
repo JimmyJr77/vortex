@@ -1,5 +1,15 @@
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 
+let householdInvoiceSchemaEnsured = false
+
+async function ensureHouseholdInvoiceSchema(pool) {
+  if (householdInvoiceSchemaEnsured) return
+  const fs = await import('fs')
+  const migration = new URL('../migrations/774_household_monthly_invoicing.sql', import.meta.url)
+  await pool.query(fs.readFileSync(migration, 'utf8'))
+  householdInvoiceSchemaEnsured = true
+}
+
 const SETTLED_PAYMENT_STATUSES = new Set(['', 'recorded', 'settled', 'succeeded', 'paid', 'complete', 'completed'])
 
 function cents(value) {
@@ -374,6 +384,7 @@ export async function allocateHouseholdPayments(pool, {
   actorType = 'system',
   idempotencyNamespace = 'allocation',
 }) {
+  await ensureHouseholdInvoiceSchema(pool)
   const activityActorType = ['admin', 'member', 'system', 'stripe'].includes(actorType)
     ? actorType
     : 'system'
@@ -400,6 +411,16 @@ export async function allocateHouseholdPayments(pool, {
          WHERE c.family_billing_account_id = $1
            AND c.amount_cents > 0
            AND c.charge_type <> 'credit'
+           -- A charge reserved on an open household monthly invoice is paid
+           -- only by that invoice's webhook mapping. General household
+           -- allocation must not consume it and make Stripe collect it again.
+           AND NOT EXISTS (
+             SELECT 1
+             FROM billing_monthly_invoice_line line
+             JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+             WHERE line.billing_charge_id = c.id
+               AND invoice.status IN ('draft', 'open', 'failed', 'payment_method_required')
+           )
          ORDER BY c.created_at, c.id`,
         [accountId],
       ),

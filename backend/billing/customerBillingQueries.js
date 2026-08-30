@@ -14,6 +14,7 @@ import {
   membershipRenewsOnFromPurchase,
 } from '../scheduling/membershipAnniversary.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
+import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -120,6 +121,9 @@ export function buildCustomerBillingAnnualMemberships({
     const membershipCharge = feeId == null
       ? referenceCharge
       : memberCharges.find((row) => isAnnualMembershipCharge(row) && annualMembershipFeeId(row.source_id) === feeId) ?? referenceCharge
+    const outstandingCharge = memberCharges.find((row) => (
+      isAnnualMembershipCharge(row) && Number(row.remaining_amount_cents ?? 0) > 0
+    )) ?? null
     const renewalFromRedemption = referenceRedemption
       ? membershipRenewsOnFromPurchase(referenceRedemption.satisfied_at ?? referenceRedemption.created_at)
       : null
@@ -157,6 +161,8 @@ export function buildCustomerBillingAnnualMemberships({
         referenceSubscription?.stripe_subscription_id &&
         referenceSubscription.status !== 'cancelled',
       ),
+      outstandingChargeId: outstandingCharge?.id == null ? null : Number(outstandingCharge.id),
+      outstandingAmountCents: Math.max(0, Number(outstandingCharge?.remaining_amount_cents ?? 0)),
     }
   })
 }
@@ -203,13 +209,15 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
       [memberIds],
     ),
     pool.query(
-      `SELECT c.member_id, c.source_type, c.source_id, c.created_at,
+      `SELECT c.id, c.member_id, c.source_type, c.source_id, c.created_at,
+              c.amount_cents, c.gross_amount_cents, c.discount_amount_cents,
               CASE
                 WHEN COALESCE(app.applied_cents, 0) >= c.amount_cents THEN 'paid'
                 WHEN COALESCE(app.applied_cents, 0) > 0 THEN 'partially_paid'
                 ELSE c.collection_status
               END AS collection_status,
-              app.paid_at
+              app.paid_at,
+              GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0))::int AS remaining_amount_cents
        FROM billing_charge c
        LEFT JOIN LATERAL (
          SELECT
@@ -490,6 +498,7 @@ export async function buildCustomerBillingOverview(pool, {
     alertsResult,
     annualMemberships,
     paymentMethod,
+    monthlyInvoices,
   ] =
     await Promise.all([
       buildBillingAccountView(pool, account, { memberScopeId: null }),
@@ -559,6 +568,10 @@ export async function buildCustomerBillingOverview(pool, {
         members,
       }),
       loadDefaultPaymentMethodSummary(account),
+      listHouseholdMonthlyInvoices(pool, account.id).catch((error) => {
+        if (error?.code === '42P01') return []
+        throw error
+      }),
     ])
 
   const adjustments = adjustmentsResult.rows.map((row) => {
@@ -796,6 +809,7 @@ export async function buildCustomerBillingOverview(pool, {
     annualMemberships,
     subscriptions,
     adjustments,
+    monthlyInvoices,
     statements: [],
   }
 }

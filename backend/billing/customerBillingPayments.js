@@ -9,6 +9,10 @@ import {
 import { createBillingRefund } from './stripeOperations.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { ensureCustomerBillingAccount } from './customerBillingQueries.js'
+import { ensureBillingChargeSchema } from './billingChargeSchema.js'
+import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
+import { loadActiveAdditionalFees } from '../scheduling/additionalFeesEngine.js'
+import { memberHasActiveAnnualMembership } from '../scheduling/annualMembership.js'
 import {
   applyExactPayment,
   allocateHouseholdPayments,
@@ -50,6 +54,114 @@ async function validateMemberScope(pool, account, memberId) {
   )
   if (!result.rows[0]) throw new Error('Selected member does not belong to this household.')
   return Number(memberId)
+}
+
+function isAnnualMembershipFee(fee) {
+  return (fee?.triggerType === 'once_per_year' || fee?.applyBasis === 'per_year') && Number(fee.amountCents) > 0
+}
+
+/**
+ * Post an athlete-owned annual membership fee to the household ledger. This is
+ * intentionally ledger-only: staff can then collect it with the normal account
+ * balance workflow, and the payment allocator activates the membership once paid.
+ */
+export async function billAnnualMembershipNow(pool, {
+  familyId,
+  facilityId = null,
+  memberId,
+  actorUserId = null,
+  idempotencyKey = null,
+}) {
+  const account = await ensureCustomerBillingAccount(pool, familyId, facilityId)
+  if (!account) throw new Error('Family billing account was not found.')
+  const scopedMemberId = await validateMemberScope(pool, account, memberId)
+  if (scopedMemberId == null) throw new Error('An athlete is required for an annual membership bill.')
+  if (await memberHasActiveAnnualMembership(pool, scopedMemberId)) {
+    throw new Error('This athlete already has an active annual membership.')
+  }
+
+  const fees = await loadActiveAdditionalFees(pool, facilityId)
+  const fee = fees.find(isAnnualMembershipFee)
+  if (!fee) throw new Error('No active annual membership fee is configured for this facility.')
+
+  await ensureBillingChargeSchema(pool)
+  const outstanding = await pool.query(
+    `SELECT c.id
+       FROM billing_charge c
+       LEFT JOIN LATERAL (
+         SELECT SUM(CASE WHEN a.application_kind = 'reversal' THEN -a.amount_cents ELSE a.amount_cents END)::int AS applied_cents
+         FROM billing_payment_application a
+         WHERE a.billing_charge_id = c.id
+       ) applications ON TRUE
+      WHERE c.family_billing_account_id = $1
+        AND c.member_id = $2
+        AND c.source_type = 'additional_fee'
+        AND split_part(c.source_id, ':', 1) = $3
+        AND GREATEST(0, c.amount_cents - COALESCE(applications.applied_cents, 0)) > 0
+      ORDER BY c.created_at DESC, c.id DESC
+      LIMIT 1`,
+    [account.id, scopedMemberId, String(fee.id)],
+  )
+  if (outstanding.rows[0]) {
+    throw new Error('This athlete already has an outstanding annual membership bill.')
+  }
+
+  const billedAt = new Date()
+  const renewalDate = toUtcDateString(membershipRenewsOnFromPurchase(billedAt)) || toUtcDateString(billedAt)
+  const sourceId = `${fee.id}:${scopedMemberId}:${renewalDate}`
+  const sourceKey = String(idempotencyKey ?? '').trim()
+  const inserted = await pool.query(
+    `INSERT INTO billing_charge (
+       family_billing_account_id, member_id, source_type, source_id, description,
+       amount_cents, gross_amount_cents, discount_amount_cents,
+       charge_type, billing_interval, service_period_start, service_period_end,
+       collection_status, created_by_user_id, metadata
+     ) VALUES (
+       $1, $2, 'additional_fee', $3, $4, $5, $5, 0,
+       'one_time', 'one_time', $6, $6, 'unpaid', $7,
+       jsonb_strip_nulls(jsonb_build_object('createdBy', 'customer_billing_bill_now', 'requestKey', NULLIF($8, '')))
+     )
+     ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+     RETURNING *`,
+    [
+      account.id,
+      scopedMemberId,
+      sourceId,
+      fee.name || 'Annual Fee',
+      Math.round(Number(fee.amountCents)),
+      toUtcDateString(billedAt),
+      actorUserId,
+      sourceKey,
+    ],
+  )
+  let charge = inserted.rows[0] ?? null
+  const created = Boolean(charge)
+  if (!charge) {
+    charge = await pool.query(
+      `SELECT * FROM billing_charge WHERE source_type = 'additional_fee' AND source_id = $1 LIMIT 1`,
+      [sourceId],
+    ).then((result) => result.rows[0] ?? null)
+    if (!charge) throw new Error('Annual membership bill could not be created.')
+  }
+  if (created) {
+    await recordBillingActivity(pool, {
+      eventKey: `annual-membership-billed:${charge.id}`,
+      accountId: account.id,
+      memberId: scopedMemberId,
+      chargeId: charge.id,
+      eventType: 'annual_membership_bill_created',
+      summary: `Annual membership fee added for this athlete.`,
+      afterValue: {
+        chargeId: Number(charge.id),
+        feeId: Number(fee.id),
+        amountCents: Number(charge.amount_cents),
+        renewalDate,
+      },
+      actorUserId,
+    })
+    await allocateHouseholdPayments(pool, { accountId: account.id, actorUserId, actorType: 'admin' })
+  }
+  return { account, charge, created, renewalDate }
 }
 
 async function loadCharge(pool, accountId, chargeId) {
@@ -280,6 +392,7 @@ export class SavedCardCollectionError extends Error {
 /** Collect only the household's unpaid charges from periods before this month. */
 export async function collectOutstandingBalanceWithSavedCard(pool, {
   account,
+  amountCents = null,
   authorization,
   actorUserId = null,
   attemptKey = null,
@@ -293,14 +406,22 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
           WHERE item.billing_charge_id = charge.id
        ) application ON TRUE
       WHERE charge.family_billing_account_id = $1
-        AND COALESCE(charge.service_period_start, charge.created_at::date) < date_trunc('month', CURRENT_DATE)::date
-        AND charge.amount_cents > 0`,
+        AND charge.amount_cents > 0
+        AND NOT EXISTS (
+          SELECT 1
+          FROM billing_monthly_invoice_line line
+          JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+          WHERE line.billing_charge_id = charge.id
+            AND invoice.status IN ('draft', 'open', 'paid', 'payment_method_required')
+        )`,
     [account.id],
   )
-  const amountCents = Number(outstanding.rows[0]?.amount_cents ?? 0)
-  if (amountCents <= 0) throw new Error('This account has no unpaid balance from prior months.')
+  const availableCents = Number(outstanding.rows[0]?.amount_cents ?? 0)
+  const amount = amountCents == null ? availableCents : positiveCents(amountCents, 'Collection amount')
+  if (availableCents <= 0) throw new Error('This account has no unpaid balance.')
+  if (amount > availableCents) throw new Error('The collection amount cannot exceed the current account balance.')
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const auth = validateAuthorization(authorization, amountCents)
+  const auth = validateAuthorization(authorization, amount)
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
   const customerId = await ensureStripeCustomer(pool, stripe, account)
@@ -311,18 +432,18 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     accountId: account.id,
     eventType: 'outstanding_balance_payment_attempted',
     summary: `Saved card collection attempted for the prior-month balance.`,
-    details: { amountCents, authorization: auth },
+    details: { amountCents: amount, authorization: auth },
     actorUserId,
   })
   try {
     const intent = await stripe.paymentIntents.create({
-      amount: amountCents,
+      amount,
       currency: 'usd',
       customer: customerId,
       payment_method: paymentMethodId,
       off_session: true,
       confirm: true,
-      description: 'Vortex Athletics prior-month balance',
+      description: 'Vortex Athletics account balance',
       metadata: {
         checkoutType: 'outstanding_balance',
         familyBillingAccountId: String(account.id),
@@ -345,18 +466,18 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
       paymentId: payment.id,
       eventType: 'outstanding_balance_payment_succeeded',
       summary: `Saved card payment collected for the prior-month balance.`,
-      details: { amountCents },
+      details: { amountCents: amount },
       stripeObjectId: intent.id,
       actorUserId,
     })
-    return { payment, amountCents }
+    return { payment, amountCents: amount }
   } catch (error) {
     await recordBillingActivity(pool, {
       eventKey: `outstanding-balance-failed:${account.id}:${attempt}`,
       accountId: account.id,
       eventType: 'outstanding_balance_payment_failed',
       summary: `Saved card payment failed for the prior-month balance.`,
-      details: { amountCents, reason: error?.message ?? String(error) },
+      details: { amountCents: amount, reason: error?.message ?? String(error) },
       actorUserId,
     }).catch(() => {})
     throw error

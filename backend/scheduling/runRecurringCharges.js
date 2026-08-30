@@ -56,7 +56,8 @@ async function main() {
     const result = await generateRecurringCharges(pool)
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +
-        `posted ${result.chargesPosted} charge(s) across ${result.periodsAdvanced} period(s).`,
+        `posted ${result.chargesPosted} charge(s) across ${result.periodsAdvanced} period(s), ` +
+        `and created ${result.householdInvoicesCreated ?? 0} household invoice(s).`,
     )
     try {
       const expired = await expirePassCredits(pool)

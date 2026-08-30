@@ -91,6 +91,8 @@ export interface CustomerBillingAnnualMembership {
   renewalDate: string | null
   autoRenewal: boolean
   canManageAutoRenewal: boolean
+  outstandingChargeId: number | null
+  outstandingAmountCents: number
 }
 
 export interface CustomerBillingSubscription {
@@ -172,6 +174,21 @@ export interface CustomerBillingOverview {
   enrollments: CustomerBillingEnrollment[]
   waitlists: CustomerBillingEnrollment[]
   annualMemberships: CustomerBillingAnnualMembership[]
+  monthlyInvoices: Array<{
+    id: number
+    billingMonth: string
+    status: string
+    subtotalCents: number
+    creditCents: number
+    totalCents: number
+    stripeInvoiceId: string | null
+    hostedInvoiceUrl: string | null
+    paymentAttemptedAt: string | null
+    paidAt: string | null
+    failureMessage: string | null
+    lineCount: number
+    lines: Array<{ id: number; memberName: string | null; description: string; lineType: string; amountCents: number }>
+  }>
   subscriptions: CustomerBillingSubscription[]
   adjustments: PriceAdjustment[]
 }

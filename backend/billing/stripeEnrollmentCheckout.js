@@ -32,6 +32,7 @@ import { findMemberById } from '../members/createMemberStub.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
 import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.js'
 
 export { formatPerClassStripeProductName } from './stripeProductNaming.js'
 
@@ -403,6 +404,16 @@ export async function createEnrollmentStripeSubscriptions(
   },
 ) {
   if (!stripe || !signupIds?.length) return []
+  await ensureHouseholdMonthlyInvoiceSchema(pool)
+
+  const monthlyMode = await pool.query(
+    `SELECT household_monthly_billing_enabled
+       FROM family_billing_account WHERE id = $1`,
+    [familyBillingAccountId],
+  ).then((result) => result.rows[0]?.household_monthly_billing_enabled === true)
+  // Consolidated accounts post local recurring charges and collect them through
+  // the one household invoice. Never add a per-class Stripe subscription here.
+  if (monthlyMode) return []
 
   const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
   let customerId = suppliedCustomerId

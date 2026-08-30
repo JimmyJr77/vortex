@@ -60,7 +60,7 @@ export function statusTone(status: string): string {
   if (['active', 'confirmed', 'healthy', 'paid', 'succeeded', 'synced', 'issued'].includes(normalized)) {
     return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   }
-  if (['failed', 'critical', 'cancelled', 'void'].includes(normalized)) {
+  if (['failed', 'critical', 'cancelled', 'void', 'unpaid'].includes(normalized)) {
     return 'bg-red-50 text-red-700 border-red-200'
   }
   if (['paused', 'pending', 'pending_sync', 'requested', 'warning', 'checkout_pending', 'processing'].includes(normalized)) {
