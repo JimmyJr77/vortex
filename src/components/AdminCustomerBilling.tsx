@@ -261,34 +261,24 @@ function SearchResults({
   )
 }
 
-function AnnualMembershipSection({
-  memberships,
+function MembershipMetricCard({
+  membership,
   canManage,
   saving,
   onSetAutoRenewal,
 }: {
-  memberships: CustomerBillingAnnualMembership[]
+  membership: CustomerBillingAnnualMembership
   canManage: boolean
   saving: boolean
   onSetAutoRenewal: (membership: CustomerBillingAnnualMembership, enabled: boolean) => void
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-gray-950">Annual Memberships</h2>
-        <p className="text-sm text-gray-500">One membership card per athlete, with their paid-through date and renewal control.</p>
-      </div>
-      <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
-        {memberships.map((membership) => (
-          <div key={membership.memberId} className={`rounded-xl p-4 text-white shadow-sm ${membership.active ? 'bg-gray-800' : 'bg-red-700'}`}>
-            <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-bold uppercase tracking-wide text-gray-300">Annual membership</div><div className="mt-1 text-lg font-bold">{membership.memberName}</div></div><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${membership.active ? 'bg-white/15 text-white' : 'bg-red-950/40 text-red-50'}`}>{membership.active ? 'Valid' : 'Not valid'}</span></div>
-            <div className="mt-5 text-sm text-gray-200">Good through</div><div className="text-xl font-black">{calendarDate(membership.renewalDate)}</div>
-            <div className="mt-4 flex items-center justify-between gap-3 text-xs"><span className="text-gray-300">Auto-renewal: {membership.autoRenewal ? 'Yes' : 'No'}</span>{canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)} className="rounded-lg border border-white/30 px-2.5 py-1.5 font-semibold text-white disabled:opacity-40">{membership.autoRenewal ? 'Cancel renewal' : 'Resume renewal'}</button> : null}</div>
-          </div>
-        ))}
-        {memberships.length === 0 ? <div className="col-span-full py-5 text-center text-sm text-gray-500">No family members are available.</div> : null}
-      </div>
-    </section>
+    <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">Annual membership</div>
+      <div className="mt-1 truncate text-xl font-bold">{membership.memberName}</div>
+      <div className="mt-1 text-sm text-gray-200">Good through {calendarDate(membership.renewalDate)}</div>
+      <div className="mt-3 flex items-center justify-between gap-2 text-xs"><span className="font-semibold">{membership.active ? 'Valid' : 'Not valid'} · Auto-renewal {membership.autoRenewal ? 'Yes' : 'No'}</span>{canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold disabled:opacity-40">{membership.autoRenewal ? 'Cancel' : 'Resume'}</button> : null}</div>
+    </div>
   )
 }
 
@@ -1069,6 +1059,7 @@ export default function AdminCustomerBilling() {
               <MetricCard label="Paid this month" value={money(overview.summary.paidThisMonthCents)} detail="Settled payments this calendar month" />
               <MetricCard label="Next billing" value={calendarDate(overview.summary.nextBillDate)} detail="Calendar-month billing" />
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
+              {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} />)}
             </div>
             {overview.summary.stripeSync.status !== 'healthy' ? (
               <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">
@@ -1105,14 +1096,6 @@ export default function AdminCustomerBilling() {
             {overview.alerts.length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.length})</div><div className="space-y-1">{overview.alerts.map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="shrink-0 text-xs">{localDate(alert.createdAt)}</span></div>)}</div></div> : null}
           </section>
 
-          <AnnualMembershipSection
-            memberships={overview.annualMemberships}
-            canManage={canManage}
-            saving={saving}
-            onSetAutoRenewal={(membership, enabled) => {
-              void setAnnualMembershipAutoRenewal(membership, enabled)
-            }}
-          />
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
