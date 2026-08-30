@@ -20,6 +20,12 @@ const BOOT_SUPERSEDED_MIGRATIONS = new Set([
 
 const PLATFORM_MIGRATION_LOCK_ID = 884679201
 
+export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
+  'add_scheduling_member_pricing.sql',
+  'add_program_pricing_defaults.sql',
+  '763_customer_billing_admin.sql',
+])
+
 function migrationChecksum(text) {
   let hash = 0
   for (let index = 0; index < text.length; index += 1) {
@@ -763,6 +769,10 @@ export async function initPlatformTables(pool) {
     '759_coaching_overhead_slam_strict_press_identity_boundary.sql',
     '760_coaching_flip_fit_schedule.sql',
     '761_coaching_flip_fit_card_references.sql',
+    // These additive migrations own columns and tables read directly by the
+    // Admin runtime. Keep them in the boot set so an ordinary deploy cannot
+    // expose newer route code against an older database contract.
+    ...RUNTIME_COMPATIBILITY_MIGRATIONS,
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

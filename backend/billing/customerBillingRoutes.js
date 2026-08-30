@@ -45,6 +45,7 @@ function idempotencyKey(req, prefix) {
 function errorStatus(error) {
   if (/not found/i.test(String(error?.message ?? ''))) return 404
   if (/Stripe|payment|sync/i.test(String(error?.message ?? '')) && /unavailable|not enabled/i.test(String(error?.message ?? ''))) return 503
+  if (/^(42|08|XX)/.test(String(error?.code ?? ''))) return 500
   return 400
 }
 
@@ -109,6 +110,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         const data = await listCustomerBillingTransactions(pool, transactionFilters(req, account.id))
         res.json({ success: true, data })
       } catch (error) {
+        console.error('[customer-billing] transactions:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Transactions failed to load.' })
       }
     },
@@ -126,6 +128,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.setHeader('Content-Disposition', `attachment; filename="customer-billing-family-${account.family_id}.csv"`)
         res.send(csv)
       } catch (error) {
+        console.error('[customer-billing] transaction export:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Transaction export failed.' })
       }
     },
@@ -146,6 +149,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         })
         res.json({ success: true, data })
       } catch (error) {
+        console.error('[customer-billing] activity:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Billing activity failed to load.' })
       }
     },
