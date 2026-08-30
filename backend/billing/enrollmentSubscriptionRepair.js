@@ -9,6 +9,7 @@ import {
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { createEnrollmentStripeSubscriptions } from './stripeEnrollmentCheckout.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
+import { billingMonthInTimeZone, promoExpirationDate } from './customerBillingPricing.js'
 
 function asDateOnly(value) {
   if (!value) return null
@@ -694,6 +695,7 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
     if (!rule) throw new Error('Legacy discount rule no longer exists.')
     const promoCode = promoCodeFromLegacyRule(rule)
     if (!promoCode) throw new Error('The legacy promotional rule does not have a promo code.')
+    const effectiveThroughMonth = rule.ends_at ? billingMonthInTimeZone(rule.ends_at) : null
     const rows = (
       await client.query(
         `SELECT signup.id, signup.member_id, signup.enrollment_start_date,
@@ -720,7 +722,7 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
           `SELECT *
            FROM enrollment_price_adjustment
            WHERE signup_id = $1
-             AND kind = 'legacy_discount'
+             AND kind IN ('legacy_discount', 'promo_code')
              AND discount_rule_id = $2
              AND status <> 'revoked'
            ORDER BY created_at DESC, id DESC
@@ -731,8 +733,10 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
       ).rows[0] ?? null
       const attributionMatches =
         existing &&
+        existing.kind === 'promo_code' &&
         String(existing.promo_code ?? '').trim().toUpperCase() === promoCode &&
-        String(existing.reason ?? '').trim() === label
+        String(existing.reason ?? '').trim() === label &&
+        String(existing.effective_through_month ?? '').slice(0, 10) === String(effectiveThroughMonth ?? '')
       if (attributionMatches) continue
 
       if (existing) {
@@ -756,14 +760,14 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
         `INSERT INTO enrollment_price_adjustment (
            family_billing_account_id, member_id, signup_id, billing_subscription_id,
            kind, promo_code, discount_rule_id, discount_rule_snapshot,
-           effective_from_month, standard_price_cents,
+           effective_from_month, effective_through_month, standard_price_cents,
            preview_snapshot, reason, status, created_by_user_id,
            supersedes_adjustment_id
          )
          VALUES (
-           $1, $2, $3, $4, 'legacy_discount', $5, $6, $7::jsonb,
-           date_trunc('month', $8::date)::date, $9,
-           $10::jsonb, $11, 'active', $12, $13
+           $1, $2, $3, $4, 'promo_code', $5, $6, $7::jsonb,
+           date_trunc('month', $8::date)::date, $9, $10,
+           $11::jsonb, $12, 'active', $13, $14
          )
          RETURNING id`,
         [
@@ -781,11 +785,21 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
             amountValue: Number(rule.amount_value),
             applyTo: rule.apply_to,
             calcBase: rule.calc_base,
+            priority: Number(rule.priority ?? 100),
+            stackable: rule.stackable !== false,
+            exclusivityGroup: rule.exclusivity_group ?? null,
+            maxDiscountCents: rule.max_discount_cents == null ? null : Number(rule.max_discount_cents),
+            scopeLevel: rule.scope_level,
+            scopeRefId: rule.scope_ref_id == null ? null : Number(rule.scope_ref_id),
+            startsAt: rule.starts_at ?? null,
+            endsAt: rule.ends_at ?? null,
+            expiresOn: promoExpirationDate(rule.ends_at),
             config: rule.config ?? {},
           }),
           asDateOnly(row.enrollment_start_date) ?? toDateString(new Date()),
+          effectiveThroughMonth,
           Number(row.monthly_amount_cents),
-          JSON.stringify({ source: 'legacy_enrollment_promo_backfill', promoCode }),
+          JSON.stringify({ source: 'canonical_enrollment_promo_backfill', promoCode }),
           label,
           actorUserId,
           existing == null ? null : Number(existing.id),
@@ -796,12 +810,12 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
         firstAdjustmentId = firstAdjustmentId ?? Number(result.rows[0].id)
         if (existing) {
           await recordBillingActivityBestEffort(client, {
-            eventKey: `legacy-promo-attribution-corrected:${existing.id}:${result.rows[0].id}`,
+            eventKey: `promo-attribution-corrected:${existing.id}:${result.rows[0].id}`,
             accountId: Number(accountId),
             memberId: Number(row.member_id),
             signupId: Number(row.id),
-            eventType: 'legacy_enrollment_promo_attribution_corrected',
-            summary: `Legacy enrollment promo attributed to ${promoCode}`,
+            eventType: 'enrollment_promo_attribution_corrected',
+            summary: `Enrollment promo attributed to ${promoCode}`,
             beforeValue: {
               adjustmentId: Number(existing.id),
               promoCode: existing.promo_code ?? null,

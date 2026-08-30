@@ -27,6 +27,33 @@ export function addBillingMonths(value, amount) {
   return normalizeBillingMonth(date)
 }
 
+export function billingMonthInTimeZone(value, timeZone = 'America/New_York') {
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+  }).formatToParts(date)
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  return year && month ? `${year}-${month}-01` : null
+}
+
+export function billingPeriodEvaluationTime(value) {
+  const [year, month] = billingMonthKey(value).split('-').map(Number)
+  // Noon UTC on the first avoids treating Eastern-local midnight rule boundaries
+  // as belonging to the adjacent UTC billing month.
+  return Date.UTC(year, month - 1, 1, 12, 0, 0)
+}
+
+export function promoExpirationDate(value) {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value).slice(0, 10) || null
+  return date.toISOString().slice(0, 10)
+}
+
 export function enumerateBillingMonths(fromValue, throughValue, { maxMonths = 120 } = {}) {
   const from = normalizeBillingMonth(fromValue)
   const through = normalizeBillingMonth(throughValue)

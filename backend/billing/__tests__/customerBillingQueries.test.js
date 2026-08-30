@@ -4,7 +4,18 @@ import {
   firstRecurringPricingLineBySignup,
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
+  recurringPricingForPeriod,
 } from '../customerBillingQueries.js'
+
+test('monthly recurring display uses the breakpoint effective for the next bill', () => {
+  const breakpoint = recurringPricingForPeriod([
+    { periodKey: '2026-08', netCents: 0 },
+    { periodKey: '2026-09', netCents: 21375 },
+    { periodKey: '2027-01', netCents: 36000 },
+  ], '2026-09-01')
+  assert.equal(breakpoint.periodKey, '2026-09')
+  assert.equal(breakpoint.netCents, 21375)
+})
 
 test('scheduled enrollments use the first future period that contains their pricing line', () => {
   const bySignup = firstRecurringPricingLineBySignup([

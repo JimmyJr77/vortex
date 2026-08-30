@@ -1,11 +1,28 @@
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import {
   addBillingMonths,
-  adjustmentCoversPeriod,
-  applyEnrollmentPriceAdjustment,
+  billingMonthInTimeZone,
   billingMonthKey,
   normalizeBillingMonth,
 } from './customerBillingPricing.js'
+
+function parseJson(value) {
+  if (!value) return {}
+  if (typeof value === 'object') return value
+  try {
+    return JSON.parse(value)
+  } catch {
+    return {}
+  }
+}
+
+function adjustmentThroughMonth(adjustment) {
+  if (adjustment.effective_through_month) return adjustment.effective_through_month
+  if (!['promo_code', 'legacy_discount'].includes(adjustment.kind)) return null
+  const snapshot = parseJson(adjustment.discount_rule_snapshot)
+  const endsAt = snapshot.endsAt ?? snapshot.ends_at
+  return endsAt ? billingMonthInTimeZone(endsAt) : null
+}
 
 function unixMonthStart(month) {
   const [year, value] = billingMonthKey(month).split('-').map(Number)
@@ -99,6 +116,21 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
 
   await setSyncState(pool, subscription.id, 'pending')
   try {
+    const [familySubscriptions, charges] = await Promise.all([
+      pool.query(
+        `SELECT * FROM billing_subscription
+         WHERE family_billing_account_id = $1 AND status = 'active'`,
+        [subscription.family_billing_account_id],
+      ),
+      pool.query(
+        `SELECT * FROM billing_charge
+         WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`,
+        [subscription.family_billing_account_id],
+      ),
+    ])
+    const { collectRecurringPricingBoundaries, priceRecurringPeriod } = await import('./recurringPeriodPricing.js')
+    const currentMonth = billingMonthKey(now)
+
     if (adjustments.length === 0) {
       if (subscription.stripe_subscription_schedule_id) {
         try {
@@ -111,15 +143,42 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
           [subscription.id],
         )
       }
+      const targetMonth = subscription.next_bill_date
+        ? [currentMonth, billingMonthKey(subscription.next_bill_date)].sort().at(-1)
+        : currentMonth
+      const priced = await priceRecurringPeriod(pool, {
+        familyId: subscription.family_id,
+        subscriptions: familySubscriptions.rows,
+        charges: charges.rows,
+        periodKey: targetMonth,
+      })
+      const resolvedLine = priced.lines.find(
+        (line) => Number(line.subscriptionId) === Number(subscription.id),
+      )
+      const resolvedAmountCents = Number(resolvedLine?.netCents ?? subscription.net_monthly_cents)
+      if (resolvedLine) {
+        await pool.query(
+          `UPDATE billing_subscription
+           SET monthly_amount_cents = $2, discount_amount_cents = $3,
+               net_monthly_cents = $4, updated_at = now()
+           WHERE id = $1`,
+          [
+            subscription.id,
+            Number(resolvedLine.grossCents),
+            Number(resolvedLine.discountCents),
+            resolvedAmountCents,
+          ],
+        )
+      }
       const { updateStripeSubscriptionUnitAmount } = await import('./stripeSubscriptionSync.js')
       const direct = await updateStripeSubscriptionUnitAmount(
         subscription.stripe_subscription_id,
-        subscription.net_monthly_cents,
+        resolvedAmountCents,
         { productName: subscription.description },
       )
       if (direct.status === 'error') throw new Error(direct.reason)
       await setSyncState(pool, subscription.id, 'synced', { scheduleId: '' })
-      return { status: 'synced', mode: 'direct', amountCents: Number(subscription.net_monthly_cents) }
+      return { status: 'synced', mode: 'direct', amountCents: resolvedAmountCents }
     }
 
     const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id, {
@@ -143,27 +202,15 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
       scheduleId = created.id
     }
     const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)
-    const currentMonth = billingMonthKey(now)
     const boundaries = new Set([currentMonth])
     for (const adjustment of adjustments) {
       const starts = billingMonthKey(adjustment.effective_from_month)
       if (starts > currentMonth) boundaries.add(starts)
-      if (adjustment.effective_through_month) {
-        boundaries.add(billingMonthKey(addBillingMonths(adjustment.effective_through_month, 1)))
+      const through = adjustmentThroughMonth(adjustment)
+      if (through) {
+        boundaries.add(billingMonthKey(addBillingMonths(through, 1)))
       }
     }
-
-    const familySubscriptions = await pool.query(
-      `SELECT * FROM billing_subscription
-       WHERE family_billing_account_id = $1 AND status = 'active'`,
-      [subscription.family_billing_account_id],
-    )
-    const charges = await pool.query(
-      `SELECT * FROM billing_charge
-       WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`,
-      [subscription.family_billing_account_id],
-    )
-    const { collectRecurringPricingBoundaries, priceRecurringPeriod } = await import('./recurringPeriodPricing.js')
     for (const key of collectRecurringPricingBoundaries({
       subscriptions: familySubscriptions.rows,
       charges: charges.rows,
@@ -179,15 +226,9 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
         subscriptions: familySubscriptions.rows,
         charges: charges.rows,
         periodKey,
+        proposedAdjustments: adjustments.filter((adjustment) => adjustment.status === 'pending_sync'),
       })
-      let line = priced.lines.find((candidate) => Number(candidate.subscriptionId) === Number(subscription.id))
-      const pending = adjustments.find(
-        (adjustment) => adjustment.status === 'pending_sync' && adjustmentCoversPeriod(adjustment, periodKey),
-      )
-      if (pending) line = applyEnrollmentPriceAdjustment(line ?? {
-        grossCents: Number(subscription.monthly_amount_cents),
-        netCents: Number(subscription.net_monthly_cents),
-      }, pending)
+      const line = priced.lines.find((candidate) => Number(candidate.subscriptionId) === Number(subscription.id))
       amountByMonth.set(periodKey, Number(line?.netCents ?? subscription.net_monthly_cents))
     }
 
@@ -196,10 +237,11 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
       Number(item.current_period_start) ||
       Math.floor(now.getTime() / 1000)
     const finiteReversions = adjustments
-      .filter((adjustment) => adjustment.effective_through_month)
-      .map((adjustment) => addBillingMonths(adjustment.effective_through_month, 1))
+      .map((adjustment) => adjustmentThroughMonth(adjustment))
+      .filter(Boolean)
+      .map((through) => addBillingMonths(through, 1))
       .sort()
-    const releaseAfterMonth = adjustments.some((adjustment) => !adjustment.effective_through_month)
+    const releaseAfterMonth = adjustments.some((adjustment) => !adjustmentThroughMonth(adjustment))
       ? null
       : finiteReversions.length > 0
         ? addBillingMonths(finiteReversions.at(-1), 1)

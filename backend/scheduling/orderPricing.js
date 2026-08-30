@@ -1381,6 +1381,8 @@ export async function computeDiscountLayer(
     memberContext = null,
     previewExistingLines = [],
     replaceDbLines = false,
+    pricingDate = Date.now(),
+    ruleSnapshots = [],
   },
 ) {
   const empty = {
@@ -1406,6 +1408,39 @@ export async function computeDiscountLayer(
     rules = await loadActiveDiscountRules(pool, facilityId)
   } catch {
     return empty
+  }
+  for (const rawSnapshot of ruleSnapshots ?? []) {
+    const snapshot = rawSnapshot && typeof rawSnapshot === 'object' ? rawSnapshot : null
+    const id = Number(snapshot?.id)
+    if (!snapshot || !Number.isFinite(id)) continue
+    const existingIndex = rules.findIndex((rule) => Number(rule.id) === id)
+    const existing = existingIndex >= 0 ? rules[existingIndex] : {}
+    const definedSnapshot = Object.fromEntries(
+      Object.entries(snapshot).filter(([, value]) => value !== undefined),
+    )
+    const merged = {
+      ...existing,
+      ...definedSnapshot,
+      id,
+      active: true,
+      name: definedSnapshot.name ?? existing.name ?? 'Tuition discount',
+      type: definedSnapshot.type ?? existing.type ?? 'manual',
+      amountType: definedSnapshot.amountType ?? existing.amountType ?? 'percent',
+      amountValue: Number(definedSnapshot.amountValue ?? existing.amountValue ?? 0),
+      applyTo: definedSnapshot.applyTo ?? existing.applyTo ?? 'class',
+      calcBase: definedSnapshot.calcBase ?? existing.calcBase ?? 'pre',
+      priority: Number(definedSnapshot.priority ?? existing.priority ?? 100),
+      stackable: definedSnapshot.stackable ?? existing.stackable ?? true,
+      scopeLevel: definedSnapshot.scopeLevel ?? existing.scopeLevel ?? 'global',
+      scopeRefId: definedSnapshot.scopeRefId ?? existing.scopeRefId ?? null,
+      config: {
+        ...(existing.config ?? {}),
+        ...(snapshot.config ?? {}),
+      },
+      tiers: definedSnapshot.tiers ?? existing.tiers ?? [],
+    }
+    if (existingIndex >= 0) rules[existingIndex] = merged
+    else rules.push(merged)
   }
   if (!rules.length) return empty
 
@@ -1532,7 +1567,13 @@ export async function computeDiscountLayer(
   }
 
   const { computeOrderDiscounts } = await import('./discountEngine.js')
-  const result = computeOrderDiscounts({ lines, rules, promoCodes, caps })
+  const result = computeOrderDiscounts({
+    lines,
+    rules,
+    promoCodes,
+    caps,
+    now: pricingDate instanceof Date ? pricingDate.getTime() : Number(pricingDate),
+  })
   return { enabled: true, ...result }
 }
 

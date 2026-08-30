@@ -465,6 +465,9 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         rule.type === 'promo_code'
           ? rule.config?.code || rule.config?.promo_code || null
           : null,
+      startsAt: rule.startsAt ?? null,
+      endsAt: rule.endsAt ?? null,
+      expiresOn: rule.expiresOn ?? null,
       // Duration-limited free grants bill at full price after N full months or N weeks;
       // both null = open-ended.
       ...(kind === 'free'
@@ -566,13 +569,16 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         type: rule.type,
         amountCents: applied,
         kind: 'discount',
-        source: 'manual',
+        source: rule.type === 'promo_code' ? 'promo_code' : 'manual',
         amountType: spec.amountType,
         amountValue: spec.amountValue,
         promoCode:
           rule.type === 'promo_code'
             ? rule.config?.code || rule.config?.promo_code || null
             : null,
+        startsAt: rule.startsAt ?? null,
+        endsAt: rule.endsAt ?? null,
+        expiresOn: rule.expiresOn ?? null,
         countedAsOrderDiscount: true,
       })
     }
@@ -581,7 +587,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       name: rule.name,
       type: rule.type,
       amountCents: amount,
-      source: 'manual',
+      source: rule.type === 'promo_code' ? 'promo_code' : 'manual',
     })
     return amount
   }
@@ -935,7 +941,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
               rule.type === 'promo_code'
                 ? rule.name
                 : ls.line.manualDiscountReason || applied.name
-            applied.source = 'manual'
+            applied.source = rule.type === 'promo_code' ? 'promo_code' : 'manual'
           }
         }
         continue
@@ -999,7 +1005,20 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   // the fallback if a formerly linked rule has since been deactivated/deleted.
   for (const ls of lineState) {
     if (ls.line.shadowOnly !== true) continue
-    if (ls.applied.some((entry) => entry.source === 'manual')) continue
+    if (
+      ls.applied.some(
+        (entry) =>
+          entry.source === 'manual' ||
+          (
+            ls.line.manualDiscountRuleId != null &&
+            Number(entry.ruleId) === Number(ls.line.manualDiscountRuleId)
+          ),
+      )
+    ) continue
+    // Once an enrollment has an effective-dated assignment record, that record is
+    // authoritative. A revoked or expired code must not fall back to stale legacy
+    // scheduling_signup manual_discount_* columns.
+    if (ls.line.managedDiscountAssignment === true) continue
     let amount = 0
     if (ls.line.manualDiscountCents != null) {
       amount = Math.min(ls.runningCents, Math.max(0, Math.round(Number(ls.line.manualDiscountCents))))
@@ -1055,7 +1074,11 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     (sum, line) =>
       sum +
       (line.applied || [])
-        .filter((entry) => entry.source === 'manual' && entry.countedAsOrderDiscount !== true)
+        .filter(
+          (entry) =>
+            ['manual', 'promo_code'].includes(entry.source) &&
+            entry.countedAsOrderDiscount !== true,
+        )
         .reduce((lineSum, entry) => lineSum + Number(entry.amountCents || 0), 0),
     0,
   )

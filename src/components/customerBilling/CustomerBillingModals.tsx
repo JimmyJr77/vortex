@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, ExternalLink, Loader2, X } from 'lucide-re
 import { adminApiRequest } from '../../utils/api'
 import { currentMonthInput, money, monthLabel } from './format'
 import type {
+  BillingDiscountComponent,
   BillingTransaction,
   CustomerBillingEnrollment,
   CustomerBillingMember,
@@ -45,6 +46,25 @@ function ModalShell({
   )
 }
 
+function percentLabel(amountValue: number | null | undefined) {
+  if (amountValue == null || !Number.isFinite(Number(amountValue))) return null
+  const percent = Number(amountValue) / 100
+  return `${Number.isInteger(percent) ? percent : percent.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')}%`
+}
+
+function pricingComponentLabel(component: BillingDiscountComponent, { includeCode = true } = {}) {
+  const percent = component.amountType === 'percent' ? percentLabel(component.amountValue) : null
+  if (component.type === 'promo_code') {
+    const code = includeCode && component.promoCode ? ` (${component.promoCode})` : ''
+    const expiration = component.expiresOn || component.endsAt?.slice(0, 10)
+    return `${percent ? `${percent} discount` : component.name}${code}${expiration ? ` · until ${expiration}` : ''}`
+  }
+  if (percent && component.type === 'spend_volume' && !component.name.startsWith(percent)) {
+    return `${percent} ${component.name}`
+  }
+  return component.name
+}
+
 async function responseBody(response: Response) {
   return response.json().catch(() => ({}))
 }
@@ -63,10 +83,13 @@ export function PriceAdjustmentModal({
   onClose: () => void
   onSaved: (message: string) => void
 }) {
-  const [kind, setKind] = useState<'fixed_final_price' | 'promo_code'>('fixed_final_price')
+  const currentPromo = enrollment.activePriceAdjustment && ['promo_code', 'legacy_discount'].includes(enrollment.activePriceAdjustment.kind)
+    ? enrollment.activePriceAdjustment
+    : null
+  const [kind, setKind] = useState<'fixed_final_price' | 'promo_code'>(currentPromo ? 'promo_code' : 'fixed_final_price')
   const [finalPrice, setFinalPrice] = useState((enrollment.adjustedCostCents / 100).toFixed(2))
   const [promoCode, setPromoCode] = useState('')
-  const [effectiveFromMonth, setEffectiveFromMonth] = useState(currentMonthInput())
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(enrollment.pricingMonth?.slice(0, 7) || currentMonthInput())
   const [effectiveThroughMonth, setEffectiveThroughMonth] = useState('')
   const [indefinite, setIndefinite] = useState(true)
   const [reason, setReason] = useState('')
@@ -76,13 +99,13 @@ export function PriceAdjustmentModal({
   const [error, setError] = useState<string | null>(null)
 
   const finalPriceCents = Math.round(Number(finalPrice) * 100)
-  const aboveList = Number.isFinite(finalPriceCents) && finalPriceCents > enrollment.classCostCents
+  const aboveList = kind === 'fixed_final_price' && Number.isFinite(finalPriceCents) && finalPriceCents > enrollment.classCostCents
   const payload = () => ({
     kind,
     finalPriceCents: kind === 'fixed_final_price' ? finalPriceCents : undefined,
     promoCode: kind === 'promo_code' ? promoCode.trim() : undefined,
     effectiveFromMonth,
-    effectiveThroughMonth: indefinite ? null : effectiveThroughMonth,
+    effectiveThroughMonth: kind === 'promo_code' || indefinite ? null : effectiveThroughMonth,
     reason: reason.trim(),
     confirmSurcharge: aboveList ? confirmSurcharge : false,
   })
@@ -130,6 +153,29 @@ export function PriceAdjustmentModal({
     }
   }
 
+  const removeCurrentPromo = async () => {
+    if (!currentPromo) return
+    if (!reason.trim()) {
+      setError('Enter an administrative reason before removing the discount code.')
+      return
+    }
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/price-adjustments/${currentPromo.id}/revoke`,
+        { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) },
+      )
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Discount code could not be removed.')
+      onSaved(`${currentPromo.promoCode || 'Tuition discount code'} removed successfully.`)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Discount code could not be removed.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
   return (
     <ModalShell
       title="Change enrollment price"
@@ -141,8 +187,22 @@ export function PriceAdjustmentModal({
         <div className="space-y-4">
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm">
             <div className="flex justify-between"><span className="text-gray-500">Standard price</span><strong>{money(enrollment.classCostCents)}</strong></div>
-            <div className="mt-2 flex justify-between"><span className="text-gray-500">Current adjusted price</span><strong>{money(enrollment.adjustedCostCents)}</strong></div>
+            {enrollment.automaticDiscountComponents.map((component, index) => (
+              <div key={`${component.ruleId ?? component.name}-${index}`} className="mt-2 flex justify-between gap-4">
+                <span className="text-gray-600">{pricingComponentLabel(component)}</span>
+                <span className="shrink-0 text-emerald-700">−{money(component.amountCents)}</span>
+              </div>
+            ))}
+            <div className="mt-3 flex justify-between border-t border-gray-200 pt-3"><span className="font-semibold text-gray-700">Current adjusted price</span><strong>{money(enrollment.adjustedCostCents)}</strong></div>
           </div>
+
+          {currentPromo ? (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+              <div className="font-semibold">Applied tuition code: {currentPromo.promoCode}</div>
+              <div className="mt-1 text-xs text-blue-700">Remove this assignment before replacing it with another code for an overlapping billing month.</div>
+              <button type="button" onClick={() => void removeCurrentPromo()} disabled={working} className="mt-3 rounded-lg border border-blue-300 bg-white px-3 py-2 text-xs font-semibold text-blue-800 disabled:opacity-50">Remove discount code</button>
+            </div>
+          ) : null}
 
           <fieldset>
             <legend className="mb-2 text-sm font-semibold text-gray-800">Adjustment type</legend>
@@ -167,20 +227,20 @@ export function PriceAdjustmentModal({
             </label>
           )}
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className={`grid gap-3 ${kind === 'fixed_final_price' ? 'sm:grid-cols-2' : ''}`}>
             <label className="text-sm font-medium text-gray-700">
               First billing month
               <input type="month" value={effectiveFromMonth} onChange={(event) => { setEffectiveFromMonth(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
             </label>
-            <label className="text-sm font-medium text-gray-700">
+            {kind === 'fixed_final_price' ? <label className="text-sm font-medium text-gray-700">
               Final billing month
               <input type="month" value={effectiveThroughMonth} disabled={indefinite} onChange={(event) => { setEffectiveThroughMonth(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 disabled:bg-gray-100" />
-            </label>
+            </label> : null}
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          {kind === 'fixed_final_price' ? <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" checked={indefinite} onChange={(event) => { setIndefinite(event.target.checked); invalidate() }} className="rounded border-gray-300" />
             Continue indefinitely
-          </label>
+          </label> : <p className="text-xs text-gray-500">The discount code’s configured validity dates determine its final eligible billing month.</p>}
           <label className="block text-sm font-medium text-gray-700">
             Administrative reason
             <textarea rows={3} value={reason} onChange={(event) => { setReason(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="Required for the immutable audit trail" />
@@ -220,7 +280,10 @@ export function PriceAdjustmentModal({
                       <tr key={month.periodKey} className="border-t border-gray-100">
                         <td className="px-3 py-2 font-medium">{monthLabel(month.periodKey)}</td>
                         <td className="px-3 py-2 text-right">{money(month.standardPriceCents)}</td>
-                        <td className="px-3 py-2 text-right text-emerald-700">−{money(month.automaticDiscountCents)}</td>
+                        <td className="px-3 py-2 text-right text-emerald-700">
+                          <div>−{money(month.automaticDiscountCents)}</div>
+                          {month.discountComponents.map((component, index) => <div key={`${component.ruleId ?? component.name}-${index}`} className="mt-1 text-[11px] text-gray-500">{pricingComponentLabel(component)} −{money(component.amountCents)}</div>)}
+                        </td>
                         <td className="px-3 py-2 text-right font-semibold">{money(month.adjustedCostCents)}</td>
                         <td className="px-3 py-2 text-right">{money(month.householdNetCents)}</td>
                         <td className={`px-3 py-2 text-right ${month.retroactiveDifferenceCents < 0 ? 'text-emerald-700' : month.retroactiveDifferenceCents > 0 ? 'text-amber-700' : 'text-gray-400'}`}>{month.postedAmountCents == null ? 'Not posted' : money(month.retroactiveDifferenceCents)}</td>

@@ -51,6 +51,8 @@ const halfTimeRule = {
   exclusivityGroup: null,
   scopeLevel: 'global',
   scopeRefId: null,
+  startsAt: '2026-01-01T05:00:00.000Z',
+  endsAt: '2027-01-01T04:59:59.000Z',
   config: { code: '50OFFVORTEX26', discountKind: 'amount' },
   tiers: [],
 }
@@ -209,7 +211,7 @@ test('persisted 50% rule reduces spend before the later family tier is selected'
       {
         name: '50% Off',
         type: 'promo_code',
-        source: 'manual',
+        source: 'promo_code',
         amountType: 'percent',
         amountValue: 5000,
         promoCode: '50OFFVORTEX26',
@@ -242,6 +244,40 @@ test('persisted 50% rule reduces spend before the later family tier is selected'
   const familyDiscount = result.orderDiscounts.find((entry) => entry.ruleId === 7)
   assert.equal(familyDiscount.amountCents, 1125)
   assert.equal(familyDiscount.qualifiedLabel, '5% off for a minimum of 2 Classes and $150')
+})
+
+test('managed promo assignments expire without falling back to legacy signup fields', () => {
+  const lines = attachStats(
+    [96, 97, 98].map((id) =>
+      makeLine({
+        key: `account-db-${id}`,
+        signupId: id,
+        formId: 29,
+        baseCents: 15000,
+        listCents: 15000,
+        finalCents: 15000,
+        includeInSubtotal: false,
+        shadowOnly: true,
+        manualDiscountPct: 50,
+        manualDiscountRuleId: 9,
+        managedDiscountAssignment: true,
+      }),
+    ),
+  )
+
+  const result = computeOrderDiscounts({
+    lines,
+    rules: [familySpendRule, halfTimeRule],
+    promoCodes: [],
+    caps: {},
+    now: Date.parse('2027-01-01T12:00:00.000Z'),
+  })
+
+  assert.deepEqual(result.accountLines.map((line) => line.finalCents), [12000, 12000, 12000])
+  assert.equal(
+    result.accountLines.some((line) => line.applied.some((entry) => entry.ruleId === 9)),
+    false,
+  )
 })
 
 test('2 classes at $300 total gets 15% and hint requires 1 more class at $150', () => {

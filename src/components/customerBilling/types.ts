@@ -28,6 +28,9 @@ export interface BillingDiscountComponent {
   amountType?: string | null
   amountValue?: number | null
   promoCode?: string | null
+  startsAt?: string | null
+  endsAt?: string | null
+  expiresOn?: string | null
   qualifiedLabel?: string | null
   qualifiedClassCount?: number | null
   qualifyingSubtotalCents?: number | null
@@ -39,6 +42,7 @@ export interface PriceAdjustment {
   kind: 'fixed_final_price' | 'promo_code' | 'legacy_discount'
   finalPriceCents: number | null
   promoCode: string | null
+  discountRuleSnapshot: Record<string, unknown>
   effectiveFromMonth: string
   effectiveThroughMonth: string | null
   reason: string
@@ -74,6 +78,7 @@ export interface CustomerBillingEnrollment {
   priceSyncStatus: string
   priceSyncError: string | null
   stripeSubscriptionScheduleId: string | null
+  pricingMonth: string
 }
 
 export interface CustomerBillingSubscription {
@@ -98,6 +103,7 @@ export interface CustomerBillingSubscription {
   priceSyncError: string | null
   activePriceAdjustment: PriceAdjustment | null
   scheduledPriceAdjustments: PriceAdjustment[]
+  pricingMonth: string
 }
 
 export interface CustomerBillingOverview {
@@ -203,6 +209,7 @@ export interface PriceAdjustmentPreview {
   kind: string
   finalPriceCents: number | null
   promoCode: string | null
+  promoRule: Record<string, unknown> | null
   effectiveFromMonth: string
   effectiveThroughMonth: string | null
   reason: string
@@ -215,6 +222,7 @@ export interface PriceAdjustmentPreview {
     automaticNetCents: number
     manualAdjustmentCents: number
     adjustedCostCents: number
+    discountComponents: BillingDiscountComponent[]
     householdNetCents: number
     postedAmountCents: number | null
     retroactive: boolean

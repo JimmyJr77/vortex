@@ -197,10 +197,18 @@ export function firstRecurringPricingLineBySignup(breakpoints = []) {
     for (const line of breakpoint?.lines ?? []) {
       const signupId = Number(line.signupId)
       if (!Number.isFinite(signupId) || bySignup.has(signupId)) continue
-      bySignup.set(signupId, line)
+      bySignup.set(signupId, { ...line, pricingPeriodKey: breakpoint.periodKey })
     }
   }
   return bySignup
+}
+
+export function recurringPricingForPeriod(breakpoints = [], periodValue) {
+  const periodKey = billingMonthKey(periodValue)
+  return breakpoints
+    .filter((breakpoint) => breakpoint.periodKey <= periodKey)
+    .sort((a, b) => a.periodKey.localeCompare(b.periodKey))
+    .at(-1) ?? null
 }
 
 export async function buildCustomerBillingOverview(pool, {
@@ -262,14 +270,19 @@ export async function buildCustomerBillingOverview(pool, {
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
   const currentMonth = billingMonthKey(new Date())
-  const currentPricing = view.recurringBreakpoints?.find((item) => item.periodKey === currentMonth)
-  const currentPricingBySubscription = new Map(
-    (currentPricing?.lines ?? []).map((line) => [Number(line.subscriptionId), line]),
+  const nextBillDate = rawSubscriptions.rows
+    .filter((subscription) => subscription.status === 'active' && subscription.next_bill_date)
+    .map((subscription) => String(subscription.next_bill_date).slice(0, 10))
+    .sort()[0] ?? null
+  const pricingMonth = nextBillDate ? billingMonthKey(nextBillDate) : currentMonth
+  const displayPricing = recurringPricingForPeriod(view.recurringBreakpoints ?? [], pricingMonth)
+  const displayPricingBySubscription = new Map(
+    (displayPricing?.lines ?? []).map((line) => [Number(line.subscriptionId), line]),
   )
-  const currentPricingBySignup = new Map(
-    (currentPricing?.lines ?? [])
+  const displayPricingBySignup = new Map(
+    (displayPricing?.lines ?? [])
       .filter((line) => Number.isFinite(Number(line.signupId)))
-      .map((line) => [Number(line.signupId), line]),
+      .map((line) => [Number(line.signupId), { ...line, pricingPeriodKey: displayPricing.periodKey }]),
   )
   const effectivePricingBySignup = firstRecurringPricingLineBySignup(
     view.recurringBreakpoints ?? [],
@@ -285,12 +298,13 @@ export async function buildCustomerBillingOverview(pool, {
     for (const row of group.rows ?? []) {
       if (!relevantEnrollment(row)) continue
       const rowAdjustments = adjustmentsBySignup.get(Number(row.id)) ?? []
-      const activeAdjustment = rowAdjustments.find(
-        (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, currentMonth),
-      ) ?? null
       const pricingLine =
-        currentPricingBySignup.get(Number(row.id)) ??
+        displayPricingBySignup.get(Number(row.id)) ??
         effectivePricingBySignup.get(Number(row.id))
+      const enrollmentPricingMonth = pricingLine?.pricingPeriodKey ?? pricingMonth
+      const activeAdjustment = rowAdjustments.find(
+        (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, enrollmentPricingMonth),
+      ) ?? null
       const grossCents = Number(pricingLine?.grossCents ?? row.class_cost_cents ?? 0)
       const automaticNetCents = Number(
         pricingLine?.automaticNetCents ?? row.adjusted_cost_cents ?? grossCents,
@@ -351,6 +365,7 @@ export async function buildCustomerBillingOverview(pool, {
         priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
         priceSyncError: subscription?.price_sync_error ?? null,
         stripeSubscriptionScheduleId: subscription?.stripe_subscription_schedule_id ?? null,
+        pricingMonth: enrollmentPricingMonth,
       }
       if (row.status === 'waitlisted') waitlists.push(mapped)
       else enrollments.push(mapped)
@@ -360,10 +375,11 @@ export async function buildCustomerBillingOverview(pool, {
   const subscriptions = rawSubscriptions.rows.map((row) => {
     const signupId = row.source_type === 'scheduling_signup' ? Number(row.source_id) : null
     const rowAdjustments = Number.isFinite(signupId) ? adjustmentsBySignup.get(signupId) ?? [] : []
+    const pricingLine = displayPricingBySubscription.get(Number(row.id))
+    const subscriptionPricingMonth = pricingLine ? displayPricing?.periodKey ?? pricingMonth : pricingMonth
     const activeAdjustment = rowAdjustments.find(
-      (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, currentMonth),
+      (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, subscriptionPricingMonth),
     ) ?? null
-    const pricingLine = currentPricingBySubscription.get(Number(row.id))
     const fallbackResolved = applyEnrollmentPriceAdjustment(
       {
         grossCents: Number(row.monthly_amount_cents ?? 0),
@@ -387,7 +403,7 @@ export async function buildCustomerBillingOverview(pool, {
       signupId: Number.isFinite(signupId) ? signupId : null,
       description: row.description,
       status: row.status,
-      monthlyAmountCents: Number(row.monthly_amount_cents ?? 0),
+      monthlyAmountCents: Number(resolved.grossCents ?? row.monthly_amount_cents ?? 0),
       automaticDiscountCents: Number(resolved.automaticDiscountCents ?? 0),
       automaticDiscountComponents: resolved.discountComponents ?? [],
       manualAdjustmentCents: Number(resolved.manualAdjustmentCents ?? 0),
@@ -404,14 +420,11 @@ export async function buildCustomerBillingOverview(pool, {
       priceSyncError: row.price_sync_error ?? null,
       activePriceAdjustment: activeAdjustment,
       scheduledPriceAdjustments: rowAdjustments.filter((adjustment) => adjustment.status !== 'revoked'),
+      pricingMonth: subscriptionPricingMonth,
     }
   })
 
   const latestPayment = view.payments?.[0] ?? null
-  const nextBillDate = subscriptions
-    .filter((subscription) => subscription.status === 'active' && subscription.nextBillDate)
-    .map((subscription) => String(subscription.nextBillDate).slice(0, 10))
-    .sort()[0] ?? null
   const syncFailures = subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
 
   return {

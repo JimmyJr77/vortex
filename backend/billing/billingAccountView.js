@@ -288,7 +288,17 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   }
   const today = new Date()
   const currentPricingKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
-  const currentResolvedPricing = recurringBreakpoints.find((item) => item.periodKey === currentPricingKey)
+  const nextRecurringBillKey = subscriptions
+    .filter((subscription) => subscription.status === 'active' && subscription.nextBillDate)
+    .map((subscription) => String(subscription.nextBillDate).slice(0, 7))
+    .sort()[0]
+  const recurringPricingKey = nextRecurringBillKey && nextRecurringBillKey > currentPricingKey
+    ? nextRecurringBillKey
+    : currentPricingKey
+  const currentResolvedPricing = recurringBreakpoints
+    .filter((item) => item.periodKey <= recurringPricingKey)
+    .sort((a, b) => a.periodKey.localeCompare(b.periodKey))
+    .at(-1)
   if (currentResolvedPricing) {
     const bySubscription = new Map(
       currentResolvedPricing.lines.map((line) => [Number(line.subscriptionId), line]),

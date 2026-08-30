@@ -4,12 +4,13 @@ import { syncEnrollmentStripePriceSchedule } from './stripePriceSchedules.js'
 import { recordBillingActivity } from './billingActivity.js'
 import {
   addBillingMonths,
-  adjustmentCoversPeriod,
   applyEnrollmentPriceAdjustment,
+  billingMonthInTimeZone,
   billingMonthKey,
   enumerateBillingMonths,
   mapPriceAdjustment,
   normalizeBillingMonth,
+  promoExpirationDate,
 } from './customerBillingPricing.js'
 import { normalizePromoCode } from '../scheduling/promoCodeRegistry.js'
 import { promoTargetsMembershipFee } from '../scheduling/discountEngine.js'
@@ -188,8 +189,8 @@ async function resolvePromoAdjustment(pool, context, rawCode, requestedFrom, req
     throw new Error('This household has reached the promotional code redemption limit.')
   }
 
-  const ruleFrom = rule.starts_at ? normalizeBillingMonth(rule.starts_at) : null
-  const ruleThrough = rule.ends_at ? normalizeBillingMonth(rule.ends_at) : null
+  const ruleFrom = rule.starts_at ? billingMonthInTimeZone(rule.starts_at) : null
+  const ruleThrough = rule.ends_at ? billingMonthInTimeZone(rule.ends_at) : null
   const effectiveFrom = maxMonth(requestedFrom, ruleFrom)
   const effectiveThrough = minMonth(requestedThrough, ruleThrough)
   if (effectiveThrough && effectiveThrough < effectiveFrom) {
@@ -209,11 +210,15 @@ async function resolvePromoAdjustment(pool, context, rawCode, requestedFrom, req
       amountValue: Number(rule.amount_value),
       applyTo: rule.apply_to,
       calcBase: rule.calc_base,
+      priority: Number(rule.priority ?? 100),
+      stackable: rule.stackable !== false,
+      exclusivityGroup: rule.exclusivity_group ?? null,
       maxDiscountCents: rule.max_discount_cents == null ? null : Number(rule.max_discount_cents),
       scopeLevel: rule.scope_level,
       scopeRefId: rule.scope_ref_id == null ? null : Number(rule.scope_ref_id),
       startsAt: rule.starts_at ?? null,
       endsAt: rule.ends_at ?? null,
+      expiresOn: promoExpirationDate(rule.ends_at),
       config,
     },
   }
@@ -330,21 +335,33 @@ export async function previewEnrollmentPriceAdjustment(pool, {
   const postedByPeriod = new Map(postedResult.rows.map((row) => [row.period_key, Number(row.amount_cents)]))
   const hypothetical = {
     id: -1,
+    signup_id: Number(context.signup_id),
     kind: normalized.kind,
     final_price_cents: normalized.finalPriceCents,
     promo_code: normalized.promo?.code ?? null,
+    discount_rule_id: normalized.promo?.snapshot?.id ?? null,
     discount_rule_snapshot: normalized.promo?.snapshot ?? null,
+    effective_from_month: normalized.effectiveFrom,
+    effective_through_month: normalized.effectiveThrough,
+    status: 'pending_sync',
   }
 
   const months = []
   for (const periodKey of periodKeys) {
-    const priced = await priceRecurringPeriod(pool, {
+    const baselinePricing = await priceRecurringPeriod(pool, {
       familyId: context.family_id,
       subscriptions: periodInputs.subscriptions,
       charges: periodInputs.charges,
       periodKey,
     })
-    const baseline = priced.lines.find(
+    const adjustedPricing = await priceRecurringPeriod(pool, {
+      familyId: context.family_id,
+      subscriptions: periodInputs.subscriptions,
+      charges: periodInputs.charges,
+      periodKey,
+      proposedAdjustments: [hypothetical],
+    })
+    const baseline = baselinePricing.lines.find(
       (line) => Number(line.subscriptionId) === Number(context.billing_subscription_id),
     ) ?? {
       subscriptionId: Number(context.billing_subscription_id),
@@ -353,7 +370,9 @@ export async function previewEnrollmentPriceAdjustment(pool, {
       discountCents: Number(context.discount_amount_cents),
       netCents: Number(context.net_monthly_cents),
     }
-    const adjusted = applyEnrollmentPriceAdjustment(baseline, hypothetical)
+    const adjusted = adjustedPricing.lines.find(
+      (line) => Number(line.subscriptionId) === Number(context.billing_subscription_id),
+    ) ?? applyEnrollmentPriceAdjustment(baseline, hypothetical)
     const postedAmount = postedByPeriod.get(periodKey)
     const retroactiveDifferenceCents =
       periodKey <= currentMonth && postedAmount != null ? adjusted.netCents - postedAmount : 0
@@ -364,7 +383,8 @@ export async function previewEnrollmentPriceAdjustment(pool, {
       automaticNetCents: adjusted.automaticNetCents,
       manualAdjustmentCents: adjusted.manualAdjustmentCents,
       adjustedCostCents: adjusted.netCents,
-      householdNetCents: priced.netCents - baseline.netCents + adjusted.netCents,
+      discountComponents: adjusted.discountComponents ?? [],
+      householdNetCents: adjustedPricing.netCents,
       postedAmountCents: postedAmount ?? null,
       retroactive: periodKey <= currentMonth,
       retroactiveDifferenceCents,
@@ -726,6 +746,63 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
   )
   let adjustment = existing.rows[0]
   if (!adjustment) throw new Error('Price adjustment was not found.')
+  if (adjustment.status === 'active') {
+    if (!adjustment.billing_subscription_id) {
+      throw new Error('This price change is not connected to a recurring billing subscription.')
+    }
+    const subscription = await pool.query(
+      `SELECT price_sync_status FROM billing_subscription WHERE id = $1`,
+      [adjustment.billing_subscription_id],
+    ).then((result) => result.rows[0])
+    if (subscription?.price_sync_status !== 'failed') {
+      throw new Error('This active price change does not need Stripe synchronization.')
+    }
+    const context = await loadEnrollmentPriceContext(pool, adjustment.signup_id, facilityId)
+    const synced = await syncEnrollmentStripePriceSchedule(pool, adjustment.billing_subscription_id)
+    if (synced.status !== 'synced') {
+      const reason = String(synced.reason ?? 'Stripe price schedule was not synchronized.').slice(0, 1000)
+      adjustment = await pool.query(
+        `UPDATE enrollment_price_adjustment
+         SET stripe_sync_error = $2 WHERE id = $1 RETURNING *`,
+        [adjustment.id, reason],
+      ).then((result) => result.rows[0])
+      await recordBillingActivity(pool, {
+        accountId: context.family_billing_account_id,
+        memberId: context.member_id,
+        signupId: context.signup_id,
+        eventType: 'enrollment_price_sync_retry_failed',
+        summary: `Stripe synchronization was retried for ${context.class_name}, but it still failed.`,
+        afterValue: mapPriceAdjustment(adjustment),
+        details: { reason },
+        actorUserId,
+      })
+      return {
+        adjustment: mapPriceAdjustment(adjustment),
+        preview: parseJson(adjustment.preview_snapshot),
+        retroactiveEntries: [],
+      }
+    }
+    adjustment = await pool.query(
+      `UPDATE enrollment_price_adjustment
+       SET stripe_synced_at = now(), stripe_sync_error = NULL
+       WHERE id = $1 RETURNING *`,
+      [adjustment.id],
+    ).then((result) => result.rows[0])
+    await recordBillingActivity(pool, {
+      accountId: context.family_billing_account_id,
+      memberId: context.member_id,
+      signupId: context.signup_id,
+      eventType: 'enrollment_price_sync_retry_succeeded',
+      summary: `Stripe synchronization succeeded for ${context.class_name}.`,
+      afterValue: mapPriceAdjustment(adjustment),
+      actorUserId,
+    })
+    return {
+      adjustment: mapPriceAdjustment(adjustment),
+      preview: parseJson(adjustment.preview_snapshot),
+      retroactiveEntries: [],
+    }
+  }
   if (adjustment.status !== 'sync_failed') {
     throw new Error('Only a failed price synchronization can be retried.')
   }
@@ -810,11 +887,21 @@ async function buildRevocationCorrections(pool, adjustment) {
       charges: periodInputs.charges,
       periodKey,
     })
+    const withoutAdjustment = await priceRecurringPeriod(pool, {
+      familyId: context.family_id,
+      subscriptions: periodInputs.subscriptions,
+      charges: periodInputs.charges,
+      periodKey,
+      excludedAdjustmentIds: [adjustment.id],
+    })
     const line = priced.lines.find(
       (candidate) => Number(candidate.subscriptionId) === Number(adjustment.billing_subscription_id),
     )
     if (!line || Number(line.priceAdjustmentId) !== Number(adjustment.id)) continue
-    const amountCents = Number(line.automaticNetCents ?? line.netCents) - Number(line.netCents)
+    const replacement = withoutAdjustment.lines.find(
+      (candidate) => Number(candidate.subscriptionId) === Number(adjustment.billing_subscription_id),
+    )
+    const amountCents = Number(replacement?.netCents ?? line.grossCents) - Number(line.netCents)
     if (amountCents !== 0) corrections.push({ periodKey, amountCents })
   }
   return { context, corrections }

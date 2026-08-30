@@ -136,8 +136,8 @@ test('legacy promo attribution is corrected with a revoked and linked replacemen
   })
   assert.deepEqual(calls.revoked, [[1, null, 'Promo attribution corrected to 50OFFVORTEX26']])
   assert.equal(calls.inserted[0][4], '50OFFVORTEX26')
-  assert.equal(calls.inserted[0][10], 'Original enrollment used promo code 50OFFVORTEX26')
-  assert.equal(calls.inserted[0][12], 1)
+  assert.equal(calls.inserted[0][11], 'Original enrollment used promo code 50OFFVORTEX26')
+  assert.equal(calls.inserted[0][13], 1)
   assert.equal(calls.activity.length, 1)
 })
 

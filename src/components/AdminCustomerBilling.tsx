@@ -94,13 +94,12 @@ function discountComponentDetail(component: BillingDiscountComponent) {
     : null
 
   if (component.type === 'promo_code') {
-    details.push(component.promoCode ? `Promo code ${component.promoCode}` : 'Promo code')
+    if (component.promoCode) details.push(component.promoCode)
   } else if (component.source === 'automatic') {
     details.push(component.type === 'spend_volume' ? 'Automatic household tier' : 'Automatic discount')
   } else if (component.source === 'manual') {
     details.push('Enrollment discount')
   }
-  if (percent) details.push(`${percent} off`)
   if (
     component.qualifiedClassCount != null &&
     component.qualifyingSubtotalCents != null
@@ -112,6 +111,20 @@ function discountComponentDetail(component: BillingDiscountComponent) {
     details.push(component.qualifiedLabel)
   }
   return details.join(' · ')
+}
+
+function discountComponentLabel(component: BillingDiscountComponent) {
+  const percent = component.amountType === 'percent'
+    ? discountPercent(component.amountValue)
+    : null
+  if (component.type === 'promo_code') {
+    const expiration = component.expiresOn || component.endsAt?.slice(0, 10)
+    return `${percent ? `${percent} Discount` : component.name}${expiration ? ` until ${expiration}` : ''}`
+  }
+  if (percent && component.type === 'spend_volume' && !component.name.startsWith(percent)) {
+    return `${percent} ${component.name}`
+  }
+  return component.name
 }
 
 function DiscountBreakdown({
@@ -140,7 +153,7 @@ function DiscountBreakdown({
         return (
           <div key={`${component.ruleId ?? component.name}-${index}`}>
             <div className="flex justify-between gap-3 text-gray-700">
-              <span className="text-left">{component.name}</span>
+              <span className="text-left">{discountComponentLabel(component)}</span>
               <span className="shrink-0 text-emerald-700">−{money(component.amountCents)}</span>
             </div>
             {detail ? <div className="text-right text-[11px] text-gray-400">{detail}</div> : null}
@@ -235,7 +248,14 @@ function EnrollmentSection({
                   const liveAdjustments = enrollment.priceAdjustments.filter((item) => item.status !== 'revoked')
                   const currentAdjustment = enrollment.activePriceAdjustment
                   const failedAdjustment = liveAdjustments.find((item) => item.status === 'sync_failed') ?? null
-                  const scheduledAdjustments = liveAdjustments.filter((item) => item.id !== currentAdjustment?.id)
+                  const scheduledAdjustments = liveAdjustments.filter(
+                    (item) =>
+                      item.id !== currentAdjustment?.id &&
+                      (
+                        ['pending_sync', 'sync_failed'].includes(item.status) ||
+                        item.effectiveFromMonth.slice(0, 7) > enrollment.pricingMonth.slice(0, 7)
+                      ),
+                  )
                   const priceChangePending = liveAdjustments.some((item) => ['pending_sync', 'sync_failed'].includes(item.status))
                   return (
                     <tr key={`${enrollment.source}-${enrollment.id}`} className="border-t border-gray-100 align-top">
@@ -247,18 +267,17 @@ function EnrollmentSection({
                       <td className="px-4 py-3 text-right font-medium text-gray-700">{money(enrollment.classCostCents)}</td>
                       <td className="px-4 py-3 text-right text-xs">
                         <DiscountBreakdown totalCents={enrollment.automaticDiscountCents} components={enrollment.automaticDiscountComponents} />
-                        {currentAdjustment && currentAdjustment.kind === 'legacy_discount' ? <div className="text-blue-700">Legacy manual adjustment · included above</div> : null}
-                        {currentAdjustment && currentAdjustment.kind !== 'legacy_discount' && enrollment.status === 'paused' ? <div className="text-blue-700">Stored {currentAdjustment.kind === 'promo_code' ? `code ${currentAdjustment.promoCode}` : `final ${money(currentAdjustment.finalPriceCents)}`} · resumes with billing</div> : null}
-                        {currentAdjustment && currentAdjustment.kind !== 'legacy_discount' && enrollment.status !== 'paused' ? <div className={enrollment.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}>{currentAdjustment.kind === 'promo_code' ? currentAdjustment.promoCode : 'Manual final'} {enrollment.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(enrollment.manualAdjustmentCents))}</div> : null}
-                        {currentAdjustment ? <div className="mt-1 text-gray-400">{monthLabel(currentAdjustment.effectiveFromMonth)} – {monthLabel(currentAdjustment.effectiveThroughMonth)} · current</div> : null}
-                        {scheduledAdjustments.map((adjustment) => <div key={adjustment.id} className="mt-1 text-blue-700">{adjustment.kind === 'promo_code' ? `Code ${adjustment.promoCode}` : adjustment.kind === 'legacy_discount' ? 'Legacy adjustment' : `Final ${money(adjustment.finalPriceCents)}`} · {monthLabel(adjustment.effectiveFromMonth)} – {monthLabel(adjustment.effectiveThroughMonth)} · {adjustment.status.replaceAll('_', ' ')}</div>)}
+                        {currentAdjustment?.kind === 'fixed_final_price' && enrollment.status === 'paused' ? <div className="text-blue-700">Stored final price {money(currentAdjustment.finalPriceCents)} · resumes with billing</div> : null}
+                        {currentAdjustment?.kind === 'fixed_final_price' && enrollment.status !== 'paused' ? <div className={enrollment.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}>Manual final {enrollment.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(enrollment.manualAdjustmentCents))}</div> : null}
+                        {currentAdjustment?.kind === 'fixed_final_price' ? <div className="mt-1 text-gray-400">{monthLabel(currentAdjustment.effectiveFromMonth)} – {monthLabel(currentAdjustment.effectiveThroughMonth)} · current</div> : null}
+                        {scheduledAdjustments.map((adjustment) => <div key={adjustment.id} className="mt-1 text-blue-700">{['promo_code', 'legacy_discount'].includes(adjustment.kind) ? `Code ${adjustment.promoCode}` : `Final ${money(adjustment.finalPriceCents)}`} · {monthLabel(adjustment.effectiveFromMonth)} – {monthLabel(adjustment.effectiveThroughMonth)} · {adjustment.status.replaceAll('_', ' ')}</div>)}
                       </td>
                       <td className="px-4 py-3 text-right"><strong className="text-base text-gray-950">{money(enrollment.adjustedCostCents)}</strong><span className="block text-xs text-gray-400">per month</span></td>
                       <td className="px-4 py-3"><div className="flex flex-wrap gap-1"><Badge value={enrollment.status} />{enrollment.billing_status ? <Badge value={enrollment.billing_status} /> : null}<Badge value={enrollment.priceSyncStatus} />{failedAdjustment ? <Badge value="sync_failed" /> : null}</div><p className="mt-1 text-xs text-gray-500">Next bill {localDate(enrollment.nextBillDate)}{enrollment.stripeSubscriptionScheduleId ? ' · scheduled phases' : ''}</p>{(failedAdjustment?.stripeSyncError || enrollment.priceSyncError) ? <p className="mt-1 max-w-[180px] text-xs text-red-600">{failedAdjustment?.stripeSyncError || enrollment.priceSyncError}</p> : null}</td>
                       <td className="px-4 py-3 text-right">
                         {canManage && enrollment.source === 'scheduling' && enrollment.billingType !== 'one_time' ? (
                           <div className="flex justify-end gap-2">
-                            {liveAdjustments.filter((adjustment) => adjustment.kind !== 'legacy_discount').map((adjustment) => <Fragment key={adjustment.id}>{adjustment.status === 'sync_failed' ? <button type="button" onClick={() => onRetrySync(adjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry sync</button> : null}<button type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>Revoke</button></Fragment>)}
+                            {liveAdjustments.map((adjustment) => <Fragment key={adjustment.id}>{adjustment.status === 'sync_failed' || (adjustment.id === currentAdjustment?.id && enrollment.priceSyncStatus === 'failed') ? <button type="button" onClick={() => onRetrySync(adjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry sync</button> : null}<button type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>{['promo_code', 'legacy_discount'].includes(adjustment.kind) ? 'Remove code' : 'Revoke'}</button></Fragment>)}
                             <button type="button" onClick={() => onChangePrice(enrollment)} disabled={priceChangePending} title={priceChangePending ? 'Resolve the pending Stripe synchronization first.' : undefined} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"><PencilLine className="h-3.5 w-3.5" /> Change price</button>
                           </div>
                         ) : <span className="text-xs text-gray-400">Read only</span>}
@@ -293,9 +312,9 @@ function RecurringSection({ subscriptions, householdTotals, filteredTotals, filt
         {subscriptions.map((subscription) => (
           <div key={subscription.id} className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
             <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong className="truncate text-gray-950">{subscription.description}</strong><Badge value={subscription.status} /><Badge value={subscription.priceSyncStatus} /></div><div className="mt-1 text-xs text-gray-500">{subscription.memberName || 'Household'} · Next {localDate(subscription.nextBillDate)}{subscription.stripeSubscriptionScheduleId ? ' · Effective-dated Stripe schedule' : ''}</div>{subscription.priceSyncError ? <div className="mt-1 text-xs text-red-600">{subscription.priceSyncError}</div> : null}</div>
-            <div className="text-sm text-gray-600"><div className="mb-1 text-right">List {money(subscription.monthlyAmountCents)}</div><DiscountBreakdown totalCents={subscription.automaticDiscountCents} components={subscription.automaticDiscountComponents} />{subscription.activePriceAdjustment?.kind === 'legacy_discount' ? <div className="text-right text-blue-700">Legacy manual adjustment · included above</div> : null}{subscription.activePriceAdjustment && subscription.activePriceAdjustment.kind !== 'legacy_discount' ? <div className={`text-right ${subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}`}>{subscription.activePriceAdjustment.promoCode || 'Manual price'} {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
+            <div className="text-sm text-gray-600"><div className="mb-1 text-right">List {money(subscription.monthlyAmountCents)}</div><DiscountBreakdown totalCents={subscription.automaticDiscountCents} components={subscription.automaticDiscountComponents} />{subscription.activePriceAdjustment?.kind === 'fixed_final_price' ? <div className={`text-right ${subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}`}>Manual final {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
             <div className="text-right"><strong className="text-lg text-gray-950">{money(subscription.netMonthlyCents)}</strong><span className="block text-xs text-gray-400">per month</span></div>
-            {subscription.scheduledPriceAdjustments.length > 0 ? <div className="md:col-span-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Scheduled: {subscription.scheduledPriceAdjustments.map((adjustment) => `${adjustment.promoCode || money(adjustment.finalPriceCents)} from ${monthLabel(adjustment.effectiveFromMonth)} through ${monthLabel(adjustment.effectiveThroughMonth)} (${adjustment.status.replaceAll('_', ' ')})`).join(' · ')}</div> : null}
+            {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).length > 0 ? <div className="md:col-span-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Scheduled: {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).map((adjustment) => `${adjustment.promoCode || money(adjustment.finalPriceCents)} from ${monthLabel(adjustment.effectiveFromMonth)} through ${monthLabel(adjustment.effectiveThroughMonth)} (${adjustment.status.replaceAll('_', ' ')})`).join(' · ')}</div> : null}
           </div>
         ))}
         {subscriptions.length === 0 ? <div className="px-5 py-8 text-center text-gray-500">No current recurring charges.</div> : null}
