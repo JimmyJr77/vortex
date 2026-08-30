@@ -33,7 +33,6 @@ import type {
   CustomerBillingEnrollment,
   CustomerBillingOverview,
   CustomerBillingSearchResult,
-  CustomerBillingSubscription,
   PriceAdjustment,
 } from './customerBilling/types'
 
@@ -259,14 +258,11 @@ function EnrollmentSection({
         </summary>
         <div className="border-t border-gray-200">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1300px] text-sm">
+            <table className="w-full min-w-[1180px] text-sm">
               <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="px-4 py-3">Member / class</th>
-                  <th className="px-4 py-3">Sport / program</th>
-                  <th className="px-4 py-3">Active dates</th>
-                  <th className="px-4 py-3">Enrollment start</th>
-                  <th className="px-4 py-3">Schedule</th>
+                  <th className="px-4 py-3">Class</th>
+                  <th className="px-4 py-3">Class Schedule</th>
                   <th className="px-4 py-3 text-right">Class cost</th>
                   <th className="px-4 py-3 text-right">Discounts</th>
                   <th className="px-4 py-3 text-right">Final price</th>
@@ -297,11 +293,20 @@ function EnrollmentSection({
                   )
                   return (
                     <tr key={`${enrollment.source}-${enrollment.id}`} className="border-t border-gray-100 align-top">
-                      <td className="px-4 py-3"><strong className="block text-gray-950">{enrollment.memberName}</strong><span className="block max-w-[230px] text-gray-600">{enrollment.class_name || 'Class'}</span><span className="text-xs text-gray-400">Enrollment #{enrollment.id}</span></td>
-                      <td className="px-4 py-3 text-gray-600"><span className="block">{enrollment.sport_name || '—'}</span><span className="block text-xs text-gray-500">{enrollment.program_name || '—'}</span></td>
-                      <td className="px-4 py-3 text-gray-600">{enrollment.offering_dates || 'Evergreen'}</td>
-                      <td className="px-4 py-3 text-gray-600">{localDate(enrollment.enrollment_start_date || enrollment.created_at)}</td>
-                      <td className="px-4 py-3 text-gray-600">{enrollment.schedule || '—'}</td>
+                      <td className="min-w-[250px] px-4 py-3">
+                        <div className="font-semibold text-gray-950">
+                          {enrollment.class_name || 'Class'}
+                          <span className="font-normal text-gray-400"> · Enrollment #{enrollment.id}</span>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}
+                        </div>
+                      </td>
+                      <td className="min-w-[320px] px-4 py-3 text-gray-600">
+                        <div><span className="font-semibold text-gray-700">Active Class Dates:</span> {enrollment.offering_dates || 'Evergreen'}</div>
+                        <div className="mt-1"><span className="font-semibold text-gray-700">Enrollment Start Date:</span> {localDate(enrollment.enrollment_start_date || enrollment.created_at)}</div>
+                        <div className="mt-1"><span className="font-semibold text-gray-700">Schedule:</span> {enrollment.schedule || '—'}</div>
+                      </td>
                       <td className="px-4 py-3 text-right font-medium text-gray-700">{money(enrollment.classCostCents)}</td>
                       <td className="px-4 py-3 text-right text-xs">
                         <DiscountBreakdown totalCents={enrollment.automaticDiscountCents} components={enrollment.automaticDiscountComponents} />
@@ -339,7 +344,7 @@ function EnrollmentSection({
                     </tr>
                   )
                 })}
-                {enrollments.length === 0 ? <tr><td colSpan={10} className="px-5 py-8 text-center text-gray-500">No current or upcoming billable enrollments.</td></tr> : null}
+                {enrollments.length === 0 ? <tr><td colSpan={7} className="px-5 py-8 text-center text-gray-500">No current or upcoming billable enrollments.</td></tr> : null}
               </tbody>
             </table>
           </div>
@@ -351,40 +356,6 @@ function EnrollmentSection({
           <div className="grid gap-2 border-t border-gray-100 p-4 sm:grid-cols-2 xl:grid-cols-3">{waitlists.map((row) => <div key={row.id} className="rounded-lg border border-gray-200 p-3 text-sm"><strong>{row.memberName}</strong><div className="text-gray-600">{row.class_name}</div><div className="mt-1 text-xs text-gray-500">{row.schedule} · Enrollment #{row.id}</div></div>)}</div>
         </details>
       ) : null}
-    </section>
-  )
-}
-
-function RecurringSection({ subscriptions, householdTotals, filteredTotals, filterLabel }: { subscriptions: CustomerBillingSubscription[]; householdTotals: CustomerBillingOverview['summary']['monthlyTotals']; filteredTotals: CustomerBillingOverview['summary']['monthlyTotals']; filterLabel: string | null }) {
-  return (
-    <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
-        <div><h2 className="text-lg font-bold text-gray-950">Monthly recurring charges & discounts</h2><p className="text-sm text-gray-500">Resolved from the same period pricing used by the monthly charge generator.</p></div>
-        <div className="flex gap-6 text-right">{filterLabel ? <div><div className="text-xs font-semibold uppercase tracking-wide text-vortex-red">{filterLabel} total</div><div className="text-xl font-bold text-vortex-red">{money(filteredTotals.netCents)}<span className="text-sm font-medium">/mo</span></div></div> : null}<div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Household total</div><div className="text-xl font-bold">{money(householdTotals.netCents)}<span className="text-sm font-medium text-gray-500">/mo</span></div></div></div>
-      </div>
-      <div className="divide-y divide-gray-100">
-        {subscriptions.map((subscription) => (
-          <div key={subscription.id} className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <strong className="truncate text-gray-950">{subscription.description}</strong>
-                <Badge value={subscription.status} />
-                <Badge value={subscription.priceSyncStatus} label={subscription.priceSyncStatus === 'failed' ? 'Stripe sync failed' : undefined} />
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                {subscription.memberName || 'Household'} · Next {calendarDate(subscription.nextBillDate)}
-                {subscription.stripeSubscriptionScheduleId ? ' · Effective-dated Stripe schedule' : ''}
-              </div>
-              {subscription.priceSyncError ? <StripeSyncFailure error={subscription.priceSyncError} /> : null}
-            </div>
-            <div className="text-sm text-gray-600"><div className="mb-1 text-right">List {money(subscription.monthlyAmountCents)}</div><DiscountBreakdown totalCents={subscription.automaticDiscountCents} components={subscription.automaticDiscountComponents} />{subscription.activePriceAdjustment?.kind === 'fixed_final_price' ? <div className={`text-right ${subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}`}>Manual final {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
-            <div className="text-right"><strong className="text-lg text-gray-950">{money(subscription.netMonthlyCents)}</strong><span className="block text-xs text-gray-400">per month</span></div>
-            {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).length > 0 ? <div className="md:col-span-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Scheduled: {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).map((adjustment) => `${adjustment.promoCode || money(adjustment.finalPriceCents)} from ${monthLabel(adjustment.effectiveFromMonth)} through ${monthLabel(adjustment.effectiveThroughMonth)} (${adjustment.status.replaceAll('_', ' ')})`).join(' · ')}</div> : null}
-          </div>
-        ))}
-        {subscriptions.length === 0 ? <div className="px-5 py-8 text-center text-gray-500">No current recurring charges.</div> : null}
-      </div>
-      <div className="grid grid-cols-3 gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4 text-sm"><div><span className="block text-xs text-gray-500">{filterLabel ? 'Filtered gross' : 'Gross'}</span><strong>{money(filteredTotals.grossCents)}</strong></div><div><span className="block text-xs text-gray-500">{filterLabel ? 'Filtered discounts' : 'Discounts'}</span><strong className="text-emerald-700">−{money(filteredTotals.discountCents)}</strong></div><div className="text-right"><span className="block text-xs text-gray-500">{filterLabel ? 'Filtered net monthly' : 'Net monthly'}</span><strong>{money(filteredTotals.netCents)}</strong></div></div>
     </section>
   )
 }
@@ -705,23 +676,6 @@ export default function AdminCustomerBilling() {
     () => overview?.waitlists.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
     [overview, selectedMemberId],
   )
-  const visibleSubscriptions = useMemo(
-    () => overview?.subscriptions.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
-    [overview, selectedMemberId],
-  )
-  const filteredMonthlyTotals = useMemo(
-    () => visibleSubscriptions
-      .filter((subscription) => subscription.status === 'active')
-      .reduce((totals, subscription) => ({
-        grossCents: totals.grossCents + subscription.monthlyAmountCents,
-        discountCents: totals.discountCents + subscription.discountAmountCents,
-        netCents: totals.netCents + subscription.netMonthlyCents,
-      }), { grossCents: 0, discountCents: 0, netCents: 0 }),
-    [visibleSubscriptions],
-  )
-  const selectedMemberName = selectedMemberId == null
-    ? null
-    : overview?.members.find((member) => member.id === selectedMemberId)?.name ?? 'Selected member'
   const refundableCharges = useMemo(
     () => transactions.filter((row) => row.entryKind === 'charge' && row.amountCents > 0),
     [transactions],
@@ -967,7 +921,6 @@ export default function AdminCustomerBilling() {
           </section>
 
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} />
-          <RecurringSection subscriptions={visibleSubscriptions} householdTotals={overview.summary.monthlyTotals} filteredTotals={filteredMonthlyTotals} filterLabel={selectedMemberName} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
