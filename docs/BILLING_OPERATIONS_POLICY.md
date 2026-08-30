@@ -97,6 +97,16 @@ Refund approval must include the existing exception category, evidence, reason, 
 
 Read access requires `billing.view`. Financial mutations require `billing.manage`; payer/contact changes require `family_billing.manage`; statements require `billing.statements.manage`. All checks are server-enforced.
 
+## 4B. Family class discounts and individual annual memberships
+
+Class pricing is resolved for the complete household before any member display filter is applied. Promotional tuition discounts apply first, followed by the family multi-class tier calculated from all eligible post-promo tuition. Annual memberships, waitlists, one-time classes, paused enrollments, and classes outside their effective dates neither qualify for nor receive the family class discount.
+
+Annual membership entitlement is individual even though the family billing account pays. Each selected member receives a separate membership charge, redemption, yearly Stripe subscription, membership date, renewal date, active state, and auto-renewal state. Cancelling auto-renewal changes only that member's yearly subscription and leaves access active through the paid-through date. Membership-specific promo codes remain separate from tuition discounts.
+
+A missing saved card does not remove an active athlete's local monthly billing schedule. Keep the schedule locally, open a payment-method-required alert, and create the remote Stripe subscription only after a reusable default payment method is available. Staff never use this repair workflow to collect catch-up charges.
+
+Posted charges are immutable. A verified historical under-discount is corrected with an idempotent credit linked to the original charge, and both rate repairs and credits must be recorded in billing activity. Run `npm --prefix backend run billing:audit-family-discounts -- --period=YYYY-MM` for a dry run; add `--apply` only after reviewing the account-scoped results.
+
 ## 5. Cancellation and proration
 
 ### Recurring memberships

@@ -35,11 +35,14 @@ test('records a renewal invoice once with Stripe identifiers', async () => {
     amount_paid: 15000,
     customer: 'cus_family',
     payment_intent: 'pi_renewal',
+    parent: { subscription_details: { subscription: 'sub_renewal' } },
     status_transitions: { paid_at: 1_800_000_000 },
   })
   assert.equal(payment.newly_inserted, true)
   const insert = calls.find((call) => call.sql.includes('INSERT INTO billing_payment'))
   assert.deepEqual(insert.params.slice(0, 4), [44, 15000, insert.params[2], 'Card'])
+  assert.equal(insert.params[7], 'sub_renewal')
+  assert.match(insert.sql, /stripe_subscription_id/)
   assert.match(insert.sql, /ON CONFLICT DO NOTHING/)
 })
 
@@ -57,5 +60,39 @@ test('subscription deletion cancels matching local subscriptions', async () => {
     'customer.subscription.deleted',
   )
   assert.deepEqual(result, { updated: 2, status: 'cancelled' })
-  assert.ok(calls.some((call) => call.sql.includes('UPDATE billing_subscription')))
+  const update = calls.find((call) => call.sql.includes('auto_renewal = $4'))
+  assert.ok(update)
+  assert.equal(update.params[3], false)
+})
+
+test('scheduled cancellation disables renewal without ending paid-through access', async () => {
+  const calls = []
+  const pool = {
+    query: async (sql, params) => {
+      calls.push({ sql: String(sql), params })
+      return { rows: [], rowCount: String(sql).includes('UPDATE billing_subscription') ? 1 : 0 }
+    },
+  }
+  const result = await syncStripeSubscriptionStatus(
+    pool,
+    {
+      id: 'sub_ending_later',
+      status: 'active',
+      cancel_at_period_end: true,
+      cancel_at: 1_830_297_600,
+      current_period_end: 1_830_297_600,
+    },
+    'customer.subscription.updated',
+  )
+
+  assert.deepEqual(result, { updated: 1, status: 'active' })
+  const update = calls.find((call) => call.sql.includes('UPDATE billing_subscription'))
+  assert.match(update.sql, /auto_renewal = \$4/)
+  assert.deepEqual(update.params, [
+    'sub_ending_later',
+    'active',
+    1_830_297_600,
+    false,
+    1_830_297_600,
+  ])
 })

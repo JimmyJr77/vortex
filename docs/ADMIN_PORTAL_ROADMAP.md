@@ -90,6 +90,11 @@ rules, caps (`discount_global_settings`), promo codes, and free passes; simulati
 admins preview. **Why:** transparent enrollment estimates without creating charges
 (`add_discount_engine.sql`: "estimate-only pricing").
 
+Recurring class pricing is resolved for the entire family before a member filter is applied.
+Tuition promos run first, then the family multi-class tier uses all eligible post-promo class
+tuition. Annual memberships, waitlists, one-time classes, paused enrollments, and out-of-period
+classes are excluded. Annual membership entitlements and yearly renewals remain member-specific.
+
 ### Multi-portal session sharing
 One person can be admin + coach + member. A shared JWT plus `persistAdminSessionFromAccount`
 mirrors a member login into admin keys; `PortalNavButtons` switches without re-auth.
@@ -132,7 +137,7 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Scheduling | `AdminScheduling.tsx` | Forms, Active dates (ensured for slots), timeslots, signups — no Offerings panel | `scheduling.view` |
 | Calendar | `scheduling/AdminCalendar.tsx` | Month/week/day/by-class calendar | `scheduling.view` |
 | Pricing | `AdminPricing.tsx` | Costs, discounts, free passes, rules, promo codes | `pricing.view` |
-| Customer Billing | `AdminCustomerBilling.tsx` | Household lookup, enrollment pricing, recurring totals, ledger/activity audit, custom collections, refunds, statements, billing contact and payment-method links | `billing.view` (writes use `billing.manage`, `family_billing.manage`, or `billing.statements.manage`) |
+| Customer Billing | `AdminCustomerBilling.tsx` | Household lookup, family-wide class pricing, individual annual memberships and auto-renewal, ledger/activity audit, custom collections, refunds, statements, billing contact and payment-method links | `billing.view` (writes use `billing.manage`, `family_billing.manage`, or `billing.statements.manage`) |
 | Billing | Operational billing components composed in `Admin.tsx` | Recovery alerts, disputes, cancellations, reconciliation, Stripe health, and operational queues | `billing.view` |
 | Waivers | `AdminWaivers.tsx` | Waiver templates + compliance + per-row/bulk waiver-request emails | `waivers.view` (send needs `waivers.manage`) |
 | Signups | `AdminSignups.tsx` | Roster, archived/orphaned signups, password reset | `scheduling.view` |
@@ -163,7 +168,7 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
 - **Access & coaches** (registerRoutes.js; `admin_access.manage` / `classes.manage`):
   `/api/admin/access/me|users|roles`, role/permission/active updates; `/api/admin/coaches`
   (+ options, profile, assignments).
-- **Customer Billing** ([backend/billing/customerBillingRoutes.js](../backend/billing/customerBillingRoutes.js); `billing.*`, `family_billing.manage`, `billing.statements.manage`): normalized individual/family search, household overview, effective-dated enrollment prices, paged transactions/activity, CSV export, exact custom collections, refund previews/treatments, and payment-method links. Existing statement, receipt, billing-contact, and Stripe operation services remain canonical.
+- **Customer Billing** ([backend/billing/customerBillingRoutes.js](../backend/billing/customerBillingRoutes.js); `billing.*`, `family_billing.manage`, `billing.statements.manage`): normalized individual/family search, household overview, whole-family effective class pricing, member-level annual memberships and auto-renewal, paged transactions/activity, CSV export, exact custom collections, refund previews/treatments, and payment-method links. [familyEnrollmentPricing.js](../backend/billing/familyEnrollmentPricing.js) remains household-scoped even when the response is filtered to one member. Existing statement, receipt, billing-contact, and Stripe operation services remain canonical.
 - **Billing operations & waivers** (registerRoutes.js; `billing.*`/`waivers.*`): recovery alerts,
   disputes, cancellations, reconciliation, charges, payments, statements, status; waiver templates + compliance.
 - **Portal navigation** (`GET/PUT /api/admin/portal-settings`; `admin_access.manage`): persists
@@ -218,7 +223,7 @@ Contact resolution: [backend/email/memberContact.js](../backend/email/memberCont
 | Programs / classes | `programs` (top-level), `program` (class template), `class`, `class_iteration` | `002`, `add_class_iteration_table`, `unify_programs_scheduling` |
 | Scheduling | `scheduling_form`, `scheduling_offering`, `scheduling_time_slot`, `scheduling_slot_group`, `scheduling_signup` (+ orphaned/waitlist) | `add_scheduling_*`, `refactor_scheduling_v2`; `scheduling_category`/`scheduling_form_category` removed in `033` |
 | Discount engine | `discount_rule`, `discount_global_settings`, `sport_pricing_default`, promo/redemption tables | `add_discount_engine`, `add_*_discount_*` |
-| Billing | `family_billing_account`, `billing_charge`, `billing_payment`, `billing_refund`, `billing_subscription`, `billing_statement`, `billing_statement_line`, `enrollment_price_adjustment`, `billing_payment_application`, `billing_account_activity` | `008`, `010`, `053`, `763` |
+| Billing | `family_billing_account`, `billing_charge`, `billing_payment`, `billing_refund`, `billing_subscription`, `billing_statement`, `billing_statement_line`, `enrollment_price_adjustment`, `billing_payment_application`, `billing_account_activity` | `008`, `010`, `053`, `763`, `768`, `769` |
 | Waivers | `waiver_template`, `member_waiver_acceptance` | `008` |
 | Email verification | `app_user.email_verified`/`email_verified_at`, `email_verification_token` | `040` |
 | Enrollment receipts | `enrollment_receipt_token` | `042` |

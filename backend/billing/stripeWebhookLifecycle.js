@@ -26,6 +26,19 @@ export function invoicePaymentIntentId(invoice) {
   return null
 }
 
+function subscriptionPeriodEnd(subscription) {
+  const trialEnd = Number(subscription?.trial_end)
+  if (String(subscription?.status ?? '') === 'trialing' && trialEnd > 0) return trialEnd
+
+  const directPeriodEnd = Number(subscription?.current_period_end)
+  const itemPeriodEnds = (subscription?.items?.data ?? [])
+    .map((item) => Number(item?.current_period_end))
+    .filter((value) => value > 0)
+  const periodEnd = Math.max(directPeriodEnd > 0 ? directPeriodEnd : 0, ...itemPeriodEnds)
+  if (periodEnd > 0) return periodEnd
+  return trialEnd > 0 ? trialEnd : null
+}
+
 async function resolveAccountId(pool, object) {
   const metadataId = Number(object?.metadata?.familyBillingAccountId)
   if (Number.isFinite(metadataId) && metadataId > 0) return metadataId
@@ -47,6 +60,7 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
 
   await ensureBillingStripeLinksSchema(pool)
   const paymentIntentId = invoicePaymentIntentId(invoice)
+  const subscriptionId = invoiceSubscriptionId(invoice)
   const amountCents = Math.round(Number(invoice.amount_paid ?? invoice.amount_due) || 0)
   if (amountCents <= 0) return null
 
@@ -61,9 +75,10 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
       INSERT INTO billing_payment
         (family_billing_account_id, amount_cents, paid_at, method, note,
          external_processor, external_reference, external_status,
-         stripe_customer_id, stripe_payment_intent_id, stripe_invoice_id)
+         stripe_customer_id, stripe_payment_intent_id, stripe_invoice_id,
+         stripe_subscription_id)
       VALUES ($1, $2, $3, $4, 'Stripe subscription renewal',
-              'stripe', $5, 'settled', $6, $7, $5)
+              'stripe', $5, 'settled', $6, $7, $5, $8)
       ON CONFLICT DO NOTHING
       RETURNING *
     `,
@@ -77,6 +92,7 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
       invoice.id,
       objectId(invoice.customer),
       paymentIntentId,
+      subscriptionId,
     ],
   )
   const payment = result.rows[0] ?? null
@@ -101,6 +117,12 @@ export async function syncStripeSubscriptionStatus(pool, subscription, eventType
   if (!localStatus) return { updated: 0, status: null }
 
   const endAt = subscription.ended_at || subscription.cancel_at || null
+  const nextBillAt = subscriptionPeriodEnd(subscription)
+  const autoRenewal = !(
+    localStatus === 'cancelled' ||
+    subscription.cancel_at_period_end === true ||
+    Number(subscription.cancel_at) > 0
+  )
   const result = await pool.query(
     `
       UPDATE billing_subscription
@@ -109,11 +131,23 @@ export async function syncStripeSubscriptionStatus(pool, subscription, eventType
             WHEN $2 = 'cancelled' THEN COALESCE(to_timestamp($3)::date, CURRENT_DATE)
             ELSE NULL
           END,
-          next_bill_date = CASE WHEN $2 = 'cancelled' THEN NULL ELSE next_bill_date END,
+          next_bill_date = CASE
+            WHEN (
+              source_type = 'annual_membership' OR
+              pricing_option_key = 'annual_membership'
+            ) AND $5::double precision IS NOT NULL
+              THEN to_timestamp($5::double precision)::date
+            WHEN $2 = 'cancelled' AND NOT (
+              source_type = 'annual_membership' OR
+              pricing_option_key = 'annual_membership'
+            ) THEN NULL
+            ELSE next_bill_date
+          END,
+          auto_renewal = $4,
           updated_at = now()
       WHERE stripe_subscription_id = $1
     `,
-    [subscription.id, localStatus, endAt],
+    [subscription.id, localStatus, endAt, autoRenewal, nextBillAt],
   )
   return { updated: result.rowCount ?? 0, status: localStatus }
 }

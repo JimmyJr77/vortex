@@ -732,7 +732,9 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
     })
 
     await pool.query(
-      `UPDATE billing_subscription SET stripe_subscription_id = $2, updated_at = now() WHERE id = $1`,
+      `UPDATE billing_subscription
+       SET stripe_subscription_id = $2, auto_renewal = TRUE, updated_at = now()
+       WHERE id = $1`,
       [billingSubId, stripeSub.id],
     )
     created.push({

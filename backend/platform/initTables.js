@@ -28,6 +28,8 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '765_restore_failed_customer_billing_promos.sql',
   '766_stackable_customer_billing_promos.sql',
   '767_remove_internal_customer_billing_sync_messages.sql',
+  '768_annual_membership_auto_renewal.sql',
+  '769_annual_membership_renewal_tracking.sql',
 ])
 
 function migrationChecksum(text) {

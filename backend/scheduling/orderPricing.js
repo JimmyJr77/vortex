@@ -519,9 +519,162 @@ function signupSortKey(entry, formRows) {
   ].join('\0')
 }
 
+function parseMemberPricingResponses(value) {
+  if (!value) return {}
+  if (typeof value === 'object') return value
+  try {
+    return JSON.parse(value)
+  } catch {
+    return {}
+  }
+}
+
+async function loadFamilyPricingMembers(pool, familyId) {
+  const result = await pool.query(
+    `SELECT member.id, member.billing_city, member.graduation_year, latest.responses
+     FROM member
+     LEFT JOIN LATERAL (
+       SELECT signup.responses
+       FROM scheduling_signup signup
+       WHERE signup.member_id = member.id AND signup.orphaned_at IS NULL
+       ORDER BY signup.created_at DESC, signup.id DESC
+       LIMIT 1
+     ) latest ON TRUE
+     WHERE member.family_id = $1
+       AND EXISTS (
+         SELECT 1
+         FROM scheduling_signup signup
+         WHERE signup.member_id = member.id
+           AND signup.orphaned_at IS NULL
+           AND signup.status IN ('confirmed', 'waitlisted')
+       )
+     ORDER BY member.id`,
+    [familyId],
+  )
+  return result.rows.map((member) => {
+    const responses = parseMemberPricingResponses(member.responses)
+    const graduationYear = member.graduation_year ?? responses.graduation_year ?? null
+    return {
+      id: Number(member.id),
+      context: {
+        familyId: Number(familyId),
+        city: member.billing_city ?? null,
+        school: responses.current_school ? String(responses.current_school).trim() : null,
+        graduationYear:
+          graduationYear == null || graduationYear === '' ? null : Number(graduationYear),
+      },
+    }
+  })
+}
+
+/**
+ * Resolve gross monthly lines for every currently enrolled athlete in a household.
+ * Each athlete's own marginal pricing is calculated independently, then the lines
+ * are combined before any family discount is evaluated. The internal preview calls
+ * disable household expansion to avoid recursion.
+ */
+export async function buildFamilyExistingEnrollmentPreviewLines(pool, {
+  familyId,
+  promoCodes = [],
+  pricingDate = Date.now(),
+} = {}) {
+  const normalizedFamilyId = Number(familyId)
+  if (!Number.isFinite(normalizedFamilyId)) return []
+
+  const members = await loadFamilyPricingMembers(pool, normalizedFamilyId)
+  const bySignupId = new Map()
+  for (const member of members) {
+    const preview = await buildSignupOrderPreview(pool, {
+      memberId: member.id,
+      newSignups: [],
+      promoCodes,
+      memberContext: member.context,
+      expandHouseholdExisting: false,
+      pricingDate,
+    })
+    const computedBySignup = new Map(
+      (preview?.discounts?.accountLines ?? [])
+        .filter((line) => line.signupId != null)
+        .map((line) => [Number(line.signupId), line]),
+    )
+    for (const enrollment of preview?.existingClasses ?? []) {
+      if (
+        enrollment.id == null ||
+        Number(enrollment.memberId) !== member.id ||
+        enrollment.status !== 'confirmed'
+      ) {
+        continue
+      }
+      const computed = computedBySignup.get(Number(enrollment.id)) ?? {}
+      const baseCents = Math.max(
+        0,
+        Math.round(
+          Number(computed.baseCents ?? computed.listCents) ||
+          Number(enrollment.monthlyPrice || 0) * 100,
+        ),
+      )
+      if (baseCents <= 0) continue
+      bySignupId.set(Number(enrollment.id), {
+        ...computed,
+        key: `family-existing-${enrollment.id}`,
+        signupId: Number(enrollment.id),
+        formId: Number(enrollment.formId),
+        programId: computed.programId ?? enrollment.programsId ?? null,
+        sportId: computed.sportId ?? null,
+        offeringId: computed.offeringId ?? null,
+        memberId: member.id,
+        familyId: normalizedFamilyId,
+        memberCity: member.context.city,
+        memberSchool: member.context.school,
+        memberGraduationYear: member.context.graduationYear,
+        baseCents,
+        listCents: baseCents,
+        finalCents: baseCents,
+        includeInSubtotal: false,
+        shadowOnly: true,
+      })
+    }
+  }
+
+  if (bySignupId.size === 0) return []
+  const formRows = await pool.query(
+    `SELECT id, programs_id FROM scheduling_form WHERE id = ANY($1::int[])`,
+    [[...new Set([...bySignupId.values()].map((line) => Number(line.formId)))]],
+  )
+  const formById = new Map(formRows.rows.map((row) => [Number(row.id), row]))
+  for (const line of bySignupId.values()) {
+    const form = formById.get(Number(line.formId))
+    line.programId = line.programId ?? (form?.programs_id != null ? Number(form.programs_id) : null)
+    try {
+      const benefits = await resolveLineCostBenefits(
+        pool,
+        {
+          sportId: line.sportId,
+          programId: line.programId,
+          formId: line.formId,
+          programPromoCodes: [],
+        },
+        [],
+      )
+      Object.assign(line, benefits)
+    } catch {
+      // Pricing benefit tables are optional in older deployments. Global rules
+      // remain eligible when no explicit cost-level selection can be loaded.
+    }
+  }
+  return [...bySignupId.values()].sort((left, right) => left.signupId - right.signupId)
+}
+
 export async function buildSignupOrderPreview(
   pool,
-  { memberId, newSignups = [], promoCodes = [], memberContext = null },
+  {
+    memberId,
+    newSignups = [],
+    promoCodes = [],
+    memberContext = null,
+    expandHouseholdExisting = true,
+    pricingDate = Date.now(),
+  },
 ) {
   const slotSignups = []
   const passPurchases = []
@@ -904,7 +1057,8 @@ export async function buildSignupOrderPreview(
     existingEnrollments: existing,
   })
 
-  const previewExistingLines = existing
+  let previewExistingLines = existing
+    .filter((entry) => entry.status === 'confirmed')
     .map((entry) => {
       const monthly = existingPriceById.get(entry.id) ?? 0
       if (monthly <= 0) return null
@@ -927,6 +1081,19 @@ export async function buildSignupOrderPreview(
     })
     .filter(Boolean)
 
+  if (expandHouseholdExisting && familyId != null) {
+    try {
+      const familyLines = await buildFamilyExistingEnrollmentPreviewLines(pool, {
+        familyId,
+        promoCodes,
+        pricingDate,
+      })
+      if (familyLines.length > 0) previewExistingLines = familyLines
+    } catch (error) {
+      console.warn('[scheduling] family enrollment pricing unavailable:', error?.message ?? error)
+    }
+  }
+
   const discounts = await computeDiscountLayer(pool, {
     memberId,
     newSignupItems: freePasses.adjustedSignupItems,
@@ -936,6 +1103,7 @@ export async function buildSignupOrderPreview(
     promoCodes,
     memberContext,
     previewExistingLines,
+    pricingDate,
   })
 
   const householdListCentsBySignupId = new Map()

@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  buildCustomerBillingAnnualMemberships,
   customerFacingPriceSyncError,
   earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
@@ -8,6 +9,153 @@ import {
   listCustomerBillingTransactions,
   recurringPricingForPeriod,
 } from '../customerBillingQueries.js'
+
+test('annual membership rows use the paid date and active Stripe renewal', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'active',
+      start_date: '2026-08-27',
+      next_bill_date: '2027-09-01',
+      stripe_subscription_id: 'sub_membership',
+      auto_renewal: true,
+      latest_renewal_paid_at: '2027-09-01T13:00:00.000Z',
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    charges: [{
+      member_id: 73,
+      source_id: '1:73:2027-08-27',
+      created_at: '2026-08-27T03:46:58.000Z',
+      paid_at: '2026-08-27T03:45:00.000Z',
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.deepEqual(rows, [{
+    memberId: 73,
+    memberName: 'Alexis Barnett',
+    billingSubscriptionId: 21,
+    active: true,
+    membershipDate: '2027-09-01T13:00:00.000Z',
+    renewalDate: '2027-09-01',
+    autoRenewal: true,
+    canManageAutoRenewal: true,
+  }])
+})
+
+test('scheduled cancellation keeps membership active but disables auto-renewal', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'active',
+      start_date: '2026-08-27',
+      next_bill_date: '2027-09-01',
+      stripe_subscription_id: 'sub_membership',
+      auto_renewal: false,
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.equal(rows[0].active, true)
+  assert.equal(rows[0].autoRenewal, false)
+  assert.equal(rows[0].renewalDate, '2027-09-01')
+})
+
+test('cancelled renewal remains active through its paid-through date', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'cancelled',
+      start_date: '2026-08-27',
+      next_bill_date: '2028-09-01',
+      stripe_subscription_id: 'sub_membership',
+      auto_renewal: false,
+      latest_renewal_paid_at: '2027-09-01T13:00:00.000Z',
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    asOf: new Date('2027-09-10T12:00:00.000Z'),
+  })
+
+  assert.deepEqual(rows[0], {
+    memberId: 73,
+    memberName: 'Alexis Barnett',
+    billingSubscriptionId: 21,
+    active: true,
+    membershipDate: '2027-09-01T13:00:00.000Z',
+    renewalDate: '2028-09-01',
+    autoRenewal: false,
+    canManageAutoRenewal: false,
+  })
+})
+
+test('cancelled auto-renewal preserves paid-through membership access', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [
+      { id: 73, name: 'Alexis Barnett' },
+      { id: 74, name: 'Zechariah Sherrill' },
+    ],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'cancelled',
+      start_date: '2026-08-27',
+      next_bill_date: null,
+      stripe_subscription_id: 'sub_cancelled',
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    charges: [{
+      member_id: 73,
+      source_id: '1:73:2027-08-27',
+      created_at: '2026-08-27T03:46:58.000Z',
+      paid_at: null,
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.deepEqual(rows, [
+    {
+      memberId: 73,
+      memberName: 'Alexis Barnett',
+      billingSubscriptionId: 21,
+      active: true,
+      membershipDate: '2026-08-27T03:46:58.000Z',
+      renewalDate: '2027-08-27',
+      autoRenewal: false,
+      canManageAutoRenewal: false,
+    },
+    {
+      memberId: 74,
+      memberName: 'Zechariah Sherrill',
+      billingSubscriptionId: null,
+      active: false,
+      membershipDate: null,
+      renewalDate: null,
+      autoRenewal: false,
+      canManageAutoRenewal: false,
+    },
+  ])
+})
 
 test('internal migration instructions are not exposed as Stripe errors', () => {
   assert.equal(

@@ -52,6 +52,7 @@ export async function ensureBillingRecurringSchema(pool) {
   await runMigrationFile(pool, '../migrations/053_billing_recurring_model.sql')
   await runMigrationFile(pool, '../migrations/054_billing_anchor_first.sql')
   await runMigrationFile(pool, '../migrations/055_enrollment_cancel_effective.sql')
+  await runMigrationFile(pool, '../migrations/768_annual_membership_auto_renewal.sql')
   recurringSchemaEnsured = true
 }
 

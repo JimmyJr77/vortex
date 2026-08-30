@@ -188,6 +188,7 @@ export async function priceRecurringPeriod(pool, {
   periodKey,
   proposedAdjustments = [],
   excludedAdjustmentIds = [],
+  lineMetadataBySignup = new Map(),
 }) {
   const normalizedPeriodKey = billingMonthKey(periodKey)
   const active = subscriptions.filter((subscription) => {
@@ -285,6 +286,9 @@ export async function priceRecurringPeriod(pool, {
 
   const previewExistingLines = eligible.map((subscription) => {
     const fallback = fallbackLine(subscription)
+    const metadata = lineMetadataBySignup instanceof Map
+      ? lineMetadataBySignup.get(fallback.signupId) ?? {}
+      : lineMetadataBySignup?.[fallback.signupId] ?? {}
     const history = historyBySignup.get(fallback.signupId) ?? []
     const proposed = proposedBySignup.get(fallback.signupId) ?? []
     const hasManagedDiscount = [...history, ...proposed].some((adjustment) =>
@@ -302,6 +306,7 @@ export async function priceRecurringPeriod(pool, {
         }
       : persistedDiscountBySignup.get(fallback.signupId) ?? {}
     return {
+      ...metadata,
       key: `billing-period-${subscription.id}`,
       signupId: fallback.signupId,
       memberId: Number(subscription.member_id ?? subscription.memberId),

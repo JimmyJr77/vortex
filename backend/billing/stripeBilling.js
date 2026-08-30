@@ -30,10 +30,12 @@ export async function ensureStripeBillingSchema(pool) {
   stripeBillingSchemaEnsured = true
 }
 
-/** billing_payment.stripe_checkout_session_id + invoice links (058). */
+/** Billing payment links for Checkout, invoices, and recurring subscriptions. */
 export async function ensureBillingStripeLinksSchema(pool) {
   if (billingStripeLinksEnsured) return
   await runMigrationFile(pool, '../migrations/058_billing_stripe_links.sql')
+  await runMigrationFile(pool, '../migrations/768_annual_membership_auto_renewal.sql')
+  await runMigrationFile(pool, '../migrations/769_annual_membership_renewal_tracking.sql')
   billingStripeLinksEnsured = true
 }
 

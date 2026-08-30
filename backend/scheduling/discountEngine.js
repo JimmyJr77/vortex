@@ -221,6 +221,9 @@ function withinWindow(rule, now) {
 /** Does a rule's targeting scope match a given line? */
 function scopeMatchesLine(rule, line) {
   switch (rule.scopeLevel) {
+    case undefined:
+    case null:
+    case '':
     case 'global':
       return true
     case 'sport':
@@ -236,14 +239,20 @@ function scopeMatchesLine(rule, line) {
   }
 }
 
-/** Per-line eligibility for line-targeted discount types (school, city, promo, multi_class, free). */
-function lineEligible(rule, line, promoCodesLower) {
+/** Shared targeting/allowlist eligibility, including account-level system rules. */
+function ruleTargetsLine(rule, line) {
   if (line.costUsesSelections) {
     if (!line.costDiscountRuleIds?.has(Number(rule.id))) return false
   } else if (!scopeMatchesLine(rule, line)) {
     return false
   }
   if (!passesEligibilityRules(rule, line)) return false
+  return true
+}
+
+/** Per-line eligibility for line-targeted discount types (school, city, promo, multi_class, free). */
+function lineEligible(rule, line, promoCodesLower) {
+  if (!ruleTargetsLine(rule, line)) return false
   switch (rule.type) {
     case 'promo_code': {
       const code = normalizeText(rule.config?.code)
@@ -617,16 +626,34 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
 
     for (const groupLines of groups.values()) {
-      const cartLines = groupLines.filter(
+      // Household tiers are still line-scoped benefits. A class that is outside
+      // the rule's sport/program/class/offering scope (or is not selected in the
+      // Pricing benefits allowlist) must not count toward qualifying spend/classes
+      // and must not receive an allocated share of the household discount.
+      const classLines = groupLines.filter(
+        (ls) => ls.baseCents > 0 && ruleTargetsLine(rule, ls.line),
+      )
+      const cartLines = classLines.filter(
         (ls) => ls.includeInSubtotal !== false && ls.line.shadowOnly !== true,
       )
-      const classLines = groupLines.filter((ls) => ls.baseCents > 0)
       if (classLines.length === 0) continue
       // Existing enrollments are shadow-only (no checkout cart) — still apply household discounts.
       if (cartLines.length === 0 && !classLines.some((ls) => ls.line.shadowOnly === true)) continue
 
       const sample = groupLines[0]?.line ?? {}
       const stats = accountStatsFromLine(sample)
+      const grossAccountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
+      stats.paidClassCount = classLines.length
+      stats.familyPaidClassCount = classLines.length
+      stats.accountMonthlyCents = grossAccountSubtotal
+      stats.familyMonthlyCents = grossAccountSubtotal
+      stats.allLines = classLines.map((ls) => ({
+        ...ls.line,
+        baseCents: ls.baseCents,
+        listCents: ls.baseCents,
+        finalCents: ls.runningCents,
+      }))
+      stats.familyAllLines = stats.allLines
       if (rule.calcBase === 'post') {
         const cartGross = cartLines.reduce((sum, ls) => sum + ls.baseCents, 0)
         const priorCartOrderDiscount = Math.max(0, subtotalCents - orderRunning)
@@ -649,7 +676,6 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       const unlockHint = nextTierHint ? nextTierHint(tier, stats) : null
 
       if (target === 'total') {
-        const grossAccountSubtotal = classLines.reduce((sum, ls) => sum + ls.baseCents, 0)
         const accountSubtotal =
           rule.calcBase === 'post' ? stats.accountMonthlyCents : grossAccountSubtotal
         let amount = discountAmountCents(accountSubtotal, tier.amountType, tier.amountValue)

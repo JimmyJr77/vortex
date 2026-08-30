@@ -30,6 +30,7 @@ import type {
   BillingDiscountComponent,
   BillingStatement,
   BillingTransaction,
+  CustomerBillingAnnualMembership,
   CustomerBillingEnrollment,
   CustomerBillingOverview,
   CustomerBillingSearchResult,
@@ -228,6 +229,80 @@ function SearchResults({
         </button>
       ))}
     </div>
+  )
+}
+
+function YesNoBadge({ value }: { value: boolean }) {
+  return (
+    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${
+      value
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : 'border-gray-200 bg-gray-50 text-gray-600'
+    }`}>
+      {value ? 'Yes' : 'No'}
+    </span>
+  )
+}
+
+function AnnualMembershipSection({
+  memberships,
+  canManage,
+  saving,
+  onSetAutoRenewal,
+}: {
+  memberships: CustomerBillingAnnualMembership[]
+  canManage: boolean
+  saving: boolean
+  onSetAutoRenewal: (membership: CustomerBillingAnnualMembership, enabled: boolean) => void
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-gray-950">Annual Memberships</h2>
+        <p className="text-sm text-gray-500">Paid-through membership dates and yearly renewal status for each family member.</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
+          <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <tr>
+              <th className="px-5 py-3">Active Membership</th>
+              <th className="px-5 py-3">Membership Date</th>
+              <th className="px-5 py-3">Renewal Date</th>
+              <th className="px-5 py-3">Auto-renewal</th>
+              <th className="px-5 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {memberships.map((membership) => (
+              <tr key={membership.memberId} className="border-t border-gray-100">
+                <td className="px-5 py-4">
+                  <YesNoBadge value={membership.active} />
+                  <span className="ml-2 font-semibold text-gray-900">{membership.memberName}</span>
+                </td>
+                <td className="px-5 py-4 text-gray-700">{localDate(membership.membershipDate)}</td>
+                <td className="px-5 py-4 text-gray-700">{calendarDate(membership.renewalDate)}</td>
+                <td className="px-5 py-4"><YesNoBadge value={membership.autoRenewal} /></td>
+                <td className="px-5 py-4 text-right">
+                  {canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? (
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)}
+                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40"
+                    >
+                      {membership.autoRenewal ? 'Cancel auto-renewal' : 'Resume auto-renewal'}
+                    </button>
+                  ) : <span className="text-xs text-gray-400">—</span>}
+                </td>
+              </tr>
+            ))}
+            {memberships.length === 0 ? (
+              <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-500">No family members are available.</td></tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
   )
 }
 
@@ -659,8 +734,47 @@ export default function AdminCustomerBilling() {
     void refresh(message.replace(url ?? '__no_url__', '').trim())
   }
 
+  const setAnnualMembershipAutoRenewal = async (
+    membership: CustomerBillingAnnualMembership,
+    enabled: boolean,
+  ) => {
+    if (!overview || membership.billingSubscriptionId == null) return
+    if (
+      !enabled &&
+      !window.confirm(
+        `Cancel annual membership auto-renewal for ${membership.memberName}? Their paid-through membership remains active until ${calendarDate(membership.renewalDate)}.`,
+      )
+    ) return
+    setSaving(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/families/${overview.account.familyId}/annual-memberships/${membership.billingSubscriptionId}/auto-renewal`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ enabled }),
+        },
+      )
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'Annual membership auto-renewal could not be changed.')
+      await refresh(
+        `${membership.memberName}'s annual membership auto-renewal was ${enabled ? 'resumed' : 'cancelled'}.`,
+      )
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Annual membership auto-renewal could not be changed.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const visibleEnrollments = useMemo(
     () => overview?.enrollments.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
+    [overview, selectedMemberId],
+  )
+  const visibleAnnualMemberships = useMemo(
+    () => (overview?.annualMemberships ?? []).filter(
+      (row) => selectedMemberId == null || row.memberId === selectedMemberId,
+    ),
     [overview, selectedMemberId],
   )
   const retryableSyncAdjustments = useMemo(() => {
@@ -920,6 +1034,14 @@ export default function AdminCustomerBilling() {
             {overview.alerts.length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.length})</div><div className="space-y-1">{overview.alerts.map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="shrink-0 text-xs">{localDate(alert.createdAt)}</span></div>)}</div></div> : null}
           </section>
 
+          <AnnualMembershipSection
+            memberships={visibleAnnualMemberships}
+            canManage={canManage}
+            saving={saving}
+            onSetAutoRenewal={(membership, enabled) => {
+              void setAnnualMembershipAutoRenewal(membership, enabled)
+            }}
+          />
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">

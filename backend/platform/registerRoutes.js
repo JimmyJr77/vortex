@@ -1922,14 +1922,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     let sql
     let params
     if (status === 'cancelled') {
-      sql = `UPDATE billing_subscription SET status = 'cancelled', end_date = CURRENT_DATE, next_bill_date = NULL, updated_at = now() WHERE id = $1 RETURNING *`
+      sql = `UPDATE billing_subscription SET status = 'cancelled', end_date = CURRENT_DATE, next_bill_date = NULL, auto_renewal = FALSE, updated_at = now() WHERE id = $1 RETURNING *`
       params = [id]
     } else if (status === 'paused') {
       sql = `UPDATE billing_subscription SET status = 'paused', updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
       params = [id]
     } else {
       // Reactivate: if next_bill_date is null, set to today so the next run picks it up.
-      sql = `UPDATE billing_subscription SET status = 'active', end_date = NULL, next_bill_date = COALESCE(next_bill_date, CURRENT_DATE), updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
+      sql = `UPDATE billing_subscription SET status = 'active', end_date = NULL, next_bill_date = COALESCE(next_bill_date, CURRENT_DATE), auto_renewal = TRUE, updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
       params = [id]
     }
     const updated = await pool.query(sql, params)

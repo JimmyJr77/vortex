@@ -9,6 +9,11 @@ import {
   mapPriceAdjustment,
 } from './customerBillingPricing.js'
 import { mapBillingActivity } from './billingActivity.js'
+import {
+  isMembershipValidThrough,
+  membershipRenewsOnFromPurchase,
+} from '../scheduling/membershipAnniversary.js'
+import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -18,6 +23,172 @@ export function customerFacingPriceSyncError(value) {
   const message = String(value ?? '').trim()
   if (!message || INTERNAL_PRICE_SYNC_MESSAGES.has(message)) return null
   return message
+}
+
+function annualMembershipFeeId(sourceId) {
+  const feeId = Number(String(sourceId ?? '').split(':')[0])
+  return Number.isFinite(feeId) ? feeId : null
+}
+
+function dateTimestamp(value) {
+  if (!value) return 0
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime()
+}
+
+function serializedDate(value) {
+  if (!value) return null
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.toISOString()
+  return String(value)
+}
+
+function activeAnnualSubscription(subscription, asOfKey) {
+  return (
+    ['active', 'paused', 'cancelled'].includes(subscription.status) &&
+    billingDateKey(subscription.next_bill_date) != null &&
+    billingDateKey(subscription.next_bill_date) > asOfKey
+  )
+}
+
+export function buildCustomerBillingAnnualMemberships({
+  members = [],
+  subscriptions = [],
+  redemptions = [],
+  charges = [],
+  asOf = new Date(),
+} = {}) {
+  const asOfKey = billingDateKey(asOf) ?? new Date().toISOString().slice(0, 10)
+
+  return members.map((member) => {
+    const memberSubscriptions = subscriptions
+      .filter((row) => Number(row.member_id) === Number(member.id))
+      .sort((left, right) => (
+        dateTimestamp(right.start_date ?? right.created_at ?? right.updated_at) -
+        dateTimestamp(left.start_date ?? left.created_at ?? left.updated_at)
+      ))
+    const memberRedemptions = redemptions
+      .filter((row) => Number(row.member_id) === Number(member.id))
+      .sort((left, right) => dateTimestamp(right.created_at) - dateTimestamp(left.created_at))
+    const memberCharges = charges
+      .filter((row) => Number(row.member_id) === Number(member.id))
+      .sort((left, right) => dateTimestamp(right.created_at) - dateTimestamp(left.created_at))
+
+    const activeSubscription = memberSubscriptions.find((row) => activeAnnualSubscription(row, asOfKey)) ?? null
+    const activeRedemption = memberRedemptions.find((row) => isMembershipValidThrough(row.created_at, asOf)) ?? null
+    const referenceSubscription = activeSubscription ?? memberSubscriptions[0] ?? null
+    const referenceRedemption = activeRedemption ?? memberRedemptions[0] ?? null
+    const feeId = annualMembershipFeeId(referenceSubscription?.source_id) ?? (
+      referenceRedemption?.fee_id == null ? null : Number(referenceRedemption.fee_id)
+    )
+    const membershipCharge = feeId == null
+      ? null
+      : memberCharges.find((row) => annualMembershipFeeId(row.source_id) === feeId) ?? null
+    const renewalFromRedemption = referenceRedemption
+      ? membershipRenewsOnFromPurchase(referenceRedemption.created_at)
+      : null
+    const renewalFromSubscriptionStart = referenceSubscription?.start_date
+      ? membershipRenewsOnFromPurchase(referenceSubscription.start_date)
+      : null
+    const renewalDate =
+      activeSubscription?.next_bill_date ??
+      renewalFromRedemption ??
+      referenceSubscription?.next_bill_date ??
+      renewalFromSubscriptionStart
+
+    return {
+      memberId: Number(member.id),
+      memberName: member.name,
+      billingSubscriptionId:
+        referenceSubscription?.id == null ? null : Number(referenceSubscription.id),
+      active: Boolean(activeSubscription || activeRedemption),
+      membershipDate: serializedDate(
+        referenceSubscription?.latest_renewal_paid_at ??
+        membershipCharge?.paid_at ??
+        membershipCharge?.created_at ??
+        referenceSubscription?.start_date ??
+        referenceRedemption?.created_at,
+      ),
+      renewalDate: billingDateKey(renewalDate),
+      autoRenewal: Boolean(
+        activeSubscription?.stripe_subscription_id &&
+        activeSubscription.status !== 'cancelled' &&
+        activeSubscription.auto_renewal !== false,
+      ),
+      canManageAutoRenewal: Boolean(
+        referenceSubscription?.stripe_subscription_id &&
+        referenceSubscription.status !== 'cancelled',
+      ),
+    }
+  })
+}
+
+export async function loadCustomerBillingAnnualMemberships(pool, {
+  accountId,
+  members,
+  asOf = new Date(),
+}) {
+  const memberIds = members.map((member) => Number(member.id)).filter(Number.isFinite)
+  if (memberIds.length === 0) return []
+
+  const [subscriptionResult, redemptionResult, chargeResult] = await Promise.all([
+    pool.query(
+      `SELECT bs.*,
+              (
+                SELECT p.paid_at
+                FROM billing_payment p
+                WHERE bs.stripe_subscription_id IS NOT NULL
+                  AND p.stripe_subscription_id = bs.stripe_subscription_id
+                ORDER BY p.paid_at DESC, p.id DESC
+                LIMIT 1
+              ) AS latest_renewal_paid_at
+       FROM billing_subscription bs
+       WHERE bs.family_billing_account_id = $1
+         AND (bs.source_type = 'annual_membership' OR bs.pricing_option_key = 'annual_membership')
+       ORDER BY bs.start_date DESC NULLS LAST, bs.created_at DESC, bs.id DESC`,
+      [accountId],
+    ),
+    pool.query(
+      `SELECT r.fee_id, r.member_id, r.created_at, r.period_key, r.amount_cents
+       FROM additional_fee_redemption r
+       JOIN additional_fee f ON f.id = r.fee_id
+       WHERE r.member_id = ANY($1::bigint[])
+         AND r.amount_cents >= 0
+         AND (
+           f.trigger_type = 'once_per_year'
+           OR f.apply_basis = 'per_year'
+           OR lower(f.name) LIKE '%annual%'
+           OR lower(f.name) LIKE '%membership%'
+         )
+       ORDER BY r.created_at DESC`,
+      [memberIds],
+    ),
+    pool.query(
+      `SELECT c.member_id, c.source_id, c.created_at,
+              (
+                SELECT p.paid_at
+                FROM billing_payment p
+                WHERE p.family_billing_account_id = c.family_billing_account_id
+                  AND c.stripe_checkout_session_id IS NOT NULL
+                  AND p.stripe_checkout_session_id = c.stripe_checkout_session_id
+                ORDER BY p.paid_at DESC, p.id DESC
+                LIMIT 1
+              ) AS paid_at
+       FROM billing_charge c
+       WHERE c.family_billing_account_id = $1
+         AND c.member_id = ANY($2::bigint[])
+         AND c.source_type = 'additional_fee'
+       ORDER BY c.created_at DESC, c.id DESC`,
+      [accountId, memberIds],
+    ),
+  ])
+
+  return buildCustomerBillingAnnualMemberships({
+    members,
+    subscriptions: subscriptionResult.rows,
+    redemptions: redemptionResult.rows,
+    charges: chargeResult.rows,
+    asOf,
+  })
 }
 
 export async function ensureCustomerBillingAccount(pool, familyId, facilityId = null) {
@@ -242,7 +413,15 @@ export async function buildCustomerBillingOverview(pool, {
     throw new Error('Selected member does not belong to this family.')
   }
 
-  const [view, enrollmentGroups, rawSubscriptions, adjustmentsResult, alertsResult, paymentMethod] =
+  const [
+    view,
+    enrollmentGroups,
+    rawSubscriptions,
+    adjustmentsResult,
+    alertsResult,
+    annualMemberships,
+    paymentMethod,
+  ] =
     await Promise.all([
       buildBillingAccountView(pool, account, { memberScopeId: null }),
       Promise.all(
@@ -278,6 +457,10 @@ export async function buildCustomerBillingOverview(pool, {
         if (error?.code === '42P01') return { rows: [] }
         throw error
       }),
+      loadCustomerBillingAnnualMemberships(pool, {
+        accountId: account.id,
+        members,
+      }),
       loadDefaultPaymentMethodSummary(account),
     ])
 
@@ -297,7 +480,11 @@ export async function buildCustomerBillingOverview(pool, {
   const currentMonth = billingMonthKey(new Date())
   const nextBillDate = earliestActiveNextBillDate(rawSubscriptions.rows)
   const pricingMonth = nextBillDate ? billingMonthKey(nextBillDate) : currentMonth
-  const displayPricing = recurringPricingForPeriod(view.recurringBreakpoints ?? [], pricingMonth)
+  const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
+    familyId,
+    periodKey: pricingMonth,
+    subscriptions: rawSubscriptions.rows,
+  })
   const displayPricingBySubscription = new Map(
     (displayPricing?.lines ?? []).map((line) => [Number(line.subscriptionId), line]),
   )
@@ -306,8 +493,11 @@ export async function buildCustomerBillingOverview(pool, {
       .filter((line) => Number.isFinite(Number(line.signupId)))
       .map((line) => [Number(line.signupId), { ...line, pricingPeriodKey: displayPricing.periodKey }]),
   )
-  const effectivePricingBySignup = firstRecurringPricingLineBySignup(
-    view.recurringBreakpoints ?? [],
+  const effectivePricingBySignup = new Map(
+    (displayPricing.lines ?? []).map((line) => [
+      Number(line.signupId),
+      { ...line, pricingPeriodKey: displayPricing.periodKey },
+    ]),
   )
   const rawSubscriptionBySignup = new Map(
     rawSubscriptions.rows
@@ -466,17 +656,11 @@ export async function buildCustomerBillingOverview(pool, {
       paymentsCents: view.paymentsCents,
       refundsCents: view.refundsCents,
       balanceCents: view.balanceCents,
-      monthlyTotals: subscriptions
-        .filter((subscription) => subscription.status === 'active')
-        .reduce(
-          (totals, subscription) => {
-            totals.grossCents += subscription.monthlyAmountCents
-            totals.discountCents += subscription.discountAmountCents
-            totals.netCents += subscription.netMonthlyCents
-            return totals
-          },
-          { grossCents: 0, discountCents: 0, netCents: 0 },
-        ),
+      monthlyTotals: {
+        grossCents: Number(displayPricing.grossCents) || 0,
+        discountCents: Number(displayPricing.discountCents) || 0,
+        netCents: Number(displayPricing.netCents) || 0,
+      },
       nextBillDate,
       latestPayment: latestPayment
         ? {
@@ -504,6 +688,7 @@ export async function buildCustomerBillingOverview(pool, {
     })),
     enrollments,
     waitlists,
+    annualMemberships,
     subscriptions,
     adjustments,
     statements: [],

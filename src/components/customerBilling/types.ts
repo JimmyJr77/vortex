@@ -82,6 +82,17 @@ export interface CustomerBillingEnrollment {
   pricingMonth: string
 }
 
+export interface CustomerBillingAnnualMembership {
+  memberId: number
+  memberName: string
+  billingSubscriptionId: number | null
+  active: boolean
+  membershipDate: string | null
+  renewalDate: string | null
+  autoRenewal: boolean
+  canManageAutoRenewal: boolean
+}
+
 export interface CustomerBillingSubscription {
   id: number
   memberId: number | null
@@ -157,6 +168,7 @@ export interface CustomerBillingOverview {
   }>
   enrollments: CustomerBillingEnrollment[]
   waitlists: CustomerBillingEnrollment[]
+  annualMemberships: CustomerBillingAnnualMembership[]
   subscriptions: CustomerBillingSubscription[]
   adjustments: PriceAdjustment[]
 }

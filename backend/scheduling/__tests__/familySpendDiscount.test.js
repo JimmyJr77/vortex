@@ -313,6 +313,47 @@ test('2 classes at $300 total gets 15% and hint requires 1 more class at $150', 
   assert.equal(d.nextTierHint, '1 more class at $150 or more will unlock a 20% discount.')
 })
 
+for (const scenario of [
+  { name: 'Goodwin #51', prices: [15000, 15000], expectedNet: 25500 },
+  { name: 'Nicolosi #61', prices: [15000, 15000, 15000, 15000, 10000], expectedNet: 52500 },
+  { name: 'Caballero #63', prices: [15000, 15000], expectedNet: 25500 },
+  { name: 'Jackson #68', prices: [15000, 15000, 10000, 10000], expectedNet: 40000 },
+  { name: 'Campbell #59', prices: [15000, 15000], expectedNet: 25500 },
+]) {
+  test(`${scenario.name} resolves one family tier across sibling athletes`, () => {
+    const lines = attachStats(
+      scenario.prices.map((baseCents, index) =>
+        makeLine({
+          key: `family-${scenario.name}-${index}`,
+          signupId: 1000 + index,
+          memberId: index % 2 === 0 ? 201 : 202,
+          formId: 300 + index,
+          baseCents,
+          listCents: baseCents,
+          finalCents: baseCents,
+          includeInSubtotal: false,
+          shadowOnly: true,
+        }),
+      ),
+    )
+    const result = computeOrderDiscounts({
+      lines,
+      rules: [familySpendRule],
+      promoCodes: [],
+      caps: {},
+    })
+    assert.equal(
+      result.accountLines.reduce((sum, line) => sum + line.finalCents, 0),
+      scenario.expectedNet,
+    )
+    const memberBySignup = new Map(lines.map((line) => [line.signupId, line.memberId]))
+    assert.deepEqual(
+      [...new Set(result.accountLines.map((line) => memberBySignup.get(line.signupId)))].sort(),
+      [201, 202],
+    )
+  })
+}
+
 test('spendTierQualificationLabel includes reward and minimums', () => {
   assert.equal(
     spendTierQualificationLabel({

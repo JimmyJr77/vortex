@@ -48,6 +48,11 @@ The Billing admin provides:
   collection, refund balance previews, statements, receipts, and complete account activity.
 - retryable subscription-schedule synchronization alerts. A Stripe-backed price adjustment
   stays inactive until all no-proration month-boundary phases have been accepted by Stripe.
+- family-wide recurring class pricing that applies tuition promos before the family tier and
+  excludes annual memberships, waitlists, one-time classes, paused enrollments, and classes
+  outside the service period.
+- individual annual membership rows and yearly Stripe subscriptions, including independent
+  renewal dates and `cancel_at_period_end` controls for each member.
 
 All mutating controls require `billing.manage`; read-only billing visibility requires
 `billing.view`.
@@ -71,6 +76,11 @@ All mutating controls require `billing.manage`; read-only billing visibility req
 - Temporary enrollment prices are represented by Subscription Schedule phases with
   `proration_behavior=none`; finite changes restore the canonical resolved price after the final
   month. Local/Stripe schedule drift remains a reconciliation failure.
+- Missing class subscriptions are restored locally even when the family has no saved card. The
+  account receives a payment-method-required alert, no catch-up collection occurs, and a remote
+  subscription is created only after a reusable default payment method is available.
+- Annual membership charges, redemptions, and yearly subscriptions are keyed to one member.
+  They neither qualify for nor receive the family multi-class tuition discount.
 - Admin-created Stripe refunds do not send a second receipt when their webhook arrives.
 - Reconciliation recovers mappable missing payments and raises alerts for amount drift,
   unmapped money, disputes, stale processing, and failures.
@@ -140,7 +150,11 @@ Before a controlled live Customer Billing rollout, complete the same flow in Str
 2. force a schedule-sync failure, confirm the adjustment remains inactive, and verify retry recovery;
 3. collect one exact custom charge from a reusable test card and one through Checkout fallback;
 4. issue a partial refund with a linked charge credit and replay its webhook without duplication; and
-5. run reconciliation and confirm no amount, phase, schedule, payment-application, or refund-treatment drift.
+5. purchase memberships for two household members, cancel renewal for one, and verify that the
+   other member's subscription and both paid-through entitlements remain unchanged;
+6. run `npm --prefix backend run billing:audit-family-discounts -- --period=YYYY-MM`, review the
+   dry run, apply it to a bounded test account, and confirm replay is idempotent; and
+7. run reconciliation and confirm no amount, phase, schedule, payment-application, or refund-treatment drift.
 
 ## Incident response
 

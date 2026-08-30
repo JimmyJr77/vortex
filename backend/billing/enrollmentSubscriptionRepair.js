@@ -1,8 +1,4 @@
 import {
-  buildSignupOrderPreview,
-  computeExistingEnrollmentDiscounts,
-} from '../scheduling/orderPricing.js'
-import {
   toDateString,
   upsertSubscriptionForSource,
 } from '../scheduling/billingSubscriptions.js'
@@ -10,6 +6,7 @@ import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProrati
 import { createEnrollmentStripeSubscriptions } from './stripeEnrollmentCheckout.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { billingMonthInTimeZone, promoExpirationDate } from './customerBillingPricing.js'
+import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 
 function asDateOnly(value) {
   if (!value) return null
@@ -140,48 +137,12 @@ export async function findEnrollmentSubscriptionGaps(db, {
   return result.rows
 }
 
-function parseResponses(value) {
-  if (!value) return {}
-  if (typeof value === 'object') return value
-  try {
-    return JSON.parse(value)
-  } catch {
-    return {}
-  }
-}
-
-async function loadFamilyMemberPricingRows(db, familyId) {
-  const result = await db.query(
-    `SELECT member.id, member.billing_city, member.graduation_year, latest.responses
-     FROM member
-     LEFT JOIN LATERAL (
-       SELECT signup.responses
-       FROM scheduling_signup signup
-       WHERE signup.member_id = member.id AND signup.orphaned_at IS NULL
-       ORDER BY signup.created_at DESC, signup.id DESC
-       LIMIT 1
-     ) latest ON TRUE
-     WHERE member.family_id = $1 AND member.is_active = TRUE
-     ORDER BY member.id`,
-    [familyId],
-  )
-  return result.rows
-}
-
-function pricingContextForMember(member, familyId) {
-  const responses = parseResponses(member.responses)
-  const graduationYear = member.graduation_year ?? responses.graduation_year ?? null
-  return {
-    city: member.billing_city ?? null,
-    school: responses.current_school ? String(responses.current_school).trim() : null,
-    graduationYear:
-      graduationYear == null || graduationYear === '' ? null : Number(graduationYear),
-    familyId: Number(familyId),
-  }
-}
-
 /** Resolve the same gross/net lines shown by Customer Billing before creating subscriptions. */
-export async function resolveEnrollmentRepairPrices(db, candidates) {
+export async function resolveEnrollmentRepairPrices(
+  db,
+  candidates,
+  { periodKey = firstOfNextMonth(todayDateOnly(new Date())).slice(0, 7) } = {},
+) {
   const result = new Map()
   const candidatesByFamily = new Map()
   for (const candidate of candidates) {
@@ -192,65 +153,21 @@ export async function resolveEnrollmentRepairPrices(db, candidates) {
   }
 
   for (const [familyId, familyCandidates] of candidatesByFamily) {
-    const members = await loadFamilyMemberPricingRows(db, familyId)
-    const previewExistingLines = []
-    let anchorMemberId = null
-    let anchorContext = { familyId }
-
-    for (const member of members) {
-      const memberId = Number(member.id)
-      const memberContext = pricingContextForMember(member, familyId)
-      const preview = await buildSignupOrderPreview(db, {
-        memberId,
-        newSignups: [],
-        promoCodes: [],
-        memberContext,
-      })
-      for (const enrollment of preview?.existingClasses ?? []) {
-        if (enrollment.id == null || !(Number(enrollment.monthlyPrice) > 0)) continue
-        const grossCents = Math.round(Number(enrollment.monthlyPrice) * 100)
-        anchorMemberId = anchorMemberId ?? memberId
-        if (anchorMemberId === memberId) anchorContext = memberContext
-        previewExistingLines.push({
-          key: `repair-existing-${enrollment.id}`,
-          signupId: Number(enrollment.id),
-          formId: enrollment.formId,
-          programId: enrollment.programsId ?? null,
-          sportId: null,
-          memberId,
-          familyId,
-          memberCity: memberContext.city,
-          memberSchool: memberContext.school,
-          memberGraduationYear: memberContext.graduationYear,
-          baseCents: grossCents,
-          listCents: grossCents,
-          finalCents: grossCents,
-          includeInSubtotal: false,
-          shadowOnly: true,
-        })
-      }
-    }
-
-    if (anchorMemberId == null || previewExistingLines.length === 0) continue
-    const discounts = await computeExistingEnrollmentDiscounts(db, {
-      memberId: anchorMemberId,
-      promoCodes: [],
-      memberContext: anchorContext,
-      previewExistingLines,
-      formRows: new Map(),
-      scopeMeta: new Map(),
+    const pricing = await resolveFamilyEnrollmentPricing(db, {
+      familyId,
+      periodKey,
     })
     const targetIds = new Set(familyCandidates.map((row) => Number(row.signup_id)))
-    for (const line of discounts?.accountLines ?? []) {
+    for (const line of pricing.lines ?? []) {
       const signupId = Number(line.signupId)
       if (!targetIds.has(signupId)) continue
-      const grossCents = Math.max(0, Math.round(Number(line.baseCents ?? line.listCents) || 0))
-      const netCents = Math.max(0, Math.round(Number(line.finalCents) || 0))
+      const grossCents = Math.max(0, Math.round(Number(line.grossCents) || 0))
+      const netCents = Math.max(0, Math.round(Number(line.netCents) || 0))
       result.set(signupId, {
         grossCents,
         discountCents: Math.max(0, grossCents - netCents),
         netCents,
-        discountComponents: line.applied ?? [],
+        discountComponents: line.discountComponents ?? [],
       })
     }
   }
@@ -412,9 +329,10 @@ async function createRemoteRepairSubscriptions(pool, stripe, account, plans, pay
 }
 
 /**
- * Repair confirmed recurring enrollments only when the Stripe Customer has a
- * reusable default payment method. No ledger charge is created and Stripe is
- * trialed to the next calendar billing month, so this never performs catch-up collection.
+ * Restore local recurring schedules for every confirmed recurring enrollment.
+ * Stripe auto-payment is added only when the Customer has a reusable default
+ * payment method. No ledger charge is created and remote subscriptions are
+ * trialed to the next calendar month, so this never performs catch-up collection.
  */
 export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
   apply = false,
@@ -445,39 +363,11 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
   }
 
   for (const [accountId, accountCandidates] of byAccount) {
-    const stripeCustomerId = accountCandidates[0]?.stripe_customer_id
-    if (!stripeCustomerId) {
-      summary.skipped.push({ accountId, reason: 'missing_stripe_customer', signupIds: accountCandidates.map((row) => Number(row.signup_id)) })
-      continue
-    }
-
-    let customer
-    try {
-      customer = await stripe.customers.retrieve(stripeCustomerId, {
-        expand: ['invoice_settings.default_payment_method'],
-      })
-    } catch (error) {
-      summary.failed.push({ accountId, reason: 'stripe_customer_lookup_failed', error: error?.message ?? String(error) })
-      continue
-    }
-    const paymentMethodId = defaultSavedPaymentMethodId(customer)
-    if (!paymentMethodId) {
-      summary.skipped.push({ accountId, reason: 'no_default_saved_card', signupIds: accountCandidates.map((row) => Number(row.signup_id)) })
-      for (const candidate of accountCandidates) {
-        if (apply) {
-          await upsertRepairAlert(pool, candidate, {
-            type: 'enrollment_autopay_setup_required',
-            message: `Enrollment ${candidate.signup_id} needs a default saved payment method before auto-payment can be enabled.`,
-          })
-        }
-      }
-      continue
-    }
-
-    summary.savedCardAccounts += 1
     let prices
     try {
-      prices = await resolveEnrollmentRepairPrices(pool, accountCandidates)
+      prices = await resolveEnrollmentRepairPrices(pool, accountCandidates, {
+        periodKey: firstOfNextMonth(todayDateOnly(now)).slice(0, 7),
+      })
     } catch (error) {
       summary.failed.push({ accountId, reason: 'pricing_resolution_failed', error: error?.message ?? String(error) })
       continue
@@ -486,6 +376,44 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
     const built = buildEnrollmentRepairPlans(accountCandidates, prices, { now })
     const plans = built.plans
     summary.skipped.push(...built.skipped)
+    summary.plannedEnrollments += plans.length
+    if (plans.length === 0) continue
+
+    let localPlans = plans
+    if (apply) {
+      try {
+        localPlans = await createLocalRepairSubscriptions(pool, plans, now)
+        summary.localSubscriptionsCreated += localPlans.filter(
+          (plan) => plan.candidate.billing_subscription_id == null,
+        ).length
+      } catch (error) {
+        summary.failed.push({ accountId, reason: 'local_subscription_create_failed', error: error?.message ?? String(error) })
+        continue
+      }
+    }
+
+    const stripeCustomerId = accountCandidates[0]?.stripe_customer_id
+    let paymentMethodId = null
+    let noCardReason = null
+    if (!stripeCustomerId) {
+      noCardReason = 'missing_stripe_customer'
+    } else {
+      try {
+        const customer = await stripe.customers.retrieve(stripeCustomerId, {
+          expand: ['invoice_settings.default_payment_method'],
+        })
+        paymentMethodId = defaultSavedPaymentMethodId(customer)
+        if (!paymentMethodId) noCardReason = 'no_default_saved_card'
+      } catch (error) {
+        summary.failed.push({
+          accountId,
+          reason: 'stripe_customer_lookup_failed',
+          error: error?.message ?? String(error),
+        })
+        noCardReason = 'stripe_customer_lookup_failed'
+      }
+    }
+
     for (const { candidate, price, nextBillDate } of plans) {
       summary.plans.push({
         accountId,
@@ -494,22 +422,41 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
         discountCents: price.discountCents,
         netCents: price.netCents,
         nextBillDate,
-        action: candidate.billing_subscription_id == null ? 'create_local_and_stripe' : 'create_stripe',
+        action: paymentMethodId
+          ? candidate.billing_subscription_id == null
+            ? 'create_local_and_stripe'
+            : 'create_stripe'
+          : candidate.billing_subscription_id == null
+            ? 'create_local_awaiting_payment_method'
+            : 'await_payment_method',
       })
     }
-    summary.plannedEnrollments += plans.length
-    if (!apply || plans.length === 0) continue
 
-    let localPlans
-    try {
-      localPlans = await createLocalRepairSubscriptions(pool, plans, now)
-      summary.localSubscriptionsCreated += localPlans.filter(
-        (plan) => plan.candidate.billing_subscription_id == null,
-      ).length
-    } catch (error) {
-      summary.failed.push({ accountId, reason: 'local_subscription_create_failed', error: error?.message ?? String(error) })
+    if (!paymentMethodId) {
+      summary.skipped.push({
+        accountId,
+        reason: noCardReason,
+        signupIds: accountCandidates.map((row) => Number(row.signup_id)),
+      })
+      if (apply) {
+        for (const plan of localPlans) {
+          await markSubscriptionSync(
+            pool,
+            plan.billingSubscriptionId,
+            'not_required',
+            null,
+          )
+          await upsertRepairAlert(pool, plan.candidate, {
+            type: 'enrollment_autopay_setup_required',
+            message: `Enrollment ${plan.candidate.signup_id} has a local monthly billing schedule and needs a saved payment method for automatic collection.`,
+          })
+        }
+      }
       continue
     }
+
+    summary.savedCardAccounts += 1
+    if (!apply) continue
 
     let remoteBySignup
     try {

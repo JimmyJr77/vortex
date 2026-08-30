@@ -24,6 +24,8 @@ import {
   previewCustomerBillingRefund,
   SavedCardCollectionError,
 } from './customerBillingPayments.js'
+import { getStripeClient } from './stripeBilling.js'
+import { recordBillingActivityBestEffort } from './billingActivity.js'
 
 function facilityId(req) {
   return req.platformAuth?.user?.facility_id ?? null
@@ -83,6 +85,92 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] search:', error)
         res.status(500).json({ success: false, message: 'Customer billing search failed.' })
+      }
+    },
+  )
+
+  app.patch(
+    '/api/admin/customer-billing/families/:familyId/annual-memberships/:subscriptionId/auto-renewal',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const enabled = req.body?.enabled
+        if (typeof enabled !== 'boolean') {
+          return res.status(400).json({ success: false, message: 'enabled must be true or false.' })
+        }
+        const account = await ensureCustomerBillingAccount(
+          pool,
+          Number(req.params.familyId),
+          facilityId(req),
+        )
+        if (!account) {
+          return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        }
+        const subscriptionId = Number(req.params.subscriptionId)
+        const existing = (
+          await pool.query(
+            `SELECT * FROM billing_subscription
+             WHERE id = $1
+               AND family_billing_account_id = $2
+               AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')`,
+            [subscriptionId, account.id],
+          )
+        ).rows[0]
+        if (!existing) {
+          return res.status(404).json({ success: false, message: 'Individual annual membership was not found.' })
+        }
+        if (!existing.stripe_subscription_id) {
+          return res.status(400).json({ success: false, message: 'This membership does not have a Stripe auto-renewal.' })
+        }
+        if (existing.status === 'cancelled') {
+          return res.status(400).json({ success: false, message: 'A cancelled membership subscription cannot be resumed.' })
+        }
+
+        const stripe = await getStripeClient()
+        if (!stripe) throw new Error('Stripe is unavailable.')
+        await stripe.subscriptions.update(existing.stripe_subscription_id, {
+          cancel_at_period_end: !enabled,
+        })
+        const updated = (
+          await pool.query(
+            `UPDATE billing_subscription
+             SET auto_renewal = $2, updated_at = now()
+             WHERE id = $1
+             RETURNING *`,
+            [subscriptionId, enabled],
+          )
+        ).rows[0]
+        await recordBillingActivityBestEffort(pool, {
+          eventKey: `annual-membership-auto-renewal:${subscriptionId}:${enabled}:${new Date(updated.updated_at).getTime()}`,
+          accountId: account.id,
+          memberId: updated.member_id == null ? null : Number(updated.member_id),
+          eventType: 'annual_membership_auto_renewal_changed',
+          summary: `Annual membership auto-renewal was ${enabled ? 'enabled' : 'cancelled'} for one member.`,
+          beforeValue: { autoRenewal: existing.auto_renewal !== false },
+          afterValue: { autoRenewal: enabled },
+          details: {
+            billingSubscriptionId: subscriptionId,
+            paidThroughDate: updated.next_bill_date,
+          },
+          stripeObjectId: updated.stripe_subscription_id,
+          actorUserId: actorId(req),
+          actorType: 'admin',
+        })
+        res.json({
+          success: true,
+          data: {
+            billingSubscriptionId: subscriptionId,
+            memberId: updated.member_id == null ? null : Number(updated.member_id),
+            autoRenewal: enabled,
+            renewalDate: updated.next_bill_date,
+          },
+        })
+      } catch (error) {
+        console.error('[customer-billing] annual membership auto-renewal:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Annual membership auto-renewal could not be changed.',
+        })
       }
     },
   )

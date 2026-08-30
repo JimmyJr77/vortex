@@ -19,11 +19,9 @@ import { loadCalendarRowsForSlotGroups } from './freePassEngine.js'
 import {
   safeSetSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
-import {
-  buildSignupOrderPreview,
-  computeExistingEnrollmentDiscounts,
-} from './orderPricing.js'
 import { ensureBillingAccount } from './persistSignupCharges.js'
+import { resolveFamilyEnrollmentPricing } from '../billing/familyEnrollmentPricing.js'
+import { billingMonthKey } from '../billing/customerBillingPricing.js'
 
 export async function ensurePauseCreditTable(pool) {
   await pool.query(`
@@ -251,62 +249,13 @@ async function recordPauseCredit(pool, signup) {
 export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
   if (!familyId) return { updated: 0 }
 
-  const membersRes = await pool.query(
-    `SELECT id, billing_city FROM member WHERE family_id = $1 AND is_active = TRUE`,
-    [familyId],
-  )
-  if (membersRes.rows.length === 0) return { updated: 0 }
-
-  const previewExistingLines = []
-  let anchorMemberId = null
-
-  for (const member of membersRes.rows) {
-    try {
-      const preview = await buildSignupOrderPreview(pool, {
-        memberId: Number(member.id),
-        newSignups: [],
-        promoCodes: [],
-        memberContext: {
-          city: member.billing_city ?? null,
-          familyId: Number(familyId),
-        },
-      })
-      for (const cls of preview?.existingClasses ?? []) {
-        if (cls.id == null || !(cls.monthlyPrice > 0)) continue
-        anchorMemberId = anchorMemberId ?? Number(member.id)
-        previewExistingLines.push({
-          key: `preview-existing-${cls.id}`,
-          signupId: Number(cls.id),
-          formId: cls.formId,
-          programId: cls.programsId ?? null,
-          sportId: null,
-          memberId: Number(member.id),
-          familyId: Number(familyId),
-          baseCents: Math.round((cls.monthlyPrice || 0) * 100),
-          listCents: Math.round((cls.monthlyPrice || 0) * 100),
-          finalCents: Math.round((cls.monthlyPrice || 0) * 100),
-          includeInSubtotal: false,
-          shadowOnly: true,
-        })
-      }
-    } catch (err) {
-      console.warn('[pauseBilling] preview for member', member.id, err?.message ?? err)
-    }
-  }
-
-  if (!anchorMemberId || previewExistingLines.length === 0) return { updated: 0 }
-
   let accountLines = []
   try {
-    const discounts = await computeExistingEnrollmentDiscounts(pool, {
-      memberId: anchorMemberId,
-      promoCodes: [],
-      memberContext: { familyId: Number(familyId) },
-      previewExistingLines,
-      formRows: new Map(),
-      scopeMeta: new Map(),
+    const pricing = await resolveFamilyEnrollmentPricing(pool, {
+      familyId: Number(familyId),
+      periodKey: billingMonthKey(new Date()),
     })
-    accountLines = discounts?.accountLines ?? []
+    accountLines = pricing.lines ?? []
   } catch (err) {
     console.warn('[pauseBilling] discount recompute failed:', err?.message ?? err)
     return { updated: 0 }
@@ -344,9 +293,14 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
   let updated = 0
   for (const line of accountLines) {
     if (line.signupId == null) continue
-    const gross = Math.max(0, Math.round(line.baseCents ?? line.listCents ?? 0))
+    const gross = Math.max(
+      0,
+      Math.round(line.grossCents ?? line.baseCents ?? line.listCents ?? 0),
+    )
     const isOpenEndedFree = openEndedFreeSignupIds.has(Number(line.signupId))
-    const net = isOpenEndedFree ? 0 : Math.max(0, Math.round(line.finalCents ?? gross))
+    const net = isOpenEndedFree
+      ? 0
+      : Math.max(0, Math.round(line.netCents ?? line.finalCents ?? gross))
     const discount = Math.max(0, gross - net)
     try {
       const res = await pool.query(

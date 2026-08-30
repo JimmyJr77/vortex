@@ -19,12 +19,13 @@ import {
   buildEnrollmentContextLine,
   formatDateOnly,
 } from './slotDisplayLabel.js'
-import { buildSignupOrderPreview, computeExistingEnrollmentDiscounts } from './orderPricing.js'
 import { cancelSubscriptionsForSource } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 import { classCostCentsFromPricingBreakdown } from './systemDiscounts.js'
 import { queryFamilyMemberEnrollments } from '../platform/memberEnrollments.js'
 import { processDueEnrollmentCancellations } from './memberEnrollmentCancel.js'
+import { resolveFamilyEnrollmentPricing } from '../billing/familyEnrollmentPricing.js'
+import { billingMonthKey } from '../billing/customerBillingPricing.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -104,7 +105,11 @@ function manualDiscountCents(classCostCents, row) {
  * @param {import('pg').Pool} pool
  * @param {number} memberId
  */
-export async function buildAdminMemberEnrollments(pool, memberId) {
+export async function buildAdminMemberEnrollments(
+  pool,
+  memberId,
+  { familyPricing = null, pricingPeriod = null } = {},
+) {
   // Keep the Accounts view on the same lifecycle state as Member Portal → Classes.
   // This finalizes any cancellation whose effective date has arrived before rows
   // and billing details are read.
@@ -128,115 +133,35 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
   if (memberRes.rows.length === 0) return { member: null, rows: [] }
   const memberRow = memberRes.rows[0]
 
-  let school = null
-  let graduationYear = null
-  try {
-    const ctxRes = await pool.query(
-      `SELECT responses FROM scheduling_signup
-       WHERE member_id = $1 AND orphaned_at IS NULL
-       ORDER BY created_at DESC LIMIT 1`,
-      [memberId],
-    )
-    const raw = ctxRes.rows[0]?.responses
-    const responses = typeof raw === 'string' ? JSON.parse(raw) : raw
-    if (responses?.current_school) school = String(responses.current_school).trim()
-    if (responses?.graduation_year != null && responses.graduation_year !== '') {
-      graduationYear = Number(responses.graduation_year)
-    }
-  } catch {
-    /* optional */
-  }
-
   let priceById = new Map()
   let adjustedBySignupId = new Map()
   let discountLabelBySignupId = new Map()
   let discountComponentsBySignupId = new Map()
   let manualAppliedBySignupId = new Map()
   try {
-    const preview = await buildSignupOrderPreview(pool, {
-      memberId,
-      newSignups: [],
-      promoCodes: [],
-      memberContext: {
-        city: memberRow.billing_city ?? null,
-        school,
-        graduationYear: Number.isFinite(graduationYear) ? graduationYear : null,
-        familyId: memberRow.family_id ?? null,
-      },
+    const resolved = familyPricing ?? await resolveFamilyEnrollmentPricing(pool, {
+      familyId: Number(memberRow.family_id),
+      periodKey: pricingPeriod ?? billingMonthKey(new Date()),
     })
-    for (const cls of preview?.existingClasses ?? []) {
-      if (cls.id != null) priceById.set(Number(cls.id), Math.round((cls.monthlyPrice || 0) * 100))
-    }
-
-    const previewExistingLines = (preview?.existingClasses ?? [])
-      .filter((cls) => cls.id != null && (cls.monthlyPrice || 0) > 0)
-      .map((cls) => ({
-        key: `preview-existing-${cls.id}`,
-        signupId: Number(cls.id),
-        formId: cls.formId,
-        programId: cls.programsId ?? null,
-        sportId: null,
-        memberId,
-        familyId: memberRow.family_id ?? null,
-        baseCents: Math.round((cls.monthlyPrice || 0) * 100),
-        listCents: Math.round((cls.monthlyPrice || 0) * 100),
-        finalCents: Math.round((cls.monthlyPrice || 0) * 100),
-        includeInSubtotal: false,
-        shadowOnly: true,
-      }))
-
-    if (previewExistingLines.length > 0) {
-      const discounts = await computeExistingEnrollmentDiscounts(pool, {
-        memberId,
-        promoCodes: [],
-        memberContext: {
-          city: memberRow.billing_city ?? null,
-          school,
-          graduationYear: Number.isFinite(graduationYear) ? graduationYear : null,
-          familyId: memberRow.family_id ?? null,
-        },
-        previewExistingLines,
-        formRows: new Map(),
-        scopeMeta: new Map(),
-      })
-      for (const line of discounts?.accountLines ?? []) {
-        adjustedBySignupId.set(line.signupId, line.finalCents)
-        const components = (line.applied ?? [])
-          .map((entry) => ({
-            ruleId: entry.ruleId == null ? null : Number(entry.ruleId),
-            name:
-              entry.name ||
-              (entry.source === 'manual' ? 'Manual enrollment discount' : 'Automatic discount'),
-            type: entry.type ?? null,
-            amountCents: Math.max(0, Number(entry.amountCents) || 0),
-            source: entry.source ?? null,
-            amountType: entry.amountType ?? null,
-            amountValue: entry.amountValue == null ? null : Number(entry.amountValue),
-            promoCode: entry.promoCode ?? null,
-            qualifiedLabel: entry.qualifiedLabel ?? null,
-            qualifiedClassCount:
-              entry.qualifiedClassCount == null ? null : Number(entry.qualifiedClassCount),
-            qualifyingSubtotalCents:
-              entry.qualifyingSubtotalCents == null
-                ? null
-                : Number(entry.qualifyingSubtotalCents),
-          }))
-          .filter((entry) => entry.amountCents > 0)
-        if (components.length > 0) discountComponentsBySignupId.set(line.signupId, components)
-        const manualApplied = (line.applied ?? [])
-          .filter((entry) => entry.source === 'manual')
-          .reduce((sum, entry) => sum + Math.max(0, Number(entry.amountCents) || 0), 0)
-        if (manualApplied > 0) manualAppliedBySignupId.set(line.signupId, manualApplied)
-        if (line.baseCents > line.finalCents && line.applied?.length) {
-          discountLabelBySignupId.set(
-            line.signupId,
-            line.applied.map((a) => a.name).filter(Boolean).join(', '),
-          )
-        }
+    for (const line of resolved?.lines ?? []) {
+      const signupId = Number(line.signupId)
+      priceById.set(signupId, Number(line.grossCents) || 0)
+      adjustedBySignupId.set(signupId, Number(line.netCents) || 0)
+      const components = Array.isArray(line.discountComponents)
+        ? line.discountComponents.filter((entry) => Number(entry.amountCents) > 0)
+        : []
+      if (components.length > 0) {
+        discountComponentsBySignupId.set(signupId, components)
+        discountLabelBySignupId.set(
+          signupId,
+          components.map((entry) => entry.name).filter(Boolean).join(', '),
+        )
       }
+      const manualApplied = Math.max(0, Number(line.manualAdjustmentCents) || 0)
+      if (manualApplied > 0) manualAppliedBySignupId.set(signupId, manualApplied)
     }
   } catch (err) {
-    console.warn('[adminEnrollmentsView] preview failed:', err.message)
+    console.warn('[adminEnrollmentsView] family pricing failed:', err.message)
   }
 
   // Billing subscription (gross/discount/net + status) keyed by signup id.
