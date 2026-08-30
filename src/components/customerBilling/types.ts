@@ -180,10 +180,14 @@ export interface BillingTransaction {
   memberId: number | null
   memberName: string | null
   description: string
+  billingMonths: string[]
   amountCents: number
   occurredAt: string
   status: string
   runningBalanceCents: number
+  appliedAmountCents: number
+  remainingAmountCents: number
+  applications: Array<Record<string, unknown>>
   details: Record<string, unknown>
 }
 

@@ -63,6 +63,9 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
   const subscriptionId = invoiceSubscriptionId(invoice)
   const amountCents = Math.round(Number(invoice.amount_paid ?? invoice.amount_due) || 0)
   if (amountCents <= 0) return null
+  const paidAt = invoice.status_transitions?.paid_at
+    ? new Date(invoice.status_transitions.paid_at * 1000)
+    : new Date()
 
   const stripeClient = stripe || (await getStripeClient())
   const method = await resolveStripePaymentMethodLabel(stripeClient, {
@@ -85,9 +88,7 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
     [
       accountId,
       amountCents,
-      invoice.status_transitions?.paid_at
-        ? new Date(invoice.status_transitions.paid_at * 1000)
-        : new Date(),
+      paidAt,
       method,
       invoice.id,
       objectId(invoice.customer),
@@ -96,7 +97,46 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
     ],
   )
   const payment = result.rows[0] ?? null
-  if (payment) payment.newly_inserted = true
+  if (payment) {
+    payment.newly_inserted = true
+    if (subscriptionId) {
+      const annualSubscription = await pool.query(
+        `SELECT * FROM billing_subscription
+         WHERE stripe_subscription_id = $1
+           AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
+         LIMIT 1`,
+        [subscriptionId],
+      ).then((lookup) => lookup.rows[0] ?? null)
+      if (annualSubscription?.member_id) {
+        const feeId = Number(String(annualSubscription.source_id || '').split(':')[0])
+        const renewal = new Date(Date.UTC(
+          paidAt.getUTCFullYear() + 1,
+          paidAt.getUTCMonth(),
+          paidAt.getUTCDate(),
+        )).toISOString().slice(0, 10)
+        if (Number.isFinite(feeId) && feeId > 0) {
+          await pool.query(
+            `INSERT INTO billing_charge (
+               family_billing_account_id, member_id, source_type, source_id,
+               description, amount_cents, gross_amount_cents, discount_amount_cents,
+               charge_type, billing_interval, collection_status, metadata, created_at
+             ) VALUES ($1, $2, 'additional_fee', $3, $4, $5, $5, 0,
+                       'one_time', 'one_time', 'unpaid', $6::jsonb, $7)
+             ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+            [
+              accountId,
+              annualSubscription.member_id,
+              `${feeId}:${annualSubscription.member_id}:${renewal}`,
+              annualSubscription.description || 'Annual Membership',
+              amountCents,
+              JSON.stringify({ stripeInvoiceId: invoice.id, stripeSubscriptionId: subscriptionId, renewal: true }),
+              paidAt,
+            ],
+          )
+        }
+      }
+    }
+  }
   return payment
 }
 

@@ -5,6 +5,7 @@
 
 import crypto from 'crypto'
 import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, ensureStripeCustomer, recordEnrollmentStripePayment } from './stripeBilling.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
   feeLookupKey,
   passLookupKey,
@@ -994,6 +995,10 @@ export async function confirmEnrollmentCheckoutSession(
     session,
     accountId: Number(pending.family_billing_account_id),
   })
+  await allocateHouseholdPayments(pool, {
+    accountId: Number(pending.family_billing_account_id),
+    actorType: 'stripe',
+  })
   void emitStripePurchaseEvent(pool, {
     payment,
     session,
@@ -1224,6 +1229,10 @@ async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, strip
         const payment = await recordEnrollmentStripePayment(pool, stripe, {
           session: stripeSession,
           accountId: Number(familyBillingAccountId),
+        })
+        await allocateHouseholdPayments(pool, {
+          accountId: Number(familyBillingAccountId),
+          actorType: 'stripe',
         })
         void emitStripePurchaseEvent(pool, {
           payment,

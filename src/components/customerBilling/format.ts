@@ -41,6 +41,15 @@ export function monthLabel(value: string | null | undefined): string {
   })
 }
 
+export function billingMonthLabel(value: string | null | undefined): string {
+  if (!value) return 'Unknown billing month'
+  const [year, month] = value.slice(0, 7).split('-').map(Number)
+  return new Date(year, month - 1, 1).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export function currentMonthInput(): string {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`

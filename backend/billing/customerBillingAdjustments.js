@@ -15,6 +15,7 @@ import {
 import { normalizePromoCode } from '../scheduling/promoCodeRegistry.js'
 import { promoTargetsMembershipFee } from '../scheduling/discountEngine.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 
 function parseJson(value, fallback = {}) {
   if (value == null) return fallback
@@ -606,6 +607,10 @@ async function activateAdjustmentAtomically(pool, {
       eventKey,
     }))
     await client.query('COMMIT')
+    await allocateHouseholdPayments(pool, {
+      accountId: adjustment.family_billing_account_id,
+      actorType: 'system',
+    }).catch((error) => console.warn('[customer-billing] adjustment allocation:', error?.message ?? error))
     return { adjustment: active, retroactiveEntries }
   } catch (error) {
     await client.query('ROLLBACK')
@@ -1092,5 +1097,9 @@ export async function revokeEnrollmentPriceAdjustment(pool, {
       )
     }
   }
+  await allocateHouseholdPayments(pool, {
+    accountId: adjustment.family_billing_account_id,
+    actorType: 'system',
+  }).catch((error) => console.warn('[customer-billing] adjustment reversal allocation:', error?.message ?? error))
   return { adjustment: mapPriceAdjustment(revoked), corrections }
 }

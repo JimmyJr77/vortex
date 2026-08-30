@@ -24,6 +24,9 @@ function refundPreviewPool({ balanceCents = 2500, refundedCents = 2000, chargeAm
       if (sql.includes("ledger_treatment = 'reverse_charge'")) {
         return { rows: [{ cents: 1000 }] }
       }
+      if (sql.includes('FROM billing_payment_application')) {
+        return { rows: [{ cents: chargeAmountCents }] }
+      }
       throw new Error(`Unexpected query: ${sql}`)
     },
   }

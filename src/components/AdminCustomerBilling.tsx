@@ -10,13 +10,11 @@ import {
   CreditCard,
   Download,
   ExternalLink,
-  FileText,
   Filter,
   Loader2,
   Mail,
   PencilLine,
   Plus,
-  Receipt,
   RefreshCw,
   Search,
   Users,
@@ -24,11 +22,10 @@ import {
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { CustomChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
-import { calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
+import { billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
   BillingDiscountComponent,
-  BillingStatement,
   BillingTransaction,
   CustomerBillingAnnualMembership,
   CustomerBillingEnrollment,
@@ -80,6 +77,26 @@ function auditDetailLabel(label: string) {
 function auditDetailValue(label: string, value: unknown) {
   if (/Cents$/.test(label) && Number.isFinite(Number(value))) return money(Number(value))
   return typeof value === 'object' ? JSON.stringify(value) : String(value)
+}
+
+function AuditDetailValue({ label, value }: { label: string; value: unknown }) {
+  if (Array.isArray(value)) {
+    return value.length ? (
+      <div className="mt-1 space-y-1.5">
+        {value.map((item, index) => {
+          const record = item && typeof item === 'object' ? item as Record<string, unknown> : { value: item }
+          return (
+            <div key={String('applicationId' in record ? record.applicationId ?? index : index)} className="rounded-md border border-gray-200 bg-white p-2 text-gray-700">
+              {Object.entries(record).filter(([, entry]) => entry != null && entry !== '').map(([entryLabel, entry]) => (
+                <div key={entryLabel}><span className="font-semibold">{auditDetailLabel(entryLabel)}:</span> {auditDetailValue(entryLabel, entry)}</div>
+              ))}
+            </div>
+          )
+        })}
+      </div>
+    ) : <span className="text-gray-500">None</span>
+  }
+  return <span className="break-all text-gray-700">{auditDetailValue(label, value)}</span>
 }
 
 function retryableAdjustmentForEnrollment(enrollment: CustomerBillingEnrollment): PriceAdjustment | null {
@@ -383,7 +400,7 @@ function EnrollmentSection({
                       <td className="min-w-[250px] px-4 py-3">
                         <div className="font-semibold text-gray-950">
                           {enrollment.class_name || 'Class'}
-                          <span className="font-normal text-gray-400"> · Enrollment #{enrollment.id}</span>
+                          <span className="ml-1 text-xs font-normal text-gray-500">#{enrollment.id}</span>
                         </div>
                         <div className="mt-1 text-xs text-gray-500">
                           {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}
@@ -405,17 +422,30 @@ function EnrollmentSection({
                       <td className="px-4 py-3 text-right"><strong className="text-base text-gray-950">{money(enrollment.adjustedCostCents)}</strong><span className="block text-xs text-gray-400">per month</span></td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          <Badge value={enrollment.status} />
-                          {enrollment.billing_status ? <Badge value={enrollment.billing_status} /> : null}
+                          <Badge
+                            value={enrollment.status}
+                            label={`Class ${enrollment.status.replaceAll('_', ' ')}`}
+                          />
+                          {enrollment.billing_status ? (
+                            <Badge
+                              value={enrollment.billing_status}
+                              label={`Billing ${enrollment.billing_status.replaceAll('_', ' ')}`}
+                            />
+                          ) : null}
                           <Badge
                             value={enrollment.priceSyncStatus}
-                            label={enrollment.priceSyncStatus === 'failed' ? 'Stripe sync failed' : undefined}
+                            label={
+                              enrollment.priceSyncStatus === 'synced'
+                                ? 'Stripe pricing synced'
+                                : enrollment.priceSyncStatus === 'failed'
+                                  ? 'Stripe pricing sync failed'
+                                  : `Stripe pricing ${enrollment.priceSyncStatus.replaceAll('_', ' ')}`
+                            }
                           />
                           {failedAdjustment && enrollment.priceSyncStatus !== 'failed' ? <Badge value="sync_failed" label="Price change sync failed" /> : null}
                         </div>
                         <p className="mt-1 text-xs text-gray-500">
                           Next bill {calendarDate(enrollment.nextBillDate)}
-                          {enrollment.stripeSubscriptionScheduleId ? ' · scheduled phases' : ''}
                         </p>
                         {syncError ? <StripeSyncFailure error={syncError} /> : null}
                       </td>
@@ -480,7 +510,7 @@ function TransactionsPanel({
       <div className="grid gap-2 border-b border-gray-200 bg-gray-50 p-4 md:grid-cols-[minmax(180px,1fr)_repeat(4,minmax(120px,auto))_auto]">
         <input value={filters.search} onChange={(event) => onFilterChange('search', event.target.value)} placeholder="Description or reference" className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" />
         <select value={filters.type} onChange={(event) => onFilterChange('type', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All types</option><option value="charge">All charges</option><option value="recurring">Recurring</option><option value="one_time">One-time</option><option value="adjustment">Adjustments</option><option value="credit">Credits</option><option value="payment">Payments</option><option value="refund">Refunds</option></select>
-        <select value={filters.status} onChange={(event) => onFilterChange('status', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All statuses</option><option value="paid">Paid</option><option value="settled">Settled</option><option value="succeeded">Succeeded</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="unpaid">Unpaid</option></select>
+        <select value={filters.status} onChange={(event) => onFilterChange('status', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All statuses</option><option value="paid">Paid</option><option value="partially_paid">Partially paid</option><option value="settled">Settled</option><option value="succeeded">Succeeded</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="unpaid">Unpaid</option></select>
         <input type="date" value={filters.from} onChange={(event) => onFilterChange('from', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" aria-label="Transactions from date" />
         <input type="date" value={filters.through} onChange={(event) => onFilterChange('through', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" aria-label="Transactions through date" />
         <div className="flex gap-2"><button type="button" onClick={onApplyFilters} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-2 text-sm font-semibold text-white"><Filter className="h-4 w-4" /> Apply</button><button type="button" onClick={onExport} className="rounded-lg border border-gray-300 bg-white p-2 text-gray-700" aria-label="Export filtered transactions"><Download className="h-4 w-4" /></button></div>
@@ -496,13 +526,19 @@ function TransactionsPanel({
               const discountCode = row.entryKind === 'charge' && row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
                 ? row.details.discountCode.trim()
                 : ''
+              const billingMonths = row.billingMonths ?? []
+              const billingPeriod = billingMonths.length > 1
+                ? 'Multiple billing months'
+                : billingMonths.length === 1
+                  ? billingMonthLabel(billingMonths[0])
+                  : null
               return (
                 <Fragment key={key}>
                   <tr className="border-t border-gray-100">
                     <td className="px-4 py-3"><button type="button" onClick={() => setExpanded(isExpanded ? null : key)} className="rounded p-1 text-gray-500 hover:bg-gray-100" aria-label={`${isExpanded ? 'Collapse' : 'Expand'} transaction ${row.refId}`}>{isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</button></td>
                     <td className="whitespace-nowrap px-4 py-3 text-gray-600">{localDate(row.occurredAt)}</td>
                     <td className="px-4 py-3 text-gray-600">{row.memberName || 'Household'}</td>
-                    <td className="max-w-[300px] px-4 py-3"><strong className="block truncate text-gray-900">{row.description}</strong><span className="text-xs text-gray-400">#{row.refId}</span></td>
+                    <td className="max-w-[300px] px-4 py-3"><strong className="block truncate text-gray-900">{row.description}</strong>{billingPeriod ? <span className="text-xs text-gray-500">{billingPeriod}</span> : null}</td>
                     <td className="px-4 py-3 capitalize text-gray-600">{row.entryType.replaceAll('_', ' ')}</td>
                     <td className="px-4 py-3"><Badge value={row.status} /></td>
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : '—'}</td>
@@ -510,7 +546,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
                     <td className="px-4 py-3"><div className="flex justify-end gap-1">{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
                   </tr>
-                  {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><span className="break-all text-gray-700">{auditDetailValue(label, value)}</span></div>)}</div></td></tr> : null}
+                  {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label} className={Array.isArray(value) ? 'sm:col-span-2 lg:col-span-4' : ''}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><AuditDetailValue label={label} value={value} /></div>)}</div></td></tr> : null}
                 </Fragment>
               )
             })}
@@ -557,7 +593,6 @@ export default function AdminCustomerBilling() {
   const [transactionCursor, setTransactionCursor] = useState<string | null>(null)
   const [activityRows, setActivityRows] = useState<BillingActivity[]>([])
   const [activityCursor, setActivityCursor] = useState<string | null>(null)
-  const [statements, setStatements] = useState<BillingStatement[]>([])
   const [auditTab, setAuditTab] = useState<'transactions' | 'activity'>('transactions')
   const [transactionFilters, setTransactionFilters] = useState({ search: '', type: '', status: '', from: '', through: '' })
   const [loading, setLoading] = useState(false)
@@ -573,7 +608,6 @@ export default function AdminCustomerBilling() {
 
   const canManage = access.isMasterAdmin || access.permissions.includes('billing.manage')
   const canManageContact = access.isMasterAdmin || access.permissions.includes('family_billing.manage')
-  const canManageStatements = access.isMasterAdmin || access.permissions.includes('billing.statements.manage')
 
   useEffect(() => {
     adminApiRequest('/api/admin/access/me')
@@ -685,17 +719,12 @@ export default function AdminCustomerBilling() {
     setLastActionUrl(null)
     try {
       const overviewParams = memberId == null ? '' : `?memberId=${memberId}`
-      const [overviewResponse, statementResponse] = await Promise.all([
-        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`),
-        adminApiRequest(`/api/admin/families/${familyId}/statements`),
-      ])
-      const [overviewBody, statementBody] = await Promise.all([jsonBody(overviewResponse), jsonBody(statementResponse)])
+      const overviewResponse = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`)
+      const overviewBody = await jsonBody(overviewResponse)
       if (!overviewResponse.ok) throw new Error(overviewBody.message || 'Billing account failed to load.')
-      if (!statementResponse.ok) throw new Error(statementBody.message || 'Statements failed to load.')
       const nextOverview = overviewBody.data as CustomerBillingOverview
       setOverview(nextOverview)
       setSelectedMemberId(memberId)
-      setStatements(statementBody.data ?? [])
       setContactDraft({
         payerMemberId: nextOverview.account.payerMemberId,
         billingEmail: nextOverview.account.billingEmail || '',
@@ -871,22 +900,6 @@ export default function AdminCustomerBilling() {
     }
   }
 
-  const generateStatement = async () => {
-    if (!overview) return
-    setSaving(true)
-    setError(null)
-    try {
-      const response = await adminApiRequest(`/api/admin/families/${overview.account.familyId}/statements`, { method: 'POST', body: JSON.stringify({ status: 'issued' }) })
-      const body = await jsonBody(response)
-      if (!response.ok) throw new Error(body.message || 'Statement generation failed.')
-      await refresh(`Statement #${body.data.id} generated.`)
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Statement generation failed.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const revokeAdjustment = async (adjustment: PriceAdjustment) => {
     const reason = window.prompt('Reason for revoking this price change:')?.trim()
     if (!reason) return
@@ -1029,7 +1042,7 @@ export default function AdminCustomerBilling() {
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
               <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h2><Badge value={overview.account.isActive ? 'active' : 'inactive'} /></div><p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId} · Billing account #{overview.account.id}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => chooseMember(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>{overview.members.map((member) => <button key={member.id} type="button" onClick={() => chooseMember(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}</div></div>
-              <div className="flex flex-wrap gap-2"><button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button><button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button><button type="button" onClick={() => void generateStatement()} disabled={!canManageStatements || saving} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><FileText className="h-4 w-4" /> Generate statement</button><button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account from Stripe" title="Refresh from Stripe and clear verified stale alerts"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button></div>
+              <div className="flex flex-wrap gap-2"><button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button><button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button><button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account from Stripe" title="Refresh from Stripe and clear verified stale alerts"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button></div>
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-5">
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? 'Amount due' : 'Paid in full'} />
@@ -1088,10 +1101,6 @@ export default function AdminCustomerBilling() {
             {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Statements</h2><p className="text-sm text-gray-500">Issued household snapshots and their underlying charge lines.</p></div><Receipt className="h-5 w-5 text-gray-400" /></div>
-            <div className="divide-y divide-gray-100">{statements.map((statement) => <details key={statement.id} className="px-5 py-4"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 marker:hidden"><div><strong className="text-sm text-gray-950">Statement #{statement.id}</strong><span className="ml-2"><Badge value={statement.status} /></span><div className="mt-1 text-xs text-gray-500">{localDate(statement.statementDate)}{statement.dueDate ? ` · due ${localDate(statement.dueDate)}` : ''}</div></div><div className="flex items-center gap-3"><strong>{money(statement.totalCents)}</strong><ChevronDown className="h-4 w-4 text-gray-400" /></div></summary><div className="mt-3 space-y-1 rounded-lg bg-gray-50 p-3 text-sm">{statement.lines.map((line, index) => <div key={line.id ?? index} className="flex justify-between gap-4"><span className="text-gray-600">{line.description}</span><span>{money(Number(line.amount_cents))}</span></div>)}</div></details>)}{statements.length === 0 ? <div className="px-5 py-8 text-center text-gray-500">No statements generated yet.</div> : null}</div>
-          </section>
         </>
       ) : null}
 

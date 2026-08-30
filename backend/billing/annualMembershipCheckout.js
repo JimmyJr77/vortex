@@ -23,6 +23,7 @@ import {
 } from '../scheduling/membershipAnniversary.js'
 import { mapFeeRow, loadActiveAdditionalFees } from '../scheduling/additionalFeesEngine.js'
 import { createEnrollmentAnnualMembershipSubscriptions } from './stripeEnrollmentCheckout.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 
 export const ANNUAL_MEMBERSHIP_SPORT_NAME = 'Membership'
 export const ANNUAL_MEMBERSHIP_PROGRAM_NAME = 'Annual Membership'
@@ -632,15 +633,8 @@ async function persistAnnualMembershipLedger(pool, {
     ],
   )
 
-  await pool.query(
-    `
-      INSERT INTO additional_fee_redemption
-        (fee_id, member_id, signup_id, period_key, amount_cents)
-      VALUES ($1, $2, NULL, $3, $4)
-      ON CONFLICT (fee_id, member_id, period_key) DO NOTHING
-    `,
-    [fee.id, memberId, renewsOnKey, net],
-  )
+  // Membership activation is derived from payment applications below. This
+  // charge intentionally does not create an entitlement by itself.
 }
 
 /**
@@ -733,6 +727,10 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
     session,
     accountId: resolvedAccountId,
     paidAt: purchasedAt,
+  })
+  await allocateHouseholdPayments(pool, {
+    accountId: resolvedAccountId,
+    actorType: 'stripe',
   })
 
   if (activatedMemberIds.length === 0) {

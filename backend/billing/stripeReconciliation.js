@@ -2,6 +2,7 @@ import { createHash } from 'crypto'
 import { getStripeClient, recordStripePayment, stripeEnabled } from './stripeBilling.js'
 import { ensureStripeOperationsSchema, recordStripeBillingAlert } from './stripeOperations.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
   collectRecurringPricingBoundaries,
   priceRecurringPeriod,
@@ -584,7 +585,10 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
           accountId,
           customerId: stripeId(intent.customer),
         })
-        if (inserted) summary.paymentsInserted += 1
+        if (inserted) {
+          summary.paymentsInserted += 1
+          await allocateHouseholdPayments(pool, { accountId, actorType: 'reconciliation' })
+        }
       } else {
         summary.mismatchesFound += 1
         await createReconciliationAlert(

@@ -7,6 +7,7 @@ import { ensureBillingStripeLinksSchema, getStripeClient, recordEnrollmentStripe
 import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
 import { persistSignupCharges } from '../scheduling/persistSignupCharges.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
   membershipRenewsOnFromPurchase,
   toUtcDateString,
@@ -370,6 +371,7 @@ export async function reconcileEnrollmentLedger(pool, account) {
         paidAt: session.created ? new Date(session.created * 1000) : null,
       })
       if (payment) {
+        await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'reconciliation' })
         repaired = true
         const signups = await loadSignupsForPending(pool, pending)
         const anchorAt = signups[0]?.createdAt ?? pending.updated_at ?? pending.created_at
@@ -385,6 +387,7 @@ export async function reconcileEnrollmentLedger(pool, account) {
   }
 
   if (repaired) {
+    await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'system' })
     console.info('[billing] reconcileEnrollmentLedger repaired account', account.id)
   }
 

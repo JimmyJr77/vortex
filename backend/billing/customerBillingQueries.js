@@ -103,7 +103,10 @@ export function buildCustomerBillingAnnualMemberships({
       .sort((left, right) => dateTimestamp(right.created_at) - dateTimestamp(left.created_at))
 
     const activeSubscription = memberSubscriptions.find((row) => activeAnnualSubscription(row, asOfKey)) ?? null
-    const activeRedemption = memberRedemptions.find((row) => isMembershipValidThrough(row.created_at, asOf)) ?? null
+    const activeRedemption = memberRedemptions.find((row) => (
+      (!row.ended_at || billingDateKey(row.ended_at) > asOfKey) &&
+      isMembershipValidThrough(row.satisfied_at ?? row.created_at, asOf)
+    )) ?? null
     const activeCharge = memberCharges.find((row) => (
       paidAnnualMembershipCharge(row) &&
       billingDateKey(annualMembershipRenewalDateFromCharge(row.source_id)) > asOfKey
@@ -118,7 +121,7 @@ export function buildCustomerBillingAnnualMemberships({
       ? referenceCharge
       : memberCharges.find((row) => isAnnualMembershipCharge(row) && annualMembershipFeeId(row.source_id) === feeId) ?? referenceCharge
     const renewalFromRedemption = referenceRedemption
-      ? membershipRenewsOnFromPurchase(referenceRedemption.created_at)
+      ? membershipRenewsOnFromPurchase(referenceRedemption.satisfied_at ?? referenceRedemption.created_at)
       : null
     const renewalFromSubscriptionStart = referenceSubscription?.start_date
       ? membershipRenewsOnFromPurchase(referenceSubscription.start_date)
@@ -136,13 +139,13 @@ export function buildCustomerBillingAnnualMemberships({
       memberName: member.name,
       billingSubscriptionId:
         referenceSubscription?.id == null ? null : Number(referenceSubscription.id),
-      active: Boolean(activeSubscription || activeRedemption || activeCharge),
+      active: Boolean(activeRedemption || activeCharge),
       membershipDate: serializedDate(
+        referenceRedemption?.satisfied_at ??
         referenceSubscription?.latest_renewal_paid_at ??
         membershipCharge?.paid_at ??
-        membershipCharge?.created_at ??
-        referenceSubscription?.start_date ??
-        referenceRedemption?.created_at,
+        referenceRedemption?.created_at ??
+        referenceSubscription?.start_date,
       ),
       renewalDate: billingDateKey(renewalDate),
       autoRenewal: Boolean(
@@ -184,7 +187,8 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
       [accountId],
     ),
     pool.query(
-      `SELECT r.fee_id, r.member_id, r.created_at, r.period_key, r.amount_cents
+      `SELECT r.fee_id, r.member_id, r.created_at, r.period_key, r.amount_cents,
+              r.satisfied_at, r.ended_at, r.end_reason, r.billing_charge_id
        FROM additional_fee_redemption r
        JOIN additional_fee f ON f.id = r.fee_id
        WHERE r.member_id = ANY($1::bigint[])
@@ -199,17 +203,22 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
       [memberIds],
     ),
     pool.query(
-      `SELECT c.member_id, c.source_type, c.source_id, c.created_at, c.collection_status,
-              (
-                SELECT p.paid_at
-                FROM billing_payment p
-                WHERE p.family_billing_account_id = c.family_billing_account_id
-                  AND c.stripe_checkout_session_id IS NOT NULL
-                  AND p.stripe_checkout_session_id = c.stripe_checkout_session_id
-                ORDER BY p.paid_at DESC, p.id DESC
-                LIMIT 1
-              ) AS paid_at
+      `SELECT c.member_id, c.source_type, c.source_id, c.created_at,
+              CASE
+                WHEN COALESCE(app.applied_cents, 0) >= c.amount_cents THEN 'paid'
+                WHEN COALESCE(app.applied_cents, 0) > 0 THEN 'partially_paid'
+                ELSE c.collection_status
+              END AS collection_status,
+              app.paid_at
        FROM billing_charge c
+       LEFT JOIN LATERAL (
+         SELECT
+           SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS applied_cents,
+           MAX(payment.paid_at) FILTER (WHERE application.application_kind = 'application') AS paid_at
+         FROM billing_payment_application application
+         JOIN billing_payment payment ON payment.id = application.billing_payment_id
+         WHERE application.billing_charge_id = c.id
+       ) app ON TRUE
        WHERE c.family_billing_account_id = $1
          AND c.member_id = ANY($2::bigint[])
          AND c.source_type = 'additional_fee'
@@ -404,10 +413,34 @@ function customerEnrollmentStatus(row) {
   return row.status
 }
 
+function nextCalendarDate(value) {
+  const key = billingDateKey(value)
+  if (!key) return null
+  const [year, month, day] = key.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10)
+}
+
+export function effectiveEnrollmentNextBillDate(subscription = {}) {
+  let nextBillDate = billingDateKey(subscription.next_bill_date ?? subscription.nextBillDate)
+  const paidThroughNextDate = nextCalendarDate(
+    subscription.paid_through_date ?? subscription.paidThroughDate,
+  )
+  if (paidThroughNextDate && (!nextBillDate || paidThroughNextDate > nextBillDate)) {
+    nextBillDate = paidThroughNextDate
+  }
+  const outstandingDueDate = billingDateKey(
+    subscription.oldest_unpaid_service_period_start ?? subscription.oldestUnpaidServicePeriodStart,
+  )
+  if (outstandingDueDate && (!nextBillDate || outstandingDueDate < nextBillDate)) {
+    return outstandingDueDate
+  }
+  return nextBillDate
+}
+
 export function earliestActiveNextBillDate(subscriptions = []) {
   return subscriptions
-    .filter((subscription) => subscription.status === 'active' && subscription.next_bill_date)
-    .map((subscription) => billingDateKey(subscription.next_bill_date))
+    .filter((subscription) => subscription.status === 'active')
+    .map(effectiveEnrollmentNextBillDate)
     .filter(Boolean)
     .sort()[0] ?? null
 }
@@ -467,9 +500,37 @@ export async function buildCustomerBillingOverview(pool, {
         })),
       ),
       pool.query(
-        `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+        `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
+                coverage.oldest_unpaid_service_period_start,
+                coverage.paid_through_date
          FROM billing_subscription bs
          LEFT JOIN member m ON m.id = bs.member_id
+         LEFT JOIN LATERAL (
+           SELECT
+             MIN(charge.service_period_start) FILTER (
+               WHERE charge.service_period_start IS NOT NULL
+                 AND charge.applied_cents < charge.amount_cents
+             ) AS oldest_unpaid_service_period_start,
+             MAX(charge.service_period_end) FILTER (
+               WHERE charge.service_period_end IS NOT NULL
+                 AND charge.applied_cents >= charge.amount_cents
+             ) AS paid_through_date
+           FROM (
+             SELECT c.amount_cents, c.service_period_start, c.service_period_end,
+                    COALESCE((
+                      SELECT SUM(CASE
+                        WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                        ELSE application.amount_cents
+                      END)
+                      FROM billing_payment_application application
+                      WHERE application.billing_charge_id = c.id
+                    ), 0)::int AS applied_cents
+             FROM billing_charge c
+             WHERE c.subscription_id = bs.id
+               AND c.charge_type = 'recurring'
+               AND c.amount_cents > 0
+           ) charge
+         ) coverage ON TRUE
          WHERE bs.family_billing_account_id = $1 AND bs.status <> 'cancelled'
          ORDER BY bs.status, bs.created_at, bs.id`,
         [account.id],
@@ -613,7 +674,7 @@ export async function buildCustomerBillingOverview(pool, {
         activePriceAdjustment: activeAdjustment,
         activePriceAdjustments: activeAdjustments,
         priceAdjustments: rowAdjustments,
-        nextBillDate: billingDateKey(subscription?.next_bill_date),
+        nextBillDate: effectiveEnrollmentNextBillDate(subscription),
         priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
         priceSyncError: customerFacingPriceSyncError(subscription?.price_sync_error),
         stripeSubscriptionScheduleId: subscription?.stripe_subscription_schedule_id ?? null,
@@ -664,7 +725,7 @@ export async function buildCustomerBillingOverview(pool, {
       manualAdjustmentCents: Number(resolved.manualAdjustmentCents ?? 0),
       discountAmountCents: Number(resolved.discountCents ?? 0),
       netMonthlyCents: Number(resolved.netCents ?? 0),
-      nextBillDate: billingDateKey(row.next_bill_date),
+      nextBillDate: effectiveEnrollmentNextBillDate(row),
       startDate: row.start_date ?? null,
       endDate: row.end_date ?? null,
       sourceType: row.source_type,
@@ -774,7 +835,11 @@ export async function listCustomerBillingTransactions(pool, {
          c.amount_cents::int AS amount_cents,
          c.amount_cents::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
-         COALESCE(c.collection_status, 'none')::text AS status,
+         CASE
+           WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(c.amount_cents, 0) AND c.amount_cents > 0 THEN 'paid'
+           WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
+           ELSE COALESCE(c.collection_status, 'none')
+         END::text AS status,
          3::int AS sort_order,
          jsonb_strip_nulls(jsonb_build_object(
            'grossAmountCents', c.gross_amount_cents,
@@ -797,6 +862,9 @@ export async function listCustomerBillingTransactions(pool, {
            'stripeCheckoutSessionId', c.stripe_checkout_session_id,
            'stripePaymentIntentId', c.stripe_payment_intent_id,
            'createdByUserId', c.created_by_user_id,
+           'appliedAmountCents', COALESCE(charge_applications.applied_cents, 0),
+           'remainingAmountCents', GREATEST(0, c.amount_cents - COALESCE(charge_applications.applied_cents, 0)),
+           'paymentApplications', charge_applications.items,
            'metadata', c.metadata
          )) AS details
        FROM billing_charge c
@@ -815,6 +883,28 @@ export async function listCustomerBillingTransactions(pool, {
          ORDER BY ABS(EXTRACT(EPOCH FROM redemption.created_at - c.created_at)), redemption.id DESC
          LIMIT 1
        ) one_time_discount ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT
+           COALESCE(SUM(effective.amount_cents), 0)::int AS applied_cents,
+           jsonb_agg(jsonb_build_object(
+             'paymentId', effective.payment_id,
+             'amountCents', effective.amount_cents,
+             'paymentDate', effective.paid_at,
+             'paymentMethod', effective.method,
+             'allocationReason', effective.allocation_reason
+           ) ORDER BY effective.paid_at, effective.payment_id) AS items
+         FROM (
+           SELECT application.billing_payment_id AS payment_id,
+                  payment.paid_at, payment.method,
+                  MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
+                  SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
+           FROM billing_payment_application application
+           JOIN billing_payment payment ON payment.id = application.billing_payment_id
+           WHERE application.billing_charge_id = c.id
+           GROUP BY application.billing_payment_id, payment.paid_at, payment.method
+           HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
+         ) effective
+       ) charge_applications ON TRUE
        WHERE c.family_billing_account_id = $1
        UNION ALL
        SELECT
@@ -830,9 +920,48 @@ export async function listCustomerBillingTransactions(pool, {
            'stripePaymentIntentId', p.stripe_payment_intent_id,
            'stripeCheckoutSessionId', p.stripe_checkout_session_id,
            'stripeInvoiceId', p.stripe_invoice_id,
-           'recordedByUserId', p.recorded_by_user_id
+           'recordedByUserId', p.recorded_by_user_id,
+           'appliedAmountCents', COALESCE(payment_applications.applied_cents, 0),
+           'remainingAmountCents', GREATEST(0, p.amount_cents - COALESCE(payment_applications.applied_cents, 0) - COALESCE(payment_refunds.refunded_cents, 0)),
+           'applications', payment_applications.items
          )
-       FROM billing_payment p WHERE p.family_billing_account_id = $1
+       FROM billing_payment p
+       LEFT JOIN LATERAL (
+         SELECT
+           COALESCE(SUM(effective.amount_cents), 0)::int AS applied_cents,
+           jsonb_agg(jsonb_build_object(
+             'chargeId', effective.charge_id,
+             'description', effective.description,
+             'memberId', effective.member_id,
+             'memberName', effective.member_name,
+             'billingMonth', effective.billing_month,
+             'amountCents', effective.amount_cents,
+             'allocationReason', effective.allocation_reason
+           ) ORDER BY effective.charge_id) AS items
+         FROM (
+           SELECT application.billing_charge_id AS charge_id,
+                  charge.description, charge.member_id,
+                  COALESCE(charge.service_period_start, charge.created_at::date) AS billing_month,
+                  trim(concat_ws(' ', applied_member.first_name, applied_member.last_name)) AS member_name,
+                  MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
+                  SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
+           FROM billing_payment_application application
+           JOIN billing_charge charge ON charge.id = application.billing_charge_id
+           LEFT JOIN member applied_member ON applied_member.id = charge.member_id
+           WHERE application.billing_payment_id = p.id
+           GROUP BY application.billing_charge_id, charge.description, charge.member_id,
+                    charge.service_period_start, charge.created_at,
+                    applied_member.first_name, applied_member.last_name
+           HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
+         ) effective
+       ) payment_applications ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT COALESCE(SUM(refund.amount_cents), 0)::int AS refunded_cents
+         FROM billing_refund refund
+         WHERE refund.payment_id = p.id
+           AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded')
+       ) payment_refunds ON TRUE
+       WHERE p.family_billing_account_id = $1
        UNION ALL
        SELECT
          'refund', 'refund', r.id, NULL::bigint,
@@ -893,19 +1022,40 @@ export async function listCustomerBillingTransactions(pool, {
   const hasMore = result.rows.length > pageSize
   const rows = result.rows.slice(0, pageSize)
   return {
-    rows: rows.map((row) => ({
-      entryKind: row.entry_kind,
-      entryType: row.entry_type,
-      refId: Number(row.ref_id),
-      memberId: row.member_id == null ? null : Number(row.member_id),
-      memberName: row.member_name ?? null,
-      description: row.description,
-      amountCents: Number(row.amount_cents),
-      occurredAt: row.occurred_at,
-      status: row.status,
-      runningBalanceCents: Number(row.running_balance_cents),
-      details: row.details ?? {},
-    })),
+    rows: rows.map((row) => {
+      const rawDetails = row.details ?? {}
+      const applications = rawDetails.applications ?? rawDetails.paymentApplications ?? []
+      const billingMonths = row.entry_kind === 'charge' && row.entry_type === 'recurring'
+        ? [billingMonthKey(rawDetails.servicePeriodStart ?? row.occurred_at)]
+        : row.entry_kind === 'payment'
+          ? [...new Set(
+              (Array.isArray(applications) ? applications : [])
+                .map((application) => application?.billingMonth)
+                .filter(Boolean)
+                .map(billingMonthKey),
+            )]
+          : []
+      if (row.entry_kind === 'payment' && billingMonths.length === 0) {
+        billingMonths.push(billingMonthKey(row.occurred_at))
+      }
+      return {
+        entryKind: row.entry_kind,
+        entryType: row.entry_type,
+        refId: Number(row.ref_id),
+        memberId: row.member_id == null ? null : Number(row.member_id),
+        memberName: row.member_name ?? null,
+        description: row.description,
+        billingMonths,
+        amountCents: Number(row.amount_cents),
+        occurredAt: row.occurred_at,
+        status: row.status,
+        runningBalanceCents: Number(row.running_balance_cents),
+        appliedAmountCents: Number(rawDetails.appliedAmountCents ?? 0),
+        remainingAmountCents: Number(rawDetails.remainingAmountCents ?? 0),
+        applications,
+        details: { referenceNumber: Number(row.ref_id), ...rawDetails },
+      }
+    }),
     nextCursor: hasMore && rows.length > 0 ? encodeCursor(rows.at(-1)) : null,
   }
 }

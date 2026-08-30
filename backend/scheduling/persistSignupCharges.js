@@ -451,6 +451,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       ? `${fee.feeId}:${memberId}:${renewsOnKey}`
       : `${fee.feeId}:${firstSignupId ?? memberId}`
 
+    let feeChargeId = null
     try {
       const feeCharge = await pool.query(
         `
@@ -475,7 +476,15 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           fee.promoRuleId != null && feeDiscount > 0 ? fee.promoCode ?? null : null,
         ],
       )
-      if (feeCharge.rows.length > 0) charges += 1
+      if (feeCharge.rows.length > 0) {
+        charges += 1
+        feeChargeId = Number(feeCharge.rows[0].id)
+      } else {
+        feeChargeId = await pool.query(
+          `SELECT id FROM billing_charge WHERE source_type = 'additional_fee' AND source_id = $1 LIMIT 1`,
+          [sourceId],
+        ).then((result) => Number(result.rows[0]?.id) || null)
+      }
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
     }
@@ -497,19 +506,20 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       }
     }
 
-    if (!isAnnualMembership) continue
+    // Paid memberships are activated by the canonical payment allocator. A
+    // fully waived membership has no payment to allocate, so it is satisfied
+    // immediately for the enrolled athlete.
+    if (!isAnnualMembership || feeAmount > 0) continue
     try {
       await pool.query(
-        `
-          INSERT INTO additional_fee_redemption
-            (fee_id, member_id, signup_id, period_key, amount_cents)
-          VALUES ($1, $2, $3, $4, $5)
-          ON CONFLICT (fee_id, member_id, period_key) DO NOTHING
-        `,
-        [fee.feeId, memberId, firstSignupId, renewsOnKey, feeAmount],
+        `INSERT INTO additional_fee_redemption
+           (fee_id, member_id, signup_id, period_key, amount_cents, billing_charge_id, satisfied_at, created_at)
+         VALUES ($1, $2, $3, $4, 0, $5, $6, $6)
+         ON CONFLICT (fee_id, member_id, period_key) DO NOTHING`,
+        [fee.feeId, memberId, firstSignupId, renewsOnKey, feeChargeId, purchasedAt],
       )
     } catch (err) {
-      console.warn('[scheduling] persistSignupCharges fee redemption:', err.message)
+      console.warn('[scheduling] persistSignupCharges waived fee redemption:', err.message)
     }
   }
 

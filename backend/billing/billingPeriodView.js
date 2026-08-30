@@ -81,6 +81,9 @@ function mapChargeRow(charge) {
     displayCategory: chargeDisplayCategory(charge),
     occurredAt: chargeOccurredAt(charge),
     memberName: charge.member_name ?? null,
+    appliedAmountCents: Number(charge.applied_amount_cents ?? 0),
+    remainingAmountCents: Number(charge.remaining_amount_cents ?? amountCents),
+    paymentApplications: charge.payment_applications ?? [],
     stripeCheckoutSessionId: charge.stripe_checkout_session_id ?? null,
   }
 }
@@ -96,6 +99,9 @@ function mapPaymentRow(payment) {
     stripePaymentIntentId: payment.stripe_payment_intent_id ?? null,
     stripeCheckoutSessionId: payment.stripe_checkout_session_id ?? null,
     stripeInvoiceId: payment.stripe_invoice_id ?? null,
+    appliedAmountCents: Number(payment.applied_amount_cents ?? 0),
+    remainingAmountCents: Number(payment.remaining_amount_cents ?? payment.amount_cents ?? 0),
+    chargeApplications: payment.charge_applications ?? [],
   }
 }
 
@@ -152,6 +158,9 @@ export function buildCurrentPeriod({ charges = [], payments = [], subscriptions 
         paidAt: membershipFeePaidAt(charge, payments),
         stripeCheckoutSessionId: charge.stripe_checkout_session_id ?? null,
         memberName: charge.member_name ?? null,
+        appliedAmountCents: Number(charge.applied_amount_cents ?? 0),
+        remainingAmountCents: Number(charge.remaining_amount_cents ?? amt),
+        paymentApplications: charge.payment_applications ?? [],
       })
     } else if (cat === 'enrollment_first_month' || cat === 'recurring_cycle') {
       chargesCents += amt
@@ -203,6 +212,9 @@ function historyLineFromCharge(charge) {
     netCents,
     occurredAt: chargeOccurredAt(charge),
     memberName: charge.member_name ?? null,
+    appliedAmountCents: Number(charge.applied_amount_cents ?? 0),
+    remainingAmountCents: Number(charge.remaining_amount_cents ?? netCents),
+    paymentApplications: charge.payment_applications ?? [],
     stripeRef:
       charge.stripe_checkout_session_id ??
       (charge.source_type === 'scheduling_signup' ? charge.source_id : null),
@@ -218,6 +230,9 @@ function historyLineFromPayment(payment) {
     netCents: -Number(payment.amount_cents ?? 0),
     occurredAt: payment.paid_at,
     memberName: null,
+    appliedAmountCents: Number(payment.applied_amount_cents ?? 0),
+    remainingAmountCents: Number(payment.remaining_amount_cents ?? payment.amount_cents ?? 0),
+    chargeApplications: payment.charge_applications ?? [],
     stripeRef:
       payment.stripe_payment_intent_id ??
       payment.stripe_checkout_session_id ??

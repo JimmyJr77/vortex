@@ -104,7 +104,7 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
   }
 
   try {
-    const redemptionParams = [memberId]
+    const redemptionParams = [memberId, asOfKey]
     let redemptionFeeFilter = ''
     if (feeId != null) {
       redemptionParams.push(Number(feeId))
@@ -117,6 +117,7 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
         JOIN additional_fee f ON f.id = r.fee_id
         WHERE r.member_id = $1
           AND r.amount_cents >= 0
+          AND (r.ended_at IS NULL OR r.ended_at > $2::date)
           AND (
             f.trigger_type = 'once_per_year'
             OR f.apply_basis = 'per_year'
@@ -205,6 +206,7 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
         WHERE r.member_id = $1
           AND r.fee_id = ANY($2::bigint[])
           AND r.amount_cents >= 0
+          AND (r.ended_at IS NULL OR r.ended_at > $3::date)
           AND (
             f.trigger_type = 'once_per_year'
             OR f.apply_basis = 'per_year'
@@ -212,7 +214,7 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
             OR lower(f.name) LIKE '%membership%'
           )
       `,
-      [memberId, remaining],
+      [memberId, remaining, asOfKey],
     )
     for (const row of redRes.rows) {
       if (!isMembershipValidThrough(row.created_at, asOfDate)) continue

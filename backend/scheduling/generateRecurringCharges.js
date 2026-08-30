@@ -19,6 +19,7 @@ import {
 } from './billingSubscriptions.js'
 import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
 import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
+import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 
 /**
  * @param {import('pg').Pool} pool
@@ -104,7 +105,16 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
              amount_cents, gross_amount_cents, discount_amount_cents,
              charge_type, billing_interval, subscription_id,
              service_period_start, service_period_end, price_adjustment_id)
-          VALUES ($1, $2, 'billing_subscription', $3, $4, $5, $6, $7, 'recurring', 'month', $8, $9, $10, $11)
+          SELECT $1, $2, 'billing_subscription', $3, $4, $5, $6, $7,
+                 'recurring', 'month', $8, $9, $10, $11
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM billing_charge existing
+            WHERE existing.subscription_id = $8
+              AND existing.charge_type = 'recurring'
+              AND existing.service_period_start <= $9::date
+              AND existing.service_period_end >= $10::date
+          )
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
           DO NOTHING
           RETURNING id
@@ -134,6 +144,14 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
       `UPDATE billing_subscription SET next_bill_date = $2, updated_at = now() WHERE id = $1`,
       [sub.id, toDateString(nextBill)],
     )
+  }
+
+  for (const accountId of new Set(due.rows.map((row) => Number(row.family_billing_account_id)))) {
+    try {
+      await allocateHouseholdPayments(pool, { accountId, actorType: 'system' })
+    } catch (error) {
+      console.warn('[billing] recurring payment allocation:', accountId, error?.message ?? error)
+    }
   }
 
   return {

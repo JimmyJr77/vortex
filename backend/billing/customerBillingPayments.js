@@ -9,6 +9,12 @@ import {
 import { createBillingRefund } from './stripeOperations.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { ensureCustomerBillingAccount } from './customerBillingQueries.js'
+import {
+  applyExactPayment,
+  allocateHouseholdPayments,
+  endRefundedAnnualMembership,
+  reverseRefundedApplications,
+} from './paymentAllocation.js'
 
 function positiveCents(value, label = 'Amount') {
   const amount = Number(value)
@@ -154,6 +160,9 @@ export async function createCustomerBillingCustomCharge(pool, {
       },
       actorUserId,
     })
+    if (collectionMethod === 'ledger_only') {
+      await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'admin' })
+    }
   }
   return { account, charge, created }
 }
@@ -462,17 +471,13 @@ export async function linkCustomerBillingPayment(pool, {
   if (amount !== Number(charge.amount_cents)) {
     throw new Error('Payment amount does not exactly match the custom charge.')
   }
-  const result = await pool.query(
-    `INSERT INTO billing_payment_application (billing_payment_id, billing_charge_id, amount_cents)
-     VALUES ($1, $2, $3)
-     ON CONFLICT (billing_charge_id) DO NOTHING
-     RETURNING *`,
-    [payment.id, charge.id, amount],
-  )
-  const application = result.rows[0] ?? await pool.query(
-    `SELECT * FROM billing_payment_application WHERE billing_charge_id = $1`,
-    [charge.id],
-  ).then((lookup) => lookup.rows[0] ?? null)
+  const application = await applyExactPayment(pool, {
+    accountId,
+    paymentId: payment.id,
+    chargeId: charge.id,
+    amountCents: amount,
+    actorType,
+  })
   if (!application || Number(application.billing_payment_id) !== Number(payment.id)) {
     throw new Error('Custom charge is already linked to a different payment.')
   }
@@ -542,6 +547,15 @@ export async function previewCustomerBillingRefund(pool, {
   if (ledgerTreatment === 'reverse_charge') {
     if (!relatedChargeId) throw new Error('Select the charge that this refund reverses or waives.')
     relatedCharge = await loadCharge(pool, account.id, relatedChargeId)
+    const appliedFromPayment = await pool.query(
+      `SELECT COALESCE(SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END), 0)::int AS cents
+       FROM billing_payment_application
+       WHERE billing_payment_id = $1 AND billing_charge_id = $2`,
+      [payment.id, relatedCharge.id],
+    )
+    if (amount > Number(appliedFromPayment.rows[0]?.cents ?? 0)) {
+      throw new Error('Refund amount exceeds this payment’s application to the selected charge.')
+    }
     const prior = await pool.query(
       `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
        FROM billing_refund
@@ -614,6 +628,10 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, { actorUse
       )
     }
   }
+  const applicationReversals = await reverseRefundedApplications(pool, { refund, actorType })
+  const membershipEnd = refund.ledger_treatment === 'reverse_charge'
+    ? await endRefundedAnnualMembership(pool, await getStripeClient(), refund)
+    : { ended: false, subscriptions: [] }
   await recordBillingActivity(pool, {
     eventKey: `refund-succeeded:${refund.id}`,
     accountId: refund.family_billing_account_id,
@@ -626,6 +644,8 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, { actorUse
       amountCents: Number(refund.amount_cents),
       ledgerTreatment: refund.ledger_treatment,
       offsetCreditChargeId: offsetCredit ? Number(offsetCredit.id) : null,
+      paymentApplicationReversalIds: applicationReversals.map((row) => Number(row.id)),
+      annualMembershipEnded: membershipEnd.ended,
     },
     stripeObjectId: refund.stripe_refund_id,
     actorUserId,

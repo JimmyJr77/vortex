@@ -94,6 +94,7 @@ import {
   finalizeRefundLedgerTreatment,
   linkCustomerBillingPayment,
 } from '../billing/customerBillingPayments.js'
+import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1868,6 +1869,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       ],
     )
     const paymentRow = payment.rows[0]
+    await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'admin' })
     await recordBillingActivityBestEffort(pool, {
       eventKey: `manual-payment-recorded:${paymentRow.id}`,
       accountId: account.id,
@@ -2061,17 +2063,31 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const charges = await pool.query(
       `
-        SELECT c.*
+        SELECT c.*,
+               CASE
+                 WHEN c.amount_cents > 0 THEN GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0))
+                 ELSE c.amount_cents
+               END::int AS statement_amount_cents
         FROM billing_charge c
+        LEFT JOIN LATERAL (
+          SELECT SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END)::int AS applied_cents
+          FROM billing_payment_application
+          WHERE billing_charge_id = c.id
+        ) app ON TRUE
         WHERE c.family_billing_account_id = $1
-          AND NOT EXISTS (
-            SELECT 1 FROM billing_statement_line l WHERE l.charge_id = c.id
-          )
+          AND (c.amount_cents < 0 OR GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0)) > 0)
         ORDER BY c.created_at, c.id
       `,
       [account.id],
     )
-    const total = charges.rows.reduce((sum, c) => sum + Number(c.amount_cents ?? 0), 0)
+    const statementLines = charges.rows.map((charge) => ({
+      ...charge,
+      amount_cents: Number(charge.statement_amount_cents),
+    }))
+    const total = statementLines.reduce((sum, charge) => sum + Number(charge.amount_cents ?? 0), 0)
+    if (statementLines.length === 0 || total <= 0) {
+      return res.status(400).json({ success: false, message: 'This household has no outstanding charges to include on a statement.' })
+    }
     await pool.query('BEGIN')
     try {
       const statement = await pool.query(
@@ -2082,7 +2098,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         `,
         [account.id, req.body?.statementDate ?? null, req.body?.dueDate ?? null, total, req.body?.status ?? 'issued'],
       )
-      for (const charge of charges.rows) {
+      for (const charge of statementLines) {
         await pool.query(
           `
             INSERT INTO billing_statement_line (statement_id, charge_id, member_id, description, amount_cents)
@@ -2097,10 +2113,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         accountId: account.id,
         eventType: 'statement_generated',
         summary: `Statement #${statement.rows[0].id} was generated.`,
-        afterValue: mapStatement(statement.rows[0], charges.rows),
+        afterValue: mapStatement(statement.rows[0], statementLines),
         actorUserId: req.platformAuth?.user?.id ?? null,
       })
-      res.json({ success: true, data: mapStatement(statement.rows[0], charges.rows) })
+      res.json({ success: true, data: mapStatement(statement.rows[0], statementLines) })
     } catch (error) {
       await pool.query('ROLLBACK')
       res.status(400).json({ success: false, message: error.message })
@@ -2872,6 +2888,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             stripeObjectId: insertedPayment.stripe_payment_intent_id ?? obj.id,
             actorType: 'stripe',
           })
+        } else if (insertedPayment && accountId) {
+          await allocateHouseholdPayments(pool, { accountId, actorType: 'stripe' })
         }
         // Emits only when this call inserted the payment row (newly_inserted);
         // the enrollment path usually emits inside commitPendingEnrollment instead.
@@ -2909,6 +2927,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const stripe = await getStripeClient()
         const payment = await recordPaidStripeInvoice(pool, invoice, { stripe })
         if (payment) {
+          await allocateHouseholdPayments(pool, {
+            accountId: payment.family_billing_account_id,
+            actorType: 'stripe',
+          })
           await recordBillingActivityBestEffort(pool, {
             eventKey: `stripe-invoice-payment:${payment.id}`,
             accountId: payment.family_billing_account_id,

@@ -34,6 +34,7 @@
     "billing:recurring": "node scheduling/runRecurringCharges.js",
     "billing:repair-autopay": "node scripts/repair-enrollment-auto-pay.mjs",
     "billing:audit-family-discounts": "node scripts/audit-family-discounts.mjs",
+    "billing:repair-membership-allocation": "node scripts/repair-membership-payment-allocation.mjs",
     "roster:daily": "node scheduling/runDailyRoster.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",
     "stripe:reconcile": "node billing/runStripeReconciliation.js",

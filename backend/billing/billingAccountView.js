@@ -54,8 +54,11 @@ export function resolveMembershipRenewsOn({
   }
 
   for (const row of redemptions) {
-    if (!isMembershipValidThrough(row.created_at ?? row.createdAt, asOf)) continue
-    const renews = membershipRenewsOnFromPurchase(row.created_at ?? row.createdAt)
+    const endedAt = row.ended_at ?? row.endedAt
+    if (endedAt && new Date(endedAt).getTime() <= asOf.getTime()) continue
+    const satisfiedAt = row.satisfied_at ?? row.satisfiedAt ?? row.created_at ?? row.createdAt
+    if (!isMembershipValidThrough(satisfiedAt, asOf)) continue
+    const renews = membershipRenewsOnFromPurchase(satisfiedAt)
     if (renews) dates.push(renews)
   }
 
@@ -223,9 +226,33 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   }
   const chargesRes = await pool.query(
     `
-      SELECT c.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+      SELECT c.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
+             COALESCE(app.applied_cents, 0)::int AS applied_amount_cents,
+             GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0))::int AS remaining_amount_cents,
+             app.items AS payment_applications
       FROM billing_charge c
       LEFT JOIN member m ON m.id = c.member_id
+      LEFT JOIN LATERAL (
+        SELECT
+          SUM(effective.amount_cents)::int AS applied_cents,
+          jsonb_agg(jsonb_build_object(
+            'paymentId', effective.payment_id,
+            'amountCents', effective.amount_cents,
+            'paidAt', effective.paid_at,
+            'method', effective.method,
+            'allocationReason', effective.allocation_reason
+          ) ORDER BY effective.paid_at, effective.payment_id) AS items
+        FROM (
+          SELECT application.billing_payment_id AS payment_id, payment.paid_at, payment.method,
+                 MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
+                 SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
+          FROM billing_payment_application application
+          JOIN billing_payment payment ON payment.id = application.billing_payment_id
+          WHERE application.billing_charge_id = c.id
+          GROUP BY application.billing_payment_id, payment.paid_at, payment.method
+          HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
+        ) effective
+      ) app ON TRUE
       WHERE c.family_billing_account_id = $1 ${chargeFilter}
       ORDER BY c.created_at DESC, c.id DESC
     `,
@@ -335,7 +362,8 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     }
     const redemptionRes = await pool.query(
       `
-        SELECT r.fee_id, r.member_id, r.period_key, r.created_at, r.amount_cents
+        SELECT r.fee_id, r.member_id, r.period_key, r.created_at, r.amount_cents,
+               r.satisfied_at, r.ended_at, r.end_reason, r.billing_charge_id
         FROM additional_fee_redemption r
         JOIN member m ON m.id = r.member_id
         WHERE m.family_id = $1 ${redemptionMemberFilter}
@@ -364,7 +392,41 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   if (familyScope) {
     try {
       const paymentsRes = await pool.query(
-        `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
+        `SELECT payment.*,
+                COALESCE(app.applied_cents, 0)::int AS applied_amount_cents,
+                GREATEST(0, payment.amount_cents - COALESCE(app.applied_cents, 0) - COALESCE(refunds.refunded_cents, 0))::int AS remaining_amount_cents,
+                app.items AS charge_applications
+         FROM billing_payment payment
+         LEFT JOIN LATERAL (
+           SELECT
+             SUM(effective.amount_cents)::int AS applied_cents,
+             jsonb_agg(jsonb_build_object(
+               'chargeId', effective.charge_id,
+               'description', effective.description,
+               'memberId', effective.member_id,
+               'amountCents', effective.amount_cents,
+               'allocationReason', effective.allocation_reason
+             ) ORDER BY effective.charge_id) AS items
+           FROM (
+             SELECT application.billing_charge_id AS charge_id,
+                    charge.description, charge.member_id,
+                    MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
+                    SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
+             FROM billing_payment_application application
+             JOIN billing_charge charge ON charge.id = application.billing_charge_id
+             WHERE application.billing_payment_id = payment.id
+             GROUP BY application.billing_charge_id, charge.description, charge.member_id
+             HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
+           ) effective
+         ) app ON TRUE
+         LEFT JOIN LATERAL (
+           SELECT SUM(refund.amount_cents)::int AS refunded_cents
+           FROM billing_refund refund
+           WHERE refund.payment_id = payment.id
+             AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded')
+         ) refunds ON TRUE
+         WHERE payment.family_billing_account_id = $1
+         ORDER BY payment.paid_at DESC, payment.id DESC`,
         [account.id],
       )
       payments = paymentsRes.rows

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
   customerFacingPriceSyncError,
+  effectiveEnrollmentNextBillDate,
   earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
   listCustomerBillingActivity,
@@ -66,6 +67,12 @@ test('scheduled cancellation keeps membership active but disables auto-renewal',
       auto_renewal: false,
       created_at: '2026-08-27T03:46:58.000Z',
     }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2026-08-27T03:46:58.000Z',
+      satisfied_at: '2026-08-27T03:46:58.000Z',
+    }],
     asOf: new Date('2026-08-30T12:00:00.000Z'),
   })
 
@@ -88,6 +95,12 @@ test('cancelled renewal remains active through its paid-through date', () => {
       auto_renewal: false,
       latest_renewal_paid_at: '2027-09-01T13:00:00.000Z',
       created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2027-09-01T13:00:00.000Z',
+      satisfied_at: '2027-09-01T13:00:00.000Z',
     }],
     asOf: new Date('2027-09-10T12:00:00.000Z'),
   })
@@ -203,6 +216,26 @@ test('next billing date accepts PostgreSQL DATE values returned as Date objects'
   assert.equal(nextBillDate, '2026-09-01')
 })
 
+test('paid enrollment service months advance independently while unpaid classes stay due', () => {
+  const paid = effectiveEnrollmentNextBillDate({
+    status: 'active',
+    next_bill_date: '2026-09-01',
+    paid_through_date: '2026-09-30',
+  })
+  const unpaid = effectiveEnrollmentNextBillDate({
+    status: 'active',
+    next_bill_date: '2026-10-01',
+    oldest_unpaid_service_period_start: '2026-09-01',
+  })
+
+  assert.equal(paid, '2026-10-01')
+  assert.equal(unpaid, '2026-09-01')
+  assert.equal(earliestActiveNextBillDate([
+    { status: 'active', next_bill_date: '2026-09-01', paid_through_date: '2026-09-30' },
+    { status: 'active', next_bill_date: '2026-10-01', oldest_unpaid_service_period_start: '2026-09-01' },
+  ]), '2026-09-01')
+})
+
 test('monthly recurring display uses the breakpoint effective for the next bill', () => {
   const breakpoint = recurringPricingForPeriod([
     { periodKey: '2026-08', netCents: 0 },
@@ -243,7 +276,7 @@ test('scheduled enrollments use the first future period that contains their pric
   )
 })
 
-test('member-filtered transactions retain household payments and one-time charges', async () => {
+test('member-filtered transactions retain household payments and member-owned charges', async () => {
   let queryText = ''
   let queryParams = []
   const pool = {
@@ -263,7 +296,10 @@ test('member-filtered transactions retain household payments and one-time charge
             occurred_at: '2026-08-26T12:00:00.000Z',
             status: 'succeeded',
             running_balance_cents: 0,
-            details: { stripePaymentIntentId: 'pi_85' },
+            details: {
+              stripePaymentIntentId: 'pi_85',
+              applications: [{ chargeId: 84, billingMonth: '2026-09-01', amountCents: 8500 }],
+            },
           },
           {
             entry_kind: 'charge',
@@ -294,12 +330,15 @@ test('member-filtered transactions retain household payments and one-time charge
   })
 
   assert.match(queryText, /wb\.member_id = \$2 OR wb\.member_id IS NULL/)
+  assert.doesNotMatch(queryText, /family_visible/)
   assert.equal(queryParams.length, 11)
   assert.equal(queryParams[1], 74)
   assert.equal(page.rows.length, 2)
   assert.equal(page.rows[0].entryKind, 'payment')
   assert.equal(page.rows[0].memberId, null)
   assert.equal(page.rows[0].amountCents, -8500)
+  assert.deepEqual(page.rows[0].billingMonths, ['2026-09'])
+  assert.equal(page.rows[0].details.referenceNumber, 85)
   assert.equal(page.rows[1].details.discountCode, 'MMBR01X26')
   assert.match(queryText, /one_time_discount/)
   assert.equal(page.rows[1].entryType, 'one_time')
