@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { CustomChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
-import { localDate, money, monthLabel, statusTone } from './customerBilling/format'
+import { calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
   BillingDiscountComponent,
@@ -66,8 +66,39 @@ async function jsonBody(response: Response) {
   return response.json().catch(() => ({}))
 }
 
-function Badge({ value }: { value: string }) {
-  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold capitalize ${statusTone(value)}`}>{value.replaceAll('_', ' ')}</span>
+function Badge({ value, label }: { value: string; label?: string }) {
+  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold capitalize ${statusTone(value)}`}>{label ?? value.replaceAll('_', ' ')}</span>
+}
+
+function retryableAdjustmentForEnrollment(enrollment: CustomerBillingEnrollment): PriceAdjustment | null {
+  const liveAdjustments = enrollment.priceAdjustments.filter((adjustment) => adjustment.status !== 'revoked')
+  const failedAdjustment = liveAdjustments.find((adjustment) => adjustment.status === 'sync_failed')
+  if (failedAdjustment) return failedAdjustment
+  if (enrollment.priceSyncStatus !== 'failed') return null
+  const activeAdjustments = enrollment.activePriceAdjustments ?? (
+    enrollment.activePriceAdjustment ? [enrollment.activePriceAdjustment] : []
+  )
+  return activeAdjustments.find((adjustment) => adjustment.status === 'active')
+    ?? liveAdjustments.find((adjustment) => adjustment.status === 'active')
+    ?? null
+}
+
+function StripeSyncFailure({ error }: { error: string }) {
+  const previousRequestFormat = /metadata.*from_subscription/i.test(error)
+  return (
+    <div className="mt-2 max-w-[260px] rounded-lg border border-red-200 bg-red-50 p-2 text-left text-xs text-red-800">
+      <strong className="block">
+        {previousRequestFormat ? 'Previous Stripe attempt used the old schedule request.' : 'Stripe has not confirmed this recurring price.'}
+      </strong>
+      <span className="mt-1 block">
+        {previousRequestFormat ? 'Retry Stripe sync now that the server fix is deployed.' : 'Retry Stripe sync. Until it succeeds, Stripe may retain an older price.'}
+      </span>
+      <details className="mt-1 text-[11px] text-red-700">
+        <summary className="cursor-pointer font-semibold">Technical detail from last attempt</summary>
+        <p className="mt-1 break-words">{error}</p>
+      </details>
+    </div>
+  )
 }
 
 function MetricCard({ label, value, detail, tone = 'default' }: { label: string; value: string; detail?: string; tone?: 'default' | 'positive' | 'warning' }) {
@@ -254,6 +285,8 @@ function EnrollmentSection({
                     (adjustment) => adjustment.kind === 'fixed_final_price',
                   ) ?? null
                   const failedAdjustment = liveAdjustments.find((item) => item.status === 'sync_failed') ?? null
+                  const retryAdjustment = retryableAdjustmentForEnrollment(enrollment)
+                  const syncError = failedAdjustment?.stripeSyncError || enrollment.priceSyncError
                   const scheduledAdjustments = liveAdjustments.filter(
                     (item) =>
                       !activeAdjustmentIds.has(item.id) &&
@@ -278,11 +311,27 @@ function EnrollmentSection({
                         {scheduledAdjustments.map((adjustment) => <div key={adjustment.id} className="mt-1 text-blue-700">{['promo_code', 'legacy_discount'].includes(adjustment.kind) ? `Code ${adjustment.promoCode}` : `Final ${money(adjustment.finalPriceCents)}`} · {monthLabel(adjustment.effectiveFromMonth)} – {monthLabel(adjustment.effectiveThroughMonth)} · {adjustment.status.replaceAll('_', ' ')}</div>)}
                       </td>
                       <td className="px-4 py-3 text-right"><strong className="text-base text-gray-950">{money(enrollment.adjustedCostCents)}</strong><span className="block text-xs text-gray-400">per month</span></td>
-                      <td className="px-4 py-3"><div className="flex flex-wrap gap-1"><Badge value={enrollment.status} />{enrollment.billing_status ? <Badge value={enrollment.billing_status} /> : null}<Badge value={enrollment.priceSyncStatus} />{failedAdjustment ? <Badge value="sync_failed" /> : null}</div><p className="mt-1 text-xs text-gray-500">Next bill {localDate(enrollment.nextBillDate)}{enrollment.stripeSubscriptionScheduleId ? ' · scheduled phases' : ''}</p>{(failedAdjustment?.stripeSyncError || enrollment.priceSyncError) ? <p className="mt-1 max-w-[180px] text-xs text-red-600">{failedAdjustment?.stripeSyncError || enrollment.priceSyncError}</p> : null}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          <Badge value={enrollment.status} />
+                          {enrollment.billing_status ? <Badge value={enrollment.billing_status} /> : null}
+                          <Badge
+                            value={enrollment.priceSyncStatus}
+                            label={enrollment.priceSyncStatus === 'failed' ? 'Stripe sync failed' : undefined}
+                          />
+                          {failedAdjustment && enrollment.priceSyncStatus !== 'failed' ? <Badge value="sync_failed" label="Price change sync failed" /> : null}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Next bill {calendarDate(enrollment.nextBillDate)}
+                          {enrollment.stripeSubscriptionScheduleId ? ' · scheduled phases' : ''}
+                        </p>
+                        {syncError ? <StripeSyncFailure error={syncError} /> : null}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         {canManage && enrollment.source === 'scheduling' && enrollment.billingType !== 'one_time' ? (
-                          <div className="flex justify-end gap-2">
-                            {liveAdjustments.map((adjustment) => <Fragment key={adjustment.id}>{adjustment.status === 'sync_failed' || (adjustment.id === currentAdjustment?.id && enrollment.priceSyncStatus === 'failed') ? <button type="button" onClick={() => onRetrySync(adjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry sync</button> : null}{adjustment.kind === 'fixed_final_price' ? <button type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>Revoke</button> : null}</Fragment>)}
+                          <div className="flex flex-wrap justify-end gap-2">
+                            {retryAdjustment ? <button type="button" onClick={() => onRetrySync(retryAdjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry Stripe sync</button> : null}
+                            {liveAdjustments.filter((adjustment) => adjustment.kind === 'fixed_final_price').map((adjustment) => <button key={adjustment.id} type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>Revoke</button>)}
                             <button type="button" onClick={() => onChangePrice(enrollment)} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white"><PencilLine className="h-3.5 w-3.5" /> Change price</button>
                           </div>
                         ) : <span className="text-xs text-gray-400">Read only</span>}
@@ -316,7 +365,18 @@ function RecurringSection({ subscriptions, householdTotals, filteredTotals, filt
       <div className="divide-y divide-gray-100">
         {subscriptions.map((subscription) => (
           <div key={subscription.id} className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
-            <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong className="truncate text-gray-950">{subscription.description}</strong><Badge value={subscription.status} /><Badge value={subscription.priceSyncStatus} /></div><div className="mt-1 text-xs text-gray-500">{subscription.memberName || 'Household'} · Next {localDate(subscription.nextBillDate)}{subscription.stripeSubscriptionScheduleId ? ' · Effective-dated Stripe schedule' : ''}</div>{subscription.priceSyncError ? <div className="mt-1 text-xs text-red-600">{subscription.priceSyncError}</div> : null}</div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <strong className="truncate text-gray-950">{subscription.description}</strong>
+                <Badge value={subscription.status} />
+                <Badge value={subscription.priceSyncStatus} label={subscription.priceSyncStatus === 'failed' ? 'Stripe sync failed' : undefined} />
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                {subscription.memberName || 'Household'} · Next {calendarDate(subscription.nextBillDate)}
+                {subscription.stripeSubscriptionScheduleId ? ' · Effective-dated Stripe schedule' : ''}
+              </div>
+              {subscription.priceSyncError ? <StripeSyncFailure error={subscription.priceSyncError} /> : null}
+            </div>
             <div className="text-sm text-gray-600"><div className="mb-1 text-right">List {money(subscription.monthlyAmountCents)}</div><DiscountBreakdown totalCents={subscription.automaticDiscountCents} components={subscription.automaticDiscountComponents} />{subscription.activePriceAdjustment?.kind === 'fixed_final_price' ? <div className={`text-right ${subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}`}>Manual final {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
             <div className="text-right"><strong className="text-lg text-gray-950">{money(subscription.netMonthlyCents)}</strong><span className="block text-xs text-gray-400">per month</span></div>
             {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).length > 0 ? <div className="md:col-span-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Scheduled: {subscription.scheduledPriceAdjustments.filter((adjustment) => adjustment.id !== subscription.activePriceAdjustment?.id && (['pending_sync', 'sync_failed'].includes(adjustment.status) || adjustment.effectiveFromMonth.slice(0, 7) > subscription.pricingMonth.slice(0, 7))).map((adjustment) => `${adjustment.promoCode || money(adjustment.finalPriceCents)} from ${monthLabel(adjustment.effectiveFromMonth)} through ${monthLabel(adjustment.effectiveThroughMonth)} (${adjustment.status.replaceAll('_', ' ')})`).join(' · ')}</div> : null}
@@ -632,6 +692,15 @@ export default function AdminCustomerBilling() {
     () => overview?.enrollments.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
     [overview, selectedMemberId],
   )
+  const retryableSyncAdjustments = useMemo(() => {
+    const seen = new Set<number>()
+    return (overview?.enrollments ?? []).flatMap((enrollment) => {
+      const adjustment = retryableAdjustmentForEnrollment(enrollment)
+      if (!adjustment || seen.has(adjustment.id)) return []
+      seen.add(adjustment.id)
+      return [adjustment]
+    })
+  }, [overview])
   const visibleWaitlists = useMemo(
     () => overview?.waitlists.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
     [overview, selectedMemberId],
@@ -728,19 +797,57 @@ export default function AdminCustomerBilling() {
     }
   }
 
+  const requestAdjustmentSync = async (adjustment: PriceAdjustment) => {
+    const response = await adminApiRequest(`/api/admin/customer-billing/price-adjustments/${adjustment.id}/retry-sync`, { method: 'POST' })
+    const body = await jsonBody(response)
+    if (!response.ok) throw new Error(body.message || 'Stripe synchronization retry failed.')
+    return body
+  }
+
   const retryAdjustmentSync = async (adjustment: PriceAdjustment) => {
     setSaving(true)
     setError(null)
     try {
-      const response = await adminApiRequest(`/api/admin/customer-billing/price-adjustments/${adjustment.id}/retry-sync`, { method: 'POST' })
-      const body = await jsonBody(response)
-      if (!response.ok) throw new Error(body.message || 'Stripe synchronization retry failed.')
-      const message = body.data?.adjustment?.status === 'sync_failed'
-        ? 'Stripe synchronization still needs attention. The price change remains inactive and retryable.'
-        : 'Stripe price schedule synchronized and the price change is now active.'
-      await refresh(message)
+      const body = await requestAdjustmentSync(adjustment)
+      await refresh()
+      if (body.data?.syncStatus === 'failed' || body.data?.adjustment?.status === 'sync_failed') {
+        setError(body.data?.adjustment?.stripeSyncError || 'Stripe synchronization still needs attention. Retry remains available.')
+      } else {
+        setSuccess('Stripe price schedule synchronized successfully.')
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Stripe synchronization retry failed.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const retryAllAdjustmentSyncs = async () => {
+    if (retryableSyncAdjustments.length === 0) return
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+    let synchronized = 0
+    const failures: string[] = []
+    try {
+      for (const adjustment of retryableSyncAdjustments) {
+        try {
+          const body = await requestAdjustmentSync(adjustment)
+          if (body.data?.syncStatus === 'failed' || body.data?.adjustment?.status === 'sync_failed') {
+            failures.push(body.data?.adjustment?.stripeSyncError || `Adjustment #${adjustment.id} still needs attention.`)
+          } else {
+            synchronized += 1
+          }
+        } catch (caught) {
+          failures.push(caught instanceof Error ? caught.message : `Adjustment #${adjustment.id} could not be synchronized.`)
+        }
+      }
+      await refresh()
+      if (failures.length > 0) {
+        setError(`${synchronized} synchronized; ${failures.length} still need attention. ${failures[0]}`)
+      } else {
+        setSuccess(`${synchronized} Stripe price schedule${synchronized === 1 ? '' : 's'} synchronized successfully.`)
+      }
     } finally {
       setSaving(false)
     }
@@ -820,10 +927,27 @@ export default function AdminCustomerBilling() {
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-5">
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? 'Amount due' : 'Paid in full'} />
               <MetricCard label="Monthly recurring" value={money(overview.summary.monthlyTotals.netCents)} detail={`${money(overview.summary.monthlyTotals.discountCents)} in discounts`} />
-              <MetricCard label="Next billing" value={localDate(overview.summary.nextBillDate)} detail="Calendar-month billing" />
+              <MetricCard label="Next billing" value={calendarDate(overview.summary.nextBillDate)} detail="Calendar-month billing" />
               <MetricCard label="Latest payment" value={overview.summary.latestPayment ? money(overview.summary.latestPayment.amountCents) : 'None'} detail={overview.summary.latestPayment ? `${localDate(overview.summary.latestPayment.paidAt)} · ${overview.summary.latestPayment.method || 'Payment'}` : 'No payment history'} />
-              <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Review'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
+              <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
             </div>
+            {overview.summary.stripeSync.status !== 'healthy' ? (
+              <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+                  <div>
+                    <strong>Stripe has not confirmed the recurring prices shown on this account.</strong>
+                    <p className="mt-1 text-amber-800">The Customer Billing total is calculated locally. Until synchronization succeeds, Stripe may retain an older amount. Errors shown below are technical details from the last attempt.</p>
+                  </div>
+                </div>
+                {canManage && retryableSyncAdjustments.length > 0 ? (
+                  <button type="button" onClick={() => void retryAllAdjustmentSyncs()} disabled={saving} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-900 px-4 py-2 font-semibold text-white disabled:opacity-50">
+                    <RefreshCw className={`h-4 w-4 ${saving ? 'animate-spin' : ''}`} />
+                    Retry all Stripe syncs ({retryableSyncAdjustments.length})
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
             <div className="grid gap-5 border-t border-gray-200 p-5 lg:grid-cols-2">
               <details open>
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg text-sm font-bold text-gray-800 marker:hidden"><span className="flex items-center gap-2"><PencilLine className="h-4 w-4" /> Billing contact & payer</span><ChevronDown className="h-4 w-4" /></summary>

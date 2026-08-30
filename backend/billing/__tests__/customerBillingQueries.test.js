@@ -1,12 +1,21 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  customerFacingPriceSyncError,
   earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
   recurringPricingForPeriod,
 } from '../customerBillingQueries.js'
+
+test('internal migration instructions are not exposed as Stripe errors', () => {
+  assert.equal(
+    customerFacingPriceSyncError('Restored promo assignment requires Stripe expiration-schedule synchronization.'),
+    null,
+  )
+  assert.equal(customerFacingPriceSyncError('Stripe rejected the schedule phases.'), 'Stripe rejected the schedule phases.')
+})
 
 test('next billing date accepts PostgreSQL DATE values returned as Date objects', () => {
   const nextBillDate = earliestActiveNextBillDate([

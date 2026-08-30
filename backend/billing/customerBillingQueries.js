@@ -10,6 +10,16 @@ import {
 } from './customerBillingPricing.js'
 import { mapBillingActivity } from './billingActivity.js'
 
+const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
+  'Restored promo assignment requires Stripe expiration-schedule synchronization.',
+])
+
+export function customerFacingPriceSyncError(value) {
+  const message = String(value ?? '').trim()
+  if (!message || INTERNAL_PRICE_SYNC_MESSAGES.has(message)) return null
+  return message
+}
+
 export async function ensureCustomerBillingAccount(pool, familyId, facilityId = null) {
   const family = await pool.query(
     `SELECT * FROM family
@@ -271,7 +281,13 @@ export async function buildCustomerBillingOverview(pool, {
       loadDefaultPaymentMethodSummary(account),
     ])
 
-  const adjustments = adjustmentsResult.rows.map(mapPriceAdjustment)
+  const adjustments = adjustmentsResult.rows.map((row) => {
+    const adjustment = mapPriceAdjustment(row)
+    return {
+      ...adjustment,
+      stripeSyncError: customerFacingPriceSyncError(adjustment.stripeSyncError),
+    }
+  })
   const adjustmentsBySignup = new Map()
   for (const adjustment of adjustments) {
     const list = adjustmentsBySignup.get(adjustment.signupId) ?? []
@@ -371,9 +387,9 @@ export async function buildCustomerBillingOverview(pool, {
         activePriceAdjustment: activeAdjustment,
         activePriceAdjustments: activeAdjustments,
         priceAdjustments: rowAdjustments,
-        nextBillDate: subscription?.next_bill_date ?? null,
+        nextBillDate: billingDateKey(subscription?.next_bill_date),
         priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
-        priceSyncError: subscription?.price_sync_error ?? null,
+        priceSyncError: customerFacingPriceSyncError(subscription?.price_sync_error),
         stripeSubscriptionScheduleId: subscription?.stripe_subscription_schedule_id ?? null,
         pricingMonth: enrollmentPricingMonth,
       }
@@ -422,7 +438,7 @@ export async function buildCustomerBillingOverview(pool, {
       manualAdjustmentCents: Number(resolved.manualAdjustmentCents ?? 0),
       discountAmountCents: Number(resolved.discountCents ?? 0),
       netMonthlyCents: Number(resolved.netCents ?? 0),
-      nextBillDate: row.next_bill_date ?? null,
+      nextBillDate: billingDateKey(row.next_bill_date),
       startDate: row.start_date ?? null,
       endDate: row.end_date ?? null,
       sourceType: row.source_type,
@@ -430,7 +446,7 @@ export async function buildCustomerBillingOverview(pool, {
       stripeSubscriptionId: row.stripe_subscription_id ?? null,
       stripeSubscriptionScheduleId: row.stripe_subscription_schedule_id ?? null,
       priceSyncStatus: row.price_sync_status ?? 'not_required',
-      priceSyncError: row.price_sync_error ?? null,
+      priceSyncError: customerFacingPriceSyncError(row.price_sync_error),
       activePriceAdjustment: activeAdjustment,
       activePriceAdjustments: activeAdjustments,
       scheduledPriceAdjustments: rowAdjustments.filter((adjustment) => adjustment.status !== 'revoked'),
@@ -471,7 +487,10 @@ export async function buildCustomerBillingOverview(pool, {
           }
         : null,
       stripeSync: syncFailures.length > 0
-        ? { status: 'failed', message: `${syncFailures.length} recurring price sync${syncFailures.length === 1 ? '' : 's'} need attention.` }
+        ? {
+            status: 'failed',
+            message: `${syncFailures.length} Stripe recurring schedule${syncFailures.length === 1 ? ' is' : 's are'} not confirmed. Stripe may still have an older price until synchronization succeeds.`,
+          }
         : { status: 'healthy', message: 'Local recurring prices are synchronized.' },
     },
     paymentMethod,

@@ -866,6 +866,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
         adjustment: mapPriceAdjustment(adjustment),
         preview: parseJson(adjustment.preview_snapshot),
         retroactiveEntries: [],
+        syncStatus: 'failed',
       }
     }
     adjustment = await pool.query(
@@ -887,6 +888,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
       adjustment: mapPriceAdjustment(adjustment),
       preview: parseJson(adjustment.preview_snapshot),
       retroactiveEntries: [],
+      syncStatus: 'synced',
     }
   }
   if (adjustment.status !== 'sync_failed') {
@@ -921,6 +923,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
       adjustment: mapPriceAdjustment(adjustment),
       preview: parseJson(adjustment.preview_snapshot),
       retroactiveEntries: [],
+      syncStatus: 'failed',
     }
   }
 
@@ -938,6 +941,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
       adjustment: mapPriceAdjustment(activated.adjustment),
       preview,
       retroactiveEntries: activated.retroactiveEntries,
+      syncStatus: 'synced',
     }
   } catch (error) {
     const reason = `Stripe synchronized, but local activation failed: ${error?.message ?? error}`
@@ -949,7 +953,12 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
       eventType: 'enrollment_price_activation_retry_failed',
       summary: `Stripe synchronized for ${context.class_name}, but local activation still needs attention.`,
     })
-    return { adjustment: mapPriceAdjustment(adjustment), preview, retroactiveEntries: [] }
+    return {
+      adjustment: mapPriceAdjustment(adjustment),
+      preview,
+      retroactiveEntries: [],
+      syncStatus: 'failed',
+    }
   }
 }
 

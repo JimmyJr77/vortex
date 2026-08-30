@@ -15,6 +15,23 @@ export function localDate(value: string | null | undefined, includeTime = false)
     : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+export function calendarDate(value: string | null | undefined): string {
+  if (!value) return '—'
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return localDate(value)
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const date = new Date(year, month - 1, day, 12)
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) return value
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 export function monthLabel(value: string | null | undefined): string {
   if (!value) return 'Indefinite'
   const [year, month] = value.slice(0, 7).split('-').map(Number)

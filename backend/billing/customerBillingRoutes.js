@@ -49,6 +49,12 @@ function errorStatus(error) {
   return 400
 }
 
+export function retrySyncHttpStatus(data) {
+  return data?.syncStatus === 'failed' || data?.adjustment?.status === 'sync_failed'
+    ? 202
+    : 200
+}
+
 function transactionFilters(req, accountId) {
   return {
     accountId,
@@ -210,9 +216,16 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           facilityId: facilityId(req),
           actorUserId: actorId(req),
         })
-        const status = data.adjustment.status === 'sync_failed' ? 202 : 200
+        const status = retrySyncHttpStatus(data)
+        console.info('[customer-billing] price adjustment synchronization retried', {
+          adjustmentId: Number(req.params.adjustmentId),
+          adjustmentStatus: data.adjustment.status,
+          syncStatus: data.syncStatus,
+          actorUserId: actorId(req),
+        })
         res.status(status).json({ success: true, data })
       } catch (error) {
+        console.error('[customer-billing] retry price adjustment synchronization:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Stripe synchronization retry failed.' })
       }
     },
