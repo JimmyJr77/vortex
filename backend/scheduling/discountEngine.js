@@ -458,6 +458,13 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       type: rule.type,
       amountCents: amount,
       kind,
+      source: rule.type === 'promo_code' ? 'promo_code' : 'automatic',
+      amountType,
+      amountValue,
+      promoCode:
+        rule.type === 'promo_code'
+          ? rule.config?.code || rule.config?.promo_code || null
+          : null,
       // Duration-limited free grants bill at full price after N full months or N weeks;
       // both null = open-ended.
       ...(kind === 'free'
@@ -557,6 +564,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         amountCents: applied,
         kind: 'discount',
         source: 'manual',
+        amountType: spec.amountType,
+        amountValue: spec.amountValue,
+        promoCode:
+          rule.type === 'promo_code'
+            ? rule.config?.code || rule.config?.promo_code || null
+            : null,
         countedAsOrderDiscount: true,
       })
     }
@@ -656,7 +669,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
               type: rule.type,
               amountCents: applied,
               kind: 'discount',
+              source: 'automatic',
+              amountType: tier.amountType,
+              amountValue: tier.amountValue,
               qualifiedLabel,
+              qualifiedClassCount: stats.paidClassCount ?? null,
+              qualifyingSubtotalCents: accountSubtotal,
               nextTierHint: unlockHint,
             })
             if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
@@ -726,7 +744,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             type: rule.type,
             amountCents: applied,
             kind: 'discount',
+            source: 'automatic',
+            amountType: tier.amountType,
+            amountValue: tier.amountValue,
             qualifiedLabel,
+            qualifiedClassCount: stats.paidClassCount ?? null,
+            qualifyingSubtotalCents: accountSubtotal,
             nextTierHint: unlockHint,
           })
           if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
@@ -789,7 +812,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         type: rule.type,
         amountCents: amount,
         kind: 'discount',
+        source: 'automatic',
+        amountType: tier.amountType,
+        amountValue: tier.amountValue,
         qualifiedLabel,
+        qualifiedClassCount: stats.paidClassCount ?? null,
+        qualifyingSubtotalCents: base,
         nextTierHint: unlockHint,
       })
       if (rule.exclusivityGroup) pick.exclusivityGroups.add(rule.exclusivityGroup)
@@ -985,6 +1013,11 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
       amountCents: amount,
       kind: 'discount',
       source: 'manual',
+      amountType: ls.line.manualDiscountCents != null ? 'fixed' : 'percent',
+      amountValue:
+        ls.line.manualDiscountCents != null
+          ? Number(ls.line.manualDiscountCents)
+          : Number(ls.line.manualDiscountPct) * 100,
     })
   }
 

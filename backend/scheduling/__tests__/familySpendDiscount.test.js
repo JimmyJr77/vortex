@@ -193,6 +193,52 @@ test('persisted 50% rule reduces spend before the later family tier is selected'
   assert.equal(result.totalDiscountCents, 23625)
   assert.equal(result.accountLines.reduce((sum, line) => sum + line.finalCents, 0), 21375)
   assert.deepEqual(result.accountLines.map((line) => line.finalCents), [7125, 7125, 7125])
+  for (const line of result.accountLines) {
+    const promoDiscount = line.applied.find((entry) => entry.ruleId === 9)
+    const householdDiscount = line.applied.find((entry) => entry.ruleId === 7)
+    assert.deepEqual(
+      {
+        name: promoDiscount.name,
+        type: promoDiscount.type,
+        source: promoDiscount.source,
+        amountType: promoDiscount.amountType,
+        amountValue: promoDiscount.amountValue,
+        promoCode: promoDiscount.promoCode,
+        amountCents: promoDiscount.amountCents,
+      },
+      {
+        name: 'half-time athlete',
+        type: 'promo_code',
+        source: 'manual',
+        amountType: 'percent',
+        amountValue: 5000,
+        promoCode: '50OFFVORTEX26',
+        amountCents: 7500,
+      },
+    )
+    assert.deepEqual(
+      {
+        name: householdDiscount.name,
+        type: householdDiscount.type,
+        source: householdDiscount.source,
+        amountType: householdDiscount.amountType,
+        amountValue: householdDiscount.amountValue,
+        qualifiedClassCount: householdDiscount.qualifiedClassCount,
+        qualifyingSubtotalCents: householdDiscount.qualifyingSubtotalCents,
+        amountCents: householdDiscount.amountCents,
+      },
+      {
+        name: 'Family multi-class spend discount',
+        type: 'spend_volume',
+        source: 'automatic',
+        amountType: 'percent',
+        amountValue: 500,
+        qualifiedClassCount: 3,
+        qualifyingSubtotalCents: 22500,
+        amountCents: 375,
+      },
+    )
+  }
   const familyDiscount = result.orderDiscounts.find((entry) => entry.ruleId === 7)
   assert.equal(familyDiscount.amountCents, 1125)
   assert.equal(familyDiscount.qualifiedLabel, '5% off for a minimum of 2 Classes and $150')

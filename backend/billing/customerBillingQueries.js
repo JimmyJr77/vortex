@@ -186,6 +186,23 @@ function customerEnrollmentStatus(row) {
   return row.status
 }
 
+/**
+ * Return the first period-aware recurring-pricing line for every enrollment.
+ * Current enrollments appear in the current breakpoint; scheduled enrollments
+ * first appear in their activation month.
+ */
+export function firstRecurringPricingLineBySignup(breakpoints = []) {
+  const bySignup = new Map()
+  for (const breakpoint of breakpoints) {
+    for (const line of breakpoint?.lines ?? []) {
+      const signupId = Number(line.signupId)
+      if (!Number.isFinite(signupId) || bySignup.has(signupId)) continue
+      bySignup.set(signupId, line)
+    }
+  }
+  return bySignup
+}
+
 export async function buildCustomerBillingOverview(pool, {
   familyId,
   facilityId,
@@ -254,6 +271,9 @@ export async function buildCustomerBillingOverview(pool, {
       .filter((line) => Number.isFinite(Number(line.signupId)))
       .map((line) => [Number(line.signupId), line]),
   )
+  const effectivePricingBySignup = firstRecurringPricingLineBySignup(
+    view.recurringBreakpoints ?? [],
+  )
   const rawSubscriptionBySignup = new Map(
     rawSubscriptions.rows
       .filter((row) => row.source_type === 'scheduling_signup' && Number.isFinite(Number(row.source_id)))
@@ -268,7 +288,9 @@ export async function buildCustomerBillingOverview(pool, {
       const activeAdjustment = rowAdjustments.find(
         (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, currentMonth),
       ) ?? null
-      const pricingLine = currentPricingBySignup.get(Number(row.id))
+      const pricingLine =
+        currentPricingBySignup.get(Number(row.id)) ??
+        effectivePricingBySignup.get(Number(row.id))
       const grossCents = Number(pricingLine?.grossCents ?? row.class_cost_cents ?? 0)
       const automaticNetCents = Number(
         pricingLine?.automaticNetCents ?? row.adjusted_cost_cents ?? grossCents,
@@ -295,6 +317,23 @@ export async function buildCustomerBillingOverview(pool, {
           )
       const subscription = rawSubscriptionBySignup.get(Number(row.id))
       const fallbackDiscountName = row.manual_discount_reason || 'Automatic discount'
+      const rowDiscountComponents = Array.isArray(row.discount_components)
+        ? row.discount_components
+        : []
+      let automaticDiscountComponents = resolved.discountComponents ?? []
+      if (automaticDiscountComponents.length === 0 && rowDiscountComponents.length > 0) {
+        automaticDiscountComponents = rowDiscountComponents
+      }
+      if (
+        automaticDiscountComponents.length === 0 &&
+        grossCents > automaticNetCents
+      ) {
+        automaticDiscountComponents = [{
+          name: fallbackDiscountName,
+          amountCents: grossCents - automaticNetCents,
+          source: null,
+        }]
+      }
       const mapped = {
         ...row,
         status: customerEnrollmentStatus(row),
@@ -302,11 +341,7 @@ export async function buildCustomerBillingOverview(pool, {
         memberName: group.member.name,
         classCostCents: grossCents,
         automaticDiscountCents: Number(resolved.automaticDiscountCents ?? Math.max(0, grossCents - automaticNetCents)),
-        automaticDiscountComponents: resolved.discountComponents?.length
-          ? resolved.discountComponents
-          : grossCents > automaticNetCents
-            ? [{ name: fallbackDiscountName, amountCents: grossCents - automaticNetCents, source: null }]
-            : [],
+        automaticDiscountComponents,
         automaticAdjustedCostCents: Number(resolved.automaticNetCents ?? automaticNetCents),
         manualAdjustmentCents: Number(resolved.manualAdjustmentCents ?? 0),
         adjustedCostCents: resolved.netCents,

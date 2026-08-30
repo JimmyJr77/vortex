@@ -27,6 +27,7 @@ import { CustomChargeModal, PriceAdjustmentModal, RefundModal } from './customer
 import { localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
+  BillingDiscountComponent,
   BillingStatement,
   BillingTransaction,
   CustomerBillingEnrollment,
@@ -76,6 +77,82 @@ function MetricCard({ label, value, detail, tone = 'default' }: { label: string;
       <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
       <div className={`mt-1 text-2xl font-bold ${valueClass}`}>{value}</div>
       {detail ? <div className="mt-1 text-xs text-gray-500">{detail}</div> : null}
+    </div>
+  )
+}
+
+function discountPercent(amountValue: number | null | undefined) {
+  if (amountValue == null || !Number.isFinite(Number(amountValue))) return null
+  const percent = Number(amountValue) / 100
+  return `${Number.isInteger(percent) ? percent : percent.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')}%`
+}
+
+function discountComponentDetail(component: BillingDiscountComponent) {
+  const details: string[] = []
+  const percent = component.amountType === 'percent'
+    ? discountPercent(component.amountValue)
+    : null
+
+  if (component.type === 'promo_code') {
+    details.push(component.promoCode ? `Promo code ${component.promoCode}` : 'Promo code')
+  } else if (component.source === 'automatic') {
+    details.push(component.type === 'spend_volume' ? 'Automatic household tier' : 'Automatic discount')
+  } else if (component.source === 'manual') {
+    details.push('Enrollment discount')
+  }
+  if (percent) details.push(`${percent} off`)
+  if (
+    component.qualifiedClassCount != null &&
+    component.qualifyingSubtotalCents != null
+  ) {
+    details.push(
+      `${component.qualifiedClassCount} classes · ${money(component.qualifyingSubtotalCents)} qualifying tuition`,
+    )
+  } else if (component.qualifiedLabel && !percent) {
+    details.push(component.qualifiedLabel)
+  }
+  return details.join(' · ')
+}
+
+function DiscountBreakdown({
+  totalCents,
+  components,
+}: {
+  totalCents: number
+  components: BillingDiscountComponent[]
+}) {
+  if (totalCents <= 0) return <span className="text-gray-400">—</span>
+  const itemized = components.filter((component) => component.amountCents > 0)
+  const itemizedTotal = itemized.reduce((sum, component) => sum + component.amountCents, 0)
+  const unitemizedCents = Math.max(0, totalCents - itemizedTotal)
+  const rows: BillingDiscountComponent[] = unitemizedCents > 0
+    ? [...itemized, { name: 'Other discount', amountCents: unitemizedCents, source: null }]
+    : itemized
+
+  if (rows.length === 0) {
+    return <div className="text-emerald-700">Discount −{money(totalCents)}</div>
+  }
+
+  return (
+    <div className="ml-auto min-w-[220px] space-y-1">
+      {rows.map((component, index) => {
+        const detail = discountComponentDetail(component)
+        return (
+          <div key={`${component.ruleId ?? component.name}-${index}`}>
+            <div className="flex justify-between gap-3 text-gray-700">
+              <span className="text-left">{component.name}</span>
+              <span className="shrink-0 text-emerald-700">−{money(component.amountCents)}</span>
+            </div>
+            {detail ? <div className="text-right text-[11px] text-gray-400">{detail}</div> : null}
+          </div>
+        )
+      })}
+      {rows.length > 1 ? (
+        <div className="flex justify-between gap-3 border-t border-gray-200 pt-1 font-semibold text-emerald-700">
+          <span>Total discounts</span>
+          <span>−{money(totalCents)}</span>
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -169,8 +246,7 @@ function EnrollmentSection({
                       <td className="px-4 py-3 text-gray-600">{enrollment.schedule || '—'}</td>
                       <td className="px-4 py-3 text-right font-medium text-gray-700">{money(enrollment.classCostCents)}</td>
                       <td className="px-4 py-3 text-right text-xs">
-                        <div className="text-emerald-700">Automatic −{money(enrollment.automaticDiscountCents)}</div>
-                        {enrollment.automaticDiscountComponents.map((component, index) => <div key={`${component.name}-${index}`} className="text-gray-500">{component.name} −{money(component.amountCents)}</div>)}
+                        <DiscountBreakdown totalCents={enrollment.automaticDiscountCents} components={enrollment.automaticDiscountComponents} />
                         {currentAdjustment && currentAdjustment.kind === 'legacy_discount' ? <div className="text-blue-700">Legacy manual adjustment · included above</div> : null}
                         {currentAdjustment && currentAdjustment.kind !== 'legacy_discount' && enrollment.status === 'paused' ? <div className="text-blue-700">Stored {currentAdjustment.kind === 'promo_code' ? `code ${currentAdjustment.promoCode}` : `final ${money(currentAdjustment.finalPriceCents)}`} · resumes with billing</div> : null}
                         {currentAdjustment && currentAdjustment.kind !== 'legacy_discount' && enrollment.status !== 'paused' ? <div className={enrollment.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}>{currentAdjustment.kind === 'promo_code' ? currentAdjustment.promoCode : 'Manual final'} {enrollment.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(enrollment.manualAdjustmentCents))}</div> : null}
@@ -217,7 +293,7 @@ function RecurringSection({ subscriptions, householdTotals, filteredTotals, filt
         {subscriptions.map((subscription) => (
           <div key={subscription.id} className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
             <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong className="truncate text-gray-950">{subscription.description}</strong><Badge value={subscription.status} /><Badge value={subscription.priceSyncStatus} /></div><div className="mt-1 text-xs text-gray-500">{subscription.memberName || 'Household'} · Next {localDate(subscription.nextBillDate)}{subscription.stripeSubscriptionScheduleId ? ' · Effective-dated Stripe schedule' : ''}</div>{subscription.priceSyncError ? <div className="mt-1 text-xs text-red-600">{subscription.priceSyncError}</div> : null}</div>
-            <div className="text-sm text-gray-600"><div>List {money(subscription.monthlyAmountCents)}</div><div className="text-emerald-700">Automatic −{money(subscription.automaticDiscountCents)}</div>{subscription.automaticDiscountComponents.map((component, index) => <div key={`${component.name}-${index}`} className="text-xs text-gray-500">{component.name} −{money(component.amountCents)}</div>)}{subscription.activePriceAdjustment?.kind === 'legacy_discount' ? <div className="text-blue-700">Legacy manual adjustment · included above</div> : null}{subscription.activePriceAdjustment && subscription.activePriceAdjustment.kind !== 'legacy_discount' ? <div className={subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}>{subscription.activePriceAdjustment.promoCode || 'Manual price'} {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
+            <div className="text-sm text-gray-600"><div className="mb-1 text-right">List {money(subscription.monthlyAmountCents)}</div><DiscountBreakdown totalCents={subscription.automaticDiscountCents} components={subscription.automaticDiscountComponents} />{subscription.activePriceAdjustment?.kind === 'legacy_discount' ? <div className="text-right text-blue-700">Legacy manual adjustment · included above</div> : null}{subscription.activePriceAdjustment && subscription.activePriceAdjustment.kind !== 'legacy_discount' ? <div className={`text-right ${subscription.manualAdjustmentCents < 0 ? 'text-amber-700' : 'text-blue-700'}`}>{subscription.activePriceAdjustment.promoCode || 'Manual price'} {subscription.manualAdjustmentCents >= 0 ? '−' : '+'}{money(Math.abs(subscription.manualAdjustmentCents))}</div> : null}</div>
             <div className="text-right"><strong className="text-lg text-gray-950">{money(subscription.netMonthlyCents)}</strong><span className="block text-xs text-gray-400">per month</span></div>
             {subscription.scheduledPriceAdjustments.length > 0 ? <div className="md:col-span-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Scheduled: {subscription.scheduledPriceAdjustments.map((adjustment) => `${adjustment.promoCode || money(adjustment.finalPriceCents)} from ${monthLabel(adjustment.effectiveFromMonth)} through ${monthLabel(adjustment.effectiveThroughMonth)} (${adjustment.status.replaceAll('_', ' ')})`).join(' · ')}</div> : null}
           </div>

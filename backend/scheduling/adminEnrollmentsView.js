@@ -150,6 +150,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
   let priceById = new Map()
   let adjustedBySignupId = new Map()
   let discountLabelBySignupId = new Map()
+  let discountComponentsBySignupId = new Map()
   let manualAppliedBySignupId = new Map()
   try {
     const preview = await buildSignupOrderPreview(pool, {
@@ -200,6 +201,28 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
       })
       for (const line of discounts?.accountLines ?? []) {
         adjustedBySignupId.set(line.signupId, line.finalCents)
+        const components = (line.applied ?? [])
+          .map((entry) => ({
+            ruleId: entry.ruleId == null ? null : Number(entry.ruleId),
+            name:
+              entry.name ||
+              (entry.source === 'manual' ? 'Manual enrollment discount' : 'Automatic discount'),
+            type: entry.type ?? null,
+            amountCents: Math.max(0, Number(entry.amountCents) || 0),
+            source: entry.source ?? null,
+            amountType: entry.amountType ?? null,
+            amountValue: entry.amountValue == null ? null : Number(entry.amountValue),
+            promoCode: entry.promoCode ?? null,
+            qualifiedLabel: entry.qualifiedLabel ?? null,
+            qualifiedClassCount:
+              entry.qualifiedClassCount == null ? null : Number(entry.qualifiedClassCount),
+            qualifyingSubtotalCents:
+              entry.qualifyingSubtotalCents == null
+                ? null
+                : Number(entry.qualifyingSubtotalCents),
+          }))
+          .filter((entry) => entry.amountCents > 0)
+        if (components.length > 0) discountComponentsBySignupId.set(line.signupId, components)
         const manualApplied = (line.applied ?? [])
           .filter((entry) => entry.source === 'manual')
           .reduce((sum, entry) => sum + Math.max(0, Number(entry.amountCents) || 0), 0)
@@ -350,6 +373,7 @@ export async function buildAdminMemberEnrollments(pool, memberId) {
         billing_status: sub?.status ?? null,
         class_cost_cents: classCostCents,
         adjusted_cost_cents: adjustedCostCents,
+        discount_components: discountComponentsBySignupId.get(Number(row.id)) ?? [],
         manual_discount_cents: manualCents > 0 ? manualCents : null,
         manual_discount_pct: row.manual_discount_pct != null ? Number(row.manual_discount_pct) : null,
         manual_discount_reason:

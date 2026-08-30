@@ -1,9 +1,40 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  firstRecurringPricingLineBySignup,
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
 } from '../customerBillingQueries.js'
+
+test('scheduled enrollments use the first future period that contains their pricing line', () => {
+  const bySignup = firstRecurringPricingLineBySignup([
+    {
+      periodKey: '2026-08',
+      lines: [{ signupId: 11, netCents: 10000 }],
+    },
+    {
+      periodKey: '2026-09',
+      lines: [
+        { signupId: 11, netCents: 10000 },
+        {
+          signupId: 96,
+          netCents: 7125,
+          discountComponents: [
+            { ruleId: 9, name: 'half-time athlete', amountCents: 7500 },
+            { ruleId: 7, name: 'Family multi-class spend discount', amountCents: 375 },
+          ],
+        },
+      ],
+    },
+  ])
+
+  assert.equal(bySignup.get(11).netCents, 10000)
+  assert.equal(bySignup.get(96).netCents, 7125)
+  assert.deepEqual(
+    bySignup.get(96).discountComponents.map((component) => component.amountCents),
+    [7500, 375],
+  )
+})
 
 test('member-filtered transactions retain household payments and one-time charges', async () => {
   let queryText = ''

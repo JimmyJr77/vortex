@@ -89,6 +89,36 @@ export async function priceRecurringPeriod(pool, { familyId, subscriptions, char
     .filter((subscription) => (subscription.source_type ?? subscription.sourceType) !== 'scheduling_signup')
     .map(fallbackLine)
 
+  const persistedDiscountBySignup = new Map()
+  const eligibleSignupIds = eligible
+    .map((subscription) => Number(subscription.source_id ?? subscription.sourceId))
+    .filter(Number.isFinite)
+  if (eligibleSignupIds.length > 0) {
+    try {
+      const result = await pool.query(
+        `SELECT id, manual_discount_cents, manual_discount_pct,
+                manual_discount_rule_id, manual_discount_reason
+         FROM scheduling_signup
+         WHERE id = ANY($1::bigint[])`,
+        [eligibleSignupIds],
+      )
+      for (const row of result.rows) {
+        persistedDiscountBySignup.set(Number(row.id), {
+          manualDiscountCents:
+            row.manual_discount_cents == null ? null : Number(row.manual_discount_cents),
+          manualDiscountPct:
+            row.manual_discount_pct == null ? null : Number(row.manual_discount_pct),
+          manualDiscountRuleId:
+            row.manual_discount_rule_id == null ? null : Number(row.manual_discount_rule_id),
+          manualDiscountReason: row.manual_discount_reason ?? null,
+        })
+      }
+    } catch (error) {
+      // Deployment remains compatible while scheduling discount columns migrate.
+      if (error?.code !== '42P01' && error?.code !== '42703') throw error
+    }
+  }
+
   const previewExistingLines = eligible.map((subscription) => {
     const fallback = fallbackLine(subscription)
     return {
@@ -101,6 +131,7 @@ export async function priceRecurringPeriod(pool, { familyId, subscriptions, char
       finalCents: fallback.grossCents,
       includeInSubtotal: false,
       shadowOnly: true,
+      ...(persistedDiscountBySignup.get(fallback.signupId) ?? {}),
     }
   }).filter((line) => Number.isFinite(line.signupId) && Number.isFinite(line.memberId))
 
@@ -126,13 +157,27 @@ export async function priceRecurringPeriod(pool, { familyId, subscriptions, char
         return {
           ...fallback,
           grossCents,
+          automaticNetCents: netCents,
+          automaticDiscountCents: Math.max(0, grossCents - netCents),
           discountCents: Math.max(0, grossCents - netCents),
           netCents,
           discountComponents: (line.applied ?? [])
             .map((entry) => ({
+              ruleId: entry.ruleId == null ? null : Number(entry.ruleId),
               name: entry.name || (entry.source === 'manual' ? 'Legacy manual discount' : 'Automatic discount'),
+              type: entry.type ?? null,
               amountCents: Math.max(0, Number(entry.amountCents) || 0),
               source: entry.source ?? null,
+              amountType: entry.amountType ?? null,
+              amountValue: entry.amountValue == null ? null : Number(entry.amountValue),
+              promoCode: entry.promoCode ?? null,
+              qualifiedLabel: entry.qualifiedLabel ?? null,
+              qualifiedClassCount:
+                entry.qualifiedClassCount == null ? null : Number(entry.qualifiedClassCount),
+              qualifyingSubtotalCents:
+                entry.qualifyingSubtotalCents == null
+                  ? null
+                  : Number(entry.qualifyingSubtotalCents),
             }))
             .filter((entry) => entry.amountCents > 0),
         }

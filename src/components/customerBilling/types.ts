@@ -19,6 +19,20 @@ export interface CustomerBillingSearchResult {
   isActive: boolean
 }
 
+export interface BillingDiscountComponent {
+  ruleId?: number | null
+  name: string
+  type?: string | null
+  amountCents: number
+  source: string | null
+  amountType?: string | null
+  amountValue?: number | null
+  promoCode?: string | null
+  qualifiedLabel?: string | null
+  qualifiedClassCount?: number | null
+  qualifyingSubtotalCents?: number | null
+}
+
 export interface PriceAdjustment {
   id: number
   signupId: number
@@ -50,7 +64,7 @@ export interface CustomerBillingEnrollment {
   billingType?: string
   classCostCents: number
   automaticDiscountCents: number
-  automaticDiscountComponents: Array<{ name: string; amountCents: number; source: string | null }>
+  automaticDiscountComponents: BillingDiscountComponent[]
   automaticAdjustedCostCents: number
   manualAdjustmentCents: number
   adjustedCostCents: number
@@ -71,7 +85,7 @@ export interface CustomerBillingSubscription {
   status: string
   monthlyAmountCents: number
   automaticDiscountCents: number
-  automaticDiscountComponents: Array<{ name: string; amountCents: number; source: string | null }>
+  automaticDiscountComponents: BillingDiscountComponent[]
   manualAdjustmentCents: number
   discountAmountCents: number
   netMonthlyCents: number
