@@ -253,29 +253,33 @@ export async function priceRecurringPeriod(pool, {
     list.push(adjustment)
     proposedBySignup.set(signupId, list)
   }
-  const effectiveAdjustmentBySignup = new Map()
+  const effectiveAdjustmentsBySignup = new Map()
   for (const signupId of eligibleSignupIds) {
-    const proposed = (proposedBySignup.get(signupId) ?? []).find(
+    const proposed = (proposedBySignup.get(signupId) ?? []).filter(
       (adjustment) => adjustmentCoversPeriod(adjustment, normalizedPeriodKey),
     )
-    const persisted = (historyBySignup.get(signupId) ?? []).find(
+    const proposedIds = new Set(proposed.map((adjustment) => Number(adjustment.id)))
+    const persisted = (historyBySignup.get(signupId) ?? []).filter(
       (adjustment) =>
         adjustment.status === 'active' &&
         !excludedIds.has(Number(adjustment.id)) &&
+        !proposedIds.has(Number(adjustment.id)) &&
         adjustmentCoversPeriod(adjustment, normalizedPeriodKey),
     )
-    const effective = proposed ?? persisted
-    if (effective) effectiveAdjustmentBySignup.set(signupId, effective)
+    const effective = [...proposed, ...persisted]
+    if (effective.length > 0) effectiveAdjustmentsBySignup.set(signupId, effective)
   }
 
   const ruleSnapshots = []
   const seenRuleIds = new Set()
-  for (const adjustment of effectiveAdjustmentBySignup.values()) {
-    if (!['promo_code', 'legacy_discount'].includes(adjustment.kind)) continue
-    const rule = runtimeDiscountRuleFromAdjustment(adjustment)
-    if (rule && !seenRuleIds.has(rule.id)) {
-      seenRuleIds.add(rule.id)
-      ruleSnapshots.push(rule)
+  for (const adjustments of effectiveAdjustmentsBySignup.values()) {
+    for (const adjustment of adjustments) {
+      if (!['promo_code', 'legacy_discount'].includes(adjustment.kind)) continue
+      const rule = runtimeDiscountRuleFromAdjustment(adjustment)
+      if (rule && !seenRuleIds.has(rule.id)) {
+        seenRuleIds.add(rule.id)
+        ruleSnapshots.push(rule)
+      }
     }
   }
 
@@ -286,16 +290,14 @@ export async function priceRecurringPeriod(pool, {
     const hasManagedDiscount = [...history, ...proposed].some((adjustment) =>
       ['promo_code', 'legacy_discount'].includes(adjustment.kind),
     )
-    const effectiveAdjustment = effectiveAdjustmentBySignup.get(fallback.signupId) ?? null
-    const effectiveDiscount = ['promo_code', 'legacy_discount'].includes(effectiveAdjustment?.kind)
-      ? persistedDiscountFromAdjustment(effectiveAdjustment)
-      : null
+    const effectiveAdjustments = effectiveAdjustmentsBySignup.get(fallback.signupId) ?? []
+    const effectiveDiscounts = effectiveAdjustments
+      .filter((adjustment) => ['promo_code', 'legacy_discount'].includes(adjustment.kind))
+      .map(persistedDiscountFromAdjustment)
+      .filter(Boolean)
     const discountInput = hasManagedDiscount
-      ? effectiveDiscount ?? {
-          manualDiscountCents: null,
-          manualDiscountPct: null,
-          manualDiscountRuleId: null,
-          manualDiscountReason: null,
+      ? {
+          managedDiscountAssignments: effectiveDiscounts,
           managedDiscountAssignment: true,
         }
       : persistedDiscountBySignup.get(fallback.signupId) ?? {}
@@ -372,33 +374,54 @@ export async function priceRecurringPeriod(pool, {
   if (priced.length === 0) priced = eligible.map(fallbackLine)
 
   priced = priced.map((line) => {
-    const adjustment = effectiveAdjustmentBySignup.get(Number(line.signupId)) ?? null
-    if (!adjustment) return applyEnrollmentPriceAdjustment(line, null)
-    if (normalizedAdjustmentKind(adjustment) === 'fixed_final_price') {
-      return applyEnrollmentPriceAdjustment(line, adjustment)
+    const adjustments = effectiveAdjustmentsBySignup.get(Number(line.signupId)) ?? []
+    if (adjustments.length === 0) return applyEnrollmentPriceAdjustment(line, null)
+    const fixedAdjustment = adjustments.find(
+      (adjustment) => normalizedAdjustmentKind(adjustment) === 'fixed_final_price',
+    )
+    if (fixedAdjustment) {
+      return applyEnrollmentPriceAdjustment(line, fixedAdjustment)
     }
-    if (line.discountComponents?.some(
-      (component) =>
-        (component.ruleId != null && Number(component.ruleId) === Number(adjustmentValue(adjustment, 'discount_rule_id', 'discountRuleId'))) ||
-        (component.promoCode && component.promoCode === adjustmentValue(adjustment, 'promo_code', 'promoCode')),
-    )) {
+    const promoAdjustments = adjustments.filter(
+      (adjustment) => ['promo_code', 'legacy_discount'].includes(adjustment.kind),
+    )
+    const appliedPromoAdjustments = promoAdjustments.filter((adjustment) =>
+      line.discountComponents?.some(
+        (component) =>
+          (
+            component.ruleId != null &&
+            Number(component.ruleId) === Number(adjustmentValue(adjustment, 'discount_rule_id', 'discountRuleId'))
+          ) ||
+          (
+            component.promoCode &&
+            component.promoCode === adjustmentValue(adjustment, 'promo_code', 'promoCode')
+          ),
+      ),
+    )
+    if (appliedPromoAdjustments.length > 0) {
       return {
         ...line,
         automaticNetCents: Number(line.netCents),
         automaticDiscountCents: Number(line.grossCents) - Number(line.netCents),
         manualAdjustmentCents: 0,
-        priceAdjustmentId: Number(adjustment.id),
-        priceAdjustment: adjustment,
+        priceAdjustmentId: Number(appliedPromoAdjustments[0].id),
+        priceAdjustmentIds: appliedPromoAdjustments.map((adjustment) => Number(adjustment.id)),
+        priceAdjustment: appliedPromoAdjustments[0],
+        priceAdjustments: appliedPromoAdjustments,
       }
     }
     // Compatibility fallback for an incomplete legacy snapshot. New and migrated
     // promo assignments always resolve in the discount engine above.
-    return applyEnrollmentPriceAdjustment(
-      line,
-      normalizedAdjustmentKind(adjustment) === 'promo_code'
-        ? { ...adjustment, kind: 'promo_code' }
-        : adjustment,
-    )
+    if (promoAdjustments.length === 1) {
+      const adjustment = promoAdjustments[0]
+      return applyEnrollmentPriceAdjustment(
+        line,
+        normalizedAdjustmentKind(adjustment) === 'promo_code'
+          ? { ...adjustment, kind: 'promo_code' }
+          : adjustment,
+      )
+    }
+    return applyEnrollmentPriceAdjustment(line, null)
   })
   priced.push(...passthrough)
 

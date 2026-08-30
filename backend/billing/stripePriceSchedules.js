@@ -29,6 +29,10 @@ function unixMonthStart(month) {
   return Math.floor(Date.UTC(year, value - 1, 1) / 1000)
 }
 
+export function buildSubscriptionScheduleCreateParams(stripeSubscriptionId) {
+  return { from_subscription: stripeSubscriptionId }
+}
+
 export function buildPriceScheduleSegments({
   currentMonth,
   currentPhaseStart,
@@ -192,13 +196,9 @@ export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptio
         ? stripeSubscription.schedule
         : stripeSubscription.schedule?.id ?? subscription.stripe_subscription_schedule_id
     if (!scheduleId) {
-      const created = await stripe.subscriptionSchedules.create({
-        from_subscription: subscription.stripe_subscription_id,
-        metadata: {
-          vortex_billing_subscription_id: String(subscription.id),
-          vortex_signup_id: String(subscription.source_id),
-        },
-      })
+      const created = await stripe.subscriptionSchedules.create(
+        buildSubscriptionScheduleCreateParams(subscription.stripe_subscription_id),
+      )
       scheduleId = created.id
     }
     const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId)

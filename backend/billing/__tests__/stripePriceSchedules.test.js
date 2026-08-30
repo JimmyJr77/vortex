@@ -1,6 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { buildPriceScheduleSegments } from '../stripePriceSchedules.js'
+import {
+  buildPriceScheduleSegments,
+  buildSubscriptionScheduleCreateParams,
+} from '../stripePriceSchedules.js'
+
+test('a schedule created from a subscription does not send incompatible metadata', () => {
+  const params = buildSubscriptionScheduleCreateParams('sub_123')
+
+  assert.deepEqual(params, { from_subscription: 'sub_123' })
+  assert.equal('metadata' in params, false)
+})
 
 test('Stripe price phases merge adjacent months with the same amount and retain reversion', () => {
   const amounts = new Map([

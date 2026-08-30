@@ -1,10 +1,50 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  adjustmentOverlapConflict,
   loadPostedSubscriptionAmountsByPeriod,
   postedPriceDifferenceCents,
   resolvePromoAdjustment,
 } from '../customerBillingAdjustments.js'
+
+test('distinct stackable promo assignments may share an enrollment billing window', () => {
+  const first = {
+    kind: 'promo_code',
+    promo_code: 'SAVE10',
+    discount_rule_id: 10,
+    discount_rule_snapshot: { stackable: true },
+  }
+  const second = {
+    kind: 'promo_code',
+    promoCode: 'SAVE20',
+    discountRuleId: 20,
+    discountRuleSnapshot: { stackable: true },
+  }
+
+  assert.equal(adjustmentOverlapConflict(first, second), null)
+  assert.match(
+    adjustmentOverlapConflict(first, { ...second, promoCode: 'save10' }),
+    /already assigned/i,
+  )
+  assert.match(
+    adjustmentOverlapConflict(first, { kind: 'fixed_final_price' }),
+    /fixed final price/i,
+  )
+  assert.match(
+    adjustmentOverlapConflict(first, {
+      ...second,
+      discountRuleSnapshot: { stackable: false },
+    }),
+    /non-stackable/i,
+  )
+  assert.match(
+    adjustmentOverlapConflict(
+      { ...first, discount_rule_snapshot: { stackable: true, exclusivityGroup: 'seasonal' } },
+      { ...second, discountRuleSnapshot: { stackable: true, exclusivityGroup: 'seasonal' } },
+    ),
+    /exclusive discount group/i,
+  )
+})
 
 test('billing managers may assign a globally scoped tuition promo without a public program allow-list', async () => {
   const queries = []

@@ -256,9 +256,71 @@ async function normalizeAdjustmentRequest(pool, context, input) {
   return { kind, reason, effectiveFrom, effectiveThrough, finalPriceCents: null, promo }
 }
 
-async function assertNoAdjustmentOverlap(db, signupId, from, through, excludeId = null) {
+function adjustmentField(adjustment, snakeCase, camelCase) {
+  return adjustment?.[snakeCase] ?? adjustment?.[camelCase]
+}
+
+function isPromoAdjustment(adjustment) {
+  return ['promo_code', 'legacy_discount'].includes(adjustment?.kind)
+}
+
+function promoAdjustmentIsStackable(adjustment) {
+  const snapshot = parseJson(
+    adjustmentField(adjustment, 'discount_rule_snapshot', 'discountRuleSnapshot'),
+  )
+  return snapshot.stackable !== false
+}
+
+function promoAdjustmentExclusivityGroup(adjustment) {
+  const snapshot = parseJson(
+    adjustmentField(adjustment, 'discount_rule_snapshot', 'discountRuleSnapshot'),
+  )
+  return String(snapshot.exclusivityGroup ?? snapshot.exclusivity_group ?? '').trim() || null
+}
+
+export function adjustmentOverlapConflict(existing, proposed) {
+  if (!isPromoAdjustment(existing) || !isPromoAdjustment(proposed)) {
+    return 'A fixed final price cannot overlap another enrollment price change.'
+  }
+
+  const existingRuleValue = adjustmentField(existing, 'discount_rule_id', 'discountRuleId')
+  const proposedRuleValue = adjustmentField(proposed, 'discount_rule_id', 'discountRuleId')
+  const existingRuleId = existingRuleValue == null ? null : Number(existingRuleValue)
+  const proposedRuleId = proposedRuleValue == null ? null : Number(proposedRuleValue)
+  const existingCode = normalizePromoCode(
+    adjustmentField(existing, 'promo_code', 'promoCode'),
+  )
+  const proposedCode = normalizePromoCode(
+    adjustmentField(proposed, 'promo_code', 'promoCode'),
+  )
+  if (
+    (Number.isFinite(existingRuleId) && Number.isFinite(proposedRuleId) && existingRuleId === proposedRuleId) ||
+    (existingCode && proposedCode && existingCode === proposedCode)
+  ) {
+    return 'This promotional code is already assigned during the selected billing window.'
+  }
+  if (!promoAdjustmentIsStackable(existing) || !promoAdjustmentIsStackable(proposed)) {
+    return 'One of the promotional codes is configured as non-stackable for the selected billing window.'
+  }
+  const existingGroup = promoAdjustmentExclusivityGroup(existing)
+  const proposedGroup = promoAdjustmentExclusivityGroup(proposed)
+  if (existingGroup && proposedGroup && existingGroup === proposedGroup) {
+    return 'These promotional codes belong to the same exclusive discount group and cannot stack.'
+  }
+  return null
+}
+
+async function assertAdjustmentWindowAvailable(
+  db,
+  signupId,
+  from,
+  through,
+  proposed,
+  excludeId = null,
+) {
   const result = await db.query(
-    `SELECT id FROM enrollment_price_adjustment
+    `SELECT id, kind, promo_code, discount_rule_id, discount_rule_snapshot
+     FROM enrollment_price_adjustment
      WHERE signup_id = $1
        AND status <> 'revoked'
        AND ($4::bigint IS NULL OR id <> $4)
@@ -266,10 +328,13 @@ async function assertNoAdjustmentOverlap(db, signupId, from, through, excludeId 
          effective_from_month,
          COALESCE(effective_through_month + 1, 'infinity'::date), '[)'
        ) && daterange($2::date, COALESCE($3::date + 1, 'infinity'::date), '[)')
-     LIMIT 1`,
+     ORDER BY created_at, id`,
     [signupId, from, through, excludeId],
   )
-  if (result.rows[0]) throw new Error('This enrollment already has a price change in the selected billing window.')
+  for (const existing of result.rows) {
+    const conflict = adjustmentOverlapConflict(existing, proposed)
+    if (conflict) throw new Error(conflict)
+  }
 }
 
 async function loadPeriodInputs(pool, context) {
@@ -323,11 +388,17 @@ export async function previewEnrollmentPriceAdjustment(pool, {
 }) {
   const context = await loadEnrollmentPriceContext(pool, signupId, facilityId)
   const normalized = await normalizeAdjustmentRequest(pool, context, input)
-  await assertNoAdjustmentOverlap(
+  await assertAdjustmentWindowAvailable(
     pool,
     context.signup_id,
     normalized.effectiveFrom,
     normalized.effectiveThrough,
+    {
+      kind: normalized.kind,
+      promoCode: normalized.promo?.code ?? null,
+      discountRuleId: normalized.promo?.snapshot?.id ?? null,
+      discountRuleSnapshot: normalized.promo?.snapshot ?? null,
+    },
   )
 
   const currentMonth = billingMonthKey(new Date())
@@ -601,11 +672,17 @@ export async function createEnrollmentPriceAdjustment(pool, {
   try {
     await client.query('BEGIN')
     await client.query(`SELECT pg_advisory_xact_lock($1::bigint)`, [Number(signupId)])
-    await assertNoAdjustmentOverlap(
+    await assertAdjustmentWindowAvailable(
       client,
       signupId,
       preview.effectiveFromMonth,
       preview.effectiveThroughMonth,
+      {
+        kind: preview.kind,
+        promoCode: preview.promoCode,
+        discountRuleId: preview.promoRule?.id ?? null,
+        discountRuleSnapshot: preview.promoRule,
+      },
     )
     const supersedesAdjustmentId = input?.supersedesAdjustmentId == null
       ? null
@@ -902,7 +979,7 @@ async function buildRevocationCorrections(pool, adjustment) {
     const line = priced.lines.find(
       (candidate) => Number(candidate.subscriptionId) === Number(adjustment.billing_subscription_id),
     )
-    if (!line || Number(line.priceAdjustmentId) !== Number(adjustment.id)) continue
+    if (!line) continue
     const replacement = withoutAdjustment.lines.find(
       (candidate) => Number(candidate.subscriptionId) === Number(adjustment.billing_subscription_id),
     )

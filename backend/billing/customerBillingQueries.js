@@ -308,9 +308,12 @@ export async function buildCustomerBillingOverview(pool, {
         displayPricingBySignup.get(Number(row.id)) ??
         effectivePricingBySignup.get(Number(row.id))
       const enrollmentPricingMonth = pricingLine?.pricingPeriodKey ?? pricingMonth
-      const activeAdjustment = rowAdjustments.find(
+      const activeAdjustments = rowAdjustments.filter(
         (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, enrollmentPricingMonth),
-      ) ?? null
+      )
+      const activeAdjustment = activeAdjustments.find(
+        (adjustment) => adjustment.kind === 'fixed_final_price',
+      ) ?? activeAdjustments[0] ?? null
       const grossCents = Number(pricingLine?.grossCents ?? row.class_cost_cents ?? 0)
       const automaticNetCents = Number(
         pricingLine?.automaticNetCents ?? row.adjusted_cost_cents ?? grossCents,
@@ -366,6 +369,7 @@ export async function buildCustomerBillingOverview(pool, {
         manualAdjustmentCents: Number(resolved.manualAdjustmentCents ?? 0),
         adjustedCostCents: resolved.netCents,
         activePriceAdjustment: activeAdjustment,
+        activePriceAdjustments: activeAdjustments,
         priceAdjustments: rowAdjustments,
         nextBillDate: subscription?.next_bill_date ?? null,
         priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
@@ -383,9 +387,12 @@ export async function buildCustomerBillingOverview(pool, {
     const rowAdjustments = Number.isFinite(signupId) ? adjustmentsBySignup.get(signupId) ?? [] : []
     const pricingLine = displayPricingBySubscription.get(Number(row.id))
     const subscriptionPricingMonth = pricingLine ? displayPricing?.periodKey ?? pricingMonth : pricingMonth
-    const activeAdjustment = rowAdjustments.find(
+    const activeAdjustments = rowAdjustments.filter(
       (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, subscriptionPricingMonth),
-    ) ?? null
+    )
+    const activeAdjustment = activeAdjustments.find(
+      (adjustment) => adjustment.kind === 'fixed_final_price',
+    ) ?? activeAdjustments[0] ?? null
     const fallbackResolved = applyEnrollmentPriceAdjustment(
       {
         grossCents: Number(row.monthly_amount_cents ?? 0),
@@ -425,6 +432,7 @@ export async function buildCustomerBillingOverview(pool, {
       priceSyncStatus: row.price_sync_status ?? 'not_required',
       priceSyncError: row.price_sync_error ?? null,
       activePriceAdjustment: activeAdjustment,
+      activePriceAdjustments: activeAdjustments,
       scheduledPriceAdjustments: rowAdjustments.filter((adjustment) => adjustment.status !== 'revoked'),
       pricingMonth: subscriptionPricingMonth,
     }

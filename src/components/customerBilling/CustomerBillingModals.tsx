@@ -7,6 +7,7 @@ import type {
   BillingTransaction,
   CustomerBillingEnrollment,
   CustomerBillingMember,
+  PriceAdjustment,
   PriceAdjustmentPreview,
 } from './types'
 
@@ -91,10 +92,15 @@ export function PriceAdjustmentModal({
   onClose: () => void
   onSaved: (message: string) => void
 }) {
-  const currentPromo = enrollment.activePriceAdjustment && ['promo_code', 'legacy_discount'].includes(enrollment.activePriceAdjustment.kind)
-    ? enrollment.activePriceAdjustment
-    : null
-  const [kind, setKind] = useState<'fixed_final_price' | 'promo_code'>(currentPromo ? 'promo_code' : 'fixed_final_price')
+  const assignedPromos = enrollment.priceAdjustments.filter(
+    (adjustment) =>
+      adjustment.status !== 'revoked' &&
+      ['promo_code', 'legacy_discount'].includes(adjustment.kind),
+  )
+  const hasPendingSync = enrollment.priceAdjustments.some(
+    (adjustment) => ['pending_sync', 'sync_failed'].includes(adjustment.status),
+  )
+  const [kind, setKind] = useState<'fixed_final_price' | 'promo_code'>(assignedPromos.length > 0 ? 'promo_code' : 'fixed_final_price')
   const [finalPrice, setFinalPrice] = useState((enrollment.adjustedCostCents / 100).toFixed(2))
   const [promoCode, setPromoCode] = useState('')
   const [effectiveFromMonth, setEffectiveFromMonth] = useState(defaultAdjustmentMonth(enrollment))
@@ -161,8 +167,7 @@ export function PriceAdjustmentModal({
     }
   }
 
-  const removeCurrentPromo = async () => {
-    if (!currentPromo) return
+  const removePromo = async (adjustment: PriceAdjustment) => {
     if (!reason.trim()) {
       setError('Enter an administrative reason before removing the discount code.')
       return
@@ -171,12 +176,12 @@ export function PriceAdjustmentModal({
     setError(null)
     try {
       const response = await adminApiRequest(
-        `/api/admin/customer-billing/price-adjustments/${currentPromo.id}/revoke`,
+        `/api/admin/customer-billing/price-adjustments/${adjustment.id}/revoke`,
         { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) },
       )
       const body = await responseBody(response)
       if (!response.ok) throw new Error(body.message || 'Discount code could not be removed.')
-      onSaved(`${currentPromo.promoCode || 'Tuition discount code'} removed successfully.`)
+      onSaved(`${adjustment.promoCode || 'Tuition discount code'} removed successfully.`)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Discount code could not be removed.')
     } finally {
@@ -204,11 +209,30 @@ export function PriceAdjustmentModal({
             <div className="mt-3 flex justify-between border-t border-gray-200 pt-3"><span className="font-semibold text-gray-700">Current adjusted price</span><strong>{money(enrollment.adjustedCostCents)}</strong></div>
           </div>
 
-          {currentPromo ? (
+          {assignedPromos.length > 0 ? (
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
-              <div className="font-semibold">Applied tuition code: {currentPromo.promoCode}</div>
-              <div className="mt-1 text-xs text-blue-700">Remove this assignment before replacing it with another code for an overlapping billing month.</div>
-              <button type="button" onClick={() => void removeCurrentPromo()} disabled={working} className="mt-3 rounded-lg border border-blue-300 bg-white px-3 py-2 text-xs font-semibold text-blue-800 disabled:opacity-50">Remove discount code</button>
+              <div className="font-semibold">Applied tuition codes</div>
+              <div className="mt-3 space-y-2">
+                {assignedPromos.map((adjustment) => (
+                  <div key={adjustment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-white p-3">
+                    <div>
+                      <div className="font-semibold text-blue-950">{adjustment.promoCode || 'Tuition discount code'}</div>
+                      <div className="mt-0.5 text-xs text-blue-700">
+                        {monthLabel(adjustment.effectiveFromMonth)} – {monthLabel(adjustment.effectiveThroughMonth)} · {adjustment.status.replaceAll('_', ' ')}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void removePromo(adjustment)}
+                      disabled={working}
+                      aria-label={`Remove tuition discount code ${adjustment.promoCode || adjustment.id}`}
+                      className="rounded-lg border border-blue-300 px-3 py-2 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:opacity-50"
+                    >
+                      Remove code
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : null}
 
@@ -262,7 +286,8 @@ export function PriceAdjustmentModal({
           ) : null}
 
           {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-          <button type="button" onClick={() => void previewChange()} disabled={working} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
+          {hasPendingSync ? <p className="text-xs text-amber-700">Retry or remove the pending price change before adding another one.</p> : null}
+          <button type="button" onClick={() => void previewChange()} disabled={working || hasPendingSync} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
             {working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Preview billing impact
           </button>
         </div>

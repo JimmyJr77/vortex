@@ -73,6 +73,7 @@ export interface CustomerBillingEnrollment {
   manualAdjustmentCents: number
   adjustedCostCents: number
   activePriceAdjustment: PriceAdjustment | null
+  activePriceAdjustments: PriceAdjustment[]
   priceAdjustments: PriceAdjustment[]
   nextBillDate: string | null
   priceSyncStatus: string
@@ -102,6 +103,7 @@ export interface CustomerBillingSubscription {
   priceSyncStatus: string
   priceSyncError: string | null
   activePriceAdjustment: PriceAdjustment | null
+  activePriceAdjustments: PriceAdjustment[]
   scheduledPriceAdjustments: PriceAdjustment[]
   pricingMonth: string
 }

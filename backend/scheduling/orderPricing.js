@@ -1514,6 +1514,7 @@ export async function computeDiscountLayer(
     })
   }
 
+  let previewExistingLinesAttached = false
   if (familyId != null || memberId != null) {
     try {
       const {
@@ -1558,12 +1559,21 @@ export async function computeDiscountLayer(
           attachStats(shadow)
           lines.push(shadow)
         }
+        previewExistingLinesAttached = true
       }
     } catch (err) {
       // Account discount context is best-effort, but silent failures previously hid
       // real bugs (missing billing columns) and produced cart-only tier stats.
       console.warn('[scheduling] account discount stats unavailable:', err?.message ?? err)
     }
+  }
+
+  // Existing-enrollment pricing must still enter the discount engine when the
+  // facility has no household multi-class/spend rule (or account-stat loading
+  // is temporarily unavailable). Household-rule resolution above supplies its
+  // own canonical shadow lines, so only use this fallback when it did not.
+  if (!previewExistingLinesAttached) {
+    for (const line of previewExistingLines ?? []) lines.push({ ...line })
   }
 
   const { computeOrderDiscounts } = await import('./discountEngine.js')

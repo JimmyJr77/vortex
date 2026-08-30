@@ -94,6 +94,99 @@ test('free-access promo snapshot resolves tuition to zero', () => {
   assert.equal(resolved.manualAdjustmentCents, 8750)
 })
 
+test('period pricing stacks distinct assigned promo codes in configured priority order', async () => {
+  const adjustments = [
+    {
+      id: 101,
+      signup_id: 501,
+      kind: 'promo_code',
+      promo_code: 'SAVE10',
+      discount_rule_id: 10,
+      discount_rule_snapshot: {
+        id: 10,
+        name: '10% discount',
+        type: 'promo_code',
+        amountType: 'percent',
+        amountValue: 1000,
+        applyTo: 'class',
+        calcBase: 'pre',
+        priority: 10,
+        stackable: true,
+        config: { code: 'SAVE10' },
+      },
+      effective_from_month: '2026-08-01',
+      effective_through_month: null,
+      status: 'active',
+      created_at: '2026-08-01T12:00:00.000Z',
+    },
+    {
+      id: 102,
+      signup_id: 501,
+      kind: 'promo_code',
+      promo_code: 'SAVE20',
+      discount_rule_id: 20,
+      discount_rule_snapshot: {
+        id: 20,
+        name: '20% discount',
+        type: 'promo_code',
+        amountType: 'percent',
+        amountValue: 2000,
+        applyTo: 'class',
+        calcBase: 'post',
+        priority: 20,
+        stackable: true,
+        config: { code: 'SAVE20' },
+      },
+      effective_from_month: '2026-08-01',
+      effective_through_month: null,
+      status: 'active',
+      created_at: '2026-08-02T12:00:00.000Z',
+    },
+  ]
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (/FROM scheduling_signup/.test(text)) {
+        return {
+          rows: [{
+            id: 501,
+            manual_discount_cents: null,
+            manual_discount_pct: null,
+            manual_discount_rule_id: null,
+            manual_discount_reason: null,
+          }],
+        }
+      }
+      if (/FROM enrollment_price_adjustment/.test(text)) return { rows: adjustments }
+      if (/SELECT id FROM facility LIMIT 1/.test(text)) return { rows: [{ id: 1 }] }
+      return { rows: [] }
+    },
+  }
+
+  const priced = await priceRecurringPeriod(pool, {
+    familyId: 77,
+    periodKey: '2026-09',
+    subscriptions: [{
+      id: 88,
+      status: 'active',
+      source_type: 'scheduling_signup',
+      source_id: '501',
+      member_id: 900,
+      monthly_amount_cents: 10000,
+      discount_amount_cents: 0,
+      net_monthly_cents: 10000,
+      start_date: '2026-08-01',
+    }],
+  })
+
+  assert.equal(priced.netCents, 7200)
+  assert.deepEqual(
+    priced.lines[0].discountComponents.map((component) => [component.promoCode, component.amountCents]),
+    [['SAVE10', 1000], ['SAVE20', 1800]],
+  )
+  assert.deepEqual(priced.lines[0].priceAdjustmentIds, [101, 102])
+})
+
 test('period pricing retains non-enrollment monthly charges and excludes annual memberships', async () => {
   const result = await priceRecurringPeriod(
     { query: async () => ({ rows: [] }) },

@@ -506,18 +506,24 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   }
 
   function persistedManualSpec(line, rule) {
-    if (
-      line?.shadowOnly !== true ||
-      line?.manualDiscountRuleId == null ||
-      Number(line.manualDiscountRuleId) !== Number(rule.id)
-    ) {
-      return null
+    if (line?.shadowOnly !== true) return null
+    const managedAssignment = Array.isArray(line.managedDiscountAssignments)
+      ? line.managedDiscountAssignments.find(
+          (assignment) => Number(assignment?.manualDiscountRuleId) === Number(rule.id),
+        )
+      : null
+    const source = managedAssignment ?? (
+      line.manualDiscountRuleId != null &&
+      Number(line.manualDiscountRuleId) === Number(rule.id)
+        ? line
+        : null
+    )
+    if (!source) return null
+    if (source.manualDiscountCents != null) {
+      return { amountType: 'fixed', amountValue: Number(source.manualDiscountCents) }
     }
-    if (line.manualDiscountCents != null) {
-      return { amountType: 'fixed', amountValue: Number(line.manualDiscountCents) }
-    }
-    if (line.manualDiscountPct != null) {
-      return { amountType: 'percent', amountValue: Number(line.manualDiscountPct) * 100 }
+    if (source.manualDiscountPct != null) {
+      return { amountType: 'percent', amountValue: Number(source.manualDiscountPct) * 100 }
     }
     return null
   }
@@ -528,7 +534,14 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   function applyPersistedOrderDiscount(rule) {
     const eligible = lineState
       .map((ls) => ({ ls, spec: persistedManualSpec(ls.line, rule) }))
-      .filter(({ spec }) => spec != null)
+      .filter(({ ls, spec }) => {
+        if (spec == null) return false
+        if (rule.exclusivityGroup && ls.exclusivityGroups.has(rule.exclusivityGroup)) return false
+        return !(
+          !rule.stackable &&
+          ls.applied.some((entry) => Number(entry.ruleId) !== Number(rule.id))
+        )
+      })
     if (eligible.length === 0) return 0
 
     const spec = eligible[0].spec
@@ -581,6 +594,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         expiresOn: rule.expiresOn ?? null,
         countedAsOrderDiscount: true,
       })
+      if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
     }
     orderDiscounts.push({
       ruleId: rule.id,

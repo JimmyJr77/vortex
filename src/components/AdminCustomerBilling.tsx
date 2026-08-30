@@ -246,17 +246,22 @@ function EnrollmentSection({
               <tbody>
                 {enrollments.map((enrollment) => {
                   const liveAdjustments = enrollment.priceAdjustments.filter((item) => item.status !== 'revoked')
-                  const currentAdjustment = enrollment.activePriceAdjustment
+                  const activeAdjustments = enrollment.activePriceAdjustments ?? (
+                    enrollment.activePriceAdjustment ? [enrollment.activePriceAdjustment] : []
+                  )
+                  const activeAdjustmentIds = new Set(activeAdjustments.map((adjustment) => adjustment.id))
+                  const currentAdjustment = activeAdjustments.find(
+                    (adjustment) => adjustment.kind === 'fixed_final_price',
+                  ) ?? null
                   const failedAdjustment = liveAdjustments.find((item) => item.status === 'sync_failed') ?? null
                   const scheduledAdjustments = liveAdjustments.filter(
                     (item) =>
-                      item.id !== currentAdjustment?.id &&
+                      !activeAdjustmentIds.has(item.id) &&
                       (
                         ['pending_sync', 'sync_failed'].includes(item.status) ||
                         item.effectiveFromMonth.slice(0, 7) > enrollment.pricingMonth.slice(0, 7)
                       ),
                   )
-                  const priceChangePending = liveAdjustments.some((item) => ['pending_sync', 'sync_failed'].includes(item.status))
                   return (
                     <tr key={`${enrollment.source}-${enrollment.id}`} className="border-t border-gray-100 align-top">
                       <td className="px-4 py-3"><strong className="block text-gray-950">{enrollment.memberName}</strong><span className="block max-w-[230px] text-gray-600">{enrollment.class_name || 'Class'}</span><span className="text-xs text-gray-400">Enrollment #{enrollment.id}</span></td>
@@ -277,8 +282,8 @@ function EnrollmentSection({
                       <td className="px-4 py-3 text-right">
                         {canManage && enrollment.source === 'scheduling' && enrollment.billingType !== 'one_time' ? (
                           <div className="flex justify-end gap-2">
-                            {liveAdjustments.map((adjustment) => <Fragment key={adjustment.id}>{adjustment.status === 'sync_failed' || (adjustment.id === currentAdjustment?.id && enrollment.priceSyncStatus === 'failed') ? <button type="button" onClick={() => onRetrySync(adjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry sync</button> : null}<button type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>{['promo_code', 'legacy_discount'].includes(adjustment.kind) ? 'Remove code' : 'Revoke'}</button></Fragment>)}
-                            <button type="button" onClick={() => onChangePrice(enrollment)} disabled={priceChangePending} title={priceChangePending ? 'Resolve the pending Stripe synchronization first.' : undefined} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"><PencilLine className="h-3.5 w-3.5" /> Change price</button>
+                            {liveAdjustments.map((adjustment) => <Fragment key={adjustment.id}>{adjustment.status === 'sync_failed' || (adjustment.id === currentAdjustment?.id && enrollment.priceSyncStatus === 'failed') ? <button type="button" onClick={() => onRetrySync(adjustment)} className="inline-flex items-center gap-1 rounded-lg border border-red-300 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"><RefreshCw className="h-3.5 w-3.5" /> Retry sync</button> : null}{adjustment.kind === 'fixed_final_price' ? <button type="button" onClick={() => onRevoke(adjustment)} className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50" aria-label={`Revoke price change beginning ${monthLabel(adjustment.effectiveFromMonth)}`}>Revoke</button> : null}</Fragment>)}
+                            <button type="button" onClick={() => onChangePrice(enrollment)} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-1.5 text-xs font-semibold text-white"><PencilLine className="h-3.5 w-3.5" /> Change price</button>
                           </div>
                         ) : <span className="text-xs text-gray-400">Read only</span>}
                       </td>
