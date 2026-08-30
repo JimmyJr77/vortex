@@ -465,6 +465,21 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   }
 
   const balanceCents = chargesCents - paymentsCents + refundsCents
+  const currentMonthKey = new Date().toISOString().slice(0, 7)
+  const outstandingBalanceCents = charges.reduce((sum, charge) => {
+    const serviceMonth = String(charge.service_period_start ?? charge.created_at ?? '').slice(0, 7)
+    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? 0))
+    return serviceMonth && serviceMonth < currentMonthKey ? sum + remaining : sum
+  }, 0)
+  const futureCreditsCents = payments.reduce(
+    (sum, payment) => sum + Math.max(0, Number(payment.remaining_amount_cents ?? 0)),
+    0,
+  )
+  const paidThisMonthCents = payments.reduce((sum, payment) => (
+    String(payment.paid_at ?? '').slice(0, 7) === currentMonthKey
+      ? sum + Math.max(0, Number(payment.amount_cents ?? 0))
+      : sum
+  ), 0)
 
   // Bundle balances + usage history for the scoped member(s).
   const bundleParams = [account.family_id]
@@ -540,6 +555,9 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     ledger,
     chargesCents,
     balanceCents,
+    outstandingBalanceCents,
+    futureCreditsCents,
+    paidThisMonthCents,
     bundlePasses,
     bundleUsage,
     currentPeriod,

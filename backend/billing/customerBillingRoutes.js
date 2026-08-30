@@ -16,6 +16,7 @@ import {
 } from './customerBillingAdjustments.js'
 import {
   collectCustomChargeWithSavedCard,
+  collectOutstandingBalanceWithSavedCard,
   createCustomerBillingCustomCharge,
   createCustomerBillingPaymentMethodLink,
   createCustomerBillingRefund,
@@ -367,6 +368,27 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] revoke price adjustment:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Price change could not be revoked.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/process-outstanding-balance',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const data = await collectOutstandingBalanceWithSavedCard(pool, {
+          account,
+          authorization: req.body?.authorization,
+          actorUserId: actorId(req),
+          attemptKey: idempotencyKey(req, 'outstanding-balance'),
+        })
+        notifyPaymentReceipt(pool, { account, payment: data.payment, billingUrl: `${publicAppUrl()}/?billing=portal-return` }).catch(() => {})
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Prior-month balance could not be collected.' })
       }
     },
   )

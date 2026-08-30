@@ -758,6 +758,9 @@ export async function buildCustomerBillingOverview(pool, {
       paymentsCents: view.paymentsCents,
       refundsCents: view.refundsCents,
       balanceCents: view.balanceCents,
+      outstandingBalanceCents: view.outstandingBalanceCents,
+      futureCreditsCents: view.futureCreditsCents,
+      paidThisMonthCents: view.paidThisMonthCents,
       monthlyTotals: {
         grossCents: Number(displayPricing.grossCents) || 0,
         discountCents: Number(displayPricing.discountCents) || 0,

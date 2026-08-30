@@ -277,6 +277,92 @@ export class SavedCardCollectionError extends Error {
   }
 }
 
+/** Collect only the household's unpaid charges from periods before this month. */
+export async function collectOutstandingBalanceWithSavedCard(pool, {
+  account,
+  authorization,
+  actorUserId = null,
+  attemptKey = null,
+}) {
+  const outstanding = await pool.query(
+    `SELECT COALESCE(SUM(GREATEST(0, charge.amount_cents - COALESCE(application.applied_cents, 0))), 0)::int AS amount_cents
+       FROM billing_charge charge
+       LEFT JOIN LATERAL (
+         SELECT SUM(CASE WHEN item.application_kind = 'reversal' THEN -item.amount_cents ELSE item.amount_cents END)::int AS applied_cents
+           FROM billing_payment_application item
+          WHERE item.billing_charge_id = charge.id
+       ) application ON TRUE
+      WHERE charge.family_billing_account_id = $1
+        AND COALESCE(charge.service_period_start, charge.created_at::date) < date_trunc('month', CURRENT_DATE)::date
+        AND charge.amount_cents > 0`,
+    [account.id],
+  )
+  const amountCents = Number(outstanding.rows[0]?.amount_cents ?? 0)
+  if (amountCents <= 0) throw new Error('This account has no unpaid balance from prior months.')
+  if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
+  const auth = validateAuthorization(authorization, amountCents)
+  const stripe = await getStripeClient()
+  if (!stripe) throw new Error('Stripe is unavailable.')
+  const customerId = await ensureStripeCustomer(pool, stripe, account)
+  const paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
+  const attempt = String(attemptKey || randomUUID())
+  await recordBillingActivity(pool, {
+    eventKey: `outstanding-balance-attempt:${account.id}:${attempt}`,
+    accountId: account.id,
+    eventType: 'outstanding_balance_payment_attempted',
+    summary: `Saved card collection attempted for the prior-month balance.`,
+    details: { amountCents, authorization: auth },
+    actorUserId,
+  })
+  try {
+    const intent = await stripe.paymentIntents.create({
+      amount: amountCents,
+      currency: 'usd',
+      customer: customerId,
+      payment_method: paymentMethodId,
+      off_session: true,
+      confirm: true,
+      description: 'Vortex Athletics prior-month balance',
+      metadata: {
+        checkoutType: 'outstanding_balance',
+        familyBillingAccountId: String(account.id),
+        authorizationDate: auth.date,
+        authorizationSource: auth.source.slice(0, 100),
+      },
+    }, { idempotencyKey: `outstanding-balance-${account.id}-${attempt}` })
+    if (intent.status !== 'succeeded') throw new Error(`Stripe payment requires additional action (${intent.status}).`)
+    const payment = await recordStripePayment(pool, {
+      paymentIntentId: intent.id,
+      amountCents: intent.amount_received || intent.amount,
+      accountId: account.id,
+      customerId,
+    })
+    if (!payment?.id) throw new Error('The successful Stripe payment was not recorded locally.')
+    await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'system' })
+    await recordBillingActivity(pool, {
+      eventKey: `outstanding-balance-paid:${account.id}:${intent.id}`,
+      accountId: account.id,
+      paymentId: payment.id,
+      eventType: 'outstanding_balance_payment_succeeded',
+      summary: `Saved card payment collected for the prior-month balance.`,
+      details: { amountCents },
+      stripeObjectId: intent.id,
+      actorUserId,
+    })
+    return { payment, amountCents }
+  } catch (error) {
+    await recordBillingActivity(pool, {
+      eventKey: `outstanding-balance-failed:${account.id}:${attempt}`,
+      accountId: account.id,
+      eventType: 'outstanding_balance_payment_failed',
+      summary: `Saved card payment failed for the prior-month balance.`,
+      details: { amountCents, reason: error?.message ?? String(error) },
+      actorUserId,
+    }).catch(() => {})
+    throw error
+  }
+}
+
 export async function collectCustomChargeWithSavedCard(pool, {
   account,
   charge,

@@ -261,18 +261,6 @@ function SearchResults({
   )
 }
 
-function YesNoBadge({ value }: { value: boolean }) {
-  return (
-    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${
-      value
-        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-        : 'border-gray-200 bg-gray-50 text-gray-600'
-    }`}>
-      {value ? 'Yes' : 'No'}
-    </span>
-  )
-}
-
 function AnnualMembershipSection({
   memberships,
   canManage,
@@ -288,48 +276,17 @@ function AnnualMembershipSection({
     <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-gray-950">Annual Memberships</h2>
-        <p className="text-sm text-gray-500">Paid-through membership dates and yearly renewal status for each family member.</p>
+        <p className="text-sm text-gray-500">One membership card per athlete, with their paid-through date and renewal control.</p>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-            <tr>
-              <th className="px-5 py-3">Active Membership</th>
-              <th className="px-5 py-3">Membership Date</th>
-              <th className="px-5 py-3">Renewal Date</th>
-              <th className="px-5 py-3">Auto-renewal</th>
-              <th className="px-5 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {memberships.map((membership) => (
-              <tr key={membership.memberId} className="border-t border-gray-100">
-                <td className="px-5 py-4">
-                  <YesNoBadge value={membership.active} />
-                  <span className="ml-2 font-semibold text-gray-900">{membership.memberName}</span>
-                </td>
-                <td className="px-5 py-4 text-gray-700">{localDate(membership.membershipDate)}</td>
-                <td className="px-5 py-4 text-gray-700">{calendarDate(membership.renewalDate)}</td>
-                <td className="px-5 py-4"><YesNoBadge value={membership.autoRenewal} /></td>
-                <td className="px-5 py-4 text-right">
-                  {canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? (
-                    <button
-                      type="button"
-                      disabled={saving}
-                      onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)}
-                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40"
-                    >
-                      {membership.autoRenewal ? 'Cancel auto-renewal' : 'Resume auto-renewal'}
-                    </button>
-                  ) : <span className="text-xs text-gray-400">—</span>}
-                </td>
-              </tr>
-            ))}
-            {memberships.length === 0 ? (
-              <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-500">No family members are available.</td></tr>
-            ) : null}
-          </tbody>
-        </table>
+      <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+        {memberships.map((membership) => (
+          <div key={membership.memberId} className={`rounded-xl p-4 text-white shadow-sm ${membership.active ? 'bg-gray-800' : 'bg-red-700'}`}>
+            <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-bold uppercase tracking-wide text-gray-300">Annual membership</div><div className="mt-1 text-lg font-bold">{membership.memberName}</div></div><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${membership.active ? 'bg-white/15 text-white' : 'bg-red-950/40 text-red-50'}`}>{membership.active ? 'Valid' : 'Not valid'}</span></div>
+            <div className="mt-5 text-sm text-gray-200">Good through</div><div className="text-xl font-black">{calendarDate(membership.renewalDate)}</div>
+            <div className="mt-4 flex items-center justify-between gap-3 text-xs"><span className="text-gray-300">Auto-renewal: {membership.autoRenewal ? 'Yes' : 'No'}</span>{canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)} className="rounded-lg border border-white/30 px-2.5 py-1.5 font-semibold text-white disabled:opacity-40">{membership.autoRenewal ? 'Cancel renewal' : 'Resume renewal'}</button> : null}</div>
+          </div>
+        ))}
+        {memberships.length === 0 ? <div className="col-span-full py-5 text-center text-sm text-gray-500">No family members are available.</div> : null}
       </div>
     </section>
   )
@@ -494,6 +451,7 @@ function TransactionsPanel({
   onExport,
   onRefund,
   onResendReceipt,
+  onModifyCourse,
 }: {
   rows: BillingTransaction[]
   members: CustomerBillingOverview['members']
@@ -507,6 +465,7 @@ function TransactionsPanel({
   onExport: () => void
   onRefund: (row: BillingTransaction) => void
   onResendReceipt: (row: BillingTransaction) => void
+  onModifyCourse: (row: BillingTransaction) => void
 }) {
   const [expanded, setExpanded] = useState<string | null>(null)
   return (
@@ -527,6 +486,7 @@ function TransactionsPanel({
               const key = `${row.entryKind}-${row.refId}`
               const isExpanded = expanded === key
               const canRefund = canManage && row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
+              const canModifyCourse = canManage && row.entryKind === 'charge' && row.entryType === 'recurring' && Boolean(row.details.subscriptionId)
               const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
                 ? row.details.discountCode.trim()
                 : ''
@@ -551,7 +511,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
-                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
+                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyCourse ? <button type="button" onClick={() => onModifyCourse(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Modify</button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
                   </tr>
                   {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label} className={Array.isArray(value) ? 'sm:col-span-2 lg:col-span-4' : ''}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><AuditDetailValue label={label} value={value} /></div>)}</div></td></tr> : null}
                 </Fragment>
@@ -846,12 +806,6 @@ export default function AdminCustomerBilling() {
     () => overview?.enrollments.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
     [overview, selectedMemberId],
   )
-  const visibleAnnualMemberships = useMemo(
-    () => (overview?.annualMemberships ?? []).filter(
-      (row) => selectedMemberId == null || row.memberId === selectedMemberId,
-    ),
-    [overview, selectedMemberId],
-  )
   const retryableSyncAdjustments = useMemo(() => {
     const seen = new Set<number>()
     return (overview?.enrollments ?? []).flatMap((enrollment) => {
@@ -869,6 +823,20 @@ export default function AdminCustomerBilling() {
     () => transactions.filter((row) => row.entryKind === 'charge' && row.amountCents > 0),
     [transactions],
   )
+
+  const modifyCourseCharge = (row: BillingTransaction) => {
+    if (!overview) return
+    const subscriptionId = Number(row.details.subscriptionId)
+    const subscription = overview.subscriptions.find((item) => item.id === subscriptionId)
+    const enrollment = subscription?.signupId == null
+      ? null
+      : overview.enrollments.find((item) => item.id === subscription.signupId)
+    if (!enrollment) {
+      setError('This historical course is no longer an active enrollment. Its existing charge remains immutable; reopen the enrollment before changing its recurring price.')
+      return
+    }
+    setPriceEnrollment(enrollment)
+  }
 
   const saveContact = async () => {
     if (!overview) return
@@ -902,6 +870,48 @@ export default function AdminCustomerBilling() {
       setSuccess('Secure payment-method update link created.')
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Payment-method link failed.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const processOutstandingBalance = async () => {
+    if (!overview) return
+    const amountCents = overview.summary.outstandingBalanceCents
+    if (amountCents <= 0) return
+    if (!overview.paymentMethod.available) {
+      setError('A reusable saved card is required to process the prior-month balance.')
+      return
+    }
+    const source = window.prompt('Authorization source for this saved-card payment:')?.trim()
+    if (!source) return
+    const note = window.prompt(`Authorization note for ${money(amountCents)}:`)?.trim()
+    if (!note) return
+    if (!window.confirm(`Charge the saved card ending ${overview.paymentMethod.paymentMethod?.last4 || 'on file'} for ${money(amountCents)} to cover unpaid prior-month charges?`)) return
+    setSaving(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/families/${overview.account.familyId}/process-outstanding-balance`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            requestKey: `outstanding-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`,
+            authorization: {
+              source,
+              note,
+              date: new Date().toISOString().slice(0, 10),
+              confirmed: true,
+              confirmedAmountCents: amountCents,
+            },
+          }),
+        },
+      )
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'Prior-month balance could not be collected.')
+      await refresh(`Saved card charged ${money(amountCents)} for the prior-month balance.`)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Prior-month balance could not be collected.')
     } finally {
       setSaving(false)
     }
@@ -1049,13 +1059,15 @@ export default function AdminCustomerBilling() {
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
               <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h2><Badge value={overview.account.isActive ? 'active' : 'inactive'} /></div><p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId} · Billing account #{overview.account.id}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => chooseMember(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>{overview.members.map((member) => <button key={member.id} type="button" onClick={() => chooseMember(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}</div></div>
-              <div className="flex flex-wrap gap-2"><button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button><button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button><button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account from Stripe" title="Refresh from Stripe and clear verified stale alerts"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button></div>
+              <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void processOutstandingBalance()} disabled={!canManage || saving || overview.summary.outstandingBalanceCents <= 0 || !overview.paymentMethod.available} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={!overview.paymentMethod.available ? 'A saved card is required.' : 'Collect unpaid prior-month charges with the saved card.'}><CreditCard className="h-4 w-4" /> Process monthly balance</button><button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button><button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button><button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account from Stripe" title="Refresh from Stripe and clear verified stale alerts"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button></div>
             </div>
-            <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricCard label="Outstanding balance" value={money(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges from prior months" />
+              <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? 'Amount due' : 'Paid in full'} />
               <MetricCard label="Monthly recurring" value={money(overview.summary.monthlyTotals.netCents)} detail={`${money(overview.summary.monthlyTotals.discountCents)} in discounts`} />
+              <MetricCard label="Paid this month" value={money(overview.summary.paidThisMonthCents)} detail="Settled payments this calendar month" />
               <MetricCard label="Next billing" value={calendarDate(overview.summary.nextBillDate)} detail="Calendar-month billing" />
-              <MetricCard label="Latest payment" value={overview.summary.latestPayment ? money(overview.summary.latestPayment.amountCents) : 'None'} detail={overview.summary.latestPayment ? `${localDate(overview.summary.latestPayment.paidAt)} · ${overview.summary.latestPayment.method || 'Payment'}` : 'No payment history'} />
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
             </div>
             {overview.summary.stripeSync.status !== 'healthy' ? (
@@ -1094,7 +1106,7 @@ export default function AdminCustomerBilling() {
           </section>
 
           <AnnualMembershipSection
-            memberships={visibleAnnualMemberships}
+            memberships={overview.annualMemberships}
             canManage={canManage}
             saving={saving}
             onSetAutoRenewal={(membership, enabled) => {
@@ -1105,7 +1117,7 @@ export default function AdminCustomerBilling() {
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
-            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
+            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onModifyCourse={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 
         </>

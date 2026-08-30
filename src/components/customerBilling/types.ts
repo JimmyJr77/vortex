@@ -141,6 +141,9 @@ export interface CustomerBillingOverview {
     paymentsCents: number
     refundsCents: number
     balanceCents: number
+    outstandingBalanceCents: number
+    futureCreditsCents: number
+    paidThisMonthCents: number
     monthlyTotals: { grossCents: number; discountCents: number; netCents: number }
     nextBillDate: string | null
     latestPayment: null | { id: number; amountCents: number; paidAt: string; method: string | null }
