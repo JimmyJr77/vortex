@@ -2,6 +2,19 @@ import { discountAmountCents } from '../scheduling/discountEngine.js'
 
 const MONTH_PATTERN = /^(\d{4})-(\d{2})(?:-(\d{2})(?:[T\s].*)?)?$/
 
+export function billingDateKey(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 10)
+  }
+  const match = String(value ?? '').trim().match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return null
+  const key = `${match[1]}-${match[2]}-${match[3]}`
+  const parsed = new Date(`${key}T00:00:00.000Z`)
+  return Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== key
+    ? null
+    : key
+}
+
 export function normalizeBillingMonth(value) {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-01`

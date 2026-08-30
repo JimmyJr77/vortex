@@ -1,11 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
   recurringPricingForPeriod,
 } from '../customerBillingQueries.js'
+
+test('next billing date accepts PostgreSQL DATE values returned as Date objects', () => {
+  const nextBillDate = earliestActiveNextBillDate([
+    { status: 'cancelled', next_bill_date: new Date('2026-08-01T04:00:00.000Z') },
+    { status: 'active', next_bill_date: new Date('2026-10-01T04:00:00.000Z') },
+    { status: 'active', next_bill_date: new Date('2026-09-01T04:00:00.000Z') },
+  ])
+
+  assert.equal(nextBillDate, '2026-09-01')
+})
 
 test('monthly recurring display uses the breakpoint effective for the next bill', () => {
   const breakpoint = recurringPricingForPeriod([

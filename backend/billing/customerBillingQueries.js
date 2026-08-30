@@ -4,6 +4,7 @@ import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.
 import {
   adjustmentCoversPeriod,
   applyEnrollmentPriceAdjustment,
+  billingDateKey,
   billingMonthKey,
   mapPriceAdjustment,
 } from './customerBillingPricing.js'
@@ -179,11 +180,19 @@ function relevantEnrollment(row) {
 
 function customerEnrollmentStatus(row) {
   if (row.status === 'requested') return 'pending_cancellation'
-  const starts = String(row.enrollment_start_date ?? '').slice(0, 10)
+  const starts = billingDateKey(row.enrollment_start_date)
   const today = new Date().toISOString().slice(0, 10)
   if (['confirmed', 'active'].includes(row.status) && starts && starts > today) return 'scheduled'
   if (row.status === 'confirmed') return 'active'
   return row.status
+}
+
+export function earliestActiveNextBillDate(subscriptions = []) {
+  return subscriptions
+    .filter((subscription) => subscription.status === 'active' && subscription.next_bill_date)
+    .map((subscription) => billingDateKey(subscription.next_bill_date))
+    .filter(Boolean)
+    .sort()[0] ?? null
 }
 
 /**
@@ -270,10 +279,7 @@ export async function buildCustomerBillingOverview(pool, {
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
   const currentMonth = billingMonthKey(new Date())
-  const nextBillDate = rawSubscriptions.rows
-    .filter((subscription) => subscription.status === 'active' && subscription.next_bill_date)
-    .map((subscription) => String(subscription.next_bill_date).slice(0, 10))
-    .sort()[0] ?? null
+  const nextBillDate = earliestActiveNextBillDate(rawSubscriptions.rows)
   const pricingMonth = nextBillDate ? billingMonthKey(nextBillDate) : currentMonth
   const displayPricing = recurringPricingForPeriod(view.recurringBreakpoints ?? [], pricingMonth)
   const displayPricingBySubscription = new Map(
