@@ -7,7 +7,7 @@ import {
   sortMessageThreads,
 } from './messagingLayout'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
-import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
+import type { ThreadListSortDir, ThreadListSortField } from './messagingThreadSort'
 import type { MessageThread, MessagingRole } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>

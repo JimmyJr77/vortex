@@ -7,11 +7,12 @@ import {
 } from '../../utils/schedulingApi'
 import type { AdminProgramPricing, TopProgram } from '../../utils/programsApi'
 import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
-import PricingCostsFields, {
+import PricingCostsFields from './PricingCostsFields'
+import {
   pricingValuesFromClass,
   pricingValuesFromProgram,
   type PricingCostsValues,
-} from './PricingCostsFields'
+} from './pricingCosts'
 import ConfirmPricingActionModal from './ConfirmPricingActionModal'
 import PricingBenefitSelectionField from './PricingBenefitSelectionField'
 

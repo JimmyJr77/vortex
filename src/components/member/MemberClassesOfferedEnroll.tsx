@@ -41,9 +41,8 @@ import {
   slotOptionKey,
   type SignupClassCatalog,
 } from '../signup/signupEnrollmentUtils'
-import ScheduleOptionCheckboxGrid, {
-  groupScheduleOptions,
-} from '../signup/ScheduleOptionCheckboxGrid'
+import ScheduleOptionCheckboxGrid from '../signup/ScheduleOptionCheckboxGrid'
+import { groupScheduleOptions } from '../signup/scheduleOptionGrouping'
 import OrderPricingSummary from '../pricing/OrderPricingSummary'
 import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
 import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'

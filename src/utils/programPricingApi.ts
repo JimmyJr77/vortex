@@ -126,9 +126,12 @@ export function adaptProgramPricingUpdateForApi<
     return payload
   }
 
-  const { pricingCostOptions, multiClassPassPackages: _packages, ...rest } = payload
+  const { pricingCostOptions } = payload
+  const legacyPayload = { ...payload }
+  delete legacyPayload.pricingCostOptions
+  delete legacyPayload.multiClassPassPackages
   return {
-    ...rest,
+    ...legacyPayload,
     ...legacyProgramPricingPayloadFromOptions(pricingCostOptions),
   } as T
 }

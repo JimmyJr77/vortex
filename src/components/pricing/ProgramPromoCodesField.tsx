@@ -110,9 +110,4 @@ const ProgramPromoCodesField = ({ selectedCodes, onChange, disabled = false }: P
   )
 }
 
-export function normalizeProgramPromoCodes(codes: unknown): string[] {
-  if (!Array.isArray(codes)) return []
-  return codes.map((c) => String(c).trim().toUpperCase()).filter(Boolean)
-}
-
 export default ProgramPromoCodesField

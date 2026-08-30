@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { HIGHLIGHT_LETTER_WIDTH_PX } from '../../utils/highlightLayout'
-
 interface HighlightCanvasViewportProps {
   /** Logical canvas width in px (coordinates). */
   canvasWidth: number
@@ -72,5 +70,4 @@ const HighlightCanvasViewport = ({
   )
 }
 
-export { HIGHLIGHT_LETTER_WIDTH_PX }
 export default HighlightCanvasViewport

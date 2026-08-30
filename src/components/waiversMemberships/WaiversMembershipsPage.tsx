@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2, UserPlus } from 'lucide-react'
 import FamilySignupWizard from '../signup/FamilySignupWizard'
 import DateOfBirthInput from '../DateOfBirthInput'
-import WaiverSigningBlock, {
+import WaiverSigningBlock from '../signup/WaiverSigningBlock'
+import {
   validateWaiverSigning,
   type PublicWaiverTemplate,
-} from '../signup/WaiverSigningBlock'
+} from '../signup/waiverSigningUtils'
 import Login from '../Login'
 import { getApiUrl } from '../../utils/api'
 import {

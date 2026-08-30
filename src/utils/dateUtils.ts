@@ -39,7 +39,7 @@ function parseWeekdayMonthDayString(dateString: string): Date | null {
   if (!Number.isFinite(day)) return null
 
   const now = new Date()
-  let year = now.getFullYear()
+  const year = now.getFullYear()
   let candidate = new Date(`${monthName} ${day}, ${year}`)
   if (Number.isNaN(candidate.getTime())) return null
 
@@ -283,4 +283,3 @@ export function getMostRecentEnrollmentDate(
   if (dates.length === 0) return null
   return new Date(Math.max(...dates)).toISOString()
 }
-

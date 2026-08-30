@@ -88,6 +88,7 @@ import {
   validateManualPaymentInput,
 } from '../billing/billingManualControls.js'
 import { registerCustomerBillingRoutes } from '../billing/customerBillingRoutes.js'
+import { getAdminDashboard } from './adminDashboard.js'
 import { recordBillingActivityBestEffort } from '../billing/billingActivity.js'
 import {
   finalizeRefundLedgerTreatment,
@@ -662,6 +663,28 @@ async function ensureCoachOperationalTables(pool) {
 
 export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission })
+
+  app.get('/api/admin/dashboard', authMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const canViewEnrollment = ctx.isMasterAdmin || [
+        'members.view',
+        'classes.view',
+        'scheduling.view',
+      ].some((permission) => ctx.permissions.includes(permission))
+      const canViewBilling = ctx.isMasterAdmin || ctx.permissions.includes('billing.view')
+      const data = await getAdminDashboard(pool, {
+        facilityId: ctx.user.facility_id,
+        canViewEnrollment,
+        canViewBilling,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      console.error('[admin-dashboard] overview:', error)
+      res.status(500).json({ success: false, message: 'Unable to load the Admin Dashboard.' })
+    }
+  })
+
   app.get('/api/admin/access/me', authMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
     res.json({

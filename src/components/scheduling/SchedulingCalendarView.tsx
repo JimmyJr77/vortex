@@ -28,7 +28,7 @@ import {
 } from './calendarDateUtils'
 import { buildClassScheduleGroups } from './classScheduleGroups'
 import ClassScheduleByClassPanel from './ClassScheduleByClassPanel'
-import { formatSetupContextLine } from './SchedulingSetupContextCard'
+import { formatSetupContextLine } from './schedulingSetupContext'
 
 function formatCalendarEventClassLabel(
   event: Pick<SchedulingCalendarEvent, 'programName' | 'className'>,

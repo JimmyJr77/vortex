@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import LegalPageLayout, { list, paragraph, sectionHeading } from './LegalPageLayout'
+import LegalPageLayout from './LegalPageLayout'
+import { list, paragraph, sectionHeading } from './legalPageStyles'
 import { BUSINESS_NAP, TEAM_EMAIL } from '../../config/contact'
 
 const LEGAL_ENTITY = 'Vortex Athletics, LLC'

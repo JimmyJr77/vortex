@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import RecipientPicker, { recipientsToPayload } from './messaging/RecipientPicker'
+import RecipientPicker from './messaging/RecipientPicker'
+import { recipientsToPayload } from './messaging/recipientPayload'
 import ThreadHeaderMenu from './messaging/ThreadHeaderMenu'
 import MessageReplyComposer from './messaging/MessageReplyComposer'
 import MessagingMessageThread from './messaging/MessagingMessageThread'
@@ -7,7 +8,7 @@ import {
   defaultSortDir,
   type ThreadListSortDir,
   type ThreadListSortField,
-} from './messaging/MessagingThreadListSortMenu'
+} from './messaging/messagingThreadSort'
 import { buildReplyQuote } from './messaging/messageFormatting'
 import { prepareMessageBodyForSend, type MessageMentionPayload } from './messaging/messageMentions'
 import MessagingThreadListShell from './messaging/MessagingThreadListShell'

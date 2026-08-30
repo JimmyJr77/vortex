@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Component, type ReactNode } from 'react'
 import { isChunkLoadError, reloadForStaleChunks } from '../utils/chunkLoadRecovery'
 
 type Props = {
@@ -19,7 +19,7 @@ function RefreshSpinner() {
   )
 }
 
-export class ChunkLoadErrorBoundary extends Component<Props, State> {
+class ChunkLoadErrorBoundaryImpl extends Component<Props, State> {
   state: State = { pendingReload: false, needsManualRefresh: false }
 
   static getDerivedStateFromError(error: unknown): Partial<State> | null {
@@ -29,7 +29,7 @@ export class ChunkLoadErrorBoundary extends Component<Props, State> {
     return null
   }
 
-  componentDidCatch(error: unknown, _info: ErrorInfo): void {
+  componentDidCatch(error: unknown): void {
     if (!isChunkLoadError(error)) return
     if (!reloadForStaleChunks()) {
       this.setState({ pendingReload: false, needsManualRefresh: true })
@@ -56,4 +56,8 @@ export class ChunkLoadErrorBoundary extends Component<Props, State> {
     }
     return this.props.children
   }
+}
+
+export function ChunkLoadErrorBoundary({ children }: Props): ReactNode {
+  return <ChunkLoadErrorBoundaryImpl>{children}</ChunkLoadErrorBoundaryImpl>
 }

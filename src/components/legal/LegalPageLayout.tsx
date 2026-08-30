@@ -6,12 +6,6 @@ interface LegalPageLayoutProps {
   children: ReactNode
 }
 
-const sectionHeading = 'text-xl font-display font-bold text-gray-900 mt-10 mb-3'
-const paragraph = 'text-gray-700 leading-relaxed'
-const list = 'list-disc pl-6 space-y-2 text-gray-700'
-
-export { sectionHeading, paragraph, list }
-
 export default function LegalPageLayout({
   title,
   lastUpdated = 'July 5, 2026',

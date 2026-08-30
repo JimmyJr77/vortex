@@ -114,7 +114,7 @@ const CdnVideo = ({
       }
     }
 
-    const handleError = (_e: Event) => {
+    const handleError = () => {
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('CdnVideo error:', error)
       onVideoError?.(error)
@@ -168,4 +168,3 @@ const CdnVideo = ({
 }
 
 export default CdnVideo
-

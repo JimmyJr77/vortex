@@ -1,6 +1,6 @@
 import type { MessageThread } from './types'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
-import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
+import type { ThreadListSortDir, ThreadListSortField } from './messagingThreadSort'
 
 /** Shared layout classes — flex chain from portal main fills remaining viewport height. */
 export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace flex-1 min-h-0 h-full max-h-full overflow-hidden'

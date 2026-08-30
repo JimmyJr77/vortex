@@ -4,7 +4,7 @@ import {
   sortMessageThreads,
 } from './messagingLayout'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
-import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
+import type { ThreadListSortDir, ThreadListSortField } from './messagingThreadSort'
 import type { MessageThread } from './types'
 
 interface UseMessagingEventsInboxOptions {
@@ -33,7 +33,7 @@ export function useMessagingEventsInbox({
   return {
     displayedThreads,
     activeCalendarItem: null as null,
-    setActiveCalendarItem: (_item: null) => {},
+    setActiveCalendarItem: (item: null) => { void item },
     resolveThreadSelection,
     calendarInboxCount: 0,
     inboxTab,

@@ -11,7 +11,8 @@ import MessagingContextBanner from '../messaging/MessagingContextBanner'
 import EventCalendarItemBanner from '../messaging/EventCalendarItemBanner'
 import MessagingInfoCard from '../messaging/MessagingInfoCard'
 import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
-import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
+import RecipientPicker from '../messaging/RecipientPicker'
+import { recipientsToPayload } from '../messaging/recipientPayload'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
@@ -40,7 +41,7 @@ import {
   toApiThreadSort,
   type ThreadListSortDir,
   type ThreadListSortField,
-} from '../messaging/MessagingThreadListSortMenu'
+} from '../messaging/messagingThreadSort'
 import {
   countThreadsByInboxTab,
   filterThreadsByInboxTab,

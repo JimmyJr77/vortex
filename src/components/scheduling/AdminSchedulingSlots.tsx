@@ -233,7 +233,6 @@ const AdminSchedulingSlots = ({
   canBuild = true,
   existingSlotsPosition = 'bottom',
   orphanedSignups,
-  signups: _signups,
   forms,
   onRefresh,
 }: Props) => {

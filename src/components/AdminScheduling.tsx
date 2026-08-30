@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, ClipboardList, Loader2, Printer, X } from 'lucide-react'
 import AdminSchedulingSlots from './scheduling/AdminSchedulingSlots'
 import AdminSchedulingOverview from './scheduling/AdminSchedulingOverview'
-import { formatSetupContextLine } from './scheduling/SchedulingSetupContextCard'
+import { formatSetupContextLine } from './scheduling/schedulingSetupContext'
 import {
   adminFetchSchedulingForm,
   adminFetchSchedulingForms,

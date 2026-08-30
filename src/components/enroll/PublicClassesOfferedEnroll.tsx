@@ -34,9 +34,8 @@ import {
   slotOptionKey,
   type SignupClassCatalog,
 } from '../signup/signupEnrollmentUtils'
-import ScheduleOptionCheckboxGrid, {
-  groupScheduleOptions,
-} from '../signup/ScheduleOptionCheckboxGrid'
+import ScheduleOptionCheckboxGrid from '../signup/ScheduleOptionCheckboxGrid'
+import { groupScheduleOptions } from '../signup/scheduleOptionGrouping'
 import EnrollmentStartDateField from './EnrollmentStartDateField'
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'

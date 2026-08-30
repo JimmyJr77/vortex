@@ -456,7 +456,7 @@ export default function GymnasticsEvaluationPanel() {
     setError(null)
   }
 
-  const useFormNow = (formId: string) => {
+  const selectFormNow = (formId: string) => {
     if (formId === DEFAULT_FORM_ID) {
       applyFormCards(defaultCards, DEFAULT_FORM_ID, true)
     } else {
@@ -1057,7 +1057,7 @@ export default function GymnasticsEvaluationPanel() {
           <FormListRow
             name={DEFAULT_FORM_NAME}
             onEdit={() => startEditForm(DEFAULT_FORM_ID)}
-            onUse={() => useFormNow(DEFAULT_FORM_ID)}
+            onUse={() => selectFormNow(DEFAULT_FORM_ID)}
             onArchive={null}
             defaultBadge
           />
@@ -1066,7 +1066,7 @@ export default function GymnasticsEvaluationPanel() {
               key={template.id}
               name={template.name}
               onEdit={() => startEditForm(template.id)}
-              onUse={() => useFormNow(template.id)}
+              onUse={() => selectFormNow(template.id)}
               onArchive={() => archiveForm(template.id)}
             />
           ))}

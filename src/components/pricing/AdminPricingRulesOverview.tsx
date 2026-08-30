@@ -11,7 +11,7 @@ import {
 } from '../../utils/schedulingApi'
 import { fetchDisciplineTags, fetchTopPrograms, type TopProgram } from '../../utils/programsApi'
 import { adminFetchSchedulingForms } from '../../utils/schedulingApi'
-import { normalizeProgramPromoCodes } from './ProgramPromoCodesField'
+import { normalizeProgramPromoCodes } from './programPromoCodes'
 import {
   describeEligibilityRule,
   describePromoRuleBenefit,

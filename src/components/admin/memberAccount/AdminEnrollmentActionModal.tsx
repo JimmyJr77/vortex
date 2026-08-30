@@ -17,30 +17,9 @@ import {
   type AdminEnrollmentRow,
   type DiscountRule,
 } from '../../../utils/schedulingApi'
+import { normalizeAdminEnrollmentStatus } from './adminEnrollmentStatus'
 
-export type AdminEnrollmentStatusKey = 'active' | 'requested' | 'waitlisted' | 'paused' | 'completed' | 'cancelled'
-
-export function normalizeAdminEnrollmentStatus(raw: string): AdminEnrollmentStatusKey {
-  switch (raw) {
-    case 'confirmed':
-    case 'active':
-      return 'active'
-    case 'requested':
-      return 'requested'
-    case 'waitlisted':
-      return 'waitlisted'
-    case 'paused':
-      return 'paused'
-    case 'completed':
-      return 'completed'
-    case 'cancelled':
-      return 'cancelled'
-    default:
-      return 'active'
-  }
-}
-
-const STATUS_META: Record<AdminEnrollmentStatusKey, { label: string; className: string }> = {
+const STATUS_META = {
   active: { label: 'Active', className: 'bg-green-100 text-green-800' },
   requested: { label: 'Requested', className: 'bg-violet-100 text-violet-800' },
   waitlisted: { label: 'Waitlisted', className: 'bg-amber-100 text-amber-800' },
@@ -50,13 +29,13 @@ const STATUS_META: Record<AdminEnrollmentStatusKey, { label: string; className: 
 }
 
 function formatPauseDate(iso: string) {
-  const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const date = new Date(`${iso.slice(0, 10)}T12:00:00`)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 function formatCancellationDate(iso: string) {
-  const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const date = new Date(`${iso.slice(0, 10)}T12:00:00`)
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export function AdminEnrollmentStatusBadge({

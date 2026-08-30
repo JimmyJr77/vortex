@@ -133,13 +133,3 @@ export default function RecipientPicker({
     </div>
   )
 }
-
-export function recipientsToPayload(selected: RecipientOption[]) {
-  const recipient_user_ids: number[] = []
-  const recipient_member_ids: number[] = []
-  for (const r of selected) {
-    if (r.kind === 'member') recipient_member_ids.push(r.id)
-    else recipient_user_ids.push(r.id)
-  }
-  return { recipient_user_ids, recipient_member_ids }
-}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { UserPlus } from 'lucide-react'
-import ScheduleOptionCheckboxGrid, { groupScheduleOptions } from './ScheduleOptionCheckboxGrid'
+import ScheduleOptionCheckboxGrid from './ScheduleOptionCheckboxGrid'
+import { groupScheduleOptions } from './scheduleOptionGrouping'
 import {
   emptyEnrollmentRow,
   type SignupClassCatalog,

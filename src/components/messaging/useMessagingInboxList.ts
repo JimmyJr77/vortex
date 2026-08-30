@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
-import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
+import type { ThreadListSortDir, ThreadListSortField } from './messagingThreadSort'
 import { useMessagingEventsInbox } from './useMessagingEventsInbox'
 import { useMessagingScheduleInbox } from './useMessagingScheduleInbox'
 import type { MessageThread, MessagingRole } from './types'

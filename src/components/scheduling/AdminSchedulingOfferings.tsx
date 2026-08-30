@@ -18,7 +18,7 @@ import {
   type SchedulingOffering,
 } from '../../utils/schedulingApi'
 import { dateInputValue } from '../../utils/dateUtils'
-import { formatSetupContextLine } from './SchedulingSetupContextCard'
+import { formatSetupContextLine } from './schedulingSetupContext'
 
 type DurationMode = 'session' | 'evergreen'
 

@@ -4,10 +4,11 @@ import {
   adminSaveSchedulingForm,
   type SchedulingFormDetail,
 } from '../../utils/schedulingApi'
-import PricingCostsFields, {
+import PricingCostsFields from '../pricing/PricingCostsFields'
+import {
   pricingValuesFromClass,
   type PricingCostsValues,
-} from '../pricing/PricingCostsFields'
+} from '../pricing/pricingCosts'
 
 interface Props {
   formId: number

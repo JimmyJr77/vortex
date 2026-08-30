@@ -30,6 +30,7 @@ import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
 import AdminMessagesPanel from './admin/AdminMessagesPanel'
 import AdminHomePanel from './admin/AdminHomePanel'
+import AdminDashboard from './admin/AdminDashboard'
 import AdminMarketingVisibility from './admin/AdminMarketingVisibility'
 import AdminOpportunities from './AdminOpportunities'
 import AdminCompetitors from './admin/AdminCompetitors'
@@ -42,7 +43,7 @@ import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -81,9 +82,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -93,6 +94,7 @@ interface AccessContext {
 }
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
+  { id: 'dashboard', label: 'Dashboard' },
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
   { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
@@ -137,6 +139,7 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, sections: ['dashboard'] },
   { id: 'opportunityResearch', label: 'Opportunities', icon: Target, sections: ['opportunities'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
@@ -354,6 +357,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
 
   const renderSection = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <AdminDashboard onOpenCustomerBilling={() => goToSection('customerBilling')} onOpenEnrollments={() => goToSection('signups')} />
       case 'opportunities':
         return <AdminOpportunities />
       case 'analytics':

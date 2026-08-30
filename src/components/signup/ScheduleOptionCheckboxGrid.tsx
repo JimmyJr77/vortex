@@ -1,38 +1,6 @@
 import { Clock } from 'lucide-react'
-import { normalizeDateKey, sortScheduleOptions } from '../../utils/slotSort'
-import { slotOptionKey, type SignupScheduleOption } from './signupEnrollmentUtils'
-
-export interface GroupedScheduleOptions {
-  offeringLabel: string
-  offeringDates: string | null
-  options: SignupScheduleOption[]
-}
-
-/**
- * Group flat scheduleOptions by offering, sorted by active date then day/date/time.
- * Shared by the family signup picker, the signup wizard, and the member-portal enrollment UI.
- */
-export function groupScheduleOptions(scheduleOptions: SignupScheduleOption[]): GroupedScheduleOptions[] {
-  const sorted = sortScheduleOptions(scheduleOptions)
-  const groups = new Map<string, GroupedScheduleOptions>()
-  for (const opt of sorted) {
-    const key = opt.offeringId != null ? String(opt.offeringId) : '__general__'
-    if (!groups.has(key)) {
-      groups.set(key, {
-        offeringLabel: opt.offeringLabel || 'Schedule options',
-        offeringDates: opt.offeringDates,
-        options: [],
-      })
-    }
-    groups.get(key)!.options.push(opt)
-  }
-  return [...groups.values()].sort((a, b) => {
-    const da = normalizeDateKey(a.options[0]?.offeringStartDate) ?? '\u0000'
-    const db = normalizeDateKey(b.options[0]?.offeringStartDate) ?? '\u0000'
-    if (da !== db) return da.localeCompare(db)
-    return (a.options[0]?.offeringLabel ?? '').localeCompare(b.options[0]?.offeringLabel ?? '')
-  })
-}
+import { slotOptionKey } from './signupEnrollmentUtils'
+import type { GroupedScheduleOptions } from './scheduleOptionGrouping'
 
 /**
  * Presentational checkbox grid for selecting class day/date/time slots. Order is

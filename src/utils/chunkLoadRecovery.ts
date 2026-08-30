@@ -1,6 +1,9 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
+import { lazy, type LazyExoticComponent } from 'react'
 
 const RELOAD_FLAG = 'vortex:chunk-reload'
+
+type LazyFactory = Parameters<typeof lazy>[0]
+type LazyComponent = Awaited<ReturnType<LazyFactory>>['default']
 
 function messageFromError(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -50,18 +53,18 @@ export function clearChunkReloadFlag(): void {
 }
 
 /** Drop-in replacement for React.lazy that reloads once when a stale chunk 404s. */
-export function lazyWithRetry<T extends ComponentType<any>>(
+export function lazyWithRetry<T extends LazyComponent>(
   factory: () => Promise<{ default: T }>,
 ): LazyExoticComponent<T> {
-  return lazy(() =>
+  const load = () =>
     factory().catch((error: unknown) => {
       if (isChunkLoadError(error)) {
         reloadForStaleChunks()
         return new Promise<{ default: T }>(() => {})
       }
       throw error
-    }),
-  )
+    })
+  return lazy(load)
 }
 
 /** Global listeners for chunk failures outside React.lazy (nested splits, Vite preload). */

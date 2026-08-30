@@ -1,9 +1,10 @@
 import { Plus } from 'lucide-react'
 import MessagingMaximizeToggle from './MessagingMaximizeToggle'
-import MessagingThreadListSortMenu, {
-  type ThreadListSortDir,
-  type ThreadListSortField,
-} from './MessagingThreadListSortMenu'
+import MessagingThreadListSortMenu from './MessagingThreadListSortMenu'
+import type {
+  ThreadListSortDir,
+  ThreadListSortField,
+} from './messagingThreadSort'
 import type { InboxPrimaryAction } from './messagingInboxActions'
 
 interface MessagingThreadListHeaderActionsProps {

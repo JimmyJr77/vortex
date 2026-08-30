@@ -17,6 +17,17 @@ interface HeroBackgroundVideoProps {
   onVideoError?: (error: Error) => void
 }
 
+interface NetworkInformation {
+  saveData?: boolean
+  effectiveType?: string
+}
+
+type NavigatorWithNetworkInformation = Navigator & {
+  connection?: NetworkInformation
+  mozConnection?: NetworkInformation
+  webkitConnection?: NetworkInformation
+}
+
 /**
  * HeroBackgroundVideo - Progressive enhancement video background component
  * 
@@ -105,7 +116,10 @@ const HeroBackgroundVideo = ({
     }
 
     // Gate 2: Network Information API (if available)
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+    const navigatorWithNetworkInformation = navigator as NavigatorWithNetworkInformation
+    const connection = navigatorWithNetworkInformation.connection
+      ?? navigatorWithNetworkInformation.mozConnection
+      ?? navigatorWithNetworkInformation.webkitConnection
     if (connection) {
       const saveData = connection.saveData === true
       const effectiveType = connection.effectiveType
@@ -187,7 +201,7 @@ const HeroBackgroundVideo = ({
       }
     }
 
-    const handleError = (_e: Event) => {
+    const handleError = () => {
       if (!isMountedRef.current) return
       const error = new Error(`Video loading failed: ${video.error?.message || 'Unknown error'}`)
       console.error('HeroBackgroundVideo error:', error)
@@ -325,4 +339,3 @@ const HeroBackgroundVideo = ({
 }
 
 export default HeroBackgroundVideo
-

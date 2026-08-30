@@ -24,12 +24,13 @@ import { coachFetch } from '../coach/api'
 import { fetchEventMessageThreads, pickEventDiscussionThreadId, fetchEventChatStatus, subscribeToEventChat, submitEventRsvp, fetchUpcomingSchedule, type EventChatStatus, type EventCalendarItem } from './messaging/messagingApi'
 import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import MemberMasterFaqsPanel from './messaging/MemberMasterFaqsPanel'
-import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
+import WaiverSigningBlock from './signup/WaiverSigningBlock'
+import { validateWaiverSigning } from './signup/waiverSigningUtils'
 import type { PortalId } from '../utils/portalSession'
 import { firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, type PortalNavLayoutItem } from '../utils/portalTabConfig'
 
 interface MemberDashboardProps {
-  member: any
+  member: unknown
   onLogout: () => void
   onReturnToWebsite?: () => void
   availablePortals?: PortalId[]
@@ -95,6 +96,55 @@ interface UnifiedMember {
   updatedAt?: string
 }
 
+interface MemberApiRecord {
+  id: number
+  firstName?: string
+  first_name?: string
+  lastName?: string
+  last_name?: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  dateOfBirth?: string | null
+  date_of_birth?: string | null
+  age?: number | null
+  medicalNotes?: string | null
+  medical_notes?: string | null
+  internalFlags?: string | null
+  internal_flags?: string | null
+  status?: string
+  isActive?: boolean
+  familyIsActive?: boolean
+  family_is_active?: boolean
+  familyId?: number | null
+  family_id?: number | null
+  familyName?: string | null
+  family_name?: string | null
+  username?: string | null
+  roles?: UnifiedMember['roles']
+  role?: unknown
+  enrollments?: UnifiedMember['enrollments']
+  createdAt?: string
+  created_at?: string
+  updatedAt?: string
+  updated_at?: string
+  is_adult?: boolean
+  athlete_type?: string
+  profileComplete?: boolean
+  mustChangePassword?: boolean
+}
+
+interface FamilyViewData {
+  members: UnifiedMember[]
+}
+
+interface EventDateTimeEntry {
+  date: Date | string
+  allDay?: boolean
+  startTime?: string
+  endTime?: string
+  description?: string
+}
 
 interface Event {
   id: string | number
@@ -104,7 +154,7 @@ interface Event {
   startDate: Date | string
   endDate?: Date | string
   type?: 'camp' | 'class' | 'event' | 'watch-party'
-  datesAndTimes?: any[]
+  datesAndTimes?: EventDateTimeEntry[]
   keyDetails?: string[]
   images?: string[]
   address?: string
@@ -219,13 +269,13 @@ export default function MemberDashboard({
   const [scheduleItems, setScheduleItems] = useState<EventCalendarItem[]>([])
   const [scheduleLoading, setScheduleLoading] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
-  const [profileData, setProfileData] = useState<any>(null)
+  const [profileData, setProfileData] = useState<MemberApiRecord | null>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
   const [members, setMembers] = useState<UnifiedMember[]>([]) // Combined members list for display
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewingMember, setViewingMember] = useState<UnifiedMember | null>(null)
-  const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<any>(null)
+  const [viewingMemberFamilyData, setViewingMemberFamilyData] = useState<FamilyViewData | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAddFamilyMember, setShowAddFamilyMember] = useState(false)
@@ -367,7 +417,7 @@ export default function MemberDashboard({
           return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago` : 'Just now'
         }
       }
-    } catch (error) {
+    } catch {
       return 'Invalid date'
     }
   }
@@ -449,9 +499,18 @@ export default function MemberDashboard({
   // are added as family members without their own login — and the backend
   // re-checks adulthood by date of birth on every mutation.
   const isAdult = () => {
-    const roles = profileData?.roles || (profileData?.role ? [profileData.role] : [])
+    const roles: unknown[] = Array.isArray(profileData?.roles)
+      ? profileData.roles
+      : profileData?.role ? [profileData.role] : []
     if (roles.length === 0) return true
-    return roles.some((r: any) => ['MEMBER_ATHLETE', 'ADMIN', 'MASTER_ADMIN'].includes(typeof r === 'string' ? r : r?.role))
+    return roles.some((role) => {
+      const roleName = typeof role === 'string'
+        ? role
+        : role != null && typeof role === 'object' && 'role' in role && typeof role.role === 'string'
+          ? role.role
+          : undefined
+      return roleName != null && ['MEMBER_ATHLETE', 'ADMIN', 'MASTER_ADMIN'].includes(roleName)
+    })
   }
 
   // Handle view member - similar to AdminMembers
@@ -686,9 +745,9 @@ export default function MemberDashboard({
       setExpandedFamilyMemberId(null)
       
       alert('Member updated successfully!')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving member edit:', error)
-      alert(error.message || 'Failed to save member changes')
+      alert(error instanceof Error ? error.message : 'Failed to save member changes')
     }
   }
 
@@ -915,7 +974,7 @@ export default function MemberDashboard({
       
       if (data.familyMembers && Array.isArray(data.familyMembers)) {
         // Convert to FamilyMember format
-        const convertedFamilyMembers = data.familyMembers.map((fm: any) => ({
+        const convertedFamilyMembers = data.familyMembers.map((fm: MemberApiRecord) => ({
           id: fm.id,
           first_name: fm.firstName || fm.first_name,
           last_name: fm.lastName || fm.last_name,
@@ -929,11 +988,11 @@ export default function MemberDashboard({
         setFamilyMembers(convertedFamilyMembers)
         
         // Convert family members to UnifiedMember format
-        data.familyMembers.forEach((fm: any) => {
+        data.familyMembers.forEach((fm: MemberApiRecord) => {
           const unifiedMember: UnifiedMember = {
             id: fm.id,
-            firstName: fm.firstName || fm.first_name,
-            lastName: fm.lastName || fm.last_name,
+            firstName: fm.firstName || fm.first_name || '',
+            lastName: fm.lastName || fm.last_name || '',
             email: fm.email,
             phone: fm.phone,
             address: fm.address,
@@ -1737,7 +1796,7 @@ export default function MemberDashboard({
   }
 
   // Format date/time entry helper
-  const formatDateTimeEntry = (entry: any) => {
+  const formatDateTimeEntry = (entry: EventDateTimeEntry) => {
     const dateStr = formatDate(entry.date)
     
     if (entry.allDay) {
@@ -2585,7 +2644,7 @@ export default function MemberDashboard({
                               <div className="mb-4 space-y-2">
                                 <h4 className="font-bold text-black mb-2">Dates & Times:</h4>
                                 <ul className="space-y-1">
-                                  {event.datesAndTimes.map((entry: any, entryIndex: number) => (
+                                  {event.datesAndTimes.map((entry, entryIndex) => (
                                     <li key={entryIndex} className="flex items-start space-x-2 text-gray-700 text-sm">
                                       <Calendar className="w-4 h-4 text-vortex-red flex-shrink-0 mt-1" />
                                       <span>{formatDateTimeEntry(entry)}</span>
@@ -2985,7 +3044,7 @@ export default function MemberDashboard({
                       Family Members ({viewingMemberFamilyData.members.length})
                     </h4>
                     <div className="space-y-3">
-                      {viewingMemberFamilyData.members.map((familyMember: any) => {
+                      {viewingMemberFamilyData.members.map((familyMember) => {
                         const isCurrentMember = familyMember.id === viewingMember.id
                         return (
                           <div 
