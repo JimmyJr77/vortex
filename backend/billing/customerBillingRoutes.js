@@ -26,6 +26,7 @@ import {
 } from './customerBillingPayments.js'
 import { getStripeClient } from './stripeBilling.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
+import { refreshCustomerBillingStripeAlerts } from './stripeReconciliation.js'
 
 function facilityId(req) {
   return req.platformAuth?.user?.facility_id ?? null
@@ -190,6 +191,28 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] overview:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Billing overview failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/refresh',
+    ...requirePermission(pool, jwtSecret, 'billing.view'),
+    async (req, res) => {
+      try {
+        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const data = await refreshCustomerBillingStripeAlerts(pool, {
+          accountId: account.id,
+          actorUserId: actorId(req),
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] account refresh:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Stripe account refresh failed.',
+        })
       }
     },
   )

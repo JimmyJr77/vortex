@@ -183,7 +183,79 @@ async function recordSubscriptionDrift(pool, subscription, kind, message, detail
   })
 }
 
-export async function reconcileStripeSubscriptionPrices(pool, stripe, { now = new Date() } = {}) {
+const SUBSCRIPTION_RECONCILIATION_ALERT_TYPES = [
+  'subscription_price_drift',
+  'subscription_schedule_drift',
+  'subscription_phase_drift',
+  'subscription_reconciliation_failed',
+]
+
+async function resolveAlertsAutomatically(pool, {
+  accountId,
+  alertIds,
+  reason,
+  actorUserId = null,
+  actorType = 'system',
+}) {
+  const ids = [...new Set((alertIds ?? []).map(Number).filter(Number.isFinite))]
+  if (!accountId || ids.length === 0) return []
+  const result = await pool.query(
+    `UPDATE stripe_billing_alert
+     SET action_status = 'resolved',
+         resolved_at = now(),
+         resolved_by_user_id = $3,
+         resolution_note = $4,
+         updated_at = now()
+     WHERE family_billing_account_id = $1
+       AND id = ANY($2::bigint[])
+       AND resolved_at IS NULL
+     RETURNING *`,
+    [accountId, ids, actorUserId, reason],
+  )
+  await Promise.all(result.rows.map((alert) => recordBillingActivityBestEffort(pool, {
+    eventKey: `stripe-alert-auto-resolved:${alert.id}`,
+    accountId,
+    eventType: 'stripe_alert_auto_resolved',
+    summary: `Stripe alert #${alert.id} was automatically resolved after live verification.`,
+    beforeValue: {
+      alertType: alert.alert_type,
+      stripeObjectId: alert.stripe_object_id,
+      message: alert.message,
+    },
+    afterValue: { actionStatus: 'resolved', resolution: reason },
+    stripeObjectId: alert.stripe_object_id,
+    actorUserId,
+    actorType,
+  })))
+  return result.rows
+}
+
+async function resolveCleanSubscriptionAlerts(pool, subscription, options = {}) {
+  const alerts = await pool.query(
+    `SELECT id FROM stripe_billing_alert
+     WHERE family_billing_account_id = $1
+       AND stripe_object_id = $2
+       AND alert_type = ANY($3::text[])
+       AND resolved_at IS NULL`,
+    [
+      subscription.family_billing_account_id,
+      subscription.stripe_subscription_id,
+      SUBSCRIPTION_RECONCILIATION_ALERT_TYPES,
+    ],
+  )
+  return resolveAlertsAutomatically(pool, {
+    accountId: subscription.family_billing_account_id,
+    alertIds: alerts.rows.map((row) => row.id),
+    reason: 'Automatically resolved after Stripe subscription reconciliation found no pricing or schedule drift.',
+    ...options,
+  })
+}
+
+export async function reconcileStripeSubscriptionPrices(pool, stripe, {
+  now = new Date(),
+  accountId = null,
+  alertResolutionActor = {},
+} = {}) {
   let subscriptions
   try {
     subscriptions = await pool.query(
@@ -192,7 +264,9 @@ export async function reconcileStripeSubscriptionPrices(pool, stripe, { now = ne
        JOIN family_billing_account fba ON fba.id = bs.family_billing_account_id
        WHERE bs.status = 'active'
          AND bs.source_type = 'scheduling_signup'
-         AND bs.stripe_subscription_id IS NOT NULL`,
+         AND bs.stripe_subscription_id IS NOT NULL
+         AND ($1::bigint IS NULL OR bs.family_billing_account_id = $1)`,
+      [accountId == null ? null : Number(accountId)],
     )
   } catch (error) {
     if (error?.code === '42703' || error?.code === '42P01') {
@@ -206,6 +280,7 @@ export async function reconcileStripeSubscriptionPrices(pool, stripe, { now = ne
   const pricedPeriods = new Map()
   let subscriptionsChecked = 0
   let subscriptionDriftsFound = 0
+  let alertsResolved = 0
 
   async function contextFor(subscription) {
     const accountId = Number(subscription.family_billing_account_id)
@@ -363,9 +438,94 @@ export async function reconcileStripeSubscriptionPrices(pool, stripe, { now = ne
         [subscription.id],
       )
     }
+    if (drifts.length === 0) {
+      const resolved = await resolveCleanSubscriptionAlerts(pool, subscription, alertResolutionActor)
+      alertsResolved += resolved.length
+    }
   }
 
-  return { subscriptionsChecked, subscriptionDriftsFound, skipped: false }
+  return { subscriptionsChecked, subscriptionDriftsFound, alertsResolved, skipped: false }
+}
+
+async function paymentFailureHasRecovered(pool, stripe, alert) {
+  const objectId = String(alert.stripe_object_id ?? '').trim()
+  if (!objectId) return false
+
+  if (objectId.startsWith('in_')) {
+    const invoice = await stripe.invoices.retrieve(objectId)
+    return invoice?.paid === true || invoice?.status === 'paid'
+  }
+
+  if (!objectId.startsWith('pi_')) return false
+  const paymentIntent = await stripe.paymentIntents.retrieve(objectId)
+  if (paymentIntent?.status === 'succeeded') return true
+  const invoiceId = stripeId(paymentIntent?.invoice)
+  if (invoiceId) {
+    const invoice = await stripe.invoices.retrieve(invoiceId)
+    if (invoice?.paid === true || invoice?.status === 'paid') return true
+  }
+  const payment = await pool.query(
+    `SELECT id FROM billing_payment
+     WHERE family_billing_account_id = $1
+       AND stripe_payment_intent_id = $2
+       AND COALESCE(external_status, 'settled') NOT IN ('failed', 'canceled', 'cancelled')
+     LIMIT 1`,
+    [alert.family_billing_account_id, objectId],
+  )
+  return Boolean(payment.rows[0])
+}
+
+/**
+ * Refresh one account against Stripe. Only alerts that Stripe now proves healthy are closed;
+ * failed invoices and declined Payment Intents remain visible until payment actually succeeds.
+ */
+export async function refreshCustomerBillingStripeAlerts(pool, {
+  accountId,
+  actorUserId = null,
+} = {}) {
+  if (!Number.isFinite(Number(accountId)) || Number(accountId) <= 0) {
+    throw new Error('A valid billing account is required.')
+  }
+  if (!stripeEnabled()) throw new Error('Stripe is disabled or not configured.')
+  await ensureSchema(pool)
+  const stripe = await getStripeClient()
+  if (!stripe) throw new Error('Stripe SDK is unavailable.')
+
+  const subscriptionSummary = await reconcileStripeSubscriptionPrices(pool, stripe, {
+    accountId: Number(accountId),
+    alertResolutionActor: { actorUserId, actorType: actorUserId == null ? 'system' : 'admin' },
+  })
+  const paymentAlerts = await pool.query(
+    `SELECT * FROM stripe_billing_alert
+     WHERE family_billing_account_id = $1
+       AND alert_type IN ('payment_failed', 'payment_recovery_exhausted')
+       AND resolved_at IS NULL
+     ORDER BY id`,
+    [Number(accountId)],
+  )
+  const recoveredAlertIds = []
+  const verificationErrors = []
+  for (const alert of paymentAlerts.rows) {
+    try {
+      if (await paymentFailureHasRecovered(pool, stripe, alert)) recoveredAlertIds.push(alert.id)
+    } catch (error) {
+      verificationErrors.push({ alertId: Number(alert.id), message: error?.message ?? String(error) })
+    }
+  }
+  const paymentAlertsResolved = await resolveAlertsAutomatically(pool, {
+    accountId: Number(accountId),
+    alertIds: recoveredAlertIds,
+    reason: 'Automatically resolved after Stripe confirmed the previously failed payment was paid.',
+    actorUserId,
+    actorType: actorUserId == null ? 'system' : 'admin',
+  })
+  return {
+    ...subscriptionSummary,
+    paymentAlertsChecked: paymentAlerts.rows.length,
+    paymentAlertsResolved: paymentAlertsResolved.length,
+    alertsResolved: Number(subscriptionSummary.alertsResolved ?? 0) + paymentAlertsResolved.length,
+    verificationErrors,
+  }
 }
 
 export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {}) {

@@ -457,13 +457,23 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           INSERT INTO billing_charge
             (family_billing_account_id, member_id, source_type, source_id, description,
              amount_cents, gross_amount_cents, discount_amount_cents,
-             charge_type, billing_interval)
-          VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time')
+             charge_type, billing_interval, metadata)
+          VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time',
+            jsonb_strip_nulls(jsonb_build_object('discountCode', NULLIF($8, ''))))
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
           DO NOTHING
           RETURNING id
         `,
-        [account.id, memberId, sourceId, fee.name || 'Additional fee', feeAmount, feeGross, feeDiscount],
+        [
+          account.id,
+          memberId,
+          sourceId,
+          fee.name || 'Additional fee',
+          feeAmount,
+          feeGross,
+          feeDiscount,
+          fee.promoRuleId != null && feeDiscount > 0 ? fee.promoCode ?? null : null,
+        ],
       )
       if (feeCharge.rows.length > 0) charges += 1
     } catch (err) {

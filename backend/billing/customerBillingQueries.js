@@ -30,6 +30,32 @@ function annualMembershipFeeId(sourceId) {
   return Number.isFinite(feeId) ? feeId : null
 }
 
+function annualMembershipMemberId(sourceId) {
+  const memberId = Number(String(sourceId ?? '').split(':')[1])
+  return Number.isFinite(memberId) ? memberId : null
+}
+
+function annualMembershipRenewalDateFromCharge(sourceId) {
+  const renewalDate = String(sourceId ?? '').split(':')[2] ?? ''
+  return /^\d{4}-\d{2}-\d{2}$/.test(renewalDate) ? renewalDate : null
+}
+
+function isAnnualMembershipCharge(charge) {
+  return (
+    charge?.source_type === 'additional_fee' &&
+    annualMembershipFeeId(charge.source_id) != null &&
+    annualMembershipMemberId(charge.source_id) != null &&
+    annualMembershipRenewalDateFromCharge(charge.source_id) != null
+  )
+}
+
+function paidAnnualMembershipCharge(charge) {
+  return (
+    isAnnualMembershipCharge(charge) &&
+    (Boolean(charge.paid_at) || ['paid', 'settled', 'succeeded'].includes(String(charge.collection_status ?? '').toLowerCase()))
+  )
+}
+
 function dateTimestamp(value) {
   if (!value) return 0
   const date = value instanceof Date ? value : new Date(value)
@@ -70,19 +96,27 @@ export function buildCustomerBillingAnnualMemberships({
       .filter((row) => Number(row.member_id) === Number(member.id))
       .sort((left, right) => dateTimestamp(right.created_at) - dateTimestamp(left.created_at))
     const memberCharges = charges
-      .filter((row) => Number(row.member_id) === Number(member.id))
+      .filter((row) => (
+        Number(row.member_id) === Number(member.id) ||
+        (isAnnualMembershipCharge(row) && annualMembershipMemberId(row.source_id) === Number(member.id))
+      ))
       .sort((left, right) => dateTimestamp(right.created_at) - dateTimestamp(left.created_at))
 
     const activeSubscription = memberSubscriptions.find((row) => activeAnnualSubscription(row, asOfKey)) ?? null
     const activeRedemption = memberRedemptions.find((row) => isMembershipValidThrough(row.created_at, asOf)) ?? null
+    const activeCharge = memberCharges.find((row) => (
+      paidAnnualMembershipCharge(row) &&
+      billingDateKey(annualMembershipRenewalDateFromCharge(row.source_id)) > asOfKey
+    )) ?? null
     const referenceSubscription = activeSubscription ?? memberSubscriptions[0] ?? null
     const referenceRedemption = activeRedemption ?? memberRedemptions[0] ?? null
-    const feeId = annualMembershipFeeId(referenceSubscription?.source_id) ?? (
+    const referenceCharge = activeCharge ?? memberCharges.find(isAnnualMembershipCharge) ?? null
+    const feeId = annualMembershipFeeId(referenceSubscription?.source_id) ?? annualMembershipFeeId(referenceCharge?.source_id) ?? (
       referenceRedemption?.fee_id == null ? null : Number(referenceRedemption.fee_id)
     )
     const membershipCharge = feeId == null
-      ? null
-      : memberCharges.find((row) => annualMembershipFeeId(row.source_id) === feeId) ?? null
+      ? referenceCharge
+      : memberCharges.find((row) => isAnnualMembershipCharge(row) && annualMembershipFeeId(row.source_id) === feeId) ?? referenceCharge
     const renewalFromRedemption = referenceRedemption
       ? membershipRenewsOnFromPurchase(referenceRedemption.created_at)
       : null
@@ -92,6 +126,8 @@ export function buildCustomerBillingAnnualMemberships({
     const renewalDate =
       activeSubscription?.next_bill_date ??
       renewalFromRedemption ??
+      annualMembershipRenewalDateFromCharge(activeCharge?.source_id) ??
+      annualMembershipRenewalDateFromCharge(membershipCharge?.source_id) ??
       referenceSubscription?.next_bill_date ??
       renewalFromSubscriptionStart
 
@@ -100,7 +136,7 @@ export function buildCustomerBillingAnnualMemberships({
       memberName: member.name,
       billingSubscriptionId:
         referenceSubscription?.id == null ? null : Number(referenceSubscription.id),
-      active: Boolean(activeSubscription || activeRedemption),
+      active: Boolean(activeSubscription || activeRedemption || activeCharge),
       membershipDate: serializedDate(
         referenceSubscription?.latest_renewal_paid_at ??
         membershipCharge?.paid_at ??
@@ -163,7 +199,7 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
       [memberIds],
     ),
     pool.query(
-      `SELECT c.member_id, c.source_id, c.created_at,
+      `SELECT c.member_id, c.source_type, c.source_id, c.created_at, c.collection_status,
               (
                 SELECT p.paid_at
                 FROM billing_payment p
@@ -740,9 +776,17 @@ export async function listCustomerBillingTransactions(pool, {
          c.created_at::timestamptz AS occurred_at,
          COALESCE(c.collection_status, 'none')::text AS status,
          3::int AS sort_order,
-         jsonb_build_object(
+         jsonb_strip_nulls(jsonb_build_object(
            'grossAmountCents', c.gross_amount_cents,
            'discountAmountCents', c.discount_amount_cents,
+           'discountCode', CASE
+             WHEN c.charge_type = 'one_time' THEN COALESCE(
+               NULLIF(c.metadata->>'discountCode', ''),
+               NULLIF(c.metadata->>'promoCode', ''),
+               one_time_discount.discount_code
+             )
+             ELSE NULL
+           END,
            'servicePeriodStart', c.service_period_start,
            'servicePeriodEnd', c.service_period_end,
            'sourceType', c.source_type,
@@ -754,8 +798,24 @@ export async function listCustomerBillingTransactions(pool, {
            'stripePaymentIntentId', c.stripe_payment_intent_id,
            'createdByUserId', c.created_by_user_id,
            'metadata', c.metadata
-         ) AS details
-       FROM billing_charge c WHERE c.family_billing_account_id = $1
+         )) AS details
+       FROM billing_charge c
+       LEFT JOIN LATERAL (
+         SELECT COALESCE(
+           NULLIF(rule.config->>'code', ''),
+           NULLIF(rule.config->>'promo_code', '')
+         ) AS discount_code
+         FROM discount_redemption redemption
+         JOIN discount_rule rule ON rule.id = redemption.rule_id
+         WHERE c.charge_type = 'one_time'
+           AND c.discount_amount_cents > 0
+           AND redemption.member_id = c.member_id
+           AND redemption.amount_cents = c.discount_amount_cents
+           AND redemption.created_at BETWEEN c.created_at - interval '10 minutes' AND c.created_at + interval '10 minutes'
+         ORDER BY ABS(EXTRACT(EPOCH FROM redemption.created_at - c.created_at)), redemption.id DESC
+         LIMIT 1
+       ) one_time_discount ON TRUE
+       WHERE c.family_billing_account_id = $1
        UNION ALL
        SELECT
          'payment', 'payment', p.id, NULL::bigint,

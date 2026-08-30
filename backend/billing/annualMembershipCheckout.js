@@ -507,6 +507,7 @@ export async function createAnnualMembershipCheckoutSession(
         purchasedAt,
         grossCents: row.grossCents,
         discountCents: row.discountCents,
+        promoCode: row.promo?.code ?? null,
       })
       await recordMembershipPromoRedemption(pool, {
         ruleId: row.promo.rule.id,
@@ -596,6 +597,7 @@ async function persistAnnualMembershipLedger(pool, {
   purchasedAt,
   grossCents = null,
   discountCents = 0,
+  promoCode = null,
 }) {
   await ensureBillingChargeSchema(pool)
   const renewsOnKey =
@@ -610,8 +612,9 @@ async function persistAnnualMembershipLedger(pool, {
       INSERT INTO billing_charge
         (family_billing_account_id, member_id, source_type, source_id, description,
          amount_cents, gross_amount_cents, discount_amount_cents,
-         charge_type, billing_interval, stripe_checkout_session_id, created_at)
-      VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time', $8, $9)
+         charge_type, billing_interval, stripe_checkout_session_id, metadata, created_at)
+      VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time', $8,
+        jsonb_strip_nulls(jsonb_build_object('discountCode', NULLIF($9, ''))), $10)
       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
       DO NOTHING
     `,
@@ -624,6 +627,7 @@ async function persistAnnualMembershipLedger(pool, {
       gross,
       discount,
       checkoutSessionId,
+      promoCode,
       purchasedAt,
     ],
   )
@@ -687,6 +691,7 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
       purchasedAt,
       grossCents: fee.amountCents,
       discountCents,
+      promoCode: promo?.code ?? null,
     })
 
     if (promo?.ruleId && discountCents > 0) {

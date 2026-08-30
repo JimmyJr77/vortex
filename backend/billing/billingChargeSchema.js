@@ -15,5 +15,6 @@ export async function ensureBillingChargeSchema(pool) {
   if (billingChargeSchemaEnsured) return
   await runMigrationFile(pool, '../migrations/046_signup_billing_charges.sql')
   await runMigrationFile(pool, '../migrations/058_billing_stripe_links.sql')
+  await runMigrationFile(pool, '../migrations/770_billing_charge_promo_metadata.sql')
   billingChargeSchemaEnsured = true
 }

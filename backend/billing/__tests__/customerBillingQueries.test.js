@@ -32,6 +32,7 @@ test('annual membership rows use the paid date and active Stripe renewal', () =>
     }],
     charges: [{
       member_id: 73,
+      source_type: 'additional_fee',
       source_id: '1:73:2027-08-27',
       created_at: '2026-08-27T03:46:58.000Z',
       paid_at: '2026-08-27T03:45:00.000Z',
@@ -126,6 +127,7 @@ test('cancelled auto-renewal preserves paid-through membership access', () => {
     }],
     charges: [{
       member_id: 73,
+      source_type: 'additional_fee',
       source_id: '1:73:2027-08-27',
       created_at: '2026-08-27T03:46:58.000Z',
       paid_at: null,
@@ -155,6 +157,32 @@ test('cancelled auto-renewal preserves paid-through membership access', () => {
       canManageAutoRenewal: false,
     },
   ])
+})
+
+test('a paid annual membership charge restores an athlete membership when a legacy redemption is missing', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 74, name: 'Zechariah Sherrill' }],
+    charges: [{
+      member_id: null,
+      source_type: 'additional_fee',
+      source_id: '1:74:2027-08-27',
+      created_at: '2026-08-27T03:46:58.000Z',
+      paid_at: '2026-08-27T03:47:12.000Z',
+      collection_status: 'none',
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.deepEqual(rows, [{
+    memberId: 74,
+    memberName: 'Zechariah Sherrill',
+    billingSubscriptionId: null,
+    active: true,
+    membershipDate: '2026-08-27T03:47:12.000Z',
+    renewalDate: '2027-08-27',
+    autoRenewal: false,
+    canManageAutoRenewal: false,
+  }])
 })
 
 test('internal migration instructions are not exposed as Stripe errors', () => {
@@ -248,7 +276,11 @@ test('member-filtered transactions retain household payments and one-time charge
             occurred_at: '2026-08-26T11:59:00.000Z',
             status: 'paid',
             running_balance_cents: 8500,
-            details: {},
+            details: {
+              grossAmountCents: 10000,
+              discountAmountCents: 1500,
+              discountCode: 'MMBR01X26',
+            },
           },
         ],
       }
@@ -268,6 +300,8 @@ test('member-filtered transactions retain household payments and one-time charge
   assert.equal(page.rows[0].entryKind, 'payment')
   assert.equal(page.rows[0].memberId, null)
   assert.equal(page.rows[0].amountCents, -8500)
+  assert.equal(page.rows[1].details.discountCode, 'MMBR01X26')
+  assert.match(queryText, /one_time_discount/)
   assert.equal(page.rows[1].entryType, 'one_time')
 })
 
