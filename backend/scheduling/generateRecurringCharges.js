@@ -20,7 +20,10 @@ import {
 import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
 import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
-import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoice.js'
+import {
+  activateEligibleHouseholdMonthlyBilling,
+  createHouseholdMonthlyInvoice,
+} from '../billing/householdMonthlyInvoice.js'
 
 /**
  * @param {import('pg').Pool} pool
@@ -28,6 +31,22 @@ import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoic
  * @returns {Promise<{ subscriptionsProcessed:number, chargesPosted:number, periodsAdvanced:number }>}
  */
 export async function generateRecurringCharges(pool, { asOf = new Date(), maxCatchUpPerSub = 12 } = {}) {
+  try {
+    await activateEligibleHouseholdMonthlyBilling(pool)
+  } catch (error) {
+    console.warn('[billing] household monthly billing activation:', error?.message ?? error)
+  }
+
+  // Annual promo codes are only carried into the next athlete-owned renewal
+  // while they are still active and within redemption limits. Run this daily
+  // instead of waiting for a renewal invoice to exist.
+  try {
+    const { revalidateAnnualMembershipRenewalDiscounts } = await import('../billing/customerBillingPayments.js')
+    await revalidateAnnualMembershipRenewalDiscounts(pool, { now: asOf })
+  } catch (error) {
+    console.warn('[billing] annual membership renewal promo validation:', error?.message ?? error)
+  }
+
   try {
     const { processDueEnrollmentCancellations } = await import('./memberEnrollmentCancel.js')
     await processDueEnrollmentCancellations(pool, { force: true })

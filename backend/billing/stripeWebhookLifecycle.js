@@ -1,6 +1,10 @@
 import { ensureBillingStripeLinksSchema, getStripeClient } from './stripeBilling.js'
 import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
 import { resolveStripePaymentMethodLabel } from './paymentMethodLabel.js'
+import {
+  recordAnnualMembershipRenewalPromoRedemption,
+  validateAnnualMembershipRenewalDiscount,
+} from './customerBillingPayments.js'
 
 function objectId(value) {
   return typeof value === 'string' ? value : value?.id ?? null
@@ -137,6 +141,19 @@ export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } =
             ],
           )
         }
+        // This invoice has consumed one use of a carried-forward promo. Count it
+        // exactly once, then immediately validate the following renewal price.
+        await recordAnnualMembershipRenewalPromoRedemption(pool, {
+          stripeSubscriptionId: subscriptionId,
+          stripeInvoiceId: invoice.id,
+          paidAmountCents: amountCents,
+          paidAt,
+        })
+        await validateAnnualMembershipRenewalDiscount(pool, {
+          stripeSubscriptionId: subscriptionId,
+          stripe: stripeClient,
+          now: paidAt,
+        })
       }
     }
   }

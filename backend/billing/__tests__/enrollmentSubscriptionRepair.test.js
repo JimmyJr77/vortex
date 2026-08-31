@@ -183,7 +183,8 @@ test('candidate query enforces recurring active enrollment boundaries and scoped
   assert.match(captured.sql, /signup\.orphaned_at IS NULL/)
   assert.match(captured.sql, /cancel_effective_date IS NULL/)
   assert.match(captured.sql, /<> 'one_time'/)
-  assert.match(captured.sql, /subscription\.id IS NULL OR subscription\.stripe_subscription_id IS NULL/)
+  assert.match(captured.sql, /subscription\.id IS NULL/)
+  assert.match(captured.sql, /account\.household_monthly_billing_enabled = FALSE/)
 })
 
 test('Stripe subscription retries use a stable local-subscription idempotency key', () => {

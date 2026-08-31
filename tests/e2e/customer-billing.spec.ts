@@ -49,6 +49,9 @@ const overview = {
     paymentsCents: 35000,
     refundsCents: 5000,
     balanceCents: 14500,
+    outstandingBalanceCents: 14500,
+    futureCreditsCents: 0,
+    paidThisMonthCents: 20500,
     monthlyTotals: { grossCents: 24000, discountCents: 3500, netCents: 20500 },
     nextBillDate: '2026-09-01',
     latestPayment: { id: 200, amountCents: 16500, paidAt: '2026-08-01T13:00:00.000Z', method: 'Visa •••• 4242' },
@@ -92,7 +95,7 @@ const overview = {
       activePriceAdjustment: null,
       priceAdjustments: [],
       nextBillDate: '2026-09-01',
-      priceSyncStatus: 'synced',
+      priceSyncStatus: 'not_required',
       priceSyncError: null,
       stripeSubscriptionScheduleId: null,
     },
@@ -124,6 +127,34 @@ const overview = {
       priceSyncError: 'Test schedule synchronization failure',
       stripeSubscriptionScheduleId: null,
     },
+    {
+      id: 503,
+      source: 'drop_in',
+      memberId: 11,
+      memberName: 'Jordan Rivera',
+      sport_name: 'Gymnastics',
+      program_name: 'Open Gym',
+      class_name: 'Saturday Open Gym',
+      offering_dates: 'Aug 29, 2026',
+      enrollment_start_date: '2026-08-29',
+      created_at: '2026-08-29T12:00:00.000Z',
+      schedule: 'Saturday · 11:00 AM–12:00 PM',
+      status: 'drop_in',
+      billing_status: 'one_time',
+      billingType: 'one_time',
+      classCostCents: 2500,
+      automaticDiscountCents: 0,
+      automaticDiscountComponents: [],
+      automaticAdjustedCostCents: 2500,
+      manualAdjustmentCents: 0,
+      adjustedCostCents: 2500,
+      activePriceAdjustment: null,
+      priceAdjustments: [],
+      nextBillDate: null,
+      priceSyncStatus: 'not_required',
+      priceSyncError: null,
+      stripeSubscriptionScheduleId: null,
+    },
   ],
   waitlists: [{
     id: 601,
@@ -152,6 +183,8 @@ const overview = {
     priceSyncError: null,
     stripeSubscriptionScheduleId: null,
   }],
+  annualMemberships: [],
+  monthlyInvoices: [],
   subscriptions: [
     {
       id: 71,
@@ -384,19 +417,17 @@ test.describe('Customer Billing administration', () => {
 
     expect(captured.searchQueries).toContain('555-010-2040')
     await expect(page.getByText('Family #42 · Billing account #7')).toBeVisible()
-    await expect(page.getByText('$205.00/mo').first()).toBeVisible()
-    await expect(page.getByText('Jordan Rivera total')).toBeVisible()
-    await expect(page.getByText('Household total')).toBeVisible()
+    await expect(page.getByText('Monthly recurring', { exact: true })).toBeVisible()
+    await expect(page.getByText('$205.00', { exact: true })).toBeVisible()
     await expect(page.getByText('Visa •••• 4242').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Current & upcoming enrollments' })).toBeVisible()
     await expect(page.getByText('Monday Foundations').first()).toBeVisible()
     await expect(page.getByText('Mondays · 4:00 PM–5:00 PM')).toBeVisible()
+    await expect(page.getByRole('row', { name: /Monday Foundations/ }).getByText('Autopay not set')).toBeVisible()
+    await expect(page.getByRole('row', { name: /Saturday Open Gym/ }).getByText('No autopay needed')).toBeVisible()
     await expect(page.getByText('Waitlists · non-billable')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Monthly recurring charges & discounts' })).toBeVisible()
-    await expect(page.getByText('Household', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Complete account audit' })).toBeVisible()
     await expect(page.getByText('August tuition · Monday Foundations')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Statements' })).toBeVisible()
     expect(consoleErrors).toEqual([])
   })
 

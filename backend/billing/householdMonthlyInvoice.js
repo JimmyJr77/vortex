@@ -286,6 +286,106 @@ export async function createHouseholdMonthlyInvoice(pool, {
   return { invoice, lines: local.lines, created: true }
 }
 
+/**
+ * Existing accounts created before household invoices defaulted on are safe to
+ * enable once they have a reusable card and local recurring schedules, provided
+ * no legacy class-level Stripe subscription can collect the same tuition.
+ */
+export async function activateHouseholdMonthlyBillingForAccount(pool, {
+  accountId,
+  stripe = null,
+  actorUserId = null,
+  actorType = 'system',
+} = {}) {
+  await ensureHouseholdMonthlyInvoiceSchema(pool)
+  const account = await pool.query(
+    `SELECT * FROM family_billing_account WHERE id = $1 LIMIT 1`,
+    [Number(accountId)],
+  ).then((result) => result.rows[0] ?? null)
+  if (!account) return { status: 'not_found', enabled: false }
+  if (account.household_monthly_billing_enabled === true) return { status: 'already_enabled', enabled: true }
+
+  const recurring = await pool.query(
+    `SELECT COUNT(*)::int AS count
+       FROM billing_subscription
+      WHERE family_billing_account_id = $1
+        AND status = 'active'
+        AND source_type <> 'annual_membership'
+        AND COALESCE(pricing_option_key, '') <> 'annual_membership'`,
+    [account.id],
+  )
+  if (Number(recurring.rows[0]?.count ?? 0) === 0) return { status: 'no_recurring_enrollments', enabled: false }
+
+  const legacy = await pool.query(
+    `SELECT id, stripe_subscription_id
+       FROM billing_subscription
+      WHERE family_billing_account_id = $1
+        AND status = 'active'
+        AND source_type <> 'annual_membership'
+        AND COALESCE(pricing_option_key, '') <> 'annual_membership'
+        AND stripe_subscription_id IS NOT NULL
+      LIMIT 1`,
+    [account.id],
+  )
+  if (legacy.rows[0]) {
+    return { status: 'legacy_subscription_active', enabled: false, legacySubscriptionId: legacy.rows[0].stripe_subscription_id }
+  }
+
+  if (!account.stripe_customer_id) return { status: 'payment_method_required', enabled: false }
+  const stripeClient = stripe || (stripeEnabled() ? await getStripeClient() : null)
+  if (!stripeClient) return { status: 'stripe_unavailable', enabled: false }
+  const customer = await stripeClient.customers.retrieve(account.stripe_customer_id, {
+    expand: ['invoice_settings.default_payment_method'],
+  })
+  if (customer.deleted || !await defaultPaymentMethod(stripeClient, account.stripe_customer_id)) {
+    return { status: 'payment_method_required', enabled: false }
+  }
+
+  const updated = await pool.query(
+    `UPDATE family_billing_account
+        SET household_monthly_billing_enabled = TRUE, updated_at = now()
+      WHERE id = $1
+      RETURNING *`,
+    [account.id],
+  ).then((result) => result.rows[0] ?? null)
+  await recordBillingActivityBestEffort(pool, {
+    eventKey: `household-monthly-billing-enabled:${account.id}`,
+    accountId: account.id,
+    eventType: 'household_monthly_billing_enabled',
+    summary: 'Saved-card household monthly billing was enabled for active recurring enrollments.',
+    afterValue: { householdMonthlyBillingEnabled: true },
+    actorUserId,
+    actorType,
+  })
+  return { status: 'enabled', enabled: true, account: updated }
+}
+
+/** Enable the consolidated collection path for every safe saved-card account. */
+export async function activateEligibleHouseholdMonthlyBilling(pool, { stripe = null } = {}) {
+  await ensureHouseholdMonthlyInvoiceSchema(pool)
+  const accounts = await pool.query(
+    `SELECT DISTINCT account.id
+       FROM family_billing_account account
+       JOIN billing_subscription subscription ON subscription.family_billing_account_id = account.id
+      WHERE account.household_monthly_billing_enabled = FALSE
+        AND account.stripe_customer_id IS NOT NULL
+        AND subscription.status = 'active'
+        AND subscription.source_type <> 'annual_membership'
+        AND COALESCE(subscription.pricing_option_key, '') <> 'annual_membership'
+      ORDER BY account.id`,
+  )
+  const stripeClient = stripe || (stripeEnabled() ? await getStripeClient() : null)
+  const results = []
+  for (const account of accounts.rows) {
+    results.push(await activateHouseholdMonthlyBillingForAccount(pool, {
+      accountId: account.id,
+      stripe: stripeClient,
+      actorType: 'system',
+    }))
+  }
+  return results
+}
+
 /** Exact line-level allocation for a successful household monthly Stripe invoice. */
 export async function applyHouseholdMonthlyInvoicePayment(pool, { invoice, payment }) {
   await ensureHouseholdMonthlyInvoiceSchema(pool)

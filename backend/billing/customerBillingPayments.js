@@ -41,6 +41,8 @@ async function ensureAnnualMembershipRenewalPricingSchema(pool) {
   const fs = await import('fs')
   const migration = new URL('../migrations/775_annual_membership_renewal_pricing.sql', import.meta.url)
   await pool.query(fs.readFileSync(migration, 'utf8'))
+  const redemptionMigration = new URL('../migrations/776_annual_membership_renewal_promo_redemptions.sql', import.meta.url)
+  await pool.query(fs.readFileSync(redemptionMigration, 'utf8'))
   annualMembershipRenewalPricingSchemaEnsured = true
 }
 
@@ -361,6 +363,200 @@ async function configureAnnualMembershipRenewalPricing(pool, {
     await activity(instruction, 'Future annual membership renewal pricing needs Stripe synchronization.', 'annual_membership_renewal_price_sync_failed', subscription.stripe_subscription_id)
     throw new Error(`Renewal pricing was saved locally, but Stripe synchronization failed: ${error?.message ?? error}`)
   }
+}
+
+async function loadAnnualMembershipRenewalPromo(pool, stripeSubscriptionId) {
+  await ensureAnnualMembershipRenewalPricingSchema(pool)
+  return pool.query(
+    `SELECT pricing.*, account.family_id, fee.facility_id, fee.amount_cents AS standard_amount_cents,
+            subscription.id AS billing_subscription_id, subscription.stripe_subscription_id
+       FROM annual_membership_renewal_pricing pricing
+       JOIN family_billing_account account ON account.id = pricing.family_billing_account_id
+       JOIN additional_fee fee ON fee.id = pricing.additional_fee_id
+       JOIN billing_subscription subscription
+         ON subscription.family_billing_account_id = pricing.family_billing_account_id
+        AND subscription.member_id = pricing.member_id
+        AND subscription.source_type = 'annual_membership'
+        AND subscription.source_id = CONCAT(pricing.additional_fee_id, ':', pricing.member_id)
+        AND subscription.status <> 'cancelled'
+      WHERE subscription.stripe_subscription_id = $1
+        AND pricing.pricing_kind = 'promo_code'
+        AND NULLIF(BTRIM(pricing.promo_code), '') IS NOT NULL
+      LIMIT 1`,
+    [stripeSubscriptionId],
+  ).then((result) => result.rows[0] ?? null)
+}
+
+/**
+ * A promo selected for a future annual renewal is not a perpetual entitlement.
+ * Revalidate it at the next invoice boundary; an expired, capped, or ineligible
+ * code is removed and the athlete's standard annual price is restored.
+ */
+export async function validateAnnualMembershipRenewalDiscount(pool, {
+  stripeSubscriptionId,
+  stripe = null,
+  now = new Date(),
+} = {}) {
+  if (!stripeSubscriptionId) return { status: 'not_applicable' }
+  const pricing = await loadAnnualMembershipRenewalPromo(pool, stripeSubscriptionId)
+  if (!pricing) return { status: 'not_applicable' }
+
+  const valid = await resolveMembershipFeePromo(pool, {
+    facilityId: pricing.facility_id,
+    promoCodes: [pricing.promo_code],
+    memberId: pricing.member_id,
+    familyId: pricing.family_id,
+    now,
+  })
+  if (valid?.rule?.id === pricing.discount_rule_id) {
+    return { status: 'valid', pricing }
+  }
+
+  const standardAmountCents = Math.max(0, Number(pricing.standard_amount_cents))
+  const stripeClient = stripe || await getStripeClient()
+  if (!stripeClient) {
+    await pool.query(
+      `UPDATE annual_membership_renewal_pricing
+          SET sync_status = 'sync_failed',
+              sync_error = 'Discount code is no longer valid; Stripe price reset is pending.',
+              updated_at = now()
+        WHERE id = $1`,
+      [pricing.id],
+    )
+    return { status: 'sync_failed', pricing }
+  }
+
+  const remoteSubscription = await stripeClient.subscriptions.retrieve(stripeSubscriptionId)
+  const item = remoteSubscription.items?.data?.[0]
+  const product = typeof item?.price?.product === 'string' ? item.price.product : item?.price?.product?.id
+  if (!item?.id || !product) throw new Error('Annual membership Stripe subscription has no renewable item.')
+  const price = await stripeClient.prices.create({
+    product,
+    currency: 'usd',
+    unit_amount: standardAmountCents,
+    recurring: { interval: 'year' },
+    metadata: {
+      vortex_annual_membership: 'true',
+      vortex_fee_id: String(pricing.additional_fee_id),
+      vortex_member_id: String(pricing.member_id),
+      annual_renewal_pricing: 'standard_price',
+    },
+  })
+  await stripeClient.subscriptions.update(remoteSubscription.id, {
+    items: [{ id: item.id, price: price.id }],
+    proration_behavior: 'none',
+    metadata: {
+      ...(remoteSubscription.metadata ?? {}),
+      annualRenewalPriceCents: String(standardAmountCents),
+      annualRenewalPricingKind: 'standard_price',
+      annualRenewalPromoCode: '',
+      annualRenewalDiscountRuleId: '',
+    },
+  })
+  const invalidated = await pool.query(
+    `UPDATE annual_membership_renewal_pricing
+        SET pricing_kind = 'manual_final_price',
+            final_amount_cents = $2,
+            promo_code = NULL,
+            discount_rule_id = NULL,
+            discount_rule_snapshot = NULL,
+            stripe_subscription_id = $3,
+            stripe_subscription_item_id = $4,
+            stripe_price_id = $5,
+            sync_status = 'synced',
+            sync_error = NULL,
+            updated_at = now()
+      WHERE id = $1
+      RETURNING *`,
+    [pricing.id, standardAmountCents, remoteSubscription.id, item.id, price.id],
+  ).then((result) => result.rows[0] ?? null)
+  await pool.query(
+    `UPDATE billing_subscription SET stripe_subscription_item_id = $2, updated_at = now() WHERE id = $1`,
+    [pricing.billing_subscription_id, item.id],
+  )
+  await recordBillingActivity(pool, {
+    eventKey: `annual-membership-renewal-promo-invalidated:${pricing.id}:${String(now instanceof Date ? now.toISOString() : now)}`,
+    accountId: pricing.family_billing_account_id,
+    memberId: pricing.member_id,
+    eventType: 'annual_membership_renewal_promo_invalidated',
+    summary: `Annual membership discount code ${pricing.promo_code} is no longer valid; the standard renewal price was restored.`,
+    beforeValue: pricing,
+    afterValue: invalidated,
+    stripeObjectId: remoteSubscription.id,
+    actorType: 'system',
+  })
+  return { status: 'invalidated', pricing: invalidated, previousPromoCode: pricing.promo_code }
+}
+
+export async function revalidateAnnualMembershipRenewalDiscounts(pool, {
+  stripe = null,
+  now = new Date(),
+} = {}) {
+  await ensureAnnualMembershipRenewalPricingSchema(pool)
+  const subscriptions = await pool.query(
+    `SELECT DISTINCT subscription.stripe_subscription_id
+       FROM annual_membership_renewal_pricing pricing
+       JOIN billing_subscription subscription
+         ON subscription.family_billing_account_id = pricing.family_billing_account_id
+        AND subscription.member_id = pricing.member_id
+        AND subscription.source_type = 'annual_membership'
+        AND subscription.source_id = CONCAT(pricing.additional_fee_id, ':', pricing.member_id)
+        AND subscription.status <> 'cancelled'
+      WHERE pricing.pricing_kind = 'promo_code'
+        AND NULLIF(BTRIM(pricing.promo_code), '') IS NOT NULL
+        AND NULLIF(BTRIM(subscription.stripe_subscription_id), '') IS NOT NULL`,
+  )
+  const stripeClient = stripe || await getStripeClient()
+  const results = []
+  for (const row of subscriptions.rows) {
+    results.push(await validateAnnualMembershipRenewalDiscount(pool, {
+      stripeSubscriptionId: row.stripe_subscription_id,
+      stripe: stripeClient,
+      now,
+    }))
+  }
+  return results
+}
+
+export async function recordAnnualMembershipRenewalPromoRedemption(pool, {
+  stripeSubscriptionId,
+  stripeInvoiceId,
+  paidAmountCents,
+  paidAt = new Date(),
+} = {}) {
+  if (!stripeSubscriptionId || !stripeInvoiceId) return null
+  const pricing = await loadAnnualMembershipRenewalPromo(pool, stripeSubscriptionId)
+  if (!pricing?.discount_rule_id) return null
+  const discountCents = Math.max(0, Number(pricing.standard_amount_cents) - Math.max(0, Number(paidAmountCents)))
+  if (discountCents <= 0) return null
+  const inserted = await pool.query(
+    `INSERT INTO discount_redemption (
+       rule_id, member_id, signup_id, program_id, form_id, kind, units,
+       amount_cents, stripe_invoice_id, annual_membership_renewal_pricing_id
+     ) VALUES ($1, $2, NULL, NULL, NULL, 'discount', 0, $3, $4, $5)
+     ON CONFLICT (stripe_invoice_id, rule_id)
+       WHERE stripe_invoice_id IS NOT NULL AND rule_id IS NOT NULL
+     DO NOTHING
+     RETURNING id`,
+    [pricing.discount_rule_id, pricing.member_id, discountCents, stripeInvoiceId, pricing.id],
+  )
+  if (!inserted.rows[0]) return { pricing, replayed: true }
+  await pool.query(
+    `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
+    [pricing.discount_rule_id],
+  )
+  await recordBillingActivity(pool, {
+    eventKey: `annual-membership-renewal-promo-redeemed:${stripeInvoiceId}:${pricing.discount_rule_id}`,
+    accountId: pricing.family_billing_account_id,
+    memberId: pricing.member_id,
+    eventType: 'annual_membership_renewal_promo_redeemed',
+    summary: `Annual membership discount code ${pricing.promo_code} was applied to a paid renewal.`,
+    afterValue: { discountCode: pricing.promo_code, discountCents, paidAt },
+    stripeObjectId: stripeInvoiceId,
+    actorType: 'stripe',
+    occurredAt: paidAt,
+  })
+  return { pricing, replayed: false, discountCents }
 }
 
 /**

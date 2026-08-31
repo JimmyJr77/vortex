@@ -35,10 +35,12 @@ import {
 } from '../billing/stripeBilling.js'
 import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
 import {
+  invoiceSubscriptionId,
   recordPaidStripeInvoice,
   resolveStripeWebhookAccountId,
   syncStripeSubscriptionStatus,
 } from '../billing/stripeWebhookLifecycle.js'
+import { validateAnnualMembershipRenewalDiscount } from '../billing/customerBillingPayments.js'
 import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
@@ -2922,6 +2924,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               billingUrl: `${publicAppUrl()}/?billing=portal-return`,
             }).catch(() => {})
           }
+        }
+      } else if (event.type === 'invoice.upcoming') {
+        const invoice = event.data?.object ?? {}
+        const subscriptionId = invoiceSubscriptionId(invoice)
+        if (subscriptionId) {
+          const stripe = await getStripeClient()
+          await validateAnnualMembershipRenewalDiscount(pool, {
+            stripeSubscriptionId: subscriptionId,
+            stripe,
+            now: new Date(),
+          })
         }
       } else if (event.type === 'invoice.paid') {
         const invoice = event.data?.object ?? {}

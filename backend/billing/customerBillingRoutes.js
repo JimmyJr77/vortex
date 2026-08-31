@@ -30,6 +30,7 @@ import {
 import { getStripeClient } from './stripeBilling.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { refreshCustomerBillingStripeAlerts } from './stripeReconciliation.js'
+import { activateHouseholdMonthlyBillingForAccount } from './householdMonthlyInvoice.js'
 
 function facilityId(req) {
   return req.platformAuth?.user?.facility_id ?? null
@@ -255,11 +256,20 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       try {
         const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        const data = await refreshCustomerBillingStripeAlerts(pool, {
-          accountId: account.id,
-          actorUserId: actorId(req),
-        })
-        res.json({ success: true, data })
+        const stripe = await getStripeClient()
+        const [data, monthlyBilling] = await Promise.all([
+          refreshCustomerBillingStripeAlerts(pool, {
+            accountId: account.id,
+            actorUserId: actorId(req),
+          }),
+          activateHouseholdMonthlyBillingForAccount(pool, {
+            accountId: account.id,
+            stripe,
+            actorUserId: actorId(req),
+            actorType: 'admin',
+          }),
+        ])
+        res.json({ success: true, data: { ...data, monthlyBilling } })
       } catch (error) {
         console.error('[customer-billing] account refresh:', error)
         res.status(errorStatus(error)).json({

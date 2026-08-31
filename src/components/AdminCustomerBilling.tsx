@@ -112,6 +112,25 @@ function retryableAdjustmentForEnrollment(enrollment: CustomerBillingEnrollment)
     ?? null
 }
 
+function enrollmentPriceSyncLabel(enrollment: CustomerBillingEnrollment): string {
+  if (enrollment.collectionMode === 'household_monthly') return 'Household monthly billing'
+  if (enrollment.collectionMode === 'household_payment_method_required') return 'Household billing needs card'
+  if (enrollment.collectionMode === 'legacy_stripe_subscription') return 'Legacy Stripe subscription'
+  if (enrollment.collectionMode === 'autopay_setup_required') return 'Autopay setup required'
+  if (enrollment.priceSyncStatus === 'synced') return 'Stripe pricing synced'
+  if (enrollment.priceSyncStatus === 'failed') return 'Stripe pricing sync failed'
+  if (enrollment.priceSyncStatus !== 'not_required') {
+    return `Stripe pricing ${enrollment.priceSyncStatus.replaceAll('_', ' ')}`
+  }
+
+  const noAutopayNeeded = enrollment.source === 'drop_in'
+    || enrollment.billingType === 'one_time'
+    || enrollment.billing_status === 'one_time'
+    || ['waitlist', 'waitlisted'].includes(enrollment.status)
+    || enrollment.adjustedCostCents <= 0
+  return noAutopayNeeded ? 'No autopay needed' : 'Autopay not set'
+}
+
 function StripeSyncFailure({ error }: { error: string }) {
   const previousRequestFormat = /metadata.*from_subscription/i.test(error)
   return (
@@ -450,14 +469,8 @@ function EnrollmentSection({
                             />
                           ) : null}
                           <Badge
-                            value={enrollment.priceSyncStatus}
-                            label={
-                              enrollment.priceSyncStatus === 'synced'
-                                ? 'Stripe pricing synced'
-                                : enrollment.priceSyncStatus === 'failed'
-                                  ? 'Stripe pricing sync failed'
-                                  : `Stripe pricing ${enrollment.priceSyncStatus.replaceAll('_', ' ')}`
-                            }
+                            value={enrollment.collectionMode ?? enrollment.priceSyncStatus}
+                            label={enrollmentPriceSyncLabel(enrollment)}
                           />
                           {failedAdjustment && enrollment.priceSyncStatus !== 'failed' ? <Badge value="sync_failed" label="Price change sync failed" /> : null}
                         </div>
@@ -811,7 +824,10 @@ export default function AdminCustomerBilling() {
       if (!response.ok) throw new Error(body.message || 'Stripe account refresh failed.')
       await loadFamily(overview.account.familyId, selectedMemberId)
       const resolved = Number(body.data?.alertsResolved ?? 0)
-      setSuccess(resolved > 0
+      const monthlyBillingStatus = body.data?.monthlyBilling?.status
+      if (monthlyBillingStatus === 'enabled') {
+        setSuccess('Account refreshed. Household monthly billing was enabled for its active recurring classes.')
+      } else setSuccess(resolved > 0
         ? `Account refreshed. ${resolved} stale ${resolved === 1 ? 'alert was' : 'alerts were'} resolved.`
         : 'Account refreshed. No stale alerts were found.')
     } catch (caught) {

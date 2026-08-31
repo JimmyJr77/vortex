@@ -7,6 +7,7 @@ import { createEnrollmentStripeSubscriptions } from './stripeEnrollmentCheckout.
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { billingMonthInTimeZone, promoExpirationDate } from './customerBillingPricing.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
+import { activateHouseholdMonthlyBillingForAccount } from './householdMonthlyInvoice.js'
 
 function asDateOnly(value) {
   if (!value) return null
@@ -65,6 +66,7 @@ const BASE_GAPS_SQL = `
     member.family_id,
     account.id AS account_id,
     account.stripe_customer_id,
+    account.household_monthly_billing_enabled,
     form.title AS form_title,
     subscription.id AS billing_subscription_id,
     subscription.stripe_subscription_id,
@@ -109,7 +111,13 @@ const BASE_GAPS_SQL = `
       NULLIF(signup.pricing_breakdown -> 'line' ->> 'billing_type', ''),
       'recurring'
     ) <> 'one_time'
-    AND (subscription.id IS NULL OR subscription.stripe_subscription_id IS NULL)
+    AND (
+      subscription.id IS NULL
+      OR (
+        account.household_monthly_billing_enabled = FALSE
+        AND subscription.stripe_subscription_id IS NULL
+      )
+    )
 `
 
 export async function findEnrollmentSubscriptionGaps(db, {
@@ -356,6 +364,7 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
     savedCardAccounts: 0,
     plannedEnrollments: 0,
     localSubscriptionsCreated: 0,
+    householdMonthlyBillingEnabledAccounts: 0,
     stripeSubscriptionsCreated: 0,
     skipped: [],
     failed: [],
@@ -457,6 +466,20 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
 
     summary.savedCardAccounts += 1
     if (!apply) continue
+
+    const householdBilling = await activateHouseholdMonthlyBillingForAccount(pool, {
+      accountId,
+      stripe,
+      actorType: 'system',
+    })
+    if (householdBilling.enabled) {
+      if (householdBilling.status === 'enabled') summary.householdMonthlyBillingEnabledAccounts += 1
+      for (const plan of localPlans) {
+        await markSubscriptionSync(pool, plan.billingSubscriptionId, 'not_required', null)
+        await resolveRepairAlert(pool, plan.candidate.signup_id)
+      }
+      continue
+    }
 
     let remoteBySignup
     try {

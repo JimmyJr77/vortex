@@ -57,13 +57,13 @@ export function currentMonthInput(): string {
 
 export function statusTone(status: string): string {
   const normalized = status.toLowerCase()
-  if (['active', 'confirmed', 'healthy', 'paid', 'succeeded', 'synced', 'issued'].includes(normalized)) {
+  if (['active', 'confirmed', 'healthy', 'paid', 'succeeded', 'synced', 'issued', 'household_monthly', 'legacy_stripe_subscription'].includes(normalized)) {
     return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   }
   if (['failed', 'critical', 'cancelled', 'void', 'unpaid'].includes(normalized)) {
     return 'bg-red-50 text-red-700 border-red-200'
   }
-  if (['paused', 'pending', 'pending_sync', 'requested', 'warning', 'checkout_pending', 'processing'].includes(normalized)) {
+  if (['paused', 'pending', 'pending_sync', 'requested', 'warning', 'checkout_pending', 'processing', 'household_payment_method_required', 'autopay_setup_required'].includes(normalized)) {
     return 'bg-amber-50 text-amber-800 border-amber-200'
   }
   return 'bg-gray-50 text-gray-600 border-gray-200'

@@ -404,11 +404,17 @@ function mapAccount(account) {
     billingState: account.billing_state ?? null,
     billingZip: account.billing_zip ?? null,
     stripeCustomerId: account.stripe_customer_id ?? null,
+    householdMonthlyBillingEnabled: account.household_monthly_billing_enabled === true,
     isActive: account.is_active !== false,
   }
 }
 
 function relevantEnrollment(row) {
+  // Customer Billing's enrollment workspace is a forward-looking tuition view.
+  // Drop-ins and other one-time registrations belong solely in the immutable
+  // financial audit, even while their registration record remains confirmed.
+  if (row.source === 'drop_in') return false
+  if (row.billing_type === 'one_time' || row.billingType === 'one_time') return false
   return ['confirmed', 'active', 'requested', 'paused', 'waitlisted'].includes(row.status)
 }
 
@@ -695,6 +701,13 @@ export async function buildCustomerBillingOverview(pool, {
         nextBillDate: effectiveEnrollmentNextBillDate(subscription),
         priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
         priceSyncError: customerFacingPriceSyncError(subscription?.price_sync_error),
+        collectionMode: isDropIn || row.billing_type === 'one_time'
+          ? 'not_applicable'
+          : account.household_monthly_billing_enabled === true
+            ? (paymentMethod.available ? 'household_monthly' : 'household_payment_method_required')
+            : subscription?.stripe_subscription_id
+              ? 'legacy_stripe_subscription'
+              : 'autopay_setup_required',
         stripeSubscriptionScheduleId: subscription?.stripe_subscription_schedule_id ?? null,
         pricingMonth: enrollmentPricingMonth,
       }
@@ -761,6 +774,8 @@ export async function buildCustomerBillingOverview(pool, {
 
   const latestPayment = view.payments?.[0] ?? null
   const syncFailures = subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
+  const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
+  const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
 
   return {
     account: mapAccount(account),
@@ -793,7 +808,13 @@ export async function buildCustomerBillingOverview(pool, {
             status: 'failed',
             message: `${syncFailures.length} Stripe recurring schedule${syncFailures.length === 1 ? ' is' : 's are'} not confirmed. Stripe may still have an older price until synchronization succeeds.`,
           }
-        : { status: 'healthy', message: 'Local recurring prices are synchronized.' },
+        : autopaySetupRequired
+          ? { status: 'warning', message: 'Recurring enrollment is not yet connected to automatic monthly collection.' }
+          : householdCardRequired
+            ? { status: 'warning', message: 'Household monthly billing is active but needs a saved card before it can collect automatically.' }
+            : account.household_monthly_billing_enabled === true
+              ? { status: 'healthy', message: 'Active classes are collected together through one household monthly Stripe invoice.' }
+              : { status: 'healthy', message: 'Local recurring prices are synchronized.' },
     },
     paymentMethod,
     alerts: alertsResult.rows.map((row) => ({
@@ -929,10 +950,9 @@ export async function listCustomerBillingTransactions(pool, {
        ) charge_applications ON TRUE
        WHERE c.family_billing_account_id = $1
        UNION ALL
-       -- Free and discounted drop-ins do not create a billing_charge because their
-       -- net amount can be zero. Surface the immutable registration as a zero-net
-       -- one-time audit entry instead of making the benefit disappear from the
-       -- household's financial history.
+       -- A free/fully discounted drop-in does not have a ledger charge. Surface
+       -- its immutable registration as a zero-net audit entry, but never create
+       -- a second audit row for a paid drop-in that already has a billing charge.
        SELECT
          'drop_in'::text AS entry_kind,
          'one_time'::text AS entry_type,
@@ -970,6 +990,13 @@ export async function listCustomerBillingTransactions(pool, {
        JOIN scheduling_form sf ON sf.id = d.form_id
        LEFT JOIN program class_p ON class_p.id = sf.program_id
        WHERE d.status IN ('confirmed', 'attended')
+         AND NOT EXISTS (
+           SELECT 1
+           FROM billing_charge charged_drop_in
+           WHERE charged_drop_in.family_billing_account_id = drop_in_account.id
+             AND charged_drop_in.source_type = 'drop_in'
+             AND charged_drop_in.source_id = d.id::text
+         )
        UNION ALL
        SELECT
          'payment', 'payment', p.id, NULL::bigint,

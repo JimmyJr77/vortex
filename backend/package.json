@@ -37,6 +37,7 @@
     "billing:repair-membership-allocation": "node scripts/repair-membership-payment-allocation.mjs",
     "billing:repair-recurring-periods": "node scripts/repair-recurring-charge-service-periods.mjs",
     "billing:repair-initial-proration": "node scripts/repair-initial-enrollment-proration.mjs",
+    "billing:repair-late-start-enrollments": "node scripts/repair-late-start-enrollment-billing.mjs",
     "billing:migrate-household-invoices": "node scripts/migrate-household-monthly-billing.mjs",
     "roster:daily": "node scheduling/runDailyRoster.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",

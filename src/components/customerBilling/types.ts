@@ -78,6 +78,7 @@ export interface CustomerBillingEnrollment {
   nextBillDate: string | null
   priceSyncStatus: string
   priceSyncError: string | null
+  collectionMode?: 'not_applicable' | 'household_monthly' | 'household_payment_method_required' | 'legacy_stripe_subscription' | 'autopay_setup_required'
   stripeSubscriptionScheduleId: string | null
   pricingMonth: string
 }
@@ -134,6 +135,7 @@ export interface CustomerBillingOverview {
     billingState: string | null
     billingZip: string | null
     stripeCustomerId: string | null
+    householdMonthlyBillingEnabled: boolean
     isActive: boolean
   }
   selectedMemberId: number | null

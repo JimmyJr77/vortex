@@ -4,6 +4,7 @@ import {
   createCustomerBillingCustomCharge,
   linkCustomerBillingPayment,
   previewCustomerBillingRefund,
+  validateAnnualMembershipRenewalDiscount,
 } from '../customerBillingPayments.js'
 
 function refundPreviewPool({ balanceCents = 2500, refundedCents = 2000, chargeAmountCents = 7000 } = {}) {
@@ -150,4 +151,81 @@ test('payment application rejects anything other than the exact account charge a
     }),
     /exactly match/i,
   )
+})
+
+test('an expired annual membership renewal promo is removed and standard Stripe pricing is restored', async () => {
+  const calls = []
+  const pricing = {
+    id: 71,
+    family_billing_account_id: 12,
+    family_id: 22,
+    member_id: 32,
+    additional_fee_id: 42,
+    facility_id: 4,
+    standard_amount_cents: 8500,
+    billing_subscription_id: 52,
+    stripe_subscription_id: 'sub_annual',
+    pricing_kind: 'promo_code',
+    promo_code: 'EXPIRED',
+    discount_rule_id: 62,
+  }
+  const pool = {
+    async query(sql, params) {
+      const text = String(sql)
+      calls.push({ sql: text, params })
+      if (text.includes('SELECT pricing.*, account.family_id')) return { rows: [pricing] }
+      if (text.includes('SELECT * FROM discount_rule')) {
+        return {
+          rows: [{
+            id: 62,
+            active: true,
+            type: 'promo_code',
+            amount_type: 'percent',
+            amount_value: 5000,
+            starts_at: '2020-01-01',
+            ends_at: '2025-01-01',
+            config: { code: 'EXPIRED', benefit_type: 'annual_membership' },
+          }],
+        }
+      }
+      if (text.includes('FROM discount_rule_tier')) return { rows: [] }
+      if (text.includes('UPDATE annual_membership_renewal_pricing')) {
+        return { rows: [{ ...pricing, pricing_kind: 'manual_final_price', promo_code: null, final_amount_cents: 8500 }] }
+      }
+      if (text.includes('INSERT INTO billing_account_activity')) return { rows: [{ id: 1 }] }
+      return { rows: [] }
+    },
+  }
+  const updates = []
+  const stripe = {
+    subscriptions: {
+      retrieve: async () => ({
+        id: 'sub_annual',
+        metadata: { annualRenewalPromoCode: 'EXPIRED' },
+        items: { data: [{ id: 'si_annual', price: { product: 'prod_annual' } }] },
+      }),
+      update: async (id, payload) => { updates.push({ id, payload }); return { id } },
+    },
+    prices: {
+      create: async (payload) => {
+        assert.equal(payload.unit_amount, 8500)
+        assert.equal(payload.metadata.annual_renewal_pricing, 'standard_price')
+        return { id: 'price_standard' }
+      },
+    },
+  }
+
+  const result = await validateAnnualMembershipRenewalDiscount(pool, {
+    stripeSubscriptionId: 'sub_annual',
+    stripe,
+    now: new Date('2026-08-30T00:00:00Z'),
+  })
+
+  assert.equal(result.status, 'invalidated')
+  assert.equal(result.previousPromoCode, 'EXPIRED')
+  assert.equal(updates.length, 1)
+  assert.deepEqual(updates[0].payload.items, [{ id: 'si_annual', price: 'price_standard' }])
+  assert.equal(updates[0].payload.proration_behavior, 'none')
+  assert.equal(updates[0].payload.metadata.annualRenewalPromoCode, '')
+  assert.ok(calls.some((call) => call.sql.includes('UPDATE billing_subscription')))
 })
