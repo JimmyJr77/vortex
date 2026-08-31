@@ -36,6 +36,7 @@ import { getStripeClient } from './stripeBilling.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { refreshCustomerBillingStripeAlerts } from './stripeReconciliation.js'
 import { activateHouseholdMonthlyBillingForAccount } from './householdMonthlyInvoice.js'
+import { allocateHouseholdPayments } from './paymentAllocation.js'
 
 function facilityId(req) {
   return req.platformAuth?.user?.facility_id ?? null
@@ -262,7 +263,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
         const stripe = await getStripeClient()
-        const [data, monthlyBilling] = await Promise.all([
+        const [data, monthlyBilling, allocation] = await Promise.all([
           refreshCustomerBillingStripeAlerts(pool, {
             accountId: account.id,
             actorUserId: actorId(req),
@@ -273,8 +274,16 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
             actorUserId: actorId(req),
             actorType: 'admin',
           }),
+          // Refresh is also the safe reconciliation entry point for historical
+          // annual-fee promo credits that were redeemed before their linked
+          // ledger credit was persisted.
+          allocateHouseholdPayments(pool, {
+            accountId: account.id,
+            actorUserId: actorId(req),
+            actorType: 'admin',
+          }),
         ])
-        res.json({ success: true, data: { ...data, monthlyBilling } })
+        res.json({ success: true, data: { ...data, monthlyBilling, allocation } })
       } catch (error) {
         console.error('[customer-billing] account refresh:', error)
         res.status(errorStatus(error)).json({

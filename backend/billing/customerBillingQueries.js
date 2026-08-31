@@ -212,12 +212,12 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
       `SELECT c.id, c.member_id, c.source_type, c.source_id, c.created_at,
               c.amount_cents, c.gross_amount_cents, c.discount_amount_cents,
               CASE
-                WHEN COALESCE(app.applied_cents, 0) >= c.amount_cents THEN 'paid'
+                WHEN COALESCE(app.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(adjustment.adjustment_cents, 0)) THEN 'paid'
                 WHEN COALESCE(app.applied_cents, 0) > 0 THEN 'partially_paid'
                 ELSE c.collection_status
               END AS collection_status,
               app.paid_at,
-              GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0))::int AS remaining_amount_cents
+              GREATEST(0, c.amount_cents + COALESCE(adjustment.adjustment_cents, 0) - COALESCE(app.applied_cents, 0))::int AS remaining_amount_cents
        FROM billing_charge c
        LEFT JOIN LATERAL (
          SELECT
@@ -227,6 +227,12 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
          JOIN billing_payment payment ON payment.id = application.billing_payment_id
          WHERE application.billing_charge_id = c.id
        ) app ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT COALESCE(SUM(linked.amount_cents), 0)::int AS adjustment_cents
+         FROM billing_charge linked
+         WHERE linked.related_charge_id = c.id
+           AND linked.source_type = 'charge_adjustment'
+       ) adjustment ON TRUE
        WHERE c.family_billing_account_id = $1
          AND c.member_id = ANY($2::bigint[])
          AND c.source_type = 'additional_fee'
@@ -887,7 +893,7 @@ export async function listCustomerBillingTransactions(pool, {
          c.amount_cents::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          CASE
-           WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(c.amount_cents, 0) AND c.amount_cents > 0 THEN 'paid'
+           WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)) AND c.amount_cents > 0 THEN 'paid'
            WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
            ELSE COALESCE(c.collection_status, 'none')
          END::text AS status,
@@ -899,6 +905,7 @@ export async function listCustomerBillingTransactions(pool, {
              WHEN c.charge_type = 'one_time' THEN COALESCE(
                NULLIF(c.metadata->>'discountCode', ''),
                NULLIF(c.metadata->>'promoCode', ''),
+               NULLIF(charge_adjustments.discount_code, ''),
                one_time_discount.discount_code
              )
              ELSE NULL
@@ -914,7 +921,7 @@ export async function listCustomerBillingTransactions(pool, {
            'stripePaymentIntentId', c.stripe_payment_intent_id,
            'createdByUserId', c.created_by_user_id,
            'appliedAmountCents', COALESCE(charge_applications.applied_cents, 0),
-           'remainingAmountCents', GREATEST(0, c.amount_cents - COALESCE(charge_applications.applied_cents, 0)),
+           'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - COALESCE(charge_applications.applied_cents, 0)),
            'paymentApplications', charge_applications.items,
            'metadata', c.metadata
          )) AS details
@@ -956,6 +963,13 @@ export async function listCustomerBillingTransactions(pool, {
            HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
          ) effective
        ) charge_applications ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents,
+                MAX(NULLIF(adjustment.metadata->>'discountCode', '')) AS discount_code
+         FROM billing_charge adjustment
+         WHERE adjustment.related_charge_id = c.id
+           AND adjustment.source_type = 'charge_adjustment'
+       ) charge_adjustments ON TRUE
        WHERE c.family_billing_account_id = $1
          -- Keep erroneous system-generated correction rows available to the
          -- immutable internal ledger/activity trail, without surfacing them

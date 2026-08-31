@@ -46,3 +46,24 @@ test('a saved-card account with local recurring schedules safely enables househo
   assert.equal(result.enabled, true)
   assert.ok(calls.some((call) => call.sql.includes('SET household_monthly_billing_enabled = TRUE')))
 })
+
+test('a Stripe customer with an explicitly null default method falls back safely', async () => {
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (text.includes('SELECT * FROM family_billing_account')) {
+        return { rows: [{ id: 8, family_id: 6, stripe_customer_id: 'cus_8', household_monthly_billing_enabled: false }] }
+      }
+      if (text.includes('COUNT(*)::int AS count')) return { rows: [{ count: 1 }] }
+      if (text.includes('AND stripe_subscription_id IS NOT NULL')) return { rows: [] }
+      if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
+      return { rows: [] }
+    },
+  }
+  const stripe = {
+    customers: { retrieve: async () => ({ deleted: false, invoice_settings: { default_payment_method: null } }) },
+    paymentMethods: { list: async () => ({ data: [] }) },
+  }
+  const result = await activateHouseholdMonthlyBillingForAccount(pool, { accountId: 8, stripe })
+  assert.equal(result.status, 'payment_method_required')
+})

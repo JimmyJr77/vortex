@@ -114,7 +114,8 @@ async function activatePaidMemberships(db, accountId) {
        FROM effective_applications
        GROUP BY billing_charge_id
      )
-     SELECT c.*, fee.id AS fee_id, totals.satisfied_at,
+     SELECT c.*, fee.id AS fee_id, adjustments.adjustment_cents,
+            COALESCE(totals.satisfied_at, adjustments.satisfied_at, c.created_at) AS satisfied_at,
             existing.satisfied_at AS prior_satisfied_at
      FROM billing_charge c
      JOIN additional_fee fee
@@ -122,12 +123,19 @@ async function activatePaidMemberships(db, accountId) {
       AND split_part(c.source_id, ':', 1) ~ '^[0-9]+$'
       AND fee.id = split_part(c.source_id, ':', 1)::bigint
       AND (fee.trigger_type = 'once_per_year' OR fee.apply_basis = 'per_year')
-     JOIN application_totals totals ON totals.billing_charge_id = c.id
+     LEFT JOIN application_totals totals ON totals.billing_charge_id = c.id
+     LEFT JOIN LATERAL (
+       SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents,
+              MAX(adjustment.created_at) FILTER (WHERE adjustment.amount_cents < 0) AS satisfied_at
+       FROM billing_charge adjustment
+       WHERE adjustment.related_charge_id = c.id
+         AND adjustment.source_type = 'charge_adjustment'
+     ) adjustments ON TRUE
      LEFT JOIN additional_fee_redemption existing ON existing.billing_charge_id = c.id
      WHERE c.family_billing_account_id = $1
        AND c.member_id IS NOT NULL
        AND c.amount_cents > 0
-       AND totals.applied_cents >= c.amount_cents`,
+       AND COALESCE(totals.applied_cents, 0) >= GREATEST(0, c.amount_cents + adjustments.adjustment_cents)`,
     [accountId],
   )
   const activated = []
@@ -140,7 +148,7 @@ async function activatePaidMemberships(db, accountId) {
            satisfied_at = $5, created_at = $5, ended_at = NULL, end_reason = NULL
        WHERE billing_charge_id = $4
        RETURNING *`,
-      [charge.member_id, periodKey, Number(charge.amount_cents), charge.id, paidAt],
+      [charge.member_id, periodKey, Math.max(0, Number(charge.amount_cents) + Number(charge.adjustment_cents ?? 0)), charge.id, paidAt],
     )
     if (!result.rows[0]) {
       result = await db.query(
@@ -153,7 +161,7 @@ async function activatePaidMemberships(db, accountId) {
              satisfied_at = COALESCE(additional_fee_redemption.satisfied_at, EXCLUDED.satisfied_at),
              created_at = LEAST(additional_fee_redemption.created_at, EXCLUDED.created_at)
          RETURNING *`,
-        [charge.fee_id, charge.member_id, periodKey, Number(charge.amount_cents), charge.id, paidAt],
+        [charge.fee_id, charge.member_id, periodKey, Math.max(0, Number(charge.amount_cents) + Number(charge.adjustment_cents ?? 0)), charge.id, paidAt],
       )
     }
     const subscription = await db.query(
@@ -204,6 +212,115 @@ async function activatePaidMemberships(db, accountId) {
   return activated
 }
 
+/**
+ * Earlier versions recorded an annual-membership promo redemption separately
+ * from its linked ledger credit.  Repair that incomplete write deterministically
+ * before status/allocation processing.  The narrow time window and rule check
+ * ensure we only repair a redemption that was created with that exact annual
+ * fee action, never an unrelated tuition promo.
+ */
+async function restoreMissingAnnualMembershipPromoCredits(db, accountId) {
+  const candidates = await db.query(
+    `SELECT c.id, c.family_billing_account_id, c.member_id, c.description,
+            c.amount_cents, c.gross_amount_cents, c.service_period_start,
+            c.service_period_end, c.created_at,
+            redemption.id AS redemption_id, redemption.rule_id,
+            redemption.amount_cents AS discount_cents, redemption.created_at AS redeemed_at,
+            COALESCE(NULLIF(rule.config->>'code', ''), NULLIF(rule.config->>'promo_code', '')) AS discount_code
+       FROM billing_charge c
+       JOIN LATERAL (
+         SELECT redemption.*
+         FROM discount_redemption redemption
+         JOIN discount_rule rule ON rule.id = redemption.rule_id
+         WHERE redemption.member_id = c.member_id
+           AND redemption.kind = 'discount'
+           AND redemption.amount_cents > 0
+           AND rule.type = 'promo_code'
+           AND (rule.config->>'benefit_type' = 'annual_membership'
+             OR rule.config->>'amount_applies_to' = 'annual_membership')
+           AND redemption.created_at BETWEEN c.created_at - interval '15 minutes' AND c.created_at + interval '15 minutes'
+           AND NOT EXISTS (
+             SELECT 1
+             FROM billing_charge adjustment
+             WHERE adjustment.related_charge_id = c.id
+               AND adjustment.source_type = 'charge_adjustment'
+               AND adjustment.metadata->>'discountRuleId' = redemption.rule_id::text
+           )
+         ORDER BY ABS(EXTRACT(EPOCH FROM redemption.created_at - c.created_at)), redemption.id DESC
+         LIMIT 1
+       ) redemption ON TRUE
+       JOIN discount_rule rule ON rule.id = redemption.rule_id
+      WHERE c.family_billing_account_id = $1
+        AND c.source_type = 'additional_fee'
+        AND c.member_id IS NOT NULL
+        AND c.amount_cents > 0`,
+    [accountId],
+  )
+  const restored = []
+  for (const candidate of candidates.rows) {
+    const sourceId = `annual-membership-promo-repair:${candidate.id}:${candidate.redemption_id}`
+    const discountCents = Math.min(
+      Math.max(0, Number(candidate.amount_cents)),
+      Math.max(0, Number(candidate.discount_cents)),
+    )
+    if (discountCents <= 0) continue
+    const inserted = await db.query(
+      `INSERT INTO billing_charge (
+         family_billing_account_id, member_id, source_type, source_id, related_charge_id,
+         description, amount_cents, gross_amount_cents, discount_amount_cents,
+         charge_type, billing_interval, service_period_start, service_period_end,
+         collection_status, metadata, created_at
+       ) VALUES (
+         $1, $2, 'charge_adjustment', $3, $4,
+         $5, $6, $6, 0,
+         'credit', 'one_time', $7, $8,
+         'none', $9::jsonb, $10
+       ) ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+       RETURNING *`,
+      [
+        accountId,
+        candidate.member_id,
+        sourceId,
+        candidate.id,
+        `Credit for ${candidate.description}`,
+        -discountCents,
+        candidate.service_period_start,
+        candidate.service_period_end,
+        JSON.stringify({
+          originalChargeId: Number(candidate.id),
+          originalAmountCents: Number(candidate.amount_cents),
+          finalAmountCents: Math.max(0, Number(candidate.amount_cents) - discountCents),
+          reason: 'Restored annual membership promo credit.',
+          discountCode: candidate.discount_code,
+          discountRuleId: Number(candidate.rule_id),
+          discountAmountCents: discountCents,
+          restoredFromDiscountRedemptionId: Number(candidate.redemption_id),
+        }),
+        candidate.redeemed_at,
+      ],
+    )
+    if (!inserted.rows[0]) continue
+    restored.push(inserted.rows[0])
+    await recordBillingActivityBestEffort(db, {
+      eventKey: `annual-membership-promo-credit-restored:${candidate.id}:${candidate.redemption_id}`,
+      accountId,
+      memberId: candidate.member_id,
+      chargeId: candidate.id,
+      eventType: 'annual_membership_promo_credit_restored',
+      summary: `Restored the linked annual-membership discount credit for ${candidate.description}.`,
+      details: {
+        adjustmentChargeId: Number(inserted.rows[0].id),
+        discountCode: candidate.discount_code,
+        discountCents,
+        discountRedemptionId: Number(candidate.redemption_id),
+      },
+      actorType: 'system',
+      occurredAt: candidate.redeemed_at,
+    })
+  }
+  return restored
+}
+
 async function refreshChargeStatuses(db, accountId) {
   await db.query(
     `UPDATE billing_charge charge
@@ -211,7 +328,12 @@ async function refreshChargeStatuses(db, accountId) {
        WHEN COALESCE((
          SELECT SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END)
          FROM billing_payment_application WHERE billing_charge_id = charge.id
-       ), 0) >= charge.amount_cents THEN 'paid'
+       ), 0) >= GREATEST(0, charge.amount_cents + COALESCE((
+         SELECT SUM(adjustment.amount_cents)
+         FROM billing_charge adjustment
+         WHERE adjustment.related_charge_id = charge.id
+           AND adjustment.source_type = 'charge_adjustment'
+       ), 0)) THEN 'paid'
        WHEN COALESCE((
          SELECT SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END)
          FROM billing_payment_application WHERE billing_charge_id = charge.id
@@ -233,7 +355,12 @@ async function refreshChargeStatuses(db, accountId) {
          FROM billing_statement_line line
          JOIN billing_charge charge ON charge.id = line.charge_id
          WHERE line.statement_id = statement.id
-           AND charge.amount_cents > COALESCE((
+           AND GREATEST(0, charge.amount_cents + COALESCE((
+             SELECT SUM(adjustment.amount_cents)
+             FROM billing_charge adjustment
+             WHERE adjustment.related_charge_id = charge.id
+               AND adjustment.source_type = 'charge_adjustment'
+           ), 0)) > COALESCE((
              SELECT SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END)
              FROM billing_payment_application WHERE billing_charge_id = charge.id
            ), 0)
@@ -393,6 +520,7 @@ export async function allocateHouseholdPayments(pool, {
   try {
     await client.query('BEGIN')
     await client.query('SELECT pg_advisory_xact_lock($1)', [Number(accountId)])
+    const restoredMembershipPromoCredits = await restoreMissingAnnualMembershipPromoCredits(client, accountId)
     const [paymentsResult, chargesResult, applicationsResult, refundsResult] = await Promise.all([
       client.query(
         `SELECT id, amount_cents, paid_at, COALESCE(external_status, '') AS status
@@ -400,7 +528,9 @@ export async function allocateHouseholdPayments(pool, {
         [accountId],
       ),
       client.query(
-        `SELECT c.id, c.amount_cents, c.service_period_start, c.created_at,
+        `SELECT c.id,
+                GREATEST(0, c.amount_cents + COALESCE(adjustments.adjustment_cents, 0))::int AS amount_cents,
+                c.service_period_start, c.created_at,
                 EXISTS (
                   SELECT 1 FROM additional_fee fee
                   WHERE c.source_type = 'additional_fee'
@@ -409,6 +539,12 @@ export async function allocateHouseholdPayments(pool, {
                     AND (fee.trigger_type = 'once_per_year' OR fee.apply_basis = 'per_year')
                 ) AS is_annual_membership
          FROM billing_charge c
+         LEFT JOIN LATERAL (
+           SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents
+           FROM billing_charge adjustment
+           WHERE adjustment.related_charge_id = c.id
+             AND adjustment.source_type = 'charge_adjustment'
+         ) adjustments ON TRUE
          WHERE c.family_billing_account_id = $1
            AND c.amount_cents > 0
            AND c.charge_type <> 'credit'
@@ -488,7 +624,7 @@ export async function allocateHouseholdPayments(pool, {
     )
     const activatedMemberships = await activatePaidMemberships(client, accountId)
     await client.query('COMMIT')
-    return { applications: inserted, activatedMemberships, advancedSubscriptions }
+    return { applications: inserted, activatedMemberships, advancedSubscriptions, restoredMembershipPromoCredits }
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
     throw error

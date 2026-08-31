@@ -30,7 +30,9 @@ async function defaultPaymentMethod(stripe, customerId) {
   })
   if (customer.deleted) return null
   let method = customer.invoice_settings?.default_payment_method ?? null
-  if (typeof method === 'object') method = method.id
+  // Stripe expands this field to either a PaymentMethod object or null.  Null
+  // is also an object in JavaScript, so guard it before reading its id.
+  if (method && typeof method === 'object') method = method.id
   if (method) return method
   const methods = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
   return methods.data?.[0]?.id ?? null
