@@ -1,6 +1,26 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { buildLedgerFallback, buildBillingAccountView } from '../billingAccountView.js'
+import { buildLedgerFallback, buildBillingAccountView, summarizeCustomerBalanceCards } from '../billingAccountView.js'
+
+test('customer balance cards separate open charges, current recurring tuition, and credits', () => {
+  const cards = summarizeCustomerBalanceCards({
+    recurringBillingMonth: '2026-09',
+    charges: [
+      { charge_type: 'one_time', amount_cents: 5000, remaining_amount_cents: 5000, service_period_start: '2026-08-18' },
+      { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 12750, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-09-01' },
+      { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 5000, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-08-01' },
+      { charge_type: 'credit', amount_cents: -1000, remaining_amount_cents: 0, service_period_start: '2026-08-01' },
+    ],
+    payments: [{ remaining_amount_cents: 250 }],
+  })
+
+  assert.deepEqual(cards, {
+    outstandingBalanceCents: 10000,
+    monthlyRecurringCents: 12750,
+    monthlyRecurringDiscountCents: 2250,
+    futureCreditsCents: 1250,
+  })
+})
 
 test('buildLedgerFallback combines charges, payments, and refunds with running balance', () => {
   const ledger = buildLedgerFallback({

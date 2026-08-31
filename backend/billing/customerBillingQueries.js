@@ -793,6 +793,8 @@ export async function buildCustomerBillingOverview(pool, {
       refundsCents: view.refundsCents,
       balanceCents: view.balanceCents,
       outstandingBalanceCents: view.outstandingBalanceCents,
+      monthlyRecurringCents: view.monthlyRecurringCents,
+      monthlyRecurringDiscountCents: view.monthlyRecurringDiscountCents,
       futureCreditsCents: view.futureCreditsCents,
       paidThisMonthCents: view.paidThisMonthCents,
       monthlyTotals: {
@@ -955,6 +957,10 @@ export async function listCustomerBillingTransactions(pool, {
          ) effective
        ) charge_applications ON TRUE
        WHERE c.family_billing_account_id = $1
+         -- Keep erroneous system-generated correction rows available to the
+         -- immutable internal ledger/activity trail, without surfacing them
+         -- as customer-facing transaction lines.
+         AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
        UNION ALL
        -- A free/fully discounted drop-in does not have a ledger charge. Surface
        -- its immutable registration as a zero-net audit entry, but never create

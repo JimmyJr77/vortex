@@ -99,6 +99,64 @@ function mapLedgerRow(row) {
   }
 }
 
+function chargeServiceMonth(charge) {
+  return String(charge.service_period_start ?? charge.created_at ?? '').slice(0, 7)
+}
+
+/**
+ * Split the account ledger into the three cards that explain the balance:
+ * open non-monthly/past-due charges + this recurring billing period - credits.
+ * A settled refund is a household amount still owed, so it joins the open side.
+ */
+export function summarizeCustomerBalanceCards({
+  charges = [],
+  payments = [],
+  refundsCents = 0,
+  recurringBillingMonth = null,
+} = {}) {
+  let outstandingChargesCents = Math.max(0, Number(refundsCents) || 0)
+  let monthlyRecurringCents = 0
+  let monthlyRecurringDiscountCents = 0
+  let ledgerCreditCents = 0
+
+  for (const charge of charges) {
+    const amount = Number(charge.amount_cents ?? 0)
+    if (amount < 0) {
+      ledgerCreditCents += Math.abs(amount)
+      continue
+    }
+    if (amount <= 0) continue
+    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? amount))
+    if (!remaining) continue
+    const isCurrentRecurring = charge.charge_type === 'recurring'
+      && recurringBillingMonth != null
+      && chargeServiceMonth(charge) === recurringBillingMonth
+    if (isCurrentRecurring) {
+      monthlyRecurringCents += remaining
+      const gross = Math.max(0, Number(charge.gross_amount_cents ?? amount))
+      const discount = Math.max(0, Number(charge.discount_amount_cents ?? 0))
+      // A partially paid charge carries a proportional share of its configured
+      // discount so the card explains the still-open recurring amount.
+      monthlyRecurringDiscountCents += gross > 0
+        ? Math.round(discount * (remaining / amount))
+        : 0
+    } else {
+      outstandingChargesCents += remaining
+    }
+  }
+
+  const unappliedPaymentCents = payments.reduce(
+    (sum, payment) => sum + Math.max(0, Number(payment.remaining_amount_cents ?? 0)),
+    0,
+  )
+  return {
+    outstandingBalanceCents: outstandingChargesCents,
+    monthlyRecurringCents,
+    monthlyRecurringDiscountCents,
+    futureCreditsCents: ledgerCreditCents + unappliedPaymentCents,
+  }
+}
+
 function mapRefund(row) {
   return {
     id: Number(row.id),
@@ -466,15 +524,18 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
 
   const balanceCents = chargesCents - paymentsCents + refundsCents
   const currentMonthKey = new Date().toISOString().slice(0, 7)
-  const outstandingBalanceCents = charges.reduce((sum, charge) => {
-    const serviceMonth = String(charge.service_period_start ?? charge.created_at ?? '').slice(0, 7)
-    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? 0))
-    return serviceMonth && serviceMonth < currentMonthKey ? sum + remaining : sum
-  }, 0)
-  const futureCreditsCents = payments.reduce(
-    (sum, payment) => sum + Math.max(0, Number(payment.remaining_amount_cents ?? 0)),
-    0,
-  )
+  const balanceCards = summarizeCustomerBalanceCards({
+    charges,
+    payments,
+    refundsCents,
+    recurringBillingMonth: nextRecurringBillKey ?? currentMonthKey,
+  })
+  const {
+    outstandingBalanceCents,
+    monthlyRecurringCents,
+    monthlyRecurringDiscountCents,
+    futureCreditsCents,
+  } = balanceCards
   const paidThisMonthCents = payments.reduce((sum, payment) => (
     String(payment.paid_at ?? '').slice(0, 7) === currentMonthKey
       ? sum + Math.max(0, Number(payment.amount_cents ?? 0))
@@ -556,6 +617,8 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     chargesCents,
     balanceCents,
     outstandingBalanceCents,
+    monthlyRecurringCents,
+    monthlyRecurringDiscountCents,
     futureCreditsCents,
     paidThisMonthCents,
     bundlePasses,
