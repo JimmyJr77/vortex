@@ -11,6 +11,8 @@ test('customer balance cards separate open charges, current recurring tuition, a
     ],
     charges: [
       { charge_type: 'one_time', amount_cents: 5000, remaining_amount_cents: 5000, service_period_start: '2026-08-18' },
+      { id: 44, charge_type: 'one_time', amount_cents: 8500, remaining_amount_cents: 8500 },
+      { id: 45, charge_type: 'credit', amount_cents: -8500, related_charge_id: 44 },
       { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 0, applied_amount_cents: 12750, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-09-01' },
       { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 12750, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-09-01' },
       { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 5000, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-08-01' },

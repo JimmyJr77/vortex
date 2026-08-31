@@ -151,15 +151,34 @@ export function summarizeCustomerBalanceCards({
     0,
   )
 
-  for (const charge of charges) {
-    if (charge.metadata?.customerAuditVisibility === 'suppressed') continue
+  const visibleCharges = charges.filter((charge) => (
+    charge.metadata?.customerAuditVisibility !== 'suppressed'
+  ))
+  const chargesById = new Map(visibleCharges.map((charge) => [Number(charge.id), charge]))
+  const linkedCreditOffsets = new Map()
+  const linkedCreditRemainders = new Map()
+  for (const credit of visibleCharges) {
+    const creditAmount = Number(credit.amount_cents ?? 0)
+    const relatedChargeId = Number(credit.related_charge_id ?? credit.relatedChargeId ?? 0)
+    const relatedCharge = chargesById.get(relatedChargeId)
+    if (creditAmount >= 0 || !relatedCharge || Number(relatedCharge.amount_cents ?? 0) <= 0) continue
+    const targetRemaining = Math.max(0, Number(
+      relatedCharge.remaining_amount_cents ?? relatedCharge.amount_cents ?? 0,
+    ) - (linkedCreditOffsets.get(relatedChargeId) ?? 0))
+    const offset = Math.min(Math.abs(creditAmount), targetRemaining)
+    linkedCreditOffsets.set(relatedChargeId, (linkedCreditOffsets.get(relatedChargeId) ?? 0) + offset)
+    linkedCreditRemainders.set(Number(credit.id), Math.abs(creditAmount) - offset)
+  }
+
+  for (const charge of visibleCharges) {
     const amount = Number(charge.amount_cents ?? 0)
     if (amount < 0) {
-      ledgerCreditCents += Math.abs(amount)
+      ledgerCreditCents += linkedCreditRemainders.get(Number(charge.id)) ?? Math.abs(amount)
       continue
     }
     if (amount <= 0) continue
-    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? amount))
+    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? amount)
+      - (linkedCreditOffsets.get(Number(charge.id)) ?? 0))
     const isCurrentRecurring = charge.charge_type === 'recurring'
       && recurringBillingMonth != null
       && chargeServiceMonth(charge) === recurringBillingMonth
