@@ -1,5 +1,5 @@
 import { publicAppUrl } from '../email/publicAppUrl.js'
-import { notifyPaymentReceipt, notifyRefundReceipt } from '../email/memberNotifications.js'
+import { notifyPaymentReceipt, notifyPaymentRequest, notifyRefundReceipt } from '../email/memberNotifications.js'
 import {
   buildCustomerBillingOverview,
   ensureCustomerBillingAccount,
@@ -20,6 +20,7 @@ import {
   billAnnualMembershipNow,
   adjustCustomerBillingCharge,
   createCustomerBillingCustomCharge,
+  createCustomerBillingChargePaymentRequest,
   createCustomerBillingPaymentMethodLink,
   createCustomerBillingRefund,
   createCustomChargeCheckoutSession,
@@ -583,6 +584,62 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.json({ success: true, data })
       } catch (error) {
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Checkout link failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/charges/:chargeId/payment-request',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const requestKey = idempotencyKey(req, 'billing-charge-payment-request')
+        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const charge = await loadCustomerBillingCharge(pool, account.id, Number(req.params.chargeId))
+        const base = publicAppUrl()
+        const checkout = await createCustomerBillingChargePaymentRequest(pool, {
+          account,
+          charge,
+          successUrl: `${base}/?billing=charge-paid`,
+          cancelUrl: `${base}/?billing=charge-cancelled`,
+          actorUserId: actorId(req),
+          attemptKey: requestKey,
+        })
+        const delivery = await notifyPaymentRequest(pool, {
+          account,
+          amountCents: checkout.amountCents,
+          checkoutUrl: checkout.url,
+          expiresAt: checkout.expiresAt,
+          idempotencyKey: `billing-charge-payment-request-${checkout.id}`,
+          bestEffort: false,
+        })
+        if (!delivery.sent) {
+          return res.status(422).json({
+            success: false,
+            message: 'The secure payment link was created, but no billing email could receive it.',
+            data: checkout,
+          })
+        }
+        await recordBillingActivityBestEffort(pool, {
+          eventKey: `billing-charge-payment-request-sent:${charge.id}:${checkout.id}`,
+          accountId: account.id,
+          memberId: charge.member_id,
+          chargeId: charge.id,
+          eventType: 'billing_charge_payment_request_sent',
+          summary: `Secure payment request sent for ${charge.description}.`,
+          details: {
+            amountCents: checkout.amountCents,
+            recipientEmail: delivery.email,
+            expiresAt: checkout.expiresAt,
+          },
+          stripeObjectId: checkout.id,
+          actorUserId: actorId(req),
+          actorType: 'admin',
+        })
+        res.json({ success: true, data: { ...checkout, recipientEmail: delivery.email } })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Payment request failed.' })
       }
     },
   )

@@ -765,6 +765,121 @@ function assertCollectibleCustomCharge(charge) {
   }
 }
 
+async function checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge }) {
+  if (requireManualCharge) assertCollectibleCustomCharge(charge)
+  else if (!charge || Number(charge.amount_cents) <= 0) {
+    throw new Error('Only a positive outstanding bill can receive a payment request.')
+  }
+  await ensureHouseholdMonthlyInvoiceSchema(pool)
+  const result = await pool.query(
+    `SELECT
+       GREATEST(0,
+         charge.amount_cents
+         + COALESCE((
+           SELECT SUM(adjustment.amount_cents)
+           FROM billing_charge adjustment
+           WHERE adjustment.related_charge_id = charge.id
+             AND adjustment.source_type = 'charge_adjustment'
+         ), 0)
+         - COALESCE((
+           SELECT SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)
+           FROM billing_payment_application application
+           WHERE application.billing_charge_id = charge.id
+         ), 0)
+       )::int AS amount_cents,
+       EXISTS (
+         SELECT 1
+         FROM billing_monthly_invoice_line line
+         JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+         WHERE line.billing_charge_id = charge.id
+           AND invoice.status IN ('draft', 'open', 'paid', 'payment_method_required', 'failed')
+       ) AS reserved_on_monthly_invoice`,
+    [charge.id],
+  )
+  if (result.rows[0]?.reserved_on_monthly_invoice) {
+    throw new Error('This bill is already included in a household monthly invoice and cannot receive a separate payment request.')
+  }
+  const amountCents = Number(result.rows[0]?.amount_cents ?? 0)
+  if (amountCents <= 0) throw new Error('This bill is already paid or fully credited.')
+  return amountCents
+}
+
+async function createBillingChargeCheckoutSession(pool, {
+  account,
+  charge,
+  successUrl,
+  cancelUrl,
+  actorUserId = null,
+  attemptKey = null,
+  requireManualCharge = false,
+  checkoutType = 'custom_charge',
+  eventType = 'custom_charge_checkout_created',
+}) {
+  const amountCents = await checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge })
+  if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
+  const stripe = await getStripeClient()
+  if (!stripe) throw new Error('Stripe is unavailable.')
+  const customerId = await ensureStripeCustomer(pool, stripe, account)
+  const metadata = {
+    checkoutType,
+    familyBillingAccountId: String(account.id),
+    billingChargeId: String(charge.id),
+  }
+  const attempts = await pool.query(
+    `SELECT COUNT(*)::int AS count FROM billing_account_activity
+     WHERE related_charge_id = $1 AND event_type = $2`,
+    [charge.id, eventType],
+  )
+  const attempt = Number(attempts.rows[0]?.count ?? 0) + 1
+  const session = await stripe.checkout.sessions.create(
+    {
+      mode: 'payment',
+      customer: customerId,
+      client_reference_id: `billing-charge:${charge.id}`,
+      expires_at: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+      line_items: [{
+        quantity: 1,
+        price_data: {
+          currency: 'usd',
+          unit_amount: amountCents,
+          product_data: { name: String(charge.description).slice(0, 127) },
+        },
+      }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata,
+      payment_intent_data: { metadata },
+    },
+    { idempotencyKey: `billing-charge-checkout-${charge.id}-${attemptKey || `attempt-${attempt}`}` },
+  )
+  await pool.query(
+    `UPDATE billing_charge
+     SET collection_status = 'checkout_pending', stripe_checkout_session_id = $2
+     WHERE id = $1`,
+    [charge.id, session.id],
+  )
+  await recordBillingActivity(pool, {
+    eventKey: `billing-charge-checkout:${charge.id}:${session.id}`,
+    accountId: account.id,
+    memberId: charge.member_id,
+    chargeId: charge.id,
+    eventType,
+    summary: `Secure payment link created for ${charge.description}.`,
+    details: {
+      amountCents,
+      expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
+    },
+    stripeObjectId: session.id,
+    actorUserId,
+  })
+  return {
+    id: session.id,
+    url: session.url,
+    amountCents,
+    expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
+  }
+}
+
 export async function createCustomerBillingCustomCharge(pool, {
   familyId,
   facilityId = null,
@@ -866,69 +981,27 @@ export async function createCustomChargeCheckoutSession(pool, {
   actorUserId = null,
   attemptKey = null,
 }) {
-  assertCollectibleCustomCharge(charge)
-  if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const stripe = await getStripeClient()
-  if (!stripe) throw new Error('Stripe is unavailable.')
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const metadata = {
-    checkoutType: 'custom_charge',
-    familyBillingAccountId: String(account.id),
-    billingChargeId: String(charge.id),
-  }
-  const attempts = await pool.query(
-    `SELECT COUNT(*)::int AS count FROM billing_account_activity
-     WHERE related_charge_id = $1 AND event_type = 'custom_charge_checkout_created'`,
-    [charge.id],
-  )
-  const attempt = Number(attempts.rows[0]?.count ?? 0) + 1
-  const session = await stripe.checkout.sessions.create(
-    {
-      mode: 'payment',
-      customer: customerId,
-      client_reference_id: `billing-charge:${charge.id}`,
-      expires_at: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
-      line_items: [{
-        quantity: 1,
-        price_data: {
-          currency: 'usd',
-          unit_amount: Number(charge.amount_cents),
-          product_data: { name: String(charge.description).slice(0, 127) },
-        },
-      }],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata,
-      payment_intent_data: { metadata },
-    },
-    { idempotencyKey: `custom-charge-checkout-${charge.id}-${attemptKey || `attempt-${attempt}`}` },
-  )
-  await pool.query(
-    `UPDATE billing_charge
-     SET collection_status = 'checkout_pending', stripe_checkout_session_id = $2
-     WHERE id = $1`,
-    [charge.id, session.id],
-  )
-  await recordBillingActivity(pool, {
-    eventKey: `custom-charge-checkout:${charge.id}:${session.id}`,
-    accountId: account.id,
-    memberId: charge.member_id,
-    chargeId: charge.id,
-    eventType: 'custom_charge_checkout_created',
-    summary: `Secure payment link created for ${charge.description}.`,
-    details: {
-      amountCents: Number(charge.amount_cents),
-      expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
-    },
-    stripeObjectId: session.id,
+  return createBillingChargeCheckoutSession(pool, {
+    account,
+    charge,
+    successUrl,
+    cancelUrl,
     actorUserId,
+    attemptKey,
+    requireManualCharge: true,
+    checkoutType: 'custom_charge',
+    eventType: 'custom_charge_checkout_created',
   })
-  return {
-    id: session.id,
-    url: session.url,
-    amountCents: Number(charge.amount_cents),
-    expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
-  }
+}
+
+/** Send a hosted exact-balance request for any eligible positive ledger bill. */
+export async function createCustomerBillingChargePaymentRequest(pool, options) {
+  return createBillingChargeCheckoutSession(pool, {
+    ...options,
+    requireManualCharge: false,
+    checkoutType: 'billing_charge_payment_request',
+    eventType: 'billing_charge_payment_request_created',
+  })
 }
 
 async function resolveDefaultPaymentMethod(stripe, customerId) {

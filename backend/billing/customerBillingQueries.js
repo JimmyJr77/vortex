@@ -525,13 +525,17 @@ export async function buildCustomerBillingOverview(pool, {
              MIN(charge.service_period_start) FILTER (
                WHERE charge.service_period_start IS NOT NULL
                  AND charge.applied_cents < charge.amount_cents
+                 -- A late-start partial-month charge remains collectible and
+                 -- contributes to the account balance, but it is not the
+                 -- subscription's next full recurring billing period.
+                 AND charge.source_type <> 'initial_enrollment_proration'
              ) AS oldest_unpaid_service_period_start,
              MAX(charge.service_period_end) FILTER (
                WHERE charge.service_period_end IS NOT NULL
                  AND charge.applied_cents >= charge.amount_cents
              ) AS paid_through_date
            FROM (
-             SELECT c.amount_cents, c.service_period_start, c.service_period_end,
+             SELECT c.amount_cents, c.source_type, c.service_period_start, c.service_period_end,
                     COALESCE((
                       SELECT SUM(CASE
                         WHEN application.application_kind = 'reversal' THEN -application.amount_cents

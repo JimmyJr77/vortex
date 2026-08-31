@@ -520,6 +520,7 @@ function TransactionsPanel({
   onExport,
   onRefund,
   onResendReceipt,
+  onSendPaymentRequest,
   onModifyBill,
 }: {
   rows: BillingTransaction[]
@@ -534,6 +535,7 @@ function TransactionsPanel({
   onExport: () => void
   onRefund: (row: BillingTransaction) => void
   onResendReceipt: (row: BillingTransaction) => void
+  onSendPaymentRequest: (row: BillingTransaction) => void
   onModifyBill: (row: BillingTransaction) => void
 }) {
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -559,6 +561,7 @@ function TransactionsPanel({
                 (row.entryType === 'recurring' && Boolean(row.details.subscriptionId)) ||
                 row.details.sourceType === 'additional_fee'
               )
+              const canSendPaymentRequest = canModifyBill && row.remainingAmountCents > 0
               const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
                 ? row.details.discountCode.trim()
                 : ''
@@ -583,7 +586,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
-                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded border border-gray-300 p-1.5 text-gray-600" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
+                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canSendPaymentRequest ? <button type="button" onClick={() => onSendPaymentRequest(row)} className="rounded bg-gray-950 p-1.5 text-white" aria-label={`Send payment request for ${row.description}`} title="Send payment request"><Mail className="h-3.5 w-3.5" /></button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded bg-gray-950 p-1.5 text-white" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
                   </tr>
                   {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label} className={Array.isArray(value) ? 'sm:col-span-2 lg:col-span-4' : ''}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><AuditDetailValue label={label} value={value} /></div>)}</div></td></tr> : null}
                 </Fragment>
@@ -1069,6 +1072,29 @@ export default function AdminCustomerBilling() {
     }
   }
 
+  const sendBillPaymentRequest = async (row: BillingTransaction) => {
+    if (!overview) return
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      const requestKey = `billing-charge-payment-request-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/families/${overview.account.familyId}/charges/${row.refId}/payment-request`,
+        { method: 'POST', headers: { 'Idempotency-Key': requestKey } },
+      )
+      const body = await jsonBody(response)
+      if (body.data?.url) setLastActionUrl(body.data.url)
+      if (!response.ok) throw new Error(body.message || 'Payment request could not be sent.')
+      setSuccess(`Secure ${money(body.data.amountCents)} payment request sent to ${body.data.recipientEmail}.`)
+      await loadAudits(overview.account.familyId, selectedMemberId, false)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Payment request could not be sent.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const exportTransactions = async () => {
     if (!overview) return
     setSaving(true)
@@ -1169,7 +1195,7 @@ export default function AdminCustomerBilling() {
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
-            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
+            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onSendPaymentRequest={(row) => void sendBillPaymentRequest(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 
         </>
