@@ -5,20 +5,27 @@ import { buildLedgerFallback, buildBillingAccountView, summarizeCustomerBalanceC
 test('customer balance cards separate open charges, current recurring tuition, and credits', () => {
   const cards = summarizeCustomerBalanceCards({
     recurringBillingMonth: '2026-09',
+    subscriptions: [
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+    ],
     charges: [
       { charge_type: 'one_time', amount_cents: 5000, remaining_amount_cents: 5000, service_period_start: '2026-08-18' },
+      { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 0, applied_amount_cents: 12750, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-09-01' },
       { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 12750, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-09-01' },
       { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 5000, discount_amount_cents: 2250, gross_amount_cents: 15000, service_period_start: '2026-08-01' },
       { charge_type: 'credit', amount_cents: -1000, remaining_amount_cents: 0, service_period_start: '2026-08-01' },
+      { charge_type: 'adjustment', amount_cents: 9562, remaining_amount_cents: 9562, metadata: { customerAuditVisibility: 'suppressed' } },
+      { charge_type: 'credit', amount_cents: -9562, remaining_amount_cents: 0, metadata: { customerAuditVisibility: 'suppressed' } },
     ],
     payments: [{ remaining_amount_cents: 250 }],
   })
 
   assert.deepEqual(cards, {
     outstandingBalanceCents: 10000,
-    monthlyRecurringCents: 12750,
-    monthlyRecurringDiscountCents: 2250,
-    futureCreditsCents: 1250,
+    monthlyRecurringCents: 25500,
+    monthlyRecurringDiscountCents: 4500,
+    futureCreditsCents: 14000,
   })
 })
 
