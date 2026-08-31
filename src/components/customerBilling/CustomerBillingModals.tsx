@@ -11,6 +11,18 @@ import type {
   PriceAdjustmentPreview,
 } from './types'
 
+interface EnrollmentCancellationPreview {
+  effectiveDate: string
+  lastActiveDate: string
+  mode: 'immediate' | 'end_of_month' | 'specific_date'
+  className: string
+  currentResolvedPriceCents: number
+  postedAmountCents: number
+  creditCents: number
+  remainingClasses: number
+  creditRatio: number
+}
+
 function ModalShell({
   title,
   subtitle,
@@ -109,6 +121,11 @@ export function PriceAdjustmentModal({
   const [reason, setReason] = useState('')
   const [confirmSurcharge, setConfirmSurcharge] = useState(false)
   const [preview, setPreview] = useState<PriceAdjustmentPreview | null>(null)
+  const [showCancellation, setShowCancellation] = useState(false)
+  const [cancellationMode, setCancellationMode] = useState<'immediate' | 'end_of_month' | 'specific_date'>('end_of_month')
+  const [cancellationDate, setCancellationDate] = useState(new Date().toISOString().slice(0, 10))
+  const [cancellationReason, setCancellationReason] = useState('')
+  const [cancellationPreview, setCancellationPreview] = useState<EnrollmentCancellationPreview | null>(null)
   const [working, setWorking] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -124,6 +141,7 @@ export function PriceAdjustmentModal({
     confirmSurcharge: aboveList ? confirmSurcharge : false,
   })
   const invalidate = () => setPreview(null)
+  const invalidateCancellation = () => setCancellationPreview(null)
 
   const previewChange = async () => {
     setWorking(true)
@@ -189,9 +207,58 @@ export function PriceAdjustmentModal({
     }
   }
 
+  const cancellationPayload = () => ({
+    mode: cancellationMode,
+    effectiveDate: cancellationMode === 'specific_date' ? cancellationDate : undefined,
+    reason: cancellationReason.trim(),
+  })
+
+  const previewCancellation = async () => {
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/enrollments/${enrollment.id}/cancellation/preview`,
+        { method: 'POST', body: JSON.stringify(cancellationPayload()) },
+      )
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Cancellation preview failed.')
+      setCancellationPreview(body.data)
+      setPreview(null)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Cancellation preview failed.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  const applyCancellation = async () => {
+    if (!cancellationPreview) return
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/enrollments/${enrollment.id}/cancellation`,
+        { method: 'POST', body: JSON.stringify(cancellationPayload()) },
+      )
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Enrollment cancellation failed.')
+      const creditCents = Number(body.data?.creditCents ?? cancellationPreview.creditCents)
+      onSaved(
+        creditCents > 0
+          ? `Enrollment cancelled. A ${money(creditCents)} prorated account credit was recorded for unused classes.`
+          : 'Enrollment cancellation was recorded. No prorated credit was needed.',
+      )
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Enrollment cancellation failed.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
   return (
     <ModalShell
-      title="Change enrollment price"
+      title="Modify enrollment"
       subtitle={`${enrollment.memberName} · ${enrollment.class_name || 'Class'}`}
       onClose={onClose}
       wide
@@ -290,10 +357,46 @@ export function PriceAdjustmentModal({
           <button type="button" onClick={() => void previewChange()} disabled={working || hasPendingSync} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
             {working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Preview billing impact
           </button>
+
+          <div className="border-t border-gray-200 pt-4">
+            <button type="button" onClick={() => { setShowCancellation((value) => !value); setError(null) }} className="text-sm font-semibold text-red-700 hover:text-red-800">
+              {showCancellation ? 'Keep enrollment' : 'Cancel or remove this class enrollment'}
+            </button>
+            {showCancellation ? (
+              <div className="mt-3 space-y-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-gray-800">
+                <p>Cancellation preserves the class and financial history in the audit. Any unused, already billed classes become a linked account credit; posted charges are never rewritten.</p>
+                <fieldset>
+                  <legend className="mb-2 font-semibold">When should the cancellation take effect?</legend>
+                  <label className="mb-2 flex items-start gap-2"><input type="radio" checked={cancellationMode === 'immediate'} onChange={() => { setCancellationMode('immediate'); invalidateCancellation() }} /><span><strong>Immediately</strong><span className="block text-xs text-gray-600">Stop the enrollment now and credit unused scheduled classes in the current month.</span></span></label>
+                  <label className="mb-2 flex items-start gap-2"><input type="radio" checked={cancellationMode === 'end_of_month'} onChange={() => { setCancellationMode('end_of_month'); invalidateCancellation() }} /><span><strong>At the end of this month</strong><span className="block text-xs text-gray-600">Keep the athlete enrolled through this billing month; no next-month tuition will bill.</span></span></label>
+                  <label className="flex items-start gap-2"><input type="radio" checked={cancellationMode === 'specific_date'} onChange={() => { setCancellationMode('specific_date'); invalidateCancellation() }} /><span><strong>On a specific date</strong><span className="block text-xs text-gray-600">Stop on that date and calculate a credit for the remaining scheduled classes.</span></span></label>
+                </fieldset>
+                {cancellationMode === 'specific_date' ? <label className="block font-medium">Cancellation effective date<input type="date" min={new Date().toISOString().slice(0, 10)} value={cancellationDate} onChange={(event) => { setCancellationDate(event.target.value); invalidateCancellation() }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2" /></label> : null}
+                <label className="block font-medium">Administrative reason<textarea rows={2} value={cancellationReason} onChange={(event) => { setCancellationReason(event.target.value); invalidateCancellation() }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2" placeholder="Required for the immutable audit trail" /></label>
+                <button type="button" onClick={() => void previewCancellation()} disabled={working} className="w-full rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">Review cancellation and billing impact</button>
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div className="min-w-0">
-          {preview ? (
+          {cancellationPreview ? (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-950">
+                <div className="font-semibold">Cancellation billing impact</div>
+                <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Effective date</dt><dd className="mt-1 font-bold">{cancellationPreview.effectiveDate}</dd></div>
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Prorated account credit</dt><dd className="mt-1 text-lg font-bold">{money(cancellationPreview.creditCents)}</dd></div>
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Already billed for this month</dt><dd className="mt-1 font-semibold">{money(cancellationPreview.postedAmountCents)}</dd></div>
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Unused scheduled classes</dt><dd className="mt-1 font-semibold">{cancellationPreview.remainingClasses}</dd></div>
+                </dl>
+                <p className="mt-3 text-xs text-red-800">The credit is linked to the existing class charge and reduces the household’s next collection. The enrollment itself is retained in the audit as cancelled.</p>
+              </div>
+              <button type="button" onClick={() => void applyCancellation()} disabled={working} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-3 font-semibold text-white disabled:opacity-50">
+                {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />} Confirm cancellation
+              </button>
+            </div>
+          ) : preview ? (
             <div className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-gray-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Window</div><div className="mt-1 text-sm font-bold">{monthLabel(preview.effectiveFromMonth)} – {monthLabel(preview.effectiveThroughMonth)}</div></div>

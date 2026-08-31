@@ -15,6 +15,10 @@ import {
   revokeEnrollmentPriceAdjustment,
 } from './customerBillingAdjustments.js'
 import {
+  cancelCustomerBillingEnrollment,
+  previewCustomerBillingEnrollmentCancellation,
+} from './customerBillingEnrollmentCancellation.js'
+import {
   collectCustomChargeWithSavedCard,
   collectOutstandingBalanceWithSavedCard,
   billAnnualMembershipNow,
@@ -349,6 +353,42 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.json({ success: true, data })
       } catch (error) {
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Price preview failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/enrollments/:signupId/cancellation/preview',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await previewCustomerBillingEnrollmentCancellation(pool, {
+          signupId: Number(req.params.signupId),
+          facilityId: facilityId(req),
+          input: req.body,
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Cancellation preview failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/enrollments/:signupId/cancellation',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await cancelCustomerBillingEnrollment(pool, {
+          signupId: Number(req.params.signupId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          input: req.body,
+        })
+        res.status(201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] cancel enrollment:', error)
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Enrollment cancellation failed.' })
       }
     },
   )

@@ -422,6 +422,8 @@ function customerEnrollmentStatus(row) {
   if (row.status === 'requested') return 'pending_cancellation'
   const starts = billingDateKey(row.enrollment_start_date)
   const today = new Date().toISOString().slice(0, 10)
+  const cancellation = billingDateKey(row.cancel_effective_date)
+  if (['confirmed', 'active'].includes(row.status) && cancellation && cancellation > today) return 'pending_cancellation'
   if (['confirmed', 'active'].includes(row.status) && starts && starts > today) return 'scheduled'
   if (row.status === 'confirmed') return 'active'
   return row.status
