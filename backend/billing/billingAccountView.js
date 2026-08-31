@@ -99,8 +99,20 @@ function mapLedgerRow(row) {
   }
 }
 
+function toBillingMonthKey(value) {
+  if (!value) return null
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 7)
+  }
+  const text = String(value)
+  const directMonth = text.match(/^(\d{4}-\d{2})/)
+  if (directMonth) return directMonth[1]
+  const parsed = new Date(text)
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 7)
+}
+
 function chargeServiceMonth(charge) {
-  return String(charge.service_period_start ?? charge.created_at ?? '').slice(0, 7)
+  return toBillingMonthKey(charge.service_period_start ?? charge.created_at)
 }
 
 /**
@@ -400,7 +412,8 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   const currentPricingKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
   const nextRecurringBillKey = subscriptions
     .filter((subscription) => subscription.status === 'active' && subscription.nextBillDate)
-    .map((subscription) => String(subscription.nextBillDate).slice(0, 7))
+    .map((subscription) => toBillingMonthKey(subscription.nextBillDate))
+    .filter(Boolean)
     .sort()[0]
   const recurringPricingKey = nextRecurringBillKey && nextRecurringBillKey > currentPricingKey
     ? nextRecurringBillKey

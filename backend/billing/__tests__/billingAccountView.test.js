@@ -29,6 +29,34 @@ test('customer balance cards separate open charges, current recurring tuition, a
   })
 })
 
+test('customer balance cards normalize PostgreSQL Date service periods', () => {
+  const cards = summarizeCustomerBalanceCards({
+    recurringBillingMonth: '2026-09',
+    subscriptions: [
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+    ],
+    charges: [
+      { charge_type: 'one_time', amount_cents: 5000, remaining_amount_cents: 5000 },
+      {
+        charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 0,
+        applied_amount_cents: 12750, service_period_start: new Date('2026-09-01T04:00:00.000Z'),
+      },
+      {
+        charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 12750,
+        service_period_start: new Date('2026-09-01T04:00:00.000Z'),
+      },
+    ],
+  })
+
+  assert.deepEqual(cards, {
+    outstandingBalanceCents: 5000,
+    monthlyRecurringCents: 25500,
+    monthlyRecurringDiscountCents: 4500,
+    futureCreditsCents: 12750,
+  })
+})
+
 test('buildLedgerFallback combines charges, payments, and refunds with running balance', () => {
   const ledger = buildLedgerFallback({
     charges: [
