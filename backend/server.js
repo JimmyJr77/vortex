@@ -8582,7 +8582,7 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
 
     // Get current user
     const userResult = await pool.query(`
-      SELECT u.id, u.full_name
+      SELECT u.id, u.full_name, u.email
       FROM app_user u
       WHERE u.id = $1 AND u.is_active = TRUE
     `, [userId])
@@ -8637,15 +8637,43 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
           throw updateError
         }
       }
-    } else {
+    } else if (address === undefined) {
       return res.status(400).json({
         success: false,
         message: 'No fields to update'
       })
     }
 
-    // If address is provided, we might need to store it elsewhere or add to app_user table
-    // For now, we'll skip address as it's not in the app_user schema
+    // Contact addresses belong to the member profile, rather than app_user.
+    // Keep the same resolution order as GET /api/members/me so linked and
+    // legacy email-matched member accounts both persist the change.
+    if (address !== undefined) {
+      const memberResult = await pool.query(`
+        UPDATE member
+        SET address = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = (
+          SELECT m.id
+          FROM member m
+          WHERE m.is_active = TRUE
+            AND (
+              m.app_user_id = $2
+              OR (m.app_user_id IS NULL AND m.id = $2)
+              OR (m.app_user_id IS NULL AND LOWER(TRIM(m.email)) = LOWER(TRIM($3)))
+            )
+          ORDER BY CASE WHEN m.app_user_id = $2 THEN 0 ELSE 1 END
+          LIMIT 1
+        )
+        RETURNING id
+      `, [address == null || String(address).trim() === '' ? null : String(address).trim(), userId, userResult.rows[0].email])
+      if (memberResult.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Member profile not found' })
+      }
+      await refreshMemberProfileComplete(pool, memberResult.rows[0].id)
+      console.info('[member-profile] address updated', {
+        userId,
+        memberId: memberResult.rows[0].id,
+      })
+    }
 
     res.json({
       success: true,
@@ -8845,7 +8873,7 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
   try {
     const userId = req.userId || req.memberId
     const familyMemberId = parseInt(req.params.id)
-    const { first_name, last_name, email, phone } = req.body
+    const { first_name, last_name, email, phone, address } = req.body
 
     // Check if user is an adult (has PARENT_GUARDIAN role)
     const hasParentRole = await userIsAdult(userId)
@@ -8901,6 +8929,10 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
         updateFields.push(`phone = $${paramCount++}`)
         updateValues.push(phone)
       }
+      if (address !== undefined) {
+        updateFields.push(`address = $${paramCount++}`)
+        updateValues.push(address == null || String(address).trim() === '' ? null : String(address).trim())
+      }
 
       if (updateFields.length > 0) {
         updateValues.push(familyMemberId)
@@ -8910,6 +8942,12 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
           WHERE id = $${paramCount}
         `, updateValues)
         await refreshMemberProfileComplete(pool, familyMemberId)
+        if (address !== undefined) {
+          console.info('[member-profile] family address updated', {
+            userId,
+            memberId: familyMemberId,
+          })
+        }
       }
     } else {
       // Update user (guardian)

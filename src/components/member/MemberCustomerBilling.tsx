@@ -6,6 +6,7 @@ import type {
   CustomerBillingEnrollment,
   CustomerBillingOverview,
 } from '../customerBilling/types'
+import { billingMonthAbbreviation } from '../customerBilling/format'
 
 export interface MemberBillingTransaction {
   entryKind: 'charge' | 'drop_in' | 'payment' | 'refund'
@@ -25,6 +26,7 @@ export interface MemberCustomerBillingData {
   canSeeFamily: boolean
   overview: CustomerBillingOverview | null
   transactions: MemberBillingTransaction[]
+  nextTransactionCursor: string | null
 }
 
 interface Props {
@@ -36,6 +38,9 @@ interface Props {
   onManagePayment: () => void
   onRefresh: () => void
   onEnroll: () => void
+  onLoadMoreTransactions: () => void
+  transactionsLoading: boolean
+  transactionsLoadingMore: boolean
   formatMoney: (cents: number) => string
 }
 
@@ -206,9 +211,17 @@ function EnrollmentTable({
 function TransactionTable({
   transactions,
   formatMoney,
+  loading,
+  loadingMore,
+  hasMore,
+  onLoadMore,
 }: {
   transactions: MemberBillingTransaction[]
   formatMoney: (cents: number) => string
+  loading: boolean
+  loadingMore: boolean
+  hasMore: boolean
+  onLoadMore: () => void
 }) {
   return (
     <div className="overflow-x-auto" style={{ contentVisibility: 'auto' }}>
@@ -236,9 +249,11 @@ function TransactionTable({
               <td className="px-4 py-3 text-right font-semibold text-gray-950">{formatMoney(transaction.runningBalanceCents)}</td>
             </tr>
           ))}
-          {transactions.length === 0 ? <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-500">No transactions have been recorded yet.</td></tr> : null}
+          {loading ? <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-500">Loading transactions…</td></tr> : null}
+          {!loading && transactions.length === 0 ? <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-500">No transactions have been recorded yet.</td></tr> : null}
         </tbody>
       </table>
+      {hasMore ? <div className="border-t border-gray-200 p-4 text-center"><button type="button" onClick={onLoadMore} disabled={loadingMore} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">{loadingMore ? 'Loading…' : 'Load more'}</button></div> : null}
     </div>
   )
 }
@@ -252,6 +267,9 @@ export default function MemberCustomerBilling({
   onManagePayment,
   onRefresh,
   onEnroll,
+  onLoadMoreTransactions,
+  transactionsLoading,
+  transactionsLoadingMore,
   formatMoney,
 }: Props) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
@@ -293,7 +311,7 @@ export default function MemberCustomerBilling({
 
         <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label="Outstanding balance" value={formatMoney(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges" />
-          <MetricCard label="Monthly recurring fee" value={formatMoney(overview.summary.monthlyRecurringCents)} detail={`${formatMoney(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
+          <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={formatMoney(overview.summary.monthlyRecurringCents)} detail={`${formatMoney(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
           <MetricCard label="Future credits" value={formatMoney(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
           <MetricCard label="Account balance" value={formatMoney(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${formatDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
           {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={onEnroll} />)}
@@ -323,7 +341,7 @@ export default function MemberCustomerBilling({
 
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>
-        <TransactionTable transactions={visibleTransactions} formatMoney={formatMoney} />
+        <TransactionTable transactions={visibleTransactions} formatMoney={formatMoney} loading={transactionsLoading} loadingMore={transactionsLoadingMore} hasMore={data?.nextTransactionCursor != null} onLoadMore={onLoadMoreTransactions} />
       </section>
     </div>
   )

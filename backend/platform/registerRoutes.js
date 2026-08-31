@@ -59,6 +59,7 @@ import {
   buildCustomerBillingOverview,
   ensureCustomerBillingAccount,
   listCustomerBillingTransactions,
+  listMemberCustomerBillingTransactions,
 } from '../billing/customerBillingQueries.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import {
@@ -120,6 +121,14 @@ function sanitizeCheckoutAnalytics(raw) {
 
 function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
+}
+
+function memberBillingReadV2Enabled() {
+  return process.env.MEMBER_BILLING_READ_V2 !== 'false'
+}
+
+export function canAccessMemberCustomerBilling(account, memberId) {
+  return Boolean(account) && Number(account.payer_member_id) === Number(memberId)
 }
 
 const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
@@ -2481,6 +2490,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/members/billing/customer-account', authMiddleware(pool, jwtSecret), async (req, res) => {
     try {
+      const startedAt = Date.now()
       const ctx = req.platformAuth
       const memberId = Number(ctx.user.member_id ?? ctx.user.id)
       const familyId = ctx.user.family_id == null ? null : Number(ctx.user.family_id)
@@ -2489,18 +2499,19 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       }
 
       const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
-      const canSeeFamily = Boolean(account) && Number(account.payer_member_id) === memberId
+      const canSeeFamily = canAccessMemberCustomerBilling(account, memberId)
       if (!account || !canSeeFamily) {
         return res.json({ success: true, data: { canSeeFamily: false, overview: null, transactions: [] } })
       }
 
-      const [overview, transactionPage] = await Promise.all([
-        buildCustomerBillingOverview(pool, {
-          familyId,
-          facilityId: ctx.user.facility_id ?? null,
-        }),
-        listCustomerBillingTransactions(pool, { accountId: account.id, limit: 500 }),
-      ])
+      const overview = await buildCustomerBillingOverview(pool, {
+        familyId,
+        facilityId: ctx.user.facility_id ?? null,
+        readMode: 'member',
+      })
+      const transactionPage = memberBillingReadV2Enabled()
+        ? { rows: [], nextCursor: null }
+        : await listCustomerBillingTransactions(pool, { accountId: account.id, limit: 500 })
       const transactions = transactionPage.rows.map((row) => ({
         entryKind: row.entryKind,
         entryType: row.entryType,
@@ -2520,11 +2531,63 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           canSeeFamily: true,
           overview: overview ? { ...overview, alerts: [] } : null,
           transactions,
+          // The pre-flag response intentionally remains a single legacy audit
+          // payload. Progressive paging is only enabled on the new read path.
+          nextTransactionCursor: null,
         },
+      })
+      console.info('[members] customer billing overview loaded', {
+        memberId,
+        accountId: Number(account.id),
+        durationMs: Date.now() - startedAt,
       })
     } catch (err) {
       console.error('[members] customer billing account:', err)
       res.status(500).json({ success: false, message: 'Failed to load the family billing account.' })
+    }
+  })
+
+  app.get('/api/members/billing/customer-account/transactions', authMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const startedAt = Date.now()
+      const ctx = req.platformAuth
+      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+      const familyId = ctx.user.family_id == null ? null : Number(ctx.user.family_id)
+      if (!familyId) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+
+      const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+      if (!canAccessMemberCustomerBilling(account, memberId)) {
+        return res.status(403).json({ success: false, message: 'Family billing details are available to the account payer.' })
+      }
+
+      const page = await listMemberCustomerBillingTransactions(pool, {
+        accountId: account.id,
+        cursor: typeof req.query.cursor === 'string' ? req.query.cursor : null,
+        limit: Math.min(50, Math.max(1, Number(req.query.limit) || 50)),
+      })
+      const rows = page.rows.map((row) => ({
+        entryKind: row.entryKind,
+        entryType: row.entryType,
+        refId: row.refId,
+        memberId: row.memberId,
+        memberName: row.memberName,
+        description: row.description,
+        billingMonths: row.billingMonths,
+        amountCents: row.amountCents,
+        occurredAt: row.occurredAt,
+        status: row.status,
+        runningBalanceCents: row.runningBalanceCents,
+      }))
+      res.json({ success: true, data: { rows, nextCursor: page.nextCursor } })
+      console.info('[members] customer billing transactions loaded', {
+        memberId,
+        accountId: Number(account.id),
+        rowCount: rows.length,
+        durationMs: Date.now() - startedAt,
+      })
+    } catch (err) {
+      console.error('[members] customer billing transactions:', err)
+      res.status(500).json({ success: false, message: 'Failed to load billing transactions.' })
     }
   })
 
@@ -3704,6 +3767,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           hiddenTabs: config.member.hiddenTabs,
           tabOrder: config.member.tabOrder,
           navLayout: config.member.navLayout,
+          stripeEnabled: isStripeEnabled(),
+          memberBillingReadV2: memberBillingReadV2Enabled(),
         },
       })
     } catch (err) {

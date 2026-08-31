@@ -3,9 +3,7 @@
  * or Stripe payments after a completed pending enrollment.
  */
 
-import { ensureBillingStripeLinksSchema, getStripeClient, recordEnrollmentStripePayment } from './stripeBilling.js'
-import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
-import { ensureBillingChargeSchema } from './billingChargeSchema.js'
+import { getStripeClient, recordEnrollmentStripePayment } from './stripeBilling.js'
 import { persistSignupCharges } from '../scheduling/persistSignupCharges.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
@@ -13,21 +11,11 @@ import {
   toUtcDateString,
 } from '../scheduling/membershipAnniversary.js'
 
-async function runMigrationFile(pool, relativePath) {
-  const fs = await import('fs')
-  const migrationPath = new URL(relativePath, import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-}
-
-async function ensureReconcileSchema(pool) {
-  await ensureBillingRecurringSchema(pool)
-  await ensureBillingChargeSchema(pool)
-  await ensureBillingStripeLinksSchema(pool)
-  try {
-    await runMigrationFile(pool, '../migrations/057_stripe_pending_enrollment.sql')
-  } catch (err) {
-    if (!/already exists/i.test(String(err.message))) throw err
-  }
+async function ensureReconcileSchema() {
+  // Reconciliation is called from member billing reads. Its tables are created
+  // by deploy-time migrations (046, 053–058, 768, and 770), never by a request.
+  // Keeping this compatibility hook avoids altering repair behavior while
+  // ensuring a cold process cannot execute schema DDL for a portal visit.
 }
 
 function parsePreview(snapshot) {

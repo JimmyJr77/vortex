@@ -318,14 +318,24 @@ export function buildLedgerFallback({ charges = [], payments = [], refunds = [] 
 /**
  * @param {import('pg').Pool} pool
  * @param {{ id:number, family_id:number }} account family_billing_account row
- * @param {{ memberScopeId?: number|null }} [options]
+ * @param {{ memberScopeId?: number|null, detailLevel?: 'full'|'summary' }} [options]
  */
-export async function buildBillingAccountView(pool, account, { memberScopeId = null } = {}) {
+export async function buildBillingAccountView(pool, account, {
+  memberScopeId = null,
+  detailLevel = 'full',
+} = {}) {
   const familyScope = memberScopeId == null
+  const includeDetail = detailLevel === 'full'
 
   if (familyScope) {
+    const reconciliationStartedAt = Date.now()
     try {
       await reconcileEnrollmentLedger(pool, account)
+      console.info('[billingAccountView] reconciliation completed', {
+        accountId: Number(account.id),
+        detailLevel,
+        durationMs: Date.now() - reconciliationStartedAt,
+      })
     } catch (err) {
       console.error('[billingAccountView] reconcileEnrollmentLedger:', err?.message ?? err, err?.code)
     }
@@ -375,17 +385,20 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   const charges = chargesRes.rows
   const chargesCents = charges.reduce((sum, c) => sum + Number(c.amount_cents ?? 0), 0)
 
+  let subscriptions = []
+  let rawSubscriptions = []
+  let subscriptionHistory = []
+  let recurringBreakpoints = []
   const subParams = [account.id]
   let subFilter = ''
   if (!familyScope) {
     subParams.push(memberScopeId)
     subFilter = ` AND s.member_id = $${subParams.length}`
   }
-
-  let subscriptions = []
-  let rawSubscriptions = []
-  let subscriptionHistory = []
   try {
+    // The summary needs active subscriptions to calculate credits and the next
+    // recurring period correctly. The cancelled history and breakpoint detail
+    // remain exclusive to the legacy/full account response.
     const subsRes = await pool.query(
       `
         SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
@@ -399,33 +412,31 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     rawSubscriptions = subsRes.rows
     subscriptions = rawSubscriptions.map(mapSubscription)
 
-    const historyRes = await pool.query(
-      `
-        SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
-        FROM billing_subscription s
-        LEFT JOIN member m ON m.id = s.member_id
-        WHERE s.family_billing_account_id = $1 AND s.status = 'cancelled' ${subFilter}
-        ORDER BY s.end_date DESC NULLS LAST, s.updated_at DESC, s.id DESC
-      `,
-      subParams,
-    )
-    subscriptionHistory = historyRes.rows.map(mapSubscription)
+    if (includeDetail) {
+      const historyRes = await pool.query(
+        `
+          SELECT s.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
+          FROM billing_subscription s
+          LEFT JOIN member m ON m.id = s.member_id
+          WHERE s.family_billing_account_id = $1 AND s.status = 'cancelled' ${subFilter}
+          ORDER BY s.end_date DESC NULLS LAST, s.updated_at DESC, s.id DESC
+        `,
+        subParams,
+      )
+      subscriptionHistory = historyRes.rows.map(mapSubscription)
+
+      recurringBreakpoints = await buildRecurringBreakpoints(pool, {
+        familyId: account.family_id,
+        subscriptions: rawSubscriptions,
+        charges,
+      })
+    }
   } catch (err) {
     logBillingQueryError('subscriptions', err)
     subscriptions = []
     rawSubscriptions = []
     subscriptionHistory = []
-  }
-
-  let recurringBreakpoints = []
-  try {
-    recurringBreakpoints = await buildRecurringBreakpoints(pool, {
-      familyId: account.family_id,
-      subscriptions: rawSubscriptions,
-      charges,
-    })
-  } catch (err) {
-    console.warn('[billingAccountView] recurring breakpoints:', err?.message ?? err)
+    recurringBreakpoints = []
   }
   const today = new Date()
   const currentPricingKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
@@ -468,7 +479,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   )
 
   let membershipRedemptions = []
-  try {
+  if (includeDetail) try {
     const redemptionParams = [account.family_id]
     let redemptionMemberFilter = ''
     if (!familyScope) {
@@ -567,15 +578,17 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
       refundsCents = 0
     }
 
-    try {
-      const ledgerRes = await pool.query(
-        `SELECT * FROM v_account_ledger WHERE family_billing_account_id = $1 ORDER BY occurred_at DESC, entry_kind DESC, ref_id DESC LIMIT 500`,
-        [account.id],
-      )
-      ledger = ledgerRes.rows.map(mapLedgerRow)
-    } catch (err) {
-      logBillingQueryError('v_account_ledger', err)
-      ledger = buildLedgerFallback({ charges, payments, refunds })
+    if (includeDetail) {
+      try {
+        const ledgerRes = await pool.query(
+          `SELECT * FROM v_account_ledger WHERE family_billing_account_id = $1 ORDER BY occurred_at DESC, entry_kind DESC, ref_id DESC LIMIT 500`,
+          [account.id],
+        )
+        ledger = ledgerRes.rows.map(mapLedgerRow)
+      } catch (err) {
+        logBillingQueryError('v_account_ledger', err)
+        ledger = buildLedgerFallback({ charges, payments, refunds })
+      }
     }
   }
 
@@ -601,15 +614,15 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
   ), 0)
 
   // Bundle balances + usage history for the scoped member(s).
-  const bundleParams = [account.family_id]
-  let bundleMemberFilter = ''
-  if (!familyScope) {
-    bundleParams.push(memberScopeId)
-    bundleMemberFilter = ` AND p.member_id = $${bundleParams.length}`
-  }
   let bundlePasses = []
   let bundleUsage = []
-  try {
+  if (includeDetail) try {
+    const bundleParams = [account.family_id]
+    let bundleMemberFilter = ''
+    if (!familyScope) {
+      bundleParams.push(memberScopeId)
+      bundleMemberFilter = ` AND p.member_id = $${bundleParams.length}`
+    }
     const bundlesRes = await pool.query(
       `
         SELECT p.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name
@@ -641,12 +654,12 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     bundleUsage = []
   }
 
-  const currentPeriod = buildCurrentPeriod({
+  const currentPeriod = includeDetail ? buildCurrentPeriod({
     charges,
     payments,
     subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
-  })
-  if (currentResolvedPricing) {
+  }) : null
+  if (currentPeriod && currentResolvedPricing) {
     const bySubscription = new Map(currentResolvedPricing.lines.map((line) => [Number(line.subscriptionId), line]))
     currentPeriod.recurringEnrollments = currentPeriod.recurringEnrollments.map((subscription) => {
       const line = bySubscription.get(Number(subscription.id))
@@ -682,12 +695,12 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     bundlePasses,
     bundleUsage,
     currentPeriod,
-    billingHistory: familyScope
+    billingHistory: includeDetail && familyScope
       ? buildBillingHistory({ charges, payments, months: 12 })
-      : buildBillingHistory({
+      : includeDetail ? buildBillingHistory({
           charges: charges.filter((c) => Number(c.member_id) === Number(memberScopeId)),
           payments: [],
           months: 12,
-        }),
+        }) : [],
   }
 }

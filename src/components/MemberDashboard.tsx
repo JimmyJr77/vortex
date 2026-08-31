@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
@@ -133,6 +133,7 @@ interface MemberApiRecord {
   athlete_type?: string
   profileComplete?: boolean
   mustChangePassword?: boolean
+  isFamilyPayer?: boolean
 }
 
 interface FamilyViewData {
@@ -364,9 +365,12 @@ export default function MemberDashboard({
   const [selectedFamilyMembersForFilter, setSelectedFamilyMembersForFilter] = useState<number[]>([])
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
   const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
+  const [billingPaymentsLoading, setBillingPaymentsLoading] = useState(false)
   const [billingAccount, setBillingAccount] = useState<BillingAccountSummary | null>(null)
   const [customerBilling, setCustomerBilling] = useState<MemberCustomerBillingData | null>(null)
   const [billingLoading, setBillingLoading] = useState(false)
+  const [customerTransactionsLoading, setCustomerTransactionsLoading] = useState(false)
+  const [customerTransactionsLoadingMore, setCustomerTransactionsLoadingMore] = useState(false)
   const [waivers, setWaivers] = useState<MemberWaiver[]>([])
   const [waiversLoading, setWaiversLoading] = useState(false)
   const [waiverSignature, setWaiverSignature] = useState('')
@@ -386,6 +390,13 @@ export default function MemberDashboard({
   const [hiddenMemberTabs, setHiddenMemberTabs] = useState<MemberTab[]>([])
   const [memberTabOrder, setMemberTabOrder] = useState<MemberTab[]>(NAV.map((item) => item.tab))
   const [memberNavLayout, setMemberNavLayout] = useState<PortalNavLayoutItem[]>(NAV.map((item) => ({ type: 'tab', key: item.tab })))
+  const [stripeEnabled, setStripeEnabled] = useState(false)
+  const [memberBillingReadV2, setMemberBillingReadV2] = useState(true)
+  const billingPaymentsLoadRef = useRef<Promise<void> | null>(null)
+  const billingPaymentsLoadedRef = useRef(false)
+  const billingLoadRef = useRef<Promise<void> | null>(null)
+  const billingLoadedModeRef = useRef<'payer' | 'nonpayer' | null>(null)
+  const transactionLoadRef = useRef<Promise<void> | null>(null)
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -727,7 +738,8 @@ export default function MemberDashboard({
             first_name: firstName,
             last_name: lastName,
             email: email || null,
-            phone: phone ? cleanPhoneNumber(phone) : null
+            phone: phone ? cleanPhoneNumber(phone) : null,
+            address: address || null
           })
         })
         
@@ -872,19 +884,12 @@ export default function MemberDashboard({
   }, [])
 
   useEffect(() => {
-    if (token) {
-      void fetchBillingStatements()
-    }
-  }, [token])
-
-  useEffect(() => {
     if (activeTab === 'home') {
       fetchEnrollments()
       loadClassesOffered()
     } else if (activeTab === 'classes') {
       fetchEnrollments()
       loadClassesOffered()
-      void fetchBillingStatements()
       if (token) {
         void fetchMemberMultiClassPasses(token)
           .then(setMultiClassPasses)
@@ -896,13 +901,13 @@ export default function MemberDashboard({
       fetchEnrollments() // Need enrollments for filtering
     } else if (activeTab === 'profile') {
       fetchEnrollments() // Need enrollments to display on profile
-      fetchBillingStatements() // Profile shows Payment History; load billing data here too
+      void fetchProfilePayments()
     } else if (activeTab === 'billing') {
-      fetchBillingStatements()
+      void fetchBillingStatements()
     } else if (activeTab === 'waivers') {
       fetchWaivers()
     }
-  }, [activeTab])
+  }, [activeTab, profileData?.id])
 
   const fetchProfileData = async () => {
     try {
@@ -1100,43 +1105,134 @@ export default function MemberDashboard({
     }
   }
 
-  const fetchBillingStatements = async () => {
+  const fetchProfilePayments = useCallback(async (force = false) => {
     if (!token) return
+    if (!force && billingPaymentsLoadedRef.current) return
+    if (billingPaymentsLoadRef.current) return billingPaymentsLoadRef.current
+    const task = (async () => {
+      setBillingPaymentsLoading(true)
+      try {
+        const response = await fetch(`${apiUrl}/api/members/billing/payments`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        })
+        if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+        const payload = await response.json()
+        setBillingPayments(payload.data ?? [])
+        billingPaymentsLoadedRef.current = true
+      } catch (error) {
+        console.error('Error fetching billing payments:', error)
+        setBillingPayments([])
+        billingPaymentsLoadedRef.current = false
+      } finally {
+        setBillingPaymentsLoading(false)
+      }
+    })()
+    billingPaymentsLoadRef.current = task
     try {
-      setBillingLoading(true)
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      }
-      const [accountResponse, paymentsResponse, customerBillingResponse] = await Promise.all([
-        fetch(`${apiUrl}/api/members/billing/account`, { headers }),
-        fetch(`${apiUrl}/api/members/billing/payments`, { headers }),
-        fetch(`${apiUrl}/api/members/billing/customer-account`, { headers }),
-      ])
-      if (!paymentsResponse.ok) throw new Error(`Backend returned ${paymentsResponse.status}`)
-      const paymentsData = await paymentsResponse.json()
-      setBillingPayments(paymentsData.data ?? [])
-      if (accountResponse.ok) {
-        const accountData = await accountResponse.json()
-        setBillingAccount(accountData.data ?? null)
-      } else {
-        setBillingAccount(null)
-      }
-      if (customerBillingResponse.ok) {
-        const customerBillingData = await customerBillingResponse.json()
-        setCustomerBilling(customerBillingData.data ?? null)
-      } else {
-        setCustomerBilling(null)
-      }
-    } catch (error) {
-      console.error('Error fetching billing data:', error)
-      setBillingPayments([])
-      setBillingAccount(null)
-      setCustomerBilling(null)
+      await task
     } finally {
-      setBillingLoading(false)
+      billingPaymentsLoadRef.current = null
     }
-  }
+  }, [apiUrl, token])
+
+  const fetchCustomerTransactions = useCallback(async (append = false) => {
+    if (!token || !profileData?.isFamilyPayer || !memberBillingReadV2) return
+    if (transactionLoadRef.current) return transactionLoadRef.current
+    const cursor = append ? customerBilling?.nextTransactionCursor ?? null : null
+    if (append && !cursor) return
+
+    const task = (async () => {
+      if (append) setCustomerTransactionsLoadingMore(true)
+      else setCustomerTransactionsLoading(true)
+      try {
+        const params = new URLSearchParams({ limit: '50' })
+        if (cursor) params.set('cursor', cursor)
+        const response = await fetch(`${apiUrl}/api/members/billing/customer-account/transactions?${params}`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        })
+        if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+        const payload = await response.json()
+        const page = payload.data ?? { rows: [], nextCursor: null }
+        setCustomerBilling((previous) => previous == null ? previous : {
+          ...previous,
+          transactions: append ? [...previous.transactions, ...(page.rows ?? [])] : (page.rows ?? []),
+          nextTransactionCursor: page.nextCursor ?? null,
+        })
+      } catch (error) {
+        console.error('Error fetching customer billing transactions:', error)
+      } finally {
+        if (append) setCustomerTransactionsLoadingMore(false)
+        else setCustomerTransactionsLoading(false)
+      }
+    })()
+    transactionLoadRef.current = task
+    try {
+      await task
+    } finally {
+      transactionLoadRef.current = null
+    }
+  }, [apiUrl, customerBilling?.nextTransactionCursor, memberBillingReadV2, profileData?.isFamilyPayer, token])
+
+  const fetchBillingStatements = useCallback(async (force = false) => {
+    if (!token || !profileData) return
+    const mode: 'payer' | 'nonpayer' = profileData.isFamilyPayer ? 'payer' : 'nonpayer'
+    if (force) billingPaymentsLoadedRef.current = false
+    if (!force && billingLoadedModeRef.current === mode) return
+    if (billingLoadRef.current) return billingLoadRef.current
+
+    const task = (async () => {
+      setBillingLoading(true)
+      try {
+        const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+        if (mode === 'payer' && memberBillingReadV2) {
+          const response = await fetch(`${apiUrl}/api/members/billing/customer-account`, { headers })
+          if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+          const payload = await response.json()
+          const data = payload.data ?? null
+          setCustomerBilling(data == null ? null : {
+            ...data,
+            transactions: [],
+            nextTransactionCursor: null,
+          })
+          setBillingAccount(null)
+          billingLoadedModeRef.current = mode
+          if (data?.overview) void fetchCustomerTransactions(false)
+          return
+        }
+
+        if (mode === 'payer') {
+          const [accountResponse, customerBillingResponse] = await Promise.all([
+            fetch(`${apiUrl}/api/members/billing/account`, { headers }),
+            fetch(`${apiUrl}/api/members/billing/customer-account`, { headers }),
+          ])
+          const accountData = accountResponse.ok ? await accountResponse.json() : null
+          const customerBillingData = customerBillingResponse.ok ? await customerBillingResponse.json() : null
+          setBillingAccount(accountData?.data ?? null)
+          setCustomerBilling(customerBillingData?.data ?? null)
+        } else {
+          const response = await fetch(`${apiUrl}/api/members/billing/account`, { headers })
+          if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+          const payload = await response.json()
+          setBillingAccount(payload.data ?? null)
+          setCustomerBilling(null)
+        }
+        billingLoadedModeRef.current = mode
+      } catch (error) {
+        console.error('Error fetching billing data:', error)
+        setBillingAccount(null)
+        setCustomerBilling(null)
+        billingLoadedModeRef.current = null
+      } finally {
+        setBillingLoading(false)
+      }
+    })()
+    billingLoadRef.current = task
+    try {
+      await task
+    } finally {
+      billingLoadRef.current = null
+    }
+  }, [apiUrl, fetchCustomerTransactions, memberBillingReadV2, profileData, token])
 
   const visibleNavEntries = useMemo(
     () => buildPortalNavRenderList(NAV, memberNavLayout, memberTabOrder, hiddenMemberTabs, (item) => item.tab),
@@ -1164,6 +1260,8 @@ export default function MemberDashboard({
         if (cancelled) return
         setHiddenMemberTabs(Array.isArray(json.data?.hiddenTabs) ? json.data.hiddenTabs : [])
         setMemberTabOrder(Array.isArray(json.data?.tabOrder) ? json.data.tabOrder : NAV.map((item) => item.tab))
+        setStripeEnabled(json.data?.stripeEnabled === true)
+        setMemberBillingReadV2(json.data?.memberBillingReadV2 !== false)
         setMemberNavLayout(
           Array.isArray(json.data?.navLayout) && json.data.navLayout.length > 0
             ? json.data.navLayout
@@ -1226,7 +1324,7 @@ export default function MemberDashboard({
             setEnrollmentConfirmMessage(
               'Annual membership purchased. Access is active for one year from today.',
             )
-            void fetchBillingStatements()
+            void fetchBillingStatements(true)
           } catch (err) {
             setEnrollmentConfirmError(
               err instanceof Error ? err.message : 'Membership payment is still processing.',
@@ -1311,7 +1409,7 @@ export default function MemberDashboard({
 
         if (result.status === 'none') {
           await fetchEnrollments(true)
-          await fetchBillingStatements()
+          await fetchBillingStatements(true)
           return
         }
 
@@ -1320,7 +1418,7 @@ export default function MemberDashboard({
           'Enrollment complete. Your classes and billing have been updated.',
         )
         await fetchEnrollments(true)
-        await fetchBillingStatements()
+        await fetchBillingStatements(true)
       } catch (err) {
         if (!cancelled) {
           clearEnrollmentReturnParams()
@@ -2207,7 +2305,7 @@ export default function MemberDashboard({
                   <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">
                     Card collection is currently handled externally. Reconciled payment records appear below.
                   </div>
-                  {billingLoading ? (
+                  {billingPaymentsLoading ? (
                     <div className="text-center py-8 text-gray-600">Loading payment history...</div>
                   ) : billingPayments.length === 0 ? (
                     <div className="py-8 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">No payments recorded yet.</div>
@@ -2310,13 +2408,14 @@ export default function MemberDashboard({
                     <MemberClassesOfferedEnroll
                       apiUrl={apiUrl}
                       memberToken={token}
-                      stripeEnabled={Boolean(billingAccount?.stripeEnabled)}
+                      stripeEnabled={stripeEnabled}
                       programs={classesOffered}
                       members={enrollableMembers}
                       defaultMemberId={Number(profileData.id)}
                       enrollments={enrollments}
                       onEnrolled={() => {
                         void fetchEnrollments()
+                        void fetchBillingStatements(true)
                         if (token) {
                           void fetchMemberMultiClassPasses(token)
                             .then(setMultiClassPasses)
@@ -2771,8 +2870,11 @@ export default function MemberDashboard({
                     portalLoading={portalLoading}
                     onPayNow={handlePayNow}
                     onManagePayment={handleManagePayment}
-                    onRefresh={() => void fetchBillingStatements()}
+                    onRefresh={() => void fetchBillingStatements(true)}
                     onEnroll={() => setActiveTab('classes')}
+                    onLoadMoreTransactions={() => void fetchCustomerTransactions(true)}
+                    transactionsLoading={customerTransactionsLoading}
+                    transactionsLoadingMore={customerTransactionsLoadingMore}
                     formatMoney={formatMoney}
                   />
                 ) : (

@@ -148,6 +148,7 @@ export interface CustomerBillingOverview {
     outstandingBalanceCents: number
     monthlyRecurringCents: number
     monthlyRecurringDiscountCents: number
+    monthlyRecurringPeriod: string
     futureCreditsCents: number
     paidThisMonthCents: number
     monthlyTotals: { grossCents: number; discountCents: number; netCents: number }

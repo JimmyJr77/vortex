@@ -2,8 +2,10 @@ import { buildBillingAccountView } from './billingAccountView.js'
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
 import {
+  addBillingMonths,
   adjustmentCoversPeriod,
   applyEnrollmentPriceAdjustment,
+  billingMonthInTimeZone,
   billingDateKey,
   billingMonthKey,
   mapPriceAdjustment,
@@ -468,6 +470,16 @@ export function earliestActiveNextBillDate(subscriptions = []) {
 }
 
 /**
+ * The recurring-fee card always represents the next calendar billing month.
+ * Do not infer this from next_bill_date: a scheduled cancellation clears that
+ * value even though the current-month enrollment remains visible.
+ */
+export function upcomingRecurringPricingMonth(asOf = new Date()) {
+  const currentMonth = billingMonthInTimeZone(asOf) ?? billingMonthKey(asOf)
+  return billingMonthKey(addBillingMonths(currentMonth, 1))
+}
+
+/**
  * Return the first period-aware recurring-pricing line for every enrollment.
  * Current enrollments appear in the current breakpoint; scheduled enrollments
  * first appear in their activation month.
@@ -496,7 +508,10 @@ export async function buildCustomerBillingOverview(pool, {
   familyId,
   facilityId,
   selectedMemberId = null,
+  readMode = 'admin',
 }) {
+  const startedAt = Date.now()
+  const memberRead = readMode === 'member'
   const account = await ensureCustomerBillingAccount(pool, familyId, facilityId)
   if (!account) return null
   const members = await loadFamilyMembers(pool, familyId)
@@ -515,7 +530,10 @@ export async function buildCustomerBillingOverview(pool, {
     monthlyInvoices,
   ] =
     await Promise.all([
-      buildBillingAccountView(pool, account, { memberScopeId: null }),
+      buildBillingAccountView(pool, account, {
+        memberScopeId: null,
+        detailLevel: 'summary',
+      }),
       Promise.all(
         members.map(async (member) => ({
           member,
@@ -571,22 +589,27 @@ export async function buildCustomerBillingOverview(pool, {
         if (error?.code === '42P01') return { rows: [] }
         throw error
       }),
-      pool.query(
-        `SELECT * FROM stripe_billing_alert
-         WHERE family_billing_account_id = $1 AND resolved_at IS NULL
-         ORDER BY CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END,
-                  created_at DESC`,
-        [account.id],
-      ).catch((error) => {
-        if (error?.code === '42P01') return { rows: [] }
-        throw error
-      }),
+      memberRead
+        ? Promise.resolve({ rows: [] })
+        : pool.query(
+            `SELECT * FROM stripe_billing_alert
+             WHERE family_billing_account_id = $1 AND resolved_at IS NULL
+             ORDER BY CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END,
+                      created_at DESC`,
+            [account.id],
+          ).catch((error) => {
+            if (error?.code === '42P01') return { rows: [] }
+            throw error
+          }),
       loadCustomerBillingAnnualMemberships(pool, {
         accountId: account.id,
         members,
       }),
       loadDefaultPaymentMethodSummary(account),
-      listHouseholdMonthlyInvoices(pool, account.id).catch((error) => {
+      listHouseholdMonthlyInvoices(pool, account.id, {
+        limit: memberRead ? 1 : 6,
+        includeLines: !memberRead,
+      }).catch((error) => {
         if (error?.code === '42P01') return []
         throw error
       }),
@@ -605,13 +628,18 @@ export async function buildCustomerBillingOverview(pool, {
     list.push(adjustment)
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
-  const currentMonth = billingMonthKey(new Date())
   const nextBillDate = earliestActiveNextBillDate(rawSubscriptions.rows)
-  const pricingMonth = nextBillDate ? billingMonthKey(nextBillDate) : currentMonth
+  const pricingMonth = upcomingRecurringPricingMonth()
+  const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId,
     periodKey: pricingMonth,
     subscriptions: rawSubscriptions.rows,
+  })
+  console.info('[customer-billing] pricing resolved', {
+    accountId: Number(account.id),
+    periodKey: pricingMonth,
+    durationMs: Date.now() - pricingStartedAt,
   })
   const displayPricingBySubscription = new Map(
     (displayPricing?.lines ?? []).map((line) => [Number(line.subscriptionId), line]),
@@ -789,7 +817,7 @@ export async function buildCustomerBillingOverview(pool, {
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
 
-  return {
+  const overview = {
     account: mapAccount(account),
     selectedMemberId: selectedMemberId == null ? null : Number(selectedMemberId),
     members,
@@ -799,8 +827,13 @@ export async function buildCustomerBillingOverview(pool, {
       refundsCents: view.refundsCents,
       balanceCents: view.balanceCents,
       outstandingBalanceCents: view.outstandingBalanceCents,
-      monthlyRecurringCents: view.monthlyRecurringCents,
-      monthlyRecurringDiscountCents: view.monthlyRecurringDiscountCents,
+      // The enrollment resolver evaluates the selected billing period's
+      // lifecycle rules, including cancellations effective on its first day.
+      // The older account snapshot is current-state data and would retain a
+      // class until its cancellation date passes.
+      monthlyRecurringCents: Number(displayPricing.netCents) || 0,
+      monthlyRecurringDiscountCents: Number(displayPricing.discountCents) || 0,
+      monthlyRecurringPeriod: pricingMonth,
       futureCreditsCents: view.futureCreditsCents,
       paidThisMonthCents: view.paidThisMonthCents,
       monthlyTotals: {
@@ -831,7 +864,7 @@ export async function buildCustomerBillingOverview(pool, {
               : { status: 'healthy', message: 'Local recurring prices are synchronized.' },
     },
     paymentMethod,
-    alerts: alertsResult.rows.map((row) => ({
+    alerts: memberRead ? [] : alertsResult.rows.map((row) => ({
       id: Number(row.id),
       type: row.alert_type,
       severity: row.severity,
@@ -842,11 +875,20 @@ export async function buildCustomerBillingOverview(pool, {
     enrollments,
     waitlists,
     annualMemberships,
-    subscriptions,
-    adjustments,
+    subscriptions: memberRead ? [] : subscriptions,
+    adjustments: memberRead ? [] : adjustments,
     monthlyInvoices,
     statements: [],
   }
+  console.info('[customer-billing] overview loaded', {
+    familyId: Number(familyId),
+    accountId: Number(account.id),
+    readMode,
+    memberCount: members.length,
+    enrollmentCount: enrollments.length,
+    durationMs: Date.now() - startedAt,
+  })
+  return overview
 }
 
 function encodeCursor(row) {
@@ -866,6 +908,24 @@ function decodeCursor(value) {
   } catch {
     return null
   }
+}
+
+function encodeMemberTransactionCursor(row) {
+  return Buffer.from(JSON.stringify({
+    occurredAt: row.occurred_at,
+    sortOrder: Number(row.sort_order),
+    refId: Number(row.ref_id),
+    // This is the balance immediately before the next (older) page. Carrying
+    // it lets the next page preserve the historical running balance without
+    // recalculating a window over the entire account audit.
+    runningBalanceCents: Number(row.running_balance_cents) - Number(row.balance_amount_cents),
+  })).toString('base64url')
+}
+
+function decodeMemberTransactionCursor(value) {
+  const parsed = decodeCursor(value)
+  if (!parsed || !Number.isFinite(Number(parsed.runningBalanceCents))) return null
+  return parsed
 }
 
 export async function listCustomerBillingTransactions(pool, {
@@ -1174,6 +1234,235 @@ export async function listCustomerBillingTransactions(pool, {
       }
     }),
     nextCursor: hasMore && rows.length > 0 ? encodeCursor(rows.at(-1)) : null,
+  }
+}
+
+/**
+ * Member-facing audit page.
+ *
+ * The admin audit enriches every candidate row with applications, discount
+ * attribution, and other operational metadata. The member portal renders only
+ * the columns below, so this path first selects a small, ordered ledger page
+ * and enriches the selected charge rows only. The cursor retains the balance
+ * before the next page; no full-history window function is needed after page 1.
+ */
+export async function listMemberCustomerBillingTransactions(pool, {
+  accountId,
+  cursor = null,
+  limit = 50,
+}) {
+  const decoded = decodeMemberTransactionCursor(cursor)
+  const pageSize = Math.min(50, Math.max(1, Number(limit) || 50))
+  let pageStartingBalanceCents = decoded ? Number(decoded.runningBalanceCents) : null
+
+  if (pageStartingBalanceCents == null) {
+    const balanceResult = await pool.query(
+      `SELECT
+         COALESCE((
+           SELECT SUM(c.amount_cents)::bigint
+           FROM billing_charge c
+           WHERE c.family_billing_account_id = $1
+             AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
+         ), 0)
+         - COALESCE((
+           SELECT SUM(p.amount_cents)::bigint
+           FROM billing_payment p
+           WHERE p.family_billing_account_id = $1
+         ), 0)
+         + COALESCE((
+           SELECT SUM(r.amount_cents)::bigint
+           FROM billing_refund r
+           WHERE r.family_billing_account_id = $1
+             AND COALESCE(r.external_status, 'succeeded') = 'succeeded'
+         ), 0) AS balance_cents`,
+      [accountId],
+    )
+    pageStartingBalanceCents = Number(balanceResult.rows[0]?.balance_cents ?? 0)
+  }
+
+  const result = await pool.query(
+    `WITH entries AS (
+       SELECT
+         'charge'::text AS entry_kind,
+         c.charge_type::text AS entry_type,
+         c.id::bigint AS ref_id,
+         c.member_id::bigint AS member_id,
+         c.description::text AS description,
+         c.amount_cents::int AS amount_cents,
+         c.amount_cents::int AS balance_amount_cents,
+         c.created_at::timestamptz AS occurred_at,
+         COALESCE(c.service_period_start, c.created_at::date)::date AS billing_month,
+         COALESCE(c.collection_status, 'none')::text AS entry_status,
+         3::int AS sort_order
+       FROM billing_charge c
+       WHERE c.family_billing_account_id = $1
+         AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
+
+       UNION ALL
+
+       SELECT
+         'drop_in'::text AS entry_kind,
+         'one_time'::text AS entry_type,
+         d.id::bigint AS ref_id,
+         d.member_id::bigint AS member_id,
+         CONCAT(COALESCE(NULLIF(TRIM(class_p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Drop-in'), ' · Drop-in')::text AS description,
+         d.amount_cents::int AS amount_cents,
+         0::int AS balance_amount_cents,
+         d.class_date::timestamptz AS occurred_at,
+         d.class_date::date AS billing_month,
+         CASE WHEN d.amount_cents = 0 THEN 'settled' ELSE COALESCE(d.status, 'recorded') END::text AS entry_status,
+         4::int AS sort_order
+       FROM drop_in_registration d
+       JOIN member drop_in_member ON drop_in_member.id = d.member_id
+       JOIN family_billing_account drop_in_account
+         ON drop_in_account.family_id = drop_in_member.family_id
+        AND drop_in_account.id = $1
+       JOIN scheduling_form sf ON sf.id = d.form_id
+       LEFT JOIN program class_p ON class_p.id = sf.program_id
+       WHERE d.status IN ('confirmed', 'attended')
+         AND NOT EXISTS (
+           SELECT 1
+           FROM billing_charge charged_drop_in
+           WHERE charged_drop_in.family_billing_account_id = drop_in_account.id
+             AND charged_drop_in.source_type = 'drop_in'
+             AND charged_drop_in.source_id = d.id::text
+         )
+
+       UNION ALL
+
+       SELECT
+         'payment'::text AS entry_kind,
+         'payment'::text AS entry_type,
+         p.id::bigint AS ref_id,
+         NULL::bigint AS member_id,
+         COALESCE(NULLIF(p.method, ''), 'Payment')::text AS description,
+         -p.amount_cents::int AS amount_cents,
+         -p.amount_cents::int AS balance_amount_cents,
+         p.paid_at::timestamptz AS occurred_at,
+         p.paid_at::date AS billing_month,
+         COALESCE(p.external_status, 'recorded')::text AS entry_status,
+         2::int AS sort_order
+       FROM billing_payment p
+       WHERE p.family_billing_account_id = $1
+
+       UNION ALL
+
+       SELECT
+         'refund'::text AS entry_kind,
+         'refund'::text AS entry_type,
+         r.id::bigint AS ref_id,
+         NULL::bigint AS member_id,
+         COALESCE(NULLIF(r.reason, ''), 'Refund')::text AS description,
+         r.amount_cents::int AS amount_cents,
+         CASE WHEN COALESCE(r.external_status, 'succeeded') = 'succeeded' THEN r.amount_cents ELSE 0 END::int AS balance_amount_cents,
+         r.created_at::timestamptz AS occurred_at,
+         r.created_at::date AS billing_month,
+         COALESCE(r.external_status, 'succeeded')::text AS entry_status,
+         1::int AS sort_order
+       FROM billing_refund r
+       WHERE r.family_billing_account_id = $1
+     ), page AS (
+       SELECT *
+       FROM entries
+       WHERE (
+         $2::timestamptz IS NULL
+         OR (occurred_at, sort_order, ref_id) < ($2::timestamptz, $3::int, $4::bigint)
+       )
+       ORDER BY occurred_at DESC, sort_order DESC, ref_id DESC
+       LIMIT $5
+     )
+     SELECT page.*,
+            COALESCE(
+              $6::bigint - SUM(page.balance_amount_cents) OVER (
+                ORDER BY page.occurred_at DESC, page.sort_order DESC, page.ref_id DESC
+                ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+              ),
+              $6::bigint
+            )::bigint AS running_balance_cents,
+            TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
+            CASE
+              WHEN page.entry_kind <> 'charge' THEN page.entry_status
+              WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(
+                0,
+                page.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)
+              ) AND page.amount_cents > 0 THEN 'paid'
+              WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
+              ELSE page.entry_status
+            END::text AS status
+     FROM page
+     LEFT JOIN member m ON m.id = page.member_id
+     LEFT JOIN LATERAL (
+       SELECT COALESCE(SUM(CASE
+         WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+         ELSE application.amount_cents
+       END), 0)::int AS applied_cents
+       FROM billing_payment_application application
+       WHERE page.entry_kind = 'charge'
+         AND application.billing_charge_id = page.ref_id
+     ) charge_applications ON TRUE
+     LEFT JOIN LATERAL (
+       SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents
+       FROM billing_charge adjustment
+       WHERE page.entry_kind = 'charge'
+         AND adjustment.related_charge_id = page.ref_id
+         AND adjustment.source_type = 'charge_adjustment'
+     ) charge_adjustments ON TRUE
+     LEFT JOIN LATERAL (
+       SELECT ARRAY_AGG(
+         DISTINCT COALESCE(charge.service_period_start, charge.created_at::date)
+         ORDER BY COALESCE(charge.service_period_start, charge.created_at::date)
+       ) AS billing_months
+       FROM billing_payment_application application
+       JOIN billing_charge charge ON charge.id = application.billing_charge_id
+       WHERE page.entry_kind = 'payment'
+         AND application.billing_payment_id = page.ref_id
+         AND application.application_kind = 'application'
+     ) payment_months ON TRUE
+     ORDER BY page.occurred_at DESC, page.sort_order DESC, page.ref_id DESC`,
+    [
+      accountId,
+      decoded?.occurredAt ?? null,
+      decoded?.sortOrder ?? null,
+      decoded?.refId ?? null,
+      pageSize + 1,
+      pageStartingBalanceCents,
+    ],
+  )
+
+  const hasMore = result.rows.length > pageSize
+  const rows = result.rows.slice(0, pageSize).map((row) => ({
+    entryKind: row.entry_kind,
+    entryType: row.entry_type,
+    refId: Number(row.ref_id),
+    memberId: row.member_id == null ? null : Number(row.member_id),
+    memberName: row.member_name ?? null,
+    description: row.description,
+    billingMonths: row.entry_kind === 'charge' && row.entry_type === 'recurring'
+      ? [billingMonthKey(row.billing_month ?? row.occurred_at)]
+      : row.entry_kind === 'payment'
+        ? (Array.isArray(row.billing_months) && row.billing_months.length > 0
+            ? row.billing_months.map(billingMonthKey)
+            : [billingMonthKey(row.billing_month ?? row.occurred_at)])
+        : [],
+    amountCents: Number(row.amount_cents),
+    occurredAt: row.occurred_at,
+    status: row.status,
+    runningBalanceCents: Number(row.running_balance_cents),
+    balanceAmountCents: Number(row.balance_amount_cents),
+    sortOrder: Number(row.sort_order),
+  }))
+
+  return {
+    rows,
+    nextCursor: hasMore && rows.length > 0
+      ? encodeMemberTransactionCursor({
+          occurred_at: rows.at(-1).occurredAt,
+          sort_order: rows.at(-1).sortOrder,
+          ref_id: rows.at(-1).refId,
+          running_balance_cents: rows.at(-1).runningBalanceCents,
+          balance_amount_cents: rows.at(-1).balanceAmountCents,
+        })
+      : null,
   }
 }
 

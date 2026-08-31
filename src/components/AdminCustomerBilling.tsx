@@ -23,7 +23,7 @@ import {
 import { adminApiRequest } from '../utils/api'
 import { CustomChargeModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
 import NewBillingEnrollmentModal from './customerBilling/NewBillingEnrollmentModal'
-import { billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
+import { billingMonthAbbreviation, billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
   BillingDiscountComponent,
@@ -1176,7 +1176,7 @@ export default function AdminCustomerBilling({
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
               <MetricCard label="Outstanding balance" value={money(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges" />
-              <MetricCard label="Monthly recurring fee" value={money(overview.summary.monthlyRecurringCents)} detail={`${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
+              <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={money(overview.summary.monthlyRecurringCents)} detail={`${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
               <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${calendarDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />

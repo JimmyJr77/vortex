@@ -8,9 +8,9 @@ let schemaEnsured = false
 
 export async function ensureHouseholdMonthlyInvoiceSchema(pool) {
   if (schemaEnsured) return
-  const fs = await import('fs')
-  const path = new URL('../migrations/774_household_monthly_invoicing.sql', import.meta.url)
-  await pool.query(fs.readFileSync(path, 'utf8'))
+  // Schema creation used to happen here on the first billing request. Migrations
+  // now own that responsibility (774_household_monthly_invoicing.sql), keeping
+  // request paths free of schema DDL and schema-probing round trips.
   schemaEnsured = true
 }
 
@@ -434,7 +434,7 @@ export async function applyHouseholdMonthlyInvoicePayment(pool, { invoice, payme
   return updated
 }
 
-export async function listHouseholdMonthlyInvoices(pool, accountId, { limit = 6 } = {}) {
+export async function listHouseholdMonthlyInvoices(pool, accountId, { limit = 6, includeLines = true } = {}) {
   await ensureHouseholdMonthlyInvoiceSchema(pool)
   const result = await pool.query(
     `SELECT invoice.*,
@@ -450,7 +450,7 @@ export async function listHouseholdMonthlyInvoices(pool, accountId, { limit = 6 
     [accountId, Math.max(1, Math.min(24, Number(limit) || 6))],
   )
   const invoiceIds = result.rows.map((row) => Number(row.id))
-  const lines = invoiceIds.length === 0
+  const lines = !includeLines || invoiceIds.length === 0
     ? []
     : await pool.query(
       `SELECT line.*, TRIM(CONCAT(member.first_name, ' ', member.last_name)) AS member_name

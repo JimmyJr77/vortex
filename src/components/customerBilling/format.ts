@@ -41,6 +41,13 @@ export function monthLabel(value: string | null | undefined): string {
   })
 }
 
+export function billingMonthAbbreviation(value: string | null | undefined): string | null {
+  if (!value) return null
+  const [year, month] = value.slice(0, 7).split('-').map(Number)
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) return null
+  return new Date(year, month - 1, 1).toLocaleDateString('en-US', { month: 'short' })
+}
+
 export function billingMonthLabel(value: string | null | undefined): string {
   if (!value) return 'Unknown billing month'
   const [year, month] = value.slice(0, 7).split('-').map(Number)

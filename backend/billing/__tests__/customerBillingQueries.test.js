@@ -6,8 +6,10 @@ import {
   effectiveEnrollmentNextBillDate,
   earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
+  upcomingRecurringPricingMonth,
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
+  listMemberCustomerBillingTransactions,
   recurringPricingForPeriod,
 } from '../customerBillingQueries.js'
 
@@ -276,6 +278,17 @@ test('monthly recurring display uses the breakpoint effective for the next bill'
   assert.equal(breakpoint.netCents, 21375)
 })
 
+test('monthly recurring fee always uses the next calendar month', () => {
+  assert.equal(
+    upcomingRecurringPricingMonth(new Date('2026-08-31T23:30:00.000Z')),
+    '2026-09',
+  )
+  assert.equal(
+    upcomingRecurringPricingMonth(new Date('2026-12-15T12:00:00.000Z')),
+    '2027-01',
+  )
+})
+
 test('scheduled enrollments use the first future period that contains their pricing line', () => {
   const bySignup = firstRecurringPricingLineBySignup([
     {
@@ -423,4 +436,90 @@ test('activity pagination binds one cursor tuple and the requested page limit', 
   assert.deepEqual(queryParams, [10895, 74, occurredAt, 44, 101])
   assert.equal(page.rows.length, 1)
   assert.equal(page.rows[0].relatedPaymentId, 85)
+})
+
+test('member transaction pages retain running balances through an opaque cursor', async () => {
+  const calls = []
+  const pool = {
+    async query(_text, params) {
+      calls.push(params)
+      if (calls.length === 1) return { rows: [{ balance_cents: 1000 }] }
+      if (calls.length === 2) {
+        return {
+          rows: [
+            {
+              entry_kind: 'charge', entry_type: 'recurring', ref_id: '3', member_id: '74', member_name: 'Alexis Barnett',
+              description: 'September tuition', amount_cents: 100, balance_amount_cents: 100,
+              occurred_at: '2026-09-03T12:00:00.000Z', billing_month: '2026-09-01', status: 'unpaid', sort_order: 3,
+              running_balance_cents: 1000,
+            },
+            {
+              entry_kind: 'charge', entry_type: 'recurring', ref_id: '2', member_id: '74', member_name: 'Alexis Barnett',
+              description: 'August tuition', amount_cents: 200, balance_amount_cents: 200,
+              occurred_at: '2026-08-03T12:00:00.000Z', billing_month: '2026-08-01', status: 'unpaid', sort_order: 3,
+              running_balance_cents: 900,
+            },
+            {
+              entry_kind: 'charge', entry_type: 'recurring', ref_id: '1', member_id: '74', member_name: 'Alexis Barnett',
+              description: 'July tuition', amount_cents: 300, balance_amount_cents: 300,
+              occurred_at: '2026-07-03T12:00:00.000Z', billing_month: '2026-07-01', status: 'unpaid', sort_order: 3,
+              running_balance_cents: 700,
+            },
+          ],
+        }
+      }
+      return {
+        rows: [{
+          entry_kind: 'charge', entry_type: 'recurring', ref_id: '1', member_id: '74', member_name: 'Alexis Barnett',
+          description: 'July tuition', amount_cents: 300, balance_amount_cents: 300,
+          occurred_at: '2026-07-03T12:00:00.000Z', billing_month: '2026-07-01', status: 'unpaid', sort_order: 3,
+          running_balance_cents: 700,
+        }],
+      }
+    },
+  }
+
+  const first = await listMemberCustomerBillingTransactions(pool, { accountId: 10895, limit: 2 })
+  assert.equal(first.rows.length, 2)
+  assert.equal(first.rows[0].runningBalanceCents, 1000)
+  assert.equal(first.rows[1].runningBalanceCents, 900)
+  assert.ok(first.nextCursor)
+
+  const cursor = JSON.parse(Buffer.from(first.nextCursor, 'base64url').toString('utf8'))
+  assert.deepEqual(cursor, {
+    occurredAt: '2026-08-03T12:00:00.000Z',
+    sortOrder: 3,
+    refId: 2,
+    runningBalanceCents: 700,
+  })
+
+  const second = await listMemberCustomerBillingTransactions(pool, {
+    accountId: 10895,
+    cursor: first.nextCursor,
+    limit: 2,
+  })
+  assert.equal(second.rows[0].runningBalanceCents, 700)
+  assert.deepEqual(calls[2], [10895, cursor.occurredAt, cursor.sortOrder, cursor.refId, 3, 700])
+})
+
+test('member transaction pages never request or return more than 50 rows', async () => {
+  let pageQueryParams = []
+  const rows = Array.from({ length: 51 }, (_, index) => ({
+    entry_kind: 'charge', entry_type: 'recurring', ref_id: String(100 - index), member_id: '74', member_name: 'Alexis Barnett',
+    description: 'Tuition', amount_cents: 100, balance_amount_cents: 100,
+    occurred_at: `2026-08-${String(31 - index).padStart(2, '0')}T12:00:00.000Z`, billing_month: '2026-08-01',
+    status: 'unpaid', sort_order: 3, running_balance_cents: 10000 - index * 100,
+  }))
+  const pool = {
+    async query(_text, params) {
+      if (params.length === 1) return { rows: [{ balance_cents: 10000 }] }
+      pageQueryParams = params
+      return { rows }
+    },
+  }
+
+  const page = await listMemberCustomerBillingTransactions(pool, { accountId: 10895, limit: 1000 })
+  assert.equal(pageQueryParams[4], 51)
+  assert.equal(page.rows.length, 50)
+  assert.ok(page.nextCursor)
 })
