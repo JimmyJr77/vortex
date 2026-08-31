@@ -17,6 +17,7 @@ import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/Membe
 import { enrollmentClassHeading } from '../utils/enrollmentDisplayLine'
 import MemberHomePanel from './member/MemberHomePanel'
 import MemberBillingPanel from './member/MemberBillingPanel'
+import MemberCustomerBilling, { type MemberCustomerBillingData } from './member/MemberCustomerBilling'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../utils/notificationNavigation'
@@ -364,6 +365,7 @@ export default function MemberDashboard({
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
   const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
   const [billingAccount, setBillingAccount] = useState<BillingAccountSummary | null>(null)
+  const [customerBilling, setCustomerBilling] = useState<MemberCustomerBillingData | null>(null)
   const [billingLoading, setBillingLoading] = useState(false)
   const [waivers, setWaivers] = useState<MemberWaiver[]>([])
   const [waiversLoading, setWaiversLoading] = useState(false)
@@ -1106,9 +1108,10 @@ export default function MemberDashboard({
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
-      const [accountResponse, paymentsResponse] = await Promise.all([
+      const [accountResponse, paymentsResponse, customerBillingResponse] = await Promise.all([
         fetch(`${apiUrl}/api/members/billing/account`, { headers }),
         fetch(`${apiUrl}/api/members/billing/payments`, { headers }),
+        fetch(`${apiUrl}/api/members/billing/customer-account`, { headers }),
       ])
       if (!paymentsResponse.ok) throw new Error(`Backend returned ${paymentsResponse.status}`)
       const paymentsData = await paymentsResponse.json()
@@ -1119,10 +1122,17 @@ export default function MemberDashboard({
       } else {
         setBillingAccount(null)
       }
+      if (customerBillingResponse.ok) {
+        const customerBillingData = await customerBillingResponse.json()
+        setCustomerBilling(customerBillingData.data ?? null)
+      } else {
+        setCustomerBilling(null)
+      }
     } catch (error) {
       console.error('Error fetching billing data:', error)
       setBillingPayments([])
       setBillingAccount(null)
+      setCustomerBilling(null)
     } finally {
       setBillingLoading(false)
     }
@@ -2753,15 +2763,29 @@ export default function MemberDashboard({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <MemberBillingPanel
-                  billingAccount={billingAccount}
-                  billingLoading={billingLoading}
-                  payNowLoading={payNowLoading}
-                  portalLoading={portalLoading}
-                  onPayNow={handlePayNow}
-                  onManagePayment={handleManagePayment}
-                  formatMoney={formatMoney}
-                />
+                {customerBilling?.overview ? (
+                  <MemberCustomerBilling
+                    data={customerBilling}
+                    loading={billingLoading}
+                    payNowLoading={payNowLoading}
+                    portalLoading={portalLoading}
+                    onPayNow={handlePayNow}
+                    onManagePayment={handleManagePayment}
+                    onRefresh={() => void fetchBillingStatements()}
+                    onEnroll={() => setActiveTab('classes')}
+                    formatMoney={formatMoney}
+                  />
+                ) : (
+                  <MemberBillingPanel
+                    billingAccount={billingAccount}
+                    billingLoading={billingLoading}
+                    payNowLoading={payNowLoading}
+                    portalLoading={portalLoading}
+                    onPayNow={handlePayNow}
+                    onManagePayment={handleManagePayment}
+                    formatMoney={formatMoney}
+                  />
+                )}
               </motion.div>
             )}
 

@@ -8,6 +8,7 @@ interface CapturedRequests {
   refunds: Array<Record<string, unknown>>
   refundKeys: string[]
   retryCount: number
+  newEnrollments?: Array<Record<string, unknown>>
 }
 
 const failedAdjustment = {
@@ -300,6 +301,76 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       await json({ notifications: [], unreadCount: 0 })
       return
     }
+    if (url.pathname === '/api/admin/scheduling/forms') {
+      await json([{
+        id: 900,
+        title: 'Saturday Tumbling',
+        description: 'Development tumbling for intermediate athletes.',
+        startDate: '2026-09-05',
+        endDate: '2026-12-19',
+        signupFields: [],
+        mandateWaiver: false,
+        isActive: true,
+        programDisplayName: 'Tumbling',
+        classDisplayName: 'Saturday Tumbling',
+      }])
+      return
+    }
+    if (url.pathname === '/api/admin/scheduling/forms/900') {
+      await json({
+        id: 900,
+        title: 'Saturday Tumbling',
+        description: 'Development tumbling for intermediate athletes.',
+        startDate: '2026-09-05',
+        endDate: '2026-12-19',
+        signupFields: [],
+        mandateWaiver: false,
+        isActive: true,
+        programDisplayName: 'Tumbling',
+        classDisplayName: 'Saturday Tumbling',
+        slotGroups: [{
+          id: 901,
+          formId: 900,
+          scheduleMode: 'day',
+          maxParticipants: 12,
+          signupCount: 3,
+          spotsRemaining: 9,
+          isFull: false,
+          activeStart: '2026-09-05',
+          activeEnd: '2026-12-19',
+          datesTbd: false,
+          isActive: true,
+          occurrences: [{
+            id: 902,
+            slotGroupId: 901,
+            formId: 900,
+            scheduleMode: 'day',
+            weekLetter: null,
+            dayOfWeek: 6,
+            dayName: 'Saturday',
+            specificDate: null,
+            startTime: '10:00 AM',
+            endTime: '11:00 AM',
+            maxParticipants: 12,
+            signupCount: 3,
+            spotsRemaining: 9,
+            isFull: false,
+            activeStart: '2026-09-05',
+            activeEnd: '2026-12-19',
+            datesTbd: false,
+            isActive: true,
+          }],
+        }],
+        timeSlots: [],
+        schedulePreview: { weekLetter: '', days: [], specificDates: [] },
+      })
+      return
+    }
+    if (url.pathname === '/api/admin/scheduling/signups' && request.method() === 'POST') {
+      captured.newEnrollments?.push(request.postDataJSON() as Record<string, unknown>)
+      await json({ id: 903, status: 'confirmed' }, 201)
+      return
+    }
     if (url.pathname === '/api/admin/members') {
       await json([{
         id: 11,
@@ -410,6 +481,33 @@ async function findRiveraAccount(page: Page) {
 }
 
 test.describe('Account Billing & Enrollments administration', () => {
+  test('adds a family enrollment only after showing its billing-account impact', async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0, newEnrollments: [] }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+
+    await page.getByRole('button', { name: 'New Enrollment', exact: true }).click()
+    await expect(page.getByRole('dialog', { name: 'Add family enrollment' })).toBeVisible()
+    await page.getByLabel('Family member').selectOption('11')
+    await page.getByLabel('Enrollment start date').fill('2026-09-01')
+    await page.getByPlaceholder('Search classes…').fill('Saturday')
+    await page.getByRole('button', { name: /Saturday Tumbling/ }).click()
+    await page.getByRole('button', { name: /Saturday · 10:00 AM–11:00 AM/ }).click()
+    await page.getByRole('button', { name: 'Review addition' }).click()
+
+    await expect(page.getByText('This will change the billing account for Jordan Rivera.')).toBeVisible()
+    await page.getByRole('button', { name: 'Yes, add enrollment' }).click()
+    await expect(page.getByText('Jordan Rivera was added to Saturday Tumbling. The billing account has been refreshed.')).toBeVisible()
+    expect(captured.newEnrollments).toEqual([{
+      formId: 900,
+      slotGroupId: 901,
+      timeSlotId: 902,
+      memberId: 11,
+      enrollmentStartDate: '2026-09-01',
+      sendEmails: true,
+    }])
+  })
+
   test('opens the selected Vortex Account directly in Account Billing & Enrollments', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)

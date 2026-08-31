@@ -55,6 +55,11 @@ import {
 import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
 import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
+import {
+  buildCustomerBillingOverview,
+  ensureCustomerBillingAccount,
+  listCustomerBillingTransactions,
+} from '../billing/customerBillingQueries.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import {
   notifyPaymentReceipt,
@@ -2472,6 +2477,55 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         stripeEnabled: process.env.STRIPE_ENABLED === 'true',
       },
     })
+  })
+
+  app.get('/api/members/billing/customer-account', authMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+      const familyId = ctx.user.family_id == null ? null : Number(ctx.user.family_id)
+      if (!familyId) {
+        return res.json({ success: true, data: { canSeeFamily: false, overview: null, transactions: [] } })
+      }
+
+      const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+      const canSeeFamily = Boolean(account) && Number(account.payer_member_id) === memberId
+      if (!account || !canSeeFamily) {
+        return res.json({ success: true, data: { canSeeFamily: false, overview: null, transactions: [] } })
+      }
+
+      const [overview, transactionPage] = await Promise.all([
+        buildCustomerBillingOverview(pool, {
+          familyId,
+          facilityId: ctx.user.facility_id ?? null,
+        }),
+        listCustomerBillingTransactions(pool, { accountId: account.id, limit: 500 }),
+      ])
+      const transactions = transactionPage.rows.map((row) => ({
+        entryKind: row.entryKind,
+        entryType: row.entryType,
+        refId: row.refId,
+        memberId: row.memberId,
+        memberName: row.memberName,
+        description: row.description,
+        billingMonths: row.billingMonths,
+        amountCents: row.amountCents,
+        occurredAt: row.occurredAt,
+        status: row.status,
+        runningBalanceCents: row.runningBalanceCents,
+      }))
+      res.json({
+        success: true,
+        data: {
+          canSeeFamily: true,
+          overview: overview ? { ...overview, alerts: [] } : null,
+          transactions,
+        },
+      })
+    } catch (err) {
+      console.error('[members] customer billing account:', err)
+      res.status(500).json({ success: false, message: 'Failed to load the family billing account.' })
+    }
   })
 
   app.post('/api/members/billing/checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {

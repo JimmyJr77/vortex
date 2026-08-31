@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { CustomChargeModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
+import NewBillingEnrollmentModal from './customerBilling/NewBillingEnrollmentModal'
 import { billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
   BillingActivity,
@@ -374,6 +375,7 @@ function EnrollmentSection({
   onChangePrice,
   onRetrySync,
   onRevoke,
+  onNewEnrollment,
 }: {
   enrollments: CustomerBillingEnrollment[]
   waitlists: CustomerBillingEnrollment[]
@@ -381,17 +383,23 @@ function EnrollmentSection({
   onChangePrice: (enrollment: CustomerBillingEnrollment) => void
   onRetrySync: (adjustment: PriceAdjustment) => void
   onRevoke: (adjustment: PriceAdjustment) => void
+  onNewEnrollment: () => void
 }) {
+  const [enrollmentsOpen, setEnrollmentsOpen] = useState(true)
+
   return (
     <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <details open>
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:hidden">
+      <div className="flex items-center justify-between gap-4 px-5 py-4">
           <div>
             <h2 className="text-lg font-bold text-gray-950">Current & upcoming enrollments</h2>
             <p className="text-sm text-gray-500">Every billable class, effective price, and scheduled change.</p>
           </div>
-          <span className="flex items-center gap-2 text-sm font-semibold text-gray-600">{enrollments.length} enrollments <ChevronDown className="h-4 w-4" /></span>
-        </summary>
+          <div className="flex shrink-0 items-center gap-2">
+            <button type="button" onClick={onNewEnrollment} disabled={!canManage} title={canManage ? 'Add a family enrollment' : 'Billing management permission is required'} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"><Plus className="h-4 w-4" /> New Enrollment</button>
+            <button type="button" onClick={() => setEnrollmentsOpen((open) => !open)} aria-expanded={enrollmentsOpen} aria-label={`${enrollmentsOpen ? 'Collapse' : 'Expand'} current and upcoming enrollments`} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"><ChevronDown className={`h-4 w-4 transition-transform ${enrollmentsOpen ? '' : '-rotate-90'}`} /></button>
+          </div>
+      </div>
+      {enrollmentsOpen ? (
         <div className="border-t border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1180px] text-sm">
@@ -496,7 +504,7 @@ function EnrollmentSection({
             </table>
           </div>
         </div>
-      </details>
+      ) : null}
       {waitlists.length > 0 ? (
         <details className="border-t border-gray-200">
           <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 marker:hidden"><span>Waitlists · non-billable</span><span className="flex items-center gap-2">{waitlists.length}<ChevronDown className="h-4 w-4" /></span></summary>
@@ -662,6 +670,7 @@ export default function AdminCustomerBilling({
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
   const [refundPayment, setRefundPayment] = useState<BillingTransaction | null>(null)
   const [contactDraft, setContactDraft] = useState<ContactDraft>(EMPTY_CONTACT)
+  const [newEnrollmentOpen, setNewEnrollmentOpen] = useState(false)
 
   const canManage = access.isMasterAdmin || access.permissions.includes('billing.manage')
   const canManageContact = access.isMasterAdmin || access.permissions.includes('family_billing.manage')
@@ -1209,7 +1218,7 @@ export default function AdminCustomerBilling({
             {overview.alerts.length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.length})</div><div className="space-y-1">{overview.alerts.map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="shrink-0 text-xs">{localDate(alert.createdAt)}</span></div>)}</div></div> : null}
           </section>
 
-          <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} />
+          <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} onNewEnrollment={() => setNewEnrollmentOpen(true)} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
@@ -1223,6 +1232,7 @@ export default function AdminCustomerBilling({
       {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
       {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.balanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
+      {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
       {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}
 
       {saving ? <div className="fixed bottom-5 right-5 z-[210] inline-flex items-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-xl"><Loader2 className="h-4 w-4 animate-spin" /> Updating billing account…</div> : null}
