@@ -1133,7 +1133,10 @@ export default function FamilySignupWizard({
     if (!isMinorStart) {
       const allWaiversAlreadySigned = waivers.length > 0
         && waivers.every((w) => w.is_required === false || w.acceptance_id != null)
-      if (!allWaiversAlreadySigned) {
+      const hasUnsignedSelectedWaivers = checkedTemplateIds.some((templateId) =>
+        waivers.some((waiver) => waiver.id === templateId && waiver.acceptance_id == null),
+      )
+      if (!allWaiversAlreadySigned || hasUnsignedSelectedWaivers) {
         const waiverError = validateWaiverSigning({
           waivers,
           checkedTemplateIds,

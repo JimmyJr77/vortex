@@ -90,7 +90,8 @@ By enrolling in any program at Vortex Athletics, the client acknowledges that th
   {
     waiverType: 'MEDIA_RELEASE',
     name: 'Media, Photography, Video, and Social Media Consent and Release',
-    version: '1.0',
+    version: '1.1',
+    isRequired: false,
     body: `VORTEX ATHLETICS LLC
 MEDIA, PHOTOGRAPHY, VIDEO, AND SOCIAL MEDIA CONSENT, RELEASE, AND WAIVER
 
@@ -122,7 +123,7 @@ Vortex Athletics may use the Media by itself or together with graphics, music, c
 
 I understand that the Vortex Athletics experience includes documenting athlete development, demonstrating instruction, recognizing progress, celebrating accomplishments, communicating team and program culture, building community, and sharing the Vortex experience with current and prospective families. Photography, video, and social-media storytelling are integrated components of Vortex Athletics programming and events, rather than a separate service.
 
-Media may be created during live instruction, practices, performances, competitions, group activities, and events. Because these activities frequently involve multiple athletes, coaches, families, and spectators, Vortex cannot reliably separate every individual or incidental appearance from participation or attendance. Accordingly, Vortex Athletics does not offer a completely media-free version of its programs or events; cannot guarantee that a Covered Person will be excluded from photographs, videos, livestreams, background footage, or group images; and makes acceptance of this Agreement a condition of enrollment and participation in Vortex Athletics programming and attendance in areas or at events where Vortex media activities take place, to the extent permitted by law.
+Media may be created during live instruction, practices, performances, competitions, group activities, and events. This Agreement is optional and is not a condition of enrollment or participation. If consent is not provided, Vortex Athletics will make reasonable efforts to avoid intentionally capturing or using the Covered Person in future promotional Media after the enrollment record has been updated. Because Media is often created during live group activities and events, Vortex cannot guarantee that a Covered Person will never appear incidentally in background footage, group images, livestreams, or Media created by third parties.
 
 5. Respectful and Athlete-Centered Media Standards
 
@@ -154,7 +155,7 @@ This release does not apply to conduct that cannot legally be waived, a use that
 
 This Agreement applies to Media captured while a Covered Person participates in or attends Vortex Athletics programming or events. The authorization remains effective indefinitely for Media already captured, created, published, distributed, archived, or incorporated into existing materials, to the fullest extent permitted by law.
 
-Vortex may consider a written request concerning future use of a particular item when the request raises a genuine safety, dignity, or privacy concern. This courtesy process does not create a general right to pre-approve, veto, or withdraw previously authorized Media, and Vortex cannot guarantee removal of materials already printed, distributed, shared, archived, or copied by third parties. Because media creation is integrated into Vortex programming, a legally effective withdrawal of consent regarding future capture may affect the Covered Person's ability to participate in or attend programs and events where media capture occurs.
+Vortex may consider a written request concerning future use of a particular item when the request raises a genuine safety, dignity, or privacy concern. This courtesy process does not create a general right to pre-approve, veto, or withdraw previously authorized Media, and Vortex cannot guarantee removal of materials already printed, distributed, shared, archived, or copied by third parties.
 
 11. Maryland Law; Severability
 

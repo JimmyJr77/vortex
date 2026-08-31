@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BadgeDollarSign,
   CalendarDays,
@@ -19,8 +19,24 @@ interface MemberRow {
   missingScheduleCount?: number
 }
 
+interface MediaReleaseOptOutRow {
+  memberId: number
+  memberName: string
+  familyName: string | null
+  isActiveStudent: boolean
+  activeClassCount: number
+  activeClasses: Array<{
+    className: string
+    scheduleMode: string | null
+    specificDate: string | null
+    dayOfWeek: number | null
+    startTime: string | null
+    endTime: string | null
+  }>
+}
+
 interface DashboardData {
-  permissions: { canViewEnrollment: boolean; canViewBilling: boolean }
+  permissions: { canViewEnrollment: boolean; canViewBilling: boolean; canViewWaivers: boolean }
   generatedAt: string
   enrollment: null | {
     activeAthletes: number
@@ -40,6 +56,7 @@ interface DashboardData {
     withoutCard: MemberRow[]
     withoutMonthlyBilling: MemberRow[]
   }
+  mediaReleaseOptOuts: MediaReleaseOptOutRow[] | null
 }
 
 function money(cents: number) {
@@ -144,6 +161,74 @@ function RevenueBars({ rows }: { rows: NonNullable<DashboardData['billing']>['re
   )
 }
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+function formatScheduleTime(value: string | null) {
+  if (!value) return null
+  const [hours, minutes] = value.slice(0, 5).split(':').map(Number)
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return value
+  const period = hours >= 12 ? 'PM' : 'AM'
+  const displayHours = hours % 12 || 12
+  return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`
+}
+
+function formatScheduleDate(value: string) {
+  const date = new Date(`${value.slice(0, 10)}T00:00:00`)
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function scheduleLabel(enrollment: MediaReleaseOptOutRow['activeClasses'][number]) {
+  const day = enrollment.scheduleMode === 'date' && enrollment.specificDate
+    ? formatScheduleDate(enrollment.specificDate)
+    : enrollment.dayOfWeek != null ? DAY_NAMES[enrollment.dayOfWeek] : null
+  const start = formatScheduleTime(enrollment.startTime)
+  const end = formatScheduleTime(enrollment.endTime)
+  const time = start && end ? `${start}–${end}` : start || end
+  return [day, time].filter(Boolean).join(' · ') || 'Schedule unavailable'
+}
+
+function MediaReleaseOptOutList({ rows }: { rows: MediaReleaseOptOutRow[] }) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
+        <div>
+          <h3 className="font-bold text-gray-950">Media release not signed</h3>
+          <p className="mt-1 text-xs text-gray-500">Members without an accepted active media release. Current students are listed first.</p>
+        </div>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${rows.length ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>{rows.length}</span>
+      </div>
+      <div className="max-h-[34rem] divide-y divide-gray-100 overflow-y-auto">
+        {rows.map((row) => (
+          <div key={row.memberId} className="px-5 py-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p>
+                <p className="truncate text-xs text-gray-500">{row.familyName || 'No family name'}</p>
+              </div>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${row.isActiveStudent ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
+                {row.isActiveStudent ? 'Active student' : 'Not currently enrolled'}
+              </span>
+            </div>
+            {row.activeClasses.length > 0 ? (
+              <ul className="mt-3 space-y-1.5 text-xs text-gray-700">
+                {row.activeClasses.map((enrollment, index) => (
+                  <li key={`${enrollment.className}-${enrollment.dayOfWeek}-${enrollment.startTime}-${index}`}>
+                    <span className="font-semibold text-gray-900">{enrollment.className}</span>
+                    <span className="text-gray-500"> · {scheduleLabel(enrollment)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="mt-3 text-xs text-gray-500">No current class enrollment.</p>}
+          </div>
+        ))}
+        {rows.length === 0 ? <p className="px-5 py-8 text-center text-sm text-gray-500">Every member has an accepted media release on file.</p> : null}
+      </div>
+    </section>
+  )
+}
+
 export default function AdminDashboard({
   onOpenCustomerBilling,
   onOpenEnrollments,
@@ -154,8 +239,11 @@ export default function AdminDashboard({
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const loadInFlight = useRef(false)
 
   const load = useCallback(async () => {
+    if (loadInFlight.current) return
+    loadInFlight.current = true
     setLoading(true)
     try {
       const response = await adminApiRequest('/api/admin/dashboard')
@@ -167,15 +255,21 @@ export default function AdminDashboard({
       setError(caught instanceof Error ? caught.message : 'Unable to load the Admin Dashboard.')
     } finally {
       setLoading(false)
+      loadInFlight.current = false
     }
   }, [])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load()
+    const refreshTimer = window.setInterval(() => { void load() }, 60_000)
+    return () => window.clearInterval(refreshTimer)
+  }, [load])
 
   const attentionCount = useMemo(() => (
     (data?.enrollment?.withoutMembership.length ?? 0) +
     (data?.billing?.withoutCard.length ?? 0) +
-    (data?.billing?.withoutMonthlyBilling.length ?? 0)
+    (data?.billing?.withoutMonthlyBilling.length ?? 0) +
+    (data?.mediaReleaseOptOuts?.length ?? 0)
   ), [data])
 
   return (
@@ -195,13 +289,15 @@ export default function AdminDashboard({
       {loading && !data ? <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-8 text-sm text-gray-500 shadow-sm"><Loader2 className="h-5 w-5 animate-spin" /> Loading account health…</div> : null}
 
       {data ? <>
-        {!data.permissions.canViewEnrollment || !data.permissions.canViewBilling ? (
+        {!data.permissions.canViewEnrollment || !data.permissions.canViewBilling || !data.permissions.canViewWaivers ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            {!data.permissions.canViewEnrollment && !data.permissions.canViewBilling
+            {!data.permissions.canViewEnrollment && !data.permissions.canViewBilling && !data.permissions.canViewWaivers
               ? 'Your role can open the Dashboard, but does not currently have enrollment or billing read access.'
               : !data.permissions.canViewEnrollment
-                ? 'Enrollment cards are hidden for your role.'
-                : 'Billing cards and exception queues are hidden for your role.'}
+                ? 'Enrollment cards and the media-release roster are hidden for your role.'
+                : !data.permissions.canViewBilling
+                  ? 'Billing cards and exception queues are hidden for your role.'
+                  : 'The media-release roster is hidden for your role.'}
           </div>
         ) : null}
 
@@ -210,7 +306,7 @@ export default function AdminDashboard({
             <StatCard label="Active athletes" value={data.enrollment.activeAthletes} detail={`${data.enrollment.activeClasses} active class enrollments`} icon={Users} />
             <StatCard label="Enrollment movement" value={`+${data.enrollment.gainedThisMonth} / −${data.enrollment.lostThisMonth}`} detail="Started / ended this calendar month" icon={UserCheck} tone="blue" />
             <StatCard label="Annual memberships" value={data.billing?.activeAnnualMemberships ?? '—'} detail="Individual paid-through memberships" icon={CalendarDays} tone="green" />
-            <StatCard label="Needs attention" value={attentionCount} detail="Membership, payment method, or billing schedule exceptions" icon={ShieldAlert} tone={attentionCount ? 'amber' : 'green'} />
+            <StatCard label="Needs attention" value={attentionCount} detail="Media release, membership, payment method, or billing schedule exceptions" icon={ShieldAlert} tone={attentionCount ? 'amber' : 'green'} />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1.35fr_1fr]">
@@ -231,6 +327,7 @@ export default function AdminDashboard({
               <div className="max-h-80 divide-y divide-gray-100 overflow-y-auto">{data.enrollment.byAthlete.map((row) => <div key={row.memberId} className="flex items-center justify-between gap-3 px-5 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p><p className="truncate text-xs text-gray-500">{row.familyName || 'No family name'}</p></div><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{row.classCount} classes</span></div>)}{data.enrollment.byAthlete.length === 0 ? <p className="px-5 py-8 text-center text-sm text-gray-500">No active athletes.</p> : null}</div>
             </section>
           </div>
+          {data.mediaReleaseOptOuts ? <MediaReleaseOptOutList rows={data.mediaReleaseOptOuts} /> : null}
         </> : null}
 
         {data.billing ? <>

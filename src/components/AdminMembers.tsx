@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, Fragment } from 'react'
 import { motion } from 'framer-motion'
-import { Archive, X, UserPlus, Edit2, Search, Users, Loader2, DollarSign, ChevronDown } from 'lucide-react'
+import { Archive, ArrowDownUp, CreditCard, X, UserPlus, Edit2, Search, Users, Loader2, ChevronDown } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
-import MemberPricingModal from './admin/MemberPricingModal'
 import MemberAccountPanel from './admin/memberAccount/MemberAccountPanel'
 import type { MemberAccountTab } from './admin/memberAccount/types'
 import FamilySignupWizard from './signup/FamilySignupWizard'
@@ -93,6 +92,32 @@ type AccountViewFilter =
   | 'member_athletes_youth'
   | 'member_athletes_adult'
 
+type MemberSortKey =
+  | 'lastName'
+  | 'firstName'
+  | 'roles'
+  | 'derivedAttributes'
+  | 'status'
+  | 'familyName'
+  | 'familyId'
+
+type MemberSort = {
+  key: MemberSortKey
+  direction: 'ascending' | 'descending'
+}
+
+const ACCOUNT_TABLE_COLUMNS: Array<{ key: MemberSortKey; label: string }> = [
+  { key: 'lastName', label: 'Last name' },
+  { key: 'firstName', label: 'First name' },
+  { key: 'roles', label: 'Roles' },
+  { key: 'derivedAttributes', label: 'Derived attributes' },
+  { key: 'status', label: 'Status' },
+  { key: 'familyName', label: 'Family Name' },
+  { key: 'familyId', label: 'Fam #' },
+]
+
+const memberSortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+
 const ACCOUNT_VIEW_FILTER_OPTIONS: Array<{ value: AccountViewFilter; label: string }> = [
   { value: 'all', label: 'View all' },
   { value: 'master_admins', label: 'View Master Admins' },
@@ -138,6 +163,43 @@ function memberDerivedAttributesDisplay(member: UnifiedMember): string {
   return attrs.length > 0 ? attrs.join(', ') : '—'
 }
 
+function memberSortValue(member: UnifiedMember, key: MemberSortKey): string | number | null {
+  switch (key) {
+    case 'lastName':
+      return member.lastName
+    case 'firstName':
+      return member.firstName
+    case 'roles':
+      return memberRolesDisplay(member)
+    case 'derivedAttributes':
+      return memberDerivedAttributesDisplay(member)
+    case 'status':
+      return member.isActive ? 'Active' : 'Archived'
+    case 'familyName':
+      return member.familyName ?? null
+    case 'familyId':
+      return member.familyId ?? null
+  }
+}
+
+function compareMembers(left: UnifiedMember, right: UnifiedMember, sort: MemberSort): number {
+  const leftValue = memberSortValue(left, sort.key)
+  const rightValue = memberSortValue(right, sort.key)
+  const leftIsEmpty = leftValue == null || leftValue === ''
+  const rightIsEmpty = rightValue == null || rightValue === ''
+
+  if (leftIsEmpty || rightIsEmpty) {
+    if (leftIsEmpty && rightIsEmpty) return 0
+    return leftIsEmpty ? 1 : -1
+  }
+
+  const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
+    ? leftValue - rightValue
+    : memberSortCollator.compare(String(leftValue), String(rightValue))
+
+  return sort.direction === 'ascending' ? comparison : -comparison
+}
+
 function matchesAccountViewFilter(member: UnifiedMember, filter: AccountViewFilter): boolean {
   switch (filter) {
     case 'all':
@@ -161,15 +223,19 @@ function matchesAccountViewFilter(member: UnifiedMember, filter: AccountViewFilt
   }
 }
 
-export default function AdminMembers() {
+interface AdminMembersProps {
+  onOpenBilling?: (familyId: number, memberId: number) => void
+}
+
+export default function AdminMembers({ onOpenBilling }: AdminMembersProps) {
   // Unified members state
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [memberSearchQuery, setMemberSearchQuery] = useState('')
   const [accountViewFilter, setAccountViewFilter] = useState<AccountViewFilter>('all')
   const [showArchivedMembers, setShowArchivedMembers] = useState(false)
+  const [memberSort, setMemberSort] = useState<MemberSort | null>(null)
   
-  const [pricingMember, setPricingMember] = useState<UnifiedMember | null>(null)
   const [seedingDevMembers, setSeedingDevMembers] = useState(false)
 
   const [showFamilySignupWizard, setShowFamilySignupWizard] = useState(false)
@@ -310,9 +376,22 @@ export default function AdminMembers() {
     setExpandedTab(tab)
   }
 
+  const toggleMemberSort = (key: MemberSortKey) => {
+    setMemberSort((current) => (
+      current?.key === key
+        ? { key, direction: current.direction === 'ascending' ? 'descending' : 'ascending' }
+        : { key, direction: 'ascending' }
+    ))
+  }
+
   // Edit unified member handler
   const handleEditUnifiedMember = async (member: UnifiedMember) => {
     openAccountEditWizard(member.id)
+  }
+
+  const openMemberBilling = (member: UnifiedMember) => {
+    if (member.familyId == null) return
+    onOpenBilling?.(member.familyId, member.id)
   }
   
   // Effects
@@ -423,6 +502,9 @@ export default function AdminMembers() {
               (showArchivedMembers ? !m.isActive : m.isActive) &&
               matchesAccountViewFilter(m, accountViewFilter),
           )
+          const sortedMembers = memberSort
+            ? [...filteredMembers].sort((left, right) => compareMembers(left, right, memberSort))
+            : filteredMembers
 
           if (filteredMembers.length === 0) {
             return (
@@ -435,24 +517,33 @@ export default function AdminMembers() {
           return (
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden min-w-0 max-w-full">
               <div className="overflow-x-auto overscroll-x-contain">
-                <table className="text-sm border-collapse min-w-[1200px] w-full">
+                <table className="text-sm border-collapse min-w-[900px] w-full">
                 <thead>
                   <tr className="border-b border-gray-200 text-left text-gray-600">
-                    <th className={`${memberThClass} w-8`} aria-label="Expand" />
-                    <th className={memberThClass}>Last name</th>
-                    <th className={memberThClass}>First name</th>
-                    <th className={memberThClass}>Roles</th>
-                    <th className={memberThClass}>Derived attributes</th>
-                    <th className={memberThClass}>Username</th>
-                    <th className={memberThClass}>Email</th>
-                    <th className={memberThClass}>Phone</th>
-                    <th className={memberThClass}>Status</th>
-                    <th className={memberThClass}>Family</th>
+                    <th className={`${memberThClass} w-8 pl-2`} aria-label="Expand" />
+                    {ACCOUNT_TABLE_COLUMNS.map(({ key, label }) => {
+                      const isSorted = memberSort?.key === key
+                      return (
+                        <th key={key} className={memberThClass} aria-sort={isSorted ? memberSort.direction : 'none'}>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 text-left hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red focus-visible:ring-offset-2 rounded"
+                            onClick={() => toggleMemberSort(key)}
+                          >
+                            {label}
+                            <ArrowDownUp className={`h-3.5 w-3.5 ${isSorted ? 'text-vortex-red' : 'text-gray-400'}`} aria-hidden="true" />
+                            <span className="sr-only">
+                              {isSorted ? `, sorted ${memberSort.direction}` : ', not sorted'}
+                            </span>
+                          </button>
+                        </th>
+                      )
+                    })}
                     <th className={`${memberThClass} w-0`}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMembers.map((member) => {
+                  {sortedMembers.map((member) => {
                     const isExpanded = expandedMemberId === member.id
                     return (
                       <Fragment key={member.id}>
@@ -462,7 +553,7 @@ export default function AdminMembers() {
                           isExpanded ? 'bg-blue-50/60' : 'hover:bg-gray-50/80'
                         } ${!member.isActive ? 'bg-gray-50/50' : ''}`}
                       >
-                        <td className={`${memberTdClass} w-8`}>
+                        <td className={`${memberTdClass} w-8 pl-2`}>
                           <ChevronDown
                             className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                           />
@@ -471,9 +562,6 @@ export default function AdminMembers() {
                         <td className={`${memberTdClass} whitespace-nowrap`}>{member.firstName}</td>
                         <td className={`${memberTdClass} whitespace-nowrap`}>{memberRolesDisplay(member)}</td>
                         <td className={`${memberTdClass} whitespace-nowrap`}>{memberDerivedAttributesDisplay(member)}</td>
-                        <td className={`${memberTdClass} whitespace-nowrap`}>{member.username || '—'}</td>
-                        <td className={`${memberTdClass} whitespace-nowrap`}>{member.email || '—'}</td>
-                        <td className={`${memberTdClass} whitespace-nowrap`}>{member.phone || '—'}</td>
                         <td className={memberTdClass}>
                           <span
                             className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
@@ -485,26 +573,19 @@ export default function AdminMembers() {
                             {member.isActive ? 'Active' : 'Archived'}
                           </span>
                         </td>
-                        <td className={`${memberTdClass} whitespace-nowrap`}>
-                          {member.familyName ? (
-                            <span>
-                              {member.familyName}
-                              {member.familyId ? ` (#${member.familyId})` : ''}
-                            </span>
-                          ) : (
-                            '—'
-                          )}
-                        </td>
+                        <td className={`${memberTdClass} whitespace-nowrap`}>{member.familyName || '—'}</td>
+                        <td className={`${memberTdClass} whitespace-nowrap`}>{member.familyId ?? '—'}</td>
                         <td className={`${memberTdClass} w-0 whitespace-nowrap`} onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-0.5">
                             <button
                               type="button"
-                              className={`${memberIconBtn} text-emerald-700 hover:bg-emerald-50`}
-                              title="Registrations & pricing"
-                              aria-label="Registrations and pricing"
-                              onClick={() => setPricingMember(member)}
+                              className={`${memberIconBtn} text-vortex-red hover:bg-red-50`}
+                              title={member.familyId == null ? 'No family billing account' : 'Open Account Billing & Enrollments'}
+                              aria-label={`Open ${member.firstName} ${member.lastName}'s Account Billing & Enrollments`}
+                              disabled={member.familyId == null}
+                              onClick={() => openMemberBilling(member)}
                             >
-                              <DollarSign className="w-4 h-4" />
+                              <CreditCard className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
@@ -531,7 +612,7 @@ export default function AdminMembers() {
                       </tr>
                       {isExpanded && (
                         <tr key={`${member.id}-panel`} className="border-b border-gray-200">
-                          <td colSpan={11} className="p-0">
+                          <td colSpan={8} className="p-0">
                             <MemberAccountPanel
                               memberId={member.id}
                               memberName={`${member.firstName} ${member.lastName}`.trim()}
@@ -552,13 +633,6 @@ export default function AdminMembers() {
         })()}
       </motion.div>
 
-      {pricingMember && (
-        <MemberPricingModal
-          memberId={pricingMember.id}
-          memberLabel={`${pricingMember.firstName} ${pricingMember.lastName}`.trim()}
-          onClose={() => setPricingMember(null)}
-        />
-      )}
       {(showFamilySignupWizard || showAccountEditWizard) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
           <div className="relative bg-white rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 shadow-xl">

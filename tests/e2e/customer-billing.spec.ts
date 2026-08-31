@@ -300,6 +300,22 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       await json({ notifications: [], unreadCount: 0 })
       return
     }
+    if (url.pathname === '/api/admin/members') {
+      await json([{
+        id: 11,
+        firstName: 'Jordan',
+        lastName: 'Rivera',
+        status: 'active',
+        isActive: true,
+        familyId: 42,
+        familyName: 'Rivera Household',
+        roles: [{ id: 'member-athlete', role: 'MEMBER_ATHLETE' }],
+        enrollments: [],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }])
+      return
+    }
     if (url.pathname === '/api/admin/billing/cancellation-requests') {
       await json([])
       return
@@ -381,10 +397,10 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
   await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible()
   await page.evaluate(() => {
     window.dispatchEvent(new CustomEvent('vortex:navigate-notification', {
-      detail: { portal: 'admin', group: 'pricingBilling', section: 'customerBilling' },
+      detail: { portal: 'admin', group: 'accounts', section: 'customerBilling' },
     }))
   })
-  await expect(page.getByRole('heading', { name: 'Customer Billing', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
 }
 
 async function findRiveraAccount(page: Page) {
@@ -393,7 +409,20 @@ async function findRiveraAccount(page: Page) {
   await expect(page.getByRole('heading', { name: 'Rivera Household' })).toBeVisible()
 }
 
-test.describe('Customer Billing administration', () => {
+test.describe('Account Billing & Enrollments administration', () => {
+  test('opens the selected Vortex Account directly in Account Billing & Enrollments', async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+    await openCustomerBilling(page, captured)
+
+    await page.getByRole('button', { name: 'Vortex Accounts', exact: true }).click()
+    await expect(page.getByRole('heading', { name: /Vortex Accounts/ })).toBeVisible()
+    await page.getByRole('button', { name: "Open Jordan Rivera's Account Billing & Enrollments" }).click()
+
+    await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
+    await expect(page.getByText('Family #42 · Billing account #7')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
+  })
+
   test('opens an exact family ID directly at the household level', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
@@ -404,15 +433,14 @@ test.describe('Customer Billing administration', () => {
     expect(captured.searchQueries).toContain('42')
   })
 
-  test('opens beside Pricing and Billing and renders a complete member-filtered household account', async ({ page }) => {
+  test('opens after Vortex Accounts and renders a complete member-filtered household account', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     const consoleErrors: string[] = []
     page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
     await openCustomerBilling(page, captured)
 
-    await expect(page.getByRole('button', { name: 'Pricing', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Customer Billing', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Billing', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Vortex Accounts', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
     await findRiveraAccount(page)
 
     expect(captured.searchQueries).toContain('555-010-2040')

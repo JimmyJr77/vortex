@@ -677,10 +677,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         'scheduling.view',
       ].some((permission) => ctx.permissions.includes(permission))
       const canViewBilling = ctx.isMasterAdmin || ctx.permissions.includes('billing.view')
+      const canViewWaivers = ctx.isMasterAdmin || ctx.permissions.includes('waivers.view')
       const data = await getAdminDashboard(pool, {
         facilityId: ctx.user.facility_id,
         canViewEnrollment,
         canViewBilling,
+        canViewWaivers,
       })
       res.json({ success: true, data })
     } catch (error) {
@@ -2164,7 +2166,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(400).json({ success: false, message: 'name, version, and body are required.' })
     }
     const waiverType = req.body?.waiverType ?? req.body?.waiver_type ?? null
-    const isRequired = req.body?.isRequired !== false && req.body?.is_required !== false
+    const isRequired = waiverType === 'MEDIA_RELEASE'
+      ? false
+      : req.body?.isRequired !== false && req.body?.is_required !== false
     const created = await pool.query(
       `
         INSERT INTO waiver_template (

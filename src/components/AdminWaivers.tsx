@@ -188,7 +188,11 @@ export default function AdminWaivers() {
             <select
               className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
               value={form.waiverType}
-              onChange={(e) => setForm((prev) => ({ ...prev, waiverType: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({
+                ...prev,
+                waiverType: e.target.value,
+                isRequired: e.target.value === 'MEDIA_RELEASE' ? false : prev.isRequired,
+              }))}
             >
               {WAIVER_TYPE_OPTIONS.map((option) => (
                 <option key={option.value || 'other'} value={option.value}>{option.label}</option>
@@ -218,8 +222,9 @@ export default function AdminWaivers() {
               type="checkbox"
               checked={form.isRequired}
               onChange={(e) => setForm((prev) => ({ ...prev, isRequired: e.target.checked }))}
+              disabled={form.waiverType === 'MEDIA_RELEASE'}
             />
-            Required for compliance
+            Required for compliance{form.waiverType === 'MEDIA_RELEASE' ? ' (media releases are always optional)' : ''}
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input

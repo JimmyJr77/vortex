@@ -3,19 +3,14 @@ import { Loader2 } from 'lucide-react'
 import { adminApiRequest } from '../../../utils/api'
 import MemberDetailsTab from './MemberDetailsTab'
 import MemberAccountSecurityTab from './MemberAccountSecurityTab'
-import MemberEnrollmentsTab from './MemberEnrollmentsTab'
 import MemberStaffNotesTab from './MemberStaffNotesTab'
-import MemberBillingTab from './MemberBillingTab'
 import MemberMissedClassesTab from './MemberMissedClassesTab'
 import type { MemberAccountTab, MemberDetailData, MemberFamilyData, MemberRole } from './types'
 
 const TABS: Array<{ id: MemberAccountTab; label: string }> = [
   { id: 'details', label: 'Member Details' },
   { id: 'security', label: 'Account Security' },
-  { id: 'enrollments', label: 'Enrollments' },
   { id: 'notes', label: 'Conversations & Comments' },
-  { id: 'current-bill', label: 'Current Bill' },
-  { id: 'billing-history', label: 'Billing History' },
   { id: 'missed-classes', label: 'Missed Classes' },
 ]
 
@@ -114,22 +109,7 @@ export default function MemberAccountPanel({
         <>
           {activeTab === 'details' && <MemberDetailsTab member={member} familyData={familyData} />}
           {activeTab === 'security' && <MemberAccountSecurityTab memberId={memberId} />}
-          {activeTab === 'enrollments' && (
-            <MemberEnrollmentsTab
-              memberId={memberId}
-              memberName={memberName}
-              familyId={member.familyId}
-              familyData={familyData}
-              enrollments={member.enrollments ?? []}
-            />
-          )}
           {activeTab === 'notes' && <MemberStaffNotesTab memberId={memberId} />}
-          {activeTab === 'current-bill' && (
-            <MemberBillingTab familyId={member.familyId} view="current" />
-          )}
-          {activeTab === 'billing-history' && (
-            <MemberBillingTab familyId={member.familyId} view="history" />
-          )}
           {activeTab === 'missed-classes' && <MemberMissedClassesTab memberId={memberId} />}
         </>
       ) : null}

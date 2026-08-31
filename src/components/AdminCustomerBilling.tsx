@@ -622,7 +622,20 @@ function ActivityPanel({ rows, hasMore, loading, onLoadMore }: { rows: BillingAc
   )
 }
 
-export default function AdminCustomerBilling() {
+interface BillingAccountTarget {
+  familyId: number
+  memberId: number
+}
+
+interface AdminCustomerBillingProps {
+  accountTarget?: BillingAccountTarget | null
+  onAccountTargetConsumed?: () => void
+}
+
+export default function AdminCustomerBilling({
+  accountTarget = null,
+  onAccountTargetConsumed,
+}: AdminCustomerBillingProps) {
   const [access, setAccess] = useState<AccessState>({ isMasterAdmin: false, permissions: [] })
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
@@ -792,6 +805,12 @@ export default function AdminCustomerBilling() {
     setDirectFamilyId(null)
     void loadFamily(directFamilyId, null)
   }, [directFamilyId, loadFamily])
+
+  useEffect(() => {
+    if (accountTarget == null) return
+    onAccountTargetConsumed?.()
+    void loadFamily(accountTarget.familyId, accountTarget.memberId)
+  }, [accountTarget, loadFamily, onAccountTargetConsumed])
 
   const selectSearchResult = (result: CustomerBillingSearchResult) => {
     setQuery('')
@@ -1121,7 +1140,7 @@ export default function AdminCustomerBilling() {
     <div className="space-y-6 pb-12">
       <div className="rounded-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-red-950 p-6 text-white shadow-xl">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200"><WalletCards className="h-4 w-4" /> Pricing & Billing</div><h1 className="text-3xl font-black tracking-tight">Customer Billing</h1><p className="mt-2 max-w-2xl text-sm text-gray-300">Search an individual, then see their household’s enrollment pricing, recurring charges, transactions, refunds, and complete account activity in one place.</p></div>
+          <div><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200"><WalletCards className="h-4 w-4" /> Pricing & Billing</div><h1 className="text-3xl font-black tracking-tight">Account Billing &amp; Enrollments</h1><p className="mt-2 max-w-2xl text-sm text-gray-300">Search an individual, then see their household’s enrollment pricing, recurring charges, transactions, refunds, and complete account activity in one place.</p></div>
           <div className="relative w-full max-w-2xl">
             <label htmlFor="customer-billing-search" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-300">Find a customer or family</label>
             <div className="flex rounded-xl bg-white shadow-lg focus-within:ring-4 focus-within:ring-red-500/30"><Search className="ml-4 mt-3.5 h-5 w-5 text-gray-400" /><input id="customer-billing-search" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void performSearch(query.trim()) }} className="min-w-0 flex-1 rounded-xl px-3 py-3 text-gray-950 outline-none" placeholder="Name, email, phone, or family ID" autoComplete="off" />{searching ? <Loader2 className="mr-4 mt-3.5 h-5 w-5 animate-spin text-gray-400" /> : null}</div>
@@ -1161,7 +1180,7 @@ export default function AdminCustomerBilling() {
                   <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
                   <div>
                     <strong>Stripe has not confirmed the recurring prices shown on this account.</strong>
-                    <p className="mt-1 text-amber-800">The Customer Billing total is calculated locally. Until synchronization succeeds, Stripe may retain an older amount. Errors shown below are technical details from the last attempt.</p>
+                    <p className="mt-1 text-amber-800">The account billing total is calculated locally. Until synchronization succeeds, Stripe may retain an older amount. Errors shown below are technical details from the last attempt.</p>
                   </div>
                 </div>
                 {canManage && retryableSyncAdjustments.length > 0 ? (

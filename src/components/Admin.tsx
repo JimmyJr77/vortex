@@ -93,6 +93,11 @@ interface AccessContext {
   userId?: number | null
 }
 
+interface BillingAccountTarget {
+  familyId: number
+  memberId: number
+}
+
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
@@ -109,7 +114,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
   { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
   { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
-  { id: 'customerBilling', label: 'Customer Billing', permission: 'billing.view' },
+  { id: 'customerBilling', label: 'Account Billing & Enrollments', permission: 'billing.view' },
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
@@ -143,12 +148,12 @@ const GROUPS: GroupDef[] = [
   { id: 'opportunityResearch', label: 'Opportunities', icon: Target, sections: ['opportunities'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'customerBilling', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
-  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'customerBilling', 'billing'] },
+  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
   { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
   { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
@@ -174,6 +179,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const [accessLoading, setAccessLoading] = useState(true)
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
   const [messagesMaximized, setMessagesMaximized] = useState(false)
+  const [billingAccountTarget, setBillingAccountTarget] = useState<BillingAccountTarget | null>(null)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -254,6 +260,11 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     setActiveTab(tab)
     setActiveGroup(groupForSection(tab))
   }, [])
+
+  const openMemberBilling = useCallback((familyId: number, memberId: number) => {
+    setBillingAccountTarget({ familyId, memberId })
+    goToSection('customerBilling')
+  }, [goToSection])
 
   const adminFetch = useCallback(async <T,>(endpoint: string, options: RequestInit = {}): Promise<T> => {
     const res = await adminApiRequest(endpoint, options)
@@ -379,7 +390,12 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           </div>
         )
       case 'customerBilling':
-        return <AdminCustomerBilling />
+        return (
+          <AdminCustomerBilling
+            accountTarget={billingAccountTarget}
+            onAccountTargetConsumed={() => setBillingAccountTarget(null)}
+          />
+        )
       case 'waivers':
         return <AdminWaivers />
       case 'insurance':
@@ -433,7 +449,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'admins':
         return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
       case 'membership':
-        return <AdminMembers />
+        return <AdminMembers onOpenBilling={openMemberBilling} />
       case 'messages':
         return (
           <AdminMessagesPanel

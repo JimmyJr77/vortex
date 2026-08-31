@@ -247,26 +247,144 @@ async function billingDashboard(pool, facilityId, now) {
   }
 }
 
+async function mediaReleaseOptOutDashboard(pool, facilityId) {
+  const result = await safeQuery(pool, `
+    WITH current_enrollments AS (
+      SELECT
+        signup.id AS signup_id,
+        signup.member_id,
+        form.title AS class_name,
+        slot.schedule_mode,
+        slot.specific_date,
+        slot.day_of_week,
+        slot.start_time,
+        slot.end_time
+      FROM scheduling_signup signup
+      JOIN member enrolled_member ON enrolled_member.id = signup.member_id
+      JOIN scheduling_form form ON form.id = signup.form_id
+      LEFT JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
+      LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
+      LEFT JOIN LATERAL (
+        SELECT time_slot.schedule_mode, time_slot.specific_date, time_slot.day_of_week,
+          time_slot.start_time, time_slot.end_time
+        FROM scheduling_time_slot time_slot
+        WHERE time_slot.id = signup.time_slot_id
+
+        UNION ALL
+
+        SELECT group_slot.schedule_mode, group_slot.specific_date, group_slot.day_of_week,
+          group_slot.start_time, group_slot.end_time
+        FROM scheduling_time_slot group_slot
+        WHERE signup.time_slot_id IS NULL
+          AND group_slot.slot_group_id = signup.slot_group_id
+      ) slot ON TRUE
+      WHERE enrolled_member.facility_id = $1
+        AND enrolled_member.is_active = TRUE
+        AND signup.status = 'confirmed'
+        AND signup.orphaned_at IS NULL
+        AND signup.archived_at IS NULL
+        AND COALESCE(signup.enrollment_start_date, signup.created_at::date) <= CURRENT_DATE
+        AND (signup.cancel_effective_date IS NULL OR signup.cancel_effective_date > CURRENT_DATE)
+        AND (signup.pause_effective_date IS NULL OR signup.pause_effective_date > CURRENT_DATE)
+        AND (COALESCE(offering.start_date, slot_group.active_start, form.start_date) IS NULL
+          OR COALESCE(offering.start_date, slot_group.active_start, form.start_date) <= CURRENT_DATE)
+        AND (COALESCE(offering.end_date, slot_group.active_end, form.end_date) IS NULL
+          OR COALESCE(offering.end_date, slot_group.active_end, form.end_date) >= CURRENT_DATE)
+    )
+    SELECT
+      member.id AS member_id,
+      member.first_name,
+      member.last_name,
+      family.family_name,
+      (COUNT(DISTINCT current_enrollments.signup_id) > 0) AS is_active_student,
+      COUNT(DISTINCT current_enrollments.signup_id)::int AS active_class_count,
+      COALESCE(
+        jsonb_agg(
+          jsonb_build_object(
+            'className', current_enrollments.class_name,
+            'scheduleMode', current_enrollments.schedule_mode,
+            'specificDate', current_enrollments.specific_date,
+            'dayOfWeek', current_enrollments.day_of_week,
+            'startTime', current_enrollments.start_time,
+            'endTime', current_enrollments.end_time
+          )
+          ORDER BY current_enrollments.class_name,
+            current_enrollments.day_of_week NULLS LAST,
+            current_enrollments.specific_date NULLS LAST,
+            current_enrollments.start_time NULLS LAST
+        ) FILTER (WHERE current_enrollments.signup_id IS NOT NULL),
+        '[]'::jsonb
+      ) AS active_classes
+    FROM member
+    LEFT JOIN family ON family.id = member.family_id
+    LEFT JOIN current_enrollments ON current_enrollments.member_id = member.id
+    WHERE member.facility_id = $1
+      AND EXISTS (
+        SELECT 1
+        FROM waiver_template template
+        WHERE template.facility_id = member.facility_id
+          AND template.waiver_type = 'MEDIA_RELEASE'
+          AND template.active_from <= now()
+          AND (template.active_to IS NULL OR template.active_to > now())
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM member_waiver_acceptance acceptance
+        JOIN waiver_template template ON template.id = acceptance.waiver_template_id
+        WHERE acceptance.member_id = member.id
+          AND template.facility_id = member.facility_id
+          AND template.waiver_type = 'MEDIA_RELEASE'
+          AND template.active_from <= now()
+          AND (template.active_to IS NULL OR template.active_to > now())
+      )
+    GROUP BY member.id, member.first_name, member.last_name, family.family_name
+    ORDER BY is_active_student DESC, member.is_active DESC, member.last_name ASC, member.first_name ASC
+  `, [facilityId])
+
+  return result.rows.map((item) => ({
+    memberId: numeric(item.member_id),
+    memberName: displayName(item),
+    familyName: item.family_name || null,
+    isActiveStudent: item.is_active_student === true,
+    activeClassCount: numeric(item.active_class_count),
+    activeClasses: Array.isArray(item.active_classes)
+      ? item.active_classes.map((enrollment) => ({
+        className: enrollment.className || 'Untitled class',
+        scheduleMode: enrollment.scheduleMode || null,
+        specificDate: enrollment.specificDate || null,
+        dayOfWeek: enrollment.dayOfWeek != null ? numeric(enrollment.dayOfWeek) : null,
+        startTime: enrollment.startTime || null,
+        endTime: enrollment.endTime || null,
+      }))
+      : [],
+  }))
+}
+
 export async function getAdminDashboard(pool, {
   facilityId = null,
   canViewEnrollment = false,
   canViewBilling = false,
+  canViewWaivers = false,
   now = new Date(),
 } = {}) {
   const parsedFacilityId = Number(facilityId)
   const hasFacilityScope = Number.isInteger(parsedFacilityId) && parsedFacilityId > 0
-  const [enrollment, billing] = await Promise.all([
+  const [enrollment, billing, mediaReleaseOptOuts] = await Promise.all([
     canViewEnrollment && hasFacilityScope
       ? enrollmentDashboard(pool, parsedFacilityId)
       : null,
     canViewBilling && hasFacilityScope
       ? billingDashboard(pool, parsedFacilityId, now)
       : null,
+    canViewEnrollment && canViewWaivers && hasFacilityScope
+      ? mediaReleaseOptOutDashboard(pool, parsedFacilityId)
+      : null,
   ])
   return {
-    permissions: { canViewEnrollment, canViewBilling },
+    permissions: { canViewEnrollment, canViewBilling, canViewWaivers },
     generatedAt: now.toISOString(),
     enrollment,
     billing,
+    mediaReleaseOptOuts,
   }
 }

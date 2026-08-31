@@ -27,14 +27,14 @@ export async function seedCanonicalWaivers(pool) {
             name = $2,
             version = $3,
             body = $4,
-            is_required = TRUE,
+            is_required = $5,
             updated_at = now()
           WHERE facility_id = $1
-            AND waiver_type = $5
+            AND waiver_type = $6
             AND active_to IS NULL
           RETURNING id
         `,
-        [facilityId, template.name, template.version, template.body, template.waiverType],
+        [facilityId, template.name, template.version, template.body, template.isRequired !== false, template.waiverType],
       )
 
       if (updated.rows.length === 0) {
@@ -43,9 +43,9 @@ export async function seedCanonicalWaivers(pool) {
             INSERT INTO waiver_template (
               facility_id, name, version, body, waiver_type, is_required, active_from, requires_resign
             )
-            VALUES ($1, $2, $3, $4, $5, TRUE, now(), FALSE)
+            VALUES ($1, $2, $3, $4, $5, $6, now(), FALSE)
           `,
-          [facilityId, template.name, template.version, template.body, template.waiverType],
+          [facilityId, template.name, template.version, template.body, template.waiverType, template.isRequired !== false],
         )
       }
     }

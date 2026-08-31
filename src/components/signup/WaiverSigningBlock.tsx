@@ -34,7 +34,7 @@ export default function WaiverSigningBlock({
   return (
     <div className="space-y-5">
       <p className="text-sm text-gray-600">
-        Expand each waiver to read it in full, check the box to attest you agree, then sign once at the bottom.
+        Expand each waiver to read it in full, select the waivers you agree to, then sign once at the bottom.
       </p>
 
       {waivers.length === 0 && (
@@ -53,6 +53,9 @@ export default function WaiverSigningBlock({
                 <h3 className="font-bold text-gray-900 inline">{waiver.name}</h3>
                 {waiver.is_required !== false && (
                   <span className="ml-2 text-xs font-semibold text-vortex-red">Required</span>
+                )}
+                {waiver.is_required === false && (
+                  <span className="ml-2 text-xs font-semibold text-gray-500">Optional</span>
                 )}
                 {alreadySigned && (
                   <p className="text-xs text-green-700 mt-1">
@@ -95,7 +98,7 @@ export default function WaiverSigningBlock({
               checked={agreeAll}
               onChange={(e) => onAgreeAllChange(e.target.checked)}
             />
-            <span>I AGREE TO ALL OF THE ABOVE</span>
+            <span>I AGREE TO THE SELECTED WAIVERS ABOVE</span>
           </label>
 
           <div className="grid gap-4 md:grid-cols-2">
