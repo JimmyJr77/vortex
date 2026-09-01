@@ -611,7 +611,7 @@ export default function AdminMembers() {
                       </tr>
                       {isExpanded && (
                         <tr key={`${member.id}-panel`} className="border-b border-gray-200">
-                          <td colSpan={8} className="p-0">
+                          <td colSpan={ACCOUNT_TABLE_COLUMNS.length + 2} className="p-0">
                             <MemberAccountPanel
                               memberId={member.id}
                               memberName={`${member.firstName} ${member.lastName}`.trim()}

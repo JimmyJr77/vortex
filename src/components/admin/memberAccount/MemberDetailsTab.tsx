@@ -25,7 +25,7 @@ function formatAddress(member: MemberDetailData): string {
 
 function DetailItem({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   return (
-    <div className={`min-w-32 text-sm ${className}`}>
+    <div className={`min-w-40 flex-1 text-sm ${className}`}>
       <span className="block text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
       <span className="mt-1 block min-w-0 break-words text-gray-900">{children}</span>
     </div>
@@ -43,7 +43,7 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
       {member.familyId && (
         <section className="rounded-lg border border-gray-200 bg-white p-4">
           <h4 className="text-sm font-semibold text-gray-900 mb-3">Family information</h4>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <div className="flex flex-wrap gap-x-10 gap-y-5">
             <DetailItem label="Family name">{member.familyName || 'N/A'}</DetailItem>
             <DetailItem label="Family username">{member.familyUsername || familyData?.familyUsername || 'N/A'}</DetailItem>
             <DetailItem label="Family ID">{member.familyId}</DetailItem>
@@ -53,7 +53,7 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
 
       <section className="rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact &amp; profile</h4>
-        <div className="flex flex-wrap gap-x-6 gap-y-3">
+        <div className="flex flex-wrap gap-x-10 gap-y-5">
           <DetailItem label="First name">{member.firstName}</DetailItem>
           <DetailItem label="Last name">{member.lastName}</DetailItem>
           <DetailItem label="Email">{member.email || 'N/A'}</DetailItem>
@@ -61,13 +61,13 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
           <DetailItem label="Username">{member.username || 'N/A'}</DetailItem>
           <DetailItem label="Date of birth">{member.dateOfBirth ? formatDateForDisplay(member.dateOfBirth) : 'N/A'}</DetailItem>
           {member.age != null && <DetailItem label="Age">{member.age}</DetailItem>}
-          <DetailItem label="Address" className="basis-full">{formatAddress(member)}</DetailItem>
+          <DetailItem label="Address">{formatAddress(member)}</DetailItem>
         </div>
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="text-sm font-semibold text-gray-900 mb-3">Status &amp; roles</h4>
-        <div className="flex flex-wrap gap-x-6 gap-y-3">
+        <div className="flex flex-wrap gap-x-10 gap-y-5">
           <DetailItem label="Account status">
             <span className={`px-2 py-0.5 rounded text-xs font-semibold ${member.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
               {member.isActive ? 'Active' : 'Archived'}
