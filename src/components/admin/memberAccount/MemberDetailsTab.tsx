@@ -73,6 +73,19 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
               {member.isActive ? 'Active' : 'Archived'}
             </span>
           </DetailItem>
+          <DetailItem label="Roles">
+            <span className="flex flex-wrap gap-1.5">
+              {member.roles && member.roles.length > 0 ? (
+                member.roles.map((role) => (
+                  <span key={role.id} className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700">
+                    {formatMemberRoleLabel(role.role)}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-500">No roles assigned</span>
+              )}
+            </span>
+          </DetailItem>
           <DetailItem label="Enrollment status">
             <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
               member.status === 'athlete' || member.status === 'enrolled'
@@ -88,19 +101,6 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
                 ? formatTimestampDate(member.waiverCompletionDate)
                 : 'Completed'
               : 'Not completed'}
-          </DetailItem>
-          <DetailItem label="Roles" className="basis-full">
-            <span className="flex flex-wrap gap-1.5">
-              {member.roles && member.roles.length > 0 ? (
-                member.roles.map((role) => (
-                  <span key={role.id} className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700">
-                    {formatMemberRoleLabel(role.role)}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-500">No roles assigned</span>
-              )}
-            </span>
           </DetailItem>
         </div>
       </section>
