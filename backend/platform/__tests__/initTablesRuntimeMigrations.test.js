@@ -58,7 +58,7 @@ test('platform boot includes every schema contract required by current Admin rou
   ])
 })
 
-test('historical required billing migrations retain their production legacy checksums', () => {
+test('restored base billing migrations retain their pinned legacy checksums', () => {
   const checksums = new Map([
     ['057_stripe_pending_enrollment.sql', '4195216797'],
     ['058_billing_stripe_links.sql', '924214856'],
@@ -71,7 +71,7 @@ test('historical required billing migrations retain their production legacy chec
   }
 })
 
-test('runtime accepts the exact production legacy billing files without rewriting migration history', async () => {
+test('runtime accepts exact restored-base legacy billing files without rewriting migration history', async () => {
   const checksums = new Map([
     ['057_stripe_pending_enrollment.sql', '4195216797'],
     ['058_billing_stripe_links.sql', '924214856'],
@@ -107,6 +107,68 @@ test('runtime accepts the exact production legacy billing files without rewritin
       `${filename} must still fail closed if even one byte changes`,
     )
   }
+})
+
+test('runtime rejects historical checksum variants until deploy migration normalization runs', async () => {
+  const historicalVariants = new Map([
+    ['057_stripe_pending_enrollment.sql', ['3788120324', '322505987']],
+    ['058_billing_stripe_links.sql', ['2266470195']],
+  ])
+
+  for (const [filename, storedChecksums] of historicalVariants) {
+    for (const storedChecksum of storedChecksums) {
+      await assert.rejects(
+        verifyAppliedRequiredBillingMigration({ query: async () => ({ rows: [] }) }, {
+          filename,
+          migrationPath: new URL(`../../migrations/${filename}`, import.meta.url),
+          storedChecksum,
+        }),
+        (error) => error.code === 'REQUIRED_BILLING_MIGRATION_CHECKSUM_MISMATCH',
+        `${filename}:${storedChecksum}`,
+      )
+    }
+  }
+})
+
+test('runtime accepts only pinned historical SHA-256 aliases after deploy normalization', async () => {
+  const historicalVariants = new Map([
+    ['057_stripe_pending_enrollment.sql', [
+      'edf084bb143c4365728ec6fbcd8c462b88698c86bf403129ef55a23669e7d1e4',
+      'ee89aad175bcc427b090cb80145a1502d11621fe98a89869fb8917db8b35e8c9',
+    ]],
+    ['058_billing_stripe_links.sql', [
+      '1f0635f80093c1beea17030b9cfc4a469fc58de19bc06069663cb23678ba8dab',
+    ]],
+  ])
+  const client = {
+    async query() {
+      throw new Error('historical runtime verification must remain read-only')
+    },
+  }
+
+  for (const [filename, storedChecksums] of historicalVariants) {
+    for (const storedChecksum of storedChecksums) {
+      assert.deepEqual(
+        await verifyAppliedRequiredBillingMigration(client, {
+          filename,
+          migrationPath: new URL(`../../migrations/${filename}`, import.meta.url),
+          storedChecksum,
+        }),
+        { status: 'historical_verified', checksum: storedChecksum },
+        `${filename}:${storedChecksum}`,
+      )
+    }
+  }
+
+  await assert.rejects(
+    verifyAppliedRequiredBillingMigration(client, {
+      filename: '058_billing_stripe_links.sql',
+      migrationPath: new URL('../../migrations/058_billing_stripe_links.sql', import.meta.url),
+      storedChecksum: '1f0635f80093c1beea17030b9cfc4a469fc58de19bc06069663cb23678ba8dab',
+      readFile: (path, encoding) => `${fs.readFileSync(path, encoding)}\n`,
+    }),
+    (error) => error.code === 'REQUIRED_BILLING_MIGRATION_CHECKSUM_MISMATCH',
+  )
 })
 
 test('runtime verifies SHA-256 or the exact legacy checksum without writing', async () => {

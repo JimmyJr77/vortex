@@ -5,6 +5,7 @@ import path from 'node:path'
 import test from 'node:test'
 
 import {
+  DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY,
   DEPLOY_MIGRATION_FILES,
   DEPLOY_MIGRATION_LOCK_ID,
   legacyMigrationChecksum,
@@ -129,6 +130,38 @@ test('deploy migration checksums are SHA-256 digests', () => {
   assert.notEqual(migrationChecksum('SELECT 1;\n'), migrationChecksum('SELECT 2;\n'))
 })
 
+test('deploy checksum compatibility inventory is exact, filename-scoped, and canonically pinned', async () => {
+  assert.deepEqual(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY, {
+    '057_stripe_pending_enrollment.sql': {
+      canonicalSha256: '5bab4f671953a4ba113d8a8b91f223b4e22f771b6467a78c502852fad0df52c4',
+      historicalVariants: [
+        {
+          legacyChecksum: '3788120324',
+          sha256: 'edf084bb143c4365728ec6fbcd8c462b88698c86bf403129ef55a23669e7d1e4',
+        },
+        {
+          legacyChecksum: '322505987',
+          sha256: 'ee89aad175bcc427b090cb80145a1502d11621fe98a89869fb8917db8b35e8c9',
+        },
+      ],
+    },
+    '058_billing_stripe_links.sql': {
+      canonicalSha256: '95ed6eaa12aaa8067c9a30e9280d088e876a8f5f159b20e30dba6646109c4c08',
+      historicalVariants: [
+        {
+          legacyChecksum: '2266470195',
+          sha256: '1f0635f80093c1beea17030b9cfc4a469fc58de19bc06069663cb23678ba8dab',
+        },
+      ],
+    },
+  })
+
+  for (const [filename, compatibility] of Object.entries(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {
+    const sql = await fs.readFile(new URL(`../../migrations/${filename}`, import.meta.url), 'utf8')
+    assert.equal(migrationChecksum(sql), compatibility.canonicalSha256, filename)
+  }
+})
+
 test('deploy migration runner fails closed on checksum drift and releases its lock', async (t) => {
   const migrationsDirectory = await migrationDirectory()
   t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
@@ -169,7 +202,7 @@ test('deploy migration runner transactionally upgrades only an exact legacy chec
   )))
 })
 
-test('deploy upgrades the exact production 057 and 058 legacy rows to their immutable SHA-256 digests', async (t) => {
+test('deploy upgrades the restored base 057 and 058 legacy rows to their immutable SHA-256 digests', async (t) => {
   const migrationsDirectory = await migrationDirectory()
   t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
   const historicalFiles = new Map([
@@ -206,6 +239,137 @@ test('deploy upgrades the exact production 057 and 058 legacy rows to their immu
       && params[2] === legacyChecksum
     )), filename)
   }
+})
+
+test('deploy transactionally upgrades every approved historical checksum variant', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  for (const filename of Object.keys(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {
+    await fs.copyFile(
+      new URL(`../../migrations/${filename}`, import.meta.url),
+      path.join(migrationsDirectory, filename),
+    )
+  }
+
+  for (const [historicalFilename, compatibility] of Object.entries(
+    DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY,
+  )) {
+    for (const historicalVariant of compatibility.historicalVariants) {
+      for (const historicalChecksum of [
+        historicalVariant.legacyChecksum,
+        historicalVariant.sha256,
+      ]) {
+        const client = fakeMigrationClient()
+        for (const filename of DEPLOY_MIGRATION_FILES) {
+          const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+          client.applied.set(filename, migrationChecksum(sql))
+        }
+        client.applied.set(historicalFilename, historicalChecksum)
+
+        const result = await runDeployMigrations(client, {
+          migrationsDirectory,
+          logger: { info() {} },
+        })
+
+        assert.deepEqual(result.applied, [])
+        assert.deepEqual(result.skipped, DEPLOY_MIGRATION_FILES)
+        assert.equal(
+          client.applied.get(historicalFilename),
+          historicalVariant.sha256,
+          `${historicalFilename}:${historicalChecksum}`,
+        )
+        if (historicalChecksum === historicalVariant.legacyChecksum) {
+          assert.ok(client.calls.some(({ text, params }) => (
+            text.includes('AND checksum = $3')
+            && params[0] === historicalFilename
+            && params[1] === historicalVariant.sha256
+            && params[2] === historicalChecksum
+          )), `${historicalFilename}:${historicalChecksum}`)
+        } else {
+          assert.equal(client.calls.some(({ text, params }) => (
+            text.includes('UPDATE schema_migrations')
+            && params[0] === historicalFilename
+          )), false, `${historicalFilename}:${historicalChecksum}`)
+        }
+      }
+    }
+  }
+})
+
+test('deploy rejects an approved checksum under the wrong filename or changed canonical target', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  for (const filename of Object.keys(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {
+    await fs.copyFile(
+      new URL(`../../migrations/${filename}`, import.meta.url),
+      path.join(migrationsDirectory, filename),
+    )
+  }
+
+  const wrongFilenameClient = fakeMigrationClient()
+  wrongFilenameClient.applied.set('057_stripe_pending_enrollment.sql', '2266470195')
+  await assert.rejects(
+    runDeployMigrations(wrongFilenameClient, {
+      migrationsDirectory,
+      logger: { info() {} },
+    }),
+    (error) => error.code === 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH',
+  )
+
+  const changedTargetClient = fakeMigrationClient()
+  for (const filename of DEPLOY_MIGRATION_FILES) {
+    const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+    changedTargetClient.applied.set(filename, migrationChecksum(sql))
+  }
+  changedTargetClient.applied.set('058_billing_stripe_links.sql', '2266470195')
+  await fs.appendFile(path.join(migrationsDirectory, '058_billing_stripe_links.sql'), '\n')
+
+  await assert.rejects(
+    runDeployMigrations(changedTargetClient, {
+      migrationsDirectory,
+      logger: { info() {} },
+    }),
+    (error) => error.code === 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH',
+  )
+})
+
+test('deploy fails closed if an approved historical checksum changes before its CAS upgrade', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  const historicalFilename = '058_billing_stripe_links.sql'
+  await fs.copyFile(
+    new URL(`../../migrations/${historicalFilename}`, import.meta.url),
+    path.join(migrationsDirectory, historicalFilename),
+  )
+
+  const client = fakeMigrationClient()
+  for (const filename of DEPLOY_MIGRATION_FILES) {
+    const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+    client.applied.set(filename, migrationChecksum(sql))
+  }
+  client.applied.set(historicalFilename, '2266470195')
+
+  const query = client.query.bind(client)
+  let injectedRace = false
+  client.query = async (sql, params = []) => {
+    const text = String(sql)
+    if (!injectedRace && text.includes('UPDATE schema_migrations')) {
+      injectedRace = true
+      client.applied.set(historicalFilename, 'concurrent-checksum-change')
+    }
+    return query(sql, params)
+  }
+
+  await assert.rejects(
+    runDeployMigrations(client, { migrationsDirectory, logger: { info() {} } }),
+    (error) => error.code === 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH',
+  )
+  assert.equal(injectedRace, true)
+  assert.ok(client.calls.some(({ text, params }) => (
+    text.includes('AND checksum = $3')
+    && params[0] === historicalFilename
+    && params[2] === '2266470195'
+  )))
 })
 
 test('deploy migration runner fails closed if a legacy checksum changes before its CAS upgrade', async (t) => {

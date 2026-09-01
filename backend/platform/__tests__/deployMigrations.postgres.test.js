@@ -4,6 +4,7 @@ import test from 'node:test'
 import pg from 'pg'
 
 import {
+  DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY,
   DEPLOY_MIGRATION_FILES,
   DEPLOY_MIGRATION_LOCK_ID,
   runDeployMigrations,
@@ -296,6 +297,16 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       /billing_payment_external_status_check/,
     )
 
+    await assertDeployReadinessFailsAfterGuardDrop(client, {
+      dropSql: 'ALTER TABLE stripe_pending_enrollment DROP CONSTRAINT stripe_pending_enrollment_checkout_mode_check',
+      readinessField: 'missingConstraints',
+      expectedObject: 'stripe_pending_enrollment.stripe_pending_enrollment_checkout_mode_check',
+    })
+    await assertDeployReadinessFailsAfterGuardDrop(client, {
+      dropSql: 'ALTER TABLE stripe_pending_enrollment DROP CONSTRAINT stripe_pending_enrollment_status_check',
+      readinessField: 'missingConstraints',
+      expectedObject: 'stripe_pending_enrollment.stripe_pending_enrollment_status_check',
+    })
     await assertDeployReadinessFailsAfterGuardDrop(client, {
       dropSql: 'DROP TRIGGER trg_billing_payment_application_capacity ON billing_payment_application',
       readinessField: 'missingTriggers',
@@ -895,6 +906,27 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
     assert.deepEqual(secondApply.applied, [])
     assert.deepEqual(secondApply.skipped, DEPLOY_MIGRATION_FILES)
     assert.equal(secondApply.readiness.ready, true)
+
+    await client.query(
+      `UPDATE schema_migrations
+          SET checksum = $2
+        WHERE filename = $1`,
+      ['058_billing_stripe_links.sql', '2266470195'],
+    )
+    const compatibilityApply = await runDeployMigrations(client, { logger: { info() {} } })
+    assert.deepEqual(compatibilityApply.applied, [])
+    assert.deepEqual(compatibilityApply.skipped, DEPLOY_MIGRATION_FILES)
+    assert.equal(compatibilityApply.readiness.ready, true)
+    const normalizedCompatibilityChecksum = await client.query(
+      `SELECT checksum
+         FROM schema_migrations
+        WHERE filename = '058_billing_stripe_links.sql'`,
+    )
+    assert.equal(
+      normalizedCompatibilityChecksum.rows[0]?.checksum,
+      DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY['058_billing_stripe_links.sql']
+        .historicalVariants[0].sha256,
+    )
 
     const migrationRows = await client.query('SELECT filename FROM schema_migrations ORDER BY filename')
     assert.deepEqual(

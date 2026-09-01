@@ -11,6 +11,41 @@ import {
 export const DEPLOY_MIGRATION_FILES = DEPLOY_BILLING_MIGRATIONS
 export const DEPLOY_MIGRATION_LOCK_ID = 884679201
 
+// A small number of billing migrations were edited in place before immutable
+// follow-up migrations became the rule. Some databases therefore recorded a
+// checksum for one of those exact, source-controlled historical files. Keep
+// this compatibility inventory filename-scoped and pin the canonical file
+// digest that may activate it: an unknown source checksum or a changed current
+// file must still fail closed. Numeric variants normalize to their own exact
+// historical SHA-256, preserving which migration bytes actually ran.
+export const DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY = Object.freeze({
+  '057_stripe_pending_enrollment.sql': Object.freeze({
+    canonicalSha256: '5bab4f671953a4ba113d8a8b91f223b4e22f771b6467a78c502852fad0df52c4',
+    historicalVariants: Object.freeze([
+      // Added setup mode in ff8237d; superseded by migration 399.
+      Object.freeze({
+        legacyChecksum: '3788120324',
+        sha256: 'edf084bb143c4365728ec6fbcd8c462b88698c86bf403129ef55a23669e7d1e4',
+      }),
+      // Added processing status in 92102b4; superseded by migration 400.
+      Object.freeze({
+        legacyChecksum: '322505987',
+        sha256: 'ee89aad175bcc427b090cb80145a1502d11621fe98a89869fb8917db8b35e8c9',
+      }),
+    ]),
+  }),
+  '058_billing_stripe_links.sql': Object.freeze({
+    canonicalSha256: '95ed6eaa12aaa8067c9a30e9280d088e876a8f5f159b20e30dba6646109c4c08',
+    historicalVariants: Object.freeze([
+      // Added invoice idempotency in 8bf9bfd; superseded by migration 799.
+      Object.freeze({
+        legacyChecksum: '2266470195',
+        sha256: '1f0635f80093c1beea17030b9cfc4a469fc58de19bc06069663cb23678ba8dab',
+      }),
+    ]),
+  }),
+})
+
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url))
 const defaultMigrationsDirectory = path.join(moduleDirectory, 'migrations')
 
@@ -24,6 +59,24 @@ export function legacyMigrationChecksum(text) {
     hash = (hash * 31 + text.charCodeAt(index)) >>> 0
   }
   return String(hash)
+}
+
+export function resolveHistoricalMigrationChecksumVariant(
+  filename,
+  canonicalChecksum,
+  storedChecksum,
+) {
+  const compatibility = DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY[filename]
+  if (!compatibility || compatibility.canonicalSha256 !== canonicalChecksum) return null
+  const value = String(storedChecksum ?? '')
+  const variant = compatibility.historicalVariants.find(({ legacyChecksum, sha256 }) => (
+    value === legacyChecksum || value === sha256
+  ))
+  if (!variant) return null
+  return {
+    ...variant,
+    storedFormat: value === variant.sha256 ? 'sha256' : 'legacy',
+  }
 }
 
 async function ensureMigrationTable(client) {
@@ -68,16 +121,33 @@ async function applyMigration(client, {
   const existing = existingResult.rows[0] ?? null
   if (existing?.checksum != null && String(existing.checksum) !== checksum) {
     const legacyChecksum = legacyMigrationChecksum(sql)
-    if (String(existing.checksum) === legacyChecksum) {
+    const storedChecksum = String(existing.checksum)
+    const isCurrentLegacyChecksum = storedChecksum === legacyChecksum
+    const historicalVariant = resolveHistoricalMigrationChecksumVariant(
+      filename,
+      checksum,
+      storedChecksum,
+    )
+    if (historicalVariant?.storedFormat === 'sha256') {
+      logger.info(`[migrate:deploy] accepted pinned historical SHA-256: ${filename}`)
+      return 'skipped'
+    }
+    if (isCurrentLegacyChecksum || historicalVariant) {
+      const upgradedChecksum = historicalVariant?.sha256 ?? checksum
       if (manageTransaction) await client.query('BEGIN')
       try {
-        await client.query(
+        const upgraded = await client.query(
           `UPDATE schema_migrations
               SET checksum = $2
             WHERE filename = $1
               AND checksum = $3`,
-          [filename, checksum, legacyChecksum],
+          [filename, upgradedChecksum, storedChecksum],
         )
+        if (upgraded.rowCount !== 1) {
+          const race = new Error(`Deploy migration checksum changed while upgrading ${filename}`)
+          race.code = 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH'
+          throw race
+        }
         const verified = await client.query(
           `SELECT filename, checksum
              FROM schema_migrations
@@ -85,7 +155,7 @@ async function applyMigration(client, {
             LIMIT 1`,
           [filename],
         )
-        if (String(verified.rows[0]?.checksum ?? '') !== checksum) {
+        if (String(verified.rows[0]?.checksum ?? '') !== upgradedChecksum) {
           const race = new Error(`Deploy migration checksum changed while upgrading ${filename}`)
           race.code = 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH'
           throw race
@@ -95,7 +165,8 @@ async function applyMigration(client, {
         if (manageTransaction) await client.query('ROLLBACK').catch(() => {})
         throw error
       }
-      logger.info(`${dryRun ? '[migrate:deploy:dry-run] would upgrade' : '[migrate:deploy] upgraded'} legacy checksum: ${filename}`)
+      const checksumKind = historicalVariant ? 'historical legacy' : 'canonical legacy'
+      logger.info(`${dryRun ? '[migrate:deploy:dry-run] would upgrade' : '[migrate:deploy] upgraded'} ${checksumKind} checksum to SHA-256: ${filename}`)
       return 'skipped'
     }
     const mismatch = new Error(

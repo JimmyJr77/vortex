@@ -13,7 +13,10 @@ data or contact Stripe.
 Before selecting a production cohort:
 
 - Deploy the additive schema first with `npm run migrate:deploy`, then confirm
-  `/api/health` reports the required billing schema ready.
+  `/api/health` reports the required billing schema ready. When the service plan
+  supports it, the Render pre-deploy command is the primary release gate;
+  `npm start` also invokes the same idempotent migration runner through its
+  `prestart` lifecycle hook so every service still fails closed before boot.
 - Keep the release version and deploy-manifest checksum fixed for the entire
   run. Do not resume a run from a different application release.
 - Use accounts from exactly one facility and facility timezone per run.

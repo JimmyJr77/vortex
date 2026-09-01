@@ -2,6 +2,8 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '057_stripe_pending_enrollment.sql',
   '058_billing_stripe_links.sql',
   '100_stripe_pending_enrollment_client_confirmed.sql',
+  '399_stripe_pending_enrollment_setup_mode.sql',
+  '400_stripe_pending_enrollment_processing_status.sql',
   '774_household_monthly_invoicing.sql',
   '775_member_billing_audit_paging_indexes.sql',
   '778_billing_canonical_migration_state.sql',
@@ -293,6 +295,8 @@ export const DEPLOY_BILLING_FUNCTIONS = Object.freeze([
 ])
 
 export const DEPLOY_BILLING_CONSTRAINTS = Object.freeze([
+  { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_checkout_mode_check', constraintType: 'c' },
+  { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_status_check', constraintType: 'c' },
   { tableName: 'billing_migration_run', constraintName: 'billing_migration_run_target_month_first_check', constraintType: 'c' },
   { tableName: 'billing_migration_run', constraintName: 'billing_migration_run_apply_provenance_check', constraintType: 'c' },
   { tableName: 'billing_account_migration', constraintName: 'billing_account_migration_account_snapshot_object_check', constraintType: 'c' },

@@ -175,6 +175,12 @@ test('required billing schema reports ready only when every request dependency e
     constraintName === 'billing_migration_run_apply_provenance_check'
   )))
   assert.ok(REQUIRED_BILLING_CONSTRAINTS.some(({ constraintName }) => (
+    constraintName === 'stripe_pending_enrollment_checkout_mode_check'
+  )))
+  assert.ok(REQUIRED_BILLING_CONSTRAINTS.some(({ constraintName }) => (
+    constraintName === 'stripe_pending_enrollment_status_check'
+  )))
+  assert.ok(REQUIRED_BILLING_CONSTRAINTS.some(({ constraintName }) => (
     constraintName === 'billing_monthly_invoice_line_source_check'
   )))
   assert.ok(REQUIRED_BILLING_CONSTRAINTS.some(({ constraintName }) => (
@@ -244,6 +250,8 @@ test('deploy readiness remains scoped to the explicit fail-closed allowlist', as
   assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('057_stripe_pending_enrollment.sql'))
   assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('058_billing_stripe_links.sql'))
   assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('100_stripe_pending_enrollment_client_confirmed.sql'))
+  assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('399_stripe_pending_enrollment_setup_mode.sql'))
+  assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('400_stripe_pending_enrollment_processing_status.sql'))
   assert.ok(DEPLOY_BILLING_MIGRATIONS.includes('799_billing_payment_stripe_invoice_link.sql'))
   assert.ok(DEPLOY_BILLING_RELATIONS.includes('idx_drop_in_registration_member_class_date'))
   assert.ok(DEPLOY_BILLING_RELATIONS.includes('idx_billing_household_default_remediation_account'))
@@ -301,6 +309,8 @@ test('required billing readiness fails closed when a critical trigger or constra
     { missingTriggers: ['billing_payment_application.trg_billing_payment_application_capacity'] },
     { missingFunctions: ['validate_billing_payment_application_capacity'] },
     { missingConstraints: ['billing_migration_run.billing_migration_run_apply_provenance_check'] },
+    { missingConstraints: ['stripe_pending_enrollment.stripe_pending_enrollment_checkout_mode_check'] },
+    { missingConstraints: ['stripe_pending_enrollment.stripe_pending_enrollment_status_check'] },
   ]) {
     const readiness = await getRequiredBillingSchemaReadiness(readinessPool(missing))
     assert.equal(readiness.ready, false)

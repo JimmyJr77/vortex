@@ -7,6 +7,7 @@ import { REQUIRED_BILLING_MIGRATIONS } from '../billing/billingSchemaReadiness.j
 import {
   legacyMigrationChecksum,
   migrationChecksum as sha256MigrationChecksum,
+  resolveHistoricalMigrationChecksumVariant,
 } from '../deployMigrations.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -101,6 +102,15 @@ export async function verifyAppliedRequiredBillingMigration(client, {
   const sql = readFile(migrationPath, 'utf8')
   const checksum = sha256MigrationChecksum(sql)
   if (String(storedChecksum ?? '') === checksum) return { status: 'verified', checksum }
+
+  const historicalVariant = resolveHistoricalMigrationChecksumVariant(
+    filename,
+    checksum,
+    storedChecksum,
+  )
+  if (historicalVariant?.storedFormat === 'sha256') {
+    return { status: 'historical_verified', checksum: historicalVariant.sha256 }
+  }
 
   const legacyChecksum = legacyMigrationChecksum(sql)
   if (String(storedChecksum ?? '') !== legacyChecksum) {
