@@ -411,17 +411,18 @@ test('manual payment rejects open and failed household invoice reservations', as
   }
 })
 
-test('manual payment cannot exceed the canonical unreserved collectible balance', async () => {
-  const pool = manualPaymentAdmissionPool({ collectibleBalanceCents: 4_000 })
-  await assert.rejects(
-    recordAdminExternalPayment(pool, {
-      familyId: 7,
-      facilityId: 2,
-      requestKey: 'manual-payment:over-collectible',
-      input: { amountCents: 5_000, method: 'bank_transfer' },
-    }),
-    /cannot exceed the unreserved collectible balance of 4000 cents/i,
-  )
+test('manual payment permits a positive amount above the collectible balance as account credit', async () => {
+  const pool = manualPaymentAdmissionPool({ allowInsert: true, collectibleBalanceCents: -4_000 })
+  const result = await recordAdminExternalPayment(pool, {
+    familyId: 7,
+    facilityId: 2,
+    requestKey: 'manual-payment:account-credit',
+    input: { amountCents: 5_000, method: 'bank_transfer' },
+  })
+  assert.equal(result.replayed, false)
+  assert.equal(result.payment.amountCents, 5_000)
+  assert.equal(pool.statements.some((sql) => sql.includes('canonical-billing:collectible-balance')), false)
+  assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), true)
 })
 
 test('paid household invoice history does not block a later manual payment', async () => {

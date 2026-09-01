@@ -8,7 +8,6 @@ import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { withHouseholdMonthlyInvoiceAccountLock } from './householdMonthlyInvoice.js'
-import { loadCanonicalCollectibleBalanceCents } from './canonicalBillingAccount.js'
 
 function optionalText(value) {
   const normalized = String(value ?? '').trim()
@@ -657,12 +656,6 @@ export async function recordAdminExternalPayment(pool, {
             : 'remote payment attempt'
           throw new Error(
             `This account has an active ${label} (${activeOwner.owner_status}). Resolve or cancel that collector before recording a manual payment.`,
-          )
-        }
-        const collectibleBalanceCents = await loadCanonicalCollectibleBalanceCents(client, account.id)
-        if (amountCents > collectibleBalanceCents) {
-          throw new Error(
-            `Manual payment cannot exceed the unreserved collectible balance of ${collectibleBalanceCents} cents.`,
           )
         }
         payment = (

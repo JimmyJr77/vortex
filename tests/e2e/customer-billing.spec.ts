@@ -679,6 +679,18 @@ test.describe('Account Billing & Enrollments administration', () => {
 
     expect(captured.searchQueries).toContain('555-010-2040')
     await expect(page.getByText('Family #42 · Billing account #7')).toBeVisible()
+    const billingContact = page.locator('details').filter({ has: page.getByText('Billing contact & payer', { exact: true }) })
+    await expect(billingContact).toBeVisible()
+    await expect(billingContact.locator('label')).toHaveCount(7)
+    expect(await billingContact.locator('label').evaluateAll((labels) => labels.map((label) => label.firstChild?.textContent?.trim()))).toEqual([
+      'Payer',
+      'Billing email',
+      'Billing phone',
+      'Street',
+      'City',
+      'State',
+      'ZIP',
+    ])
     await expect(page.getByText('Monthly recurring fee (Sep)', { exact: true })).toBeVisible()
     await expect(page.getByText('$205.00', { exact: true })).toBeVisible()
     await expect(page.getByText('Visa •••• 4242').first()).toBeVisible()
@@ -718,8 +730,8 @@ test.describe('Account Billing & Enrollments administration', () => {
     await expect(page.getByText('10-class gymnastics bundle')).toBeVisible()
     await expect(page.getByText('4 / 10', { exact: true })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Record cash/check/external payment' }).click()
-    const paymentDialog = page.getByRole('dialog', { name: 'Record cash/check/external payment' })
+    await page.getByRole('button', { name: 'Record External Payment' }).click()
+    const paymentDialog = page.getByRole('dialog', { name: 'Record External Payment' })
     await expect(paymentDialog).toBeVisible()
     await paymentDialog.getByRole('spinbutton', { name: 'Payment amount' }).fill('25.00')
     await paymentDialog.getByRole('combobox', { name: 'Payment method' }).selectOption('check')
@@ -728,7 +740,7 @@ test.describe('Account Billing & Enrollments administration', () => {
     await paymentDialog.getByLabel(/^Note/).fill('Received at the front desk.')
     await paymentDialog.getByRole('button', { name: 'Record $25.00 payment' }).click()
 
-    await expect(page.getByText('Check payment of $25.00 recorded and applied to the account.')).toBeVisible()
+    await expect(page.getByText('Check payment of $25.00 recorded. It will apply to open charges in order; any remainder remains as account credit.')).toBeVisible()
     await expect(page.getByText('Account balance', { exact: true }).locator('..').getByText('$120.00', { exact: true })).toBeVisible()
     await expect(page.getByText(/check payment · CHK-1842/i)).toBeVisible()
     expect(captured.externalPayments).toHaveLength(1)
@@ -758,6 +770,30 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.passAdjustmentKeys?.[0]).not.toBe(captured.externalPaymentKeys?.[0])
     expect(captured.overviewLoads).toBeGreaterThanOrEqual(3)
     expect(captured.transactionLoads).toBeGreaterThanOrEqual(3)
+  })
+
+  test('keeps external payment recording available for a household credit balance', async ({ page }) => {
+    const captured: CapturedRequests = {
+      searchQueries: [],
+      priceChanges: [],
+      customCharges: [],
+      customChargeKeys: [],
+      refunds: [],
+      refundKeys: [],
+      retryCount: 0,
+      externalPayments: [{ amountCents: 15_000, method: 'cash', paidAt: '2026-08-31T09:30:00.000Z' }],
+    }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+
+    const recordPayment = page.getByRole('button', { name: 'Record External Payment' })
+    await expect(recordPayment).toBeEnabled()
+    await recordPayment.click()
+
+    const paymentDialog = page.getByRole('dialog', { name: 'Record External Payment' })
+    await expect(paymentDialog.getByText('Current account balance:')).toContainText('-$5.00')
+    await paymentDialog.getByRole('spinbutton', { name: 'Payment amount' }).fill('25.00')
+    await expect(paymentDialog.getByRole('button', { name: 'Record $25.00 payment' })).toBeEnabled()
   })
 
   test('previews price impact and sends authorized, idempotent collection and refund payloads', async ({ page }) => {
