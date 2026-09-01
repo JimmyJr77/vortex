@@ -57,8 +57,11 @@ function fakeMigrationClient() {
         return { rows: [] }
       }
       if (text.includes('UPDATE schema_migrations')) {
+        if (params.length >= 3 && applied.get(params[0]) !== params[2]) {
+          return { rows: [], rowCount: 0 }
+        }
         applied.set(params[0], params[1])
-        return { rows: [] }
+        return { rows: [], rowCount: 1 }
       }
       if (text.includes('FROM schema_migrations')) {
         return { rows: [...applied.keys()].map((filename) => ({ filename })) }
@@ -164,6 +167,79 @@ test('deploy migration runner transactionally upgrades only an exact legacy chec
   assert.ok(client.calls.some(({ text, params }) => (
     text.includes('AND checksum = $3') && params[2] === legacyChecksum
   )))
+})
+
+test('deploy upgrades the exact production 057 and 058 legacy rows to their immutable SHA-256 digests', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  const historicalFiles = new Map([
+    ['057_stripe_pending_enrollment.sql', '4195216797'],
+    ['058_billing_stripe_links.sql', '924214856'],
+  ])
+  for (const filename of historicalFiles.keys()) {
+    await fs.copyFile(
+      new URL(`../../migrations/${filename}`, import.meta.url),
+      path.join(migrationsDirectory, filename),
+    )
+  }
+
+  const client = fakeMigrationClient()
+  for (const [index, filename] of DEPLOY_MIGRATION_FILES.entries()) {
+    const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+    client.applied.set(filename, migrationChecksum(sql || `SELECT ${index + 1};\n`))
+  }
+  for (const [filename, checksum] of historicalFiles) client.applied.set(filename, checksum)
+
+  const result = await runDeployMigrations(client, {
+    migrationsDirectory,
+    logger: { info() {} },
+  })
+
+  assert.deepEqual(result.applied, [])
+  assert.deepEqual(result.skipped, DEPLOY_MIGRATION_FILES)
+  for (const [filename, legacyChecksum] of historicalFiles) {
+    const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+    assert.equal(client.applied.get(filename), migrationChecksum(sql), filename)
+    assert.ok(client.calls.some(({ text, params }) => (
+      text.includes('AND checksum = $3')
+      && params[0] === filename
+      && params[2] === legacyChecksum
+    )), filename)
+  }
+})
+
+test('deploy migration runner fails closed if a legacy checksum changes before its CAS upgrade', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  const client = fakeMigrationClient()
+  for (const [index, filename] of DEPLOY_MIGRATION_FILES.entries()) {
+    const sql = `SELECT ${index + 1};\n`
+    client.applied.set(filename, migrationChecksum(sql))
+  }
+  const legacyFilename = DEPLOY_MIGRATION_FILES[0]
+  client.applied.set(legacyFilename, legacyMigrationChecksum('SELECT 1;\n'))
+
+  const query = client.query.bind(client)
+  let injectedRace = false
+  client.query = async (sql, params = []) => {
+    const text = String(sql)
+    if (!injectedRace && text.includes('UPDATE schema_migrations')) {
+      injectedRace = true
+      client.applied.set(legacyFilename, 'concurrent-checksum-change')
+    }
+    return query(sql, params)
+  }
+
+  await assert.rejects(
+    runDeployMigrations(client, { migrationsDirectory, logger: { info() {} } }),
+    (error) => error.code === 'DEPLOY_MIGRATION_CHECKSUM_MISMATCH',
+  )
+  assert.equal(injectedRace, true)
+  assert.ok(client.calls.some(({ text, params }) => (
+    text.includes('AND checksum = $3')
+    && params[2] === legacyMigrationChecksum('SELECT 1;\n')
+  )))
+  assert.ok(client.calls.some(({ text }) => text.includes('pg_advisory_unlock')))
 })
 
 test('deploy migration runner fails closed when an allowlisted file is missing', async (t) => {

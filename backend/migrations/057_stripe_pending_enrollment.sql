@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS stripe_pending_enrollment (
   preview_snapshot            JSONB,
   due_now_cents               INTEGER NOT NULL DEFAULT 0,
   checkout_mode               TEXT NOT NULL DEFAULT 'payment'
-                              CHECK (checkout_mode IN ('payment', 'subscription', 'setup')),
+                              CHECK (checkout_mode IN ('payment', 'subscription')),
   stripe_checkout_session_id  TEXT UNIQUE,
   status                      TEXT NOT NULL DEFAULT 'pending'
-                              CHECK (status IN ('pending', 'processing', 'completed', 'expired', 'failed')),
+                              CHECK (status IN ('pending', 'completed', 'expired', 'failed')),
   error_message               TEXT,
   created_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),

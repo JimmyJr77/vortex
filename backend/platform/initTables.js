@@ -66,6 +66,7 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '796_billing_retirement_invoice_parity.sql',
   '797_billing_payment_settlement_and_pass_idempotency.sql',
   '798_checkout_fulfillment_idempotency.sql',
+  '799_billing_payment_stripe_invoice_link.sql',
 ])
 
 const REQUIRED_BILLING_MIGRATION_SET = new Set(REQUIRED_BILLING_MIGRATIONS)

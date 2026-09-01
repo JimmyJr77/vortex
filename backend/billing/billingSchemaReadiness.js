@@ -1,4 +1,7 @@
 export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
+  '057_stripe_pending_enrollment.sql',
+  '058_billing_stripe_links.sql',
+  '100_stripe_pending_enrollment_client_confirmed.sql',
   '774_household_monthly_invoicing.sql',
   '775_member_billing_audit_paging_indexes.sql',
   '778_billing_canonical_migration_state.sql',
@@ -22,6 +25,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '796_billing_retirement_invoice_parity.sql',
   '797_billing_payment_settlement_and_pass_idempotency.sql',
   '798_checkout_fulfillment_idempotency.sql',
+  '799_billing_payment_stripe_invoice_link.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -72,6 +76,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '796_billing_retirement_invoice_parity.sql',
   '797_billing_payment_settlement_and_pass_idempotency.sql',
   '798_checkout_fulfillment_idempotency.sql',
+  '799_billing_payment_stripe_invoice_link.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([

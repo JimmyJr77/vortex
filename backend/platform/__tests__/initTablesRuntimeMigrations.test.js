@@ -54,7 +54,59 @@ test('platform boot includes every schema contract required by current Admin rou
     '796_billing_retirement_invoice_parity.sql',
     '797_billing_payment_settlement_and_pass_idempotency.sql',
     '798_checkout_fulfillment_idempotency.sql',
+    '799_billing_payment_stripe_invoice_link.sql',
   ])
+})
+
+test('historical required billing migrations retain their production legacy checksums', () => {
+  const checksums = new Map([
+    ['057_stripe_pending_enrollment.sql', '4195216797'],
+    ['058_billing_stripe_links.sql', '924214856'],
+    ['399_stripe_pending_enrollment_setup_mode.sql', '1900260129'],
+    ['400_stripe_pending_enrollment_processing_status.sql', '3097831513'],
+  ])
+  for (const [filename, expected] of checksums) {
+    const sql = fs.readFileSync(new URL(`../../migrations/${filename}`, import.meta.url), 'utf8')
+    assert.equal(legacyMigrationChecksum(sql), expected, filename)
+  }
+})
+
+test('runtime accepts the exact production legacy billing files without rewriting migration history', async () => {
+  const checksums = new Map([
+    ['057_stripe_pending_enrollment.sql', '4195216797'],
+    ['058_billing_stripe_links.sql', '924214856'],
+    ['399_stripe_pending_enrollment_setup_mode.sql', '1900260129'],
+    ['400_stripe_pending_enrollment_processing_status.sql', '3097831513'],
+  ])
+  const client = {
+    async query() {
+      throw new Error('legacy runtime verification must remain read-only')
+    },
+  }
+
+  for (const [filename, storedChecksum] of checksums) {
+    const migrationPath = new URL(`../../migrations/${filename}`, import.meta.url)
+    assert.deepEqual(
+      await verifyAppliedRequiredBillingMigration(client, {
+        filename,
+        migrationPath,
+        storedChecksum,
+      }),
+      { status: 'legacy_verified', checksum: storedChecksum },
+      filename,
+    )
+
+    await assert.rejects(
+      verifyAppliedRequiredBillingMigration(client, {
+        filename,
+        migrationPath,
+        storedChecksum,
+        readFile: (path, encoding) => `${fs.readFileSync(path, encoding)}\n`,
+      }),
+      (error) => error.code === 'REQUIRED_BILLING_MIGRATION_CHECKSUM_MISMATCH',
+      `${filename} must still fail closed if even one byte changes`,
+    )
+  }
 })
 
 test('runtime verifies SHA-256 or the exact legacy checksum without writing', async () => {
