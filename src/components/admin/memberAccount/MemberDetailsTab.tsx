@@ -25,9 +25,9 @@ function formatAddress(member: MemberDetailData): string {
 
 function DetailItem({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   return (
-    <div className={`flex min-w-0 items-baseline gap-2 text-sm ${className}`}>
-      <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
-      <span className="min-w-0 break-words text-gray-900">{children}</span>
+    <div className={`min-w-32 text-sm ${className}`}>
+      <span className="block text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+      <span className="mt-1 block min-w-0 break-words text-gray-900">{children}</span>
     </div>
   )
 }
