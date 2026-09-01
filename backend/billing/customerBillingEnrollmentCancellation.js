@@ -103,6 +103,7 @@ export async function previewCustomerBillingEnrollmentCancellation(pool, {
   const pricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId: Number(context.family_id),
     periodKey,
+    ensureSchema: false,
   })
   const line = pricing.lines?.find((item) => Number(item.signupId) === Number(context.signup_id))
   const resolvedNetCents = Math.max(0, Math.round(Number(line?.netCents ?? 0)))

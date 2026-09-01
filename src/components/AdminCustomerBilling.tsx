@@ -1,8 +1,9 @@
-import { Fragment, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import {
   Activity,
   AlertCircle,
   AlertTriangle,
+  Banknote,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -40,6 +41,33 @@ interface AccessState {
   permissions: string[]
 }
 
+interface BillingMigrationStatus {
+  accountId: number
+  migrationId?: number
+  state: string
+  parityStatus: string
+  parity: Record<string, unknown>
+  targetMonth: string | null
+  attempts: number
+  lastError: string | null
+  updatedAt: string | null
+  run: null | {
+    id: number
+    key: string
+    mode: string
+    status: string
+    codeVersion: string | null
+  }
+  exceptions: Array<{
+    id: number
+    type: string
+    severity: string
+    status: string
+    message: string
+    detectedAt: string
+  }>
+}
+
 interface ContactDraft {
   payerMemberId: number | null
   billingEmail: string
@@ -62,6 +90,17 @@ const EMPTY_CONTACT: ContactDraft = {
 
 async function jsonBody(response: Response) {
   return response.json().catch(() => ({}))
+}
+
+function uniqueRequestKey(prefix: string) {
+  const suffix = globalThis.crypto?.randomUUID?.()
+    ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  return `${prefix}-${suffix}`
+}
+
+function localDateTimeInputValue(date = new Date()) {
+  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+  return localTime.toISOString().slice(0, 16)
 }
 
 function Badge({ value, label }: { value: string; label?: string }) {
@@ -161,6 +200,46 @@ function MetricCard({ label, value, detail, tone = 'default' }: { label: string;
   )
 }
 
+function MigrationStatusCard({ status }: { status: BillingMigrationStatus }) {
+  const openExceptions = status.exceptions.filter((exception) => !['resolved', 'waived'].includes(exception.status))
+  const verified = status.state === 'verified' && status.parityStatus === 'matched'
+  return (
+    <section className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${openExceptions.length > 0 || status.lastError ? 'border-amber-300' : 'border-gray-200'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3 p-5">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-lg font-bold text-gray-950">Canonical billing migration</h2>
+            <Badge value={status.state} />
+            <Badge value={status.parityStatus} label={`Parity: ${status.parityStatus.replaceAll('_', ' ')}`} />
+          </div>
+          <p className="mt-1 text-sm text-gray-500">Read-only rollout status. Migration controls remain restricted to the deployment CLI.</p>
+        </div>
+        <div className="text-right text-xs text-gray-500">
+          <div>{status.targetMonth ? `Target: ${billingMonthLabel(status.targetMonth)}` : 'No cutover month assigned'}</div>
+          {status.updatedAt ? <div className="mt-1">Updated {localDate(status.updatedAt, true)}</div> : null}
+        </div>
+      </div>
+      <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-3">
+        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Run</div><div className="mt-1 text-sm font-bold text-gray-900">{status.run ? `#${status.run.id} · ${status.run.mode}` : 'Not assigned'}</div>{status.run ? <div className="mt-1 text-xs text-gray-500">{status.run.status} · {status.run.key}</div> : null}</div>
+        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Verification</div><div className={`mt-1 text-sm font-bold ${verified ? 'text-emerald-700' : 'text-gray-900'}`}>{verified ? 'Canonical account verified' : status.parityStatus.replaceAll('_', ' ')}</div><div className="mt-1 text-xs text-gray-500">{status.attempts} worker attempt{status.attempts === 1 ? '' : 's'}</div></div>
+        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Exceptions</div><div className={`mt-1 text-sm font-bold ${openExceptions.length > 0 ? 'text-amber-800' : 'text-emerald-700'}`}>{openExceptions.length > 0 ? `${openExceptions.length} unresolved` : 'None unresolved'}</div></div>
+      </div>
+      {status.lastError ? <div className="border-t border-red-200 bg-red-50 px-5 py-3 text-sm text-red-800"><strong>Last migration error:</strong> {status.lastError}</div> : null}
+      {openExceptions.length > 0 ? (
+        <div className="space-y-2 border-t border-amber-200 bg-amber-50 p-5">
+          {openExceptions.slice(0, 5).map((exception) => (
+            <div key={exception.id} className="flex items-start justify-between gap-3 text-sm text-amber-950">
+              <div><span className="font-bold capitalize">{exception.severity}</span> · {exception.message}<div className="mt-0.5 text-xs text-amber-700">{exception.type.replaceAll('_', ' ')}</div></div>
+              <span className="shrink-0 text-xs text-amber-700">{localDate(exception.detectedAt)}</span>
+            </div>
+          ))}
+          {openExceptions.length > 5 ? <div className="text-xs font-semibold text-amber-800">+ {openExceptions.length - 5} more unresolved exceptions</div> : null}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 function BalanceCollectionModal({
   familyId,
   balanceCents,
@@ -201,6 +280,217 @@ function BalanceCollectionModal({
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Account balance could not be collected.') } finally { setWorking(false) }
   }
   return <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 p-4"><div role="dialog" aria-modal="true" className="w-full max-w-lg rounded-2xl bg-white shadow-2xl"><div className="flex items-start justify-between border-b border-gray-200 px-6 py-5"><div><h2 className="text-xl font-bold text-gray-950">Process monthly balance</h2><p className="mt-1 text-sm text-gray-500">Choose how much of the current account balance to collect.</p></div><button type="button" onClick={onClose} className="text-xl text-gray-500">×</button></div><div className="space-y-4 p-6"><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'balance'} onChange={() => setMode('balance')} /><span><strong className="block">Current account balance · {money(balanceCents)}</strong><span className="text-xs text-gray-500">Apply the full outstanding account balance.</span></span></label><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'custom'} onChange={() => setMode('custom')} /><span className="flex-1"><strong className="block">Custom amount</strong><input type="number" min="0.01" max={(balanceCents / 100).toFixed(2)} step="0.01" value={customAmount} onChange={(event) => setCustomAmount(event.target.value)} className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="0.00" /></span></label><div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm"><strong className="block text-gray-900">Payment method</strong><label className="mt-2 flex items-center gap-2"><input type="radio" checked readOnly /><span className="capitalize">{paymentMethod.brand} •••• {paymentMethod.last4}</span></label></div><label className="block text-sm font-semibold text-gray-700">Authorization source<input value={authorizationSource} onChange={(event) => setAuthorizationSource(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="block text-sm font-semibold text-gray-700">Authorization note<input value={authorizationNote} onChange={(event) => setAuthorizationNote(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="flex items-start gap-2 text-sm text-gray-700"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1" />I confirm the exact amount of {money(validAmount ? amountCents : 0)} for this saved-card charge.</label>{!validAmount && mode === 'custom' ? <p className="text-sm text-red-700">Enter an amount from $0.01 through {money(balanceCents)}.</p> : null}{error ? <p className="text-sm text-red-700">{error}</p> : null}<button type="button" disabled={working || !validAmount || !authorizationSource.trim() || !authorizationNote.trim() || !confirmed} onClick={() => void submit()} className="w-full rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-40">{working ? 'Processing…' : `Charge ${money(validAmount ? amountCents : 0)}`}</button></div></div></div>
+}
+
+const EXTERNAL_PAYMENT_METHODS = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'check', label: 'Check' },
+  { value: 'bank_transfer', label: 'Bank transfer' },
+  { value: 'other', label: 'Other external payment' },
+] as const
+
+function ExternalPaymentModal({
+  familyId,
+  collectibleBalanceCents,
+  onClose,
+  onSaved,
+}: {
+  familyId: number
+  collectibleBalanceCents: number
+  onClose: () => void
+  onSaved: (message: string) => void
+}) {
+  const [amount, setAmount] = useState('')
+  const [method, setMethod] = useState<(typeof EXTERNAL_PAYMENT_METHODS)[number]['value']>('cash')
+  const [paidAt, setPaidAt] = useState(() => localDateTimeInputValue())
+  const [externalReference, setExternalReference] = useState('')
+  const [note, setNote] = useState('')
+  const [requestKey] = useState(() => uniqueRequestKey('external-payment'))
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const amountCents = Math.round(Number(amount) * 100)
+  const parsedPaidAt = new Date(paidAt)
+  const validAmount = Number.isInteger(amountCents)
+    && amountCents > 0
+    && amountCents <= collectibleBalanceCents
+  const validPaidAt = paidAt !== '' && !Number.isNaN(parsedPaidAt.getTime())
+  const methodLabel = EXTERNAL_PAYMENT_METHODS.find((option) => option.value === method)?.label ?? 'External'
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!validAmount || !validPaidAt) return
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/families/${familyId}/payments`,
+        {
+          method: 'POST',
+          headers: { 'Idempotency-Key': requestKey },
+          body: JSON.stringify({
+            amountCents,
+            method,
+            paidAt: parsedPaidAt.toISOString(),
+            externalReference: externalReference.trim() || null,
+            note: note.trim() || null,
+          }),
+        },
+      )
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'External payment could not be recorded.')
+      onSaved(`${methodLabel} payment of ${money(amountCents)} recorded and applied to the account.`)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'External payment could not be recorded.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="external-payment-title" className="w-full max-w-xl rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between border-b border-gray-200 px-6 py-5">
+          <div>
+            <h2 id="external-payment-title" className="text-xl font-bold text-gray-950">Record cash/check/external payment</h2>
+            <p className="mt-1 text-sm text-gray-500">This creates an append-only payment and allocates it against the household balance.</p>
+          </div>
+          <button type="button" onClick={onClose} disabled={working} aria-label="Close payment form" className="rounded p-1 text-xl text-gray-500 hover:bg-gray-100 disabled:opacity-40">×</button>
+        </div>
+        <form onSubmit={(event) => void submit(event)} className="space-y-4 p-6">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+            Available collectible balance: <strong className="text-gray-950">{money(collectibleBalanceCents)}</strong>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Payment amount
+              <input type="number" min="0.01" max={(collectibleBalanceCents / 100).toFixed(2)} step="0.01" required value={amount} onChange={(event) => setAmount(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" placeholder="0.00" />
+            </label>
+            <label className="text-sm font-semibold text-gray-700">
+              Payment method
+              <select required value={method} onChange={(event) => setMethod(event.target.value as typeof method)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-normal">
+                {EXTERNAL_PAYMENT_METHODS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+          </div>
+          <label className="block text-sm font-semibold text-gray-700">
+            Payment date and time
+            <input type="datetime-local" required value={paidAt} onChange={(event) => setPaidAt(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" />
+          </label>
+          <label className="block text-sm font-semibold text-gray-700">
+            Check or external reference <span className="font-normal text-gray-400">(optional)</span>
+            <input value={externalReference} onChange={(event) => setExternalReference(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" placeholder="Check number, bank reference, or receipt ID" />
+          </label>
+          <label className="block text-sm font-semibold text-gray-700">
+            Note <span className="font-normal text-gray-400">(optional)</span>
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" placeholder="Administrative context for this payment" />
+          </label>
+          {!validAmount && amount ? <p className="text-sm text-red-700">Enter an amount from $0.01 through {money(collectibleBalanceCents)}.</p> : null}
+          {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}
+          <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
+            <button type="button" onClick={onClose} disabled={working} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40">Cancel</button>
+            <button type="submit" disabled={working || !validAmount || !validPaidAt} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">
+              {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
+              {working ? 'Recording…' : `Record ${money(validAmount ? amountCents : 0)} payment`}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function PassAdjustmentModal({
+  pass,
+  onClose,
+  onSaved,
+}: {
+  pass: CustomerBillingOverview['bundlePasses'][number]
+  onClose: () => void
+  onSaved: (message: string) => void
+}) {
+  const [direction, setDirection] = useState<'add' | 'remove'>('add')
+  const [quantity, setQuantity] = useState('1')
+  const [reason, setReason] = useState('')
+  const [requestKey] = useState(() => uniqueRequestKey('pass-adjustment'))
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const parsedQuantity = Number(quantity)
+  const validQuantity = Number.isInteger(parsedQuantity)
+    && parsedQuantity > 0
+    && (direction === 'add' || parsedQuantity <= pass.classesRemaining)
+  const delta = direction === 'add' ? parsedQuantity : -parsedQuantity
+  const resultingBalance = validQuantity ? pass.classesRemaining + delta : pass.classesRemaining
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!validQuantity || !reason.trim()) return
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/entitlements/multi-class-passes/${pass.id}/adjustments`,
+        {
+          method: 'POST',
+          headers: { 'Idempotency-Key': requestKey },
+          body: JSON.stringify({ delta, reason: reason.trim() }),
+        },
+      )
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'Pass balance could not be adjusted.')
+      const remaining = Number(body.data?.classesRemaining ?? resultingBalance)
+      onSaved(`${pass.packageLabel || `Pass #${pass.id}`} adjusted by ${delta > 0 ? '+' : ''}${delta}; ${remaining} classes remain.`)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Pass balance could not be adjusted.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="pass-adjustment-title" className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between border-b border-gray-200 px-6 py-5">
+          <div>
+            <h2 id="pass-adjustment-title" className="text-xl font-bold text-gray-950">Adjust class bundle balance</h2>
+            <p className="mt-1 text-sm text-gray-500">{pass.packageLabel || `Pass #${pass.id}`} · {pass.memberName || 'Family member'}</p>
+          </div>
+          <button type="button" onClick={onClose} disabled={working} aria-label="Close pass adjustment form" className="rounded p-1 text-xl text-gray-500 hover:bg-gray-100 disabled:opacity-40">×</button>
+        </div>
+        <form onSubmit={(event) => void submit(event)} className="space-y-4 p-6">
+          <div className="grid grid-cols-2 gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+            <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Current</div><div className="mt-1 text-xl font-black text-gray-950">{pass.classesRemaining}</div></div>
+            <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">After adjustment</div><div className="mt-1 text-xl font-black text-gray-950">{resultingBalance}</div></div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Adjustment
+              <select value={direction} onChange={(event) => setDirection(event.target.value as 'add' | 'remove')} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-normal">
+                <option value="add">Add credits</option>
+                <option value="remove" disabled={pass.classesRemaining <= 0}>Remove credits</option>
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-gray-700">
+              Number of classes
+              <input type="number" min="1" max={direction === 'remove' ? pass.classesRemaining : undefined} step="1" required value={quantity} onChange={(event) => setQuantity(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" />
+            </label>
+          </div>
+          <label className="block text-sm font-semibold text-gray-700">
+            Reason
+            <textarea required value={reason} onChange={(event) => setReason(event.target.value)} rows={3} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" placeholder="Why this append-only adjustment is needed" />
+          </label>
+          {!validQuantity && quantity ? <p className="text-sm text-red-700">Enter a whole number that does not remove more than the current balance.</p> : null}
+          {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}
+          <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
+            <button type="button" onClick={onClose} disabled={working} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40">Cancel</button>
+            <button type="submit" disabled={working || !validQuantity || !reason.trim()} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">
+              {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {working ? 'Saving…' : 'Record adjustment'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
 
 function discountPercent(amountValue: number | null | undefined) {
@@ -361,10 +651,76 @@ function MonthlyInvoiceSummary({ invoices }: { invoices: CustomerBillingOverview
     <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><strong className="text-gray-950">Monthly household invoice · {calendarDate(invoice.billingMonth)}</strong><span className="ml-2 text-gray-500">{invoice.lineCount} items · {label}</span>{invoice.failureMessage ? <p className="mt-1 text-xs text-red-700">{invoice.failureMessage}</p> : null}</div>
-        <div className="flex items-center gap-3"><strong className="text-gray-950">{money(invoice.totalCents)}</strong>{invoice.hostedInvoiceUrl ? <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="rounded border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700">Open payment link</a> : null}</div>
+        <div className="flex items-center gap-3"><div className="text-right"><strong className="text-gray-950">{money(invoice.totalCents)}</strong>{invoice.postPaymentCreditCents > 0 ? <div className="text-xs font-medium text-emerald-700">{money(invoice.postPaymentCreditCents)} moved to account credit</div> : null}</div>{invoice.hostedInvoiceUrl ? <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="rounded border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700">Open payment link</a> : null}</div>
       </div>
       <div className="mt-3 grid gap-1 text-xs text-gray-600 sm:grid-cols-2">{invoice.lines.map((line) => <div key={line.id} className="flex items-center justify-between gap-3"><span className="truncate">{line.memberName ? `${line.memberName} · ` : ''}{line.description}</span><span className="font-semibold text-gray-800">{money(line.amountCents)}</span></div>)}</div>
     </div>
+  )
+}
+
+function ClassBundlesSection({
+  passes,
+  usage,
+  canManage,
+  onAdjust,
+}: {
+  passes: CustomerBillingOverview['bundlePasses']
+  usage: CustomerBillingOverview['bundleUsage']
+  canManage: boolean
+  onAdjust: (pass: CustomerBillingOverview['bundlePasses'][number]) => void
+}) {
+  return (
+    <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-gray-950">Class bundles</h2>
+        <p className="text-sm text-gray-500">Household pass balances and append-only credit adjustments.</p>
+      </div>
+      {passes.length > 0 ? (
+        <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+          {passes.map((pass) => (
+            <div key={pass.id} className="rounded-xl border border-gray-200 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate font-bold text-gray-950">{pass.packageLabel || `Pass #${pass.id}`}</div>
+                  <div className="mt-1 text-sm text-gray-500">{pass.memberName || 'Family member'}</div>
+                </div>
+                <Badge value={pass.status} />
+              </div>
+              <div className="mt-4 text-2xl font-black text-gray-950">{pass.classesRemaining} / {pass.classCountPurchased}</div>
+              <div className="text-xs text-gray-500">classes left · purchased for {money(pass.priceCents)}</div>
+              {pass.expiresAt ? <div className="mt-1 text-xs text-gray-500">Expires {calendarDate(pass.expiresAt)}</div> : null}
+              {canManage ? (
+                <button type="button" onClick={() => onAdjust(pass)} aria-label={`Adjust ${pass.packageLabel || `pass ${pass.id}`} balance`} className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                  Adjust balance
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : <div className="px-5 py-6 text-sm text-gray-500">No class bundles on this account.</div>}
+      {usage.length > 0 ? (
+        <details className="border-t border-gray-200">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-gray-700 marker:hidden">
+            <span>Recent bundle usage and adjustments</span>
+            <ChevronDown className="h-4 w-4" />
+          </summary>
+          <div className="divide-y divide-gray-100 border-t border-gray-100 px-5">
+            {usage.slice(0, 20).map((entry) => (
+              <div key={entry.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                <div>
+                  <strong className="text-gray-900">{entry.memberName || entry.packageLabel || 'Class bundle'}</strong>
+                  <span className="ml-2 text-gray-500">{localDate(entry.createdAt)} · {entry.entryType.replaceAll('_', ' ')}</span>
+                  {entry.reason ? <div className="text-xs text-gray-500">{entry.reason}</div> : null}
+                </div>
+                <div className="font-semibold text-gray-800">
+                  {entry.creditDelta == null ? '' : `${entry.creditDelta > 0 ? '+' : ''}${entry.creditDelta} → `}{entry.classesRemainingAfter} left
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
+      ) : null}
+    </section>
   )
 }
 
@@ -651,6 +1007,7 @@ export default function AdminCustomerBilling({
   const [directFamilyId, setDirectFamilyId] = useState<number | null>(null)
   const [searching, setSearching] = useState(false)
   const [overview, setOverview] = useState<CustomerBillingOverview | null>(null)
+  const [migrationStatus, setMigrationStatus] = useState<BillingMigrationStatus | null>(null)
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [transactions, setTransactions] = useState<BillingTransaction[]>([])
   const [transactionCursor, setTransactionCursor] = useState<string | null>(null)
@@ -668,6 +1025,8 @@ export default function AdminCustomerBilling({
   const [chargeToModify, setChargeToModify] = useState<BillingTransaction | null>(null)
   const [customChargeOpen, setCustomChargeOpen] = useState(false)
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
+  const [externalPaymentOpen, setExternalPaymentOpen] = useState(false)
+  const [passToAdjust, setPassToAdjust] = useState<CustomerBillingOverview['bundlePasses'][number] | null>(null)
   const [refundPayment, setRefundPayment] = useState<BillingTransaction | null>(null)
   const [contactDraft, setContactDraft] = useState<ContactDraft>(EMPTY_CONTACT)
   const [newEnrollmentOpen, setNewEnrollmentOpen] = useState(false)
@@ -780,16 +1139,25 @@ export default function AdminCustomerBilling({
 
   const loadFamily = useCallback(async (familyId: number, memberId: number | null) => {
     setLoading(true)
+    setMigrationStatus(null)
     setError(null)
     setSuccess(null)
     setLastActionUrl(null)
     try {
       const overviewParams = memberId == null ? '' : `?memberId=${memberId}`
-      const overviewResponse = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`)
-      const overviewBody = await jsonBody(overviewResponse)
+      const [overviewResponse, migrationResponse] = await Promise.all([
+        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`),
+        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/migration-status`),
+      ])
+      const [overviewBody, migrationBody] = await Promise.all([
+        jsonBody(overviewResponse),
+        jsonBody(migrationResponse),
+      ])
       if (!overviewResponse.ok) throw new Error(overviewBody.message || 'Billing account failed to load.')
+      if (!migrationResponse.ok) throw new Error(migrationBody.message || 'Billing migration status failed to load.')
       const nextOverview = overviewBody.data as CustomerBillingOverview
       setOverview(nextOverview)
+      setMigrationStatus(migrationBody.data as BillingMigrationStatus)
       setSelectedMemberId(memberId)
       setContactDraft({
         payerMemberId: nextOverview.account.payerMemberId,
@@ -847,22 +1215,10 @@ export default function AdminCustomerBilling({
     setSaving(true)
     setError(null)
     try {
-      const response = await adminApiRequest(
-        `/api/admin/customer-billing/families/${overview.account.familyId}/refresh`,
-        { method: 'POST' },
-      )
-      const body = await jsonBody(response)
-      if (!response.ok) throw new Error(body.message || 'Stripe account refresh failed.')
       await loadFamily(overview.account.familyId, selectedMemberId)
-      const resolved = Number(body.data?.alertsResolved ?? 0)
-      const monthlyBillingStatus = body.data?.monthlyBilling?.status
-      if (monthlyBillingStatus === 'enabled') {
-        setSuccess('Account refreshed. Household monthly billing was enabled for its active recurring classes.')
-      } else setSuccess(resolved > 0
-        ? `Account refreshed. ${resolved} stale ${resolved === 1 ? 'alert was' : 'alerts were'} resolved.`
-        : 'Account refreshed. No stale alerts were found.')
+      setSuccess('Account refreshed.')
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Stripe account refresh failed.')
+      setError(caught instanceof Error ? caught.message : 'Billing account refresh failed.')
     } finally {
       setSaving(false)
     }
@@ -874,6 +1230,8 @@ export default function AdminCustomerBilling({
     setPriceEnrollment(null)
     setCustomChargeOpen(false)
     setBalanceCollectionOpen(false)
+    setExternalPaymentOpen(false)
+    setPassToAdjust(null)
     setRefundPayment(null)
     void refresh(message.replace(url ?? '__no_url__', '').trim())
   }
@@ -947,6 +1305,14 @@ export default function AdminCustomerBilling({
     () => overview?.waitlists.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [],
     [overview, selectedMemberId],
   )
+  const visibleBundlePasses = useMemo(
+    () => (overview?.bundlePasses ?? []).filter((row) => selectedMemberId == null || row.memberId === selectedMemberId),
+    [overview, selectedMemberId],
+  )
+  const visibleBundleUsage = useMemo(
+    () => (overview?.bundleUsage ?? []).filter((row) => selectedMemberId == null || row.memberId === selectedMemberId),
+    [overview, selectedMemberId],
+  )
   const refundableCharges = useMemo(
     () => transactions.filter((row) => row.entryKind === 'charge' && row.amountCents > 0),
     [transactions],
@@ -975,8 +1341,8 @@ export default function AdminCustomerBilling({
     setSaving(true)
     setError(null)
     try {
-      const response = await adminApiRequest(`/api/admin/families/${overview.account.familyId}/billing-account`, {
-        method: 'PUT',
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${overview.account.familyId}/account`, {
+        method: 'PATCH',
         body: JSON.stringify(contactDraft),
       })
       const body = await jsonBody(response)
@@ -1086,9 +1452,12 @@ export default function AdminCustomerBilling({
     setError(null)
     try {
       const endpoint = row.entryKind === 'payment'
-        ? `/api/admin/families/${overview.account.familyId}/payments/${row.refId}/resend-receipt`
-        : `/api/admin/families/${overview.account.familyId}/refunds/${row.refId}/resend-receipt`
-      const response = await adminApiRequest(endpoint, { method: 'POST' })
+        ? `/api/admin/customer-billing/families/${overview.account.familyId}/payments/${row.refId}/resend-receipt`
+        : `/api/admin/customer-billing/families/${overview.account.familyId}/refunds/${row.refId}/resend-receipt`
+      const response = await adminApiRequest(endpoint, {
+        method: 'POST',
+        headers: { 'Idempotency-Key': `receipt-${row.entryKind}-${row.refId}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}` },
+      })
       const body = await jsonBody(response)
       if (!response.ok) throw new Error(body.message || 'Receipt could not be resent.')
       setSuccess(`Receipt resent to ${body.data.recipientEmail}.`)
@@ -1172,7 +1541,13 @@ export default function AdminCustomerBilling({
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
               <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h2><Badge value={overview.account.isActive ? 'active' : 'inactive'} /></div><p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId} · Billing account #{overview.account.id}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => chooseMember(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>{overview.members.map((member) => <button key={member.id} type="button" onClick={() => chooseMember(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}</div></div>
-              <div className="flex flex-wrap gap-2"><button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || overview.summary.balanceCents <= 0 || !overview.paymentMethod.available} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={!overview.paymentMethod.available ? 'A saved card is required.' : 'Choose an amount and payment method.'}><CreditCard className="h-4 w-4" /> Process monthly balance</button><button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button><button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button><button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account from Stripe" title="Refresh from Stripe and clear verified stale alerts"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button></div>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || overview.summary.collectibleBalanceCents <= 0 || !overview.paymentMethod.available} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={!overview.paymentMethod.available ? 'A saved card is required.' : 'Choose an amount and payment method.'}><CreditCard className="h-4 w-4" /> Process monthly balance</button>
+                <button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button>
+                <button type="button" onClick={() => setExternalPaymentOpen(true)} disabled={!canManage || saving || overview.summary.collectibleBalanceCents <= 0} title="Record cash, check, bank transfer, or another external payment" className="inline-flex items-center gap-2 rounded-lg border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-40"><Banknote className="h-4 w-4" /> Record cash/check/external payment</button>
+                <button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button>
+                <button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account" title="Reload account billing data"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button>
+              </div>
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
               <MetricCard label="Outstanding balance" value={money(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges" />
@@ -1218,7 +1593,11 @@ export default function AdminCustomerBilling({
             {overview.alerts.length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.length})</div><div className="space-y-1">{overview.alerts.map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="shrink-0 text-xs">{localDate(alert.createdAt)}</span></div>)}</div></div> : null}
           </section>
 
+          {migrationStatus ? <MigrationStatusCard status={migrationStatus} /> : null}
+
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} onNewEnrollment={() => setNewEnrollmentOpen(true)} />
+
+          <ClassBundlesSection passes={visibleBundlePasses} usage={visibleBundleUsage} canManage={canManage} onAdjust={setPassToAdjust} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
@@ -1230,8 +1609,10 @@ export default function AdminCustomerBilling({
 
       {priceEnrollment ? <PriceAdjustmentModal enrollment={priceEnrollment} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} /> : null}
       {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
-      {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.balanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
+      {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
+      {externalPaymentOpen && overview ? <ExternalPaymentModal familyId={overview.account.familyId} collectibleBalanceCents={overview.summary.collectibleBalanceCents} onClose={() => setExternalPaymentOpen(false)} onSaved={handleSaved} /> : null}
+      {passToAdjust ? <PassAdjustmentModal pass={passToAdjust} onClose={() => setPassToAdjust(null)} onSaved={handleSaved} /> : null}
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
       {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}
 

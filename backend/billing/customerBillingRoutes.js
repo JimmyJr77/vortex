@@ -34,12 +34,22 @@ import {
 } from './customerBillingPayments.js'
 import { getStripeClient } from './stripeBilling.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
-import { refreshCustomerBillingStripeAlerts } from './stripeReconciliation.js'
-import { activateHouseholdMonthlyBillingForAccount } from './householdMonthlyInvoice.js'
-import { allocateHouseholdPayments } from './paymentAllocation.js'
+import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import {
+  adjustAdminMultiClassPass,
+  loadAdminCustomerBillingMigrationStatus,
+  recordAdminExternalPayment,
+  resendAdminPaymentReceipt,
+  resendAdminRefundReceipt,
+  updateAdminCustomerBillingAccount,
+} from './customerBillingAdminOperations.js'
+import { requireAdminFacilityScope } from './adminFacilityScope.js'
+import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
 
 function facilityId(req) {
-  return req.platformAuth?.user?.facility_id ?? null
+  return requireAdminFacilityScope({
+    facilityId: req.platformAuth?.user?.facility_id ?? null,
+  })
 }
 
 function actorId(req) {
@@ -55,7 +65,14 @@ function idempotencyKey(req, prefix) {
   return `${prefix}:${raw}`
 }
 
+function requiredIdempotencyKey(req, prefix) {
+  const key = idempotencyKey(req, prefix)
+  if (!key) throw new Error('An Idempotency-Key header is required.')
+  return key
+}
+
 function errorStatus(error) {
+  if (Number.isInteger(error?.statusCode)) return error.statusCode
   if (/not found/i.test(String(error?.message ?? ''))) return 404
   if (/Stripe|payment|sync/i.test(String(error?.message ?? '')) && /unavailable|not enabled/i.test(String(error?.message ?? ''))) return 503
   if (/^(42|08|XX)/.test(String(error?.code ?? ''))) return 500
@@ -95,7 +112,144 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.json({ success: true, data })
       } catch (error) {
         console.error('[customer-billing] search:', error)
-        res.status(500).json({ success: false, message: 'Customer billing search failed.' })
+        res.status(errorStatus(error)).json({ success: false, message: 'Customer billing search failed.' })
+      }
+    },
+  )
+
+  app.patch(
+    '/api/admin/customer-billing/families/:familyId/account',
+    ...requirePermission(pool, jwtSecret, 'family_billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await updateAdminCustomerBillingAccount(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          input: req.body ?? {},
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] account update:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Billing account could not be updated.',
+        })
+      }
+    },
+  )
+
+  app.get(
+    '/api/admin/customer-billing/families/:familyId/migration-status',
+    ...requirePermission(pool, jwtSecret, 'billing.view'),
+    async (req, res) => {
+      try {
+        const data = await loadAdminCustomerBillingMigrationStatus(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+        })
+        if (!data) {
+          return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        }
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] migration status:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Billing migration status could not be loaded.',
+        })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/payments',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await recordAdminExternalPayment(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'external-payment'),
+          input: req.body ?? {},
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] external payment:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'External payment could not be recorded.',
+        })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/payments/:paymentId/resend-receipt',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await resendAdminPaymentReceipt(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          paymentId: Number(req.params.paymentId),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'payment-receipt'),
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] resend payment receipt:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Payment receipt could not be resent.',
+        })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/refunds/:refundId/resend-receipt',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await resendAdminRefundReceipt(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          refundId: Number(req.params.refundId),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'refund-receipt'),
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] resend refund receipt:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Refund receipt could not be resent.',
+        })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/entitlements/multi-class-passes/:passId/adjustments',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await adjustAdminMultiClassPass(pool, {
+          passId: Number(req.params.passId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'pass-adjustment'),
+          input: req.body ?? {},
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] pass adjustment:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Pass balance could not be adjusted.',
+        })
       }
     },
   )
@@ -168,54 +322,73 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
         }
         const subscriptionId = Number(req.params.subscriptionId)
-        const existing = (
-          await pool.query(
-            `SELECT * FROM billing_subscription
-             WHERE id = $1
-               AND family_billing_account_id = $2
-               AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')`,
-            [subscriptionId, account.id],
-          )
-        ).rows[0]
-        if (!existing) {
-          return res.status(404).json({ success: false, message: 'Individual annual membership was not found.' })
-        }
-        if (!existing.stripe_subscription_id) {
-          return res.status(400).json({ success: false, message: 'This membership does not have a Stripe auto-renewal.' })
-        }
-        if (existing.status === 'cancelled') {
-          return res.status(400).json({ success: false, message: 'A cancelled membership subscription cannot be resumed.' })
-        }
+        const updated = await withBillingAccountCollectionLock(pool, account.id, async (db) => {
+          const existing = (
+            await db.query(
+              `SELECT * FROM billing_subscription
+               WHERE id = $1
+                 AND family_billing_account_id = $2
+                 AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
+               LIMIT 1`,
+              [subscriptionId, account.id],
+            )
+          ).rows[0]
+          if (!existing) {
+            const error = new Error('Individual annual membership was not found.')
+            error.statusCode = 404
+            throw error
+          }
+          if (existing.status === 'cancelled') {
+            throw new Error('A cancelled membership subscription cannot be resumed.')
+          }
 
-        const stripe = await getStripeClient()
-        if (!stripe) throw new Error('Stripe is unavailable.')
-        await stripe.subscriptions.update(existing.stripe_subscription_id, {
-          cancel_at_period_end: !enabled,
-        })
-        const updated = (
-          await pool.query(
-            `UPDATE billing_subscription
-             SET auto_renewal = $2, updated_at = now()
-             WHERE id = $1
-             RETURNING *`,
-            [subscriptionId, enabled],
-          )
-        ).rows[0]
-        await recordBillingActivityBestEffort(pool, {
-          eventKey: `annual-membership-auto-renewal:${subscriptionId}:${enabled}:${new Date(updated.updated_at).getTime()}`,
-          accountId: account.id,
-          memberId: updated.member_id == null ? null : Number(updated.member_id),
-          eventType: 'annual_membership_auto_renewal_changed',
-          summary: `Annual membership auto-renewal was ${enabled ? 'enabled' : 'cancelled'} for one member.`,
-          beforeValue: { autoRenewal: existing.auto_renewal !== false },
-          afterValue: { autoRenewal: enabled },
-          details: {
-            billingSubscriptionId: subscriptionId,
-            paidThroughDate: updated.next_bill_date,
-          },
-          stripeObjectId: updated.stripe_subscription_id,
-          actorUserId: actorId(req),
-          actorType: 'admin',
+          let remoteMutation = null
+          if (existing.stripe_subscription_id) {
+            remoteMutation = await guardLegacyRemoteSubscriptionMutation(db, {
+              accountId: account.id,
+              stripeSubscriptionId: existing.stripe_subscription_id,
+              operation: enabled
+                ? 'annual-membership-auto-renew-enable'
+                : 'annual-membership-auto-renew-disable',
+            })
+            if (remoteMutation.allowed) {
+              const stripe = await getStripeClient()
+              if (!stripe) throw new Error('Stripe is unavailable.')
+              await stripe.subscriptions.update(existing.stripe_subscription_id, {
+                cancel_at_period_end: !enabled,
+              })
+            }
+          }
+          const saved = (
+            await db.query(
+              `UPDATE billing_subscription
+               SET auto_renewal = $2, updated_at = now()
+               WHERE id = $1
+               RETURNING *`,
+              [subscriptionId, enabled],
+            )
+          ).rows[0]
+          await recordBillingActivityBestEffort(db, {
+            eventKey: `annual-membership-auto-renewal:${subscriptionId}:${enabled}:${new Date(saved.updated_at).getTime()}`,
+            accountId: account.id,
+            memberId: saved.member_id == null ? null : Number(saved.member_id),
+            eventType: 'annual_membership_auto_renewal_changed',
+            summary: `Annual membership auto-renewal was ${enabled ? 'enabled' : 'cancelled'} for one member.`,
+            beforeValue: { autoRenewal: existing.auto_renewal !== false },
+            afterValue: { autoRenewal: enabled },
+            details: {
+              billingSubscriptionId: subscriptionId,
+              paidThroughDate: saved.next_bill_date,
+              collectionMode: remoteMutation?.allowed
+                ? 'legacy_stripe_subscription'
+                : 'household_ledger',
+              remoteCollectorQuarantined: remoteMutation?.quarantined === true,
+            },
+            stripeObjectId: saved.stripe_subscription_id,
+            actorUserId: actorId(req),
+            actorType: 'admin',
+          })
+          return saved
         })
         res.json({
           success: true,
@@ -247,6 +420,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           selectedMemberId: req.query.memberId == null ? null : Number(req.query.memberId),
         })
         if (!data) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        if (data.revision) res.setHeader('ETag', `W/"billing-${data.revision}"`)
         res.json({ success: true, data })
       } catch (error) {
         console.error('[customer-billing] overview:', error)
@@ -260,35 +434,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
     ...requirePermission(pool, jwtSecret, 'billing.view'),
     async (req, res) => {
       try {
-        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
-        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        const stripe = await getStripeClient()
-        const [data, monthlyBilling, allocation] = await Promise.all([
-          refreshCustomerBillingStripeAlerts(pool, {
-            accountId: account.id,
-            actorUserId: actorId(req),
-          }),
-          activateHouseholdMonthlyBillingForAccount(pool, {
-            accountId: account.id,
-            stripe,
-            actorUserId: actorId(req),
-            actorType: 'admin',
-          }),
-          // Refresh is also the safe reconciliation entry point for historical
-          // annual-fee promo credits that were redeemed before their linked
-          // ledger credit was persisted.
-          allocateHouseholdPayments(pool, {
-            accountId: account.id,
-            actorUserId: actorId(req),
-            actorType: 'admin',
-          }),
-        ])
-        res.json({ success: true, data: { ...data, monthlyBilling, allocation } })
+        // Refresh is deliberately a read operation. Stripe reconciliation,
+        // account activation, and payment allocation run only through their
+        // explicit operational jobs so billing.view can never authorize a
+        // financial mutation.
+        const data = await buildCustomerBillingOverview(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          selectedMemberId: req.body?.memberId == null ? null : Number(req.body.memberId),
+        })
+        if (!data) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        if (data.revision) res.setHeader('ETag', `W/"billing-${data.revision}"`)
+        res.json({ success: true, data })
       } catch (error) {
         console.error('[customer-billing] account refresh:', error)
         res.status(errorStatus(error)).json({
           success: false,
-          message: error?.message ?? 'Stripe account refresh failed.',
+          message: error?.message ?? 'Billing account refresh failed.',
         })
       }
     },

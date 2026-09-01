@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   buildPriceScheduleSegments,
   buildSubscriptionScheduleCreateParams,
+  syncEnrollmentStripePriceSchedule,
 } from '../stripePriceSchedules.js'
 
 test('a schedule created from a subscription does not send incompatible metadata', () => {
@@ -49,4 +50,45 @@ test('a finite schedule ends after the release boundary even when its final pric
   })
   assert.equal(segments.length, 1)
   assert.equal(segments[0].endDate, Date.UTC(2026, 9, 1) / 1000)
+})
+
+test('household-owned class pricing quarantines a stale Stripe schedule and remains local', async () => {
+  const queries = []
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      queries.push(text)
+      if (/pg_advisory_lock/.test(text)) return { rows: [{}] }
+      if (/pg_advisory_unlock/.test(text)) return { rows: [{ pg_advisory_unlock: true }] }
+      if (/SELECT bs\.\*, fba\.family_id/.test(text)) {
+        return {
+          rows: [{
+            id: 27,
+            family_billing_account_id: 9,
+            family_id: 4,
+            source_id: '111',
+            stripe_subscription_id: 'sub_stale',
+          }],
+        }
+      }
+      if (/FROM enrollment_price_adjustment/.test(text)) return { rows: [] }
+      if (/FROM family_billing_account account/.test(text)) {
+        return {
+          rows: [{
+            id: 9,
+            household_monthly_billing_enabled: true,
+            migration_state: 'verified',
+          }],
+        }
+      }
+      if (/INSERT INTO stripe_billing_alert/.test(text)) return { rows: [{ id: 81 }] }
+      if (/UPDATE billing_subscription/.test(text)) return { rows: [] }
+      throw new Error(`Unexpected query: ${text}`)
+    },
+  }
+
+  const result = await syncEnrollmentStripePriceSchedule(pool, 27)
+  assert.equal(result.status, 'local_authoritative')
+  assert.equal(result.remoteCollectorQuarantined, true)
+  assert.ok(queries.some((sql) => /price_sync_status = \$2/.test(sql)))
 })

@@ -504,6 +504,7 @@ test('persistSignupCharges posts prepaid first-month charge and credit for futur
           firstBillDate: '2026-09-01',
           firstServicePeriodStart: '2026-09-07',
           firstServicePeriodEnd: '2026-09-30',
+          enrollmentStartDate: '2026-07-08',
         },
       ],
       totalCents: 10000,

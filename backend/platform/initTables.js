@@ -3,6 +3,11 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
 import { ensureCoachingBootConstraints } from './ensureCoachingBootConstraints.js'
+import { REQUIRED_BILLING_MIGRATIONS } from '../billing/billingSchemaReadiness.js'
+import {
+  legacyMigrationChecksum,
+  migrationChecksum as sha256MigrationChecksum,
+} from '../deployMigrations.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -23,6 +28,7 @@ const PLATFORM_MIGRATION_LOCK_ID = 884679201
 export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   'add_scheduling_member_pricing.sql',
   'add_program_pricing_defaults.sql',
+  '100_stripe_pending_enrollment_client_confirmed.sql',
   '763_customer_billing_admin.sql',
   '764_canonical_enrollment_promo_assignments.sql',
   '765_restore_failed_customer_billing_promos.sql',
@@ -34,17 +40,153 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '771_membership_payment_allocation.sql',
   '772_payment_application_constraint_cleanup.sql',
   '773_enrollment_paid_through_billing_dates.sql',
+  '774_household_monthly_invoicing.sql',
   '775_annual_membership_renewal_pricing.sql',
+  '775_member_billing_audit_paging_indexes.sql',
   '776_annual_membership_renewal_promo_redemptions.sql',
   '777_media_release_optional.sql',
+  '778_billing_canonical_migration_state.sql',
+  '779_billing_modern_admin_idempotency.sql',
+  '780_scheduling_enrollment_lifecycle_schema.sql',
+  '781_billing_canonical_migration_contract.sql',
+  '782_billing_legacy_endpoint_traffic.sql',
+  '783_member_billing_drop_in_paging_index.sql',
+  '784_billing_household_default_off.sql',
+  '785_billing_migration_durable_safety.sql',
+  '786_billing_household_default_remediation.sql',
+  '787_billing_pause_credit_schema.sql',
+  '788_billing_retirement_evidence.sql',
+  '789_billing_payment_attempt_reservations.sql',
+  '790_billing_migration_subscription_claims.sql',
+  '791_billing_migration_accepted_baselines.sql',
+  '792_billing_monthly_invoice_charge_credits.sql',
+  '793_billing_webhook_claim_leases.sql',
+  '794_billing_payment_attempt_reconciliation_fairness.sql',
+  '795_billing_household_invoice_credit_applications.sql',
+  '796_billing_retirement_invoice_parity.sql',
+  '797_billing_payment_settlement_and_pass_idempotency.sql',
+  '798_checkout_fulfillment_idempotency.sql',
 ])
 
-function migrationChecksum(text) {
+const REQUIRED_BILLING_MIGRATION_SET = new Set(REQUIRED_BILLING_MIGRATIONS)
+
+function compatibilityMigrationChecksum(text) {
   let hash = 0
   for (let index = 0; index < text.length; index += 1) {
     hash = (hash * 31 + text.charCodeAt(index)) >>> 0
   }
   return String(hash)
+}
+
+function requiredBillingMigrationError(code, message, cause = undefined) {
+  const error = new Error(message, cause ? { cause } : undefined)
+  error.code = code
+  return error
+}
+
+export async function verifyAppliedRequiredBillingMigration(client, {
+  filename,
+  migrationPath,
+  storedChecksum,
+  fileExists = fs.existsSync,
+  readFile = fs.readFileSync,
+} = {}) {
+  if (!fileExists(migrationPath)) {
+    throw requiredBillingMigrationError(
+      'REQUIRED_BILLING_MIGRATION_MISSING',
+      `Required billing migration file is missing: ${filename}`,
+    )
+  }
+  const sql = readFile(migrationPath, 'utf8')
+  const checksum = sha256MigrationChecksum(sql)
+  if (String(storedChecksum ?? '') === checksum) return { status: 'verified', checksum }
+
+  const legacyChecksum = legacyMigrationChecksum(sql)
+  if (String(storedChecksum ?? '') !== legacyChecksum) {
+    throw requiredBillingMigrationError(
+      'REQUIRED_BILLING_MIGRATION_CHECKSUM_MISMATCH',
+      `Required billing migration checksum mismatch for ${filename}: database=${storedChecksum ?? 'null'}, file=${checksum}`,
+    )
+  }
+
+  // Historical boot migrations used the numeric checksum. Runtime startup is
+  // deliberately verify-only, so an exact legacy digest remains acceptable
+  // without rewriting schema_migrations. The deploy migration command owns
+  // the transactional SHA-256 upgrade for its allowlisted files.
+  return { status: 'legacy_verified', checksum: legacyChecksum }
+}
+
+export async function verifyRequiredBillingMigrationAtRuntime(client, {
+  filename,
+  migrationPath,
+  isApplied,
+  storedChecksum,
+  fileExists = fs.existsSync,
+  readFile = fs.readFileSync,
+} = {}) {
+  if (!fileExists(migrationPath)) {
+    throw requiredBillingMigrationError(
+      'REQUIRED_BILLING_MIGRATION_MISSING',
+      `Required billing migration file is missing: ${filename}`,
+    )
+  }
+  if (!isApplied) {
+    throw requiredBillingMigrationError(
+      'REQUIRED_BILLING_MIGRATION_NOT_APPLIED',
+      `Required billing migration was not applied by the deployment migration step: ${filename}`,
+    )
+  }
+  return verifyAppliedRequiredBillingMigration(client, {
+    filename,
+    migrationPath,
+    storedChecksum,
+    fileExists,
+    readFile,
+  })
+}
+
+export async function verifyRequiredBillingMigrationsAtRuntime(pool, {
+  migrationFiles = REQUIRED_BILLING_MIGRATIONS,
+  migrationsDirectory = path.join(__dirname, '..', 'migrations'),
+  fileExists = fs.existsSync,
+  readFile = fs.readFileSync,
+} = {}) {
+  const ownsClient = typeof pool.connect === 'function'
+  const client = ownsClient ? await pool.connect() : pool
+  try {
+    let appliedResult
+    try {
+      appliedResult = await client.query(
+        `SELECT filename, checksum
+           FROM schema_migrations
+          WHERE filename = ANY($1::text[])`,
+        [migrationFiles],
+      )
+    } catch (cause) {
+      throw requiredBillingMigrationError(
+        'REQUIRED_BILLING_MIGRATION_VERIFICATION_FAILED',
+        'Required billing migration checksums could not be verified.',
+        cause,
+      )
+    }
+
+    const applied = new Map(appliedResult.rows.map((row) => [String(row.filename), row.checksum]))
+    const migrations = []
+    for (const filename of migrationFiles) {
+      const verification = await verifyRequiredBillingMigrationAtRuntime(client, {
+        filename,
+        migrationPath: path.join(migrationsDirectory, filename),
+        isApplied: applied.has(filename),
+        storedChecksum: applied.get(filename),
+        fileExists,
+        readFile,
+      })
+      migrations.push({ filename, ...verification })
+    }
+    return { ready: true, migrations }
+  } finally {
+    if (ownsClient && typeof client.release === 'function') client.release()
+  }
 }
 
 export async function initPlatformTables(pool) {
@@ -799,12 +941,23 @@ export async function initPlatformTables(pool) {
       )
     `)
     await migrationClient.query('SELECT pg_advisory_lock($1)', [PLATFORM_MIGRATION_LOCK_ID])
-    const appliedResult = await migrationClient.query('SELECT filename FROM schema_migrations')
-    const applied = new Set(appliedResult.rows.map((row) => row.filename))
+    const appliedResult = await migrationClient.query('SELECT filename, checksum FROM schema_migrations')
+    const applied = new Map(appliedResult.rows.map((row) => [row.filename, row.checksum]))
 
     for (const migrationFile of migrationFiles) {
       if (BOOT_SUPERSEDED_MIGRATIONS.has(migrationFile)) {
         console.log(`[initPlatformTables] Skipping superseded boot migration: ${migrationFile}`)
+        continue
+      }
+      if (REQUIRED_BILLING_MIGRATION_SET.has(migrationFile)) {
+        const verification = await verifyRequiredBillingMigrationAtRuntime(migrationClient, {
+          filename: migrationFile,
+          migrationPath: path.join(__dirname, '..', 'migrations', migrationFile),
+          isApplied: applied.has(migrationFile),
+          storedChecksum: applied.get(migrationFile),
+        })
+        applied.set(migrationFile, verification.checksum)
+        console.log(`[initPlatformTables] Required billing migration verified: ${migrationFile}`)
         continue
       }
       if (applied.has(migrationFile)) {
@@ -817,7 +970,7 @@ export async function initPlatformTables(pool) {
         continue
       }
       const sql = fs.readFileSync(migrationPath, 'utf8')
-      const checksum = migrationChecksum(sql)
+      const checksum = compatibilityMigrationChecksum(sql)
       await migrationClient.query('BEGIN')
       try {
         await migrationClient.query(sql)
@@ -828,7 +981,7 @@ export async function initPlatformTables(pool) {
           [migrationFile, checksum],
         )
         await migrationClient.query('COMMIT')
-        applied.add(migrationFile)
+        applied.set(migrationFile, checksum)
       } catch (err) {
         await migrationClient.query('ROLLBACK').catch(() => {})
         const msg = String(err.message || err)
@@ -840,7 +993,7 @@ export async function initPlatformTables(pool) {
              ON CONFLICT (filename) DO NOTHING`,
             [migrationFile, checksum],
           )
-          applied.add(migrationFile)
+          applied.set(migrationFile, checksum)
           continue
         }
         console.error(`[initPlatformTables] Migration ${migrationFile} failed (continuing):`, msg)

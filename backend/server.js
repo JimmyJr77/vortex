@@ -43,7 +43,13 @@ import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { getMemberArchivePreflight, setMemberArchived } from './members/memberArchive.js'
 import { runCatalogRepairMigrations } from './programs/runCatalogRepairMigrations.js'
-import { initPlatformTables } from './platform/initTables.js'
+import {
+  initPlatformTables,
+  verifyRequiredBillingMigrationsAtRuntime,
+} from './platform/initTables.js'
+import { assertRequiredBillingSchema } from './billing/billingSchemaReadiness.js'
+import { assertLegacyBillingRetirementDeploymentReady } from './billing/billingLegacyRetirement.js'
+import { resolveCanonicalActiveMemberFamilyId } from './billing/householdMembership.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
 import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
@@ -316,6 +322,7 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
   ssl: databaseSsl
 })
+let requiredBillingSchemaReady = false
 
 // Test database connection
 pool.on('connect', () => {
@@ -348,6 +355,11 @@ async function isDefaultMasterMemberId(memberId) {
   if (row.email === DEFAULT_MASTER_EMAIL) return true
   if (row.app_user_id) return isDefaultMasterUserById(row.app_user_id)
   return false
+}
+
+export function isRequiredBillingStartupError(error) {
+  const code = String(error?.code ?? '')
+  return code === 'BILLING_SCHEMA_NOT_READY' || code.startsWith('REQUIRED_BILLING_')
 }
 
 // Initialize database tables
@@ -1164,6 +1176,7 @@ export const initDatabase = async () => {
     console.log('✅ Database tables initialized successfully')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
+    if (isRequiredBillingStartupError(error)) throw error
   }
 }
 
@@ -1853,33 +1866,30 @@ const getUserRoles = async (userId) => {
 }
 
 const getUserFamilyContext = async (userId, client = pool) => {
+  const member = await getMemberForAppUser(userId, client)
+  if (!member?.id) return null
+  const familyId = await resolveCanonicalActiveMemberFamilyId(client, {
+    memberId: member.id,
+    facilityId: member.facility_id,
+  })
+  if (!familyId) return null
+
   const result = await client.query(`
-    WITH linked_member AS (
-      SELECT m.*
-      FROM member m
-      WHERE m.app_user_id = $1
-         OR (m.app_user_id IS NULL AND m.id = $1)
-      ORDER BY CASE WHEN m.app_user_id = $1 THEN 0 ELSE 1 END
-      LIMIT 1
-    )
     SELECT
       f.id,
       f.facility_id,
       f.family_name,
-      lm.id as current_member_id,
+      $2::bigint as current_member_id,
       fba.payer_member_id
-    FROM linked_member lm
-    LEFT JOIN family_member fm
-      ON fm.member_id = lm.id
-      AND fm.is_active = TRUE
-    JOIN family f
-      ON f.id = COALESCE(fm.family_id, lm.family_id)
-      AND f.archived = FALSE
+    FROM family f
     LEFT JOIN family_billing_account fba
       ON fba.family_id = f.id
       AND fba.is_active = TRUE
+    WHERE f.id = $1
+      AND f.archived = FALSE
+      AND f.facility_id = $3
     LIMIT 1
-  `, [userId])
+  `, [familyId, member.id, member.facility_id])
   return result.rows[0] ?? null
 }
 
@@ -2765,7 +2775,7 @@ app.get('/api/health', async (req, res) => {
   }
 
   const payload = {
-    status: dbConnected ? 'OK' : 'DEGRADED',
+    status: dbConnected && requiredBillingSchemaReady ? 'OK' : 'DEGRADED',
     buildId: API_BUILD_ID,
     releaseCommit: process.env.RENDER_GIT_COMMIT?.slice(0, 12) ?? null,
     timestamp: new Date().toISOString(),
@@ -2773,6 +2783,7 @@ app.get('/api/health', async (req, res) => {
     emailLayoutVersion: EMAIL_LAYOUT_VERSION,
     dbConnected,
     schemaMigrationsTracked: migrationsTable,
+    billingSchemaReady: requiredBillingSchemaReady,
     apiFeatures: {
       highlights: hasRegisteredRoute('/api/admin/highlights'),
       publicHighlights: hasRegisteredRoute('/api/highlights'),
@@ -2799,7 +2810,7 @@ app.get('/api/health', async (req, res) => {
     },
   }
 
-  if (!dbConnected) {
+  if (!dbConnected || !requiredBillingSchemaReady) {
     return res.status(503).json(payload)
   }
   res.json(payload)
@@ -9057,7 +9068,7 @@ app.get('/api/members/enrollments', authenticateMember, async (req, res) => {
 
     let familyContext = null
     try {
-      familyContext = await ensureUserFamilyContext(userId)
+      familyContext = await getUserFamilyContext(userId)
     } catch (familyError) {
       console.log('Family query failed (non-critical):', familyError.message)
     }
@@ -9113,7 +9124,7 @@ app.post('/api/members/enrollments/:signupId/cancel', authenticateMember, async 
 
     let familyContext = null
     try {
-      familyContext = await ensureUserFamilyContext(userId)
+      familyContext = await getUserFamilyContext(userId)
     } catch {
       familyContext = null
     }
@@ -12771,6 +12782,17 @@ const startServer = async () => {
   console.log(`[Server ${workerId}] Starting server initialization on worker ${workerId}...`)
   try {
     await initDatabase()
+    // Checksum verification is deliberately outside the optional heavyweight
+    // boot-migration branch. SKIP_PLATFORM_BOOT_MIGRATIONS may skip unrelated
+    // compatibility work, but it can never skip the billing deploy contract.
+    await verifyRequiredBillingMigrationsAtRuntime(pool)
+    const billingReadiness = await assertRequiredBillingSchema(pool)
+    requiredBillingSchemaReady = billingReadiness.ready
+    console.log(`[Server ${workerId}] Required billing schema is ready`)
+    const legacyRetirementReadiness = await assertLegacyBillingRetirementDeploymentReady(pool)
+    if (legacyRetirementReadiness.enforced) {
+      console.log(`[Server ${workerId}] Legacy billing retirement evidence is ready`)
+    }
     // Run after initDatabase so schools/notes/saved_query tables are created even when
     // a late step in initDatabase fails (that function swallows errors and keeps going).
     try {
@@ -12852,7 +12874,11 @@ const startServer = async () => {
 
 // Only auto-start if not imported as a module
 if (!process.env.RUN_MIGRATION_ONLY) {
-  startServer().catch(console.error)
+  startServer().catch(async (error) => {
+    console.error(error)
+    process.exitCode = 1
+    await pool.end().catch(() => {})
+  })
 }
 
 // ========== TEMPORARY MIGRATION ENDPOINT ==========

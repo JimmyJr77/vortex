@@ -9,6 +9,12 @@ interface CapturedRequests {
   refundKeys: string[]
   retryCount: number
   newEnrollments?: Array<Record<string, unknown>>
+  externalPayments?: Array<Record<string, unknown>>
+  externalPaymentKeys?: string[]
+  passAdjustments?: Array<Record<string, unknown>>
+  passAdjustmentKeys?: string[]
+  overviewLoads?: number
+  transactionLoads?: number
 }
 
 const failedAdjustment = {
@@ -51,6 +57,10 @@ const overview = {
     refundsCents: 5000,
     balanceCents: 14500,
     outstandingBalanceCents: 14500,
+    collectibleBalanceCents: 14500,
+    monthlyRecurringCents: 20500,
+    monthlyRecurringDiscountCents: 3500,
+    monthlyRecurringPeriod: '2026-09',
     futureCreditsCents: 0,
     paidThisMonthCents: 20500,
     monthlyTotals: { grossCents: 24000, discountCents: 3500, netCents: 20500 },
@@ -186,6 +196,35 @@ const overview = {
   }],
   annualMemberships: [],
   monthlyInvoices: [],
+  bundlePasses: [{
+    id: 55,
+    memberId: 11,
+    memberName: 'Jordan Rivera',
+    programsId: 91,
+    packageId: 'gymnastics-10',
+    packageLabel: '10-class gymnastics bundle',
+    classCountPurchased: 10,
+    classesRemaining: 4,
+    priceCents: 18000,
+    status: 'active',
+    expiresAt: '2026-12-31',
+    purchasedAt: '2026-07-01T14:00:00.000Z',
+  }],
+  bundleUsage: [{
+    id: 70,
+    memberPassId: 55,
+    signupId: 501,
+    memberId: 11,
+    memberName: 'Jordan Rivera',
+    programsId: 91,
+    entryType: 'redemption',
+    classesUsed: 1,
+    creditDelta: -1,
+    classesRemainingAfter: 4,
+    reason: 'Monday Foundations attendance',
+    packageLabel: '10-class gymnastics bundle',
+    createdAt: '2026-08-24T16:00:00.000Z',
+  }],
   subscriptions: [
     {
       id: 71,
@@ -397,11 +436,82 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       return
     }
     if (url.pathname === '/api/admin/customer-billing/families/42/overview') {
-      await json(overview)
+      captured.overviewLoads = (captured.overviewLoads ?? 0) + 1
+      const recordedPaymentCents = (captured.externalPayments ?? [])
+        .reduce((total, payment) => total + Number(payment.amountCents ?? 0), 0)
+      let classesRemaining = overview.bundlePasses[0].classesRemaining
+      const adjustmentUsage = (captured.passAdjustments ?? []).map((adjustment, index) => {
+        const delta = Number(adjustment.delta ?? 0)
+        classesRemaining += delta
+        return {
+          id: 900 + index,
+          memberPassId: 55,
+          signupId: null,
+          memberId: 11,
+          memberName: 'Jordan Rivera',
+          programsId: 91,
+          entryType: 'adjust',
+          classesUsed: Math.abs(delta),
+          creditDelta: delta,
+          classesRemainingAfter: classesRemaining,
+          reason: String(adjustment.reason ?? ''),
+          packageLabel: '10-class gymnastics bundle',
+          createdAt: '2026-08-31T14:00:00.000Z',
+        }
+      })
+      await json({
+        ...overview,
+        revision: `test-${captured.overviewLoads}`,
+        summary: {
+          ...overview.summary,
+          paymentsCents: overview.summary.paymentsCents + recordedPaymentCents,
+          balanceCents: overview.summary.balanceCents - recordedPaymentCents,
+          outstandingBalanceCents: overview.summary.outstandingBalanceCents - recordedPaymentCents,
+          collectibleBalanceCents: overview.summary.collectibleBalanceCents - recordedPaymentCents,
+        },
+        bundlePasses: overview.bundlePasses.map((pass) => ({ ...pass, classesRemaining })),
+        bundleUsage: [...adjustmentUsage.reverse(), ...overview.bundleUsage],
+      })
+      return
+    }
+    if (url.pathname === '/api/admin/customer-billing/families/42/migration-status') {
+      await json({
+        accountId: 7,
+        migrationId: 88,
+        state: 'shadow_verified',
+        parityStatus: 'matched',
+        parity: { balances: true, enrollments: true },
+        targetMonth: '2026-09',
+        attempts: 1,
+        lastError: null,
+        updatedAt: '2026-08-30T12:00:00.000Z',
+        run: {
+          id: 9,
+          key: 'pilot-2026-09',
+          mode: 'pilot',
+          status: 'active',
+          codeVersion: 'test',
+        },
+        exceptions: [],
+      })
       return
     }
     if (url.pathname === '/api/admin/customer-billing/families/42/transactions') {
-      await json({ rows: transactions, nextCursor: null })
+      captured.transactionLoads = (captured.transactionLoads ?? 0) + 1
+      const recordedPayments = (captured.externalPayments ?? []).map((payment, index) => ({
+        entryKind: 'payment',
+        entryType: 'payment',
+        refId: 700 + index,
+        memberId: null,
+        memberName: null,
+        description: `${String(payment.method ?? 'external').replaceAll('_', ' ')} payment${payment.externalReference ? ` · ${String(payment.externalReference)}` : ''}`,
+        amountCents: -Number(payment.amountCents ?? 0),
+        occurredAt: String(payment.paidAt ?? '2026-08-31T14:00:00.000Z'),
+        status: 'recorded',
+        runningBalanceCents: overview.summary.balanceCents - Number(payment.amountCents ?? 0),
+        details: { externalReference: payment.externalReference ?? null },
+      }))
+      await json({ rows: [...recordedPayments, ...transactions], nextCursor: null })
       return
     }
     if (url.pathname === '/api/admin/customer-billing/families/42/activity') {
@@ -427,7 +537,19 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
         reason: body.reason,
         standardPriceCents: 12000,
         aboveList: false,
-        months: [{ periodKey: '2026-08', standardPriceCents: 12000, automaticDiscountCents: 1500, automaticNetCents: 10500, manualAdjustmentCents: 1500, adjustedCostCents: 9000, householdNetCents: 19000, postedAmountCents: 10500, retroactive: true, retroactiveDifferenceCents: -1500 }],
+        months: [{
+          periodKey: '2026-08',
+          standardPriceCents: 12000,
+          automaticDiscountCents: 1500,
+          automaticNetCents: 10500,
+          discountComponents: [{ name: 'Sibling discount', amountCents: 1500, source: 'automatic' }],
+          manualAdjustmentCents: 1500,
+          adjustedCostCents: 9000,
+          householdNetCents: 19000,
+          postedAmountCents: 10500,
+          retroactive: true,
+          retroactiveDifferenceCents: -1500,
+        }],
         retroactiveDifferenceCents: -1500,
         currentBalanceCents: 14500,
         resultingBalanceCents: 13000,
@@ -451,6 +573,20 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       await json({ charge: { id: 400 }, collection: { payment: { id: 401 } }, replayed: false }, 201)
       return
     }
+    if (url.pathname === '/api/admin/customer-billing/families/42/payments' && request.method() === 'POST') {
+      captured.externalPayments?.push(request.postDataJSON() as Record<string, unknown>)
+      captured.externalPaymentKeys?.push(request.headers()['idempotency-key'] ?? '')
+      await json({ payment: { id: 701 }, replayed: false }, 201)
+      return
+    }
+    if (url.pathname === '/api/admin/entitlements/multi-class-passes/55/adjustments' && request.method() === 'POST') {
+      const adjustment = request.postDataJSON() as Record<string, unknown>
+      captured.passAdjustments?.push(adjustment)
+      captured.passAdjustmentKeys?.push(request.headers()['idempotency-key'] ?? '')
+      const totalDelta = (captured.passAdjustments ?? []).reduce((total, row) => total + Number(row.delta ?? 0), 0)
+      await json({ passId: 55, classesRemaining: overview.bundlePasses[0].classesRemaining + totalDelta, appliedDelta: Number(adjustment.delta), replayed: false }, 201)
+      return
+    }
     if (url.pathname.endsWith('/refunds/preview')) {
       await json({ remainingRefundableCents: 16500, amountCents: 5000, currentBalanceCents: 14500, resultingBalanceCents: 14500, ledgerTreatment: 'reverse_charge', relatedCharge: { id: 100, description: 'August tuition · Monday Foundations', amountCents: 12000 } })
       return
@@ -465,13 +601,13 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
   })
 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible({ timeout: 30_000 })
   await page.evaluate(() => {
     window.dispatchEvent(new CustomEvent('vortex:navigate-notification', {
       detail: { portal: 'admin', group: 'accounts', section: 'customerBilling' },
     }))
   })
-  await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible({ timeout: 30_000 })
 }
 
 async function findRiveraAccount(page: Page) {
@@ -543,9 +679,11 @@ test.describe('Account Billing & Enrollments administration', () => {
 
     expect(captured.searchQueries).toContain('555-010-2040')
     await expect(page.getByText('Family #42 · Billing account #7')).toBeVisible()
-    await expect(page.getByText('Monthly recurring', { exact: true })).toBeVisible()
+    await expect(page.getByText('Monthly recurring fee (Sep)', { exact: true })).toBeVisible()
     await expect(page.getByText('$205.00', { exact: true })).toBeVisible()
     await expect(page.getByText('Visa •••• 4242').first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Canonical billing migration' })).toBeVisible()
+    await expect(page.getByText('Parity: matched')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Current & upcoming enrollments' })).toBeVisible()
     await expect(page.getByText('Monday Foundations').first()).toBeVisible()
     await expect(page.getByText('Mondays · 4:00 PM–5:00 PM')).toBeVisible()
@@ -557,14 +695,79 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(consoleErrors).toEqual([])
   })
 
+  test('records external payments and append-only pass adjustments from the modern account', async ({ page }) => {
+    const captured: CapturedRequests = {
+      searchQueries: [],
+      priceChanges: [],
+      customCharges: [],
+      customChargeKeys: [],
+      refunds: [],
+      refundKeys: [],
+      retryCount: 0,
+      externalPayments: [],
+      externalPaymentKeys: [],
+      passAdjustments: [],
+      passAdjustmentKeys: [],
+      overviewLoads: 0,
+      transactionLoads: 0,
+    }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+
+    await expect(page.getByRole('heading', { name: 'Class bundles' })).toBeVisible()
+    await expect(page.getByText('10-class gymnastics bundle')).toBeVisible()
+    await expect(page.getByText('4 / 10', { exact: true })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Record cash/check/external payment' }).click()
+    const paymentDialog = page.getByRole('dialog', { name: 'Record cash/check/external payment' })
+    await expect(paymentDialog).toBeVisible()
+    await paymentDialog.getByRole('spinbutton', { name: 'Payment amount' }).fill('25.00')
+    await paymentDialog.getByRole('combobox', { name: 'Payment method' }).selectOption('check')
+    await paymentDialog.getByLabel('Payment date and time').fill('2026-08-31T09:30')
+    await paymentDialog.getByLabel(/^Check or external reference/).fill('CHK-1842')
+    await paymentDialog.getByLabel(/^Note/).fill('Received at the front desk.')
+    await paymentDialog.getByRole('button', { name: 'Record $25.00 payment' }).click()
+
+    await expect(page.getByText('Check payment of $25.00 recorded and applied to the account.')).toBeVisible()
+    await expect(page.getByText('Account balance', { exact: true }).locator('..').getByText('$120.00', { exact: true })).toBeVisible()
+    await expect(page.getByText(/check payment · CHK-1842/i)).toBeVisible()
+    expect(captured.externalPayments).toHaveLength(1)
+    expect(captured.externalPayments?.[0]).toMatchObject({
+      amountCents: 2500,
+      method: 'check',
+      externalReference: 'CHK-1842',
+      note: 'Received at the front desk.',
+    })
+    expect(String(captured.externalPayments?.[0].paidAt)).toMatch(/^2026-08-31T/)
+    expect(captured.externalPaymentKeys?.[0]).toMatch(/^external-payment-/)
+
+    await page.getByRole('button', { name: 'Adjust 10-class gymnastics bundle balance' }).click()
+    const adjustmentDialog = page.getByRole('dialog', { name: 'Adjust class bundle balance' })
+    await expect(adjustmentDialog).toBeVisible()
+    await adjustmentDialog.getByRole('combobox', { name: 'Adjustment' }).selectOption('add')
+    await adjustmentDialog.getByRole('spinbutton', { name: 'Number of classes' }).fill('2')
+    await adjustmentDialog.getByLabel('Reason').fill('Owner-approved attendance credit correction.')
+    await adjustmentDialog.getByRole('button', { name: 'Record adjustment' }).click()
+
+    await expect(page.getByText('10-class gymnastics bundle adjusted by +2; 6 classes remain.')).toBeVisible()
+    await expect(page.getByText('6 / 10', { exact: true })).toBeVisible()
+    await page.getByText('Recent bundle usage and adjustments').click()
+    await expect(page.getByText('Owner-approved attendance credit correction.')).toBeVisible()
+    expect(captured.passAdjustments).toEqual([{ delta: 2, reason: 'Owner-approved attendance credit correction.' }])
+    expect(captured.passAdjustmentKeys?.[0]).toMatch(/^pass-adjustment-/)
+    expect(captured.passAdjustmentKeys?.[0]).not.toBe(captured.externalPaymentKeys?.[0])
+    expect(captured.overviewLoads).toBeGreaterThanOrEqual(3)
+    expect(captured.transactionLoads).toBeGreaterThanOrEqual(3)
+  })
+
   test('previews price impact and sends authorized, idempotent collection and refund payloads', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
     await findRiveraAccount(page)
 
     const mondayEnrollment = page.getByRole('row', { name: /Monday Foundations/ })
-    await mondayEnrollment.getByRole('button', { name: 'Change price' }).click()
-    await expect(page.getByRole('dialog', { name: 'Change enrollment price' })).toBeVisible()
+    await mondayEnrollment.getByRole('button', { name: 'Modify' }).click()
+    await expect(page.getByRole('dialog', { name: 'Modify enrollment' })).toBeVisible()
     await page.getByRole('spinbutton', { name: /^Final monthly price/ }).fill('90.00')
     await page.getByLabel('Administrative reason').fill('Approved family pricing through account review')
     await page.getByRole('button', { name: 'Preview billing impact' }).click()
@@ -600,8 +803,8 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.refunds[0]).toMatchObject({ paymentId: 200, amountCents: 5000, ledgerTreatment: 'reverse_charge', relatedChargeId: 100, exceptionCategory: 'owner_discretion' })
     expect(captured.refundKeys[0]).toMatch(/^refund-/)
 
-    await page.getByRole('button', { name: 'Retry sync' }).click()
-    await expect(page.getByText('Stripe price schedule synchronized and the price change is now active.')).toBeVisible()
+    await page.getByRole('button', { name: 'Retry Stripe sync' }).click()
+    await expect(page.getByText('Stripe price schedule synchronized successfully.')).toBeVisible()
     expect(captured.retryCount).toBe(1)
   })
 })

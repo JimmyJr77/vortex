@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { reviewCancellationRequest } from '../cancellationReview.js'
+import { listCancellationRequests, reviewCancellationRequest } from '../cancellationReview.js'
 
 function mockPool(request) {
   const calls = []
@@ -8,7 +8,7 @@ function mockPool(request) {
     query: async (sql, params = []) => {
       const text = String(sql)
       calls.push({ text, params })
-      if (text.includes('SELECT * FROM enrollment_cancellation_request')) return { rows: request ? [request] : [] }
+      if (text.includes('FROM enrollment_cancellation_request r')) return { rows: request ? [request] : [] }
       if (text.includes('UPDATE enrollment_cancellation_request')) {
         return { rows: [{ ...request, status: params[1], approved_effective_date: params[2], review_note: params[3] }] }
       }
@@ -28,6 +28,7 @@ test('approval schedules enrollment and subscription end without immediate cance
   })
   const result = await reviewCancellationRequest(pool, {
     requestId: 8, decision: 'approved', reviewNote: 'Recurring membership; end paid period.', reviewedByUserId: 3,
+    facilityId: 2,
   })
   assert.equal(result.status, 'approved')
   assert.equal(result.approved_effective_date, '2026-08-01')
@@ -42,6 +43,7 @@ test('decline records the decision without changing enrollment or subscription',
   })
   const result = await reviewCancellationRequest(pool, {
     requestId: 9, decision: 'declined', reviewNote: 'Fixed-term commitment requires follow-up.', reviewedByUserId: 3,
+    facilityId: 2,
   })
   assert.equal(result.status, 'declined')
   assert.ok(!calls.some(({ text }) => text.includes('UPDATE scheduling_signup')))
@@ -54,4 +56,35 @@ test('review requires a staff note', async () => {
     () => reviewCancellationRequest(pool, { requestId: 9, decision: 'approved', reviewNote: '' }),
     /review note is required/i,
   )
+})
+
+test('review cannot claim a cancellation request in another facility', async () => {
+  const { pool, calls } = mockPool(null)
+  await assert.rejects(
+    reviewCancellationRequest(pool, {
+      requestId: 10,
+      decision: 'declined',
+      reviewNote: 'Attempted cross-facility review.',
+      reviewedByUserId: 3,
+      facilityId: 2,
+    }),
+    /pending cancellation request not found/i,
+  )
+  const claim = calls.find(({ text }) => text.includes('FROM enrollment_cancellation_request r'))
+  assert.deepEqual(claim.params, [10, 2])
+  assert.match(claim.text, /f\.facility_id = \$2/)
+  assert.ok(!calls.some(({ text }) => text.includes('UPDATE enrollment_cancellation_request')))
+})
+
+test('cancellation review queue is limited to the authenticated facility', async () => {
+  let captured
+  const pool = {
+    async query(sql, params) {
+      captured = { sql: String(sql), params }
+      return { rows: [] }
+    },
+  }
+  assert.deepEqual(await listCancellationRequests(pool, { status: 'pending', facilityId: 2 }), [])
+  assert.deepEqual(captured.params, ['pending', 2])
+  assert.match(captured.sql, /f\.facility_id = \$2/)
 })

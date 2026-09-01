@@ -265,10 +265,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `monthly_2x` → 500). Now maps flat 1× programs to `monthly_1x` × quantity via
   `resolveSyncedWeeklyTierCatalogRef` ([weeklyTierPricing.js](../backend/programs/weeklyTierPricing.js),
   [stripeEnrollmentCheckout.js](../backend/billing/stripeEnrollmentCheckout.js)).
-- **Per-class Stripe subscriptions (2026-07):** Enrollment Checkout no longer creates one shared
-  Stripe subscription for multi-class carts. Due-now uses `payment`/`setup`; after commit each
-  class gets its own Stripe Subscription at the discounted net monthly rate so cancel/discounts
-  can target one class without affecting others.
+- **Canonical enrollment collection:** Enrollment Checkout uses `payment`/`setup`, saves a
+  reusable payment method, and keeps one local schedule per class. It does not create shared,
+  per-class, or annual Stripe Subscriptions; future tuition is collected by the household path.
 - **Fixed (2026-07):** Confirm enrollment after Stripe pay failed with toast `"analytics" is not
   allowed` — pending payload stores GA attribution, but `batchSignupSchema` rejected the key.
   Strip `analytics` before `executeSignupBatch` and validate with `stripUnknown`

@@ -24,8 +24,8 @@ import { API_BUILD_ID } from '../buildInfo.js'
 import { loadPortalConfig, savePortalConfig } from './portalSettings.js'
 import {
   stripeEnabled as isStripeEnabled,
-  createCheckoutSession,
-  createCustomerPortalSession,
+  completePaymentMethodSetupSession,
+  createPaymentMethodSetupSession,
   parseWebhookEvent,
   recordStripePayment,
   recordEnrollmentStripePayment,
@@ -36,11 +36,14 @@ import {
 import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
 import {
   invoiceSubscriptionId,
-  recordPaidStripeInvoice,
   resolveStripeWebhookAccountId,
   syncStripeSubscriptionStatus,
 } from '../billing/stripeWebhookLifecycle.js'
-import { validateAnnualMembershipRenewalDiscount } from '../billing/customerBillingPayments.js'
+import { recordAuthoritativeStripeInvoicePayment } from '../billing/stripeInvoicePayments.js'
+import {
+  createCustomerBalanceCheckoutSession,
+  validateAnnualMembershipRenewalDiscount,
+} from '../billing/customerBillingPayments.js'
 import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
@@ -52,16 +55,21 @@ import {
   previewAnnualMembershipCheckout,
   commitAnnualMembershipCheckout,
 } from '../billing/annualMembershipCheckout.js'
+import {
+  FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE,
+  rejectForbiddenSubscriptionCheckoutCompletion,
+} from '../billing/checkoutSessionCollectionPolicy.js'
 import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
 import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import {
   buildCustomerBillingOverview,
   ensureCustomerBillingAccount,
-  listCustomerBillingTransactions,
   listMemberCustomerBillingTransactions,
 } from '../billing/customerBillingQueries.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
+import { loadCustomerBillingBundles } from '../billing/customerBillingBundles.js'
+import { buildMemberBillingOverviewDto } from '../billing/memberBillingDto.js'
 import {
   notifyPaymentReceipt,
   notifyPaymentFailed,
@@ -77,7 +85,6 @@ import {
   resolveStripeBillingAlert,
   syncStripeRefund,
 } from '../billing/stripeOperations.js'
-import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
 import {
   applyBillingAccessAction,
   recordPaymentRecoveryExhaustedAlert,
@@ -96,14 +103,25 @@ import {
   validateManualPaymentInput,
 } from '../billing/billingManualControls.js'
 import { registerCustomerBillingRoutes } from '../billing/customerBillingRoutes.js'
+import { createLegacyBillingEndpointMiddleware } from '../billing/billingLegacyRetirement.js'
+import { billingCanonicalReadMode } from '../billing/billingFeatureFlags.js'
 import { getAdminDashboard } from './adminDashboard.js'
+import { listActiveFamilyMemberIds } from './familyMembers.js'
 import { recordBillingActivityBestEffort } from '../billing/billingActivity.js'
 import {
   finalizeRefundLedgerTreatment,
   linkCustomerBillingPayment,
 } from '../billing/customerBillingPayments.js'
+import {
+  findBillingPaymentAttemptForStripeObject,
+  recordAndCompleteBillingPaymentAttempt,
+  releaseBillingPaymentAttempt,
+} from '../billing/paymentAttemptReservations.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
-import { applyHouseholdMonthlyInvoicePayment } from '../billing/householdMonthlyInvoice.js'
+import {
+  withHouseholdMonthlyInvoiceAccountLock,
+} from '../billing/householdMonthlyInvoice.js'
+import { requireAdminFacilityScope } from '../billing/adminFacilityScope.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -123,12 +141,193 @@ function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
 }
 
-function memberBillingReadV2Enabled() {
-  return process.env.MEMBER_BILLING_READ_V2 !== 'false'
+export function memberBillingReadV2Enabled(environment = process.env) {
+  const canonicalReadMode = billingCanonicalReadMode(environment)
+  // Once legacy routes return 410 there is no safe UI rollback target. Keep the
+  // canonical reader on even if an obsolete flag value remains in deployment.
+  if (String(environment.BILLING_LEGACY_ENDPOINTS_MODE ?? 'enabled').trim().toLowerCase() === 'gone') {
+    return true
+  }
+  const rollbackEnabled = String(environment.MEMBER_BILLING_READ_V2 ?? 'true').trim().toLowerCase() !== 'false'
+  return rollbackEnabled && canonicalReadMode === 'active'
 }
 
-export function canAccessMemberCustomerBilling(account, memberId) {
-  return Boolean(account) && Number(account.payer_member_id) === Number(memberId)
+export function buildMemberCustomerBillingAccess(account, memberId, canViewHousehold = false) {
+  const viewerMemberId = Number(memberId)
+  const canView =
+    account?.is_active === true &&
+    Boolean(canViewHousehold) &&
+    Number.isFinite(viewerMemberId)
+  const isPayer = canView && Number(account.payer_member_id) === viewerMemberId
+  return {
+    viewerMemberId,
+    canViewHousehold: canView,
+    canManagePayments: isPayer,
+    canManagePaymentMethod: isPayer,
+  }
+}
+
+async function isActiveMemberOfFamily(pool, memberId, familyId) {
+  const normalizedMemberId = Number(memberId)
+  const normalizedFamilyId = Number(familyId)
+  if (!Number.isFinite(normalizedMemberId) || !Number.isFinite(normalizedFamilyId)) return false
+  const result = await pool.query(
+    `SELECT 1
+     FROM member m
+     WHERE m.id = $1
+       AND m.is_active = TRUE
+       AND (
+         EXISTS (
+           SELECT 1
+           FROM family_member fm
+           WHERE fm.member_id = m.id
+             AND fm.family_id = $2
+             AND fm.is_active = TRUE
+         )
+         OR (
+           m.family_id = $2
+           AND NOT EXISTS (
+             SELECT 1 FROM family_member existing_membership
+             WHERE existing_membership.member_id = m.id
+           )
+         )
+       )
+     LIMIT 1`,
+    [normalizedMemberId, normalizedFamilyId],
+  )
+  return result.rows.length > 0
+}
+
+export async function resolveActiveMemberBillingFamilyId(pool, {
+  memberId,
+  facilityId = null,
+}) {
+  const normalizedMemberId = Number(memberId)
+  const normalizedFacilityId = facilityId == null ? null : Number(facilityId)
+  if (!Number.isFinite(normalizedMemberId) || normalizedMemberId <= 0) return null
+  if (normalizedFacilityId != null && (!Number.isFinite(normalizedFacilityId) || normalizedFacilityId <= 0)) {
+    return null
+  }
+
+  const result = await pool.query(
+    `WITH viewer AS (
+       SELECT m.id, m.family_id
+       FROM member m
+       WHERE m.id = $1
+         AND m.is_active = TRUE
+         AND ($2::bigint IS NULL OR m.facility_id = $2)
+     ), candidate_families AS (
+       SELECT fm.family_id
+       FROM viewer v
+       JOIN family_member fm ON fm.member_id = v.id
+       WHERE fm.is_active = TRUE
+
+       UNION
+
+       SELECT v.family_id
+       FROM viewer v
+       WHERE v.family_id IS NOT NULL
+         AND NOT EXISTS (
+           SELECT 1
+           FROM family_member historical_membership
+           WHERE historical_membership.member_id = v.id
+         )
+     )
+     SELECT DISTINCT family.id AS family_id
+     FROM candidate_families candidate
+     JOIN family ON family.id = candidate.family_id
+     WHERE ($2::bigint IS NULL OR family.facility_id = $2)
+     ORDER BY family.id
+     LIMIT 2`,
+    [normalizedMemberId, normalizedFacilityId],
+  )
+
+  // A member portal session represents one household. Multiple active links are
+  // ambiguous, so fail closed instead of selecting a billing account arbitrarily.
+  if (result.rows.length !== 1) return null
+  const familyId = Number(result.rows[0].family_id)
+  return Number.isFinite(familyId) && familyId > 0 ? familyId : null
+}
+
+export function normalizeMemberBillingIdempotencyKey(value) {
+  const raw = String(value ?? '').trim()
+  if (!raw) throw new Error('An Idempotency-Key header is required.')
+  if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(raw)) {
+    throw new Error('Idempotency-Key must be 8–120 URL-safe characters.')
+  }
+  return `member-balance-checkout:${raw}`
+}
+
+const TERMINAL_STRIPE_CHECKOUT_COMMIT_STATUSES = Object.freeze({
+  enrollment: new Set(['completed', 'already_completed']),
+  annual_membership: new Set(['completed', 'already_active']),
+})
+
+/**
+ * A paid Checkout event is not safe to acknowledge until its local entitlement
+ * commit is terminal. Nonterminal results must leave the webhook retryable;
+ * otherwise a concurrent or interrupted worker can strand a paid enrollment or
+ * annual membership after Stripe stops delivering the event.
+ */
+export function requireTerminalStripeCheckoutCommit(result, checkoutKind) {
+  const allowedStatuses = TERMINAL_STRIPE_CHECKOUT_COMMIT_STATUSES[checkoutKind]
+  if (!allowedStatuses) throw new Error(`Unknown Stripe checkout kind: ${checkoutKind}`)
+
+  const status = String(result?.status ?? 'missing')
+  if (allowedStatuses.has(status)) return result
+
+  const reason = result?.reason == null ? '' : `: ${String(result.reason)}`
+  const error = new Error(
+    `Stripe ${checkoutKind.replaceAll('_', ' ')} checkout fulfillment is not complete (${status}${reason}).`,
+  )
+  error.code = 'STRIPE_CHECKOUT_FULFILLMENT_INCOMPLETE'
+  error.checkoutKind = checkoutKind
+  error.commitStatus = status
+  throw error
+}
+
+const MEMBER_BILLING_TRANSACTION_CURSOR_KIND = 'member-customer-billing-transactions-v1'
+
+export function encodeMemberBillingTransactionCursor(cursor, { accountId, jwtSecret }) {
+  if (!cursor) return null
+  const normalizedAccountId = Number(accountId)
+  if (!Number.isFinite(normalizedAccountId) || normalizedAccountId <= 0 || !jwtSecret) {
+    throw new Error('Member billing cursor context is invalid.')
+  }
+  return jwt.sign(
+    {
+      kind: MEMBER_BILLING_TRANSACTION_CURSOR_KIND,
+      accountId: normalizedAccountId,
+      cursor: String(cursor),
+    },
+    jwtSecret,
+    { algorithm: 'HS256', noTimestamp: true },
+  )
+}
+
+export function decodeMemberBillingTransactionCursor(value, { accountId, jwtSecret }) {
+  if (!value) return null
+  const token = String(value)
+  const normalizedAccountId = Number(accountId)
+  if (token.length > 4096 || !Number.isFinite(normalizedAccountId) || normalizedAccountId <= 0 || !jwtSecret) {
+    throw new Error('Billing transaction cursor is invalid.')
+  }
+  try {
+    const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] })
+    if (
+      !decoded
+      || typeof decoded !== 'object'
+      || decoded.kind !== MEMBER_BILLING_TRANSACTION_CURSOR_KIND
+      || Number(decoded.accountId) !== normalizedAccountId
+      || typeof decoded.cursor !== 'string'
+      || !decoded.cursor
+    ) {
+      throw new Error('invalid cursor payload')
+    }
+    return decoded.cursor
+  } catch {
+    throw new Error('Billing transaction cursor is invalid.')
+  }
 }
 
 const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
@@ -247,14 +446,8 @@ async function loadUserPermissions(pool, user, roles) {
   }
 }
 
-async function loadAuthContext(pool, jwtSecret, req) {
-  const token = tokenFrom(req)
-  if (!token) return null
-  const decoded = jwt.verify(token, jwtSecret)
-  const userId = decoded.userId || decoded.adminId || decoded.memberId
-  if (!userId) return null
-
-  const userRes = await pool.query(
+export async function loadAuthenticatedPlatformUser(pool, userId) {
+  const result = await pool.query(
     `
       SELECT
         au.id,
@@ -270,15 +463,31 @@ async function loadAuthContext(pool, jwtSecret, req) {
         m.family_id
       FROM app_user au
       LEFT JOIN admin_profile ap ON ap.user_id = au.id
-      LEFT JOIN member m ON m.app_user_id = au.id OR (m.app_user_id IS NULL AND m.id = au.id)
+      LEFT JOIN LATERAL (
+        SELECT candidate.id, candidate.family_id
+        FROM member candidate
+        WHERE candidate.app_user_id = au.id
+        ORDER BY candidate.id
+        LIMIT 1
+      ) m ON TRUE
       WHERE au.id = $1
       LIMIT 1
     `,
     [userId],
   )
 
-  if (userRes.rows.length === 0 || userRes.rows[0].is_active === false) return null
-  const user = userRes.rows[0]
+  return result.rows[0] ?? null
+}
+
+async function loadAuthContext(pool, jwtSecret, req) {
+  const token = tokenFrom(req)
+  if (!token) return null
+  const decoded = jwt.verify(token, jwtSecret)
+  const userId = decoded.userId || decoded.adminId || decoded.memberId
+  if (!userId) return null
+
+  const user = await loadAuthenticatedPlatformUser(pool, userId)
+  if (!user || user.is_active === false) return null
   const roles = await loadUserRoles(pool, user)
   const permissionState = await loadUserPermissions(pool, user, roles)
   return {
@@ -293,6 +502,21 @@ function hasPermission(ctx, permission) {
   return ctx?.isMasterAdmin === true || ctx?.permissions?.includes(permission)
 }
 
+function errorStatus(error, fallback) {
+  const status = Number(error?.statusCode)
+  return Number.isInteger(status) && status >= 400 && status <= 599 ? status : fallback
+}
+
+export function authenticatedAdminBillingScope(platformAuth) {
+  if (platformAuth?.isMasterAdmin === true) {
+    return { facilityId: null, allowGlobal: true }
+  }
+  return {
+    facilityId: requireAdminFacilityScope({ facilityId: platformAuth?.user?.facility_id }),
+    allowGlobal: false,
+  }
+}
+
 function authMiddleware(pool, jwtSecret) {
   return async (req, res, next) => {
     try {
@@ -304,6 +528,26 @@ function authMiddleware(pool, jwtSecret) {
       return res.status(401).json({ success: false, message: 'Invalid or expired token' })
     }
   }
+}
+
+export function linkedPlatformMemberId(platformAuth) {
+  const memberId = Number(platformAuth?.user?.member_id)
+  return Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null
+}
+
+function requireLinkedMemberBillingIdentity(req, res, next) {
+  if (linkedPlatformMemberId(req.platformAuth) == null) {
+    return res.status(403).json({
+      success: false,
+      code: 'MEMBER_ACCOUNT_LINK_REQUIRED',
+      message: 'A linked member profile is required for member billing.',
+    })
+  }
+  next()
+}
+
+function memberBillingAuthMiddleware(pool, jwtSecret) {
+  return [authMiddleware(pool, jwtSecret), requireLinkedMemberBillingIdentity]
 }
 
 function requirePermission(pool, jwtSecret, permission) {
@@ -361,60 +605,68 @@ async function deleteAppUserCompletely(client, userId, facilityId) {
   await client.query('DELETE FROM app_user WHERE id = $1 AND facility_id = $2', [userId, facilityId])
 }
 
-async function ensureBillingAccount(pool, familyId, facilityId = null) {
-  const existing = await pool.query(
-    `SELECT fba.*
-     FROM family_billing_account fba
-     JOIN family f ON f.id = fba.family_id
-     WHERE fba.family_id = $1 AND ($2::bigint IS NULL OR f.facility_id = $2)`,
-    [familyId, facilityId],
-  )
-  if (existing.rows.length > 0) return existing.rows[0]
+export async function loadBillingAccountForFacility(pool, { familyId, facilityId }) {
+  const normalizedFamilyId = Number(familyId)
+  const normalizedFacilityId = Number(facilityId)
+  if (
+    !Number.isFinite(normalizedFamilyId)
+    || normalizedFamilyId <= 0
+    || !Number.isFinite(normalizedFacilityId)
+    || normalizedFacilityId <= 0
+  ) {
+    return null
+  }
 
-  const created = await pool.query(
-    `
-      INSERT INTO family_billing_account (
-        family_id, payer_member_id, billing_email, billing_phone,
-        billing_street, billing_city, billing_state, billing_zip
-      )
-      SELECT
-        f.id,
-        m.id,
-        m.email,
-        m.phone,
-        m.billing_street,
-        m.billing_city,
-        m.billing_state,
-        m.billing_zip
-      FROM family f
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM member
-        WHERE family_id = f.id AND is_active = TRUE
-        ORDER BY (email IS NULL), id
-        LIMIT 1
-      ) m ON TRUE
-      WHERE f.id = $1 AND ($2::bigint IS NULL OR f.facility_id = $2)
-      RETURNING *
-    `,
-    [familyId, facilityId],
+  const result = await pool.query(
+    `SELECT account.*
+       FROM family
+       JOIN family_billing_account account ON account.family_id = family.id
+      WHERE family.id = $1
+        AND family.facility_id = $2`,
+    [normalizedFamilyId, normalizedFacilityId],
   )
-  return created.rows[0] ?? null
+  return result.rows[0] ?? null
 }
 
-async function memberBelongsToFamily(pool, memberId, familyId) {
-  if (!memberId) return true
+async function memberBelongsToFamily(pool, memberId, familyId, facilityId) {
+  if (memberId == null) return true
+  const normalizedMemberId = Number(memberId)
+  const normalizedFamilyId = Number(familyId)
+  const normalizedFacilityId = Number(facilityId)
+  if (
+    !Number.isFinite(normalizedMemberId)
+    || normalizedMemberId <= 0
+    || !Number.isFinite(normalizedFamilyId)
+    || normalizedFamilyId <= 0
+    || !Number.isFinite(normalizedFacilityId)
+    || normalizedFacilityId <= 0
+  ) {
+    return false
+  }
   const res = await pool.query(
     `
-      SELECT 1 FROM member m
-      WHERE m.id = $1 AND (
-        m.family_id = $2 OR EXISTS (
+      SELECT 1
+      FROM member m
+      JOIN family f ON f.id = $2 AND f.facility_id = $3
+      WHERE m.id = $1
+        AND m.facility_id = $3
+        AND m.is_active = TRUE
+        AND (
+        EXISTS (
           SELECT 1 FROM family_member fm
           WHERE fm.member_id = m.id AND fm.family_id = $2 AND fm.is_active = TRUE
         )
+        OR (
+          m.family_id = $2
+          AND NOT EXISTS (
+            SELECT 1
+            FROM family_member historical_membership
+            WHERE historical_membership.member_id = m.id
+          )
+        )
       )
     `,
-    [memberId, familyId],
+    [normalizedMemberId, normalizedFamilyId, normalizedFacilityId],
   )
   return res.rows.length > 0
 }
@@ -571,6 +823,13 @@ function mapPayment(row) {
   }
 }
 
+function normalizeLegacyManualPaymentStatus(value) {
+  const status = String(value ?? '').trim().toLowerCase()
+  if (!status || status === 'recorded' || status === 'settled') return 'settled'
+  if (status === 'succeeded') return 'succeeded'
+  throw new Error('externalStatus must identify a completed payment (settled or succeeded).')
+}
+
 function mapCharge(row) {
   return {
     id: Number(row.id),
@@ -680,6 +939,34 @@ async function ensureCoachOperationalTables(pool) {
 }
 
 export function registerPlatformRoutes(app, pool, { jwtSecret }) {
+  const legacyBillingEndpoint = createLegacyBillingEndpointMiddleware(pool)
+  const rejectLegacyStatementWrite = (_req, res) => res.status(410).json({
+    success: false,
+    code: 'BILLING_LEGACY_STATEMENTS_READ_ONLY',
+    message: 'Legacy billing statements are retained as read-only history.',
+    replacement: {
+      method: 'GET',
+      path: '/api/admin/customer-billing/families/:familyId/transactions',
+    },
+  })
+  const rejectDirectSubscriptionStatusWrite = (_req, res) => res.status(410).json({
+    success: false,
+    code: 'BILLING_SUBSCRIPTION_STATUS_WRITE_RETIRED',
+    message: 'Enrollment lifecycle operations are authoritative; direct subscription status changes are retired.',
+    replacement: {
+      method: 'POST',
+      path: '/api/admin/customer-billing/enrollments/:signupId/cancellation',
+    },
+  })
+  const rejectLegacyPassAdjustmentWrite = (_req, res) => res.status(410).json({
+    success: false,
+    code: 'BILLING_LEGACY_PASS_ADJUSTMENT_RETIRED',
+    message: 'Use the audited entitlement adjustment endpoint for multi-class passes.',
+    replacement: {
+      method: 'POST',
+      path: '/api/admin/entitlements/multi-class-passes/:passId/adjustments',
+    },
+  })
   registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission })
 
   app.get('/api/admin/dashboard', authMiddleware(pool, jwtSecret), async (req, res) => {
@@ -1321,7 +1608,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true })
   })
 
-  app.get('/api/admin/billing/family-lookup', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+  app.get('/api/admin/billing/family-lookup', ...requirePermission(pool, jwtSecret, 'billing.view'), legacyBillingEndpoint, async (req, res) => {
     const query = String(req.query?.q || '').trim()
     if (!query) return res.json({ success: true, data: [] })
 
@@ -1410,22 +1697,26 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/admin/billing/payment-registration-report', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const days = req.query.days == null ? 30 : Number(req.query.days)
       if (!Number.isInteger(days) || days < 1 || days > 365) {
         return res.status(400).json({ success: false, message: 'days must be an integer from 1 to 365' })
       }
-      const data = await buildPaymentRegistrationReport(pool, { days })
+      const data = await buildPaymentRegistrationReport(pool, { days, ...billingScope })
       res.json({ success: true, data })
     } catch (err) {
       console.error('[billing] payment-registration-report:', err)
-      res.status(500).json({ success: false, message: 'Failed to build payment registration report' })
+      res.status(errorStatus(err, 500)).json({ success: false, message: 'Failed to build payment registration report' })
     }
   })
 
-  app.get('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+  app.get('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'billing.view'), legacyBillingEndpoint, async (req, res) => {
     try {
       const familyId = Number(req.params.familyId)
-      const account = await ensureBillingAccount(pool, familyId, req.platformAuth?.user?.facility_id ?? null)
+      const account = await loadBillingAccountForFacility(pool, {
+        familyId,
+        facilityId: req.platformAuth?.user?.facility_id ?? null,
+      })
       if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
       const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
       res.json({
@@ -1501,16 +1792,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: result.rows[0] })
   })
 
-  app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), async (req, res) => {
+  app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), legacyBillingEndpoint, async (req, res) => {
     const familyId = Number(req.params.familyId)
-    const beforeAccount = await ensureBillingAccount(
-      pool,
+    const facilityId = req.platformAuth?.user?.facility_id ?? null
+    const beforeAccount = await loadBillingAccountForFacility(pool, {
       familyId,
-      req.platformAuth?.user?.facility_id ?? null,
-    )
+      facilityId,
+    })
     if (!beforeAccount) return res.status(404).json({ success: false, message: 'Family not found.' })
     const payerMemberId = req.body?.payerMemberId == null ? null : Number(req.body.payerMemberId)
-    if (!(await memberBelongsToFamily(pool, payerMemberId, familyId))) {
+    if (!(await memberBelongsToFamily(pool, payerMemberId, familyId, facilityId))) {
       return res.status(400).json({ success: false, message: 'Payer must belong to this family.' })
     }
     const updated = await pool.query(
@@ -1552,10 +1843,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: mapBillingAccount(updated.rows[0]) })
   })
 
-  app.post('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+  app.post('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
     const familyId = Number(req.params.familyId)
-    const account = await ensureBillingAccount(pool, familyId)
+    const facilityId = req.platformAuth?.user?.facility_id ?? null
+    const account = await loadBillingAccountForFacility(pool, { familyId, facilityId })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const memberId = req.body?.memberId == null ? null : Number(req.body.memberId)
+    if (!(await memberBelongsToFamily(pool, memberId, familyId, facilityId))) {
+      return res.status(400).json({ success: false, message: 'Charge member must belong to this family.' })
+    }
     let validated
     try {
       validated = validateManualChargeInput({
@@ -1583,7 +1879,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       `,
       [
         account.id,
-        req.body?.memberId ?? null,
+        memberId,
         req.body?.sourceType ?? 'manual',
         req.body?.sourceId ?? null,
         validated.description,
@@ -1610,8 +1906,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: mapCharge(charge.rows[0]) })
   })
 
-  app.get('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+  app.get('/api/admin/families/:familyId/charges', ...requirePermission(pool, jwtSecret, 'billing.view'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const charges = await pool.query(
       `
@@ -1626,8 +1925,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: charges.rows.map(mapCharge) })
   })
 
-  app.get('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+  app.get('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.view'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const payments = await pool.query(
       `SELECT * FROM billing_payment WHERE family_billing_account_id = $1 ORDER BY paid_at DESC, id DESC`,
@@ -1636,45 +1938,48 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: payments.rows.map(mapPayment) })
   })
 
-  app.get('/api/admin/families/:familyId/billing-actions', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+  app.get('/api/admin/families/:familyId/billing-actions', ...requirePermission(pool, jwtSecret, 'billing.view'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     res.json({ success: true, data: await listBillingAdminActions(pool, account.id) })
   })
 
-  app.post('/api/admin/families/:familyId/payment-link', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+  app.post('/api/admin/families/:familyId/payment-link', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Stripe is not enabled.' })
     }
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
-    const balanceCents = Math.round(Number(view.balanceCents) || 0)
-    if (balanceCents <= 0) {
-      return res.status(400).json({ success: false, message: 'This account has no outstanding balance.' })
-    }
-
     let action = null
     try {
       const base = publicAppUrl()
-      const session = await createCheckoutSession(pool, {
+      const session = await createCustomerBalanceCheckoutSession(pool, {
         account,
-        balanceCents,
         successUrl: `${base}/?billing=paid`,
         cancelUrl: `${base}/?billing=cancelled`,
+        idempotencyKey: req.get('Idempotency-Key')
+          ? `legacy-admin-balance-checkout:${String(req.get('Idempotency-Key')).slice(0, 120)}`
+          : null,
+        attemptType: 'admin_balance_checkout',
       })
       if (!session?.url) throw new Error('Stripe did not return a checkout URL.')
       action = await beginBillingAdminAction(pool, {
         accountId: account.id,
         actionType: 'payment_link_sent',
-        amountCents: balanceCents,
+        amountCents: session.amountCents,
         stripeObjectId: session.id ?? null,
         initiatedByUserId: req.platformAuth?.user?.id ?? null,
         details: { expiresAt: session.expiresAt },
       })
       const delivery = await notifyPaymentRequest(pool, {
         account,
-        amountCents: balanceCents,
+        amountCents: session.amountCents,
         checkoutUrl: session.url,
         expiresAt: session.expiresAt,
         idempotencyKey: `admin-payment-request-${action.id}`,
@@ -1727,8 +2032,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/admin/families/:familyId/payments/:paymentId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
+  app.post('/api/admin/families/:familyId/payments/:paymentId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const paymentResult = await pool.query(
       `SELECT * FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
@@ -1776,8 +2084,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/admin/families/:familyId/refunds/:refundId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
+  app.post('/api/admin/families/:familyId/refunds/:refundId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const refundResult = await pool.query(
       `SELECT * FROM billing_refund WHERE id = $1 AND family_billing_account_id = $2`,
@@ -1841,8 +2152,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
-  app.post('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+  app.post('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     let validated
     try {
@@ -1855,48 +2169,57 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     } catch (error) {
       return res.status(400).json({ success: false, message: error.message })
     }
-    const payment = await pool.query(
-      `
-        INSERT INTO billing_payment (
-          family_billing_account_id,
-          amount_cents,
-          paid_at,
-          method,
-          note,
-          external_processor,
-          external_reference,
-          external_status,
-          stripe_customer_id,
-          stripe_payment_intent_id,
-          recorded_by_user_id
-        )
-        VALUES ($1, $2, COALESCE($3::timestamptz, now()), $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *
-      `,
-      [
-        account.id,
-        validated.amount,
-        req.body?.paidAt ?? req.body?.paymentDate ?? null,
-        validated.method,
-        validated.note,
-        req.body?.externalProcessor ?? process.env.PAYMENTS_PROVIDER ?? 'external',
-        req.body?.externalReference ?? null,
-        req.body?.externalStatus ?? 'recorded',
-        req.body?.stripeCustomerId ?? null,
-        req.body?.stripePaymentIntentId ?? null,
-        validated.recordedByUserId,
-      ],
-    )
-    const paymentRow = payment.rows[0]
-    await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'admin' })
-    await recordBillingActivityBestEffort(pool, {
-      eventKey: `manual-payment-recorded:${paymentRow.id}`,
-      accountId: account.id,
-      paymentId: paymentRow.id,
-      eventType: 'manual_payment_recorded',
-      summary: 'External or manual payment was recorded.',
-      afterValue: mapPayment(paymentRow),
-      actorUserId: req.platformAuth?.user?.id ?? null,
+    let externalStatus
+    try {
+      externalStatus = normalizeLegacyManualPaymentStatus(req.body?.externalStatus)
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
+    }
+    let paymentRow
+    await withHouseholdMonthlyInvoiceAccountLock(pool, account.id, async (client) => {
+      const payment = await client.query(
+        `
+          INSERT INTO billing_payment (
+            family_billing_account_id,
+            amount_cents,
+            paid_at,
+            method,
+            note,
+            external_processor,
+            external_reference,
+            external_status,
+            stripe_customer_id,
+            stripe_payment_intent_id,
+            recorded_by_user_id
+          )
+          VALUES ($1, $2, COALESCE($3::timestamptz, now()), $4, $5, $6, $7, $8, $9, $10, $11)
+          RETURNING *
+        `,
+        [
+          account.id,
+          validated.amount,
+          req.body?.paidAt ?? req.body?.paymentDate ?? null,
+          validated.method,
+          validated.note,
+          req.body?.externalProcessor ?? process.env.PAYMENTS_PROVIDER ?? 'external',
+          req.body?.externalReference ?? null,
+          externalStatus,
+          req.body?.stripeCustomerId ?? null,
+          req.body?.stripePaymentIntentId ?? null,
+          validated.recordedByUserId,
+        ],
+      )
+      paymentRow = payment.rows[0]
+      await allocateHouseholdPayments(client, { accountId: account.id, actorType: 'admin' })
+      await recordBillingActivityBestEffort(client, {
+        eventKey: `manual-payment-recorded:${paymentRow.id}`,
+        accountId: account.id,
+        paymentId: paymentRow.id,
+        eventType: 'manual_payment_recorded',
+        summary: 'External or manual payment was recorded.',
+        afterValue: mapPayment(paymentRow),
+        actorUserId: req.platformAuth?.user?.id ?? null,
+      })
     })
     res.json({ success: true, data: mapPayment(paymentRow) })
     notifyPaymentReceipt(pool, {
@@ -1906,8 +2229,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }).catch(() => {})
   })
 
-  app.post('/api/admin/families/:familyId/refunds', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+  app.post('/api/admin/families/:familyId/refunds', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
+    const account = await loadBillingAccountForFacility(pool, {
+      familyId: Number(req.params.familyId),
+      facilityId: req.platformAuth?.user?.facility_id ?? null,
+    })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
     const amountCents = Number(req.body?.amountCents)
     if (!Number.isFinite(amountCents) || amountCents <= 0) {
@@ -1949,100 +2275,26 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.patch('/api/admin/subscriptions/:id/status', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const id = Number(req.params.id)
-    const status = req.body?.status
-    if (!['active', 'paused', 'cancelled'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'status must be active, paused, or cancelled.' })
-    }
-    const existing = await pool.query(`SELECT * FROM billing_subscription WHERE id = $1`, [id])
-    if (!existing.rows[0]) return res.status(404).json({ success: false, message: 'Subscription not found.' })
-    if (existing.rows[0].stripe_subscription_id) {
-      const stripeResult = await setStripeSubscriptionOperationalStatus(existing.rows[0].stripe_subscription_id, status)
-      if (stripeResult.status === 'error') {
-        return res.status(502).json({ success: false, message: `Stripe update failed: ${stripeResult.reason}` })
-      }
-    }
-    let sql
-    let params
-    if (status === 'cancelled') {
-      sql = `UPDATE billing_subscription SET status = 'cancelled', end_date = CURRENT_DATE, next_bill_date = NULL, auto_renewal = FALSE, updated_at = now() WHERE id = $1 RETURNING *`
-      params = [id]
-    } else if (status === 'paused') {
-      sql = `UPDATE billing_subscription SET status = 'paused', updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
-      params = [id]
-    } else {
-      // Reactivate: if next_bill_date is null, set to today so the next run picks it up.
-      sql = `UPDATE billing_subscription SET status = 'active', end_date = NULL, next_bill_date = COALESCE(next_bill_date, CURRENT_DATE), auto_renewal = TRUE, updated_at = now() WHERE id = $1 AND status <> 'cancelled' RETURNING *`
-      params = [id]
-    }
-    const updated = await pool.query(sql, params)
-    if (updated.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Subscription not found or already cancelled.' })
-    }
-    await recordBillingActivityBestEffort(pool, {
-      eventKey: `subscription-status:${id}:${status}:${new Date(updated.rows[0].updated_at).getTime()}`,
-      accountId: updated.rows[0].family_billing_account_id,
-      memberId: updated.rows[0].member_id,
-      signupId: updated.rows[0].source_type === 'scheduling_signup' ? Number(updated.rows[0].source_id) : null,
-      eventType: 'subscription_status_changed',
-      summary: `Recurring billing was changed from ${existing.rows[0].status} to ${status}.`,
-      beforeValue: existing.rows[0],
-      afterValue: updated.rows[0],
-      actorUserId: req.platformAuth?.user?.id ?? null,
-    })
-    res.json({ success: true, data: updated.rows[0] })
-  })
+  app.patch(
+    '/api/admin/subscriptions/:id/status',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    legacyBillingEndpoint,
+    rejectDirectSubscriptionStatusWrite,
+  )
 
-  app.post('/api/admin/members/:memberId/passes/:passId/adjust', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const memberId = Number(req.params.memberId)
-    const passId = Number(req.params.passId)
-    const delta = Math.round(Number(req.body?.delta))
-    if (!Number.isFinite(delta) || delta === 0) {
-      return res.status(400).json({ success: false, message: 'Non-zero integer delta is required.' })
-    }
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-      const passRes = await client.query(
-        `SELECT id, member_id, programs_id, classes_remaining FROM member_multi_class_pass WHERE id = $1 AND member_id = $2 FOR UPDATE`,
-        [passId, memberId],
-      )
-      if (passRes.rows.length === 0) {
-        await client.query('ROLLBACK')
-        return res.status(404).json({ success: false, message: 'Pass not found for member.' })
-      }
-      const pass = passRes.rows[0]
-      const newRemaining = Math.max(0, Number(pass.classes_remaining) + delta)
-      const appliedDelta = newRemaining - Number(pass.classes_remaining)
-      await client.query(
-        `UPDATE member_multi_class_pass
-         SET classes_remaining = $2,
-             status = CASE WHEN $2 > 0 AND status = 'expired' THEN 'active' ELSE status END,
-             updated_at = now()
-         WHERE id = $1`,
-        [passId, newRemaining],
-      )
-      await client.query(
-        `INSERT INTO multi_class_pass_redemption
-           (member_pass_id, signup_id, member_id, programs_id, classes_used, classes_remaining_after, entry_type, credit_delta, reason)
-         VALUES ($1, NULL, $2, $3, $4, $5, 'adjust', $6, $7)`,
-        [passId, memberId, pass.programs_id, Math.abs(appliedDelta), newRemaining, appliedDelta, req.body?.reason ?? 'Manual adjustment'],
-      )
-      await client.query('COMMIT')
-      res.json({ success: true, data: { passId, classesRemaining: newRemaining, appliedDelta } })
-    } catch (err) {
-      await client.query('ROLLBACK')
-      console.error('[billing] pass adjust failed:', err.message)
-      res.status(500).json({ success: false, message: 'Failed to adjust pass.' })
-    } finally {
-      client.release()
-    }
-  })
+  app.post(
+    '/api/admin/members/:memberId/passes/:passId/adjust',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    legacyBillingEndpoint,
+    rejectLegacyPassAdjustmentWrite,
+  )
 
   app.get('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
-      const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
+      const account = await loadBillingAccountForFacility(pool, {
+        familyId: Number(req.params.familyId),
+        facilityId: req.platformAuth?.user?.facility_id ?? null,
+      })
       if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
       const statements = await pool.query(
         `SELECT * FROM billing_statement WHERE family_billing_account_id = $1 ORDER BY statement_date DESC, id DESC`,
@@ -2077,94 +2329,19 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/admin/families/:familyId/statements', ...requirePermission(pool, jwtSecret, 'billing.statements.manage'), async (req, res) => {
-    const account = await ensureBillingAccount(pool, Number(req.params.familyId), req.platformAuth?.user?.facility_id ?? null)
-    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const charges = await pool.query(
-      `
-        SELECT c.*,
-               CASE
-                 WHEN c.amount_cents > 0 THEN GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0))
-                 ELSE c.amount_cents
-               END::int AS statement_amount_cents
-        FROM billing_charge c
-        LEFT JOIN LATERAL (
-          SELECT SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END)::int AS applied_cents
-          FROM billing_payment_application
-          WHERE billing_charge_id = c.id
-        ) app ON TRUE
-        WHERE c.family_billing_account_id = $1
-          AND (c.amount_cents < 0 OR GREATEST(0, c.amount_cents - COALESCE(app.applied_cents, 0)) > 0)
-        ORDER BY c.created_at, c.id
-      `,
-      [account.id],
-    )
-    const statementLines = charges.rows.map((charge) => ({
-      ...charge,
-      amount_cents: Number(charge.statement_amount_cents),
-    }))
-    const total = statementLines.reduce((sum, charge) => sum + Number(charge.amount_cents ?? 0), 0)
-    if (statementLines.length === 0 || total <= 0) {
-      return res.status(400).json({ success: false, message: 'This household has no outstanding charges to include on a statement.' })
-    }
-    await pool.query('BEGIN')
-    try {
-      const statement = await pool.query(
-        `
-          INSERT INTO billing_statement (family_billing_account_id, statement_date, due_date, total_cents, status)
-          VALUES ($1, COALESCE($2::date, CURRENT_DATE), $3::date, $4, $5)
-          RETURNING *
-        `,
-        [account.id, req.body?.statementDate ?? null, req.body?.dueDate ?? null, total, req.body?.status ?? 'issued'],
-      )
-      for (const charge of statementLines) {
-        await pool.query(
-          `
-            INSERT INTO billing_statement_line (statement_id, charge_id, member_id, description, amount_cents)
-            VALUES ($1, $2, $3, $4, $5)
-          `,
-          [statement.rows[0].id, charge.id, charge.member_id, charge.description, charge.amount_cents],
-        )
-      }
-      await pool.query('COMMIT')
-      await recordBillingActivityBestEffort(pool, {
-        eventKey: `statement-generated:${statement.rows[0].id}`,
-        accountId: account.id,
-        eventType: 'statement_generated',
-        summary: `Statement #${statement.rows[0].id} was generated.`,
-        afterValue: mapStatement(statement.rows[0], statementLines),
-        actorUserId: req.platformAuth?.user?.id ?? null,
-      })
-      res.json({ success: true, data: mapStatement(statement.rows[0], statementLines) })
-    } catch (error) {
-      await pool.query('ROLLBACK')
-      res.status(400).json({ success: false, message: error.message })
-    }
-  })
+  app.post(
+    '/api/admin/families/:familyId/statements',
+    ...requirePermission(pool, jwtSecret, 'billing.statements.manage'),
+    legacyBillingEndpoint,
+    rejectLegacyStatementWrite,
+  )
 
-  app.patch('/api/admin/statements/:statementId/status', ...requirePermission(pool, jwtSecret, 'billing.statements.manage'), async (req, res) => {
-    const statementId = Number(req.params.statementId)
-    const status = String(req.body?.status || '').trim()
-    if (!['draft', 'issued', 'paid', 'void'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid statement status.' })
-    }
-    const beforeStatement = await pool.query(`SELECT * FROM billing_statement WHERE id = $1`, [statementId])
-    const updated = await pool.query(
-      `UPDATE billing_statement SET status = $2, updated_at = now() WHERE id = $1 RETURNING *`,
-      [statementId, status],
-    )
-    if (updated.rows.length === 0) return res.status(404).json({ success: false, message: 'Statement not found.' })
-    await recordBillingActivityBestEffort(pool, {
-      eventKey: `statement-status:${statementId}:${status}:${new Date(updated.rows[0].updated_at).getTime()}`,
-      accountId: updated.rows[0].family_billing_account_id,
-      eventType: 'statement_status_changed',
-      summary: `Statement #${statementId} was marked ${status}.`,
-      beforeValue: beforeStatement.rows[0] ?? null,
-      afterValue: updated.rows[0],
-      actorUserId: req.platformAuth?.user?.id ?? null,
-    })
-    res.json({ success: true, data: mapStatement(updated.rows[0]) })
-  })
+  app.patch(
+    '/api/admin/statements/:statementId/status',
+    ...requirePermission(pool, jwtSecret, 'billing.statements.manage'),
+    legacyBillingEndpoint,
+    rejectLegacyStatementWrite,
+  )
 
   app.get('/api/admin/waivers/templates', ...requirePermission(pool, jwtSecret, 'waivers.view'), async (_req, res) => {
     const templates = await pool.query(
@@ -2402,26 +2579,25 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: created.rows[0] })
   })
 
-  app.get('/api/members/multi-class-passes', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/multi-class-passes', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
       const ctx = req.platformAuth
-      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-      const familyId = ctx.user.family_id
+      const memberId = linkedPlatformMemberId(ctx)
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+        memberId,
+        facilityId: ctx.user.facility_id ?? null,
+      })
       const { loadMemberPassBalances } = await import('../programs/multiClassPass.js')
 
       let canSeeFamily = false
       if (familyId) {
-        const account = await ensureBillingAccount(pool, familyId)
+        const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
         canSeeFamily = Boolean(account) && Number(account.payer_member_id) === memberId
       }
 
       let memberIds = [memberId]
       if (canSeeFamily && familyId) {
-        const fam = await pool.query(
-          `SELECT id FROM member WHERE family_id = $1 AND is_active = TRUE`,
-          [familyId],
-        )
-        memberIds = fam.rows.map((r) => Number(r.id))
+        memberIds = await listActiveFamilyMemberIds(pool, familyId, { fallbackMemberId: memberId })
       }
 
       const all = []
@@ -2437,17 +2613,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.get('/api/members/billing/account', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/billing/account', ...memberBillingAuthMiddleware(pool, jwtSecret), legacyBillingEndpoint, async (req, res) => {
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) {
       return res.json({
         success: true,
         data: { account: null, charges: [], payments: [], chargesCents: 0, paymentsCents: 0, balanceCents: 0, canSeeFamily: false },
       })
     }
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) {
       return res.json({
         success: true,
@@ -2488,51 +2667,49 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
-  app.get('/api/members/billing/customer-account', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/billing/customer-account', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
+      if (!memberBillingReadV2Enabled()) {
+        return res.status(503).json({
+          success: false,
+          code: 'BILLING_CANONICAL_READ_INACTIVE',
+          message: 'Canonical household billing is not active for member reads.',
+        })
+      }
       const startedAt = Date.now()
       const ctx = req.platformAuth
-      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-      const familyId = ctx.user.family_id == null ? null : Number(ctx.user.family_id)
-      if (!familyId) {
-        return res.json({ success: true, data: { canSeeFamily: false, overview: null, transactions: [] } })
-      }
-
-      const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
-      const canSeeFamily = canAccessMemberCustomerBilling(account, memberId)
-      if (!account || !canSeeFamily) {
-        return res.json({ success: true, data: { canSeeFamily: false, overview: null, transactions: [] } })
-      }
-
-      const overview = await buildCustomerBillingOverview(pool, {
-        familyId,
+      const memberId = linkedPlatformMemberId(ctx)
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+        memberId,
         facilityId: ctx.user.facility_id ?? null,
-        readMode: 'member',
       })
-      const transactionPage = memberBillingReadV2Enabled()
-        ? { rows: [], nextCursor: null }
-        : await listCustomerBillingTransactions(pool, { accountId: account.id, limit: 500 })
-      const transactions = transactionPage.rows.map((row) => ({
-        entryKind: row.entryKind,
-        entryType: row.entryType,
-        refId: row.refId,
-        memberId: row.memberId,
-        memberName: row.memberName,
-        description: row.description,
-        billingMonths: row.billingMonths,
-        amountCents: row.amountCents,
-        occurredAt: row.occurredAt,
-        status: row.status,
-        runningBalanceCents: row.runningBalanceCents,
-      }))
+      if (!familyId) {
+        return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+      }
+      const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+      if (!account) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+      const access = buildMemberCustomerBillingAccess(account, memberId, true)
+
+      const [overview, bundles] = await Promise.all([
+        buildCustomerBillingOverview(pool, {
+          familyId,
+          facilityId: ctx.user.facility_id ?? null,
+          readMode: 'member',
+        }),
+        loadCustomerBillingBundles(pool, { familyId, usageLimit: 100 }),
+      ])
+      if (overview?.revision) {
+        res.setHeader('ETag', `W/"billing-${overview.revision}"`)
+      }
       res.json({
         success: true,
         data: {
-          canSeeFamily: true,
-          overview: overview ? { ...overview, alerts: [] } : null,
-          transactions,
-          // The pre-flag response intentionally remains a single legacy audit
-          // payload. Progressive paging is only enabled on the new read path.
+          access,
+          revision: overview?.revision ?? null,
+          overview: overview
+            ? buildMemberBillingOverviewDto({ ...overview, ...bundles, alerts: [] })
+            : null,
+          transactions: [],
           nextTransactionCursor: null,
         },
       })
@@ -2547,22 +2724,40 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.get('/api/members/billing/customer-account/transactions', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/billing/customer-account/transactions', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
+      if (!memberBillingReadV2Enabled()) {
+        return res.status(503).json({
+          success: false,
+          code: 'BILLING_CANONICAL_READ_INACTIVE',
+          message: 'Canonical household billing is not active for member reads.',
+        })
+      }
       const startedAt = Date.now()
       const ctx = req.platformAuth
-      const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-      const familyId = ctx.user.family_id == null ? null : Number(ctx.user.family_id)
+      const memberId = linkedPlatformMemberId(ctx)
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+        memberId,
+        facilityId: ctx.user.facility_id ?? null,
+      })
       if (!familyId) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
-
       const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
-      if (!canAccessMemberCustomerBilling(account, memberId)) {
-        return res.status(403).json({ success: false, message: 'Family billing details are available to the account payer.' })
+      if (!account) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+      const access = buildMemberCustomerBillingAccess(account, memberId, true)
+
+      let transactionCursor = null
+      try {
+        transactionCursor = decodeMemberBillingTransactionCursor(
+          typeof req.query.cursor === 'string' ? req.query.cursor : null,
+          { accountId: account.id, jwtSecret },
+        )
+      } catch (error) {
+        return res.status(400).json({ success: false, message: error.message })
       }
 
       const page = await listMemberCustomerBillingTransactions(pool, {
         accountId: account.id,
-        cursor: typeof req.query.cursor === 'string' ? req.query.cursor : null,
+        cursor: transactionCursor,
         limit: Math.min(50, Math.max(1, Number(req.query.limit) || 50)),
       })
       const rows = page.rows.map((row) => ({
@@ -2578,7 +2773,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         status: row.status,
         runningBalanceCents: row.runningBalanceCents,
       }))
-      res.json({ success: true, data: { rows, nextCursor: page.nextCursor } })
+      res.json({
+        success: true,
+        data: {
+          access,
+          rows,
+          nextCursor: encodeMemberBillingTransactionCursor(page.nextCursor, {
+            accountId: account.id,
+            jwtSecret,
+          }),
+        },
+      })
       console.info('[members] customer billing transactions loaded', {
         memberId,
         accountId: Number(account.id),
@@ -2591,77 +2796,97 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/members/billing/checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
+  const createMemberBalanceCheckout = async (req, res) => {
+    let idempotencyKey
+    try {
+      idempotencyKey = normalizeMemberBillingIdempotencyKey(req.get('Idempotency-Key'))
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
+    }
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
     }
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const canPay = Number(account.payer_member_id) === memberId
-    if (!canPay) return res.status(403).json({ success: false, message: 'Only the family payer can make a payment.' })
-
-    const ledger = await pool.query(
-      `
-        SELECT
-          COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int as charges_cents,
-          COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int as payments_cents
-      `,
-      [account.id],
-    )
-    const balanceCents = Number(ledger.rows[0]?.charges_cents ?? 0) - Number(ledger.rows[0]?.payments_cents ?? 0)
-    if (balanceCents <= 0) {
-      return res.status(400).json({ success: false, message: 'No outstanding balance to pay.' })
+    const access = buildMemberCustomerBillingAccess(account, memberId, true)
+    if (!access.canManagePayments) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can make a payment.' })
     }
+
     try {
       const base = publicAppUrl()
-      const session = await createCheckoutSession(pool, {
+      const session = await createCustomerBalanceCheckoutSession(pool, {
         account,
-        balanceCents,
         successUrl: `${base}/?billing=paid`,
         cancelUrl: `${base}/?billing=cancelled`,
         analytics: sanitizeCheckoutAnalytics(req.body?.analytics),
+        // Stripe idempotency keys are account-wide. Add the server-owned account
+        // id so a key replay after a household reassignment cannot collide with
+        // another family's checkout.
+        idempotencyKey: `${idempotencyKey}:account-${Number(account.id)}`,
       })
       if (!session) return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
       res.json({ success: true, data: session })
     } catch (err) {
-      console.error('[stripe] checkout-session:', err)
-      res.status(500).json({ success: false, message: 'Failed to start checkout.' })
+      console.error('[stripe] member balance checkout:', err)
+      const noBalance = /no unpaid balance|no outstanding balance/i.test(String(err?.message ?? ''))
+      res.status(noBalance ? 400 : 500).json({
+        success: false,
+        message: noBalance ? 'No outstanding balance to pay.' : 'Failed to start checkout.',
+      })
     }
-  })
+  }
 
-  app.post('/api/members/billing/customer-portal', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/payments/checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), createMemberBalanceCheckout)
+  app.post('/api/members/billing/checkout-session', ...memberBillingAuthMiddleware(pool, jwtSecret), legacyBillingEndpoint, createMemberBalanceCheckout)
+
+  const createMemberPaymentMethodSession = async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online billing is not enabled yet.' })
     }
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    if (Number(account.payer_member_id) !== memberId) {
+    const access = buildMemberCustomerBillingAccess(account, memberId, true)
+    if (!access.canManagePaymentMethod) {
       return res.status(403).json({ success: false, message: 'Only the family payer can manage payment methods.' })
     }
     try {
-      const session = await createCustomerPortalSession(pool, {
+      const session = await createPaymentMethodSetupSession(pool, {
         account,
         returnUrl: `${publicAppUrl()}/?billing=portal-return`,
       })
       if (!session?.url) throw new Error('Stripe did not return a portal URL.')
       res.json({ success: true, data: { url: session.url } })
     } catch (err) {
-      console.error('[stripe] customer-portal:', err)
+      console.error('[stripe] member payment method session:', err)
       res.status(500).json({ success: false, message: 'Failed to open payment settings.' })
     }
-  })
+  }
 
-  app.get('/api/members/billing/annual-membership', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/payment-method-session', ...memberBillingAuthMiddleware(pool, jwtSecret), createMemberPaymentMethodSession)
+  app.post('/api/members/billing/customer-portal', ...memberBillingAuthMiddleware(pool, jwtSecret), legacyBillingEndpoint, createMemberPaymentMethodSession)
+
+  app.get('/api/members/billing/annual-membership', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
-    const familyId = ctx.user.family_id
+    const viewerMemberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId: viewerMemberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) {
       return res.json({
         success: true,
@@ -2676,16 +2901,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         },
       })
     }
-    const athleteMemberId = Number(req.query.memberId ?? ctx.user.member_id ?? ctx.user.id)
-    const memberCheck = await pool.query(
-      `SELECT id FROM member WHERE id = $1 AND family_id = $2 AND is_active = TRUE`,
-      [athleteMemberId, familyId],
-    )
-    if (memberCheck.rows.length === 0) {
+    const athleteMemberId = Number(req.query.memberId ?? viewerMemberId)
+    if (!(await isActiveMemberOfFamily(pool, athleteMemberId, familyId))) {
       return res.status(404).json({ success: false, message: 'Athlete not found.' })
     }
     try {
-      const offer = await getAnnualMembershipOffer(pool, athleteMemberId)
+      const offer = await getAnnualMembershipOffer(
+        pool,
+        athleteMemberId,
+        ctx.user.facility_id ?? null,
+      )
       res.json({ success: true, data: offer })
     } catch (err) {
       console.error('[billing] annual-membership offer:', err)
@@ -2693,7 +2918,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/members/billing/annual-membership-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/annual-membership-checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({
         success: false,
@@ -2702,10 +2927,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       })
     }
     const ctx = req.platformAuth
-    const payerMemberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const payerMemberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId: payerMemberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
     const canPay = Number(account.payer_member_id) === payerMemberId
     if (!canPay) {
@@ -2748,6 +2976,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         promoCodesByMemberId,
         successUrl,
         cancelUrl,
+        idempotencyKey: req.get('Idempotency-Key'),
       })
       // A 100%-waived promo activates memberships immediately with no Stripe session.
       if (result?.free) {
@@ -2767,13 +2996,19 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/members/billing/annual-membership-preview', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/annual-membership-preview', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
-    const payerMemberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const payerMemberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId: payerMemberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    if (Number(account.payer_member_id) !== payerMemberId) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can preview annual membership pricing.' })
+    }
 
     const athleteMemberId = Number(req.body?.memberId ?? payerMemberId)
     const memberIds = Array.isArray(req.body?.memberIds)
@@ -2809,15 +3044,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.post('/api/members/billing/confirm-annual-membership-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/confirm-annual-membership-checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.' })
     }
     const ctx = req.platformAuth
-    const familyId = ctx.user.family_id
+    const payerMemberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId: payerMemberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    if (Number(account.payer_member_id) !== payerMemberId) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can confirm annual membership checkout.' })
+    }
 
     const checkoutSessionId = req.body?.checkoutSessionId ?? req.body?.sessionId ?? null
     if (!checkoutSessionId) {
@@ -2833,22 +3075,30 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         stripeSession: session,
         accountId: account.id,
       })
+      requireTerminalStripeCheckoutCommit(result, 'annual_membership')
       res.json({ success: true, data: result })
     } catch (err) {
       console.error('[stripe] confirm-annual-membership-checkout:', err)
-      res.status(500).json({ success: false, message: err.message || 'Failed to confirm membership.' })
+      const status = [
+        'STRIPE_CHECKOUT_FULFILLMENT_INCOMPLETE',
+        FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE,
+      ].includes(err?.code) ? 409 : 500
+      res.status(status).json({ success: false, message: err.message || 'Failed to confirm membership.' })
     }
   })
 
-  app.post('/api/members/billing/enrollment-checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/enrollment-checkout-session', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
     }
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
     if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
     const canPay = Number(account.payer_member_id) === memberId
     if (!canPay) {
@@ -2880,6 +3130,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         },
         successUrl: `${base}/?enrollment=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${base}/?enrollment=cancelled`,
+        idempotencyKey: req.get('Idempotency-Key'),
       })
       if (!result) {
         return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
@@ -2890,19 +3141,27 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data: { url: result.url, pendingEnrollmentId: result.pendingEnrollmentId } })
     } catch (err) {
       console.error('[stripe] enrollment-checkout-session:', err)
-      const status = err?.code === 'ENROLLMENT_START_DATE_REQUIRED' ? 400 : 500
+      const status = err?.statusCode ?? (err?.code === 'ENROLLMENT_START_DATE_REQUIRED' ? 400 : 500)
       res.status(status).json({ success: false, message: err.message || 'Failed to start enrollment checkout.' })
     }
   })
 
-  app.post('/api/members/billing/confirm-enrollment-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post('/api/members/billing/confirm-enrollment-checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
     }
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+      memberId,
+      facilityId: ctx.user.facility_id ?? null,
+    })
     if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    if (Number(account.payer_member_id) !== memberId) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can confirm enrollment checkout.' })
+    }
 
     const checkoutSessionId = req.body?.checkoutSessionId ?? req.body?.sessionId ?? null
     const pendingEnrollmentId = req.body?.pendingEnrollmentId ?? null
@@ -2918,7 +3177,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data: result })
     } catch (err) {
       console.error('[stripe] confirm-enrollment-checkout:', err)
-      res.status(400).json({ success: false, message: err.message || 'Failed to confirm enrollment.' })
+      res.status(err?.statusCode ?? 400).json({ success: false, message: err.message || 'Failed to confirm enrollment.' })
     }
   })
 
@@ -2947,64 +3206,174 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const rawBody = stripeWebhookRawBody(req)
     const signature = req.headers['stripe-signature']
     let event = null
+    let webhookClaim = null
     try {
       event = await parseWebhookEvent(rawBody, signature)
       if (!event) return res.status(400).json({ success: false })
-      const claim = await beginStripeWebhookEvent(pool, event)
-      if (claim.replayed) return res.json({ received: true, replayed: true })
-      if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
+      webhookClaim = await beginStripeWebhookEvent(pool, event)
+      if (webhookClaim.replayed) return res.json({ received: true, replayed: true })
+      if (!webhookClaim.claimed) {
+        // Do not run the same event concurrently, and do not acknowledge it as
+        // delivered. Stripe will retry; a later delivery can reclaim the lease
+        // if the current worker never completes.
+        return res.status(409).json({ received: false, processing: true })
+      }
+      if (
+        event.type === 'checkout.session.completed'
+        || event.type === 'checkout.session.async_payment_succeeded'
+        || event.type === 'payment_intent.succeeded'
+      ) {
         const obj = event.data?.object ?? {}
+        const isCheckoutFulfillmentEvent =
+          event.type === 'checkout.session.completed'
+          || event.type === 'checkout.session.async_payment_succeeded'
+        const checkoutKind = obj.metadata?.checkoutType === 'enrollment'
+          ? 'enrollment'
+          : obj.metadata?.checkoutType === 'annual_membership'
+            ? 'annual_membership'
+            : null
+        const isPaymentMethodSetup =
+          event.type === 'checkout.session.completed'
+          && obj.mode === 'setup'
+          && obj.status === 'complete'
+          && obj.metadata?.checkoutType === 'payment_method_update'
+        if (isPaymentMethodSetup) {
+          const stripe = await getStripeClient()
+          await completePaymentMethodSetupSession(pool, { session: obj, stripe })
+          await completeStripeWebhookEvent(pool, event, webhookClaim)
+          return res.json({ received: true, paymentMethodUpdated: true })
+        }
+        if (isCheckoutFulfillmentEvent && checkoutKind) {
+          await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+            session: obj,
+            checkoutKind,
+            pendingEnrollmentId: checkoutKind === 'enrollment'
+              ? obj.metadata?.pendingEnrollmentId
+              : null,
+            accountId: obj.metadata?.familyBillingAccountId,
+          })
+        }
+        const isCompletedSetupSession =
+          event.type === 'checkout.session.completed'
+          && obj.mode === 'setup'
+          && obj.status === 'complete'
+        if (
+          event.type === 'checkout.session.completed'
+          && obj.payment_status
+          && obj.payment_status !== 'paid'
+          && !isCompletedSetupSession
+        ) {
+          await completeStripeWebhookEvent(pool, event, webhookClaim)
+          return res.json({ received: true, paymentPending: true })
+        }
         const isEnrollmentCheckout =
-          event.type === 'checkout.session.completed' &&
+          isCheckoutFulfillmentEvent &&
           obj.metadata?.checkoutType === 'enrollment' &&
           obj.metadata?.pendingEnrollmentId
         const isAnnualMembershipCheckout =
-          event.type === 'checkout.session.completed' &&
+          isCheckoutFulfillmentEvent &&
           obj.metadata?.checkoutType === 'annual_membership'
         if (isEnrollmentCheckout) {
-          try {
-            await commitPendingEnrollment(pool, {
-              pendingEnrollmentId: Number(obj.metadata.pendingEnrollmentId),
-              stripeSession: obj,
-            })
-          } catch (commitErr) {
-            console.error('[stripe] enrollment commit:', commitErr)
-            return res.status(500).json({ success: false, message: commitErr.message })
-          }
+          const commitResult = await commitPendingEnrollment(pool, {
+            pendingEnrollmentId: Number(obj.metadata.pendingEnrollmentId),
+            stripeSession: obj,
+          })
+          requireTerminalStripeCheckoutCommit(commitResult, 'enrollment')
         }
         if (isAnnualMembershipCheckout) {
-          try {
-            await commitAnnualMembershipCheckout(pool, {
-              stripeSession: obj,
-              accountId: obj.metadata?.familyBillingAccountId
-                ? Number(obj.metadata.familyBillingAccountId)
-                : null,
-            })
-          } catch (commitErr) {
-            console.error('[stripe] annual membership commit:', commitErr)
-            return res.status(500).json({ success: false, message: commitErr.message })
-          }
+          const commitResult = await commitAnnualMembershipCheckout(pool, {
+            stripeSession: obj,
+            accountId: obj.metadata?.familyBillingAccountId
+              ? Number(obj.metadata.familyBillingAccountId)
+              : null,
+          })
+          requireTerminalStripeCheckoutCommit(commitResult, 'annual_membership')
         }
-        const accountId = obj.metadata?.familyBillingAccountId
+        let accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null
         let insertedPayment = null
-        if ((isEnrollmentCheckout || isAnnualMembershipCheckout) && accountId) {
+        let reservedAttempt = null
+        let reservedAttemptConflict = null
+        let invoiceOutcome = null
+        if (event.type === 'payment_intent.succeeded' && obj.invoice) {
+          const stripe = await getStripeClient()
+          const invoice = typeof obj.invoice === 'object'
+            ? obj.invoice
+            : await stripe.invoices.retrieve(obj.invoice)
+          invoiceOutcome = await recordAuthoritativeStripeInvoicePayment(pool, { invoice, stripe })
+          insertedPayment = invoiceOutcome.payment
+          accountId = insertedPayment?.family_billing_account_id ?? accountId
+          if (invoiceOutcome.classification.kind === 'household') {
+            reservedAttemptConflict = invoiceOutcome.householdSettlement?.conflicted
+              ? invoiceOutcome.householdSettlement
+              : null
+          } else if (invoiceOutcome.classification.kind === 'subscription' && insertedPayment) {
+            await allocateHouseholdPayments(pool, {
+              accountId: insertedPayment.family_billing_account_id,
+              actorType: 'stripe',
+            })
+          } else if (invoiceOutcome.classification.kind !== 'subscription') {
+            await recordStripeBillingAlert(pool, {
+              event,
+              object: invoice,
+              alertType: invoiceOutcome.classification.code,
+              severity: 'critical',
+              message: invoiceOutcome.classification.reason,
+            })
+          }
+        } else if ((isEnrollmentCheckout || isAnnualMembershipCheckout) && accountId) {
           const stripe = await getStripeClient()
           insertedPayment = await recordEnrollmentStripePayment(pool, stripe, {
             session: obj,
             accountId,
           })
         } else {
-          insertedPayment = await recordStripePayment(pool, {
-            paymentIntentId: obj.payment_intent || (event.type === 'payment_intent.succeeded' ? obj.id : null),
-            amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
-            accountId,
-            customerId: obj.customer ?? null,
-          })
+          reservedAttempt = await findBillingPaymentAttemptForStripeObject(pool, obj)
+          const paymentIntentId = typeof obj.payment_intent === 'string'
+            ? obj.payment_intent
+            : obj.payment_intent?.id ?? (event.type === 'payment_intent.succeeded' ? obj.id : null)
+          if (reservedAttempt) {
+            const settlement = await recordAndCompleteBillingPaymentAttempt(pool, {
+              stripeObject: obj,
+              paymentIntentId,
+              amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
+              customerId: typeof obj.customer === 'string' ? obj.customer : obj.customer?.id ?? null,
+            })
+            insertedPayment = settlement?.payment ?? null
+            reservedAttemptConflict = settlement?.conflicted ? settlement : null
+          } else {
+            insertedPayment = await recordStripePayment(pool, {
+              paymentIntentId,
+              amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
+              accountId,
+              customerId: typeof obj.customer === 'string' ? obj.customer : obj.customer?.id ?? null,
+            })
+          }
         }
         const customChargeId = Number(obj.metadata?.billingChargeId)
-        if (insertedPayment && accountId && Number.isFinite(customChargeId) && customChargeId > 0) {
+        if (insertedPayment && invoiceOutcome?.householdSettlement?.conflicted) {
+          await recordStripeBillingAlert(pool, {
+            event,
+            object: obj,
+            alertType: 'monthly_invoice_payment_reconciliation',
+            severity: 'critical',
+            message: `Stripe invoice payment was quarantined: ${invoiceOutcome.householdSettlement.reason}`,
+          })
+        } else if (insertedPayment && reservedAttempt && reservedAttemptConflict) {
+          await recordStripeBillingAlert(pool, {
+            event,
+            object: obj,
+            alertType: 'payment_attempt_reconciliation',
+            severity: 'critical',
+            message: `Stripe payment ${insertedPayment.stripe_payment_intent_id ?? obj.id ?? ''} was quarantined: ${reservedAttemptConflict.reason}`,
+          })
+        } else if (insertedPayment && reservedAttempt) {
+          await allocateHouseholdPayments(pool, {
+            accountId: reservedAttempt.family_billing_account_id,
+            actorType: 'stripe',
+          })
+        } else if (insertedPayment && accountId && Number.isFinite(customChargeId) && customChargeId > 0) {
           await linkCustomerBillingPayment(pool, {
             payment: insertedPayment,
             chargeId: customChargeId,
@@ -3060,10 +3429,29 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       } else if (event.type === 'invoice.paid') {
         const invoice = event.data?.object ?? {}
         const stripe = await getStripeClient()
-        const payment = await recordPaidStripeInvoice(pool, invoice, { stripe })
+        const invoiceOutcome = await recordAuthoritativeStripeInvoicePayment(pool, { invoice, stripe })
+        const householdSettlement = invoiceOutcome.householdSettlement
+        const payment = invoiceOutcome.payment
+        if (!payment && invoiceOutcome.classification.kind !== 'subscription') {
+          await recordStripeBillingAlert(pool, {
+            event,
+            object: invoice,
+            alertType: invoiceOutcome.classification.code,
+            severity: 'critical',
+            message: invoiceOutcome.classification.reason,
+          })
+        }
         if (payment) {
-          const householdInvoice = await applyHouseholdMonthlyInvoicePayment(pool, { invoice, payment })
-          if (!householdInvoice) {
+          const householdInvoice = householdSettlement?.invoice ?? null
+          if (householdSettlement?.conflicted) {
+            await recordStripeBillingAlert(pool, {
+              event,
+              object: invoice,
+              alertType: 'monthly_invoice_payment_reconciliation',
+              severity: 'critical',
+              message: `Stripe invoice ${invoice.id ?? ''} payment was quarantined: ${householdSettlement.reason}`,
+            })
+          } else if (!householdInvoice) {
             await allocateHouseholdPayments(pool, {
               accountId: payment.family_billing_account_id,
               actorType: 'stripe',
@@ -3180,8 +3568,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           severity: 'critical',
           message: `Stripe could not finalize invoice ${invoice.id ?? ''}`.trim(),
         })
-      } else if (event.type === 'checkout.session.expired') {
+      } else if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
         const session = event.data?.object ?? {}
+        await releaseBillingPaymentAttempt(pool, {
+          stripeObject: session,
+          status: event.type === 'checkout.session.expired' ? 'expired' : 'failed',
+          reason: event.type === 'checkout.session.expired'
+            ? 'Stripe Checkout Session expired.'
+            : 'Stripe Checkout asynchronous payment failed.',
+          checkoutTerminal: true,
+        })
         if (session.metadata?.pendingEnrollmentId) {
           await pool.query(
             `UPDATE stripe_pending_enrollment SET status = 'expired', updated_at = now()
@@ -3189,8 +3585,23 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             [Number(session.metadata.pendingEnrollmentId)],
           )
         }
-      } else if (event.type === 'payment_intent.payment_failed' || event.type === 'invoice.payment_failed') {
+      } else if (
+        event.type === 'payment_intent.payment_failed'
+        || event.type === 'payment_intent.canceled'
+        || event.type === 'invoice.payment_failed'
+      ) {
         const obj = event.data?.object ?? {}
+        // payment_intent.payment_failed commonly transitions back to
+        // requires_payment_method and may later be reconfirmed successfully.
+        // Only the signed canceled lifecycle proves the remote collector is
+        // terminal and permits its exact reservation to be released.
+        if (event.type === 'payment_intent.canceled') {
+          await releaseBillingPaymentAttempt(pool, {
+            stripeObject: obj,
+            status: 'canceled',
+            reason: obj.last_payment_error?.message || `Stripe ${event.type}.`,
+          })
+        }
         void emitStripePaymentFailedEvent(pool, { object: obj })
         const accountId = await resolveStripeWebhookAccountId(pool, obj)
         const failureReason =
@@ -3237,10 +3648,18 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           await recordPaymentRecoveryExhaustedAlert(pool, { event, invoice: obj, accountId, failureReason })
         }
       }
-      await completeStripeWebhookEvent(pool, event)
+      await completeStripeWebhookEvent(pool, event, webhookClaim)
       res.json({ received: true })
     } catch (err) {
-      await failStripeWebhookEvent(pool, event, err)
+      if (err?.code === FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE && webhookClaim?.claimed) {
+        try {
+          await completeStripeWebhookEvent(pool, event, webhookClaim)
+          return res.json({ received: true, quarantined: true })
+        } catch (completionError) {
+          err = completionError
+        }
+      }
+      await failStripeWebhookEvent(pool, event, err, webhookClaim ?? {})
       const deliveryTimestamp = String(signature ?? '').match(/(?:^|,)t=(\d+)/)?.[1] ?? Date.now()
       await recordStripeBillingAlert(pool, {
         event: event ?? { id: `webhook-delivery:${deliveryTimestamp}` },
@@ -3249,17 +3668,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         severity: 'critical',
         message: `Stripe webhook delivery failed: ${String(err?.message ?? err).slice(0, 300)}`,
       }).catch(() => {})
-      if (String(err?.message ?? '').includes('signature')) {
+      const signatureFailure = String(err?.message ?? '').includes('signature')
+      if (signatureFailure) {
         logWebhookVerificationFailure(err, { rawBody, signature })
       } else {
         console.error('[stripe] webhook:', err)
       }
-      res.status(400).json({ success: false, message: err.message })
+      res.status(webhookClaim?.claimed && !signatureFailure ? 500 : 400).json({
+        success: false,
+        message: err.message,
+      })
     }
   })
 
-  app.get('/api/admin/stripe/billing-alerts', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
+  app.get('/api/admin/stripe/billing-alerts', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const result = await pool.query(
         `SELECT a.*,
                 COALESCE(
@@ -3283,67 +3707,86 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
                     AND bs.status IN ('active', 'paused')
                 ), '[]'::jsonb) AS affected_enrollments
          FROM stripe_billing_alert a
+         LEFT JOIN family_billing_account scoped_account
+           ON scoped_account.id = a.family_billing_account_id
+         LEFT JOIN family scoped_family ON scoped_family.id = scoped_account.family_id
          WHERE a.resolved_at IS NULL
+           AND ($1::bigint IS NULL OR scoped_family.facility_id = $1)
          ORDER BY a.created_at DESC LIMIT 100`,
+        [billingScope.facilityId],
       )
       res.json({ success: true, data: result.rows })
     } catch (error) {
-      res.status(500).json({ success: false, message: 'Failed to load Stripe billing alerts.' })
+      res.status(errorStatus(error, 500)).json({ success: false, message: 'Failed to load Stripe billing alerts.' })
     }
   })
 
   app.get('/api/admin/billing/cancellation-requests', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
-      const data = await listCancellationRequests(pool, { status: req.query.status || 'pending' })
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
+      const data = await listCancellationRequests(pool, { status: req.query.status || 'pending', ...billingScope })
       res.json({ success: true, data })
     } catch (error) {
-      res.status(500).json({ success: false, message: error?.message || 'Failed to load cancellation requests.' })
+      res.status(errorStatus(error, 500)).json({ success: false, message: error?.message || 'Failed to load cancellation requests.' })
     }
   })
 
   app.post('/api/admin/billing/cancellation-requests/:id/review', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const data = await reviewCancellationRequest(pool, {
         requestId: Number(req.params.id),
         decision: req.body?.decision,
         effectiveDate: req.body?.effectiveDate || null,
         reviewNote: req.body?.reviewNote,
         reviewedByUserId: req.platformAuth?.user?.id ?? null,
+        ...billingScope,
       })
       res.json({ success: true, data })
     } catch (error) {
       const message = error?.message || 'Failed to review cancellation request.'
-      res.status(/not found/i.test(message) ? 404 : 400).json({ success: false, message })
+      res.status(errorStatus(error, /not found/i.test(message) ? 404 : 400)).json({ success: false, message })
     }
   })
 
-  app.get('/api/admin/billing/disputes', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
-    res.json({ success: true, data: await listDisputeCases(pool) })
+  app.get('/api/admin/billing/disputes', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
+      res.json({ success: true, data: await listDisputeCases(pool, billingScope) })
+    } catch (error) {
+      res.status(errorStatus(error, 500)).json({ success: false, message: error?.message || 'Failed to load disputes.' })
+    }
   })
 
   app.patch('/api/admin/billing/disputes/:id/evidence', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const data = await updateDisputeEvidence(pool, {
         id: Number(req.params.id), evidenceStatus: req.body?.evidenceStatus,
         evidenceNote: req.body?.evidenceNote, userId: req.platformAuth?.user?.id ?? null,
+        ...billingScope,
       })
       res.json({ success: true, data })
     } catch (error) {
-      res.status(/not found/i.test(error?.message || '') ? 404 : 400).json({ success: false, message: error?.message || 'Failed to update dispute evidence.' })
+      res.status(errorStatus(error, /not found/i.test(error?.message || '') ? 404 : 400)).json({ success: false, message: error?.message || 'Failed to update dispute evidence.' })
     }
   })
 
-  app.get('/api/admin/stripe/operations', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
+  app.get('/api/admin/stripe/operations', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
-      res.json({ success: true, data: await getStripeOperationsDashboard(pool) })
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
+      res.json({ success: true, data: await getStripeOperationsDashboard(pool, billingScope) })
     } catch (error) {
       console.error('[stripe] operations dashboard:', error)
-      res.status(500).json({ success: false, message: 'Failed to load Stripe operations.' })
+      res.status(errorStatus(error, 500)).json({ success: false, message: 'Failed to load Stripe operations.' })
     }
   })
 
   app.post('/api/admin/stripe/reconcile', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     try {
+      if (req.platformAuth?.isMasterAdmin !== true) {
+        return res.status(403).json({ success: false, message: 'Master administrator access is required.' })
+      }
       const lookbackHours = Math.min(168, Math.max(1, Number(req.body?.lookbackHours ?? 48)))
       res.json({ success: true, data: await runStripeReconciliation(pool, { lookbackHours }) })
     } catch (error) {
@@ -3354,41 +3797,46 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.post('/api/admin/stripe/billing-alerts/:id/access', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const data = await applyBillingAccessAction(pool, {
         alertId: Number(req.params.id),
         action: req.body?.action,
         reason: req.body?.reason,
         actedByUserId: req.platformAuth?.user?.id ?? null,
+        ...billingScope,
       })
       res.json({ success: true, data })
     } catch (error) {
       const message = error?.message || 'Failed to update billing access.'
       const status = /not found/i.test(message) ? 404 : 400
-      res.status(status).json({ success: false, message })
+      res.status(errorStatus(error, status)).json({ success: false, message })
     }
   })
 
   app.patch('/api/admin/stripe/billing-alerts/:id/resolve', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     try {
+      const billingScope = authenticatedAdminBillingScope(req.platformAuth)
       const data = await resolveStripeBillingAlert(pool, {
         alertId: Number(req.params.id),
         resolutionNote: req.body?.resolutionNote,
         resolvedByUserId: req.platformAuth?.user?.id ?? null,
+        ...billingScope,
       })
       res.json({ success: true, data })
     } catch (error) {
       const message = error?.message || 'Failed to resolve billing alert.'
       const status = /not found/i.test(message) ? 404 : /restore access/i.test(message) ? 409 : 400
-      res.status(status).json({ success: false, message })
+      res.status(errorStatus(error, status)).json({ success: false, message })
     }
   })
 
-  app.get('/api/members/billing/statements', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/billing/statements', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const facilityId = ctx.user.facility_id ?? null
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, { memberId, facilityId })
     if (!familyId) return res.json({ success: true, data: [] })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await loadBillingAccountForFacility(pool, { familyId, facilityId })
     if (!account) return res.json({ success: true, data: [] })
     const canSeeFamily = Number(account.payer_member_id) === memberId
     const linesFilter = canSeeFamily ? '' : 'AND l.member_id = $2'
@@ -3409,12 +3857,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: result.rows.map((s) => mapStatement(s, s.lines ?? [])) })
   })
 
-  app.get('/api/members/billing/payments', authMiddleware(pool, jwtSecret), async (req, res) => {
+  app.get('/api/members/billing/payments', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth
-    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
-    const familyId = ctx.user.family_id
+    const memberId = linkedPlatformMemberId(ctx)
+    const facilityId = ctx.user.facility_id ?? null
+    const familyId = await resolveActiveMemberBillingFamilyId(pool, { memberId, facilityId })
     if (!familyId) return res.json({ success: true, data: [] })
-    const account = await ensureBillingAccount(pool, familyId)
+    const account = await loadBillingAccountForFacility(pool, { familyId, facilityId })
     if (!account) return res.json({ success: true, data: [] })
     const canSeeFamily = Number(account.payer_member_id) === memberId
     if (!canSeeFamily) return res.json({ success: true, data: [] })

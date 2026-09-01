@@ -1,38 +1,7 @@
 /**
  * Persist multi-class pass purchases and pass-covered enrollment charges to billing_charge.
  */
-
-async function ensureBillingAccount(pool, familyId) {
-  const existing = await pool.query(
-    `SELECT * FROM family_billing_account WHERE family_id = $1`,
-    [familyId],
-  )
-  if (existing.rows.length > 0) return existing.rows[0]
-
-  const created = await pool.query(
-    `
-      INSERT INTO family_billing_account (
-        family_id, payer_member_id, billing_email, billing_phone,
-        billing_street, billing_city, billing_state, billing_zip
-      )
-      SELECT
-        f.id, m.id, m.email, m.phone,
-        m.billing_street, m.billing_city, m.billing_state, m.billing_zip
-      FROM family f
-      LEFT JOIN LATERAL (
-        SELECT * FROM member
-        WHERE family_id = f.id AND is_active = TRUE
-        ORDER BY (email IS NULL), id
-        LIMIT 1
-      ) m ON TRUE
-      WHERE f.id = $1
-      ON CONFLICT (family_id) DO UPDATE SET updated_at = now()
-      RETURNING *
-    `,
-    [familyId],
-  )
-  return created.rows[0] ?? null
-}
+import { loadOrCreateUnassignedBillingAccount } from '../billing/billingAccountProvisioning.js'
 
 export async function persistMultiClassPassPurchaseCharge(pool, {
   memberId,
@@ -50,7 +19,7 @@ export async function persistMultiClassPassPurchaseCharge(pool, {
   const familyId = memberRes.rows[0]?.family_id
   if (!familyId) return null
 
-  const account = await ensureBillingAccount(pool, familyId)
+  const account = await loadOrCreateUnassignedBillingAccount(pool, familyId)
   if (!account) return null
 
   const athleteName = [memberRes.rows[0]?.first_name, memberRes.rows[0]?.last_name]
@@ -105,7 +74,7 @@ export async function persistPassRedemptionCharge(pool, {
   const familyId = memberRes.rows[0]?.family_id
   if (!familyId) return null
 
-  const account = await ensureBillingAccount(pool, familyId)
+  const account = await loadOrCreateUnassignedBillingAccount(pool, familyId)
   if (!account) return null
 
   const description = [

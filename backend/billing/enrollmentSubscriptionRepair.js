@@ -8,6 +8,12 @@ import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { billingMonthInTimeZone, promoExpirationDate } from './customerBillingPricing.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { activateHouseholdMonthlyBillingForAccount } from './householdMonthlyInvoice.js'
+import {
+  billingEnrollmentAutoRepairEnabled,
+  legacyPerClassStripeCollectionAllowed,
+} from './billingFeatureFlags.js'
+import { BILLING_COLLECTION_LOCK_STATES } from './canonicalBillingMigrationState.js'
+import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 
 function asDateOnly(value) {
   if (!value) return null
@@ -50,7 +56,53 @@ export function defaultSavedPaymentMethodId(customer) {
   return typeof value === 'string' ? value : value.id ?? null
 }
 
+export function localOnlyEnrollmentRepairOutcome({ stripeCustomerId = null } = {}) {
+  const paymentMethodStatus = stripeCustomerId
+    ? 'resolved_by_canonical_account'
+    : 'payment_method_required'
+  return {
+    mode: 'household_only',
+    status: 'local_only',
+    paymentMethodStatus,
+    action: stripeCustomerId
+      ? 'retain_local_for_household_collection'
+      : 'retain_local_payment_method_required',
+  }
+}
+
+const COLLECTION_LOCK_STATES_SQL = BILLING_COLLECTION_LOCK_STATES
+  .map((state) => `'${state.replaceAll("'", "''")}'`)
+  .join(', ')
+
 const BASE_GAPS_SQL = `
+  WITH canonical_member_family AS (
+    SELECT household_member.id AS member_id,
+           MIN(candidate.family_id)::bigint AS family_id
+      FROM member household_member
+      CROSS JOIN LATERAL (
+        SELECT membership.family_id
+          FROM family_member membership
+         WHERE membership.member_id = household_member.id
+           AND membership.is_active = TRUE
+
+        UNION
+
+        SELECT household_member.family_id
+         WHERE household_member.family_id IS NOT NULL
+           AND NOT EXISTS (
+             SELECT 1
+               FROM family_member membership_history
+              WHERE membership_history.member_id = household_member.id
+           )
+      ) candidate
+      JOIN family household_family
+        ON household_family.id = candidate.family_id
+       AND household_family.archived = FALSE
+       AND household_family.facility_id = household_member.facility_id
+     WHERE household_member.is_active = TRUE
+     GROUP BY household_member.id
+    HAVING COUNT(DISTINCT candidate.family_id) = 1
+  )
   SELECT
     signup.id AS signup_id,
     signup.member_id,
@@ -63,7 +115,7 @@ const BASE_GAPS_SQL = `
     signup.manual_discount_pct,
     signup.manual_discount_reason,
     signup.manual_discount_rule_id,
-    member.family_id,
+    canonical_member_family.family_id,
     account.id AS account_id,
     account.stripe_customer_id,
     account.household_monthly_billing_enabled,
@@ -72,6 +124,12 @@ const BASE_GAPS_SQL = `
     subscription.stripe_subscription_id,
     subscription.next_bill_date,
     subscription.net_monthly_cents,
+    account_migration.state AS billing_migration_state,
+    EXISTS (
+      SELECT 1
+        FROM billing_account_migration global_migration
+       WHERE global_migration.armed_at IS NOT NULL
+    ) AS global_creation_cutoff_durable,
     COALESCE(
       NULLIF(signup.pricing_breakdown ->> 'billingType', ''),
       NULLIF(signup.pricing_breakdown ->> 'billing_type', ''),
@@ -81,10 +139,13 @@ const BASE_GAPS_SQL = `
     ) AS billing_type
   FROM scheduling_signup signup
   JOIN member ON member.id = signup.member_id
+  JOIN canonical_member_family ON canonical_member_family.member_id = member.id
   JOIN scheduling_form form ON form.id = signup.form_id
   JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
   LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
-  LEFT JOIN family_billing_account account ON account.family_id = member.family_id
+  LEFT JOIN family_billing_account account
+    ON account.family_id = canonical_member_family.family_id
+   AND account.is_active = TRUE
   LEFT JOIN LATERAL (
     SELECT billing_subscription.*
     FROM billing_subscription
@@ -96,6 +157,13 @@ const BASE_GAPS_SQL = `
       billing_subscription.id DESC
     LIMIT 1
   ) subscription ON TRUE
+  LEFT JOIN LATERAL (
+    SELECT migration.state
+      FROM billing_account_migration migration
+     WHERE migration.family_billing_account_id = account.id
+     ORDER BY migration.id DESC
+     LIMIT 1
+  ) account_migration ON TRUE
   WHERE signup.status = 'confirmed'
     AND signup.orphaned_at IS NULL
     AND form.deleted_at IS NULL
@@ -112,17 +180,15 @@ const BASE_GAPS_SQL = `
       'recurring'
     ) <> 'one_time'
     AND (
-      subscription.id IS NULL
-      OR (
-        account.household_monthly_billing_enabled = FALSE
-        AND subscription.stripe_subscription_id IS NULL
-      )
+      account_migration.state IS NULL
+      OR account_migration.state NOT IN (${COLLECTION_LOCK_STATES_SQL})
     )
 `
 
 export async function findEnrollmentSubscriptionGaps(db, {
   accountIds = [],
   signupIds = [],
+  includeMissingLegacyStripeSubscription = true,
 } = {}) {
   const params = []
   const filters = []
@@ -138,6 +204,18 @@ export async function findEnrollmentSubscriptionGaps(db, {
   }
   const result = await db.query(
     `${BASE_GAPS_SQL}
+     AND ${includeMissingLegacyStripeSubscription
+       ? `(subscription.id IS NULL OR (
+            NOT EXISTS (
+              SELECT 1
+                FROM billing_account_migration global_migration
+               WHERE global_migration.armed_at IS NOT NULL
+            )
+            AND
+            account.household_monthly_billing_enabled = FALSE
+            AND subscription.stripe_subscription_id IS NULL
+          ))`
+       : 'subscription.id IS NULL'}
      ${filters.length > 0 ? `AND ${filters.join(' AND ')}` : ''}
      ORDER BY account.id NULLS LAST, signup.id`,
     params,
@@ -164,6 +242,7 @@ export async function resolveEnrollmentRepairPrices(
     const pricing = await resolveFamilyEnrollmentPricing(db, {
       familyId,
       periodKey,
+      ensureSchema: false,
     })
     const targetIds = new Set(familyCandidates.map((row) => Number(row.signup_id)))
     for (const line of pricing.lines ?? []) {
@@ -320,7 +399,14 @@ async function createLocalRepairSubscriptions(pool, plans, now) {
   }
 }
 
-async function createRemoteRepairSubscriptions(pool, stripe, account, plans, paymentMethodId) {
+async function createRemoteRepairSubscriptions(
+  pool,
+  stripe,
+  account,
+  plans,
+  paymentMethodId,
+  environment,
+) {
   const signupIds = plans.map((plan) => Number(plan.candidate.signup_id))
   const created = await createEnrollmentStripeSubscriptions(pool, stripe, {
     preview: {
@@ -332,24 +418,45 @@ async function createRemoteRepairSubscriptions(pool, stripe, account, plans, pay
     familyBillingAccountId: Number(account.accountId),
     customerId: account.stripeCustomerId,
     defaultPaymentMethodId: paymentMethodId,
+    environment,
   })
   return new Map(created.map((entry) => [Number(entry.signupId), entry]))
 }
 
 /**
  * Restore local recurring schedules for every confirmed recurring enrollment.
- * Stripe auto-payment is added only when the Customer has a reusable default
- * payment method. No ledger charge is created and remote subscriptions are
- * trialed to the next calendar month, so this never performs catch-up collection.
+ * Future Stripe Subscription creation is globally disabled; any reusable saved
+ * method remains attached to the canonical household account. No ledger charge
+ * is created here, so repair never performs catch-up collection.
  */
 export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
   apply = false,
   accountIds = [],
   signupIds = [],
   now = new Date(),
+  environment = process.env,
 } = {}) {
-  if (!stripe) throw new Error('Stripe is required to verify saved cards and enable auto-payment.')
-  const candidates = await findEnrollmentSubscriptionGaps(pool, { accountIds, signupIds })
+  const configuredLegacyStripeCreationAllowed = legacyPerClassStripeCollectionAllowed(environment)
+  if (apply && !billingEnrollmentAutoRepairEnabled(environment)) {
+    throw new Error(
+      'Enrollment auto-repair is disabled; set BILLING_ENROLLMENT_AUTO_REPAIR_ENABLED=true explicitly.',
+    )
+  }
+  const candidates = await findEnrollmentSubscriptionGaps(pool, {
+    accountIds,
+    signupIds,
+    // After the global cutoff, a local-only class subscription is canonical;
+    // it is not a gap and must never be "repaired" back into Stripe.
+    includeMissingLegacyStripeSubscription: configuredLegacyStripeCreationAllowed,
+  })
+  const durableGlobalCutoff = candidates.some(
+    (candidate) => candidate.global_creation_cutoff_durable === true,
+  )
+  const legacyStripeCreationAllowed =
+    configuredLegacyStripeCreationAllowed && !durableGlobalCutoff
+  if (!stripe && legacyStripeCreationAllowed) {
+    throw new Error('Stripe is required to verify saved cards and enable auto-payment.')
+  }
   const byAccount = new Map()
   for (const candidate of candidates) {
     const accountId = Number(candidate.account_id)
@@ -365,7 +472,11 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
     plannedEnrollments: 0,
     localSubscriptionsCreated: 0,
     householdMonthlyBillingEnabledAccounts: 0,
+    householdCollectionOnlyAccounts: 0,
     stripeSubscriptionsCreated: 0,
+    legacyStripeCreationAllowed,
+    durableGlobalCutoff,
+    collectionOutcomes: [],
     skipped: [],
     failed: [],
     plans: [],
@@ -402,6 +513,37 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
     }
 
     const stripeCustomerId = accountCandidates[0]?.stripe_customer_id
+
+    if (!legacyStripeCreationAllowed) {
+      const localOnlyOutcome = localOnlyEnrollmentRepairOutcome({ stripeCustomerId })
+      summary.householdCollectionOnlyAccounts += 1
+      summary.collectionOutcomes.push({
+        accountId,
+        mode: localOnlyOutcome.mode,
+        status: localOnlyOutcome.status,
+        paymentMethodStatus: localOnlyOutcome.paymentMethodStatus,
+        signupIds: plans.map((plan) => Number(plan.candidate.signup_id)),
+      })
+      for (const plan of plans) {
+        summary.plans.push({
+          accountId,
+          signupId: Number(plan.candidate.signup_id),
+          grossCents: plan.price.grossCents,
+          discountCents: plan.price.discountCents,
+          netCents: plan.price.netCents,
+          nextBillDate: plan.nextBillDate,
+          action: localOnlyOutcome.action,
+        })
+      }
+      if (apply) {
+        for (const plan of localPlans) {
+          await markSubscriptionSync(pool, plan.billingSubscriptionId, 'not_required', null)
+          await resolveRepairAlert(pool, plan.candidate.signup_id)
+        }
+      }
+      continue
+    }
+
     let paymentMethodId = null
     let noCardReason = null
     if (!stripeCustomerId) {
@@ -471,6 +613,7 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
       accountId,
       stripe,
       actorType: 'system',
+      environment,
     })
     if (householdBilling.enabled) {
       if (householdBilling.status === 'enabled') summary.householdMonthlyBillingEnabledAccounts += 1
@@ -489,6 +632,7 @@ export async function repairSavedCardEnrollmentSubscriptions(pool, stripe, {
         { accountId, stripeCustomerId },
         localPlans,
         paymentMethodId,
+        environment,
       )
     } catch (error) {
       for (const plan of localPlans) {
@@ -666,6 +810,10 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
     const promoCode = promoCodeFromLegacyRule(rule)
     if (!promoCode) throw new Error('The legacy promotional rule does not have a promo code.')
     const effectiveThroughMonth = rule.ends_at ? billingMonthInTimeZone(rule.ends_at) : null
+    const activeAccountMember = canonicalActiveHouseholdMemberPredicate({
+      memberAlias: 'member',
+      familyIdReference: 'account.family_id',
+    })
     const rows = (
       await client.query(
         `SELECT signup.id, signup.member_id, signup.enrollment_start_date,
@@ -673,12 +821,13 @@ export async function ensureLegacyEnrollmentAdjustmentRecords(pool, {
                 subscription.monthly_amount_cents
          FROM scheduling_signup signup
          JOIN member ON member.id = signup.member_id
-         JOIN family_billing_account account ON account.family_id = member.family_id
+         JOIN family_billing_account account ON account.id = $1
          JOIN billing_subscription subscription
            ON subscription.source_type = 'scheduling_signup'
           AND subscription.source_id = signup.id::text
           AND subscription.status <> 'cancelled'
-         WHERE account.id = $1 AND signup.id = ANY($2::bigint[])
+         WHERE signup.id = ANY($2::bigint[])
+           AND ${activeAccountMember}
          ORDER BY signup.id`,
         [Number(accountId), ids],
       )

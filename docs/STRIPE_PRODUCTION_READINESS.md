@@ -51,8 +51,8 @@ The Billing admin provides:
 - family-wide recurring class pricing that applies tuition promos before the family tier and
   excludes annual memberships, waitlists, one-time classes, paused enrollments, and classes
   outside the service period.
-- individual annual membership rows and yearly Stripe subscriptions, including independent
-  renewal dates and `cancel_at_period_end` controls for each member.
+- individual annual membership rows with independent local renewal dates; no new yearly Stripe
+  subscriptions are created, while existing linked subscriptions remain manageable during retirement.
 
 All mutating controls require `billing.manage`; read-only billing visibility requires
 `billing.view`.

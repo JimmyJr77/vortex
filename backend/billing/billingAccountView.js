@@ -16,6 +16,8 @@ import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
 import { buildRecurringBreakpoints } from './recurringPeriodPricing.js'
 import { reconcileEnrollmentLedger } from './enrollmentLedgerReconcile.js'
 import { isGenericCardMethod } from './paymentMethodLabel.js'
+import { summarizeCustomerBalanceCards } from './billingBalanceCards.js'
+export { summarizeCustomerBalanceCards } from './billingBalanceCards.js'
 import {
   ANNUAL_MEMBERSHIP_PRICING_KEY,
   ANNUAL_MEMBERSHIP_SOURCE_TYPE,
@@ -113,104 +115,6 @@ function toBillingMonthKey(value) {
 
 function chargeServiceMonth(charge) {
   return toBillingMonthKey(charge.service_period_start ?? charge.created_at)
-}
-
-/**
- * Split the account ledger into the three cards that explain the balance:
- * open non-monthly/past-due charges + this recurring billing period - credits.
- * A settled refund is a household amount still owed, so it joins the open side.
- */
-export function summarizeCustomerBalanceCards({
-  charges = [],
-  payments = [],
-  subscriptions = [],
-  refundsCents = 0,
-  recurringBillingMonth = null,
-} = {}) {
-  let outstandingChargesCents = Math.max(0, Number(refundsCents) || 0)
-  let ledgerCreditCents = 0
-  let prepaidRecurringCents = 0
-
-  const activeRecurringSubscriptions = subscriptions.filter((subscription) => (
-    subscription.status === 'active' && !isAnnualMembershipSubscription(subscription)
-  ))
-  // The monthly card describes the tuition due for the upcoming billing month,
-  // not merely the portion of that tuition that remains unpaid in the ledger.
-  // That makes a pre-paid enrollment visible as recurring tuition plus a future
-  // credit, instead of making the recurring card disappear.
-  let monthlyRecurringCents = activeRecurringSubscriptions.reduce(
-    (sum, subscription) => sum + Math.max(0, Number(
-      subscription.netMonthlyCents ?? subscription.net_monthly_cents ?? 0,
-    )),
-    0,
-  )
-  let monthlyRecurringDiscountCents = activeRecurringSubscriptions.reduce(
-    (sum, subscription) => sum + Math.max(0, Number(
-      subscription.discountAmountCents ?? subscription.discount_amount_cents ?? 0,
-    )),
-    0,
-  )
-
-  const visibleCharges = charges.filter((charge) => (
-    charge.metadata?.customerAuditVisibility !== 'suppressed'
-  ))
-  const chargesById = new Map(visibleCharges.map((charge) => [Number(charge.id), charge]))
-  const linkedCreditOffsets = new Map()
-  const linkedCreditRemainders = new Map()
-  for (const credit of visibleCharges) {
-    const creditAmount = Number(credit.amount_cents ?? 0)
-    const relatedChargeId = Number(credit.related_charge_id ?? credit.relatedChargeId ?? 0)
-    const relatedCharge = chargesById.get(relatedChargeId)
-    if (creditAmount >= 0 || !relatedCharge || Number(relatedCharge.amount_cents ?? 0) <= 0) continue
-    const targetRemaining = Math.max(0, Number(
-      relatedCharge.remaining_amount_cents ?? relatedCharge.amount_cents ?? 0,
-    ) - (linkedCreditOffsets.get(relatedChargeId) ?? 0))
-    const offset = Math.min(Math.abs(creditAmount), targetRemaining)
-    linkedCreditOffsets.set(relatedChargeId, (linkedCreditOffsets.get(relatedChargeId) ?? 0) + offset)
-    linkedCreditRemainders.set(Number(credit.id), Math.abs(creditAmount) - offset)
-  }
-
-  for (const charge of visibleCharges) {
-    const amount = Number(charge.amount_cents ?? 0)
-    if (amount < 0) {
-      ledgerCreditCents += linkedCreditRemainders.get(Number(charge.id)) ?? Math.abs(amount)
-      continue
-    }
-    if (amount <= 0) continue
-    const remaining = Math.max(0, Number(charge.remaining_amount_cents ?? amount)
-      - (linkedCreditOffsets.get(Number(charge.id)) ?? 0))
-    const isCurrentRecurring = charge.charge_type === 'recurring'
-      && recurringBillingMonth != null
-      && chargeServiceMonth(charge) === recurringBillingMonth
-    if (isCurrentRecurring) {
-      // A payment made before the next monthly collection is a credit against
-      // that month. It remains visible as such even when the exact charge was
-      // already created and linked to the payment.
-      prepaidRecurringCents += Math.min(
-        amount,
-        Math.max(0, Number(charge.applied_amount_cents ?? amount - remaining)),
-      )
-      // A local recurring charge can exist before its subscription snapshot is
-      // available. Use it as a fallback so the card still has a monthly total.
-      if (activeRecurringSubscriptions.length === 0) {
-        monthlyRecurringCents += amount
-        monthlyRecurringDiscountCents += Math.max(0, Number(charge.discount_amount_cents ?? 0))
-      }
-      continue
-    }
-    if (remaining) outstandingChargesCents += remaining
-  }
-
-  const unappliedPaymentCents = payments.reduce(
-    (sum, payment) => sum + Math.max(0, Number(payment.remaining_amount_cents ?? 0)),
-    0,
-  )
-  return {
-    outstandingBalanceCents: outstandingChargesCents,
-    monthlyRecurringCents,
-    monthlyRecurringDiscountCents,
-    futureCreditsCents: ledgerCreditCents + unappliedPaymentCents + prepaidRecurringCents,
-  }
 }
 
 function mapRefund(row) {

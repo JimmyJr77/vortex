@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   nextEnrollmentBillingChangeDate,
+  processDueEnrollmentCancellations,
   requestMemberEnrollmentCancellation,
 } from '../memberEnrollmentCancel.js'
 import { firstOfNextMonth } from '../firstMonthProration.js'
@@ -170,4 +171,41 @@ test('requestMemberEnrollmentCancellation rejects unauthorized members', async (
       }),
     (err) => err.statusCode === 403,
   )
+})
+
+test('strict due cancellation rolls back when pass entitlement restoration fails', async () => {
+  const calls = []
+  const client = {
+    release() {},
+    async query(sql, params = []) {
+      const text = String(sql)
+      calls.push({ text, params })
+      if (/SELECT DISTINCT signup\.id/.test(text)) {
+        return { rows: [{ id: 42, member_id: null, slot_group_id: null, status: 'confirmed' }] }
+      }
+      if (/SELECT stripe_subscription_id/.test(text)) return { rows: [] }
+      if (text === 'BEGIN' || text === 'ROLLBACK') return { rows: [] }
+      if (/FROM scheduling_signup/.test(text) && /FOR UPDATE/.test(text)) return { rows: [{ id: 42 }] }
+      if (/FROM billing_subscription/.test(text) && /FOR UPDATE/.test(text)) return { rows: [{ id: 41 }] }
+      if (/UPDATE scheduling_signup/.test(text) && /status = 'cancelled'/.test(text)) return { rows: [{ id: 42 }] }
+      if (/UPDATE billing_subscription/.test(text) && /status = 'cancelled'/.test(text)) return { rows: [{ id: 41 }] }
+      if (/FROM billing_subscription/.test(text) && /LIMIT 1/.test(text)) return { rows: [] }
+      if (/FROM multi_class_pass_redemption/.test(text)) {
+        throw new Error('injected pass ledger failure')
+      }
+      throw new Error(`Unexpected query: ${text}`)
+    },
+  }
+  await assert.rejects(
+    processDueEnrollmentCancellations(client, {
+      strict: true,
+      force: true,
+      accountId: 9,
+      facilityId: 2,
+      asOfDate: '2026-09-01',
+    }),
+    /injected pass ledger failure/,
+  )
+  assert.ok(calls.some((call) => call.text === 'ROLLBACK'))
+  assert.equal(calls.some((call) => call.text === 'COMMIT'), false)
 })

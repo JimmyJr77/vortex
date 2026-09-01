@@ -158,7 +158,9 @@ test('period pricing stacks distinct assigned promo codes in configured priority
         }
       }
       if (/FROM enrollment_price_adjustment/.test(text)) return { rows: adjustments }
-      if (/SELECT id FROM facility LIMIT 1/.test(text)) return { rows: [{ id: 1 }] }
+      if (/WITH viewer AS/.test(text)) return { rows: [{ family_id: 77 }] }
+      if (/FROM member\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+      if (/FROM family\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
       return { rows: [] }
     },
   }
@@ -226,6 +228,55 @@ test('period pricing retains non-enrollment monthly charges and excludes annual 
   assert.equal(result.discountCents, 500)
   assert.equal(result.netCents, 2000)
   assert.deepEqual(result.lines.map((line) => line.subscriptionId), [1])
+})
+
+test('strict period pricing never falls back to persisted subscription discounts after engine failure', async () => {
+  const engineFailure = new Error('injected discount engine failure')
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (/FROM scheduling_signup/.test(text)) {
+        return {
+          rows: [{
+            id: 501,
+            manual_discount_cents: null,
+            manual_discount_pct: null,
+            manual_discount_rule_id: null,
+            manual_discount_reason: null,
+          }],
+        }
+      }
+      if (/FROM enrollment_price_adjustment/.test(text)) return { rows: [] }
+      throw engineFailure
+    },
+  }
+  const options = {
+    familyId: 77,
+    periodKey: '2026-09',
+    subscriptions: [{
+      id: 88,
+      status: 'active',
+      source_type: 'scheduling_signup',
+      source_id: '501',
+      member_id: 900,
+      monthly_amount_cents: 10000,
+      discount_amount_cents: 2500,
+      net_monthly_cents: 7500,
+      start_date: '2026-08-01',
+    }],
+  }
+  const originalWarn = console.warn
+  console.warn = () => {}
+  try {
+    const compatibility = await priceRecurringPeriod(pool, options)
+    assert.equal(compatibility.netCents, 7500)
+    await assert.rejects(
+      priceRecurringPeriod(pool, { ...options, strictPricing: true }),
+      (error) => error === engineFailure,
+    )
+  } finally {
+    console.warn = originalWarn
+  }
 })
 
 test('recurring pricing boundaries include future starts and adjustment reversion months', () => {
@@ -325,7 +376,9 @@ test('period pricing persists promo before the family tier and removes it after 
         })) }
       }
       if (/FROM enrollment_price_adjustment/.test(text)) return { rows: adjustments }
-      if (/SELECT id FROM facility LIMIT 1/.test(text)) return { rows: [{ id: 1 }] }
+      if (/WITH viewer AS/.test(text)) return { rows: [{ family_id: 48 }] }
+      if (/FROM member\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+      if (/FROM family\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
       if (/SELECT \* FROM discount_rule\s/.test(text)) return { rows: [promoRule, familyRule] }
       if (/FROM discount_rule_tier/.test(text)) {
         return { rows: [

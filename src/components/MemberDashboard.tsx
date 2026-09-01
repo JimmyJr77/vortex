@@ -181,68 +181,7 @@ interface BillingPayment {
   externalStatus?: string | null
 }
 
-interface BillingCharge {
-  id: number
-  memberId: number | null
-  memberName: string | null
-  sourceType: string
-  description: string
-  amountCents: number
-  grossAmountCents?: number
-  discountAmountCents?: number
-  chargeType?: string
-  billingInterval?: string
-  createdAt: string
-}
-
-interface BillingSubscriptionSummary {
-  id: number
-  memberName: string | null
-  description: string
-  monthlyAmountCents: number
-  discountAmountCents: number
-  netMonthlyCents: number
-  status: string
-  nextBillDate: string | null
-}
-
-interface BillingBundlePass {
-  id: number
-  memberName: string | null
-  packageLabel: string | null
-  classCountPurchased: number
-  classesRemaining: number
-  status: string
-  expiresAt: string | null
-}
-
-interface BillingBundleUsage {
-  id: number
-  entryType: string
-  creditDelta: number | null
-  classesRemainingAfter: number
-  reason: string | null
-  packageLabel: string | null
-  createdAt: string
-}
-
-interface BillingAccountSummary {
-  charges: BillingCharge[]
-  payments: BillingPayment[]
-  chargesCents: number
-  paymentsCents: number
-  refundsCents?: number
-  balanceCents: number
-  canSeeFamily: boolean
-  stripeEnabled?: boolean
-  subscriptions?: BillingSubscriptionSummary[]
-  monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
-  membershipRenewsOn?: string | null
-  bundlePasses?: BillingBundlePass[]
-  bundleUsage?: BillingBundleUsage[]
-  currentPeriod?: import('./member/MemberBillingPanel').BillingCurrentPeriod | null
-  billingHistory?: import('./member/MemberBillingPanel').BillingHistoryMonth[]
-}
+type LegacyBillingAccountSummary = Parameters<typeof MemberBillingPanel>[0]['billingAccount']
 
 interface MemberWaiver {
   id: number
@@ -366,7 +305,7 @@ export default function MemberDashboard({
   const [eventView, setEventView] = useState<'upcoming' | 'past'>('upcoming') // Toggle between past and upcoming events
   const [billingPayments, setBillingPayments] = useState<BillingPayment[]>([])
   const [billingPaymentsLoading, setBillingPaymentsLoading] = useState(false)
-  const [billingAccount, setBillingAccount] = useState<BillingAccountSummary | null>(null)
+  const [legacyBillingAccount, setLegacyBillingAccount] = useState<LegacyBillingAccountSummary>(null)
   const [customerBilling, setCustomerBilling] = useState<MemberCustomerBillingData | null>(null)
   const [billingLoading, setBillingLoading] = useState(false)
   const [customerTransactionsLoading, setCustomerTransactionsLoading] = useState(false)
@@ -391,12 +330,17 @@ export default function MemberDashboard({
   const [memberTabOrder, setMemberTabOrder] = useState<MemberTab[]>(NAV.map((item) => item.tab))
   const [memberNavLayout, setMemberNavLayout] = useState<PortalNavLayoutItem[]>(NAV.map((item) => ({ type: 'tab', key: item.tab })))
   const [stripeEnabled, setStripeEnabled] = useState(false)
+  // Canonical billing is the fail-closed default. The legacy reader is used
+  // only after a successful portal-config response explicitly requests the
+  // temporary rollback path.
   const [memberBillingReadV2, setMemberBillingReadV2] = useState(true)
+  const [portalConfigLoaded, setPortalConfigLoaded] = useState(false)
   const billingPaymentsLoadRef = useRef<Promise<void> | null>(null)
   const billingPaymentsLoadedRef = useRef(false)
   const billingLoadRef = useRef<Promise<void> | null>(null)
-  const billingLoadedModeRef = useRef<'payer' | 'nonpayer' | null>(null)
+  const billingLoadedKeyRef = useRef<string | null>(null)
   const transactionLoadRef = useRef<Promise<void> | null>(null)
+  const billingCheckoutAttemptRef = useRef<{ fingerprint: string; key: string } | null>(null)
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -903,11 +847,11 @@ export default function MemberDashboard({
       fetchEnrollments() // Need enrollments to display on profile
       void fetchProfilePayments()
     } else if (activeTab === 'billing') {
-      void fetchBillingStatements()
+      if (portalConfigLoaded) void fetchBillingStatements()
     } else if (activeTab === 'waivers') {
       fetchWaivers()
     }
-  }, [activeTab, profileData?.id])
+  }, [activeTab, memberBillingReadV2, portalConfigLoaded, profileData?.id])
 
   const fetchProfileData = async () => {
     try {
@@ -1135,9 +1079,18 @@ export default function MemberDashboard({
     }
   }, [apiUrl, token])
 
-  const fetchCustomerTransactions = useCallback(async (append = false) => {
-    if (!token || !profileData?.isFamilyPayer || !memberBillingReadV2) return
-    if (transactionLoadRef.current) return transactionLoadRef.current
+  const fetchCustomerTransactions = useCallback(async (
+    append = false,
+    initialData: MemberCustomerBillingData | null = null,
+    force = false,
+  ) => {
+    if (!token || !memberBillingReadV2) return
+    if (transactionLoadRef.current) {
+      const pending = transactionLoadRef.current
+      if (!force) return pending
+      await pending
+      if (transactionLoadRef.current) return transactionLoadRef.current
+    }
     const cursor = append ? customerBilling?.nextTransactionCursor ?? null : null
     if (append && !cursor) return
 
@@ -1153,10 +1106,15 @@ export default function MemberDashboard({
         if (!response.ok) throw new Error(`Backend returned ${response.status}`)
         const payload = await response.json()
         const page = payload.data ?? { rows: [], nextCursor: null }
-        setCustomerBilling((previous) => previous == null ? previous : {
-          ...previous,
-          transactions: append ? [...previous.transactions, ...(page.rows ?? [])] : (page.rows ?? []),
-          nextTransactionCursor: page.nextCursor ?? null,
+        setCustomerBilling((previous) => {
+          const current = previous ?? initialData
+          if (!current) return current
+          return {
+            ...current,
+            access: page.access ?? current.access,
+            transactions: append ? [...current.transactions, ...(page.rows ?? [])] : (page.rows ?? []),
+            nextTransactionCursor: page.nextCursor ?? null,
+          }
         })
       } catch (error) {
         console.error('Error fetching customer billing transactions:', error)
@@ -1171,57 +1129,52 @@ export default function MemberDashboard({
     } finally {
       transactionLoadRef.current = null
     }
-  }, [apiUrl, customerBilling?.nextTransactionCursor, memberBillingReadV2, profileData?.isFamilyPayer, token])
+  }, [apiUrl, customerBilling?.nextTransactionCursor, memberBillingReadV2, token])
 
   const fetchBillingStatements = useCallback(async (force = false) => {
-    if (!token || !profileData) return
-    const mode: 'payer' | 'nonpayer' = profileData.isFamilyPayer ? 'payer' : 'nonpayer'
+    if (!token || profileData?.id == null || !portalConfigLoaded) return
+    const mode = memberBillingReadV2 ? 'canonical' : 'legacy'
+    const cacheKey = `${mode}:${Number(profileData.id)}`
     if (force) billingPaymentsLoadedRef.current = false
-    if (!force && billingLoadedModeRef.current === mode) return
-    if (billingLoadRef.current) return billingLoadRef.current
+    if (!force && billingLoadedKeyRef.current === cacheKey) return
+    if (billingLoadRef.current) {
+      const pending = billingLoadRef.current
+      if (!force) return pending
+      await pending
+      if (billingLoadRef.current) return billingLoadRef.current
+    }
 
     const task = (async () => {
       setBillingLoading(true)
       try {
         const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-        if (mode === 'payer' && memberBillingReadV2) {
-          const response = await fetch(`${apiUrl}/api/members/billing/customer-account`, { headers })
-          if (!response.ok) throw new Error(`Backend returned ${response.status}`)
-          const payload = await response.json()
-          const data = payload.data ?? null
-          setCustomerBilling(data == null ? null : {
-            ...data,
-            transactions: [],
-            nextTransactionCursor: null,
-          })
-          setBillingAccount(null)
-          billingLoadedModeRef.current = mode
-          if (data?.overview) void fetchCustomerTransactions(false)
-          return
-        }
-
-        if (mode === 'payer') {
-          const [accountResponse, customerBillingResponse] = await Promise.all([
-            fetch(`${apiUrl}/api/members/billing/account`, { headers }),
-            fetch(`${apiUrl}/api/members/billing/customer-account`, { headers }),
-          ])
-          const accountData = accountResponse.ok ? await accountResponse.json() : null
-          const customerBillingData = customerBillingResponse.ok ? await customerBillingResponse.json() : null
-          setBillingAccount(accountData?.data ?? null)
-          setCustomerBilling(customerBillingData?.data ?? null)
-        } else {
+        if (!memberBillingReadV2) {
           const response = await fetch(`${apiUrl}/api/members/billing/account`, { headers })
           if (!response.ok) throw new Error(`Backend returned ${response.status}`)
           const payload = await response.json()
-          setBillingAccount(payload.data ?? null)
+          setLegacyBillingAccount(payload.data ?? null)
           setCustomerBilling(null)
+          billingLoadedKeyRef.current = cacheKey
+          return
         }
-        billingLoadedModeRef.current = mode
+        const response = await fetch(`${apiUrl}/api/members/billing/customer-account`, { headers })
+        if (!response.ok) throw new Error(`Backend returned ${response.status}`)
+        const payload = await response.json()
+        const data: MemberCustomerBillingData | null = payload.data ?? null
+        const normalizedData = data == null ? null : {
+          ...data,
+          transactions: [],
+          nextTransactionCursor: null,
+        }
+        setCustomerBilling(normalizedData)
+        setLegacyBillingAccount(null)
+        billingLoadedKeyRef.current = cacheKey
+        if (normalizedData?.overview) void fetchCustomerTransactions(false, normalizedData, force)
       } catch (error) {
         console.error('Error fetching billing data:', error)
-        setBillingAccount(null)
+        setLegacyBillingAccount(null)
         setCustomerBilling(null)
-        billingLoadedModeRef.current = null
+        billingLoadedKeyRef.current = null
       } finally {
         setBillingLoading(false)
       }
@@ -1232,7 +1185,7 @@ export default function MemberDashboard({
     } finally {
       billingLoadRef.current = null
     }
-  }, [apiUrl, fetchCustomerTransactions, memberBillingReadV2, profileData, token])
+  }, [apiUrl, fetchCustomerTransactions, memberBillingReadV2, portalConfigLoaded, profileData?.id, token])
 
   const visibleNavEntries = useMemo(
     () => buildPortalNavRenderList(NAV, memberNavLayout, memberTabOrder, hiddenMemberTabs, (item) => item.tab),
@@ -1248,8 +1201,13 @@ export default function MemberDashboard({
   )
 
   useEffect(() => {
-    if (!token) return
+    if (!token) {
+      setPortalConfigLoaded(true)
+      return
+    }
     let cancelled = false
+    setPortalConfigLoaded(false)
+    setMemberBillingReadV2(true)
     ;(async () => {
       try {
         const res = await fetch(`${apiUrl}/api/members/portal-config`, {
@@ -1273,7 +1231,11 @@ export default function MemberDashboard({
               ),
         )
       } catch {
-        if (!cancelled) setHiddenMemberTabs([])
+        if (!cancelled) {
+          setHiddenMemberTabs([])
+        }
+      } finally {
+        if (!cancelled) setPortalConfigLoaded(true)
       }
     })()
     return () => {
@@ -1440,11 +1402,34 @@ export default function MemberDashboard({
   const [portalLoading, setPortalLoading] = useState(false)
   const handlePayNow = async () => {
     if (!token) return
+    const checkoutFingerprint = memberBillingReadV2
+      ? [
+          'canonical',
+          customerBilling?.overview?.account.id ?? 'none',
+          customerBilling?.revision ?? 'none',
+          customerBilling?.overview?.summary.collectibleBalanceCents ?? 'none',
+        ].join(':')
+      : [
+          'legacy',
+          legacyBillingAccount?.balanceCents ?? 'none',
+          legacyBillingAccount?.chargesCents ?? 'none',
+          legacyBillingAccount?.paymentsCents ?? 'none',
+        ].join(':')
+    const priorAttempt = billingCheckoutAttemptRef.current
+    const checkoutKey = priorAttempt?.fingerprint === checkoutFingerprint
+      ? priorAttempt.key
+      : globalThis.crypto?.randomUUID?.()
+        ?? `member-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    billingCheckoutAttemptRef.current = { fingerprint: checkoutFingerprint, key: checkoutKey }
     setPayNowLoading(true)
     try {
-      const res = await fetch(`${apiUrl}/api/members/billing/checkout-session`, {
+      const res = await fetch(`${apiUrl}/api/members/billing/payments/checkout`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': checkoutKey,
+        },
         body: JSON.stringify({
           analytics: { gaClientId: getGaClientId(), gaSessionId: getGaSessionId() },
         }),
@@ -1466,7 +1451,7 @@ export default function MemberDashboard({
     if (!token) return
     setPortalLoading(true)
     try {
-      const res = await fetch(`${apiUrl}/api/members/billing/customer-portal`, {
+      const res = await fetch(`${apiUrl}/api/members/billing/payment-method-session`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
@@ -2862,10 +2847,10 @@ export default function MemberDashboard({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {customerBilling?.overview ? (
+                {memberBillingReadV2 ? (
                   <MemberCustomerBilling
                     data={customerBilling}
-                    loading={billingLoading}
+                    loading={billingLoading || !portalConfigLoaded}
                     payNowLoading={payNowLoading}
                     portalLoading={portalLoading}
                     onPayNow={handlePayNow}
@@ -2879,8 +2864,8 @@ export default function MemberDashboard({
                   />
                 ) : (
                   <MemberBillingPanel
-                    billingAccount={billingAccount}
-                    billingLoading={billingLoading}
+                    billingAccount={legacyBillingAccount}
+                    billingLoading={billingLoading || !portalConfigLoaded}
                     payNowLoading={payNowLoading}
                     portalLoading={portalLoading}
                     onPayNow={handlePayNow}

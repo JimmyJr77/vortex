@@ -5,8 +5,65 @@ import {
   adaptFormEnrollSitesBody,
   getSchedulingEnrollApiCapabilities,
 } from './schedulingEnrollApi'
+import { randomUUID } from './uuid'
 
 export type { EnrollSiteKey }
+
+const checkoutRequestKeys = new Map<string, string>()
+
+function stableCheckoutValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableCheckoutValue)
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    return Object.fromEntries(
+      Object.keys(record)
+        .sort()
+        .filter((key) => record[key] !== undefined)
+        .map((key) => [key, stableCheckoutValue(record[key])]),
+    )
+  }
+  return value
+}
+
+function checkoutPayloadFingerprint(value: unknown): string {
+  const serialized = JSON.stringify(stableCheckoutValue(value))
+  let left = 0x811c9dc5
+  let right = 0x9e3779b9
+  for (let index = 0; index < serialized.length; index += 1) {
+    const code = serialized.charCodeAt(index)
+    left = Math.imul(left ^ code, 0x01000193)
+    right = Math.imul(right ^ code, 0x85ebca6b)
+  }
+  return `${(left >>> 0).toString(16).padStart(8, '0')}${(right >>> 0).toString(16).padStart(8, '0')}`
+}
+
+/** Keep one request key for repeated clicks/retries of the same in-page checkout intent. */
+function checkoutRequestKey(kind: string, payload: unknown): string {
+  const identity = `${kind}:${checkoutPayloadFingerprint(payload)}`
+  const existing = checkoutRequestKeys.get(identity)
+  if (existing) return existing
+  const storageKey = `vortex:checkout-idempotency:${identity}`
+  try {
+    const stored = globalThis.sessionStorage?.getItem(storageKey)
+    if (stored) {
+      checkoutRequestKeys.set(identity, stored)
+      return stored
+    }
+  } catch {
+    // Storage can be disabled; the in-memory guard still covers repeat clicks.
+  }
+  const created = randomUUID()
+  checkoutRequestKeys.set(identity, created)
+  try {
+    globalThis.sessionStorage?.setItem(storageKey, created)
+  } catch {
+    // See above; checkout correctness still rests on the server-side binding.
+  }
+  if (checkoutRequestKeys.size > 100) {
+    checkoutRequestKeys.delete(checkoutRequestKeys.keys().next().value as string)
+  }
+  return created
+}
 
 function normalizeSchedulingDate(value: string | null | undefined): string | null {
   const iso = dateInputValue(value)
@@ -1230,15 +1287,20 @@ export async function createEnrollmentCheckoutSession(
     responses?: Record<string, string | boolean | number | string[]>
     /** GA4 ids captured at checkout start so the webhook-side purchase event keeps attribution. */
     analytics?: { gaClientId?: string; gaSessionId?: string }
+    /** Reuse after an uncertain network result to replay the same Checkout safely. */
+    idempotencyKey?: string
   },
 ): Promise<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }> {
+  const { idempotencyKey, ...requestPayload } = payload
+  const requestKey = idempotencyKey ?? checkoutRequestKey('enrollment', requestPayload)
   const res = await fetch(`${getApiUrl()}/api/members/billing/enrollment-checkout-session`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${memberToken}`,
+      'Idempotency-Key': requestKey,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(requestPayload),
   })
   return parseJson<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }>(res)
 }
@@ -1275,15 +1337,20 @@ export async function createAnnualMembershipCheckoutSession(
     promoCodesByMemberId?: Record<number, string>
     successUrl?: string
     cancelUrl?: string
+    /** Reuse after an uncertain network result to replay the same Checkout safely. */
+    idempotencyKey?: string
   },
 ): Promise<{ url?: string; checkoutSessionId?: string; free?: boolean; memberIds?: number[]; renewsOn?: string }> {
+  const { idempotencyKey, ...requestPayload } = payload
+  const requestKey = idempotencyKey ?? checkoutRequestKey('annual-membership', requestPayload)
   const res = await fetch(`${getApiUrl()}/api/members/billing/annual-membership-checkout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${memberToken}`,
+      'Idempotency-Key': requestKey,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(requestPayload),
   })
   return parseJson<{
     url?: string

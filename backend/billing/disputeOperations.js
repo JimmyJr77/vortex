@@ -1,3 +1,5 @@
+import { requireAdminFacilityScope } from './adminFacilityScope.js'
+
 const CLOSED = new Set(['won', 'lost'])
 
 function stripeId(value) { return typeof value === 'string' ? value : value?.id ?? null }
@@ -30,23 +32,44 @@ export async function syncDisputeCase(pool, dispute) {
   return result.rows[0]
 }
 
-export async function listDisputeCases(pool) {
+export async function listDisputeCases(pool, { facilityId = null, allowGlobal = false } = {}) {
+  const scopedFacilityId = requireAdminFacilityScope({ facilityId, allowGlobal })
   const result = await pool.query(
     `SELECT d.*,f.family_name FROM stripe_dispute_case d
      LEFT JOIN family_billing_account fba ON fba.id=d.family_billing_account_id
      LEFT JOIN family f ON f.id=fba.family_id
+     WHERE ($1::bigint IS NULL OR f.facility_id=$1)
      ORDER BY CASE WHEN d.status IN ('won','lost') THEN 1 ELSE 0 END,d.response_due_at NULLS LAST,d.created_at DESC`,
+    [scopedFacilityId],
   )
   return result.rows
 }
 
-export async function updateDisputeEvidence(pool,{id,evidenceStatus,evidenceNote,userId}) {
+export async function updateDisputeEvidence(pool,{
+  id,
+  evidenceStatus,
+  evidenceNote,
+  userId,
+  facilityId = null,
+  allowGlobal = false,
+}) {
   if (!['not_started','collecting','ready','submitted'].includes(evidenceStatus)) throw new Error('Invalid evidence status.')
   if (!String(evidenceNote||'').trim()) throw new Error('An evidence note is required.')
+  const scopedFacilityId = requireAdminFacilityScope({ facilityId, allowGlobal })
   const result=await pool.query(
-    `UPDATE stripe_dispute_case SET evidence_status=$2,evidence_note=$3,updated_by_user_id=$4,updated_at=now()
-     WHERE id=$1 AND status NOT IN ('won','lost') RETURNING *`,
-    [id,evidenceStatus,String(evidenceNote).trim(),userId],
+    `UPDATE stripe_dispute_case d
+     SET evidence_status=$2,evidence_note=$3,updated_by_user_id=$4,updated_at=now()
+     WHERE d.id=$1
+       AND d.status NOT IN ('won','lost')
+       AND ($5::bigint IS NULL OR EXISTS (
+         SELECT 1
+         FROM family_billing_account scoped_account
+         JOIN family scoped_family ON scoped_family.id=scoped_account.family_id
+         WHERE scoped_account.id=d.family_billing_account_id
+           AND scoped_family.facility_id=$5
+       ))
+     RETURNING d.*`,
+    [id,evidenceStatus,String(evidenceNote).trim(),userId,scopedFacilityId],
   )
   if(!result.rows[0]) throw new Error('Open dispute case not found.')
   return result.rows[0]

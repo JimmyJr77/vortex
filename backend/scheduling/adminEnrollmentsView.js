@@ -26,6 +26,7 @@ import { queryFamilyMemberEnrollments } from '../platform/memberEnrollments.js'
 import { processDueEnrollmentCancellations } from './memberEnrollmentCancel.js'
 import { resolveFamilyEnrollmentPricing } from '../billing/familyEnrollmentPricing.js'
 import { billingMonthKey } from '../billing/customerBillingPricing.js'
+import { cancelStripeSubscriptionNow } from '../billing/stripeSubscriptionSync.js'
 
 function parseSelectedDays(raw) {
   if (!raw) return []
@@ -53,7 +54,159 @@ function formatLegacySlotLabel(selectedDays, daysPerWeek) {
  * @param {import('pg').Pool} pool
  * @param {{ memberId?: number|null }} [opts]
  */
-export async function autoCompleteEndedEnrollments(pool, { memberId = null } = {}) {
+export async function autoCompleteEndedEnrollments(pool, {
+  memberId = null,
+  strict = false,
+  accountId = null,
+  facilityId = null,
+  asOfDate = null,
+  stripeCanceller = cancelStripeSubscriptionNow,
+} = {}) {
+  if (strict || accountId != null || facilityId != null || asOfDate != null) {
+    if (!strict || accountId == null || facilityId == null || !/^\d{4}-\d{2}-\d{2}$/.test(String(asOfDate ?? ''))) {
+      const error = new Error('Strict enrollment completion requires an account, facility, and civil as-of date.')
+      error.code = 'strict_enrollment_completion_scope_required'
+      throw error
+    }
+    const ownsClient = typeof pool.release !== 'function' && typeof pool.connect === 'function'
+    const client = ownsClient ? await pool.connect() : pool
+    try {
+      const due = await client.query(
+        `SELECT DISTINCT signup.id
+           FROM scheduling_signup signup
+           JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
+           LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
+           JOIN billing_subscription subscription
+             ON subscription.source_type = 'scheduling_signup'
+            AND subscription.source_id = signup.id::text
+            AND subscription.status <> 'cancelled'
+           JOIN family_billing_account account
+             ON account.id = subscription.family_billing_account_id
+           JOIN family ON family.id = account.family_id
+          WHERE account.id = $1
+            AND family.facility_id = $2
+            AND signup.status = 'confirmed'
+            AND signup.orphaned_at IS NULL
+            AND COALESCE(offering.end_date, slot_group.active_end) IS NOT NULL
+            AND COALESCE(offering.end_date, slot_group.active_end) < $3::date
+          ORDER BY signup.id`,
+        [Number(accountId), Number(facilityId), asOfDate],
+      )
+      const completedIds = []
+      for (const candidate of due.rows) {
+        const remoteSubscriptions = await client.query(
+          `SELECT stripe_subscription_id
+             FROM billing_subscription
+            WHERE family_billing_account_id = $1
+              AND source_type = 'scheduling_signup'
+              AND source_id = $2
+              AND status <> 'cancelled'
+              AND stripe_subscription_id IS NOT NULL
+            ORDER BY id`,
+          [Number(accountId), String(candidate.id)],
+        )
+        for (const subscription of remoteSubscriptions.rows) {
+          const outcome = await stripeCanceller(subscription.stripe_subscription_id)
+          if (!['cancelled', 'already_cancelled'].includes(outcome?.status)) {
+            const error = new Error(`Stripe subscription ${subscription.stripe_subscription_id} could not be retired for ended enrollment ${candidate.id}.`)
+            error.code = 'enrollment_completion_stripe_retirement_failed'
+            error.details = outcome
+            throw error
+          }
+        }
+        let transactionOpen = false
+        try {
+          await client.query('BEGIN')
+          transactionOpen = true
+          const locked = await client.query(
+            `SELECT signup.id,
+                    COALESCE(offering.end_date, slot_group.active_end) AS program_end_date
+               FROM scheduling_signup signup
+               JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
+               LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
+              WHERE signup.id = $1
+                AND signup.status = 'confirmed'
+                AND signup.orphaned_at IS NULL
+                AND COALESCE(offering.end_date, slot_group.active_end) IS NOT NULL
+                AND COALESCE(offering.end_date, slot_group.active_end) < $2::date
+              FOR UPDATE OF signup`,
+            [Number(candidate.id), asOfDate],
+          )
+          if (!locked.rows[0]) {
+            await client.query('COMMIT')
+            transactionOpen = false
+            continue
+          }
+          const programEndDate = formatDateOnly(locked.rows[0].program_end_date) ?? asOfDate
+          const lockedSubscriptions = await client.query(
+            `SELECT subscription.id
+               FROM billing_subscription subscription
+              WHERE subscription.family_billing_account_id = $1
+                AND subscription.source_type = 'scheduling_signup'
+                AND subscription.source_id = $2
+                AND subscription.status <> 'cancelled'
+              ORDER BY subscription.id
+              FOR UPDATE OF subscription`,
+            [Number(accountId), String(candidate.id)],
+          )
+          if (lockedSubscriptions.rows.length === 0) {
+            const error = new Error(`Enrollment ${candidate.id} lost its billing subscription before completion.`)
+            error.code = 'enrollment_completion_subscription_missing'
+            throw error
+          }
+          const signup = await client.query(
+            `UPDATE scheduling_signup
+                SET status = 'completed', completed_at = now()
+              WHERE id = $1 AND status = 'confirmed'
+              RETURNING id`,
+            [Number(candidate.id)],
+          )
+          if (!signup.rows[0]) {
+            const error = new Error(`Enrollment ${candidate.id} changed while it was being completed.`)
+            error.code = 'enrollment_completion_cas_failed'
+            throw error
+          }
+          await client.query(
+            `UPDATE billing_subscription
+                SET status = 'cancelled',
+                    end_date = COALESCE(end_date, $3::date),
+                    next_bill_date = NULL,
+                    updated_at = now()
+              WHERE family_billing_account_id = $1
+                AND source_type = 'scheduling_signup'
+                AND source_id = $2
+                AND status <> 'cancelled'`,
+            [Number(accountId), String(candidate.id), programEndDate],
+          )
+          const remaining = await client.query(
+            `SELECT id
+               FROM billing_subscription
+              WHERE family_billing_account_id = $1
+                AND source_type = 'scheduling_signup'
+                AND source_id = $2
+                AND status <> 'cancelled'
+              LIMIT 1`,
+            [Number(accountId), String(candidate.id)],
+          )
+          if (remaining.rows[0]) {
+            const error = new Error(`Enrollment ${candidate.id} retained a live billing subscription after completion.`)
+            error.code = 'enrollment_completion_postcondition_failed'
+            throw error
+          }
+          await client.query('COMMIT')
+          transactionOpen = false
+          completedIds.push(Number(candidate.id))
+        } catch (error) {
+          if (transactionOpen) await client.query('ROLLBACK').catch(() => {})
+          throw error
+        }
+      }
+      return completedIds
+    } finally {
+      if (ownsClient) client.release()
+    }
+  }
+
   try {
     await ensureEnrollmentLifecycleColumns(pool)
   } catch (schemaErr) {
@@ -147,19 +300,21 @@ export function mapDropInEnrollmentPricing(row) {
 export async function buildAdminMemberEnrollments(
   pool,
   memberId,
-  { familyPricing = null, pricingPeriod = null } = {},
+  { familyPricing = null, pricingPeriod = null, readOnly = false } = {},
 ) {
   // Keep the Accounts view on the same lifecycle state as Member Portal → Classes.
   // This finalizes any cancellation whose effective date has arrived before rows
   // and billing details are read.
-  try {
-    await processDueEnrollmentCancellations(pool)
-  } catch (err) {
-    console.warn('[adminEnrollmentsView] process due cancellations:', err?.message ?? err)
+  if (!readOnly) {
+    try {
+      await processDueEnrollmentCancellations(pool)
+    } catch (err) {
+      console.warn('[adminEnrollmentsView] process due cancellations:', err?.message ?? err)
+    }
   }
 
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
-  await ensurePrimaryDisciplineTagColumn(pool)
+  if (!readOnly) await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
   const programFkColumn = schema.programFkColumn
@@ -181,6 +336,7 @@ export async function buildAdminMemberEnrollments(
     const resolved = familyPricing ?? await resolveFamilyEnrollmentPricing(pool, {
       familyId: Number(memberRow.family_id),
       periodKey: pricingPeriod ?? billingMonthKey(new Date()),
+      ensureSchema: false,
     })
     for (const line of resolved?.lines ?? []) {
       const signupId = Number(line.signupId)
@@ -273,6 +429,7 @@ export async function buildAdminMemberEnrollments(
   const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(
     pool,
     schedulingResult.rows.map((row) => Number(row.form_id)),
+    { ensureSchema: !readOnly },
   )
 
   const schedulingRows = schedulingResult.rows.map((row) => {
@@ -359,7 +516,10 @@ export async function buildAdminMemberEnrollments(
     return enriched
   })
 
-  const dropInRows = (await queryFamilyMemberEnrollments(pool, [memberId]))
+  const dropInRows = (await queryFamilyMemberEnrollments(pool, [memberId], {
+    skipDueCancellations: readOnly,
+    ensureSchema: !readOnly,
+  }))
     .filter((row) => row.source === 'drop_in')
     .map((row) => ({
       ...row,

@@ -1,16 +1,15 @@
 /**
  * Canonical annual membership status for a member (athlete).
  *
- * Primary source of truth: billing_subscription source_type=annual_membership
- * with next_bill_date still in the future (Stripe yearly renewal window).
- * Fallback: additional_fee_redemption still within purchase+1 year
- * (includes fully waived / $0 promo redemptions).
+ * Source of truth: a satisfied additional_fee_redemption whose paid-through
+ * date is still in the future. billing_subscription is only the local renewal
+ * schedule; advancing it when a renewal charge is posted must never grant an
+ * unpaid year of access.
  */
 
 import {
   ANNUAL_MEMBERSHIP_SOURCE_TYPE,
   ANNUAL_MEMBERSHIP_PRICING_KEY,
-  isMembershipValidThrough,
   membershipRenewsOnFromPurchase,
   toUtcDateString,
 } from './membershipAnniversary.js'
@@ -30,10 +29,20 @@ function parseDbDateOnly(value) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
 }
 
-function feeIdFromAnnualSourceId(sourceId) {
-  const feePart = String(sourceId || '').split(':')[0]
-  const feeId = Number(feePart)
-  return Number.isFinite(feeId) ? feeId : null
+function redemptionRenewsOn(row) {
+  const periodKey = String(row?.period_key ?? '')
+  const explicit = /^\d{4}-\d{2}-\d{2}$/.test(periodKey)
+    ? parseDbDateOnly(periodKey)
+    : null
+  if (explicit) return explicit
+  return membershipRenewsOnFromPurchase(row?.satisfied_at ?? row?.created_at)
+}
+
+function redemptionIsActive(row, asOfDate) {
+  const renewsOn = redemptionRenewsOn(row)
+  if (!renewsOn || renewsOn.getTime() <= asOfDate.getTime()) return false
+  const endedAt = parseDbDateOnly(row?.ended_at)
+  return !endedAt || endedAt.getTime() > asOfDate.getTime()
 }
 
 /**
@@ -43,7 +52,7 @@ function feeIdFromAnnualSourceId(sourceId) {
  *   feeId: number|null,
  *   cycleStart: Date,
  *   renewsOn: Date,
- *   source: 'billing_subscription'|'redemption',
+ *   source: 'redemption',
  *   billingSubscriptionId?: number|null,
  * }} ActiveAnnualMembership
  */
@@ -62,49 +71,7 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
   if (!asOfKey) return null
 
   try {
-    const subParams = [memberId, asOfKey, ANNUAL_MEMBERSHIP_SOURCE_TYPE]
-    let feeFilter = ''
-    if (feeId != null) {
-      subParams.push(`${Number(feeId)}:${Number(memberId)}`)
-      feeFilter = ` AND source_id = $${subParams.length}`
-    }
-    const subRes = await pool.query(
-      `
-        SELECT id, member_id, source_id, start_date, next_bill_date, status
-        FROM billing_subscription
-        WHERE member_id = $1
-          AND source_type = $3
-          AND status IN ('active', 'paused')
-          AND next_bill_date IS NOT NULL
-          AND next_bill_date > $2::date
-          ${feeFilter}
-        ORDER BY next_bill_date ASC, id ASC
-        LIMIT 1
-      `,
-      subParams,
-    )
-    const sub = subRes.rows[0]
-    if (sub) {
-      const renewsOn = parseDbDateOnly(sub.next_bill_date)
-      const cycleStart = parseDbDateOnly(sub.start_date) || asOfDate
-      if (renewsOn) {
-        return {
-          active: true,
-          memberId: Number(sub.member_id),
-          feeId: feeIdFromAnnualSourceId(sub.source_id),
-          cycleStart,
-          renewsOn,
-          source: 'billing_subscription',
-          billingSubscriptionId: Number(sub.id),
-        }
-      }
-    }
-  } catch {
-    // billing_subscription may be absent on older DBs — fall through to redemption.
-  }
-
-  try {
-    const redemptionParams = [memberId, asOfKey]
+    const redemptionParams = [memberId, asOfKey, ANNUAL_MEMBERSHIP_SOURCE_TYPE]
     let redemptionFeeFilter = ''
     if (feeId != null) {
       redemptionParams.push(Number(feeId))
@@ -112,9 +79,17 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
     }
     const redRes = await pool.query(
       `
-        SELECT r.fee_id, r.created_at, r.period_key
+        SELECT r.fee_id, r.created_at, r.satisfied_at, r.period_key, r.ended_at,
+               charge.service_period_start,
+               subscription.id AS billing_subscription_id
         FROM additional_fee_redemption r
         JOIN additional_fee f ON f.id = r.fee_id
+        LEFT JOIN billing_charge charge ON charge.id = r.billing_charge_id
+        LEFT JOIN billing_subscription subscription
+          ON subscription.member_id = r.member_id
+         AND subscription.source_type = $3
+         AND subscription.source_id = CONCAT(r.fee_id, ':', r.member_id)
+         AND subscription.status IN ('active', 'paused')
         WHERE r.member_id = $1
           AND r.amount_cents >= 0
           AND (r.ended_at IS NULL OR r.ended_at > $2::date)
@@ -131,9 +106,11 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
       redemptionParams,
     )
     for (const row of redRes.rows) {
-      if (!isMembershipValidThrough(row.created_at, asOfDate)) continue
-      const renewsOn = membershipRenewsOnFromPurchase(row.created_at)
-      const cycleStart = parseDbDateOnly(row.created_at)
+      if (!redemptionIsActive(row, asOfDate)) continue
+      const renewsOn = redemptionRenewsOn(row)
+      const cycleStart = parseDbDateOnly(row.service_period_start)
+        || parseDbDateOnly(row.satisfied_at)
+        || parseDbDateOnly(row.created_at)
       if (!renewsOn || !cycleStart) continue
       return {
         active: true,
@@ -142,7 +119,9 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
         cycleStart,
         renewsOn,
         source: 'redemption',
-        billingSubscriptionId: null,
+        billingSubscriptionId: row.billing_subscription_id == null
+          ? null
+          : Number(row.billing_subscription_id),
       }
     }
   } catch {
@@ -159,7 +138,7 @@ export async function memberHasActiveAnnualMembership(pool, memberId, opts = {})
 }
 
 /**
- * Fee ids with an active annual membership window (subscription or redemption).
+ * Fee ids with an active paid annual membership window.
  * Used to suppress once_per_year fees during the membership year.
  * @returns {Promise<Set<number>>}
  */
@@ -172,35 +151,9 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
   if (!asOfKey || ids.length === 0) return active
 
   try {
-    const sourceIds = ids.map((feeId) => `${feeId}:${Number(memberId)}`)
-    const subRes = await pool.query(
-      `
-        SELECT source_id
-        FROM billing_subscription
-        WHERE member_id = $1
-          AND source_type = $4
-          AND status IN ('active', 'paused')
-          AND next_bill_date IS NOT NULL
-          AND next_bill_date > $2::date
-          AND source_id = ANY($3::text[])
-      `,
-      [memberId, asOfKey, sourceIds, ANNUAL_MEMBERSHIP_SOURCE_TYPE],
-    )
-    for (const row of subRes.rows) {
-      const feeId = feeIdFromAnnualSourceId(row.source_id)
-      if (feeId != null) active.add(feeId)
-    }
-  } catch {
-    // fall through
-  }
-
-  const remaining = ids.filter((id) => !active.has(id))
-  if (remaining.length === 0) return active
-
-  try {
     const redRes = await pool.query(
       `
-        SELECT r.fee_id, r.created_at
+        SELECT r.fee_id, r.created_at, r.satisfied_at, r.period_key, r.ended_at
         FROM additional_fee_redemption r
         JOIN additional_fee f ON f.id = r.fee_id
         WHERE r.member_id = $1
@@ -214,10 +167,10 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
             OR lower(f.name) LIKE '%membership%'
           )
       `,
-      [memberId, remaining, asOfKey],
+      [memberId, ids, asOfKey],
     )
     for (const row of redRes.rows) {
-      if (!isMembershipValidThrough(row.created_at, asOfDate)) continue
+      if (!redemptionIsActive(row, asOfDate)) continue
       active.add(Number(row.fee_id))
     }
   } catch {

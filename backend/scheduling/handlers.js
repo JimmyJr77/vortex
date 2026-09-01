@@ -8,7 +8,6 @@ import {
   createMemberStub,
   findMemberByEmail,
   findMemberById,
-  findMemberForAppUser,
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
@@ -99,6 +98,10 @@ import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, b
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 import { normalizeEnrollmentStartDate } from './enrollmentStartDate.js'
+import {
+  authorizeSignupBatchPayer,
+  findExplicitlyLinkedSchedulingMember,
+} from './signupPayerAuthorization.js'
 
 function enrollmentDueNowCents(preview) {
   if (!preview) return 0
@@ -550,13 +553,20 @@ async function hydrateFormClassMasterProgramsId(pool, formRow) {
   }
 }
 
-async function issueSignupAuthForForm(pool, formId, member) {
+async function issueSignupAuthForForm(pool, formId, member, {
+  actorMemberId = member?.id,
+  familyBillingAccountId = null,
+  authorityGrant = 'self',
+} = {}) {
   const programsId = await loadFormProgramsId(pool, formId)
   return issueSignupAuthToken({
     formId,
     memberId: member.id,
     email: member.email,
     programsId,
+    actorMemberId,
+    familyBillingAccountId,
+    authorityGrant,
   })
 }
 
@@ -2178,6 +2188,13 @@ export function createSchedulingHandlers(pool) {
           programsId: formRow.programs_id != null ? Number(formRow.programs_id) : null,
         })
         const memberId = Number(auth.memberId)
+        const signupAuthority = auth.signupAuthority
+        if (signupAuthority.actorMemberId !== memberId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Only the member can change this enrollment account password.',
+          })
+        }
 
         const client = await pool.connect()
         try {
@@ -2192,7 +2209,11 @@ export function createSchedulingHandlers(pool) {
         }
 
         const member = await findMemberById(pool, memberId)
-        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member)
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member, {
+          actorMemberId: signupAuthority.actorMemberId,
+          familyBillingAccountId: signupAuthority.familyBillingAccountId,
+          authorityGrant: signupAuthority.grant,
+        })
         res.json({
           success: true,
           data: {
@@ -2309,38 +2330,41 @@ export function createSchedulingHandlers(pool) {
           return res.status(401).json({ success: false, message: 'Invalid token' })
         }
 
-        const userId = decoded.userId || decoded.memberId || decoded.adminId
-        if (!userId) {
+        const userId = Number(decoded.userId)
+        if (!Number.isSafeInteger(userId) || userId <= 0) {
           return res.status(401).json({ success: false, message: 'Token missing user identity' })
         }
 
-        const member = await findMemberForAppUser(pool, userId)
+        const member = await findExplicitlyLinkedSchedulingMember(pool, userId)
         if (!member) {
-          return res.status(404).json({ success: false, message: 'Member account not found' })
+          return res.status(403).json({
+            success: false,
+            code: 'MEMBER_ACCOUNT_LINK_REQUIRED',
+            message: 'A linked member profile is required to enroll.',
+          })
         }
 
-        // Optionally enroll a different family member (chosen in the member portal).
-        // Authorize the caller as a member of the same family as the target.
+        // Optionally enroll a different active member of the payer's canonical
+        // household (chosen in the member portal).
         let enrollMember = member
         if (value.targetMemberId && Number(value.targetMemberId) !== Number(member.id)) {
           const target = await findMemberById(pool, value.targetMemberId)
           if (!target) {
             return res.status(404).json({ success: false, message: 'Selected family member not found' })
           }
-          const sameFamily =
-            member.family_id != null &&
-            target.family_id != null &&
-            Number(member.family_id) === Number(target.family_id)
-          if (!sameFamily) {
-            return res.status(403).json({
-              success: false,
-              message: 'You do not have permission to enroll this family member',
-            })
-          }
           enrollMember = target
         }
 
-        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, enrollMember)
+        const authority = await authorizeSignupBatchPayer(pool, {
+          actorMemberId: member.id,
+          targetMemberId: enrollMember.id,
+        })
+        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, enrollMember, {
+          actorMemberId: member.id,
+          familyBillingAccountId: authority.familyBillingAccountId,
+          authorityGrant:
+            authority.kind === 'household_payer' ? 'household_payer' : 'self',
+        })
         res.json({
           success: true,
           data: {
@@ -2355,7 +2379,10 @@ export function createSchedulingHandlers(pool) {
         })
       } catch (err) {
         console.error('[scheduling] authMemberSession:', err)
-        res.status(500).json({ success: false, message: 'Failed to start signup session' })
+        res.status(err?.statusCode ?? 500).json({
+          success: false,
+          message: err?.statusCode ? err.message : 'Failed to start signup session',
+        })
       }
     },
 
@@ -2635,18 +2662,24 @@ export function createSchedulingHandlers(pool) {
         const primaryFormRow = resolvedEntries[0]?.formRow ?? null
         let memberId = null
         let createdNewStubMemberId = null
+        let signupAuthority = null
         let responses = { ...value.responses }
 
         if (value.signupAuthToken) {
           const authFormId =
             resolvedEntries[0]?.entry.formId ??
             slotSignups[0]?.formId ??
-            value.signups.find((s) => s.formId != null)?.formId
+            value.signups.find((s) => s.formId != null)?.formId ??
+            null
+          const authProgramsId =
+            primaryFormRow?.programs_id != null
+              ? Number(primaryFormRow.programs_id)
+              : passSignups[0]?.programsId ?? null
           const auth = verifySignupAuthToken(value.signupAuthToken, authFormId, {
-            programsId:
-              primaryFormRow?.programs_id != null ? Number(primaryFormRow.programs_id) : null,
+            programsId: authProgramsId,
           })
           memberId = Number(auth.memberId)
+          signupAuthority = auth.signupAuthority
           const member = await findMemberById(pool, memberId)
           if (!member) {
             return res.status(401).json({ success: false, message: 'Account not found' })
@@ -2655,6 +2688,11 @@ export function createSchedulingHandlers(pool) {
             verifySignupAuthToken(value.signupAuthToken, resolved.entry.formId, {
               programsId:
                 resolved.formRow.programs_id != null ? Number(resolved.formRow.programs_id) : null,
+            })
+          }
+          for (const passEntry of passSignups) {
+            verifySignupAuthToken(value.signupAuthToken, null, {
+              programsId: Number(passEntry.programsId),
             })
           }
           responses = {
@@ -2698,6 +2736,17 @@ export function createSchedulingHandlers(pool) {
             await client.query('ROLLBACK')
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
           }
+
+          // This is the mandatory authorization boundary for every batch path:
+          // direct HTTP, no-payment checkout, Stripe-disabled operation, pass
+          // purchase, and Stripe's internal pending-enrollment commit all reach
+          // this check before preview or any enrollment/billing mutation.
+          await authorizeSignupBatchPayer(client, {
+            actorMemberId: signupAuthority?.actorMemberId ?? memberId,
+            targetMemberId: memberId,
+            expectedFamilyBillingAccountId:
+              signupAuthority?.familyBillingAccountId ?? null,
+          })
 
           for (const resolved of resolvedEntries) {
             const existing = await client.query(
@@ -3036,7 +3085,10 @@ export function createSchedulingHandlers(pool) {
         if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
-        res.status(500).json({ success: false, message: err.message || 'Failed to submit signups' })
+        res.status(err?.statusCode ?? 500).json({
+          success: false,
+          message: err.message || 'Failed to submit signups',
+        })
       }
     },
 

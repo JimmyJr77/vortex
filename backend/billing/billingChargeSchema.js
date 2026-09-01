@@ -1,20 +1,8 @@
 /**
- * billing_charge idempotency index (046) + Stripe checkout links (058).
- * Required before persistSignupCharges ON CONFLICT upserts.
+ * Compatibility hook retained for callers that predate boot-time billing
+ * readiness. Startup now verifies the charge/link/metadata schema before the
+ * process accepts traffic, so a request must never mutate database structure.
  */
-
-let billingChargeSchemaEnsured = false
-
-async function runMigrationFile(pool, relativePath) {
-  const fs = await import('fs')
-  const migrationPath = new URL(relativePath, import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-}
-
-export async function ensureBillingChargeSchema(pool) {
-  if (billingChargeSchemaEnsured) return
-  await runMigrationFile(pool, '../migrations/046_signup_billing_charges.sql')
-  await runMigrationFile(pool, '../migrations/058_billing_stripe_links.sql')
-  await runMigrationFile(pool, '../migrations/770_billing_charge_promo_metadata.sql')
-  billingChargeSchemaEnsured = true
+export async function ensureBillingChargeSchema() {
+  // Intentionally read/write-free.
 }

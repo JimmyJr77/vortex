@@ -14,8 +14,14 @@ import {
 import { ensureEnrollmentLifecycleColumns } from './enrollmentLifecycle.js'
 import { promoteFromWaitlist } from './waitlist.js'
 import { syncFamilyEnrollmentDiscounts } from './pauseEnrollmentBilling.js'
-import { safeRestorePassCreditsForSignup } from '../programs/multiClassPass.js'
-import { syncStripeForBillingSource } from '../billing/stripeSubscriptionSync.js'
+import {
+  restorePassCreditsForSignup,
+  safeRestorePassCreditsForSignup,
+} from '../programs/multiClassPass.js'
+import {
+  cancelStripeSubscriptionNow,
+  syncStripeForBillingSource,
+} from '../billing/stripeSubscriptionSync.js'
 import { formatDateOnly } from './slotDisplayLabel.js'
 
 /** Discount resync can be slow; never block the cancel HTTP response on it. */
@@ -82,7 +88,31 @@ let dueCancelInFlight = null
  * @param {{ force?: boolean }} [options]
  * @returns {Promise<number[]>} signup ids cancelled
  */
-export async function processDueEnrollmentCancellations(pool, { force = false } = {}) {
+export async function processDueEnrollmentCancellations(pool, {
+  force = false,
+  strict = false,
+  accountId = null,
+  facilityId = null,
+  asOfDate = null,
+  stripeCanceller = cancelStripeSubscriptionNow,
+} = {}) {
+  if (
+    strict &&
+    (accountId == null || facilityId == null || !/^\d{4}-\d{2}-\d{2}$/.test(String(asOfDate ?? '')))
+  ) {
+    const error = new Error('Strict enrollment cancellation requires an account, facility, and civil as-of date.')
+    error.code = 'strict_enrollment_cancellation_scope_required'
+    throw error
+  }
+  if (strict || accountId != null || facilityId != null || asOfDate != null) {
+    return runDueEnrollmentCancellations(pool, {
+      strict,
+      accountId,
+      facilityId,
+      asOfDate: asOfDate ?? todayDateOnly(),
+      stripeCanceller,
+    })
+  }
   const now = Date.now()
   if (!force && now - lastDueCancelRunAt < DUE_CANCEL_MIN_INTERVAL_MS) {
     return []
@@ -101,22 +131,41 @@ export async function processDueEnrollmentCancellations(pool, { force = false } 
   return dueCancelInFlight
 }
 
-async function runDueEnrollmentCancellations(pool) {
+async function runDueEnrollmentCancellations(pool, {
+  strict = false,
+  accountId = null,
+  facilityId = null,
+  asOfDate = null,
+  stripeCanceller = cancelStripeSubscriptionNow,
+} = {}) {
   try {
     await ensureEnrollmentLifecycleColumns(pool)
   } catch (schemaErr) {
+    if (strict) throw schemaErr
     console.warn('[memberEnrollmentCancel] schema ensure:', schemaErr?.message ?? schemaErr)
   }
 
+  const scoped = accountId != null || facilityId != null
   const due = await pool.query(
     `
-      SELECT id, member_id, slot_group_id, status
-      FROM scheduling_signup
-      WHERE cancel_effective_date IS NOT NULL
-        AND cancel_effective_date <= CURRENT_DATE
-        AND status IN ('confirmed', 'waitlisted', 'paused')
-        AND orphaned_at IS NULL
+      SELECT DISTINCT signup.id, signup.member_id, signup.slot_group_id, signup.status,
+             signup.cancel_effective_date
+      FROM scheduling_signup signup
+      ${scoped ? `JOIN billing_subscription subscription
+        ON subscription.source_type = 'scheduling_signup'
+       AND subscription.source_id = signup.id::text
+       AND subscription.status <> 'cancelled'
+      JOIN family_billing_account account
+        ON account.id = subscription.family_billing_account_id
+      JOIN family ON family.id = account.family_id` : ''}
+      WHERE signup.cancel_effective_date IS NOT NULL
+        AND signup.cancel_effective_date <= COALESCE($1::date, CURRENT_DATE)
+        AND signup.status IN ('confirmed', 'waitlisted', 'paused')
+        AND signup.orphaned_at IS NULL
+        ${scoped ? 'AND ($2::bigint IS NULL OR account.id = $2) AND ($3::bigint IS NULL OR family.facility_id = $3)' : ''}
+      ORDER BY signup.id
     `,
+    scoped ? [asOfDate, accountId, facilityId] : [asOfDate],
   )
   const cancelledIds = []
   for (const row of due.rows) {
@@ -126,38 +175,146 @@ async function runDueEnrollmentCancellations(pool) {
         previousStatus: row.status,
         slotGroupId: row.slot_group_id != null ? Number(row.slot_group_id) : null,
         memberId: row.member_id != null ? Number(row.member_id) : null,
+        strictBilling: strict,
+        accountId: accountId == null ? null : Number(accountId),
+        asOfDate: asOfDate ?? todayDateOnly(),
+        stripeCanceller,
       })
       if (id != null) cancelledIds.push(id)
     } catch (err) {
+      if (strict) throw err
       console.warn('[memberEnrollmentCancel] finalize failed for signup', row.id, err?.message ?? err)
     }
   }
   return cancelledIds
 }
 
-async function finalizeEnrollmentCancellation(pool, { signupId, previousStatus, slotGroupId, memberId }) {
-  const client = await pool.connect()
+async function finalizeEnrollmentCancellation(pool, {
+  signupId,
+  previousStatus,
+  slotGroupId,
+  memberId,
+  strictBilling = false,
+  accountId = null,
+  asOfDate = null,
+  stripeCanceller = cancelStripeSubscriptionNow,
+}) {
+  const ownsClient = typeof pool.release !== 'function' && typeof pool.connect === 'function'
+  const client = ownsClient ? await pool.connect() : pool
   let promotedRows = []
+  let subscriptionEndDate = asOfDate == null ? null : dayBefore(asOfDate)
   try {
+    if (strictBilling) {
+      const remoteSubscriptions = await client.query(
+        `SELECT stripe_subscription_id
+           FROM billing_subscription
+          WHERE family_billing_account_id = $1
+            AND source_type = 'scheduling_signup'
+            AND source_id = $2
+            AND status <> 'cancelled'
+            AND stripe_subscription_id IS NOT NULL
+          ORDER BY id`,
+        [accountId, String(signupId)],
+      )
+      for (const subscription of remoteSubscriptions.rows) {
+        const outcome = await stripeCanceller(subscription.stripe_subscription_id)
+        if (!['cancelled', 'already_cancelled'].includes(outcome?.status)) {
+          const error = new Error(`Stripe subscription ${subscription.stripe_subscription_id} could not be retired for enrollment ${signupId}.`)
+          error.code = 'enrollment_cancellation_stripe_retirement_failed'
+          error.details = outcome
+          throw error
+        }
+      }
+    }
     await client.query('BEGIN')
 
-    await client.query(
+    if (strictBilling) {
+      const locked = await client.query(
+        `SELECT id, cancel_effective_date
+           FROM scheduling_signup
+          WHERE id = $1
+            AND cancel_effective_date IS NOT NULL
+            AND cancel_effective_date <= $2::date
+            AND status IN ('confirmed', 'waitlisted', 'paused')
+            AND orphaned_at IS NULL
+          FOR UPDATE`,
+        [signupId, asOfDate],
+      )
+      if (!locked.rows[0]) {
+        await client.query('COMMIT')
+        return null
+      }
+      const effectiveDate = formatDateOnly(locked.rows[0].cancel_effective_date)
+      if (effectiveDate) subscriptionEndDate = dayBefore(effectiveDate)
+      const lockedSubscriptions = await client.query(
+        `SELECT id
+           FROM billing_subscription
+          WHERE family_billing_account_id = $1
+            AND source_type = 'scheduling_signup'
+            AND source_id = $2
+            AND status <> 'cancelled'
+          ORDER BY id
+          FOR UPDATE`,
+        [accountId, String(signupId)],
+      )
+      if (lockedSubscriptions.rows.length === 0) {
+        const error = new Error(`Enrollment ${signupId} lost its billing subscription before cancellation.`)
+        error.code = 'enrollment_cancellation_subscription_missing'
+        throw error
+      }
+    }
+
+    const cancelledSignup = await client.query(
       `
         UPDATE scheduling_signup
         SET status = 'cancelled',
             cancel_effective_date = NULL,
             cancel_requested_at = NULL
         WHERE id = $1
+          ${strictBilling ? "AND status IN ('confirmed', 'waitlisted', 'paused')" : ''}
+        RETURNING id
       `,
       [signupId],
     )
+    if (strictBilling && !cancelledSignup.rows[0]) {
+      const error = new Error(`Enrollment ${signupId} changed while its cancellation was being finalized.`)
+      error.code = 'enrollment_cancellation_cas_failed'
+      throw error
+    }
 
     const source = { sourceType: 'scheduling_signup', sourceId: signupId }
-    await safeCancelSubscriptionsForSource(client, source)
-    await safeRestorePassCreditsForSignup(client, {
-      signupId,
-      reason: 'Enrollment cancelled',
-    })
+    if (strictBilling) {
+      await client.query(
+        `UPDATE billing_subscription
+            SET status = 'cancelled',
+                end_date = COALESCE(end_date, $3::date),
+                next_bill_date = NULL,
+                updated_at = now()
+          WHERE family_billing_account_id = $1
+            AND source_type = 'scheduling_signup'
+            AND source_id = $2
+            AND status <> 'cancelled'`,
+        [accountId, String(signupId), subscriptionEndDate],
+      )
+      const remaining = await client.query(
+        `SELECT id
+           FROM billing_subscription
+          WHERE family_billing_account_id = $1
+            AND source_type = 'scheduling_signup'
+            AND source_id = $2
+            AND status <> 'cancelled'
+          LIMIT 1`,
+        [accountId, String(signupId)],
+      )
+      if (remaining.rows[0]) {
+        const error = new Error(`Enrollment ${signupId} retained a live subscription after cancellation.`)
+        error.code = 'enrollment_cancellation_postcondition_failed'
+        throw error
+      }
+    } else await safeCancelSubscriptionsForSource(client, source)
+    const restoreOptions = { signupId, reason: 'Enrollment cancelled' }
+    if (strictBilling) await restorePassCreditsForSignup(client, restoreOptions)
+    else await safeRestorePassCreditsForSignup(client, restoreOptions)
 
     if (previousStatus === 'confirmed' && slotGroupId != null) {
       promotedRows = (await promoteFromWaitlist(client, slotGroupId, 1)) ?? []
@@ -168,10 +325,10 @@ async function finalizeEnrollmentCancellation(pool, { signupId, previousStatus, 
     await client.query('ROLLBACK')
     throw err
   } finally {
-    client.release()
+    if (ownsClient) client.release()
   }
 
-  scheduleFamilyDiscountResync(pool, memberId)
+  if (!strictBilling) scheduleFamilyDiscountResync(pool, memberId)
 
   return signupId
 }

@@ -10,8 +10,41 @@ import {
   listCustomerBillingActivity,
   listCustomerBillingTransactions,
   listMemberCustomerBillingTransactions,
+  loadCustomerBillingAccount,
   recurringPricingForPeriod,
+  searchCustomerBilling,
 } from '../customerBillingQueries.js'
+
+test('customer account lookup excludes inactive accounts and returns its facility scope', async () => {
+  let captured
+  const pool = {
+    async query(sql, params) {
+      captured = { sql: String(sql), params }
+      return { rows: [] }
+    },
+  }
+
+  assert.equal(await loadCustomerBillingAccount(pool, 42, 9), null)
+  assert.deepEqual(captured.params, [42, 9])
+  assert.match(captured.sql, /account\.is_active = TRUE/)
+  assert.match(captured.sql, /family\.facility_id AS family_facility_id/)
+})
+
+test('customer search treats active family-member links as authoritative', async () => {
+  let sqlText = ''
+  const pool = {
+    async query(sql) {
+      sqlText = String(sql)
+      return { rows: [] }
+    },
+  }
+
+  await searchCustomerBilling(pool, { facilityId: 9, query: 'Rivera' })
+  assert.match(sqlText, /m\.is_active = TRUE/)
+  assert.match(sqlText, /search_membership\.is_active = TRUE/)
+  assert.match(sqlText, /FROM family_member search_membership_history/)
+  assert.match(sqlText, /NOT EXISTS/)
+})
 
 test('annual membership rows use the paid date and active Stripe renewal', () => {
   const rows = buildCustomerBillingAnnualMemberships({
@@ -83,6 +116,61 @@ test('scheduled cancellation keeps membership active but disables auto-renewal',
   assert.equal(rows[0].active, true)
   assert.equal(rows[0].autoRenewal, false)
   assert.equal(rows[0].renewalDate, '2027-09-01')
+})
+
+test('ledger-only annual memberships expose their local auto-renewal schedule', () => {
+  const rows = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'active',
+      start_date: '2026-08-27',
+      next_bill_date: '2027-09-01',
+      stripe_subscription_id: null,
+      auto_renewal: true,
+      created_at: '2026-08-27T03:46:58.000Z',
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2026-08-27T03:46:58.000Z',
+      satisfied_at: '2026-08-27T03:46:58.000Z',
+    }],
+    asOf: new Date('2026-08-30T12:00:00.000Z'),
+  })
+
+  assert.equal(rows[0].active, true)
+  assert.equal(rows[0].autoRenewal, true)
+  assert.equal(rows[0].canManageAutoRenewal, true)
+  assert.equal(rows[0].renewalDate, '2027-09-01')
+})
+
+test('annual membership projection honors the canonical paid-through period', () => {
+  const [row] = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+    subscriptions: [{
+      id: 21,
+      member_id: 73,
+      source_id: '1:73',
+      status: 'active',
+      start_date: '2026-09-27',
+      next_bill_date: '2027-09-27',
+      auto_renewal: true,
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 73,
+      created_at: '2026-09-01T05:00:00.000Z',
+      satisfied_at: '2026-09-01T05:00:00.000Z',
+      period_key: '2027-09-27',
+    }],
+    asOf: new Date('2027-09-15T12:00:00.000Z'),
+  })
+
+  assert.equal(row.active, true)
+  assert.equal(row.renewalDate, '2027-09-27')
 })
 
 test('cancelled renewal remains active through its paid-through date', () => {
@@ -387,6 +475,7 @@ test('member-filtered transactions retain household payments and member-owned ch
   assert.match(queryText, /drop_in_registration/)
   assert.match(queryText, /charged_drop_in\.source_type = 'drop_in'/)
   assert.match(queryText, /Free trial/)
+  assert.match(queryText, /Household payment/)
   assert.equal(page.rows[1].entryType, 'one_time')
 })
 
@@ -440,8 +529,10 @@ test('activity pagination binds one cursor tuple and the requested page limit', 
 
 test('member transaction pages retain running balances through an opaque cursor', async () => {
   const calls = []
+  const queryTexts = []
   const pool = {
-    async query(_text, params) {
+    async query(text, params) {
+      queryTexts.push(String(text))
       calls.push(params)
       if (calls.length === 1) return { rows: [{ balance_cents: 1000 }] }
       if (calls.length === 2) {
@@ -500,6 +591,14 @@ test('member transaction pages retain running balances through an opaque cursor'
   })
   assert.equal(second.rows[0].runningBalanceCents, 700)
   assert.deepEqual(calls[2], [10895, cursor.occurredAt, cursor.sortOrder, cursor.refId, 3, 700])
+  assert.match(queryTexts[1], /WITH account_members AS/)
+  assert.match(queryTexts[1], /FROM family_member member_audit_membership/)
+  assert.match(queryTexts[1], /FROM family_member member_audit_membership_history/)
+  assert.match(queryTexts[1], /member\.is_active = TRUE/)
+  assert.match(queryTexts[1], /JOIN account_members drop_in_member/)
+  assert.match(queryTexts[0], /p\.external_status IN \('settled', 'succeeded'\)/)
+  assert.match(queryTexts[1], /CASE WHEN p\.external_status IN \('settled', 'succeeded'\) THEN -p\.amount_cents ELSE 0 END/)
+  assert.match(queryTexts[1], /settled_payment\.external_status IN \('settled', 'succeeded'\)/)
 })
 
 test('member transaction pages never request or return more than 50 rows', async () => {

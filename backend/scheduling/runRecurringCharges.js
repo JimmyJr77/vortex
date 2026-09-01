@@ -8,8 +8,7 @@ import 'dotenv/config'
 import pg from 'pg'
 import { generateRecurringCharges } from './generateRecurringCharges.js'
 import { expirePassCredits } from '../programs/multiClassPass.js'
-import { autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
-import { applyScheduledPauses } from './pauseEnrollmentBilling.js'
+import { assertRequiredBillingSchema } from '../billing/billingSchemaReadiness.js'
 
 const { Pool } = pg
 
@@ -37,22 +36,7 @@ async function main() {
   })
 
   try {
-    try {
-      const completed = await autoCompleteEndedEnrollments(pool)
-      if (completed.length > 0) {
-        console.log(`[billing:recurring] auto-completed ${completed.length} ended enrollment(s).`)
-      }
-    } catch (acErr) {
-      console.warn('[billing:recurring] auto-complete sweep failed:', acErr?.message || acErr)
-    }
-    try {
-      const paused = await applyScheduledPauses(pool)
-      if (paused > 0) {
-        console.log(`[billing:recurring] applied ${paused} scheduled pause(s).`)
-      }
-    } catch (spErr) {
-      console.warn('[billing:recurring] scheduled-pause sweep failed:', spErr?.message || spErr)
-    }
+    await assertRequiredBillingSchema(pool)
     const result = await generateRecurringCharges(pool)
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +
@@ -68,6 +52,15 @@ async function main() {
       }
     } catch (expErr) {
       console.warn('[billing:recurring] pass expiry sweep failed:', expErr?.message || expErr)
+    }
+    if (Number(result.accountsBlocked) > 0) {
+      console.error(
+        `[billing:recurring] ${result.accountsBlocked} account(s) were quarantined: ` +
+          `${(result.blockedAccounts ?? [])
+            .map((entry) => `${entry.accountId} (${entry.code})`)
+            .join(', ') || (result.blockedAccountIds ?? []).join(', ') || 'unknown'}.`,
+      )
+      process.exitCode = 1
     }
   } catch (err) {
     console.error('[billing:recurring] failed:', err?.message || err)

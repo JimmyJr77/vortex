@@ -1,4 +1,4 @@
-import { buildBillingAccountView } from './billingAccountView.js'
+import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { priceRecurringPeriod } from './recurringPeriodPricing.js'
 import { syncEnrollmentStripePriceSchedule } from './stripePriceSchedules.js'
 import { recordBillingActivity } from './billingActivity.js'
@@ -16,6 +16,7 @@ import { normalizePromoCode } from '../scheduling/promoCodeRegistry.js'
 import { promoTargetsMembershipFee } from '../scheduling/discountEngine.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
+import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 
 function parseJson(value, fallback = {}) {
   if (value == null) return fallback
@@ -44,11 +45,18 @@ async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
   const formProgram = schema.hasSchedulingProgramsLink
     ? `COALESCE(sf.programs_id, class_program.${schema.programFkColumn})`
     : `class_program.${schema.programFkColumn}`
+  const activeAccountMember = canonicalActiveHouseholdMemberPredicate({
+    memberAlias: 'm',
+    familyIdReference: 'f.id',
+    membershipAlias: 'adjustment_membership',
+    historyAlias: 'adjustment_membership_history',
+  })
   const result = await pool.query(
     `SELECT
        s.id AS signup_id, s.member_id, s.form_id, s.slot_group_id, s.responses,
        s.enrollment_start_date, s.created_at AS signup_created_at,
-       m.first_name, m.last_name, m.billing_city, m.graduation_year, m.family_id,
+       m.first_name, m.last_name, m.billing_city, m.graduation_year,
+       f.id AS family_id,
        sf.title AS class_name,
        ${formProgram} AS program_id,
        sg.offering_id,
@@ -67,7 +75,6 @@ async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
        f.family_name
      FROM scheduling_signup s
      JOIN member m ON m.id = s.member_id
-     JOIN family f ON f.id = m.family_id
      JOIN scheduling_form sf ON sf.id = s.form_id
      LEFT JOIN program class_program ON class_program.id = sf.program_id
      LEFT JOIN ${schema.programsTable} program_record ON program_record.id = ${formProgram}
@@ -75,8 +82,16 @@ async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
      JOIN billing_subscription bs
        ON bs.source_type = 'scheduling_signup'
       AND bs.source_id = s.id::text
+      AND bs.member_id = s.member_id
       AND bs.status <> 'cancelled'
-     WHERE s.id = $1 AND ($2::bigint IS NULL OR f.facility_id = $2)
+     JOIN family_billing_account account
+       ON account.id = bs.family_billing_account_id
+      AND account.is_active = TRUE
+     JOIN family f
+       ON f.id = account.family_id
+      AND ${activeAccountMember}
+     WHERE s.id = $1
+       AND ($2::bigint IS NULL OR f.facility_id = $2)
      ORDER BY CASE bs.status WHEN 'active' THEN 0 WHEN 'paused' THEN 1 ELSE 2 END, bs.id DESC
      LIMIT 1`,
     [Number(signupId), facilityId],
@@ -155,12 +170,22 @@ export async function resolvePromoAdjustment(pool, context, rawCode, requestedFr
   // enter themselves; it must not override the rule's canonical tuition scope,
   // eligibility, validity window, or redemption limits for a billing manager.
 
+  const activeFamilyMember = canonicalActiveHouseholdMemberPredicate({
+    memberAlias: 'redemption_member',
+    familyIdReference: '$3',
+    membershipAlias: 'redemption_membership',
+    historyAlias: 'redemption_membership_history',
+  })
   const counts = await pool.query(
     `SELECT
        COUNT(*)::int AS total,
        COUNT(*) FILTER (WHERE member_id = $2)::int AS member_total,
        COUNT(*) FILTER (
-         WHERE member_id IN (SELECT id FROM member WHERE family_id = $3)
+         WHERE member_id IN (
+           SELECT redemption_member.id
+             FROM member redemption_member
+            WHERE ${activeFamilyMember}
+         )
        )::int AS family_total
      FROM discount_redemption WHERE rule_id = $1`,
     [rule.id, context.member_id, context.family_id],
@@ -472,11 +497,10 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     })
   }
 
-  const account = await pool.query(
-    `SELECT * FROM family_billing_account WHERE id = $1`,
-    [context.family_billing_account_id],
-  )
-  const accountView = await buildBillingAccountView(pool, account.rows[0], { memberScopeId: null })
+  const financialSnapshot = await loadCanonicalFinancialSnapshot(pool, {
+    accountId: context.family_billing_account_id,
+    subscriptions: periodInputs.subscriptions,
+  })
   const retroactiveDifferenceCents = months.reduce(
     (total, month) => total + Number(month.retroactiveDifferenceCents || 0),
     0,
@@ -498,8 +522,8 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     aboveList: normalized.finalPriceCents != null && normalized.finalPriceCents > Number(context.monthly_amount_cents),
     months,
     retroactiveDifferenceCents,
-    currentBalanceCents: accountView.balanceCents,
-    resultingBalanceCents: accountView.balanceCents + retroactiveDifferenceCents,
+    currentBalanceCents: financialSnapshot.balanceCents,
+    resultingBalanceCents: financialSnapshot.balanceCents + retroactiveDifferenceCents,
     stripePlan: context.stripe_subscription_id
       ? {
           mode: 'subscription_schedule',
@@ -583,16 +607,19 @@ async function activateAdjustmentAtomically(pool, {
   eventType,
   summary,
   eventKey = null,
+  remoteSyncPerformed = true,
 }) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
     const active = await client.query(
       `UPDATE enrollment_price_adjustment
-       SET status = 'active', stripe_synced_at = now(), stripe_sync_error = NULL
+       SET status = 'active',
+           stripe_synced_at = CASE WHEN $2::boolean THEN now() ELSE NULL END,
+           stripe_sync_error = NULL
        WHERE id = $1 AND status = 'pending_sync'
        RETURNING *`,
-      [adjustment.id],
+      [adjustment.id, remoteSyncPerformed],
     ).then((result) => result.rows[0])
     if (!active) throw new Error('The price change is no longer pending activation.')
     const retroactiveEntries = await postRetroactiveDifferences(client, active, preview, actorUserId)
@@ -618,6 +645,10 @@ async function activateAdjustmentAtomically(pool, {
   } finally {
     client.release()
   }
+}
+
+function stripePriceSyncAllowsLocalActivation(result) {
+  return result?.status === 'synced' || result?.status === 'local_authoritative'
 }
 
 async function failAdjustmentSyncAtomically(pool, {
@@ -779,7 +810,7 @@ export async function createEnrollmentPriceAdjustment(pool, {
 
   if (context.stripe_subscription_id) {
     const synced = await syncEnrollmentStripePriceSchedule(pool, context.billing_subscription_id)
-    if (synced.status !== 'synced') {
+    if (!stripePriceSyncAllowsLocalActivation(synced)) {
       const reason = synced.reason ?? 'Stripe price schedule was not synchronized.'
       const failed = await failAdjustmentSyncAtomically(pool, {
         adjustment,
@@ -801,6 +832,7 @@ export async function createEnrollmentPriceAdjustment(pool, {
         eventType: 'enrollment_price_adjustment_created',
         summary: createdSummary,
         eventKey: `price-adjustment-created:${adjustment.id}`,
+        remoteSyncPerformed: synced.status === 'synced',
       })
       adjustment = activated.adjustment
       retroactiveEntries = activated.retroactiveEntries
@@ -850,7 +882,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
     }
     const context = await loadEnrollmentPriceContext(pool, adjustment.signup_id, facilityId)
     const synced = await syncEnrollmentStripePriceSchedule(pool, adjustment.billing_subscription_id)
-    if (synced.status !== 'synced') {
+    if (!stripePriceSyncAllowsLocalActivation(synced)) {
       const reason = String(synced.reason ?? 'Stripe price schedule was not synchronized.').slice(0, 1000)
       adjustment = await pool.query(
         `UPDATE enrollment_price_adjustment
@@ -872,6 +904,30 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
         preview: parseJson(adjustment.preview_snapshot),
         retroactiveEntries: [],
         syncStatus: 'failed',
+      }
+    }
+    if (synced.status === 'local_authoritative') {
+      adjustment = await pool.query(
+        `UPDATE enrollment_price_adjustment
+         SET stripe_sync_error = NULL
+         WHERE id = $1 RETURNING *`,
+        [adjustment.id],
+      ).then((result) => result.rows[0])
+      await recordBillingActivity(pool, {
+        accountId: context.family_billing_account_id,
+        memberId: context.member_id,
+        signupId: context.signup_id,
+        eventType: 'enrollment_price_sync_not_required',
+        summary: `The household ledger is authoritative for ${context.class_name}; its stale Stripe collector was quarantined.`,
+        afterValue: mapPriceAdjustment(adjustment),
+        details: { reason: synced.reason },
+        actorUserId,
+      })
+      return {
+        adjustment: mapPriceAdjustment(adjustment),
+        preview: parseJson(adjustment.preview_snapshot),
+        retroactiveEntries: [],
+        syncStatus: 'not_required',
       }
     }
     adjustment = await pool.query(
@@ -914,7 +970,7 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
   if (!adjustment) throw new Error('The price change is already being retried.')
 
   const synced = await syncEnrollmentStripePriceSchedule(pool, adjustment.billing_subscription_id)
-  if (synced.status !== 'synced') {
+  if (!stripePriceSyncAllowsLocalActivation(synced)) {
     const reason = String(synced.reason ?? 'Stripe price schedule was not synchronized.').slice(0, 1000)
     adjustment = await failAdjustmentSyncAtomically(pool, {
       adjustment,
@@ -940,13 +996,16 @@ export async function retryEnrollmentPriceAdjustmentSync(pool, {
       preview,
       actorUserId,
       eventType: 'enrollment_price_sync_retry_succeeded',
-      summary: `Stripe synchronization succeeded for ${context.class_name}.`,
+      summary: synced.status === 'local_authoritative'
+        ? `The household ledger became authoritative for ${context.class_name}; its stale Stripe collector was quarantined.`
+        : `Stripe synchronization succeeded for ${context.class_name}.`,
+      remoteSyncPerformed: synced.status === 'synced',
     })
     return {
       adjustment: mapPriceAdjustment(activated.adjustment),
       preview,
       retroactiveEntries: activated.retroactiveEntries,
-      syncStatus: 'synced',
+      syncStatus: synced.status === 'synced' ? 'synced' : 'not_required',
     }
   } catch (error) {
     const reason = `Stripe synchronized, but local activation failed: ${error?.message ?? error}`

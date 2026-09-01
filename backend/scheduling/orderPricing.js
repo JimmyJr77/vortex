@@ -29,9 +29,125 @@ import {
   loadGroupDisplayLabels,
   slotLabelForSignupRow,
 } from './slotDisplayLabel.js'
+import {
+  canonicalActiveHouseholdMemberPredicate,
+  resolveCanonicalActiveMemberFamilyId,
+} from '../billing/householdMembership.js'
 
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
   'Pricing shown is a rough estimate and may not reflect your actual billing, current rates, or all discounts that apply to your account.'
+
+export class OrderPricingFacilityScopeError extends Error {
+  constructor(message, details = {}) {
+    super(message)
+    this.name = 'OrderPricingFacilityScopeError'
+    this.code = 'order_pricing_facility_scope_invalid'
+    this.statusCode = 409
+    this.details = details
+  }
+}
+
+function positiveInteger(value) {
+  const normalized = Number(value)
+  return Number.isInteger(normalized) && normalized > 0 ? normalized : null
+}
+
+/**
+ * Resolve the only facility whose pricing configuration may be read for this order.
+ * The family is authoritative for household billing; member and parent-program
+ * facilities are independent consistency checks that prevent cross-facility rules
+ * from being selected when compatibility relationships are stale.
+ */
+export async function resolveOrderPricingFacilityId(pool, {
+  facilityId = null,
+  memberId = null,
+  familyId = null,
+  scopeMeta = new Map(),
+  canonicalFamilyValidated = false,
+} = {}) {
+  const candidates = []
+  const addCandidate = (source, value) => {
+    const normalized = positiveInteger(value)
+    if (normalized != null) candidates.push({ source, facilityId: normalized })
+  }
+
+  addCandidate('provided', facilityId)
+
+  const normalizedMemberId = positiveInteger(memberId)
+  let normalizedFamilyId = positiveInteger(familyId)
+  if (normalizedMemberId != null) {
+    const canonicalFamilyId = canonicalFamilyValidated
+      ? normalizedFamilyId
+      : await resolveCanonicalActiveMemberFamilyId(pool, { memberId: normalizedMemberId })
+    if (canonicalFamilyId == null) {
+      throw new OrderPricingFacilityScopeError(
+        'The member does not resolve to exactly one active billing family.',
+        { memberId: normalizedMemberId },
+      )
+    }
+    if (
+      normalizedFamilyId != null &&
+      normalizedFamilyId !== canonicalFamilyId
+    ) {
+      throw new OrderPricingFacilityScopeError(
+        'The member and family do not resolve to the same canonical billing household.',
+        { memberId: normalizedMemberId, familyId: normalizedFamilyId, canonicalFamilyId },
+      )
+    }
+    normalizedFamilyId = normalizedFamilyId ?? canonicalFamilyId
+
+    const member = await pool.query(
+      `SELECT facility_id
+         FROM member
+        WHERE id = $1
+          AND is_active = TRUE
+        LIMIT 1`,
+      [normalizedMemberId],
+    )
+    if (member.rows.length !== 1 || positiveInteger(member.rows[0]?.facility_id) == null) {
+      throw new OrderPricingFacilityScopeError(
+        'The member does not have one active facility for order pricing.',
+        { memberId: normalizedMemberId },
+      )
+    }
+    addCandidate('member', member.rows[0].facility_id)
+  }
+
+  if (normalizedFamilyId != null) {
+    const family = await pool.query(
+      `SELECT facility_id
+         FROM family
+        WHERE id = $1
+        LIMIT 1`,
+      [normalizedFamilyId],
+    )
+    if (family.rows.length !== 1 || positiveInteger(family.rows[0]?.facility_id) == null) {
+      throw new OrderPricingFacilityScopeError(
+        'The family does not have one authoritative facility for order pricing.',
+        { familyId: normalizedFamilyId },
+      )
+    }
+    addCandidate('family', family.rows[0].facility_id)
+  }
+
+  for (const meta of scopeMeta?.values?.() ?? []) {
+    addCandidate(
+      `program:${meta?.programsId ?? meta?.representativeFormId ?? 'unknown'}`,
+      meta?.programRow?.facility_id,
+    )
+  }
+
+  const facilityIds = [...new Set(candidates.map((candidate) => candidate.facilityId))]
+  if (facilityIds.length !== 1) {
+    throw new OrderPricingFacilityScopeError(
+      facilityIds.length === 0
+        ? 'Order pricing could not resolve an authoritative facility.'
+        : 'Order pricing sources resolve to different facilities.',
+      { memberId: normalizedMemberId, familyId: normalizedFamilyId, candidates },
+    )
+  }
+  return facilityIds[0]
+}
 
 /**
  * Combined household monthly after list prices + order discounts.
@@ -425,7 +541,12 @@ async function loadFamilyExistingEnrollments(pool, familyId) {
     JOIN member m ON m.id = s.member_id
     JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
     LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
-    WHERE m.family_id = $1
+    WHERE ${canonicalActiveHouseholdMemberPredicate({
+      memberAlias: 'm',
+      familyIdReference: '$1',
+      membershipAlias: 'enrollment_membership',
+      historyAlias: 'enrollment_membership_history',
+    })}
       AND s.orphaned_at IS NULL
       AND s.status IN ('confirmed', 'waitlisted')
     ORDER BY m.first_name, m.last_name, sf.title, s.id
@@ -540,7 +661,12 @@ async function loadFamilyPricingMembers(pool, familyId) {
        ORDER BY signup.created_at DESC, signup.id DESC
        LIMIT 1
      ) latest ON TRUE
-     WHERE member.family_id = $1
+     WHERE ${canonicalActiveHouseholdMemberPredicate({
+       memberAlias: 'member',
+       familyIdReference: '$1',
+       membershipAlias: 'pricing_membership',
+       historyAlias: 'pricing_membership_history',
+     })}
        AND EXISTS (
          SELECT 1
          FROM scheduling_signup signup
@@ -577,6 +703,7 @@ export async function buildFamilyExistingEnrollmentPreviewLines(pool, {
   familyId,
   promoCodes = [],
   pricingDate = Date.now(),
+  ensureSchema = true,
 } = {}) {
   const normalizedFamilyId = Number(familyId)
   if (!Number.isFinite(normalizedFamilyId)) return []
@@ -591,6 +718,7 @@ export async function buildFamilyExistingEnrollmentPreviewLines(pool, {
       memberContext: member.context,
       expandHouseholdExisting: false,
       pricingDate,
+      ensureSchema,
     })
     const computedBySignup = new Map(
       (preview?.discounts?.accountLines ?? [])
@@ -674,6 +802,7 @@ export async function buildSignupOrderPreview(
     memberContext = null,
     expandHouseholdExisting = true,
     pricingDate = Date.now(),
+    ensureSchema = true,
   },
 ) {
   const slotSignups = []
@@ -699,13 +828,17 @@ export async function buildSignupOrderPreview(
   })
 
   let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
-  if (familyId == null && memberId != null) {
-    try {
-      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
-      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
-    } catch {
-      familyId = null
+  let canonicalFamilyValidated = false
+  if (memberId != null) {
+    const canonicalFamilyId = await resolveCanonicalActiveMemberFamilyId(pool, { memberId })
+    if (canonicalFamilyId == null || (familyId != null && familyId !== canonicalFamilyId)) {
+      throw new OrderPricingFacilityScopeError(
+        'The member does not resolve to the requested active billing family.',
+        { memberId: positiveInteger(memberId), familyId, canonicalFamilyId },
+      )
     }
+    familyId = canonicalFamilyId
+    canonicalFamilyValidated = true
   }
 
   // Household enrollments for display / combined monthly totals. Member-scoped
@@ -766,7 +899,7 @@ export async function buildSignupOrderPreview(
   )
   if (programIds.size > 0) {
     const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
-    await ensurePrimaryDisciplineTagColumn(pool)
+    if (ensureSchema) await ensurePrimaryDisciplineTagColumn(pool)
     const schema = await resolveProgramsSchema(pool)
     const programsRes = await pool.query(
       `SELECT p.id, p.name, p.display_name, dt.name AS sport_name
@@ -821,6 +954,15 @@ export async function buildSignupOrderPreview(
       usesProgramPricing: !overrides && programsId != null,
     })
   }
+
+  const pricingFacilityId = formRows.size > 0 || passPurchases.length > 0
+    ? await resolveOrderPricingFacilityId(pool, {
+        memberId,
+        familyId,
+        scopeMeta,
+        canonicalFamilyValidated,
+      })
+    : null
 
   const newByScope = new Map()
   for (const entry of filteredNew) {
@@ -1046,6 +1188,7 @@ export async function buildSignupOrderPreview(
   }
 
   const freePasses = await computeFreePassLayer(pool, {
+    facilityId: pricingFacilityId,
     memberId,
     newSignupItems,
     formRows,
@@ -1087,6 +1230,7 @@ export async function buildSignupOrderPreview(
         familyId,
         promoCodes,
         pricingDate,
+        ensureSchema,
       })
       if (familyLines.length > 0) previewExistingLines = familyLines
     } catch (error) {
@@ -1095,13 +1239,16 @@ export async function buildSignupOrderPreview(
   }
 
   const discounts = await computeDiscountLayer(pool, {
+    facilityId: pricingFacilityId,
+    facilityScopeValidated: true,
+    familyScopeValidated: canonicalFamilyValidated,
     memberId,
     newSignupItems: freePasses.adjustedSignupItems,
     formRows,
     scopeMeta,
     existingCount: existing.length,
     promoCodes,
-    memberContext,
+    memberContext: { ...memberContext, familyId },
     previewExistingLines,
     pricingDate,
   })
@@ -1175,6 +1322,7 @@ export async function buildSignupOrderPreview(
   })
 
   const additionalFees = await computeAdditionalFeesLayer(pool, {
+    facilityId: pricingFacilityId,
     memberId,
     newSignupItems,
     formRows,
@@ -1254,6 +1402,7 @@ export async function buildSignupOrderPreview(
 export async function computeFreePassLayer(
   pool,
   {
+    facilityId,
     memberId,
     newSignupItems,
     formRows,
@@ -1274,6 +1423,14 @@ export async function computeFreePassLayer(
   }
   if (!newSignupItems.length) return empty
 
+  const scopedFacilityId = positiveInteger(facilityId)
+  if (scopedFacilityId == null) {
+    throw new OrderPricingFacilityScopeError(
+      'Free-pass pricing requires an authoritative facility.',
+      { memberId: positiveInteger(memberId) },
+    )
+  }
+
   try {
     const {
       applyFreePassLayer,
@@ -1286,11 +1443,9 @@ export async function computeFreePassLayer(
       memberIsFirstTimeEnrollee,
     } = await import('./freePassEngine.js')
 
-    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
-    const facilityId = facilityRes.rows[0]?.id ?? null
-    const templates = await loadActivePassTemplates(pool, facilityId)
+    const templates = await loadActivePassTemplates(pool, scopedFacilityId)
     const grants = memberId ? await loadMemberPassGrants(pool, memberId) : []
-    const caps = await loadFreePassCaps(pool, facilityId)
+    const caps = await loadFreePassCaps(pool, scopedFacilityId)
     const knownSchools = await loadActiveSchools(pool)
 
     const slotGroupIds = [
@@ -1540,6 +1695,9 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
 export async function computeDiscountLayer(
   pool,
   {
+    facilityId: requestedFacilityId = null,
+    facilityScopeValidated = false,
+    familyScopeValidated = false,
     memberId,
     newSignupItems,
     formRows,
@@ -1566,13 +1724,34 @@ export async function computeDiscountLayer(
   }
   if (!newSignupItems.length && !previewExistingLines?.length) return empty
 
+  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
+  if (memberId != null && !familyScopeValidated) {
+    const canonicalFamilyId = await resolveCanonicalActiveMemberFamilyId(pool, { memberId })
+    if (canonicalFamilyId == null || (familyId != null && familyId !== canonicalFamilyId)) {
+      throw new OrderPricingFacilityScopeError(
+        'Discount pricing member and family scope is missing or ambiguous.',
+        { memberId: positiveInteger(memberId), familyId, canonicalFamilyId },
+      )
+    }
+    familyId = canonicalFamilyId
+  }
+  const facilityId = facilityScopeValidated
+    ? positiveInteger(requestedFacilityId)
+    : await resolveOrderPricingFacilityId(pool, {
+        facilityId: requestedFacilityId,
+        memberId,
+        familyId,
+        scopeMeta,
+        canonicalFamilyValidated: memberId != null,
+      })
+  if (facilityId == null) {
+    throw new OrderPricingFacilityScopeError('Discount pricing requires an authoritative facility.')
+  }
+
   let rules = []
   let caps = {}
-  let facilityId = null
   try {
     const { loadActiveDiscountRules } = await import('./discountEngine.js')
-    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
-    facilityId = facilityRes.rows[0]?.id ?? null
     rules = await loadActiveDiscountRules(pool, facilityId)
   } catch {
     return empty
@@ -1616,16 +1795,6 @@ export async function computeDiscountLayer(
   const memberSchool = memberContext?.school ?? null
   const memberGraduationYear =
     memberContext?.graduationYear != null ? Number(memberContext.graduationYear) : null
-
-  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
-  if (familyId == null && memberId != null) {
-    try {
-      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
-      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
-    } catch {
-      familyId = null
-    }
-  }
 
   try {
     // Member/family context enables per-member and per-family promo limits.
@@ -1774,6 +1943,7 @@ export async function computeExistingEnrollmentDiscounts(pool, params) {
 export async function computeAdditionalFeesLayer(
   pool,
   {
+    facilityId,
     memberId,
     newSignupItems,
     formRows,
@@ -1794,6 +1964,14 @@ export async function computeAdditionalFeesLayer(
   }
   if (!newSignupItems.length) return empty
 
+  const scopedFacilityId = positiveInteger(facilityId)
+  if (scopedFacilityId == null) {
+    throw new OrderPricingFacilityScopeError(
+      'Additional-fee pricing requires an authoritative facility.',
+      { memberId: positiveInteger(memberId), familyId: positiveInteger(familyId) },
+    )
+  }
+
   let fees = []
   try {
     const {
@@ -1801,9 +1979,7 @@ export async function computeAdditionalFeesLayer(
       computeOrderAdditionalFees,
       loadMemberFeeRedemptionKeys,
     } = await import('./additionalFeesEngine.js')
-    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
-    const facilityId = facilityRes.rows[0]?.id ?? null
-    fees = await loadActiveAdditionalFees(pool, facilityId)
+    fees = await loadActiveAdditionalFees(pool, scopedFacilityId)
     if (!fees.length) return empty
 
     const isNewMember = existingCount === 0
@@ -1816,7 +1992,7 @@ export async function computeAdditionalFeesLayer(
       try {
         const { resolveMembershipFeePromo } = await import('./discountEngine.js')
         membershipPromo = await resolveMembershipFeePromo(pool, {
-          facilityId,
+          facilityId: scopedFacilityId,
           promoCodes,
           memberId,
           familyId,

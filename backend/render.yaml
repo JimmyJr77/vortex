@@ -8,6 +8,7 @@ services:
     autoDeployTrigger: commit
     rootDir: backend
     buildCommand: npm install
+    preDeployCommand: npm run migrate:deploy
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
@@ -37,12 +38,32 @@ services:
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO
         value: billing@vortexathletics.com
+      - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
+        value: disabled
+      - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
+        value: household_only
       # Optional — portal message attachments, exercise media, form-review video
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
+        sync: false
+  - type: cron
+    name: vortex-billing-legacy-telemetry-heartbeat
+    runtime: node
+    branch: main
+    autoDeployTrigger: commit
+    rootDir: backend
+    # Record the UTC observation day near its end. Missing or unhealthy days
+    # make the legacy-retirement audit fail closed.
+    schedule: "50 23 * * *"
+    buildCommand: npm install
+    startCommand: npm run billing:retirement:heartbeat -- --apply
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
         sync: false
   - type: cron
     name: vortex-daily-roster
@@ -93,6 +114,10 @@ services:
         value: "true"
       - key: STRIPE_SECRET_KEY
         sync: false
+      - key: BILLING_HOUSEHOLD_INVOICE_ENABLED
+        value: "true"
+      - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
+        value: disabled
       - key: BILLING_ALERT_EMAIL
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO

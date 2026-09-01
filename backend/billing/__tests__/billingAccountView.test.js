@@ -59,6 +59,23 @@ test('customer balance cards normalize PostgreSQL Date service periods', () => {
   })
 })
 
+test('customer balance cards do not expose invoice-consumed credits as future credit', () => {
+  const cards = summarizeCustomerBalanceCards({
+    charges: [
+      { id: 44, charge_type: 'one_time', amount_cents: 8500, remaining_amount_cents: 0 },
+      {
+        id: 45,
+        charge_type: 'credit',
+        amount_cents: -8500,
+        related_charge_id: 44,
+        credit_allocated_amount_cents: 8500,
+      },
+    ],
+  })
+
+  assert.equal(cards.futureCreditsCents, 0)
+})
+
 test('buildLedgerFallback combines charges, payments, and refunds with running balance', () => {
   const ledger = buildLedgerFallback({
     charges: [

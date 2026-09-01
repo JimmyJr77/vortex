@@ -1,6 +1,6 @@
 import { createHash } from 'crypto'
 import { getStripeClient, recordStripePayment, stripeEnabled } from './stripeBilling.js'
-import { ensureStripeOperationsSchema, recordStripeBillingAlert } from './stripeOperations.js'
+import { recordStripeBillingAlert } from './stripeOperations.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
@@ -9,16 +9,21 @@ import {
 } from './recurringPeriodPricing.js'
 import { addBillingMonths, billingMonthKey } from './customerBillingPricing.js'
 import { buildPriceScheduleSegments } from './stripePriceSchedules.js'
+import { requireAdminFacilityScope } from './adminFacilityScope.js'
+import {
+  BillingPaymentAttemptMappingConflict,
+  findBillingPaymentAttemptForStripeObject,
+  reconcileActiveBillingPaymentAttempts,
+  recordAndCompleteBillingPaymentAttempt,
+} from './paymentAttemptReservations.js'
+import { recordAuthoritativeStripeInvoicePayment } from './stripeInvoicePayments.js'
+import {
+  inspectStripeCustomerSubscriptionInventory,
+  inspectStripeCustomerSubscriptionScheduleInventory,
+} from './canonicalBillingMigrationStripe.js'
 
-let schemaEnsured = false
-
-async function ensureSchema(pool) {
-  if (schemaEnsured) return
-  await ensureStripeOperationsSchema(pool)
-  const fs = await import('fs')
-  const migrationPath = new URL('../migrations/231_stripe_reconciliation.sql', import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-  schemaEnsured = true
+async function ensureSchema() {
+  // Compatibility hook. Startup billing readiness owns this schema contract.
 }
 
 function stripeId(value) {
@@ -266,6 +271,16 @@ export async function reconcileStripeSubscriptionPrices(pool, stripe, {
        WHERE bs.status = 'active'
          AND bs.source_type = 'scheduling_signup'
          AND bs.stripe_subscription_id IS NOT NULL
+         AND fba.household_monthly_billing_enabled = FALSE
+         AND NOT EXISTS (
+           SELECT 1
+             FROM billing_account_migration migration
+            WHERE migration.family_billing_account_id = bs.family_billing_account_id
+              AND migration.state IN (
+                'armed', 'cancellation_scheduled', 'detached', 'remote_retired',
+                'household_active', 'verified', 'failed_forward_only', 'rollback_pending'
+              )
+         )
          AND ($1::bigint IS NULL OR bs.family_billing_account_id = $1)`,
       [accountId == null ? null : Number(accountId)],
     )
@@ -448,6 +463,138 @@ export async function reconcileStripeSubscriptionPrices(pool, stripe, {
   return { subscriptionsChecked, subscriptionDriftsFound, alertsResolved, skipped: false }
 }
 
+/**
+ * Enumerate every remote recurring collector owned by a canonical customer.
+ * Canonical/household accounts must have zero live Stripe subscriptions and
+ * zero active/future Subscription Schedules; annual labels do not exempt a
+ * remote collector from this post-cutover invariant.
+ */
+export async function reconcileCanonicalStripeCollectorInventory(pool, stripe, {
+  accountId = null,
+} = {}) {
+  let accounts
+  try {
+    accounts = await pool.query(
+      `/* canonical-collector:account-inventory */
+       SELECT account.id,
+              account.stripe_customer_id,
+              migration.state AS migration_state
+         FROM family_billing_account account
+         LEFT JOIN LATERAL (
+           SELECT candidate.state
+             FROM billing_account_migration candidate
+            WHERE candidate.family_billing_account_id = account.id
+            ORDER BY candidate.id DESC
+            LIMIT 1
+         ) migration ON TRUE
+        WHERE account.stripe_customer_id IS NOT NULL
+          AND (
+            account.household_monthly_billing_enabled = TRUE
+            OR migration.state IN (
+              'armed', 'cancellation_scheduled', 'detached', 'remote_retired',
+              'household_active', 'verified', 'rollback_pending', 'failed_forward_only'
+            )
+          )
+          AND ($1::bigint IS NULL OR account.id = $1)
+        ORDER BY account.id`,
+      [accountId == null ? null : Number(accountId)],
+    )
+  } catch (error) {
+    if (error?.code === '42703' || error?.code === '42P01') {
+      return { accountsChecked: 0, collectorDriftsFound: 0, alertsResolved: 0, skipped: true }
+    }
+    throw error
+  }
+
+  let collectorDriftsFound = 0
+  let alertsResolved = 0
+  for (const account of accounts.rows) {
+    const normalizedAccountId = Number(account.id)
+    try {
+      const localSubscriptions = await pool.query(
+        `SELECT id, source_type, pricing_option_key, status, stripe_subscription_id
+           FROM billing_subscription
+          WHERE family_billing_account_id = $1
+          ORDER BY id`,
+        [normalizedAccountId],
+      )
+      const [subscriptions, schedules] = await Promise.all([
+        inspectStripeCustomerSubscriptionInventory(stripe, {
+          stripeCustomerId: account.stripe_customer_id,
+          accountId: normalizedAccountId,
+          localSubscriptions: localSubscriptions.rows,
+        }),
+        inspectStripeCustomerSubscriptionScheduleInventory(stripe, {
+          stripeCustomerId: account.stripe_customer_id,
+          accountId: normalizedAccountId,
+        }),
+      ])
+      const liveSubscriptionCount = Number(subscriptions.snapshot?.liveSubscriptionCount ?? 0)
+      const liveScheduleCount = Number(schedules.snapshot?.liveScheduleCount ?? 0)
+      const issues = [...(subscriptions.issues ?? []), ...(schedules.issues ?? [])]
+      if (liveSubscriptionCount > 0 || liveScheduleCount > 0 || issues.length > 0) {
+        collectorDriftsFound += Math.max(1, liveSubscriptionCount + liveScheduleCount)
+        const details = {
+          migrationState: account.migration_state ?? null,
+          liveSubscriptionCount,
+          liveScheduleCount,
+          subscriptions: subscriptions.snapshot?.subscriptions ?? [],
+          schedules: schedules.snapshot?.schedules ?? [],
+          issues,
+        }
+        const digest = createHash('sha256').update(JSON.stringify(details)).digest('hex').slice(0, 16)
+        await createReconciliationAlert(
+          pool,
+          `canonical-collector:${normalizedAccountId}:${digest}`,
+          'canonical_remote_collector_drift',
+          'critical',
+          `Canonical billing account ${normalizedAccountId} still has ${liveSubscriptionCount} live Stripe subscription(s) and ${liveScheduleCount} live schedule(s).`,
+          account.stripe_customer_id,
+          {
+            metadata: { familyBillingAccountId: String(normalizedAccountId) },
+            reason: JSON.stringify(details).slice(0, 900),
+          },
+        )
+      } else {
+        const openAlerts = await pool.query(
+          `SELECT id
+             FROM stripe_billing_alert
+            WHERE family_billing_account_id = $1
+              AND alert_type IN ('canonical_remote_collector_drift', 'canonical_collector_inventory_failed')
+              AND resolved_at IS NULL`,
+          [normalizedAccountId],
+        )
+        const resolved = await resolveAlertsAutomatically(pool, {
+          accountId: normalizedAccountId,
+          alertIds: openAlerts.rows.map((row) => row.id),
+          reason: 'Automatically resolved after full Stripe customer inventory found no live subscriptions or schedules.',
+        })
+        alertsResolved += resolved.length
+      }
+    } catch (error) {
+      collectorDriftsFound += 1
+      await createReconciliationAlert(
+        pool,
+        `canonical-collector:${normalizedAccountId}:inventory-failed:${createHash('sha256').update(String(error?.message ?? error)).digest('hex').slice(0, 16)}`,
+        'canonical_collector_inventory_failed',
+        'critical',
+        `Canonical billing account ${normalizedAccountId} remote collector inventory failed closed.`,
+        account.stripe_customer_id,
+        {
+          metadata: { familyBillingAccountId: String(normalizedAccountId) },
+          reason: String(error?.message ?? error).slice(0, 900),
+        },
+      )
+    }
+  }
+  return {
+    accountsChecked: accounts.rows.length,
+    collectorDriftsFound,
+    alertsResolved,
+    skipped: false,
+  }
+}
+
 async function paymentFailureHasRecovered(pool, stripe, alert) {
   const objectId = String(alert.stripe_object_id ?? '').trim()
   if (!objectId) return false
@@ -496,6 +643,9 @@ export async function refreshCustomerBillingStripeAlerts(pool, {
     accountId: Number(accountId),
     alertResolutionActor: { actorUserId, actorType: actorUserId == null ? 'system' : 'admin' },
   })
+  const collectorInventory = await reconcileCanonicalStripeCollectorInventory(pool, stripe, {
+    accountId: Number(accountId),
+  })
   const paymentAlerts = await pool.query(
     `SELECT * FROM stripe_billing_alert
      WHERE family_billing_account_id = $1
@@ -522,14 +672,19 @@ export async function refreshCustomerBillingStripeAlerts(pool, {
   })
   return {
     ...subscriptionSummary,
+    canonicalCollectorAccountsChecked: collectorInventory.accountsChecked,
+    canonicalCollectorDriftsFound: collectorInventory.collectorDriftsFound,
     paymentAlertsChecked: paymentAlerts.rows.length,
     paymentAlertsResolved: paymentAlertsResolved.length,
-    alertsResolved: Number(subscriptionSummary.alertsResolved ?? 0) + paymentAlertsResolved.length,
+    alertsResolved: Number(subscriptionSummary.alertsResolved ?? 0)
+      + Number(collectorInventory.alertsResolved ?? 0)
+      + paymentAlertsResolved.length,
     verificationErrors,
   }
 }
 
 export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {}) {
+  const reconciliationStartedAtMs = Date.now()
   if (!stripeEnabled()) throw new Error('Stripe is disabled or not configured.')
   await ensureSchema(pool)
   const stripe = await getStripeClient()
@@ -550,6 +705,12 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
     disputesChecked: 0,
     subscriptionsChecked: 0,
     subscriptionDriftsFound: 0,
+    canonicalCollectorAccountsChecked: 0,
+    canonicalCollectorDriftsFound: 0,
+    paymentAttemptsChecked: 0,
+    paymentAttemptsSettled: 0,
+    paymentAttemptsReleased: 0,
+    paymentAttemptsRetained: 0,
   }
 
   try {
@@ -565,6 +726,91 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
         [intent.id],
       )
       const stripeAmount = Number(intent.amount_received ?? intent.amount ?? 0)
+      let reservedAttempt = null
+      try {
+        reservedAttempt = await findBillingPaymentAttemptForStripeObject(pool, intent)
+      } catch (error) {
+        if (!(error instanceof BillingPaymentAttemptMappingConflict)) throw error
+        summary.mismatchesFound += 1
+        await createReconciliationAlert(
+          pool,
+          `${intent.id}:payment-attempt-identity`,
+          'reconciliation_mismatch',
+          'critical',
+          `Stripe payment ${intent.id} could not be bound to its durable payment attempt`,
+          intent.id,
+          { amount: stripeAmount, reason: error.message },
+        )
+        continue
+      }
+      if (reservedAttempt) {
+        const settlement = await recordAndCompleteBillingPaymentAttempt(pool, {
+          stripeObject: intent,
+          paymentIntentId: intent.id,
+          amountCents: stripeAmount,
+          customerId: stripeId(intent.customer),
+        })
+        if (settlement?.payment?.newly_inserted) summary.paymentsInserted += 1
+        if (settlement?.conflicted) {
+          summary.mismatchesFound += 1
+          await createReconciliationAlert(
+            pool,
+            `${intent.id}:payment-attempt`,
+            'reconciliation_mismatch',
+            'critical',
+            `Stripe payment ${intent.id} could not consume its exact payment-attempt reservation`,
+            intent.id,
+            { amount: stripeAmount, reason: settlement.reason },
+          )
+        }
+        continue
+      }
+
+      const stripeInvoiceId = stripeId(intent.invoice)
+      if (stripeInvoiceId) {
+        const stripeInvoice = typeof intent.invoice === 'object'
+          ? intent.invoice
+          : await stripe.invoices.retrieve(stripeInvoiceId)
+        const invoiceOutcome = await recordAuthoritativeStripeInvoicePayment(pool, {
+          invoice: stripeInvoice,
+          stripe,
+        })
+        if (invoiceOutcome.payment?.newly_inserted) summary.paymentsInserted += 1
+        if (invoiceOutcome.classification.kind === 'household') {
+          if (invoiceOutcome.householdSettlement?.conflicted) {
+            summary.mismatchesFound += 1
+            await createReconciliationAlert(
+              pool,
+              `${intent.id}:household-invoice`,
+              'reconciliation_mismatch',
+              'critical',
+              `Stripe payment ${intent.id} could not consume its exact household invoice lines`,
+              intent.id,
+              { amount: stripeAmount, reason: invoiceOutcome.householdSettlement.reason, stripeInvoiceId },
+            )
+          }
+          continue
+        }
+        if (invoiceOutcome.classification.kind !== 'subscription') {
+          summary.mismatchesFound += 1
+          await createReconciliationAlert(
+            pool,
+            `${intent.id}:${invoiceOutcome.classification.code}`,
+            'reconciliation_mismatch',
+            'critical',
+            invoiceOutcome.classification.reason,
+            intent.id,
+            { amount: stripeAmount, stripeInvoiceId, monthlyInvoiceId: stripeInvoice?.metadata?.monthlyInvoiceId ?? null },
+          )
+          continue
+        }
+        await allocateHouseholdPayments(pool, {
+          accountId: invoiceOutcome.payment.family_billing_account_id,
+          actorType: 'reconciliation',
+        })
+        continue
+      }
+
       if (local.rows[0]) {
         if (paymentAmountsMismatch(local.rows[0].amount_cents, stripeAmount)) {
           summary.mismatchesFound += 1
@@ -599,6 +845,35 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
       }
     }
 
+    const attemptSummary = await reconcileActiveBillingPaymentAttempts(pool, stripe)
+    summary.paymentAttemptsChecked = attemptSummary.checked
+    summary.paymentAttemptsSettled = attemptSummary.settled
+    summary.paymentAttemptsReleased = attemptSummary.released
+    summary.paymentAttemptsRetained = attemptSummary.retained
+    summary.mismatchesFound += attemptSummary.conflicted
+    for (const issue of attemptSummary.errors) {
+      await createReconciliationAlert(
+        pool,
+        `payment-attempt:${issue.attemptId}:remote-reconciliation`,
+        'reconciliation_mismatch',
+        'critical',
+        `Billing payment attempt ${issue.attemptId} could not verify its remote Stripe state`,
+        null,
+        { reason: issue.message },
+      )
+    }
+    for (const ambiguity of attemptSummary.ambiguities) {
+      await createReconciliationAlert(
+        pool,
+        `payment-attempt:${ambiguity.attemptId}:remote-object-ambiguous`,
+        'reconciliation_mismatch',
+        'warning',
+        `Billing payment attempt ${ambiguity.attemptId} has no conclusive remote Stripe object; its reservation remains active`,
+        null,
+        { reason: ambiguity.message },
+      )
+    }
+
     for await (const dispute of stripe.disputes.list({
       created: { gte: Math.floor(startedAt.getTime() / 1000) },
       limit: 100,
@@ -616,6 +891,10 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
     summary.subscriptionsChecked = subscriptionSummary.subscriptionsChecked
     summary.subscriptionDriftsFound = subscriptionSummary.subscriptionDriftsFound
     summary.mismatchesFound += subscriptionSummary.subscriptionDriftsFound
+    const collectorInventory = await reconcileCanonicalStripeCollectorInventory(pool, stripe)
+    summary.canonicalCollectorAccountsChecked = collectorInventory.accountsChecked
+    summary.canonicalCollectorDriftsFound = collectorInventory.collectorDriftsFound
+    summary.mismatchesFound += collectorInventory.collectorDriftsFound
 
     const staleWebhooks = await pool.query(
       `SELECT event_id, event_type, status, last_error FROM stripe_webhook_event
@@ -635,8 +914,22 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
        WHERE id = $1`,
       [runId, summary.stripePaymentsChecked, summary.paymentsInserted, summary.mismatchesFound, summary.disputesChecked],
     )
-    console.log(JSON.stringify({ level: 'info', message: 'Stripe reconciliation completed', runId, ...summary }))
-    return { runId: Number(runId), ...summary, status: 'succeeded', windowStartedAt: startedAt, windowEndedAt: endedAt }
+    const durationMs = Date.now() - reconciliationStartedAtMs
+    console.log(JSON.stringify({
+      level: 'info',
+      message: 'Stripe reconciliation completed',
+      runId,
+      durationMs,
+      ...summary,
+    }))
+    return {
+      runId: Number(runId),
+      ...summary,
+      durationMs,
+      status: 'succeeded',
+      windowStartedAt: startedAt,
+      windowEndedAt: endedAt,
+    }
   } catch (error) {
     await pool.query(
       `UPDATE stripe_reconciliation_run SET status = 'failed', error_message = $2, completed_at = now() WHERE id = $1`,
@@ -648,7 +941,11 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
   }
 }
 
-export async function getStripeOperationsDashboard(pool) {
+export async function getStripeOperationsDashboard(pool, {
+  facilityId = null,
+  allowGlobal = false,
+} = {}) {
+  const scopedFacilityId = requireAdminFacilityScope({ facilityId, allowGlobal })
   await ensureSchema(pool)
   const [alerts, recentRuns, webhookCounts, webhookIncidents] = await Promise.all([
     pool.query(`
@@ -665,11 +962,26 @@ export async function getStripeOperationsDashboard(pool) {
       LEFT JOIN family f ON f.id = fba.family_id
       LEFT JOIN member payer ON payer.id = fba.payer_member_id
       WHERE a.resolved_at IS NULL
+        AND ($1::bigint IS NULL OR f.facility_id = $1)
       ORDER BY a.created_at DESC LIMIT 100
-    `),
-    pool.query(`SELECT * FROM stripe_reconciliation_run ORDER BY started_at DESC LIMIT 10`),
-    pool.query(`SELECT status, COUNT(*)::int AS count FROM stripe_webhook_event
-      WHERE received_at >= now() - interval '7 days' GROUP BY status`),
+    `, [scopedFacilityId]),
+    pool.query(
+      `SELECT * FROM stripe_reconciliation_run
+       WHERE $1::bigint IS NULL
+       ORDER BY started_at DESC LIMIT 10`,
+      [scopedFacilityId],
+    ),
+    pool.query(
+      `SELECT e.status, COUNT(DISTINCT e.event_id)::int AS count
+       FROM stripe_webhook_event e
+       LEFT JOIN stripe_billing_alert a ON a.stripe_event_id = e.event_id
+       LEFT JOIN family_billing_account fba ON fba.id = a.family_billing_account_id
+       LEFT JOIN family f ON f.id = fba.family_id
+       WHERE e.received_at >= now() - interval '7 days'
+         AND ($1::bigint IS NULL OR f.facility_id = $1)
+       GROUP BY e.status`,
+      [scopedFacilityId],
+    ),
     pool.query(
       `SELECT e.event_id, e.event_type, e.status, e.attempts,
               LEFT(COALESCE(last_error, ''), 500) AS last_error,
@@ -687,10 +999,14 @@ export async function getStripeOperationsDashboard(pool) {
        LEFT JOIN family_billing_account fba ON fba.id = a.family_billing_account_id
        LEFT JOIN family f ON f.id = fba.family_id
        LEFT JOIN member payer ON payer.id = fba.payer_member_id
-       WHERE e.status = 'failed'
-          OR (e.status = 'processing' AND e.updated_at < now() - interval '15 minutes')
+       WHERE (
+         e.status = 'failed'
+         OR (e.status = 'processing' AND e.updated_at < now() - interval '15 minutes')
+       )
+         AND ($1::bigint IS NULL OR f.facility_id = $1)
        ORDER BY e.updated_at DESC
        LIMIT 25`,
+      [scopedFacilityId],
     ),
   ])
   const enabled = stripeEnabled()

@@ -23,7 +23,13 @@ export interface MemberBillingTransaction {
 }
 
 export interface MemberCustomerBillingData {
-  canSeeFamily: boolean
+  revision?: string | null
+  access: {
+    viewerMemberId: number
+    canViewHousehold: boolean
+    canManagePayments: boolean
+    canManagePaymentMethod: boolean
+  }
   overview: CustomerBillingOverview | null
   transactions: MemberBillingTransaction[]
   nextTransactionCursor: string | null
@@ -141,7 +147,7 @@ function AnnualMembershipCard({
 }: {
   membership: CustomerBillingAnnualMembership
   formatMoney: (cents: number) => string
-  onEnroll: () => void
+  onEnroll?: () => void
 }) {
   return (
     <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
@@ -150,7 +156,7 @@ function AnnualMembershipCard({
       <div className="mt-1 text-sm text-gray-200">{membership.active ? `Good through ${formatDate(membership.renewalDate)}` : 'Required before enrolling in classes'}</div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className="font-semibold">{membership.active ? 'Valid' : `Not purchased · ${formatMoney(membership.outstandingAmountCents)}`}</span>
-        {!membership.active ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
+        {!membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
       </div>
     </div>
   )
@@ -181,7 +187,11 @@ function EnrollmentTable({
             <tr key={`${enrollment.source}-${enrollment.id}`} className="border-t border-gray-100 align-top">
               <td className="min-w-[230px] px-4 py-3">
                 <div className="font-semibold text-gray-950">{enrollment.class_name || 'Class'}</div>
-                <div className="mt-1 text-xs text-gray-500">{enrollment.memberName} · {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}</div>
+                <div className="mt-1 text-xs text-gray-500">
+                  {[enrollment.memberName, enrollment.sport_name || '—', enrollment.program_name || '—']
+                    .filter(Boolean)
+                    .join(' · ')}
+                </div>
               </td>
               <td className="min-w-[310px] px-4 py-3 text-gray-600">
                 <div><span className="font-semibold text-gray-700">Active Class Dates:</span> {enrollment.offering_dates || 'Evergreen'}</div>
@@ -277,6 +287,8 @@ export default function MemberCustomerBilling({
   const visibleEnrollments = useMemo(() => overview?.enrollments.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [overview, selectedMemberId])
   const visibleWaitlists = useMemo(() => overview?.waitlists.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [overview, selectedMemberId])
   const visibleMemberships = useMemo(() => overview?.annualMemberships.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [overview, selectedMemberId])
+  const visibleBundlePasses = useMemo(() => (overview?.bundlePasses ?? []).filter((row) => selectedMemberId == null || row.memberId === selectedMemberId), [overview, selectedMemberId])
+  const visibleBundleUsage = useMemo(() => (overview?.bundleUsage ?? []).filter((row) => selectedMemberId == null || row.memberId === selectedMemberId), [overview, selectedMemberId])
   const visibleTransactions = useMemo(() => data?.transactions.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [data, selectedMemberId])
 
   if (loading) {
@@ -284,11 +296,26 @@ export default function MemberCustomerBilling({
   }
 
   if (!overview) {
-    return <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">Family billing details are available to the account payer.</div>
+    return <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">Family billing details are unavailable.</div>
   }
 
-  const balanceDue = overview.summary.balanceCents
-  const canPay = overview.paymentMethod.stripeEnabled && balanceDue > 0
+  const balanceDue = overview.summary.collectibleBalanceCents
+  const canManageBilling = data?.access.canManagePayments === true
+  const payableHostedInvoice = overview.monthlyInvoices.find((invoice) => (
+    ['open', 'failed', 'payment_method_required'].includes(invoice.status)
+    && Boolean(invoice.hostedInvoiceUrl)
+  )) ?? null
+  const canPay = canManageBilling
+    && overview.paymentMethod.stripeEnabled
+    && (balanceDue > 0 || Boolean(payableHostedInvoice?.hostedInvoiceUrl))
+  const canManagePaymentMethod = data?.access.canManagePaymentMethod === true
+  const processMonthlyBalance = () => {
+    if (balanceDue <= 0 && payableHostedInvoice?.hostedInvoiceUrl) {
+      window.location.assign(payableHostedInvoice.hostedInvoiceUrl)
+      return
+    }
+    onPayNow()
+  }
 
   return (
     <div className="space-y-6 pb-12">
@@ -303,9 +330,9 @@ export default function MemberCustomerBilling({
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={onPayNow} disabled={!canPay || payNowLoading} title={canPay ? 'Pay the current household balance.' : 'There is no balance ready for online payment.'} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><CreditCard className="h-4 w-4" /> {payNowLoading ? 'Starting checkout…' : 'Process monthly balance'}</button>
-            <button type="button" onClick={onManagePayment} disabled={!overview.paymentMethod.stripeEnabled || portalLoading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> {portalLoading ? 'Opening settings…' : 'Update payment method'}</button>
-            <button type="button" onClick={onRefresh} disabled={loading || payNowLoading || portalLoading} className="rounded-lg border border-gray-300 p-2 text-gray-600 disabled:opacity-40" aria-label="Refresh billing account" title="Refresh billing account"><RefreshCw className={`h-4 w-4 ${(loading || payNowLoading || portalLoading) ? 'animate-spin' : ''}`} /></button>
+            {data?.access.canManagePayments ? <button type="button" onClick={processMonthlyBalance} disabled={!canPay || payNowLoading} title={canPay ? 'Pay the current household balance.' : 'There is no balance ready for online payment.'} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><CreditCard className="h-4 w-4" /> {payNowLoading ? 'Starting checkout…' : 'Process monthly balance'}</button> : null}
+            {canManagePaymentMethod ? <button type="button" onClick={onManagePayment} disabled={!overview.paymentMethod.stripeEnabled || portalLoading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> {portalLoading ? 'Opening settings…' : 'Update payment method'}</button> : null}
+            <button type="button" onClick={onRefresh} disabled={loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading} className="rounded-lg border border-gray-300 p-2 text-gray-600 disabled:opacity-40" aria-label="Refresh billing account" title="Refresh billing account"><RefreshCw className={`h-4 w-4 ${(loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading) ? 'animate-spin' : ''}`} /></button>
           </div>
         </div>
 
@@ -314,7 +341,7 @@ export default function MemberCustomerBilling({
           <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={formatMoney(overview.summary.monthlyRecurringCents)} detail={`${formatMoney(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
           <MetricCard label="Future credits" value={formatMoney(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
           <MetricCard label="Account balance" value={formatMoney(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${formatDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
-          {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={onEnroll} />)}
+          {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={canManageBilling ? onEnroll : undefined} />)}
         </div>
 
         {overview.monthlyInvoices.length > 0 ? (
@@ -322,6 +349,7 @@ export default function MemberCustomerBilling({
             <strong className="text-gray-950">Monthly household invoice · {formatDate(overview.monthlyInvoices[0].billingMonth)}</strong>
             <span className="ml-2 text-gray-500">{overview.monthlyInvoices[0].lineCount} items · {overview.monthlyInvoices[0].status.replaceAll('_', ' ')}</span>
             <strong className="ml-3 text-gray-950">{formatMoney(overview.monthlyInvoices[0].totalCents)}</strong>
+            {overview.monthlyInvoices[0].postPaymentCreditCents > 0 ? <span className="ml-2 text-emerald-700">{formatMoney(overview.monthlyInvoices[0].postPaymentCreditCents)} moved to account credit</span> : null}
           </div>
         ) : null}
 
@@ -333,11 +361,40 @@ export default function MemberCustomerBilling({
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center justify-between gap-4 px-5 py-4">
           <div><h2 className="text-lg font-bold text-gray-950">Current &amp; upcoming enrollments</h2><p className="text-sm text-gray-500">Every billable class, effective price, and scheduled change.</p></div>
-          <button type="button" onClick={onEnroll} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"><Plus className="h-4 w-4" /> New Enrollment</button>
+          {canManageBilling ? <button type="button" onClick={onEnroll} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"><Plus className="h-4 w-4" /> New Enrollment</button> : null}
         </div>
         <div className="border-t border-gray-200"><EnrollmentTable enrollments={visibleEnrollments} formatMoney={formatMoney} /></div>
         {visibleWaitlists.length > 0 ? <details className="border-t border-gray-200"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 marker:hidden"><span>Waitlists · non-billable</span><span className="flex items-center gap-2">{visibleWaitlists.length}<ChevronDown className="h-4 w-4" /></span></summary><div className="grid gap-2 border-t border-gray-100 p-4 sm:grid-cols-2 xl:grid-cols-3">{visibleWaitlists.map((row) => <div key={row.id} className="rounded-lg border border-gray-200 p-3 text-sm"><strong>{row.memberName}</strong><div className="text-gray-600">{row.class_name}</div><div className="mt-1 text-xs text-gray-500">{row.schedule} · Enrollment #{row.id}</div></div>)}</div></details> : null}
       </section>
+
+      {visibleBundlePasses.length > 0 ? (
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Class bundles</h2><p className="text-sm text-gray-500">Household pass balances and recent credit usage.</p></div>
+          <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+            {visibleBundlePasses.map((pass) => (
+              <div key={pass.id} className="rounded-xl border border-gray-200 p-4">
+                <div className="font-bold text-gray-950">{pass.packageLabel || `Pass #${pass.id}`}</div>
+                <div className="mt-1 text-sm text-gray-500">{pass.memberName || 'Family member'} · {pass.status}</div>
+                <div className="mt-3 text-lg font-black text-gray-950">{pass.classesRemaining} / {pass.classCountPurchased} classes left</div>
+                {pass.expiresAt ? <div className="mt-1 text-xs text-gray-500">Expires {formatDate(pass.expiresAt)}</div> : null}
+              </div>
+            ))}
+          </div>
+          {visibleBundleUsage.length > 0 ? (
+            <details className="border-t border-gray-200">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-gray-700 marker:hidden"><span>Recent bundle usage</span><ChevronDown className="h-4 w-4" /></summary>
+              <div className="divide-y divide-gray-100 border-t border-gray-100 px-5">
+                {visibleBundleUsage.slice(0, 20).map((usage) => (
+                  <div key={usage.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                    <div><strong className="text-gray-900">{usage.memberName || usage.packageLabel || 'Class bundle'}</strong><span className="ml-2 text-gray-500">{formatDate(usage.createdAt)} · {usage.entryType.replaceAll('_', ' ')}</span>{usage.reason ? <div className="text-xs text-gray-500">{usage.reason}</div> : null}</div>
+                    <div className="font-semibold text-gray-800">{usage.creditDelta == null ? '' : `${usage.creditDelta > 0 ? '+' : ''}${usage.creditDelta} → `}{usage.classesRemainingAfter} left</div>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>

@@ -250,13 +250,17 @@ function mapTaxonomyRow(row) {
 /**
  * Resolve sport · program · class labels for scheduling forms (canonical enrollment taxonomy).
  */
-export async function loadEnrollmentTaxonomyByFormIds(pool, formIds) {
+export async function loadEnrollmentTaxonomyByFormIds(
+  pool,
+  formIds,
+  { ensureSchema = true } = {},
+) {
   const ids = [...new Set((formIds || []).filter((id) => id != null).map(Number))]
   const byFormId = new Map()
   if (!ids.length) return byFormId
 
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
-  await ensurePrimaryDisciplineTagColumn(pool)
+  if (ensureSchema) await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
   const programFkColumn = schema.programFkColumn
@@ -301,13 +305,17 @@ export async function loadEnrollmentTaxonomyByFormIds(pool, formIds) {
 }
 
 /** Resolve taxonomy for legacy member_program rows (program_id = class row). */
-export async function loadEnrollmentTaxonomyByClassIds(pool, classIds) {
+export async function loadEnrollmentTaxonomyByClassIds(
+  pool,
+  classIds,
+  { ensureSchema = true } = {},
+) {
   const ids = [...new Set((classIds || []).filter((id) => id != null).map(Number))]
   const byClassId = new Map()
   if (!ids.length) return byClassId
 
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
-  await ensurePrimaryDisciplineTagColumn(pool)
+  if (ensureSchema) await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
   const programFkColumn = schema.programFkColumn

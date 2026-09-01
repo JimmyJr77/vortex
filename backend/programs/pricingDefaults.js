@@ -172,7 +172,8 @@ export async function loadProgramPricingRow(pool, programsId) {
   if (programsId == null) return null
   const schema = await resolveProgramsSchema(pool)
   const result = await pool.query(
-    `SELECT pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
+    `SELECT facility_id,
+            pricing_max_slots_per_user, pricing_slot_cost_monthly_cents, pricing_free_slots_per_user,
             pricing_max_free_slots_total, pricing_cost_amount_cents, pricing_cost_unit,
             pricing_max_discount_redemptions, pricing_promo_codes,
             COALESCE(pricing_cost_options, '[]'::jsonb) AS pricing_cost_options,

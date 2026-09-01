@@ -1233,6 +1233,37 @@ export async function loadRedemptionCaps(pool, facilityId, { memberId = null, fa
     )
     for (const row of byRuleRes.rows) caps.ruleRedeemed[Number(row.rule_id)] = Number(row.c)
 
+    // An open annual-membership Checkout owns its promo capacity until the
+    // Session expires or fulfillment consumes the reservation. Counting these
+    // durable reservations prevents another checkout path from selling the
+    // same final capped redemption while payment is in flight.
+    const reservationRes = await pool.query(
+      `SELECT reservation.rule_id,
+              COUNT(*)::int AS c,
+              COUNT(*) FILTER (WHERE reservation.member_id = $2)::int AS member_c,
+              COUNT(*) FILTER (WHERE reservation.family_id = $3)::int AS family_c
+         FROM annual_membership_checkout_promo_reservation reservation
+         JOIN discount_rule rule ON rule.id = reservation.rule_id
+        WHERE reservation.consumed_at IS NULL
+          AND reservation.released_at IS NULL
+          AND reservation.expires_at > now()
+          AND (rule.facility_id = $1 OR rule.facility_id IS NULL)
+        GROUP BY reservation.rule_id`,
+      [facilityId, memberId, familyId],
+    )
+    for (const row of reservationRes.rows) {
+      const ruleId = Number(row.rule_id)
+      const reserved = Number(row.c ?? 0)
+      caps.ruleRedeemed[ruleId] = Number(caps.ruleRedeemed[ruleId] ?? 0) + reserved
+      caps.discountRedemptionsFacilityUsed += reserved
+      if (memberId != null) {
+        caps.ruleMemberRedeemed[ruleId] = Number(caps.ruleMemberRedeemed[ruleId] ?? 0) + Number(row.member_c ?? 0)
+      }
+      if (familyId != null) {
+        caps.ruleFamilyRedeemed[ruleId] = Number(caps.ruleFamilyRedeemed[ruleId] ?? 0) + Number(row.family_c ?? 0)
+      }
+    }
+
     const byProgRes = await pool.query(
       `SELECT program_id, kind, COALESCE(SUM(units),0) AS units, COUNT(*) AS c
        FROM discount_redemption WHERE program_id IS NOT NULL GROUP BY program_id, kind`,
@@ -1258,7 +1289,8 @@ export async function loadRedemptionCaps(pool, facilityId, { memberId = null, fa
         [memberId],
       )
       for (const row of byMemberRes.rows) {
-        caps.ruleMemberRedeemed[Number(row.rule_id)] = Number(row.c)
+        const ruleId = Number(row.rule_id)
+        caps.ruleMemberRedeemed[ruleId] = Number(caps.ruleMemberRedeemed[ruleId] ?? 0) + Number(row.c)
       }
     }
     if (familyId != null) {
@@ -1271,7 +1303,8 @@ export async function loadRedemptionCaps(pool, facilityId, { memberId = null, fa
         [familyId],
       )
       for (const row of byFamilyRes.rows) {
-        caps.ruleFamilyRedeemed[Number(row.rule_id)] = Number(row.c)
+        const ruleId = Number(row.rule_id)
+        caps.ruleFamilyRedeemed[ruleId] = Number(caps.ruleFamilyRedeemed[ruleId] ?? 0) + Number(row.c)
       }
     }
   } catch {
@@ -1305,8 +1338,15 @@ export async function resolveMembershipFeePromo(
   if (candidates.length === 0) return null
 
   const caps = await loadRedemptionCaps(pool, facilityId, { memberId, familyId })
+  if (
+    caps.maxDiscountRedemptionsTotal != null &&
+    Number(caps.discountRedemptionsFacilityUsed ?? 0) >= Number(caps.maxDiscountRedemptionsTotal)
+  ) return null
   for (const rule of candidates) {
-    if (rule.maxRedemptions != null && (rule.redeemedCount || 0) >= rule.maxRedemptions) continue
+    if (
+      rule.maxRedemptions != null &&
+      Math.max(rule.redeemedCount || 0, Number(caps.ruleRedeemed?.[rule.id] ?? 0)) >= rule.maxRedemptions
+    ) continue
     const perMember = perRuleLimit(rule, 'max_redemptions_per_member')
     if (perMember != null && memberId != null
         && Number(caps.ruleMemberRedeemed?.[rule.id] ?? 0) >= perMember) continue

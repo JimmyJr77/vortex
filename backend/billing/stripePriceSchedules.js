@@ -5,6 +5,8 @@ import {
   billingMonthKey,
   normalizeBillingMonth,
 } from './customerBillingPricing.js'
+import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
+import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 
 function parseJson(value) {
   if (!value) return {}
@@ -101,11 +103,44 @@ async function setSyncState(pool, id, status, { scheduleId = undefined, error = 
  * Local pricing remains authoritative; this function only marks the local adjustment
  * synced after Stripe accepts every phase.
  */
-export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptionId, { now = new Date() } = {}) {
+export async function syncEnrollmentStripePriceSchedule(pool, billingSubscriptionId, {
+  now = new Date(),
+  collectionLockHeld = false,
+  lockedAccountId = null,
+} = {}) {
   const { subscription, adjustments } = await loadScheduleContext(pool, billingSubscriptionId)
+  if (!collectionLockHeld) {
+    return withBillingAccountCollectionLock(
+      pool,
+      subscription.family_billing_account_id,
+      (db) => syncEnrollmentStripePriceSchedule(db, billingSubscriptionId, {
+        now,
+        collectionLockHeld: true,
+        lockedAccountId: subscription.family_billing_account_id,
+      }),
+    )
+  }
+  if (Number(subscription.family_billing_account_id) !== Number(lockedAccountId)) {
+    throw new Error('Billing subscription changed household while its Stripe mutation lock was acquired.')
+  }
   if (!subscription.stripe_subscription_id) {
     await setSyncState(pool, subscription.id, 'not_required', { error: null })
     return { status: 'skipped', reason: 'missing_id' }
+  }
+  const remoteMutation = await guardLegacyRemoteSubscriptionMutation(pool, {
+    accountId: subscription.family_billing_account_id,
+    stripeSubscriptionId: subscription.stripe_subscription_id,
+    operation: 'class-price-schedule-sync',
+  })
+  if (!remoteMutation.allowed) {
+    await setSyncState(pool, subscription.id, 'not_required', {
+      error: remoteMutation.reason,
+    })
+    return {
+      status: 'local_authoritative',
+      reason: remoteMutation.reason,
+      remoteCollectorQuarantined: true,
+    }
   }
   if (!stripeEnabled()) {
     await setSyncState(pool, subscription.id, 'failed', { error: 'Stripe is disabled.' })

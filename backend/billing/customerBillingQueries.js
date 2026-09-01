@@ -1,5 +1,5 @@
-import { buildBillingAccountView } from './billingAccountView.js'
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
+import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
 import {
   addBillingMonths,
@@ -12,11 +12,11 @@ import {
 } from './customerBillingPricing.js'
 import { mapBillingActivity } from './billingActivity.js'
 import {
-  isMembershipValidThrough,
   membershipRenewsOnFromPurchase,
 } from '../scheduling/membershipAnniversary.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
+import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -79,6 +79,16 @@ function activeAnnualSubscription(subscription, asOfKey) {
   )
 }
 
+function annualRedemptionPaidThrough(redemption) {
+  const periodKey = billingDateKey(redemption?.period_key)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(redemption?.period_key ?? '')) && periodKey) {
+    return periodKey
+  }
+  return billingDateKey(
+    membershipRenewsOnFromPurchase(redemption?.satisfied_at ?? redemption?.created_at),
+  )
+}
+
 export function buildCustomerBillingAnnualMemberships({
   members = [],
   subscriptions = [],
@@ -108,7 +118,7 @@ export function buildCustomerBillingAnnualMemberships({
     const activeSubscription = memberSubscriptions.find((row) => activeAnnualSubscription(row, asOfKey)) ?? null
     const activeRedemption = memberRedemptions.find((row) => (
       (!row.ended_at || billingDateKey(row.ended_at) > asOfKey) &&
-      isMembershipValidThrough(row.satisfied_at ?? row.created_at, asOf)
+      annualRedemptionPaidThrough(row) > asOfKey
     )) ?? null
     const activeCharge = memberCharges.find((row) => (
       paidAnnualMembershipCharge(row) &&
@@ -127,7 +137,7 @@ export function buildCustomerBillingAnnualMemberships({
       isAnnualMembershipCharge(row) && Number(row.remaining_amount_cents ?? 0) > 0
     )) ?? null
     const renewalFromRedemption = referenceRedemption
-      ? membershipRenewsOnFromPurchase(referenceRedemption.satisfied_at ?? referenceRedemption.created_at)
+      ? annualRedemptionPaidThrough(referenceRedemption)
       : null
     const renewalFromSubscriptionStart = referenceSubscription?.start_date
       ? membershipRenewsOnFromPurchase(referenceSubscription.start_date)
@@ -155,12 +165,12 @@ export function buildCustomerBillingAnnualMemberships({
       ),
       renewalDate: billingDateKey(renewalDate),
       autoRenewal: Boolean(
-        activeSubscription?.stripe_subscription_id &&
+        activeSubscription &&
         activeSubscription.status !== 'cancelled' &&
         activeSubscription.auto_renewal !== false,
       ),
       canManageAutoRenewal: Boolean(
-        referenceSubscription?.stripe_subscription_id &&
+        referenceSubscription &&
         referenceSubscription.status !== 'cancelled',
       ),
       outstandingChargeId: outstandingCharge?.id == null ? null : Number(outstandingCharge.id),
@@ -185,6 +195,7 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
                 FROM billing_payment p
                 WHERE bs.stripe_subscription_id IS NOT NULL
                   AND p.stripe_subscription_id = bs.stripe_subscription_id
+                  AND p.external_status IN ('settled', 'succeeded')
                 ORDER BY p.paid_at DESC, p.id DESC
                 LIMIT 1
               ) AS latest_renewal_paid_at
@@ -228,6 +239,7 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
          FROM billing_payment_application application
          JOIN billing_payment payment ON payment.id = application.billing_payment_id
          WHERE application.billing_charge_id = c.id
+           AND payment.external_status IN ('settled', 'succeeded')
        ) app ON TRUE
        LEFT JOIN LATERAL (
          SELECT COALESCE(SUM(linked.amount_cents), 0)::int AS adjustment_cents
@@ -252,38 +264,24 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
   })
 }
 
-export async function ensureCustomerBillingAccount(pool, familyId, facilityId = null) {
-  const family = await pool.query(
-    `SELECT * FROM family
-     WHERE id = $1 AND ($2::bigint IS NULL OR facility_id = $2)`,
+export async function loadCustomerBillingAccount(pool, familyId, facilityId = null) {
+  const result = await pool.query(
+    `SELECT account.*, family.family_name, family.facility_id AS family_facility_id
+       FROM family
+       JOIN family_billing_account account ON account.family_id = family.id
+      WHERE family.id = $1
+        AND account.is_active = TRUE
+        AND ($2::bigint IS NULL OR family.facility_id = $2)`,
     [Number(familyId), facilityId],
   )
-  if (!family.rows[0]) return null
-  const existing = await pool.query(
-    `SELECT * FROM family_billing_account WHERE family_id = $1`,
-    [Number(familyId)],
-  )
-  if (existing.rows[0]) return { ...existing.rows[0], family_name: family.rows[0].family_name }
-  const created = await pool.query(
-    `INSERT INTO family_billing_account (
-       family_id, payer_member_id, billing_email, billing_phone,
-       billing_street, billing_city, billing_state, billing_zip
-     )
-     SELECT f.id, m.id, m.email, m.phone, m.billing_street,
-            m.billing_city, m.billing_state, m.billing_zip
-     FROM family f
-     LEFT JOIN LATERAL (
-       SELECT * FROM member
-       WHERE family_id = f.id AND is_active = TRUE
-       ORDER BY (email IS NULL), id LIMIT 1
-     ) m ON TRUE
-     WHERE f.id = $1
-     ON CONFLICT (family_id) DO UPDATE SET updated_at = family_billing_account.updated_at
-     RETURNING *`,
-    [Number(familyId)],
-  )
-  return created.rows[0] ? { ...created.rows[0], family_name: family.rows[0].family_name } : null
+  return result.rows[0] ?? null
 }
+
+/**
+ * Compatibility name for callers being retired. Account reads are deliberately
+ * fail-closed and never create an account or choose a payer heuristically.
+ */
+export const ensureCustomerBillingAccount = loadCustomerBillingAccount
 
 export async function searchCustomerBilling(pool, { facilityId, query, limit = 50 }) {
   const value = String(query ?? '').trim()
@@ -301,12 +299,12 @@ export async function searchCustomerBilling(pool, { facilityId, query, limit = 5
        m.phone,
        m.is_active
      FROM family f
-     JOIN member m ON (
-       m.family_id = f.id OR EXISTS (
-         SELECT 1 FROM family_member fm
-         WHERE fm.family_id = f.id AND fm.member_id = m.id AND fm.is_active = TRUE
-       )
-     )
+     JOIN member m ON ${canonicalActiveHouseholdMemberPredicate({
+       memberAlias: 'm',
+       familyIdReference: 'f.id',
+       membershipAlias: 'search_membership',
+       historyAlias: 'search_membership_history',
+     })}
      LEFT JOIN family_billing_account fba ON fba.family_id = f.id AND fba.is_active = TRUE
      WHERE f.facility_id = $1
        AND (
@@ -340,10 +338,12 @@ async function loadFamilyMembers(pool, familyId) {
   const result = await pool.query(
     `SELECT DISTINCT m.id, m.first_name, m.last_name, m.email, m.phone, m.is_active
      FROM member m
-     WHERE m.family_id = $1 OR EXISTS (
-       SELECT 1 FROM family_member fm
-       WHERE fm.family_id = $1 AND fm.member_id = m.id AND fm.is_active = TRUE
-     )
+     WHERE ${canonicalActiveHouseholdMemberPredicate({
+       memberAlias: 'm',
+       familyIdReference: '$1',
+       membershipAlias: 'member_household',
+       historyAlias: 'member_household_history',
+     })}
      ORDER BY m.is_active DESC, m.last_name, m.first_name, m.id`,
     [familyId],
   )
@@ -519,6 +519,65 @@ export async function buildCustomerBillingOverview(pool, {
     throw new Error('Selected member does not belong to this family.')
   }
 
+  const rawSubscriptionsPromise = pool.query(
+    `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
+            coverage.oldest_unpaid_service_period_start,
+            coverage.paid_through_date
+     FROM billing_subscription bs
+     LEFT JOIN member m ON m.id = bs.member_id
+     LEFT JOIN LATERAL (
+       SELECT
+         MIN(charge.service_period_start) FILTER (
+           WHERE charge.service_period_start IS NOT NULL
+             AND charge.applied_cents < charge.amount_cents
+             -- A late-start partial-month charge remains collectible and
+             -- contributes to the account balance, but it is not the
+             -- subscription's next full recurring billing period.
+             AND charge.source_type <> 'initial_enrollment_proration'
+         ) AS oldest_unpaid_service_period_start,
+         MAX(charge.service_period_end) FILTER (
+           WHERE charge.service_period_end IS NOT NULL
+             AND charge.applied_cents >= charge.amount_cents
+         ) AS paid_through_date
+       FROM (
+         SELECT c.amount_cents, c.source_type, c.service_period_start, c.service_period_end,
+                (
+                  COALESCE((
+                  SELECT SUM(CASE
+                    WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                    ELSE application.amount_cents
+                  END)
+                  FROM billing_payment_application application
+                  JOIN billing_payment settled_payment
+                    ON settled_payment.id = application.billing_payment_id
+                  WHERE application.billing_charge_id = c.id
+                    AND settled_payment.external_status IN ('settled', 'succeeded')
+                  ), 0)
+                  + COALESCE((
+                    SELECT SUM(credit_application.amount_cents)
+                      FROM billing_charge_credit_application credit_application
+                      JOIN billing_monthly_invoice_line target_line
+                        ON target_line.id = credit_application.target_invoice_line_id
+                     WHERE target_line.billing_charge_id = c.id
+                  ), 0)
+                )::int AS applied_cents
+         FROM billing_charge c
+         WHERE c.subscription_id = bs.id
+           AND c.charge_type = 'recurring'
+           AND c.amount_cents > 0
+       ) charge
+     ) coverage ON TRUE
+     WHERE bs.family_billing_account_id = $1 AND bs.status <> 'cancelled'
+     ORDER BY bs.status, bs.created_at, bs.id`,
+    [account.id],
+  )
+  const financialSnapshotPromise = rawSubscriptionsPromise.then((result) => (
+    loadCanonicalFinancialSnapshot(pool, {
+      accountId: account.id,
+      subscriptions: result.rows,
+    })
+  ))
+
   const [
     view,
     enrollmentGroups,
@@ -530,56 +589,14 @@ export async function buildCustomerBillingOverview(pool, {
     monthlyInvoices,
   ] =
     await Promise.all([
-      buildBillingAccountView(pool, account, {
-        memberScopeId: null,
-        detailLevel: 'summary',
-      }),
+      financialSnapshotPromise,
       Promise.all(
         members.map(async (member) => ({
           member,
-          ...(await buildAdminMemberEnrollments(pool, member.id)),
+          ...(await buildAdminMemberEnrollments(pool, member.id, { readOnly: true })),
         })),
       ),
-      pool.query(
-        `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
-                coverage.oldest_unpaid_service_period_start,
-                coverage.paid_through_date
-         FROM billing_subscription bs
-         LEFT JOIN member m ON m.id = bs.member_id
-         LEFT JOIN LATERAL (
-           SELECT
-             MIN(charge.service_period_start) FILTER (
-               WHERE charge.service_period_start IS NOT NULL
-                 AND charge.applied_cents < charge.amount_cents
-                 -- A late-start partial-month charge remains collectible and
-                 -- contributes to the account balance, but it is not the
-                 -- subscription's next full recurring billing period.
-                 AND charge.source_type <> 'initial_enrollment_proration'
-             ) AS oldest_unpaid_service_period_start,
-             MAX(charge.service_period_end) FILTER (
-               WHERE charge.service_period_end IS NOT NULL
-                 AND charge.applied_cents >= charge.amount_cents
-             ) AS paid_through_date
-           FROM (
-             SELECT c.amount_cents, c.source_type, c.service_period_start, c.service_period_end,
-                    COALESCE((
-                      SELECT SUM(CASE
-                        WHEN application.application_kind = 'reversal' THEN -application.amount_cents
-                        ELSE application.amount_cents
-                      END)
-                      FROM billing_payment_application application
-                      WHERE application.billing_charge_id = c.id
-                    ), 0)::int AS applied_cents
-             FROM billing_charge c
-             WHERE c.subscription_id = bs.id
-               AND c.charge_type = 'recurring'
-               AND c.amount_cents > 0
-           ) charge
-         ) coverage ON TRUE
-         WHERE bs.family_billing_account_id = $1 AND bs.status <> 'cancelled'
-         ORDER BY bs.status, bs.created_at, bs.id`,
-        [account.id],
-      ),
+      rawSubscriptionsPromise,
       pool.query(
         `SELECT * FROM enrollment_price_adjustment
          WHERE family_billing_account_id = $1
@@ -635,6 +652,7 @@ export async function buildCustomerBillingOverview(pool, {
     familyId,
     periodKey: pricingMonth,
     subscriptions: rawSubscriptions.rows,
+    ensureSchema: false,
   })
   console.info('[customer-billing] pricing resolved', {
     accountId: Number(account.id),
@@ -812,12 +830,12 @@ export async function buildCustomerBillingOverview(pool, {
     }
   })
 
-  const latestPayment = view.payments?.[0] ?? null
   const syncFailures = subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
 
   const overview = {
+    revision: view.revision,
     account: mapAccount(account),
     selectedMemberId: selectedMemberId == null ? null : Number(selectedMemberId),
     members,
@@ -826,6 +844,7 @@ export async function buildCustomerBillingOverview(pool, {
       paymentsCents: view.paymentsCents,
       refundsCents: view.refundsCents,
       balanceCents: view.balanceCents,
+      collectibleBalanceCents: view.collectibleBalanceCents,
       outstandingBalanceCents: view.outstandingBalanceCents,
       // The enrollment resolver evaluates the selected billing period's
       // lifecycle rules, including cancellations effective on its first day.
@@ -842,14 +861,7 @@ export async function buildCustomerBillingOverview(pool, {
         netCents: Number(displayPricing.netCents) || 0,
       },
       nextBillDate,
-      latestPayment: latestPayment
-        ? {
-            id: Number(latestPayment.id),
-            amountCents: Number(latestPayment.amount_cents ?? 0),
-            paidAt: latestPayment.paid_at,
-            method: latestPayment.method ?? null,
-          }
-        : null,
+      latestPayment: view.latestPayment,
       stripeSync: syncFailures.length > 0
         ? {
             status: 'failed',
@@ -942,7 +954,18 @@ export async function listCustomerBillingTransactions(pool, {
   const decoded = decodeCursor(cursor)
   const pageSize = Math.min(500, Math.max(1, Number(limit) || 100))
   const result = await pool.query(
-    `WITH entries AS (
+    `WITH account_members AS (
+       SELECT member.id AS member_id
+         FROM family_billing_account account
+         JOIN member ON ${canonicalActiveHouseholdMemberPredicate({
+           memberAlias: 'member',
+           familyIdReference: 'account.family_id',
+           membershipAlias: 'audit_membership',
+           historyAlias: 'audit_membership_history',
+         })}
+        WHERE account.id = $1
+          AND account.is_active = TRUE
+     ), entries AS (
        SELECT
          'charge'::text AS entry_kind,
          c.charge_type::text AS entry_type,
@@ -1019,6 +1042,7 @@ export async function listCustomerBillingTransactions(pool, {
            FROM billing_payment_application application
            JOIN billing_payment payment ON payment.id = application.billing_payment_id
            WHERE application.billing_charge_id = c.id
+             AND payment.external_status IN ('settled', 'succeeded')
            GROUP BY application.billing_payment_id, payment.paid_at, payment.method
            HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
          ) effective
@@ -1069,28 +1093,36 @@ export async function listCustomerBillingTransactions(pool, {
            'registrationStatus', d.status
          )) AS details
        FROM drop_in_registration d
-       JOIN member drop_in_member ON drop_in_member.id = d.member_id
-       JOIN family_billing_account drop_in_account
-         ON drop_in_account.family_id = drop_in_member.family_id
-        AND drop_in_account.id = $1
+       JOIN account_members drop_in_member ON drop_in_member.member_id = d.member_id
        JOIN scheduling_form sf ON sf.id = d.form_id
        LEFT JOIN program class_p ON class_p.id = sf.program_id
        WHERE d.status IN ('confirmed', 'attended')
          AND NOT EXISTS (
            SELECT 1
            FROM billing_charge charged_drop_in
-           WHERE charged_drop_in.family_billing_account_id = drop_in_account.id
+           WHERE charged_drop_in.family_billing_account_id = $1
              AND charged_drop_in.source_type = 'drop_in'
              AND charged_drop_in.source_id = d.id::text
          )
        UNION ALL
        SELECT
          'payment', 'payment', p.id, NULL::bigint,
-         COALESCE(NULLIF(p.method, ''), 'Payment'),
-         -p.amount_cents, -p.amount_cents, p.paid_at,
-         COALESCE(p.external_status, 'recorded'), 2,
+         CASE
+           WHEN p.stripe_invoice_id IS NOT NULL AND EXISTS (
+             SELECT 1
+               FROM billing_monthly_invoice household_invoice
+              WHERE household_invoice.family_billing_account_id = p.family_billing_account_id
+                AND household_invoice.stripe_invoice_id = p.stripe_invoice_id
+           ) THEN 'Household payment'
+           ELSE COALESCE(NULLIF(p.method, ''), 'Payment')
+         END,
+         -p.amount_cents,
+         CASE WHEN p.external_status IN ('settled', 'succeeded') THEN -p.amount_cents ELSE 0 END,
+         p.paid_at,
+         p.external_status, 2,
          jsonb_build_object(
            'note', p.note,
+           'paymentMethod', p.method,
            'externalProcessor', p.external_processor,
            'externalReference', p.external_reference,
            'stripeCustomerId', p.stripe_customer_id,
@@ -1268,6 +1300,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
            SELECT SUM(p.amount_cents)::bigint
            FROM billing_payment p
            WHERE p.family_billing_account_id = $1
+             AND p.external_status IN ('settled', 'succeeded')
          ), 0)
          + COALESCE((
            SELECT SUM(r.amount_cents)::bigint
@@ -1281,7 +1314,18 @@ export async function listMemberCustomerBillingTransactions(pool, {
   }
 
   const result = await pool.query(
-    `WITH entries AS (
+    `WITH account_members AS (
+       SELECT member.id AS member_id
+         FROM family_billing_account account
+         JOIN member ON ${canonicalActiveHouseholdMemberPredicate({
+           memberAlias: 'member',
+           familyIdReference: 'account.family_id',
+           membershipAlias: 'member_audit_membership',
+           historyAlias: 'member_audit_membership_history',
+         })}
+        WHERE account.id = $1
+          AND account.is_active = TRUE
+     ), entries AS (
        SELECT
          'charge'::text AS entry_kind,
          c.charge_type::text AS entry_type,
@@ -1313,17 +1357,14 @@ export async function listMemberCustomerBillingTransactions(pool, {
          CASE WHEN d.amount_cents = 0 THEN 'settled' ELSE COALESCE(d.status, 'recorded') END::text AS entry_status,
          4::int AS sort_order
        FROM drop_in_registration d
-       JOIN member drop_in_member ON drop_in_member.id = d.member_id
-       JOIN family_billing_account drop_in_account
-         ON drop_in_account.family_id = drop_in_member.family_id
-        AND drop_in_account.id = $1
+       JOIN account_members drop_in_member ON drop_in_member.member_id = d.member_id
        JOIN scheduling_form sf ON sf.id = d.form_id
        LEFT JOIN program class_p ON class_p.id = sf.program_id
        WHERE d.status IN ('confirmed', 'attended')
          AND NOT EXISTS (
            SELECT 1
            FROM billing_charge charged_drop_in
-           WHERE charged_drop_in.family_billing_account_id = drop_in_account.id
+           WHERE charged_drop_in.family_billing_account_id = $1
              AND charged_drop_in.source_type = 'drop_in'
              AND charged_drop_in.source_id = d.id::text
          )
@@ -1337,10 +1378,10 @@ export async function listMemberCustomerBillingTransactions(pool, {
          NULL::bigint AS member_id,
          COALESCE(NULLIF(p.method, ''), 'Payment')::text AS description,
          -p.amount_cents::int AS amount_cents,
-         -p.amount_cents::int AS balance_amount_cents,
+         CASE WHEN p.external_status IN ('settled', 'succeeded') THEN -p.amount_cents ELSE 0 END::int AS balance_amount_cents,
          p.paid_at::timestamptz AS occurred_at,
          p.paid_at::date AS billing_month,
-         COALESCE(p.external_status, 'recorded')::text AS entry_status,
+         p.external_status::text AS entry_status,
          2::int AS sort_order
        FROM billing_payment p
        WHERE p.family_billing_account_id = $1
@@ -1397,8 +1438,10 @@ export async function listMemberCustomerBillingTransactions(pool, {
          ELSE application.amount_cents
        END), 0)::int AS applied_cents
        FROM billing_payment_application application
+       JOIN billing_payment settled_payment ON settled_payment.id = application.billing_payment_id
        WHERE page.entry_kind = 'charge'
          AND application.billing_charge_id = page.ref_id
+         AND settled_payment.external_status IN ('settled', 'succeeded')
      ) charge_applications ON TRUE
      LEFT JOIN LATERAL (
        SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents

@@ -8,6 +8,20 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vortex_migration_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d vortex_migration_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,8 +35,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Verify deploy migrations on disposable PostgreSQL
+        env:
+          RUN_DISPOSABLE_POSTGRES_MIGRATION_TESTS: "true"
+          BILLING_MIGRATION_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_migration_ci
+        run: npm run test:migrations:postgres --prefix backend
+
       - name: Run launch checks
         run: npm run ci:checks
+
+      - name: Run complete backend unit suite
+        run: npm test --prefix backend
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

@@ -15,10 +15,6 @@ import {
   getCatalogSyncStatus,
 } from './stripeCatalogSync.js'
 import {
-  formatPerClassStripeProductName,
-  pluralizeWeekdayLabel,
-} from './stripeProductNaming.js'
-import {
   ANNUAL_MEMBERSHIP_PRICING_KEY,
   ANNUAL_MEMBERSHIP_SOURCE_TYPE,
   membershipRenewsOnFromPurchase,
@@ -27,12 +23,28 @@ import {
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
-import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
+import {
+  issueSignupAuthToken,
+  verifySignupAuthToken,
+} from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
-import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
-import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.js'
+import { billingMigrationCollectionLocked } from './canonicalBillingMigrationState.js'
+import {
+  billingStripeSubscriptionCreationAllowed,
+  legacyPerClassStripeCollectionAllowed,
+} from './billingFeatureFlags.js'
+import {
+  checkoutSessionHasForbiddenSubscriptionCollector,
+  rejectForbiddenSubscriptionCheckoutCompletion,
+} from './checkoutSessionCollectionPolicy.js'
+import {
+  checkoutFingerprint,
+  checkoutIdempotencyConflict,
+  normalizeCheckoutRequestKey,
+  stripeCheckoutIdempotencyKey,
+} from './checkoutIdempotency.js'
 
 export { formatPerClassStripeProductName } from './stripeProductNaming.js'
 
@@ -41,27 +53,125 @@ async function loadFormProgramsId(pool, formId) {
   return res.rows[0]?.programs_id != null ? Number(res.rows[0].programs_id) : null
 }
 
-/** Fresh signup JWT for webhook/confirm commit (avoids expired tokens from checkout redirect delay). */
-export function resolveEnrolledMemberIdFromPayload(payload, payerOrFallbackMemberId) {
+function enrollmentCheckoutAuthorizationError(message = 'Selected member is not eligible for this household checkout.') {
+  const error = new Error(message)
+  error.code = 'ENROLLMENT_CHECKOUT_FORBIDDEN'
+  error.statusCode = 403
+  return error
+}
+
+function enrollmentCheckoutTokenError() {
+  const error = new Error('Enrollment session expired. Please try again.')
+  error.code = 'ENROLLMENT_CHECKOUT_TOKEN_INVALID'
+  error.statusCode = 401
+  return error
+}
+
+/**
+ * Resolve the athlete only from a cryptographically verified signup token.
+ * The caller still has to prove that athlete belongs to the payer's household.
+ */
+export async function resolveVerifiedEnrollmentMemberId(
+  pool,
+  payload,
+  payerOrFallbackMemberId,
+  { familyBillingAccountId = null } = {},
+) {
   const body = typeof payload === 'string' ? JSON.parse(payload) : payload
-  let enrolledMemberId = Number(payerOrFallbackMemberId)
-  if (body?.signupAuthToken) {
-    try {
-      // Decode only — token may already be expired after Stripe redirect delay.
-      const decoded = jwtDecode(body.signupAuthToken)
-      if (decoded?.memberId != null) enrolledMemberId = Number(decoded.memberId)
-    } catch {
-      // fall back to payer/pending member id
-    }
+  if (!body?.signupAuthToken) return Number(payerOrFallbackMemberId)
+
+  const firstFormId = body.signups?.find((signup) => signup?.formId != null)?.formId
+  const firstProgramsId =
+    firstFormId != null
+      ? await loadFormProgramsId(pool, firstFormId)
+      : body.signups?.find((signup) => signup?.programsId != null)?.programsId ?? null
+  let decoded
+  try {
+    decoded = verifySignupAuthToken(String(body.signupAuthToken), firstFormId ?? null, {
+      programsId: firstProgramsId,
+    })
+  } catch {
+    throw enrollmentCheckoutTokenError()
   }
+
+  const enrolledMemberId = Number(decoded.memberId)
+  const authority = decoded.signupAuthority
+  const payerMemberId = Number(payerOrFallbackMemberId)
+  if (
+    !Number.isSafeInteger(enrolledMemberId) ||
+    enrolledMemberId <= 0 ||
+    !Number.isSafeInteger(payerMemberId) ||
+    payerMemberId <= 0 ||
+    authority.actorMemberId !== payerMemberId ||
+    authority.targetMemberId !== enrolledMemberId
+  ) {
+    throw enrollmentCheckoutAuthorizationError(
+      'Only the family payer can authorize this enrollment session.',
+    )
+  }
+  if (
+    authority.familyBillingAccountId != null &&
+    Number(authority.familyBillingAccountId) !== Number(familyBillingAccountId)
+  ) {
+    throw enrollmentCheckoutAuthorizationError(
+      'Enrollment session belongs to a different billing account.',
+    )
+  }
+
   return enrolledMemberId
 }
 
-function jwtDecode(token) {
-  const parts = String(token).split('.')
-  if (parts.length < 2) return null
-  const json = Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')
-  return JSON.parse(json)
+/**
+ * Authorize the target member against the billing account's canonical family.
+ * An active family_member link wins. Legacy member.family_id is accepted only
+ * when the member has no family_member history at all, matching portal access.
+ */
+export async function assertEnrollmentCheckoutMemberScope(pool, {
+  familyBillingAccountId,
+  memberId,
+  payerMemberId = null,
+}) {
+  const normalizedAccountId = Number(familyBillingAccountId)
+  const normalizedMemberId = Number(memberId)
+  const normalizedPayerId = payerMemberId == null ? null : Number(payerMemberId)
+  if (
+    !Number.isInteger(normalizedAccountId) || normalizedAccountId <= 0 ||
+    !Number.isInteger(normalizedMemberId) || normalizedMemberId <= 0 ||
+    (normalizedPayerId != null && (!Number.isInteger(normalizedPayerId) || normalizedPayerId <= 0))
+  ) {
+    throw enrollmentCheckoutAuthorizationError()
+  }
+
+  const result = await pool.query(
+    `SELECT member.id
+       FROM family_billing_account account
+       JOIN member ON member.id = $2
+      WHERE account.id = $1
+        AND account.is_active = TRUE
+        AND member.is_active = TRUE
+        AND ($3::bigint IS NULL OR account.payer_member_id = $3)
+        AND (
+          EXISTS (
+            SELECT 1
+              FROM family_member membership
+             WHERE membership.member_id = member.id
+               AND membership.family_id = account.family_id
+               AND membership.is_active = TRUE
+          )
+          OR (
+            member.family_id = account.family_id
+            AND NOT EXISTS (
+              SELECT 1
+                FROM family_member historical_membership
+               WHERE historical_membership.member_id = member.id
+            )
+          )
+        )
+      LIMIT 1`,
+    [normalizedAccountId, normalizedMemberId, normalizedPayerId],
+  )
+  if (!result.rows[0]) throw enrollmentCheckoutAuthorizationError()
+  return normalizedMemberId
 }
 
 /** Drop Stripe-only fields before Joi signup-batch validation. */
@@ -71,20 +181,27 @@ export function stripSignupBatchPayload(payload) {
   return signupBatchPayload
 }
 
-async function refreshSignupAuthForCommit(pool, payload, payerOrFallbackMemberId) {
+export async function refreshSignupAuthForCommit(pool, payload, enrolledMemberId, {
+  actorMemberId,
+  familyBillingAccountId,
+}) {
   const body = typeof payload === 'string' ? JSON.parse(payload) : { ...payload }
-  const firstFormId = body.signups?.find((s) => s.formId != null)?.formId
-  if (!firstFormId) throw new Error('Invalid enrollment payload')
+  const firstFormId = body.signups?.find((s) => s.formId != null)?.formId ?? null
+  const passProgramsId = body.signups?.find((s) => s.programsId != null)?.programsId ?? null
+  if (firstFormId == null && passProgramsId == null) throw new Error('Invalid enrollment payload')
 
-  const enrolledMemberId = resolveEnrolledMemberIdFromPayload(body, payerOrFallbackMemberId)
   const member = await findMemberById(pool, enrolledMemberId)
   if (!member) throw new Error('Member account not found')
-  const programsId = await loadFormProgramsId(pool, firstFormId)
+  const programsId =
+    firstFormId != null ? await loadFormProgramsId(pool, firstFormId) : Number(passProgramsId)
   body.signupAuthToken = issueSignupAuthToken({
-    formId: firstFormId,
+    formId: firstFormId ?? 0,
     memberId: enrolledMemberId,
     email: member.email,
     programsId,
+    actorMemberId,
+    familyBillingAccountId,
+    authorityGrant: 'pending_checkout',
   })
   return body
 }
@@ -93,29 +210,8 @@ function parsePendingPayload(payload) {
   return typeof payload === 'string' ? JSON.parse(payload) : payload
 }
 
-let pendingSchemaEnsured = false
-
-async function ensurePendingEnrollmentSchema(pool) {
-  if (pendingSchemaEnsured) return
-  const fs = await import('fs')
-  const migrationPath = new URL('../migrations/057_stripe_pending_enrollment.sql', import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-  const clientConfirmedPath = new URL(
-    '../migrations/100_stripe_pending_enrollment_client_confirmed.sql',
-    import.meta.url,
-  )
-  await pool.query(fs.readFileSync(clientConfirmedPath, 'utf8'))
-  const setupModePath = new URL(
-    '../migrations/399_stripe_pending_enrollment_setup_mode.sql',
-    import.meta.url,
-  )
-  await pool.query(fs.readFileSync(setupModePath, 'utf8'))
-  const processingStatusPath = new URL(
-    '../migrations/400_stripe_pending_enrollment_processing_status.sql',
-    import.meta.url,
-  )
-  await pool.query(fs.readFileSync(processingStatusPath, 'utf8'))
-  pendingSchemaEnsured = true
+async function ensurePendingEnrollmentSchema() {
+  // Compatibility hook. Startup billing readiness owns this schema contract.
 }
 
 export function computeEnrollmentDueNowCents(preview) {
@@ -251,7 +347,7 @@ export function formatEnrollmentCheckoutSubmitMessage() {
   return (
     "Today's payment covers first-month tuition and any additional fees. " +
     'Membership starts on assigned class start date. ' +
-    'Each class renews as its own monthly subscription and can be cancelled separately.'
+    'Future monthly tuition is managed through your family billing account.'
   ).slice(0, 500)
 }
 
@@ -284,38 +380,6 @@ export function resolveEnrollmentCheckoutMode(preview) {
   const hasRecurring = enrollmentHasRecurringMembership(preview)
   if (hasRecurring && dueNowCents <= 0) return 'setup'
   return 'payment'
-}
-
-async function buildPerClassStripeSubscriptionItem(
-  pool,
-  stripe,
-  { programsId, amountCents, productName, selectedPricingOptionKey },
-) {
-  // Always use a dedicated Product so Stripe Customer Portal can show class +
-  // day/time + athlete. Reusing catalog products collapses different slots into
-  // the same generic "Program — Monthly @ 1×" label.
-  void pool
-  void selectedPricingOptionKey
-
-  const product = await stripe.products.create({
-    name: String(productName || 'Monthly class membership').slice(0, 200),
-    metadata: {
-      vortex_per_class_subscription: 'true',
-      ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
-    },
-  })
-
-  const price = await stripe.prices.create({
-    product: product.id,
-    currency: 'usd',
-    unit_amount: amountCents,
-    recurring: { interval: 'month' },
-    metadata: {
-      vortex_net_monthly: 'true',
-      ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
-    },
-  })
-  return { price: price.id, quantity: 1 }
 }
 
 async function buildCheckoutLineItems(pool, preview) {
@@ -382,39 +446,59 @@ async function buildCheckoutLineItems(pool, preview) {
   return lineItems
 }
 
-/** Stable across retries when Stripe succeeds before the local ID is recorded. */
-export function enrollmentStripeSubscriptionIdempotencyKey(billingSubscriptionId) {
-  return `enrollment-subscription:${Number(billingSubscriptionId)}:create-v1`
+export function shouldSkipPerClassStripeCollection(
+  collectionState,
+  environment = process.env,
+) {
+  return !legacyPerClassStripeCollectionAllowed(environment)
+    || collectionState?.global_creation_cutoff_durable === true
+    || collectionState?.household_monthly_billing_enabled === true
+    || collectionState?.migration_collection_locked === true
+    || billingMigrationCollectionLocked(collectionState?.migration_state)
 }
 
 /**
- * After enrollment payment/setup, create one Stripe Subscription per class signup.
- * Amounts use Vortex net monthly (discounts already applied across total class count).
+ * Preserve the reusable payment method captured by enrollment Checkout without
+ * creating another remote collector. Local billing_subscription rows remain
+ * authoritative and are collected by the canonical household/balance path.
  */
-export async function createEnrollmentStripeSubscriptions(
+export async function createEnrollmentStripeSubscriptions(pool, stripe, options = {}) {
+  // Validate the deployment invariant before any Stripe operation. The only
+  // supported future-creation mode is disabled, so stale values fail closed.
+  shouldSkipPerClassStripeCollection(null, options.environment ?? process.env)
+  if (stripe) await preserveEnrollmentCheckoutPaymentMethod(pool, stripe, options)
+  await synchronizeEnrollmentHouseholdPricing(pool, options.familyBillingAccountId)
+  return []
+}
+
+async function synchronizeEnrollmentHouseholdPricing(pool, familyBillingAccountId) {
+  if (familyBillingAccountId == null || typeof pool?.query !== 'function') return
+  try {
+    const account = await pool.query(
+      `SELECT family_id FROM family_billing_account WHERE id = $1`,
+      [familyBillingAccountId],
+    )
+    const familyId = account.rows[0]?.family_id
+    if (familyId == null) return
+    const { syncFamilyEnrollmentDiscounts } = await import(
+      '../scheduling/pauseEnrollmentBilling.js'
+    )
+    await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+  } catch (error) {
+    console.warn('[billing] family enrollment pricing sync after enrollment:', error?.message ?? error)
+  }
+}
+
+export async function preserveEnrollmentCheckoutPaymentMethod(
   pool,
   stripe,
   {
-    preview,
     stripeSession,
-    signupIds,
     familyBillingAccountId,
     customerId: suppliedCustomerId = null,
     defaultPaymentMethodId: suppliedDefaultPaymentMethodId = null,
-  },
+  } = {},
 ) {
-  if (!stripe || !signupIds?.length) return []
-  await ensureHouseholdMonthlyInvoiceSchema(pool)
-
-  const monthlyMode = await pool.query(
-    `SELECT household_monthly_billing_enabled
-       FROM family_billing_account WHERE id = $1`,
-    [familyBillingAccountId],
-  ).then((result) => result.rows[0]?.household_monthly_billing_enabled === true)
-  // Consolidated accounts post local recurring charges and collect them through
-  // the one household invoice. Never add a per-class Stripe subscription here.
-  if (monthlyMode) return []
-
   const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
   let customerId = suppliedCustomerId
   let defaultPaymentMethod = suppliedDefaultPaymentMethodId
@@ -440,168 +524,48 @@ export async function createEnrollmentStripeSubscriptions(
       }
     }
   }
-  if (!customerId) return []
+  if (!customerId) return { customerId: null, defaultPaymentMethodId: null, saved: false }
 
   if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
     defaultPaymentMethod = defaultPaymentMethod.id
   }
-  // A completed Checkout session can supply its payment method directly. An
-  // admin-created enrollment has no session, so only create automatic billing
-  // when the family's existing Stripe customer already has a default method.
-  if (!sessionId && !defaultPaymentMethod) return []
-
+  let saved = false
   if (defaultPaymentMethod) {
     try {
       await stripe.customers.update(customerId, {
         invoice_settings: { default_payment_method: defaultPaymentMethod },
       })
+      saved = true
     } catch (err) {
       console.warn('[stripe] set default payment method:', err.message)
     }
   }
-
-  const previewObj = preview
-  const fromDate = previewObj.firstMonth?.periodStart ?? todayDateOnly()
-
-  const subsRes = await pool.query(
-    `SELECT bs.id, bs.source_id, bs.net_monthly_cents, bs.description, bs.next_bill_date
-     FROM billing_subscription bs
-     WHERE bs.source_type = 'scheduling_signup'
-       AND bs.source_id = ANY($1::text[])
-       AND bs.status = 'active'
-       AND bs.stripe_subscription_id IS NULL`,
-    [signupIds.map(String)],
-  )
-
-  const created = []
-  for (const subRow of subsRes.rows) {
-    const signupId = Number(subRow.source_id)
-    const signupRes = await pool.query(
-      `
-        SELECT ss.form_id, ss.slot_group_id, ss.time_slot_id, ss.member_id,
-               sf.title AS form_title, sf.programs_id,
-               m.first_name, m.last_name,
-               ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
-               ts.start_time, ts.end_time
-        FROM scheduling_signup ss
-        JOIN scheduling_form sf ON sf.id = ss.form_id
-        JOIN member m ON m.id = ss.member_id
-        LEFT JOIN scheduling_time_slot ts ON ts.id = ss.time_slot_id
-        WHERE ss.id = $1
-      `,
-      [signupId],
-    )
-    const signup = signupRes.rows[0]
-    if (!signup) continue
-
-    const slotKey = `${signup.form_id}:${signup.slot_group_id}:${signup.time_slot_id ?? 'none'}`
-    const previewLine = (previewObj.newSignups ?? []).find((line) => line.slotKey === slotKey)
-    if (
-      (previewLine && previewLine.billingType !== 'recurring') ||
-      previewLine?.multiClassPassApplied
-    ) {
-      continue
-    }
-
-    const amountCents = resolvePerClassMonthlyAmountCents(previewObj, slotKey, {
-      netMonthlyCents: subRow.net_monthly_cents,
-    })
-    if (amountCents <= 0) continue
-
-    const fmItem = (previewObj.firstMonth?.items ?? []).find((item) => item.slotKey === slotKey)
-    let anchorDate = fmItem
-      ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
-      : firstOfNextMonth(fromDate)
-    // Promo-free months defer the local next_bill_date past the normal anchor;
-    // Stripe's trial must match so the first invoice lands on the same 1st.
-    const dbNextBill =
-      subRow.next_bill_date instanceof Date
-        ? subRow.next_bill_date.toISOString().slice(0, 10)
-        : subRow.next_bill_date
-          ? String(subRow.next_bill_date).slice(0, 10)
-          : null
-    if (dbNextBill && dbNextBill > anchorDate) anchorDate = dbNextBill
-
-    const scheduleLabel = pluralizeWeekdayLabel(buildSlotDisplayLabel(signup))
-    const athleteName = [signup.first_name, signup.last_name].filter(Boolean).join(' ').trim()
-    const productName = formatPerClassStripeProductName({
-      classTitle: signup.form_title || previewLine.formTitle || subRow.description,
-      scheduleLabel,
-      athleteName,
-    })
-    const item = await buildPerClassStripeSubscriptionItem(pool, stripe, {
-      programsId: previewLine?.programsId ?? signup.programs_id ?? null,
-      amountCents,
-      productName,
-      selectedPricingOptionKey: previewLine?.selectedPricingOptionKey || 'monthly_1x',
-    })
-
-    const stripeSub = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [item],
-      // First-month tuition was collected at Checkout. Defer the first recurring
-      // invoice with trial_end (billing_cycle_anchor cannot be >1 interval ahead).
-      trial_end: resolveSubscriptionTrialEndUnix(anchorDate),
-      proration_behavior: 'none',
-      ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
-      description: productName.slice(0, 500),
-      metadata: {
-        billingSubscriptionId: String(subRow.id),
-        familyBillingAccountId: String(familyBillingAccountId),
-        schedulingSignupId: String(signupId),
-        checkoutType: 'enrollment',
-        perClassSubscription: 'true',
-      },
-    }, {
-      idempotencyKey: enrollmentStripeSubscriptionIdempotencyKey(subRow.id),
-    })
-
-    await pool.query(
-      `UPDATE billing_subscription SET stripe_subscription_id = $2, updated_at = now() WHERE id = $1`,
-      [subRow.id, stripeSub.id],
-    )
-    created.push({
-      billingSubscriptionId: Number(subRow.id),
-      stripeSubscriptionId: stripeSub.id,
-      signupId,
-      amountCents,
-      status: 'created',
-    })
+  return {
+    customerId: String(customerId),
+    defaultPaymentMethodId: defaultPaymentMethod ? String(defaultPaymentMethod) : null,
+    saved,
   }
-
-  // Recompute household spend discounts across all active enrollments and push
-  // nets to Stripe (new class can unlock a higher tier for every sibling).
-  if (familyBillingAccountId != null) {
-    try {
-      const fam = await pool.query(
-        `SELECT family_id FROM family_billing_account WHERE id = $1`,
-        [familyBillingAccountId],
-      )
-      const familyId = fam.rows[0]?.family_id
-      if (familyId != null) {
-        const { syncFamilyEnrollmentDiscounts } = await import(
-          '../scheduling/pauseEnrollmentBilling.js'
-        )
-        await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
-      }
-    } catch (err) {
-      console.warn('[stripe] family discount sync after enrollment:', err?.message ?? err)
-    }
-  }
-  return created
 }
 
 /**
- * After enrollment collects the first annual membership fee at Checkout, create a
- * Stripe yearly subscription deferred with trial_end = purchase + 1 year so renewals
- * bill automatically. Local billing_subscription tracks renews-on (not monthly totals).
+ * Preserve the annual-membership renewal schedule locally after Checkout.
+ * Future remote Stripe Subscription creation is retired; Checkout may still
+ * save the payment method for canonical household and balance collection.
  */
 export async function createEnrollmentAnnualMembershipSubscriptions(
   pool,
   stripe,
-  { preview, stripeSession, familyBillingAccountId, memberId, purchasedAt = new Date() },
+  {
+    preview,
+    stripeSession,
+    familyBillingAccountId,
+    memberId,
+    purchasedAt = new Date(),
+    environment = process.env,
+  },
 ) {
-  if (!stripe || familyBillingAccountId == null || memberId == null) return []
+  if (familyBillingAccountId == null || memberId == null) return []
+  billingStripeSubscriptionCreationAllowed(environment)
 
   const feeItems = (preview?.additionalFees?.items ?? []).filter((fee) => {
     // Renewal bills at the full (gross) fee — a promo only waives/discounts year 1.
@@ -611,19 +575,11 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
   })
   if (feeItems.length === 0) return []
 
-  const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
-  if (!sessionId) return []
-
-  const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
-  })
-  const customerId = session.customer
-  if (!customerId) return []
-
-  let defaultPaymentMethod =
-    session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
-  if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
-    defaultPaymentMethod = defaultPaymentMethod.id
+  if (stripe) {
+    await preserveEnrollmentCheckoutPaymentMethod(pool, stripe, {
+      stripeSession,
+      familyBillingAccountId,
+    })
   }
 
   const memberRes = await pool.query(
@@ -660,11 +616,13 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
       [ANNUAL_MEMBERSHIP_SOURCE_TYPE, sourceId],
     )
     if (existing.rows[0]?.stripe_subscription_id) {
-      created.push({
-        billingSubscriptionId: Number(existing.rows[0].id),
-        status: 'already_linked',
-      })
-      continue
+      const error = new Error(
+        `Annual membership schedule ${existing.rows[0].id} is still linked to a Stripe Subscription; local ledger activation is blocked.`,
+      )
+      error.code = 'ANNUAL_STRIPE_COLLECTOR_STILL_LINKED'
+      error.billingSubscriptionId = Number(existing.rows[0].id)
+      error.stripeSubscriptionId = String(existing.rows[0].stripe_subscription_id)
+      throw error
     }
 
     // A staff member can configure a future renewal before the first annual
@@ -692,14 +650,18 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
           INSERT INTO billing_subscription
             (family_billing_account_id, member_id, source_type, source_id, description,
              monthly_amount_cents, discount_amount_cents, net_monthly_cents, status,
-             start_date, anchor_day, next_bill_date, pricing_option_key)
-          VALUES ($1, $2, $3, $4, $5, 0, 0, 0, 'active', $6, $7, $8, $9)
+             start_date, anchor_day, next_bill_date, pricing_option_key, auto_renewal)
+          VALUES ($1, $2, $3, $4, $5, 0, 0, 0, 'active', $6, $7, $8, $9, TRUE)
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL AND status <> 'cancelled'
           DO UPDATE SET
             description = EXCLUDED.description,
             next_bill_date = EXCLUDED.next_bill_date,
+            auto_renewal = CASE
+              WHEN billing_subscription.stripe_subscription_id IS NULL THEN TRUE
+              ELSE billing_subscription.auto_renewal
+            END,
             updated_at = now()
-          RETURNING id
+          RETURNING id, stripe_subscription_id, auto_renewal
         `,
         [
           familyBillingAccountId,
@@ -717,77 +679,30 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
     } else {
       await pool.query(
         `UPDATE billing_subscription
-         SET next_bill_date = $2, description = $3, updated_at = now()
-         WHERE id = $1`,
+         SET next_bill_date = $2, description = $3, auto_renewal = TRUE, updated_at = now()
+         WHERE id = $1 AND stripe_subscription_id IS NULL`,
         [billingSubId, renewsOn, productName],
       )
     }
 
-    const product = await stripe.products.create({
-      name: productName,
-      metadata: {
-        vortex_annual_membership: 'true',
-        vortex_fee_id: String(fee.feeId),
-        vortex_member_id: String(memberId),
-      },
-    })
-    const price = await stripe.prices.create({
-      product: product.id,
-      currency: 'usd',
-      unit_amount: amountCents,
-      recurring: { interval: 'year' },
-      metadata: {
-        vortex_annual_membership: 'true',
-        vortex_fee_id: String(fee.feeId),
-        ...(renewalInstruction?.promo_code ? { promo_code: renewalInstruction.promo_code } : {}),
-      },
-    })
-
-    const stripeSub = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [{ price: price.id, quantity: 1 }],
-      // Year 1 was collected at Checkout; defer the first yearly invoice to anniversary.
-      trial_end: resolveSubscriptionTrialEndUnix(renewsOn),
-      proration_behavior: 'none',
-      ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
-      description: productName.slice(0, 500),
-      metadata: {
-        billingSubscriptionId: String(billingSubId),
-        familyBillingAccountId: String(familyBillingAccountId),
-        memberId: String(memberId),
-        feeId: String(fee.feeId),
-        checkoutType: 'enrollment',
-        annualMembership: 'true',
-        amountCents: String(amountCents),
-        ...(renewalInstruction?.promo_code ? { annualRenewalPromoCode: renewalInstruction.promo_code } : {}),
-      },
-    })
-
-    await pool.query(
-      `UPDATE billing_subscription
-       SET stripe_subscription_id = $2, auto_renewal = TRUE, updated_at = now()
-       WHERE id = $1`,
-      [billingSubId, stripeSub.id],
-    )
     if (renewalInstruction) {
       await pool.query(
         `UPDATE annual_membership_renewal_pricing
-            SET stripe_subscription_id = $2,
-                stripe_subscription_item_id = $3,
-                stripe_price_id = $4,
-                sync_status = 'synced',
+            SET sync_status = 'not_required',
                 sync_error = NULL,
                 updated_at = now()
-          WHERE id = $1`,
-        [renewalInstruction.id, stripeSub.id, stripeSub.items?.data?.[0]?.id ?? null, price.id],
+          WHERE id = $1
+            AND stripe_subscription_id IS NULL`,
+        [renewalInstruction.id],
       )
     }
     created.push({
       billingSubscriptionId: billingSubId,
-      stripeSubscriptionId: stripeSub.id,
+      stripeSubscriptionId: null,
       renewsOn,
       amountCents,
-      status: 'created',
+      autoRenewal: true,
+      status: 'local_only',
     })
   }
 
@@ -811,7 +726,7 @@ function previewFingerprint(preview) {
 
 export async function createEnrollmentCheckoutSession(
   pool,
-  { account, memberId, batchPayload, successUrl, cancelUrl },
+  { account, memberId, batchPayload, successUrl, cancelUrl, idempotencyKey },
 ) {
   if (!stripeEnabled()) return null
   await ensureStripeBillingSchema(pool)
@@ -828,11 +743,84 @@ export async function createEnrollmentCheckoutSession(
   }
 
   // Fees, existing enrollments, and once-per-year redemptions are athlete-scoped.
-  // The authenticated caller is usually the family payer — do not use payer id here
-  // or annual fees already redeemed by the payer wrongly suppress the child's fee.
-  const enrolledMemberId = resolveEnrolledMemberIdFromPayload(batchPayload, memberId)
+  // Verify the signup token before resolving its athlete, then prove that athlete
+  // belongs to the authenticated payer's billing family on the server.
+  const enrolledMemberId = await resolveVerifiedEnrollmentMemberId(
+    pool,
+    batchPayload,
+    memberId,
+    { familyBillingAccountId: account.id },
+  )
+  await assertEnrollmentCheckoutMemberScope(pool, {
+    familyBillingAccountId: account.id,
+    memberId: enrolledMemberId,
+    payerMemberId: memberId,
+  })
 
-  const preview = await buildSignupOrderPreview(pool, {
+  const requestKey = normalizeCheckoutRequestKey(
+    idempotencyKey,
+    'member-enrollment-checkout',
+  )
+  const requestFingerprint = checkoutFingerprint({
+    accountId: Number(account.id),
+    enrolledMemberId,
+    payerMemberId: Number(memberId),
+    batchPayload,
+    successUrl: String(successUrl ?? ''),
+    cancelUrl: String(cancelUrl ?? ''),
+  })
+  let existingRequest = await pool.query(
+    `SELECT *
+       FROM stripe_pending_enrollment
+      WHERE family_billing_account_id = $1
+        AND request_key = $2
+      LIMIT 1`,
+    [account.id, requestKey],
+  ).then((result) => result.rows[0] ?? null)
+  if (
+    existingRequest &&
+    (
+      String(existingRequest.request_fingerprint ?? '') !== requestFingerprint ||
+      Number(existingRequest.member_id) !== Number(enrolledMemberId)
+    )
+  ) {
+    throw checkoutIdempotencyConflict()
+  }
+  if (existingRequest?.status === 'completed') {
+    return {
+      alreadyCompleted: true,
+      skipCheckout: true,
+      pendingEnrollmentId: Number(existingRequest.id),
+      preview: existingRequest.preview_snapshot ?? null,
+    }
+  }
+  if (['failed', 'expired'].includes(String(existingRequest?.status ?? ''))) {
+    throw checkoutIdempotencyConflict(
+      'This enrollment checkout request can no longer be resumed. Start it again with a new Idempotency-Key.',
+    )
+  }
+  if (existingRequest?.stripe_checkout_session_id) {
+    const replay = await stripe.checkout.sessions.retrieve(
+      existingRequest.stripe_checkout_session_id,
+    )
+    if (checkoutSessionHasForbiddenSubscriptionCollector(replay)) {
+      await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+        session: replay,
+        checkoutKind: 'enrollment',
+        accountId: account.id,
+        pendingEnrollmentId: existingRequest.id,
+      })
+    }
+    return {
+      url: replay.url ?? existingRequest.stripe_checkout_session_url ?? null,
+      pendingEnrollmentId: Number(existingRequest.id),
+      preview: existingRequest.preview_snapshot ?? null,
+      replayed: true,
+    }
+  }
+
+  let preview = existingRequest?.preview_snapshot ?? null
+  if (!preview) preview = await buildSignupOrderPreview(pool, {
     memberId: enrolledMemberId,
     newSignups: [
       ...slotSignups.map((s) => ({
@@ -867,12 +855,15 @@ export async function createEnrollmentCheckoutSession(
     return { skipCheckout: true, preview }
   }
 
-  const pending = await pool.query(
+  const pending = existingRequest ? { rows: [existingRequest] } : await pool.query(
     `INSERT INTO stripe_pending_enrollment (
        family_billing_account_id, member_id, payload, preview_snapshot,
-       due_now_cents, checkout_mode, status
-     ) VALUES ($1,$2,$3,$4,$5,$6,'pending')
-     RETURNING id`,
+       due_now_cents, checkout_mode, status, request_key, request_fingerprint
+     ) VALUES ($1,$2,$3,$4,$5,$6,'pending',$7,$8)
+     ON CONFLICT (family_billing_account_id, request_key)
+       WHERE request_key IS NOT NULL
+     DO NOTHING
+     RETURNING *`,
     [
       account.id,
       enrolledMemberId,
@@ -880,9 +871,27 @@ export async function createEnrollmentCheckoutSession(
       JSON.stringify(preview),
       dueNowCents,
       mode,
+      requestKey,
+      requestFingerprint,
     ],
   )
-  const pendingId = pending.rows[0].id
+  if (!pending.rows[0]) {
+    existingRequest = await pool.query(
+      `SELECT *
+         FROM stripe_pending_enrollment
+        WHERE family_billing_account_id = $1 AND request_key = $2
+        LIMIT 1`,
+      [account.id, requestKey],
+    ).then((result) => result.rows[0] ?? null)
+    if (
+      !existingRequest ||
+      String(existingRequest.request_fingerprint ?? '') !== requestFingerprint ||
+      Number(existingRequest.member_id) !== Number(enrolledMemberId)
+    ) throw checkoutIdempotencyConflict()
+  } else {
+    existingRequest = pending.rows[0]
+  }
+  const pendingId = existingRequest.id
 
   const customerId = await ensureStripeCustomer(pool, stripe, account)
 
@@ -899,13 +908,14 @@ export async function createEnrollmentCheckoutSession(
       payerMemberId: String(memberId),
       previewHash: previewFingerprint(preview),
       hasRecurring: hasRecurring ? 'true' : 'false',
-      perClassSubscriptions: hasRecurring ? 'true' : 'false',
+      perClassSubscriptions: 'false',
+      householdCollection: hasRecurring ? 'true' : 'false',
     },
   }
 
   if (mode === 'setup') {
-    // Recurring enrollments with $0 due now: collect a payment method, then create
-    // one Stripe Subscription per class after commit.
+    // Recurring enrollments with $0 due now still collect a reusable payment
+    // method. The active collection phase is applied after the local commit.
     sessionParams.currency = 'usd'
   } else {
     sessionParams.line_items = lineItems
@@ -922,14 +932,28 @@ export async function createEnrollmentCheckoutSession(
     }
   }
 
-  const session = await stripe.checkout.sessions.create(sessionParams)
+  const session = await stripe.checkout.sessions.create(sessionParams, {
+    idempotencyKey: stripeCheckoutIdempotencyKey(
+      'member-enrollment-checkout',
+      account.id,
+      requestKey,
+    ),
+  })
 
-  await pool.query(
+  const linked = await pool.query(
     `UPDATE stripe_pending_enrollment
-     SET stripe_checkout_session_id = $2, updated_at = now()
-     WHERE id = $1`,
-    [pendingId, session.id],
+     SET stripe_checkout_session_id = $2,
+         stripe_checkout_session_url = $3,
+         updated_at = now()
+     WHERE id = $1
+       AND request_fingerprint = $4
+       AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
+     RETURNING id`,
+    [pendingId, session.id, session.url ?? null, requestFingerprint],
   )
+  if (!linked.rows[0]) {
+    throw checkoutIdempotencyConflict('Enrollment checkout session binding changed during creation.')
+  }
 
   return { url: session.url, pendingEnrollmentId: pendingId, preview }
 }
@@ -983,9 +1007,6 @@ export async function confirmEnrollmentCheckoutSession(
   }
 
   const session = await stripe.checkout.sessions.retrieve(sessionId)
-  if (session.payment_status !== 'paid' && session.status !== 'complete') {
-    throw new Error('Payment is not complete yet. If you were charged, please wait a moment and refresh.')
-  }
   if (session.metadata?.checkoutType !== 'enrollment') {
     throw new Error('This checkout session is not an enrollment payment.')
   }
@@ -1016,9 +1037,22 @@ export async function confirmEnrollmentCheckoutSession(
     throw new Error('Checkout session does not match this enrollment.')
   }
 
+  await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+    session,
+    checkoutKind: 'enrollment',
+    pendingEnrollmentId: pendingId,
+    accountId: pending.family_billing_account_id,
+  })
+
+  if (!enrollmentCheckoutSessionCanFinalize(session, pending)) {
+    throw new Error('Payment is not complete yet. If you were charged, please wait a moment and refresh.')
+  }
+
   const commitResult = await commitPendingEnrollment(pool, {
     pendingEnrollmentId: pendingId,
     stripeSession: session,
+    expectedFamilyId: familyId,
+    expectedPayerMemberId: memberId,
   })
 
   if (commitResult.status === 'not_found') {
@@ -1078,6 +1112,23 @@ export async function confirmEnrollmentCheckoutSession(
   return { ...commitResult, firstConfirmation, purchase }
 }
 
+/**
+ * Payment-mode Checkout must be paid. The sole no-payment exception is a
+ * completed Setup Checkout whose remote mode matches the durable pending row.
+ * Requiring both sides prevents a forged/stale session from using `complete`
+ * alone to create an enrollment before delayed payment settles.
+ */
+export function enrollmentCheckoutSessionCanFinalize(session, pending) {
+  if (checkoutSessionHasForbiddenSubscriptionCollector(session)) return false
+  const remoteMode = String(session?.mode ?? '')
+  const durableMode = String(pending?.checkout_mode ?? '')
+  if (!remoteMode || remoteMode !== durableMode) return false
+  if (durableMode === 'setup') {
+    return session?.status === 'complete'
+  }
+  return session?.payment_status === 'paid'
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -1115,11 +1166,112 @@ export async function findExistingSignupIdsForEnrollmentPayload(pool, payload, m
   return ids
 }
 
+export function assertEnrollmentCheckoutSessionBinding(pending, stripeSession) {
+  if (!stripeSession) return
+  const metadata = stripeSession.metadata ?? {}
+  const pendingId = Number(pending.id)
+  const accountId = Number(pending.family_billing_account_id)
+  const memberId = Number(pending.member_id)
+  const payerMemberId = Number(pending.payer_member_id)
+  if (
+    metadata.checkoutType !== 'enrollment' ||
+    Number(metadata.pendingEnrollmentId) !== pendingId ||
+    Number(metadata.familyBillingAccountId) !== accountId ||
+    Number(metadata.memberId) !== memberId ||
+    !Number.isSafeInteger(payerMemberId) ||
+    payerMemberId <= 0 ||
+    Number(metadata.payerMemberId) !== payerMemberId ||
+    !stripeSession.id ||
+    (pending.stripe_checkout_session_id &&
+      String(pending.stripe_checkout_session_id) !== String(stripeSession.id))
+  ) {
+    throw enrollmentCheckoutAuthorizationError('Checkout session does not match this enrollment.')
+  }
+}
+
+/**
+ * Re-authorize durable pending state before either browser-confirm or webhook
+ * recovery can create signups. Payload JWT claims are intentionally ignored.
+ */
+export async function authorizePendingEnrollmentCheckout(pool, {
+  pendingEnrollmentId,
+  stripeSession = null,
+  expectedFamilyId = null,
+  expectedPayerMemberId = null,
+}) {
+  const normalizedPendingId = Number(pendingEnrollmentId)
+  if (!Number.isInteger(normalizedPendingId) || normalizedPendingId <= 0) {
+    throw enrollmentCheckoutAuthorizationError('Enrollment checkout not found.')
+  }
+  const result = await pool.query(
+    `SELECT pending.id,
+            pending.family_billing_account_id,
+            pending.member_id,
+            pending.stripe_checkout_session_id,
+            pending.status,
+            account.family_id,
+            account.payer_member_id
+       FROM stripe_pending_enrollment pending
+       JOIN family_billing_account account
+         ON account.id = pending.family_billing_account_id
+      WHERE pending.id = $1
+        AND account.is_active = TRUE
+      LIMIT 1`,
+    [normalizedPendingId],
+  )
+  const pending = result.rows[0]
+  if (!pending) throw enrollmentCheckoutAuthorizationError('Enrollment checkout not found.')
+  const currentPayerMemberId = Number(pending.payer_member_id)
+  if (!Number.isSafeInteger(currentPayerMemberId) || currentPayerMemberId <= 0) {
+    throw enrollmentCheckoutAuthorizationError(
+      'This household does not have an active payer for enrollment.',
+    )
+  }
+
+  if (
+    expectedFamilyId != null &&
+    Number(pending.family_id) !== Number(expectedFamilyId)
+  ) {
+    throw enrollmentCheckoutAuthorizationError('This enrollment belongs to a different family account.')
+  }
+  if (
+    expectedPayerMemberId != null &&
+    Number(pending.payer_member_id) !== Number(expectedPayerMemberId)
+  ) {
+    throw enrollmentCheckoutAuthorizationError('Only the family payer can confirm enrollment checkout.')
+  }
+
+  await assertEnrollmentCheckoutMemberScope(pool, {
+    familyBillingAccountId: pending.family_billing_account_id,
+    memberId: pending.member_id,
+    payerMemberId: currentPayerMemberId,
+  })
+  assertEnrollmentCheckoutSessionBinding(pending, stripeSession)
+  return pending
+}
+
 /**
  * Claim → signup (no row lock) → ledger repair → completed → Stripe I/O.
  * Concurrent webhook + confirm: one worker claims; the other waits for completed.
  */
-export async function commitPendingEnrollment(pool, { pendingEnrollmentId, stripeSession = null }) {
+export async function commitPendingEnrollment(pool, {
+  pendingEnrollmentId,
+  stripeSession = null,
+  expectedFamilyId = null,
+  expectedPayerMemberId = null,
+}) {
+  const authorizedPending = await authorizePendingEnrollmentCheckout(pool, {
+    pendingEnrollmentId,
+    stripeSession,
+    expectedFamilyId,
+    expectedPayerMemberId,
+  })
+  await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+    session: stripeSession,
+    checkoutKind: 'enrollment',
+    pendingEnrollmentId,
+    accountId: authorizedPending.family_billing_account_id,
+  })
   await ensureBillingRecurringSchema(pool)
   await ensurePendingEnrollmentSchema(pool)
 
@@ -1127,6 +1279,7 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     const outcome = await tryCommitPendingEnrollmentOnce(pool, {
       pendingEnrollmentId,
       stripeSession,
+      authorizedPending,
     })
     if (outcome.status !== 'in_progress') return outcome
     await sleep(400 + attempt * 150)
@@ -1139,7 +1292,11 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
   return { status: 'in_progress' }
 }
 
-async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, stripeSession }) {
+async function tryCommitPendingEnrollmentOnce(pool, {
+  pendingEnrollmentId,
+  stripeSession,
+  authorizedPending,
+}) {
   // Claim quickly — never hold FOR UPDATE across signup / Stripe network I/O.
   const claim = await pool.query(
     `
@@ -1174,10 +1331,29 @@ async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, strip
       : pending.preview_snapshot
   const familyBillingAccountId = pending.family_billing_account_id
   const previewHasRecurring = enrollmentHasRecurringMembership(previewSnapshot ?? {})
-  const enrolledMemberId = resolveEnrolledMemberIdFromPayload(pending.payload, pending.member_id)
+  // pending.member_id was family-authorized before the claim. Never recover the
+  // athlete from the stored payload: its original JWT may be expired or forged.
+  const enrolledMemberId = Number(pending.member_id)
 
   try {
-    const refreshed = await refreshSignupAuthForCommit(pool, pending.payload, pending.member_id)
+    if (
+      Number(pending.family_billing_account_id) !==
+        Number(authorizedPending.family_billing_account_id) ||
+      enrolledMemberId !== Number(authorizedPending.member_id)
+    ) {
+      throw enrollmentCheckoutAuthorizationError(
+        'Enrollment authority changed before the signup commit.',
+      )
+    }
+    const refreshed = await refreshSignupAuthForCommit(
+      pool,
+      pending.payload,
+      enrolledMemberId,
+      {
+        actorMemberId: Number(authorizedPending.payer_member_id),
+        familyBillingAccountId: Number(authorizedPending.family_billing_account_id),
+      },
+    )
     const signupBatchPayload = stripSignupBatchPayload(refreshed)
 
     try {
@@ -1211,17 +1387,6 @@ async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, strip
       [pendingEnrollmentId],
     )
 
-    if (stripeSession?.subscription && !previewHasRecurring) {
-      await pool.query(
-        `UPDATE billing_subscription
-         SET stripe_subscription_id = $2, updated_at = now()
-         WHERE family_billing_account_id = $1
-           AND status = 'active'
-           AND stripe_subscription_id IS NULL
-           AND created_at >= now() - interval '5 minutes'`,
-        [familyBillingAccountId, stripeSession.subscription],
-      )
-    }
   } catch (err) {
     await pool.query(
       `UPDATE stripe_pending_enrollment
@@ -1245,24 +1410,22 @@ async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, strip
         })
       }
     } catch (err) {
-      console.error('[stripe] per-class subscription create after enrollment commit:', err)
+      console.error('[stripe] preserve enrollment payment method after commit:', err)
     }
   }
 
   if (previewSnapshot && stripeSession && familyBillingAccountId != null && pending.member_id != null) {
     try {
       const stripe = await getStripeClient()
-      if (stripe) {
-        await createEnrollmentAnnualMembershipSubscriptions(pool, stripe, {
-          preview: previewSnapshot,
-          stripeSession,
-          familyBillingAccountId,
-          memberId: Number(pending.member_id),
-          purchasedAt: new Date(pending.updated_at ?? pending.created_at ?? Date.now()),
-        })
-      }
+      await createEnrollmentAnnualMembershipSubscriptions(pool, stripe, {
+        preview: previewSnapshot,
+        stripeSession,
+        familyBillingAccountId,
+        memberId: Number(pending.member_id),
+        purchasedAt: new Date(pending.updated_at ?? pending.created_at ?? Date.now()),
+      })
     } catch (err) {
-      console.error('[stripe] annual membership subscription create after enrollment commit:', err)
+      console.error('[billing] preserve annual membership renewal schedule after enrollment commit:', err)
     }
   }
 

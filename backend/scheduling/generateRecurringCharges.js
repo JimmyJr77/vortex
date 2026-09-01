@@ -12,197 +12,372 @@
  */
 
 import {
-  addMonthsClamped,
   parseDbDate,
-  periodKey,
-  toDateString,
 } from './billingSubscriptions.js'
-import { applyPendingPauseCredits } from './pauseEnrollmentBilling.js'
-import { priceRecurringPeriod } from '../billing/recurringPeriodPricing.js'
-import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 import {
-  activateEligibleHouseholdMonthlyBilling,
-  createHouseholdMonthlyInvoice,
-} from '../billing/householdMonthlyInvoice.js'
+  applyPendingPauseCredits,
+  applyScheduledPauses,
+  syncFamilyEnrollmentDiscounts,
+} from './pauseEnrollmentBilling.js'
+import { processDueEnrollmentCancellations } from './memberEnrollmentCancel.js'
+import { autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
+import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
+import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoice.js'
+import { facilityDate } from '../billing/canonicalBillingMigrationState.js'
+import { withBillingAccountCollectionLock } from '../billing/billingAccountCollectionLock.js'
+import { reconcileCanonicalRecurringChargesForMonth } from '../billing/canonicalRecurringChargePosting.js'
+import { postHardenedLegacyRecurringChargesForMonth } from '../billing/hardenedLegacyRecurringChargePosting.js'
+import { postDueAnnualMembershipRenewals } from '../billing/annualMembershipRenewalPosting.js'
+
+const MIGRATION_HOUSEHOLD_OWNED_STATES = new Set(['household_active', 'failed_forward_only'])
+
+export function recurringBillingClock(asOf, timeZone) {
+  const timestamp = asOf instanceof Date ? asOf : new Date(asOf)
+  if (Number.isNaN(timestamp.getTime())) throw new Error('Recurring billing requires a valid as-of timestamp.')
+  const asOfDate = facilityDate(timestamp, timeZone)
+  return {
+    asOfDate,
+    asOfMidnight: parseDbDate(asOfDate),
+    billingMonth: `${asOfDate.slice(0, 7)}-01`,
+    isMonthBoundary: asOfDate.endsWith('-01'),
+  }
+}
 
 /**
  * @param {import('pg').Pool} pool
  * @param {{ asOf?: Date, maxCatchUpPerSub?: number }} [options]
  * @returns {Promise<{ subscriptionsProcessed:number, chargesPosted:number, periodsAdvanced:number }>}
  */
-export async function generateRecurringCharges(pool, { asOf = new Date(), maxCatchUpPerSub = 12 } = {}) {
-  try {
-    await activateEligibleHouseholdMonthlyBilling(pool)
-  } catch (error) {
-    console.warn('[billing] household monthly billing activation:', error?.message ?? error)
+async function loadRecurringBillingAccounts(db, accountId = null) {
+  return db.query(
+    `SELECT account.*, family.facility_id,
+            facility.timezone AS facility_timezone,
+            migration.state AS migration_state,
+            EXISTS (
+              SELECT 1
+                FROM billing_account_migration verified_migration
+               WHERE verified_migration.family_billing_account_id = account.id
+                 AND verified_migration.state = 'verified'
+            ) AS has_verified_migration
+       FROM family_billing_account account
+       JOIN family ON family.id = account.family_id
+       JOIN facility ON facility.id = family.facility_id
+       LEFT JOIN LATERAL (
+         SELECT candidate.state
+           FROM billing_account_migration candidate
+          WHERE candidate.family_billing_account_id = account.id
+          ORDER BY candidate.id DESC
+          LIMIT 1
+       ) migration ON TRUE
+      WHERE account.is_active = TRUE
+        AND ($1::bigint IS NULL OR account.id = $1)
+      ORDER BY account.id`,
+    [accountId == null ? null : Number(accountId)],
+  ).then((result) => result.rows)
+}
+
+async function loadDueRecurringSubscriptions(db, { accountId, asOfDate }) {
+  return db.query(
+    `SELECT subscription.id, subscription.next_bill_date
+       FROM billing_subscription subscription
+      WHERE subscription.family_billing_account_id = $1
+        AND subscription.status = 'active'
+        AND subscription.next_bill_date IS NOT NULL
+        AND subscription.next_bill_date <= $2::date
+        AND subscription.source_type <> 'annual_membership'
+        AND COALESCE(subscription.pricing_option_key, '') <> 'annual_membership'
+      ORDER BY subscription.next_bill_date, subscription.id`,
+    [Number(accountId), asOfDate],
+  ).then((result) => result.rows)
+}
+
+function monthStart(value) {
+  const match = String(value ?? '').match(/^(\d{4})-(\d{2})/)
+  return match ? `${match[1]}-${match[2]}-01` : null
+}
+
+export function billingMonthEnd(value) {
+  const match = String(value ?? '').match(/^(\d{4})-(\d{2})-01$/)
+  if (!match) throw new Error('Billing month must use YYYY-MM-01 format.')
+  const year = Number(match[1])
+  const month = Number(match[2])
+  if (month < 1 || month > 12) throw new Error('Billing month must use YYYY-MM-01 format.')
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10)
+}
+
+export function recurringCollectionMode(account) {
+  const state = account?.migration_state == null ? null : String(account.migration_state)
+  const householdEnabled = account?.household_monthly_billing_enabled === true
+  const hasVerifiedMigration = account?.has_verified_migration === true || state === 'verified'
+  // A verified cutover is terminal collection evidence. Later shadow/audit
+  // rows must never move the recurring worker back to a migration-managed or
+  // legacy collector while the durable household account remains enabled.
+  if (hasVerifiedMigration) {
+    if (householdEnabled) return 'canonical_household'
+  } else if (state == null || state === 'rolled_back') {
+    if (!householdEnabled) return 'legacy'
+  } else if (MIGRATION_HOUSEHOLD_OWNED_STATES.has(state)) {
+    if (householdEnabled) return 'migration_managed'
+  } else if (!householdEnabled) {
+    return 'migration_managed'
   }
-
-  // Annual promo codes are only carried into the next athlete-owned renewal
-  // while they are still active and within redemption limits. Run this daily
-  // instead of waiting for a renewal invoice to exist.
-  try {
-    const { revalidateAnnualMembershipRenewalDiscounts } = await import('../billing/customerBillingPayments.js')
-    await revalidateAnnualMembershipRenewalDiscounts(pool, { now: asOf })
-  } catch (error) {
-    console.warn('[billing] annual membership renewal promo validation:', error?.message ?? error)
-  }
-
-  try {
-    const { processDueEnrollmentCancellations } = await import('./memberEnrollmentCancel.js')
-    await processDueEnrollmentCancellations(pool, { force: true })
-  } catch (err) {
-    console.warn('[billing] process due enrollment cancellations:', err?.message ?? err)
-  }
-
-  const asOfMidnight = new Date(Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate()))
-  const asOfStr = toDateString(asOfMidnight)
-
-  let pauseCreditsPosted = 0
-  try {
-    pauseCreditsPosted = await applyPendingPauseCredits(pool, { periodStart: asOfStr })
-  } catch (err) {
-    console.warn('[billing] applyPendingPauseCredits:', err?.message ?? err)
-  }
-
-  const due = await pool.query(
-    `
-      SELECT id, family_billing_account_id, member_id, description,
-             monthly_amount_cents, discount_amount_cents, net_monthly_cents,
-             anchor_day, next_bill_date
-      FROM billing_subscription
-      WHERE status = 'active'
-        AND next_bill_date IS NOT NULL
-        AND next_bill_date <= $1
-        -- Annual memberships renew via Stripe yearly subscriptions, not this monthly job.
-        AND source_type <> 'annual_membership'
-        AND COALESCE(pricing_option_key, '') <> 'annual_membership'
-      ORDER BY id
-    `,
-    [asOfStr],
+  const error = new Error(
+    `Billing account ${account?.id ?? 'unknown'} has incompatible migration and collection state.`,
   )
+  error.code = 'recurring_collection_state_inconsistent'
+  error.details = { migrationState: state, householdMonthlyBillingEnabled: householdEnabled }
+  throw error
+}
 
+/**
+ * Run one account's lifecycle, canonical charge posting, allocation, and optional
+ * household invoice while the caller owns the account collection session lock.
+ */
+export async function processRecurringBillingAccount(db, account, {
+  asOfTimestamp,
+  clock,
+  maxCatchUpPerSub = 12,
+  completionProcessor = autoCompleteEndedEnrollments,
+  cancellationProcessor = processDueEnrollmentCancellations,
+  scheduledPauseProcessor = applyScheduledPauses,
+  pauseCreditProcessor = applyPendingPauseCredits,
+  discountSynchronizer = syncFamilyEnrollmentDiscounts,
+  recurringChargeReconciler = reconcileCanonicalRecurringChargesForMonth,
+  legacyChargePoster = postHardenedLegacyRecurringChargesForMonth,
+  annualRenewalPoster = postDueAnnualMembershipRenewals,
+  paymentAllocator = allocateHouseholdPayments,
+  invoiceFactory = createHouseholdMonthlyInvoice,
+} = {}) {
+  const fresh = (await loadRecurringBillingAccounts(db, account.id))[0] ?? null
+  if (!fresh) return { skipped: 'inactive', accountId: Number(account.id) }
+  const collectionMode = recurringCollectionMode(fresh)
+  if (collectionMode === 'migration_managed') {
+    return {
+      skipped: 'migration_managed',
+      accountId: Number(fresh.id),
+      migrationState: fresh.migration_state,
+    }
+  }
+
+  const completedEnrollmentIds = await completionProcessor(db, {
+    strict: true,
+    accountId: Number(fresh.id),
+    facilityId: Number(fresh.facility_id),
+    asOfDate: clock.asOfDate,
+  })
+  const cancelledEnrollmentIds = await cancellationProcessor(db, {
+    force: true,
+    strict: true,
+    accountId: Number(fresh.id),
+    facilityId: Number(fresh.facility_id),
+    asOfDate: clock.asOfDate,
+  })
+  const scheduledPausesApplied = await scheduledPauseProcessor(db, {
+    strict: true,
+    accountId: Number(fresh.id),
+    facilityId: Number(fresh.facility_id),
+    asOfDate: clock.asOfDate,
+    asOf: asOfTimestamp,
+  })
+  const lifecycleChanges =
+    (completedEnrollmentIds?.length ?? 0) +
+    (cancelledEnrollmentIds?.length ?? 0) +
+    Number(scheduledPausesApplied ?? 0)
+  if (lifecycleChanges > 0) {
+    await discountSynchronizer(db, Number(fresh.family_id), {
+      strict: true,
+      periodKey: clock.billingMonth,
+      syncStripe: collectionMode === 'legacy',
+    })
+  }
+  const pauseCreditsPosted = await pauseCreditProcessor(db, {
+    periodStart: clock.asOfDate,
+    facilityId: Number(fresh.facility_id),
+    accountId: Number(fresh.id),
+    strict: true,
+  })
+
+  // Annual memberships use the same immutable household ledger and collector
+  // as tuition. The poster re-enters the account advisory lock and commits the
+  // charge, any promo redemption, and the annual schedule advance together.
+  const annualRenewals = await annualRenewalPoster(db, {
+    accountId: Number(fresh.id),
+    asOfDate: clock.asOfDate,
+    billingThroughDate: collectionMode === 'canonical_household'
+      ? billingMonthEnd(clock.billingMonth)
+      : clock.asOfDate,
+    asOfTimestamp,
+    maxCatchUpPerSubscription: maxCatchUpPerSub,
+  })
+
+  let chargesPosted = Number(annualRenewals?.chargesPosted ?? 0)
+  let periodsAdvanced = Number(annualRenewals?.periodsAdvanced ?? 0)
+  const processedSubscriptionIds = new Set()
+  const reconciledMonths = new Set()
+  let rounds = 0
+  while (rounds < maxCatchUpPerSub) {
+    const due = await loadDueRecurringSubscriptions(db, {
+      accountId: fresh.id,
+      asOfDate: clock.asOfDate,
+    })
+    if (due.length === 0) break
+    const billingMonth = monthStart(due[0].next_bill_date)
+    if (!billingMonth) throw new Error(`Subscription ${due[0].id} has an invalid next bill date.`)
+    const dueThisPeriod = due.filter((row) => monthStart(row.next_bill_date) === billingMonth)
+    const postRecurringCharges = collectionMode === 'canonical_household'
+      ? recurringChargeReconciler
+      : legacyChargePoster
+    const reconciled = await postRecurringCharges(db, {
+      accountId: Number(fresh.id),
+      billingMonth,
+      facilityTimeZone: fresh.facility_timezone,
+      now: asOfTimestamp,
+      apply: true,
+    })
+    if (reconciled.verified !== true) {
+      const error = new Error(`Recurring charge parity failed for account ${fresh.id}.`)
+      error.code = 'recurring_charge_parity_failed'
+      error.details = reconciled
+      throw error
+    }
+    reconciledMonths.add(billingMonth)
+    chargesPosted += reconciled.postedChargeIds?.length ?? 0
+    periodsAdvanced += dueThisPeriod.length
+    for (const row of dueThisPeriod) processedSubscriptionIds.add(Number(row.id))
+    rounds += 1
+
+    const remaining = await loadDueRecurringSubscriptions(db, {
+      accountId: fresh.id,
+      asOfDate: clock.asOfDate,
+    })
+    if (
+      remaining.length > 0 &&
+      monthStart(remaining[0].next_bill_date) === billingMonth &&
+      dueThisPeriod.some((row) => Number(row.id) === Number(remaining[0].id))
+    ) {
+      const error = new Error(`Recurring schedule made no progress for account ${fresh.id} in ${billingMonth}.`)
+      error.code = 'recurring_schedule_no_progress'
+      throw error
+    }
+  }
+
+  const remainingDue = await loadDueRecurringSubscriptions(db, {
+    accountId: fresh.id,
+    asOfDate: clock.asOfDate,
+  })
+  if (remainingDue.length > 0) {
+    const error = new Error(`Recurring catch-up limit was reached for account ${fresh.id}.`)
+    error.code = 'recurring_catchup_limit_exceeded'
+    throw error
+  }
+
+  if (collectionMode === 'canonical_household' && !reconciledMonths.has(clock.billingMonth)) {
+    const current = await recurringChargeReconciler(db, {
+      accountId: Number(fresh.id),
+      billingMonth: clock.billingMonth,
+      facilityTimeZone: fresh.facility_timezone,
+      now: asOfTimestamp,
+      apply: true,
+    })
+    if (current.verified !== true) {
+      const error = new Error(`Recurring charge parity failed for account ${fresh.id}.`)
+      error.code = 'recurring_charge_parity_failed'
+      error.details = current
+      throw error
+    }
+    chargesPosted += current.postedChargeIds?.length ?? 0
+  }
+
+  let householdInvoicesCreated = 0
+  if (collectionMode === 'canonical_household') {
+    // Always retry the idempotent current-month invoice. This recovers a prior
+    // post-charge Stripe failure even when the schedule has already advanced.
+    // The factory re-enters the same session lock without holding a DB transaction.
+    const result = await invoiceFactory(db, {
+      account: fresh,
+      billingMonth: clock.billingMonth,
+      facilityTimeZone: fresh.facility_timezone,
+    })
+    if (['feature_disabled', 'not_enabled', 'stripe_unavailable'].includes(result?.skipped)) {
+      const error = new Error(
+        `Household invoice collection is unavailable for billing account ${fresh.id}: ${result.skipped}.`,
+      )
+      error.code = 'household_invoice_collection_unavailable'
+      error.details = { accountId: Number(fresh.id), skipped: result.skipped }
+      throw error
+    }
+    if (result.created) householdInvoicesCreated += 1
+  } else if (periodsAdvanced > 0 || pauseCreditsPosted > 0) {
+    await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
+  }
+
+  return {
+    accountId: Number(fresh.id),
+    subscriptionsProcessed:
+      processedSubscriptionIds.size + Number(annualRenewals?.subscriptionsProcessed ?? 0),
+    chargesPosted,
+    periodsAdvanced,
+    annualRenewalChargesPosted: Number(annualRenewals?.chargesPosted ?? 0),
+    annualRenewalPeriodsAdvanced: Number(annualRenewals?.periodsAdvanced ?? 0),
+    pauseCreditsPosted,
+    householdInvoicesCreated,
+    collectionMode,
+  }
+}
+
+export async function generateRecurringCharges(pool, {
+  asOf = new Date(),
+  maxCatchUpPerSub = 12,
+  accountLock = withBillingAccountCollectionLock,
+  accountProcessor = processRecurringBillingAccount,
+} = {}) {
+  const asOfTimestamp = asOf instanceof Date ? asOf : new Date(asOf)
+  if (Number.isNaN(asOfTimestamp.getTime())) throw new Error('Recurring billing requires a valid as-of timestamp.')
+
+  const accounts = await loadRecurringBillingAccounts(pool)
+  let subscriptionsProcessed = 0
   let chargesPosted = 0
   let periodsAdvanced = 0
-  const periodPricing = new Map()
-
-  for (const sub of due.rows) {
-    let nextBill = parseDbDate(sub.next_bill_date)
-    if (!nextBill) continue
-    const anchorDay = Number(sub.anchor_day) || nextBill.getUTCDate()
-    let guard = 0
-
-    while (nextBill.getTime() <= asOfMidnight.getTime() && guard < maxCatchUpPerSub) {
-      const period = periodKey(nextBill)
-      const followingBill = addMonthsClamped(nextBill, 1, anchorDay)
-      const periodStart = toDateString(nextBill)
-      const periodEnd = toDateString(new Date(followingBill.getTime() - 24 * 60 * 60 * 1000))
-
-      const pricingKey = `${sub.family_billing_account_id}:${period}`
-      let familyPricing = periodPricing.get(pricingKey)
-      if (!familyPricing) {
-        const [subscriptionsRes, chargesRes, accountRes] = await Promise.all([
-          pool.query(`SELECT * FROM billing_subscription WHERE family_billing_account_id = $1 AND status = 'active'`, [sub.family_billing_account_id]),
-          pool.query(`SELECT * FROM billing_charge WHERE family_billing_account_id = $1 AND source_type = 'billing_subscription'`, [sub.family_billing_account_id]),
-          pool.query(`SELECT family_id FROM family_billing_account WHERE id = $1`, [sub.family_billing_account_id]),
-        ])
-        familyPricing = await priceRecurringPeriod(pool, {
-          familyId: accountRes.rows[0]?.family_id,
-          subscriptions: subscriptionsRes.rows,
-          charges: chargesRes.rows,
-          periodKey: period,
-        })
-        periodPricing.set(pricingKey, familyPricing)
-      }
-      const periodLine = familyPricing.lines.find((line) => Number(line.subscriptionId) === Number(sub.id))
-      const grossCents = periodLine?.grossCents ?? Number(sub.monthly_amount_cents)
-      const discountCents = periodLine?.discountCents ?? Number(sub.discount_amount_cents)
-      const netCents = periodLine?.netCents ?? Number(sub.net_monthly_cents)
-
-      const ins = await pool.query(
-        `
-          INSERT INTO billing_charge
-            (family_billing_account_id, member_id, source_type, source_id, description,
-             amount_cents, gross_amount_cents, discount_amount_cents,
-             charge_type, billing_interval, subscription_id,
-             service_period_start, service_period_end, price_adjustment_id)
-          SELECT $1, $2, 'billing_subscription', $3, $4, $5, $6, $7,
-                 'recurring', 'month', $8, $9, $10, $11
-          WHERE NOT EXISTS (
-            SELECT 1
-            FROM billing_charge existing
-            WHERE existing.subscription_id = $8
-              AND existing.charge_type = 'recurring'
-              AND existing.service_period_start <= $9::date
-              AND existing.service_period_end >= $10::date
-          )
-          ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-          DO NOTHING
-          RETURNING id
-        `,
-        [
-          sub.family_billing_account_id,
-          sub.member_id,
-          `${sub.id}:${period}`,
-          sub.description,
-          netCents,
-          grossCents,
-          discountCents,
-          sub.id,
-          periodStart,
-          periodEnd,
-          periodLine?.priceAdjustmentId ?? null,
-        ],
-      )
-      if (ins.rows.length > 0) chargesPosted += 1
-
-      nextBill = followingBill
-      guard += 1
-      periodsAdvanced += 1
-    }
-
-    await pool.query(
-      `UPDATE billing_subscription SET next_bill_date = $2, updated_at = now() WHERE id = $1`,
-      [sub.id, toDateString(nextBill)],
-    )
-  }
-
-  for (const accountId of new Set(due.rows.map((row) => Number(row.family_billing_account_id)))) {
-    try {
-      await allocateHouseholdPayments(pool, { accountId, actorType: 'system' })
-    } catch (error) {
-      console.warn('[billing] recurring payment allocation:', accountId, error?.message ?? error)
-    }
-  }
-
-  // The recurring ledger remains the source for tuition charges. On the first
-  // day, enabled households turn those charges plus all other open ledger items
-  // into one Stripe invoice. This is intentionally separate from charge posting
-  // so a daily job remains safe and catch-up charges stay immutable.
+  let pauseCreditsPosted = 0
   let householdInvoicesCreated = 0
-  if (asOfMidnight.getUTCDate() === 1) {
-    const accounts = await pool.query(
-      `SELECT * FROM family_billing_account
-        WHERE household_monthly_billing_enabled = TRUE
-        ORDER BY id`,
-    )
-    for (const account of accounts.rows) {
-      try {
-        const result = await createHouseholdMonthlyInvoice(pool, {
-          account,
-          billingMonth: asOfMidnight,
-        })
-        if (result.created) householdInvoicesCreated += 1
-      } catch (error) {
-        console.error('[billing] household monthly invoice:', account.id, error?.message ?? error)
+  const blockedAccounts = []
+  const skippedMigrationAccountIds = []
+
+  for (const account of accounts) {
+    const clock = recurringBillingClock(asOfTimestamp, account.facility_timezone)
+    try {
+      const result = await accountLock(pool, Number(account.id), (lockedDb) => accountProcessor(lockedDb, account, {
+        asOfTimestamp,
+        clock,
+        maxCatchUpPerSub,
+      }))
+      if (result?.skipped === 'migration_managed') {
+        skippedMigrationAccountIds.push(Number(account.id))
+        continue
       }
+      subscriptionsProcessed += Number(result?.subscriptionsProcessed ?? 0)
+      chargesPosted += Number(result?.chargesPosted ?? 0)
+      periodsAdvanced += Number(result?.periodsAdvanced ?? 0)
+      pauseCreditsPosted += Number(result?.pauseCreditsPosted ?? 0)
+      householdInvoicesCreated += Number(result?.householdInvoicesCreated ?? 0)
+    } catch (error) {
+      blockedAccounts.push({
+        accountId: Number(account.id),
+        code: error?.code ?? 'recurring_account_failed',
+      })
+      console.error('[billing] recurring account blocked:', account.id, error?.code ?? null, error?.message ?? error)
     }
   }
 
   return {
-    subscriptionsProcessed: due.rows.length,
+    subscriptionsProcessed,
     chargesPosted,
     periodsAdvanced,
     pauseCreditsPosted,
     householdInvoicesCreated,
+    accountsBlocked: blockedAccounts.length,
+    blockedAccountIds: blockedAccounts.map((entry) => entry.accountId),
+    blockedAccounts,
+    skippedMigrationAccountIds,
   }
 }

@@ -246,6 +246,7 @@ export async function auditFamilyDiscounts(db, {
     const pricing = await resolveFamilyEnrollmentPricing(db, {
       familyId,
       periodKey: bounds.periodKey,
+      ensureSchema: false,
     })
     const charges = await loadPostedRecurringCharges(db, accountId, bounds)
     const chargesBySignup = new Map()

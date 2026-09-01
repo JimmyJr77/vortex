@@ -4,8 +4,48 @@ import {
   adjustmentOverlapConflict,
   loadPostedSubscriptionAmountsByPeriod,
   postedPriceDifferenceCents,
+  previewEnrollmentPriceAdjustment,
   resolvePromoAdjustment,
 } from '../customerBillingAdjustments.js'
+
+test('price adjustment enrollment scope follows canonical active household membership', async () => {
+  let contextSql = ''
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (/information_schema\.tables/.test(text)) return { rows: [{ table_name: 'programs' }] }
+      if (/table_name = 'program'/.test(text)) return { rows: [{ column_name: 'programs_id' }] }
+      if (/table_name = 'scheduling_form'/.test(text)) {
+        return { rows: [{ column_name: 'programs_id' }, { column_name: 'program_id' }] }
+      }
+      contextSql = text
+      return { rows: [] }
+    },
+  }
+
+  await assert.rejects(
+    previewEnrollmentPriceAdjustment(pool, {
+      signupId: 77,
+      facilityId: 5,
+      input: {
+        kind: 'fixed_final_price',
+        finalPriceCents: 10000,
+        effectiveFromMonth: '2026-09-01',
+        reason: 'Test adjustment',
+      },
+    }),
+    /recurring enrollment could not be found/i,
+  )
+
+  assert.match(contextSql, /JOIN family_billing_account account/)
+  assert.match(contextSql, /account\.id = bs\.family_billing_account_id/)
+  assert.match(contextSql, /bs\.member_id = s\.member_id/)
+  assert.match(contextSql, /FROM family_member adjustment_membership/)
+  assert.match(contextSql, /adjustment_membership\.family_id = f\.id/)
+  assert.match(contextSql, /adjustment_membership\.is_active = TRUE/)
+  assert.match(contextSql, /NOT EXISTS[\s\S]*adjustment_membership_history/)
+  assert.doesNotMatch(contextSql, /JOIN family f ON f\.id = m\.family_id/)
+})
 
 test('distinct stackable promo assignments may share an enrollment billing window', () => {
   const first = {
@@ -113,6 +153,12 @@ test('billing managers may assign a globally scoped tuition promo without a publ
     queries.some((sql) => /pricing_benefit_selection|pricing_promo_codes/.test(sql)),
     false,
   )
+  const redemptionSql = queries.find((sql) => /FROM discount_redemption/.test(sql)) ?? ''
+  assert.match(redemptionSql, /FROM family_member redemption_membership/)
+  assert.match(redemptionSql, /redemption_membership\.family_id = \$3/)
+  assert.match(redemptionSql, /redemption_membership\.is_active = TRUE/)
+  assert.match(redemptionSql, /NOT EXISTS[\s\S]*redemption_membership_history/)
+  assert.doesNotMatch(redemptionSql, /SELECT id FROM member WHERE family_id = \$3/)
 })
 
 test('posted adjustment periods include enrollment-first-month and recurring-cycle charges', async () => {

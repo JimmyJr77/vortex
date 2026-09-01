@@ -6,9 +6,10 @@ import {
   enrollmentRepairFirstBillDate,
   ensureLegacyEnrollmentAdjustmentRecords,
   findEnrollmentSubscriptionGaps,
+  localOnlyEnrollmentRepairOutcome,
   promoCodeFromLegacyRule,
+  repairSavedCardEnrollmentSubscriptions,
 } from '../enrollmentSubscriptionRepair.js'
-import { enrollmentStripeSubscriptionIdempotencyKey } from '../stripeEnrollmentCheckout.js'
 
 test('repair anchors to the next calendar month without catch-up collection', () => {
   const now = new Date('2026-08-29T16:00:00.000Z')
@@ -47,6 +48,21 @@ test('only a reusable default Stripe payment method qualifies as a saved card', 
   )
 })
 
+test('household-only repair reports local authority and definite missing-payment-method state', () => {
+  assert.deepEqual(localOnlyEnrollmentRepairOutcome(), {
+    mode: 'household_only',
+    status: 'local_only',
+    paymentMethodStatus: 'payment_method_required',
+    action: 'retain_local_payment_method_required',
+  })
+  assert.deepEqual(localOnlyEnrollmentRepairOutcome({ stripeCustomerId: 'cus_123' }), {
+    mode: 'household_only',
+    status: 'local_only',
+    paymentMethodStatus: 'resolved_by_canonical_account',
+    action: 'retain_local_for_household_collection',
+  })
+})
+
 test('legacy promo codes are normalized from either supported rule config field', () => {
   assert.equal(
     promoCodeFromLegacyRule({ type: 'promo_code', config: { code: ' 50offvortex26 ' } }),
@@ -63,7 +79,7 @@ test('legacy promo codes are normalized from either supported rule config field'
 })
 
 test('legacy promo attribution is corrected with a revoked and linked replacement', async () => {
-  const calls = { revoked: [], inserted: [], activity: [] }
+  const calls = { revoked: [], inserted: [], activity: [], memberScopeSql: null }
   const client = {
     async query(sql, params = []) {
       if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') return { rows: [] }
@@ -82,6 +98,7 @@ test('legacy promo attribution is corrected with a revoked and linked replacemen
         }
       }
       if (/FROM scheduling_signup signup/.test(sql)) {
+        calls.memberScopeSql = String(sql)
         return {
           rows: [{
             id: 96,
@@ -139,6 +156,14 @@ test('legacy promo attribution is corrected with a revoked and linked replacemen
   assert.equal(calls.inserted[0][11], 'Original enrollment used promo code 50OFFVORTEX26')
   assert.equal(calls.inserted[0][13], 1)
   assert.equal(calls.activity.length, 1)
+  assert.match(calls.memberScopeSql, /JOIN family_billing_account account ON account\.id = \$1/)
+  assert.match(calls.memberScopeSql, /member\.is_active = TRUE/)
+  assert.match(calls.memberScopeSql, /FROM family_member household_membership/)
+  assert.match(calls.memberScopeSql, /household_membership\.family_id = account\.family_id/)
+  assert.match(calls.memberScopeSql, /household_membership\.member_id = member\.id/)
+  assert.match(calls.memberScopeSql, /household_membership\.is_active = TRUE/)
+  assert.match(calls.memberScopeSql, /NOT EXISTS[\s\S]*household_membership_history/)
+  assert.match(calls.memberScopeSql, /signup\.id = ANY\(\$2::bigint\[\]\)/)
 })
 
 test('repair plans skip unresolved and zero-dollar enrollments', () => {
@@ -184,20 +209,51 @@ test('candidate query enforces recurring active enrollment boundaries and scoped
   assert.match(captured.sql, /cancel_effective_date IS NULL/)
   assert.match(captured.sql, /<> 'one_time'/)
   assert.match(captured.sql, /subscription\.id IS NULL/)
+  assert.match(captured.sql, /HAVING COUNT\(DISTINCT candidate\.family_id\) = 1/)
+  assert.match(captured.sql, /household_family\.facility_id = household_member\.facility_id/)
+  assert.match(captured.sql, /account\.family_id = canonical_member_family\.family_id/)
   assert.match(captured.sql, /account\.household_monthly_billing_enabled = FALSE/)
+  assert.match(captured.sql, /migration\.family_billing_account_id = account\.id/)
+  assert.match(captured.sql, /global_migration\.armed_at IS NOT NULL/)
+  assert.match(captured.sql, /account_migration\.state NOT IN \('armed'/)
+  assert.match(captured.sql, /'household_active'/)
+  assert.match(captured.sql, /'rollback_pending'/)
+  assert.doesNotMatch(captured.sql, /'rolled_back'/)
 })
 
-test('Stripe subscription retries use a stable local-subscription idempotency key', () => {
-  assert.equal(
-    enrollmentStripeSubscriptionIdempotencyKey(123),
-    'enrollment-subscription:123:create-v1',
+test('household-only gap discovery repairs missing local rows but ignores missing legacy Stripe links', async () => {
+  let capturedSql = ''
+  const db = {
+    async query(sql) {
+      capturedSql = String(sql)
+      return { rows: [] }
+    },
+  }
+  await findEnrollmentSubscriptionGaps(db, {
+    accountIds: [10895],
+    includeMissingLegacyStripeSubscription: false,
+  })
+  assert.match(capturedSql, /AND subscription\.id IS NULL/)
+  assert.doesNotMatch(
+    capturedSql,
+    /subscription\.id IS NULL OR \([\s\S]*subscription\.stripe_subscription_id IS NULL/,
   )
-  assert.equal(
-    enrollmentStripeSubscriptionIdempotencyKey(123),
-    enrollmentStripeSubscriptionIdempotencyKey(123),
-  )
-  assert.notEqual(
-    enrollmentStripeSubscriptionIdempotencyKey(123),
-    enrollmentStripeSubscriptionIdempotencyKey(124),
-  )
+})
+
+test('household-only automatic repair is valid without a Stripe client and never plans remote work', async () => {
+  let queryCount = 0
+  const pool = {
+    async query(sql) {
+      queryCount += 1
+      assert.match(String(sql), /AND subscription\.id IS NULL/)
+      return { rows: [] }
+    },
+  }
+  const summary = await repairSavedCardEnrollmentSubscriptions(pool, null, {
+    environment: { BILLING_CLASS_SUBSCRIPTION_CREATION_MODE: 'household_only' },
+  })
+  assert.equal(queryCount, 1)
+  assert.equal(summary.legacyStripeCreationAllowed, false)
+  assert.equal(summary.stripeSubscriptionsCreated, 0)
+  assert.deepEqual(summary.collectionOutcomes, [])
 })

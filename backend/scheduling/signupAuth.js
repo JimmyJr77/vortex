@@ -3,12 +3,91 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 
-export function issueSignupAuthToken({ formId, memberId, email, programsId = null }) {
+const SIGNUP_AUTHORITY_VERSION = 1
+const SIGNUP_AUTHORITY_GRANTS = new Set([
+  'self',
+  'household_payer',
+  'pending_checkout',
+])
+
+function invalidSignupSession() {
+  const error = new Error('Invalid signup session')
+  error.name = 'JsonWebTokenError'
+  return error
+}
+
+function requiredPositiveInteger(value) {
+  const number = Number(value)
+  if (!Number.isSafeInteger(number) || number <= 0) throw invalidSignupSession()
+  return number
+}
+
+export function signupAuthorityFromDecodedToken(decoded) {
+  const authority = decoded?.signupAuthority
+  if (!authority || Number(authority.version) !== SIGNUP_AUTHORITY_VERSION) {
+    throw invalidSignupSession()
+  }
+  const actorMemberId = requiredPositiveInteger(authority.actorMemberId)
+  const targetMemberId = requiredPositiveInteger(authority.targetMemberId)
+  const tokenMemberId = requiredPositiveInteger(decoded.memberId)
+  if (targetMemberId !== tokenMemberId || !SIGNUP_AUTHORITY_GRANTS.has(authority.grant)) {
+    throw invalidSignupSession()
+  }
+  const familyBillingAccountId =
+    authority.familyBillingAccountId == null
+      ? null
+      : requiredPositiveInteger(authority.familyBillingAccountId)
+  if (actorMemberId !== targetMemberId && authority.grant === 'self') {
+    throw invalidSignupSession()
+  }
+  if (authority.grant !== 'self' && familyBillingAccountId == null) {
+    throw invalidSignupSession()
+  }
+  return {
+    version: SIGNUP_AUTHORITY_VERSION,
+    actorMemberId,
+    targetMemberId,
+    familyBillingAccountId,
+    grant: authority.grant,
+  }
+}
+
+export function issueSignupAuthToken({
+  formId,
+  memberId,
+  email,
+  programsId = null,
+  actorMemberId = memberId,
+  familyBillingAccountId = null,
+  authorityGrant = Number(actorMemberId) === Number(memberId) ? 'self' : 'household_payer',
+}) {
+  const normalizedMemberId = requiredPositiveInteger(memberId)
+  const normalizedActorMemberId = requiredPositiveInteger(actorMemberId)
+  if (!SIGNUP_AUTHORITY_GRANTS.has(authorityGrant)) throw invalidSignupSession()
+  const normalizedAccountId =
+    familyBillingAccountId == null
+      ? null
+      : requiredPositiveInteger(familyBillingAccountId)
+  if (normalizedActorMemberId !== normalizedMemberId && authorityGrant === 'self') {
+    throw invalidSignupSession()
+  }
+  if (authorityGrant !== 'self' && normalizedAccountId == null) {
+    throw invalidSignupSession()
+  }
   const payload = {
     type: 'scheduling_signup',
     formId: Number(formId),
-    memberId: Number(memberId),
+    memberId: normalizedMemberId,
     email,
+    signupAuthority: {
+      version: SIGNUP_AUTHORITY_VERSION,
+      actorMemberId: normalizedActorMemberId,
+      targetMemberId: normalizedMemberId,
+      grant: authorityGrant,
+      ...(normalizedAccountId != null
+        ? { familyBillingAccountId: normalizedAccountId }
+        : {}),
+    },
   }
   if (programsId != null) {
     payload.programsId = Number(programsId)
@@ -19,9 +98,10 @@ export function issueSignupAuthToken({ formId, memberId, email, programsId = nul
 export function verifySignupAuthToken(token, formId, { programsId = null } = {}) {
   const decoded = jwt.verify(token, resolveJwtSecret())
   if (decoded.type !== 'scheduling_signup') {
-    throw new Error('Invalid signup session')
+    throw invalidSignupSession()
   }
-  if (Number(decoded.formId) === Number(formId)) {
+  decoded.signupAuthority = signupAuthorityFromDecodedToken(decoded)
+  if (formId != null && Number(decoded.formId) === Number(formId)) {
     return decoded
   }
   if (
@@ -31,7 +111,7 @@ export function verifySignupAuthToken(token, formId, { programsId = null } = {})
   ) {
     return decoded
   }
-  throw new Error('Signup session is for a different form')
+  throw invalidSignupSession()
 }
 
 export function generateMagicToken() {

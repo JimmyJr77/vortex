@@ -4,6 +4,8 @@
  */
 
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
+import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
+import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 
 /** UTC midnight for a YYYY-MM-DD date → Unix seconds (Stripe cancel_at). */
 export function billingDateToUnixStart(dateStr) {
@@ -104,7 +106,8 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
 
   const res = await pool.query(
     `
-      SELECT bs.id, bs.stripe_subscription_id, bs.net_monthly_cents, bs.description,
+      SELECT bs.id, bs.family_billing_account_id, bs.stripe_subscription_id,
+             bs.net_monthly_cents, bs.description,
              bs.stripe_subscription_schedule_id,
              sf.title AS form_title,
              m.first_name, m.last_name,
@@ -140,31 +143,61 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
       scheduleLabel,
       athleteName,
     })
-    let hasEffectiveDatedPrice = Boolean(row.stripe_subscription_schedule_id)
-    if (!hasEffectiveDatedPrice) {
-      try {
-        const adjustment = await pool.query(
-          `SELECT 1 FROM enrollment_price_adjustment
-           WHERE billing_subscription_id = $1
-             AND status = 'active'
-             AND kind <> 'legacy_discount'
-           LIMIT 1`,
-          [row.id],
-        )
-        hasEffectiveDatedPrice = adjustment.rows.length > 0
-      } catch (error) {
-        if (error?.code !== '42P01' && error?.code !== '42703') throw error
+    const outcome = await withBillingAccountCollectionLock(
+      pool,
+      row.family_billing_account_id,
+      async (db) => {
+        const remoteMutation = await guardLegacyRemoteSubscriptionMutation(db, {
+          accountId: row.family_billing_account_id,
+          stripeSubscriptionId: row.stripe_subscription_id,
+          operation: 'class-recurring-price-sync',
+        })
+        if (!remoteMutation.allowed) {
+          await db.query(
+            `UPDATE billing_subscription
+                SET price_sync_status = 'not_required',
+                    price_sync_error = $2,
+                    updated_at = now()
+              WHERE id = $1`,
+            [row.id, remoteMutation.reason.slice(0, 1000)],
+          )
+          return {
+            status: 'local_authoritative',
+            reason: remoteMutation.reason,
+            remoteCollectorQuarantined: true,
+          }
+        }
+
+        let hasEffectiveDatedPrice = Boolean(row.stripe_subscription_schedule_id)
+        if (!hasEffectiveDatedPrice) {
+          try {
+            const adjustment = await db.query(
+              `SELECT 1 FROM enrollment_price_adjustment
+               WHERE billing_subscription_id = $1
+                 AND status = 'active'
+                 AND kind <> 'legacy_discount'
+               LIMIT 1`,
+              [row.id],
+            )
+            hasEffectiveDatedPrice = adjustment.rows.length > 0
+          } catch (error) {
+            if (error?.code !== '42P01' && error?.code !== '42703') throw error
+          }
+        }
+        return hasEffectiveDatedPrice
+          ? import('./stripePriceSchedules.js').then(({ syncEnrollmentStripePriceSchedule }) =>
+              syncEnrollmentStripePriceSchedule(db, row.id, {
+                collectionLockHeld: true,
+                lockedAccountId: row.family_billing_account_id,
+              }),
+            )
+          : updateStripeSubscriptionUnitAmount(
+              row.stripe_subscription_id,
+              row.net_monthly_cents,
+              { productName },
+            )
       }
-    }
-    const outcome = hasEffectiveDatedPrice
-      ? await import('./stripePriceSchedules.js').then(({ syncEnrollmentStripePriceSchedule }) =>
-          syncEnrollmentStripePriceSchedule(pool, row.id),
-        )
-      : await updateStripeSubscriptionUnitAmount(
-          row.stripe_subscription_id,
-          row.net_monthly_cents,
-          { productName },
-        )
+    )
     results.push({
       billingSubscriptionId: Number(row.id),
       stripeSubscriptionId: row.stripe_subscription_id,

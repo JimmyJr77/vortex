@@ -1,4 +1,5 @@
 import { resolveProgramsSchema } from '../programs/schema.js'
+import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { ensureStripeOperationsSchema } from './stripeOperations.js'
 
 function number(value) {
@@ -6,8 +7,13 @@ function number(value) {
 }
 
 /** Settled Stripe payments and the active/current registrations attached to each payer family. */
-export async function buildPaymentRegistrationReport(pool, { days = 30 } = {}) {
+export async function buildPaymentRegistrationReport(pool, {
+  days = 30,
+  facilityId = null,
+  allowGlobal = false,
+} = {}) {
   const lookbackDays = Math.min(365, Math.max(1, Math.round(Number(days) || 30)))
+  const scopedFacilityId = requireAdminFacilityScope({ facilityId, allowGlobal })
   await ensureStripeOperationsSchema(pool)
   const schema = await resolveProgramsSchema(pool)
   const paymentsResult = await pool.query(
@@ -27,13 +33,15 @@ export async function buildPaymentRegistrationReport(pool, { days = 30 } = {}) {
         NULLIF(TRIM(CONCAT_WS(' ', payer.first_name, payer.last_name)), '') AS payer_name
       FROM billing_payment bp
       JOIN family_billing_account fba ON fba.id = bp.family_billing_account_id
+      JOIN family f ON f.id = fba.family_id
       LEFT JOIN member payer ON payer.id = fba.payer_member_id
       WHERE bp.external_processor = 'stripe'
         AND bp.external_status = 'settled'
         AND bp.paid_at >= now() - ($1::int * interval '1 day')
+        AND ($2::bigint IS NULL OR f.facility_id = $2)
       ORDER BY bp.paid_at DESC, bp.id DESC
     `,
-    [lookbackDays],
+    [lookbackDays, scopedFacilityId],
   )
 
   const familyIds = [...new Set(paymentsResult.rows.map((row) => Number(row.family_id)).filter(Number.isFinite))]
@@ -141,12 +149,14 @@ export async function buildPaymentRegistrationReport(pool, { days = 30 } = {}) {
              NULLIF(TRIM(CONCAT_WS(' ', payer.first_name, payer.last_name)), '') AS payer_name
       FROM stripe_billing_alert a
       LEFT JOIN family_billing_account fba ON fba.id = a.family_billing_account_id
+      LEFT JOIN family f ON f.id = fba.family_id
       LEFT JOIN member payer ON payer.id = fba.payer_member_id
       WHERE a.alert_type IN ('payment_failed', 'payment_recovery_exhausted')
         AND a.created_at >= now() - ($1::int * interval '1 day')
+        AND ($2::bigint IS NULL OR f.facility_id = $2)
       ORDER BY a.created_at DESC, a.id DESC
     `,
-    [lookbackDays],
+    [lookbackDays, scopedFacilityId],
   )
 
   const failures = failuresResult.rows.map((row) => ({

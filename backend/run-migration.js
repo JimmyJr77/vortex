@@ -4,7 +4,10 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 
-import { resolveMigrationConnectionString } from './migrationConnection.js'
+import {
+  buildMigrationPoolConfig,
+  resolveMigrationConnectionString,
+} from './migrationConnection.js'
 
 // Preserve a connection explicitly supplied by the caller before dotenv loads
 // repository defaults. Otherwise `DB_URL=... npm run migrate` can be silently
@@ -127,15 +130,11 @@ function resolveSsl(connectionString) {
   return false
 }
 
-const pool = new Pool({
+const pool = new Pool(buildMigrationPoolConfig({
   connectionString,
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'vortex_athletics',
-  password: process.env.DB_PASSWORD || 'password',
-  port: process.env.DB_PORT || 5432,
   ssl: resolveSsl(connectionString),
-})
+  environment: process.env,
+}))
 
 async function ensureMigrationTable(client) {
   await client.query(`

@@ -82,7 +82,7 @@ test('operations dashboard exposes bounded incident history without secret value
     },
   }
   try {
-    const dashboard = await getStripeOperationsDashboard(pool)
+    const dashboard = await getStripeOperationsDashboard(pool, { allowGlobal: true })
     assert.deepEqual(dashboard.recentReconciliations, [run])
     assert.deepEqual(dashboard.webhookIncidents, [incident])
     assert.equal(dashboard.readyForLivePayments, true)

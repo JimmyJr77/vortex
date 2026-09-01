@@ -1,9 +1,9 @@
 import { randomUUID } from 'crypto'
 import {
-  createCustomerPortalSession,
+  buildBalanceCheckoutParams,
+  createPaymentMethodSetupSession,
   ensureStripeCustomer,
   getStripeClient,
-  recordStripePayment,
   stripeEnabled,
 } from './stripeBilling.js'
 import { createBillingRefund } from './stripeOperations.js'
@@ -18,9 +18,26 @@ import { membershipPromoDiscountCents, resolveMembershipFeePromo } from '../sche
 import {
   applyExactPayment,
   allocateHouseholdPayments,
+  allocateHouseholdPaymentsLocked,
   endRefundedAnnualMembership,
-  reverseRefundedApplications,
+  reverseRefundedApplicationsLocked,
 } from './paymentAllocation.js'
+import {
+  HOUSEHOLD_INVOICE_RESERVING_STATUSES,
+  loadCanonicalCollectibleBalanceCents,
+} from './canonicalBillingAccount.js'
+import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
+import {
+  attachBillingPaymentAttemptStripeObject,
+  loadBillingPaymentAttemptByRequestKey,
+  markBillingPaymentAttemptRemotePending,
+  paymentIntentFailureIsFinal,
+  recordAndCompleteBillingPaymentAttempt,
+  releaseBillingPaymentAttempt,
+  reserveBillingPaymentAttempt,
+  withBillingAccountCollectionLock,
+} from './paymentAttemptReservations.js'
 
 function positiveCents(value, label = 'Amount') {
   const amount = Number(value)
@@ -34,16 +51,8 @@ function nonNegativeCents(value, label = 'Amount') {
   return amount
 }
 
-let annualMembershipRenewalPricingSchemaEnsured = false
-
-async function ensureAnnualMembershipRenewalPricingSchema(pool) {
-  if (annualMembershipRenewalPricingSchemaEnsured) return
-  const fs = await import('fs')
-  const migration = new URL('../migrations/775_annual_membership_renewal_pricing.sql', import.meta.url)
-  await pool.query(fs.readFileSync(migration, 'utf8'))
-  const redemptionMigration = new URL('../migrations/776_annual_membership_renewal_promo_redemptions.sql', import.meta.url)
-  await pool.query(fs.readFileSync(redemptionMigration, 'utf8'))
-  annualMembershipRenewalPricingSchemaEnsured = true
+async function ensureAnnualMembershipRenewalPricingSchema() {
+  // Compatibility hook. Startup billing readiness owns this schema contract.
 }
 
 function optionalDate(value, label) {
@@ -62,14 +71,14 @@ function optionalDate(value, label) {
 
 async function validateMemberScope(pool, account, memberId) {
   if (memberId == null) return null
+  const activeHouseholdMember = canonicalActiveHouseholdMemberPredicate({
+    memberAlias: 'm',
+    familyIdReference: '$2',
+  })
   const result = await pool.query(
     `SELECT m.id FROM member m
-     WHERE m.id = $1 AND (
-       m.family_id = $2 OR EXISTS (
-         SELECT 1 FROM family_member fm
-         WHERE fm.member_id = m.id AND fm.family_id = $2 AND fm.is_active = TRUE
-       )
-     )`,
+     WHERE m.id = $1
+       AND ${activeHouseholdMember}`,
     [Number(memberId), Number(account.family_id)],
   )
   if (!result.rows[0]) throw new Error('Selected member does not belong to this household.')
@@ -111,7 +120,9 @@ export async function billAnnualMembershipNow(pool, {
        LEFT JOIN LATERAL (
          SELECT SUM(CASE WHEN a.application_kind = 'reversal' THEN -a.amount_cents ELSE a.amount_cents END)::int AS applied_cents
          FROM billing_payment_application a
+         JOIN billing_payment payment ON payment.id = a.billing_payment_id
          WHERE a.billing_charge_id = c.id
+           AND payment.external_status IN ('settled', 'succeeded')
        ) applications ON TRUE
       WHERE c.family_billing_account_id = $1
         AND c.member_id = $2
@@ -300,9 +311,42 @@ async function configureAnnualMembershipRenewalPricing(pool, {
     actorType: 'admin',
   })
 
-  if (!subscription?.stripe_subscription_id || !stripeEnabled()) {
-    const instruction = await save({ syncStatus: subscription ? 'pending' : 'not_required' })
+  if (!subscription?.stripe_subscription_id) {
+    const instruction = await save({ syncStatus: 'not_required' })
     await activity(instruction, 'Future annual membership renewal pricing was configured for this athlete.', 'annual_membership_renewal_price_configured')
+    return { instruction, syncStatus: instruction.sync_status }
+  }
+
+  const remoteMutation = await guardLegacyRemoteSubscriptionMutation(pool, {
+    accountId: account.id,
+    stripeSubscriptionId: subscription.stripe_subscription_id,
+    operation: 'annual-membership-renewal-price-update',
+  })
+  if (!remoteMutation.allowed) {
+    const instruction = await save({
+      syncStatus: 'not_required',
+      syncError: remoteMutation.reason,
+      stripeSubscriptionId: subscription.stripe_subscription_id,
+    })
+    await activity(
+      instruction,
+      'Future annual membership renewal pricing was saved to the household ledger; a stale Stripe collector was quarantined.',
+      'annual_membership_remote_collector_quarantined',
+      subscription.stripe_subscription_id,
+    )
+    return {
+      instruction,
+      syncStatus: instruction.sync_status,
+      remoteCollectorQuarantined: true,
+    }
+  }
+
+  if (!stripeEnabled()) {
+    const instruction = await save({
+      syncStatus: 'pending',
+      stripeSubscriptionId: subscription.stripe_subscription_id,
+    })
+    await activity(instruction, 'Future annual membership renewal pricing is pending Stripe synchronization.', 'annual_membership_renewal_price_configured')
     return { instruction, syncStatus: instruction.sync_status }
   }
 
@@ -396,6 +440,7 @@ export async function validateAnnualMembershipRenewalDiscount(pool, {
   stripeSubscriptionId,
   stripe = null,
   now = new Date(),
+  collectionLockHeld = false,
 } = {}) {
   if (!stripeSubscriptionId) return { status: 'not_applicable' }
   const pricing = await loadAnnualMembershipRenewalPromo(pool, stripeSubscriptionId)
@@ -412,7 +457,57 @@ export async function validateAnnualMembershipRenewalDiscount(pool, {
     return { status: 'valid', pricing }
   }
 
+  if (!collectionLockHeld) {
+    return withBillingAccountCollectionLock(
+      pool,
+      pricing.family_billing_account_id,
+      (db) => validateAnnualMembershipRenewalDiscount(db, {
+        stripeSubscriptionId,
+        stripe,
+        now,
+        collectionLockHeld: true,
+      }),
+    )
+  }
+
   const standardAmountCents = Math.max(0, Number(pricing.standard_amount_cents))
+  const remoteMutation = await guardLegacyRemoteSubscriptionMutation(pool, {
+    accountId: pricing.family_billing_account_id,
+    stripeSubscriptionId,
+    operation: 'annual-membership-renewal-discount-reset',
+  })
+  if (!remoteMutation.allowed) {
+    const invalidated = await pool.query(
+      `UPDATE annual_membership_renewal_pricing
+          SET pricing_kind = 'manual_final_price',
+              final_amount_cents = $2,
+              promo_code = NULL,
+              discount_rule_id = NULL,
+              discount_rule_snapshot = NULL,
+              sync_status = 'not_required',
+              sync_error = $3,
+              updated_at = now()
+        WHERE id = $1
+        RETURNING *`,
+      [pricing.id, standardAmountCents, remoteMutation.reason],
+    ).then((result) => result.rows[0] ?? null)
+    await recordBillingActivity(pool, {
+      eventKey: `annual-membership-renewal-promo-invalidated:${pricing.id}:local-ledger`,
+      accountId: pricing.family_billing_account_id,
+      memberId: pricing.member_id,
+      eventType: 'annual_membership_remote_collector_quarantined',
+      summary: 'Expired annual membership renewal pricing was restored in the household ledger; the stale Stripe collector was quarantined.',
+      beforeValue: pricing,
+      afterValue: invalidated,
+      stripeObjectId: stripeSubscriptionId,
+      actorType: 'system',
+    })
+    return {
+      status: 'local_authoritative',
+      pricing: invalidated,
+      remoteCollectorQuarantined: true,
+    }
+  }
   const stripeClient = stripe || await getStripeClient()
   if (!stripeClient) {
     await pool.query(
@@ -530,21 +625,25 @@ export async function recordAnnualMembershipRenewalPromoRedemption(pool, {
   const discountCents = Math.max(0, Number(pricing.standard_amount_cents) - Math.max(0, Number(paidAmountCents)))
   if (discountCents <= 0) return null
   const inserted = await pool.query(
-    `INSERT INTO discount_redemption (
-       rule_id, member_id, signup_id, program_id, form_id, kind, units,
-       amount_cents, stripe_invoice_id, annual_membership_renewal_pricing_id
-     ) VALUES ($1, $2, NULL, NULL, NULL, 'discount', 0, $3, $4, $5)
-     ON CONFLICT (stripe_invoice_id, rule_id)
-       WHERE stripe_invoice_id IS NOT NULL AND rule_id IS NOT NULL
-     DO NOTHING
-     RETURNING id`,
+    `WITH inserted AS (
+       INSERT INTO discount_redemption (
+         rule_id, member_id, signup_id, program_id, form_id, kind, units,
+         amount_cents, stripe_invoice_id, annual_membership_renewal_pricing_id
+       ) VALUES ($1, $2, NULL, NULL, NULL, 'discount', 0, $3, $4, $5)
+       ON CONFLICT (stripe_invoice_id, rule_id)
+         WHERE stripe_invoice_id IS NOT NULL AND rule_id IS NOT NULL
+       DO NOTHING
+       RETURNING id, rule_id
+     )
+     UPDATE discount_rule rule
+        SET redeemed_count = rule.redeemed_count + 1,
+            updated_at = now()
+       FROM inserted
+      WHERE rule.id = inserted.rule_id
+      RETURNING inserted.id`,
     [pricing.discount_rule_id, pricing.member_id, discountCents, stripeInvoiceId, pricing.id],
   )
   if (!inserted.rows[0]) return { pricing, replayed: true }
-  await pool.query(
-    `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
-    [pricing.discount_rule_id],
-  )
   await recordBillingActivity(pool, {
     eventKey: `annual-membership-renewal-promo-redeemed:${stripeInvoiceId}:${pricing.discount_rule_id}`,
     accountId: pricing.family_billing_account_id,
@@ -626,15 +725,17 @@ export async function adjustCustomerBillingCharge(pool, {
 
   if (scope === 'renewals') {
     if (feeId == null) throw new Error('Only annual membership fees can be applied to renewals.')
-    const renewal = await configureAnnualMembershipRenewalPricing(pool, {
-      account,
-      charge,
-      feeId,
-      pricing,
-      reason: note,
-      actorUserId,
-      idempotencyKey,
-    })
+    const renewal = await withBillingAccountCollectionLock(pool, account.id, (db) => (
+      configureAnnualMembershipRenewalPricing(db, {
+        account,
+        charge,
+        feeId,
+        pricing,
+        reason: note,
+        actorUserId,
+        idempotencyKey,
+      })
+    ))
     return {
       account,
       charge,
@@ -646,110 +747,161 @@ export async function adjustCustomerBillingCharge(pool, {
   }
 
   const targetAmount = pricing.finalAmountCents
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    let transactionOpen = false
+    let result
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      const lockedCharge = await db.query(
+        `SELECT *
+           FROM billing_charge
+          WHERE id = $1 AND family_billing_account_id = $2
+          FOR UPDATE`,
+        [Number(charge.id), Number(account.id)],
+      ).then((queryResult) => queryResult.rows[0] ?? null)
+      if (!lockedCharge) throw new Error('Custom charge was not found.')
+      if (
+        Number(lockedCharge.amount_cents) <= 0
+        || ['credit', 'refund_offset', 'charge_adjustment'].includes(String(lockedCharge.source_type))
+      ) {
+        throw new Error('Only a positive bill can be modified.')
+      }
 
-  const reserved = await pool.query(
-    `SELECT 1
-       FROM billing_monthly_invoice_line line
-       JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
-      WHERE line.billing_charge_id = $1
-        AND invoice.status IN ('draft', 'open', 'payment_method_required', 'failed')
-      LIMIT 1`,
-    [charge.id],
-  )
-  if (reserved.rows[0]) {
-    throw new Error('This bill is already included in an open household monthly invoice. Modify it after that invoice is resolved.')
-  }
+      // This reservation check deliberately runs after the account collection
+      // lock is acquired and inside the mutation transaction. All collectors use
+      // the same lock, so a new invoice/attempt cannot appear after this check.
+      const reserved = await db.query(
+        `SELECT 1
+           FROM billing_monthly_invoice_line line
+           JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+          WHERE line.billing_charge_id = $1
+            AND invoice.status IN ('draft', 'open', 'payment_method_required', 'failed')
+          UNION ALL
+         SELECT 1
+           FROM billing_payment_attempt attempt
+           LEFT JOIN billing_payment_attempt_charge reservation
+             ON reservation.billing_payment_attempt_id = attempt.id
+          WHERE attempt.family_billing_account_id = $2
+            AND (
+              attempt.status IN ('pending', 'processing', 'reconciliation_required')
+              OR (attempt.status = 'reserved' AND attempt.expires_at > now())
+            )
+            AND (
+              reservation.billing_charge_id = $1
+              OR attempt.target_charge_id = $1
+            )
+          LIMIT 1`,
+        [lockedCharge.id, account.id],
+      )
+      if (reserved.rows[0]) {
+        throw new Error('This bill is reserved by an active collection attempt. Modify it after that collection is resolved.')
+      }
 
-  const prior = await pool.query(
-    `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
-       FROM billing_charge
-      WHERE family_billing_account_id = $1
-        AND related_charge_id = $2
-        AND source_type = 'charge_adjustment'`,
-    [account.id, charge.id],
-  )
-  const effectiveAmount = Number(charge.amount_cents) + Number(prior.rows[0]?.cents ?? 0)
-  const difference = targetAmount - effectiveAmount
-  if (difference === 0) {
-    return { account, charge, adjustment: null, effectiveAmountCents: effectiveAmount, replayed: true }
-  }
+      const prior = await db.query(
+        `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
+           FROM billing_charge
+          WHERE family_billing_account_id = $1
+            AND related_charge_id = $2
+            AND source_type = 'charge_adjustment'`,
+        [account.id, lockedCharge.id],
+      )
+      const effectiveAmount = Number(lockedCharge.amount_cents) + Number(prior.rows[0]?.cents ?? 0)
+      const difference = targetAmount - effectiveAmount
+      if (difference === 0) {
+        await db.query('COMMIT')
+        transactionOpen = false
+        return { account, charge: lockedCharge, adjustment: null, effectiveAmountCents: effectiveAmount, replayed: true }
+      }
 
-  const requestKey = String(idempotencyKey ?? '').trim()
-  const sourceId = `charge:${charge.id}:${requestKey || randomUUID()}`
-  const inserted = await pool.query(
-    `INSERT INTO billing_charge (
-       family_billing_account_id, member_id, source_type, source_id, related_charge_id,
-       description, amount_cents, gross_amount_cents, discount_amount_cents,
-       charge_type, billing_interval, service_period_start, service_period_end,
-       collection_status, created_by_user_id, metadata
-     ) VALUES (
-       $1, $2, 'charge_adjustment', $3, $4,
-       $5, $6, $6, 0,
-       $7, 'one_time', $8, $9,
-       'none', $10, $11::jsonb
-     )
-     ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
-     RETURNING *`,
-    [
-      account.id,
-      charge.member_id,
-      sourceId,
-      charge.id,
-      `${difference < 0 ? 'Credit' : 'Additional amount'} for ${charge.description}`,
-      difference,
-      difference < 0 ? 'credit' : 'adjustment',
-      charge.service_period_start,
-      charge.service_period_end,
+      const requestKey = String(idempotencyKey ?? '').trim()
+      const sourceId = `charge:${lockedCharge.id}:${requestKey || randomUUID()}`
+      const inserted = await db.query(
+        `INSERT INTO billing_charge (
+           family_billing_account_id, member_id, source_type, source_id, related_charge_id,
+           description, amount_cents, gross_amount_cents, discount_amount_cents,
+           charge_type, billing_interval, service_period_start, service_period_end,
+           collection_status, created_by_user_id, metadata
+         ) VALUES (
+           $1, $2, 'charge_adjustment', $3, $4,
+           $5, $6, $6, 0,
+           $7, 'one_time', $8, $9,
+           'none', $10, $11::jsonb
+         )
+         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+         RETURNING *`,
+        [
+          account.id,
+          lockedCharge.member_id,
+          sourceId,
+          lockedCharge.id,
+          `${difference < 0 ? 'Credit' : 'Additional amount'} for ${lockedCharge.description}`,
+          difference,
+          difference < 0 ? 'credit' : 'adjustment',
+          lockedCharge.service_period_start,
+          lockedCharge.service_period_end,
+          actorUserId,
+          JSON.stringify({
+            originalChargeId: Number(lockedCharge.id),
+            originalAmountCents: Number(lockedCharge.amount_cents),
+            previousEffectiveAmountCents: effectiveAmount,
+            finalAmountCents: targetAmount,
+            reason: note,
+            ...(pricing.kind === 'promo_code' ? {
+              discountCode: pricing.promoCode,
+              discountRuleId: pricing.rule?.id ?? null,
+              discountAmountCents: pricing.discountCents,
+              discountRuleSnapshot: pricing.rule,
+            } : {}),
+          }),
+        ],
+      )
+      const created = Boolean(inserted.rows[0])
+      const adjustment = inserted.rows[0] ?? await db.query(
+        `SELECT * FROM billing_charge WHERE source_type = 'charge_adjustment' AND source_id = $1`,
+        [sourceId],
+      ).then((queryResult) => queryResult.rows[0] ?? null)
+      if (!adjustment) throw new Error('Bill adjustment could not be created.')
+      if (created && pricing.kind === 'promo_code' && pricing.rule?.id) {
+        await recordMembershipPromoRedemption(db, {
+          ruleId: pricing.rule.id,
+          memberId: lockedCharge.member_id,
+          discountCents: pricing.discountCents,
+        })
+      }
+
+      await recordBillingActivity(db, {
+        eventKey: `billing-charge-adjusted:${adjustment.id}`,
+        accountId: account.id,
+        memberId: lockedCharge.member_id,
+        chargeId: lockedCharge.id,
+        eventType: 'billing_charge_adjusted',
+        summary: `${lockedCharge.description} was modified with a linked ${difference < 0 ? 'credit' : 'debit'}.`,
+        beforeValue: { effectiveAmountCents: effectiveAmount },
+        afterValue: {
+          effectiveAmountCents: targetAmount,
+          adjustmentChargeId: Number(adjustment.id),
+          adjustmentAmountCents: difference,
+          reason: note,
+          ...(pricing.kind === 'promo_code' ? { discountCode: pricing.promoCode, discountAmountCents: pricing.discountCents } : {}),
+        },
+        actorUserId,
+        actorType: 'admin',
+      })
+      await db.query('COMMIT')
+      transactionOpen = false
+      result = { account, charge: lockedCharge, adjustment, effectiveAmountCents: targetAmount, replayed: false }
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+    await allocateHouseholdPaymentsLocked(db, {
+      accountId: account.id,
       actorUserId,
-      JSON.stringify({
-        originalChargeId: Number(charge.id),
-        originalAmountCents: Number(charge.amount_cents),
-        previousEffectiveAmountCents: effectiveAmount,
-        finalAmountCents: targetAmount,
-        reason: note,
-        ...(pricing.kind === 'promo_code' ? {
-          discountCode: pricing.promoCode,
-          discountRuleId: pricing.rule?.id ?? null,
-          discountAmountCents: pricing.discountCents,
-          discountRuleSnapshot: pricing.rule,
-        } : {}),
-      }),
-    ],
-  )
-  const created = Boolean(inserted.rows[0])
-  const adjustment = inserted.rows[0] ?? await pool.query(
-    `SELECT * FROM billing_charge WHERE source_type = 'charge_adjustment' AND source_id = $1`,
-    [sourceId],
-  ).then((result) => result.rows[0] ?? null)
-  if (!adjustment) throw new Error('Bill adjustment could not be created.')
-  if (created && pricing.kind === 'promo_code' && pricing.rule?.id) {
-    await recordMembershipPromoRedemption(pool, {
-      ruleId: pricing.rule.id,
-      memberId: charge.member_id,
-      discountCents: pricing.discountCents,
+      actorType: 'admin',
     })
-  }
-
-  await recordBillingActivity(pool, {
-    eventKey: `billing-charge-adjusted:${adjustment.id}`,
-    accountId: account.id,
-    memberId: charge.member_id,
-    chargeId: charge.id,
-    eventType: 'billing_charge_adjusted',
-    summary: `${charge.description} was modified with a linked ${difference < 0 ? 'credit' : 'debit'}.`,
-    beforeValue: { effectiveAmountCents: effectiveAmount },
-    afterValue: {
-      effectiveAmountCents: targetAmount,
-      adjustmentChargeId: Number(adjustment.id),
-      adjustmentAmountCents: difference,
-      reason: note,
-      ...(pricing.kind === 'promo_code' ? { discountCode: pricing.promoCode, discountAmountCents: pricing.discountCents } : {}),
-    },
-    actorUserId,
-    actorType: 'admin',
+    return result
   })
-  await allocateHouseholdPayments(pool, { accountId: account.id, actorUserId, actorType: 'admin' })
-  return { account, charge, adjustment, effectiveAmountCents: targetAmount, replayed: false }
 }
 
 function assertCustomCharge(charge) {
@@ -765,7 +917,86 @@ function assertCollectibleCustomCharge(charge) {
   }
 }
 
-async function checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge }) {
+function parsePersistedStripeCreateRequest(value) {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value)
+    } catch {
+      return null
+    }
+  }
+  return value && typeof value === 'object' ? value : null
+}
+
+async function persistStripeCheckoutCreateRequest(db, attemptId, requestParams) {
+  const requested = {
+    version: 1,
+    object: 'checkout.session',
+    params: requestParams,
+  }
+  const result = await db.query(
+    `UPDATE billing_payment_attempt
+        SET metadata = CASE
+              WHEN jsonb_typeof(COALESCE(metadata, '{}'::jsonb)->'stripeCreateRequest') = 'object'
+                THEN metadata
+              ELSE jsonb_set(
+                COALESCE(metadata, '{}'::jsonb),
+                '{stripeCreateRequest}',
+                $2::jsonb,
+                true
+              )
+            END,
+            updated_at = now()
+      WHERE id = $1
+      RETURNING metadata->'stripeCreateRequest' AS stripe_create_request`,
+    [Number(attemptId), JSON.stringify(requested)],
+  )
+  const persisted = parsePersistedStripeCreateRequest(result.rows[0]?.stripe_create_request)
+  if (
+    persisted?.version !== 1
+    || persisted?.object !== 'checkout.session'
+    || !persisted.params
+    || typeof persisted.params !== 'object'
+  ) {
+    throw new Error('The persisted Stripe Checkout request is invalid.')
+  }
+  return persisted.params
+}
+
+function checkoutExpirationSeconds(attempt) {
+  const expirationMs = new Date(attempt?.expires_at ?? 0).getTime()
+  if (!Number.isFinite(expirationMs)) throw new Error('Payment attempt expiration is invalid.')
+  return Math.floor(expirationMs / 1000)
+}
+
+/**
+ * Persist the complete Stripe request before crossing the network boundary. A
+ * retry after Stripe created the Session but before local attachment must send
+ * byte-for-byte-equivalent values with the same idempotency key.
+ */
+export async function createOrRecoverBillingCheckoutSession(db, stripe, {
+  attempt,
+  requestParams,
+  attachAttempt = attachBillingPaymentAttemptStripeObject,
+}) {
+  const params = await persistStripeCheckoutCreateRequest(db, attempt.id, requestParams)
+  const idempotencyKey = `billing-payment-attempt:${attempt.id}:checkout`
+  await markBillingPaymentAttemptRemotePending(db, attempt.id)
+  const session = await stripe.checkout.sessions.create(params, { idempotencyKey })
+  const expiresAt = session.expires_at
+    ? new Date(session.expires_at * 1000).toISOString()
+    : new Date(Number(params.expires_at) * 1000).toISOString()
+  await attachAttempt(db, {
+    attemptId: attempt.id,
+    checkoutSessionId: session.id,
+    checkoutUrl: session.url,
+    status: 'pending',
+    expiresAt,
+  })
+  return { session, expiresAt, params, idempotencyKey }
+}
+
+export async function checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge }) {
   if (requireManualCharge) assertCollectibleCustomCharge(charge)
   else if (!charge || Number(charge.amount_cents) <= 0) {
     throw new Error('Only a positive outstanding bill can receive a payment request.')
@@ -782,9 +1013,26 @@ async function checkoutAmountForBillingCharge(pool, { account, charge, requireMa
              AND adjustment.source_type = 'charge_adjustment'
          ), 0)
          - COALESCE((
+           SELECT SUM(application.amount_cents)
+             FROM billing_charge_credit_application application
+             JOIN billing_monthly_invoice_line target_line
+               ON target_line.id = application.target_invoice_line_id
+             JOIN billing_monthly_invoice_line credit_line
+               ON credit_line.id = application.credit_invoice_line_id
+             JOIN billing_charge credit_source
+               ON credit_source.id = credit_line.billing_charge_id
+            WHERE target_line.billing_charge_id = charge.id
+              AND NOT (
+                credit_source.related_charge_id = charge.id
+                AND credit_source.source_type = 'charge_adjustment'
+              )
+         ), 0)
+         - COALESCE((
            SELECT SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)
            FROM billing_payment_application application
+           JOIN billing_payment payment ON payment.id = application.billing_payment_id
            WHERE application.billing_charge_id = charge.id
+             AND payment.external_status IN ('settled', 'succeeded')
          ), 0)
        )::int AS amount_cents,
        EXISTS (
@@ -792,9 +1040,9 @@ async function checkoutAmountForBillingCharge(pool, { account, charge, requireMa
          FROM billing_monthly_invoice_line line
          JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
          WHERE line.billing_charge_id = charge.id
-           AND invoice.status IN ('draft', 'open', 'paid', 'payment_method_required', 'failed')
+           AND invoice.status = ANY($2::text[])
        ) AS reserved_on_monthly_invoice`,
-    [charge.id],
+    [charge.id, HOUSEHOLD_INVOICE_RESERVING_STATUSES],
   )
   if (result.rows[0]?.reserved_on_monthly_invoice) {
     throw new Error('This bill is already included in a household monthly invoice and cannot receive a separate payment request.')
@@ -815,28 +1063,63 @@ async function createBillingChargeCheckoutSession(pool, {
   checkoutType = 'custom_charge',
   eventType = 'custom_charge_checkout_created',
 }) {
-  const amountCents = await checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge })
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const metadata = {
-    checkoutType,
-    familyBillingAccountId: String(account.id),
-    billingChargeId: String(charge.id),
-  }
-  const attempts = await pool.query(
-    `SELECT COUNT(*)::int AS count FROM billing_account_activity
-     WHERE related_charge_id = $1 AND event_type = $2`,
-    [charge.id, eventType],
-  )
-  const attempt = Number(attempts.rows[0]?.count ?? 0) + 1
-  const session = await stripe.checkout.sessions.create(
-    {
+  const requestKey = String(attemptKey || randomUUID())
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    const existing = await loadBillingPaymentAttemptByRequestKey(db, {
+      accountId: account.id,
+      attemptType: 'charge_checkout',
+      requestKey,
+    })
+    if (existing?.status === 'succeeded') {
+      return { id: existing.stripe_checkout_session_id, url: null, amountCents: existing.amount_cents, expiresAt: existing.expires_at, replayed: true, status: 'succeeded' }
+    }
+    if (existing?.status === 'pending' && existing.stripe_checkout_session_id && existing.stripe_checkout_url) {
+      return { id: existing.stripe_checkout_session_id, url: existing.stripe_checkout_url, amountCents: existing.amount_cents, expiresAt: existing.expires_at, replayed: true }
+    }
+    if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
+      throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
+    }
+
+    const amountCents = existing?.amount_cents
+      ?? await checkoutAmountForBillingCharge(db, { account, charge, requireManualCharge })
+    const expiration = existing?.expires_at
+      ? new Date(existing.expires_at)
+      : new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
+      accountId: account.id,
+      attemptType: 'charge_checkout',
+      requestKey,
+      amountCents,
+      targetChargeId: charge.id,
+      expiresAt: expiration,
+      metadata: { checkoutType, actorUserId },
+    })
+    let customerId
+    try {
+      customerId = await ensureStripeCustomer(db, stripe, account)
+    } catch (error) {
+      await releaseBillingPaymentAttempt(db, {
+        attemptId: reservation.id,
+        status: 'failed',
+        reason: `Stripe Checkout creation was not started: ${error?.message ?? String(error)}`,
+        remoteCreationDefinitelyNotStarted: true,
+      }).catch(() => {})
+      throw error
+    }
+    const metadata = {
+      checkoutType,
+      familyBillingAccountId: String(account.id),
+      billingChargeId: String(charge.id),
+      billingPaymentAttemptId: String(reservation.id),
+    }
+    const requestParams = {
       mode: 'payment',
       customer: customerId,
       client_reference_id: `billing-charge:${charge.id}`,
-      expires_at: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+      expires_at: checkoutExpirationSeconds(reservation),
       line_items: [{
         quantity: 1,
         price_data: {
@@ -849,35 +1132,128 @@ async function createBillingChargeCheckoutSession(pool, {
       cancel_url: cancelUrl,
       metadata,
       payment_intent_data: { metadata },
-    },
-    { idempotencyKey: `billing-charge-checkout-${charge.id}-${attemptKey || `attempt-${attempt}`}` },
-  )
-  await pool.query(
-    `UPDATE billing_charge
-     SET collection_status = 'checkout_pending', stripe_checkout_session_id = $2
-     WHERE id = $1`,
-    [charge.id, session.id],
-  )
-  await recordBillingActivity(pool, {
-    eventKey: `billing-charge-checkout:${charge.id}:${session.id}`,
-    accountId: account.id,
-    memberId: charge.member_id,
-    chargeId: charge.id,
-    eventType,
-    summary: `Secure payment link created for ${charge.description}.`,
-    details: {
-      amountCents,
-      expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
-    },
-    stripeObjectId: session.id,
-    actorUserId,
+    }
+    let created
+    try {
+      created = await createOrRecoverBillingCheckoutSession(db, stripe, {
+        attempt: reservation,
+        requestParams,
+      })
+    } catch (error) {
+      await attachBillingPaymentAttemptStripeObject(db, {
+        attemptId: reservation.id,
+        status: 'reconciliation_required',
+      }).catch(() => {})
+      throw error
+    }
+    const { session, expiresAt } = created
+    await db.query(
+      `UPDATE billing_charge
+       SET collection_status = 'checkout_pending', stripe_checkout_session_id = $2
+       WHERE id = $1`,
+      [charge.id, session.id],
+    )
+    await recordBillingActivity(db, {
+      eventKey: `billing-charge-checkout:${charge.id}:${session.id}`,
+      accountId: account.id,
+      memberId: charge.member_id,
+      chargeId: charge.id,
+      eventType,
+      summary: `Secure payment link created for ${charge.description}.`,
+      details: { amountCents, expiresAt, billingPaymentAttemptId: reservation.id },
+      stripeObjectId: session.id,
+      actorUserId,
+    })
+    return { id: session.id, url: session.url, amountCents, expiresAt, replayed: reservation.replayed }
   })
-  return {
-    id: session.id,
-    url: session.url,
-    amountCents,
-    expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
-  }
+}
+
+/** Create one account-balance Checkout Session backed by exact charge reservations. */
+export async function createCustomerBalanceCheckoutSession(pool, {
+  account,
+  successUrl,
+  cancelUrl,
+  analytics = null,
+  idempotencyKey = null,
+  attemptType = 'member_balance_checkout',
+}) {
+  if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
+  const stripe = await getStripeClient()
+  if (!stripe) throw new Error('Stripe is unavailable.')
+  const requestKey = String(idempotencyKey || randomUUID())
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    const existing = await loadBillingPaymentAttemptByRequestKey(db, {
+      accountId: account.id,
+      attemptType,
+      requestKey,
+    })
+    if (existing?.status === 'succeeded') {
+      return { id: existing.stripe_checkout_session_id, url: null, amountCents: existing.amount_cents, expiresAt: existing.expires_at, replayed: true, status: 'succeeded' }
+    }
+    if (existing?.status === 'pending' && existing.stripe_checkout_session_id && existing.stripe_checkout_url) {
+      return { id: existing.stripe_checkout_session_id, url: existing.stripe_checkout_url, amountCents: existing.amount_cents, expiresAt: existing.expires_at, replayed: true }
+    }
+    if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
+      throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
+    }
+    const amountCents = existing?.amount_cents ?? await loadCanonicalCollectibleBalanceCents(db, account.id)
+    if (amountCents <= 0) throw new Error('This account has no unpaid balance.')
+    const expiration = existing?.expires_at
+      ? new Date(existing.expires_at)
+      : new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
+      accountId: account.id,
+      attemptType,
+      requestKey,
+      amountCents,
+      expiresAt: expiration,
+      metadata: { checkoutType: 'outstanding_balance' },
+    })
+    let customerId
+    try {
+      customerId = await ensureStripeCustomer(db, stripe, account)
+    } catch (error) {
+      await releaseBillingPaymentAttempt(db, {
+        attemptId: reservation.id,
+        status: 'failed',
+        reason: `Stripe Checkout creation was not started: ${error?.message ?? String(error)}`,
+        remoteCreationDefinitelyNotStarted: true,
+      }).catch(() => {})
+      throw error
+    }
+    const params = buildBalanceCheckoutParams({
+      account,
+      customerId,
+      balanceCents: amountCents,
+      successUrl,
+      cancelUrl,
+      analytics,
+      nowMs: expiration.getTime() - 24 * 60 * 60 * 1000,
+    })
+    params.expires_at = checkoutExpirationSeconds(reservation)
+    const metadata = {
+      ...params.metadata,
+      checkoutType: 'outstanding_balance',
+      billingPaymentAttemptId: String(reservation.id),
+    }
+    params.metadata = metadata
+    params.payment_intent_data = { metadata }
+    let created
+    try {
+      created = await createOrRecoverBillingCheckoutSession(db, stripe, {
+        attempt: reservation,
+        requestParams: params,
+      })
+    } catch (error) {
+      await attachBillingPaymentAttemptStripeObject(db, {
+        attemptId: reservation.id,
+        status: 'reconciliation_required',
+      }).catch(() => {})
+      throw error
+    }
+    const { session, expiresAt } = created
+    return { id: session.id, url: session.url, amountCents, expiresAt, replayed: reservation.replayed }
+  })
 }
 
 export async function createCustomerBillingCustomCharge(pool, {
@@ -1041,7 +1417,20 @@ export class SavedCardCollectionError extends Error {
   }
 }
 
-/** Collect only the household's unpaid charges from periods before this month. */
+async function retrieveVerifiedCanceledPaymentIntent(stripe, intent) {
+  const paymentIntentId = typeof intent === 'string' ? intent : intent?.id
+  if (!paymentIntentId || typeof stripe?.paymentIntents?.retrieve !== 'function') return null
+  try {
+    const verified = await stripe.paymentIntents.retrieve(paymentIntentId)
+    return paymentIntentFailureIsFinal(verified) ? verified : null
+  } catch {
+    // A retrieval failure is not terminal proof. Keep the reservation so a
+    // delayed success cannot race a replacement collector.
+    return null
+  }
+}
+
+/** Collect only the balance not already reserved by a household invoice. */
 export async function collectOutstandingBalanceWithSavedCard(pool, {
   account,
   amountCents = null,
@@ -1049,91 +1438,153 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
   actorUserId = null,
   attemptKey = null,
 }) {
-  const outstanding = await pool.query(
-    `SELECT COALESCE(SUM(GREATEST(0, charge.amount_cents - COALESCE(application.applied_cents, 0))), 0)::int AS amount_cents
-       FROM billing_charge charge
-       LEFT JOIN LATERAL (
-         SELECT SUM(CASE WHEN item.application_kind = 'reversal' THEN -item.amount_cents ELSE item.amount_cents END)::int AS applied_cents
-           FROM billing_payment_application item
-          WHERE item.billing_charge_id = charge.id
-       ) application ON TRUE
-      WHERE charge.family_billing_account_id = $1
-        AND charge.amount_cents > 0
-        AND NOT EXISTS (
-          SELECT 1
-          FROM billing_monthly_invoice_line line
-          JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
-          WHERE line.billing_charge_id = charge.id
-            AND invoice.status IN ('draft', 'open', 'paid', 'payment_method_required')
-        )`,
-    [account.id],
-  )
-  const availableCents = Number(outstanding.rows[0]?.amount_cents ?? 0)
-  const amount = amountCents == null ? availableCents : positiveCents(amountCents, 'Collection amount')
-  if (availableCents <= 0) throw new Error('This account has no unpaid balance.')
-  if (amount > availableCents) throw new Error('The collection amount cannot exceed the current account balance.')
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const auth = validateAuthorization(authorization, amount)
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
-  const attempt = String(attemptKey || randomUUID())
-  await recordBillingActivity(pool, {
-    eventKey: `outstanding-balance-attempt:${account.id}:${attempt}`,
-    accountId: account.id,
-    eventType: 'outstanding_balance_payment_attempted',
-    summary: `Saved card collection attempted for the prior-month balance.`,
-    details: { amountCents: amount, authorization: auth },
-    actorUserId,
+  const requestKey = String(attemptKey || randomUUID())
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    const existing = await loadBillingPaymentAttemptByRequestKey(db, {
+      accountId: account.id,
+      attemptType: 'admin_balance_saved_card',
+      requestKey,
+    })
+    if (existing?.status === 'succeeded' && existing.billing_payment_id) {
+      const payment = await db.query(`SELECT * FROM billing_payment WHERE id = $1`, [existing.billing_payment_id])
+        .then((result) => result.rows[0] ?? null)
+      return { payment, amountCents: existing.amount_cents, replayed: true }
+    }
+    if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
+      throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
+    }
+    const availableCents = existing?.amount_cents ?? await loadCanonicalCollectibleBalanceCents(db, account.id)
+    const amount = amountCents == null ? availableCents : positiveCents(amountCents, 'Collection amount')
+    if (existing && amount !== existing.amount_cents) {
+      throw new Error('Payment idempotency key was reused with a different amount.')
+    }
+    if (availableCents <= 0) throw new Error('This account has no unpaid balance.')
+    if (!existing && amount > availableCents) throw new Error('The collection amount cannot exceed the current account balance.')
+    const auth = validateAuthorization(authorization, amount)
+    const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
+      accountId: account.id,
+      attemptType: 'admin_balance_saved_card',
+      requestKey,
+      amountCents: amount,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      metadata: { authorization: auth, actorUserId },
+    })
+    let customerId
+    let paymentMethodId
+    try {
+      customerId = await ensureStripeCustomer(db, stripe, account)
+      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
+    } catch (error) {
+      await releaseBillingPaymentAttempt(db, {
+        attemptId: reservation.id,
+        status: 'failed',
+        reason: `Stripe PaymentIntent creation was not started: ${error?.message ?? String(error)}`,
+        remoteCreationDefinitelyNotStarted: true,
+      }).catch(() => {})
+      throw error
+    }
+    await recordBillingActivity(db, {
+      eventKey: `outstanding-balance-attempt:${account.id}:${reservation.id}`,
+      accountId: account.id,
+      eventType: 'outstanding_balance_payment_attempted',
+      summary: 'Saved card collection attempted for the prior-month balance.',
+      details: { amountCents: amount, authorization: auth, billingPaymentAttemptId: reservation.id },
+      actorUserId,
+    })
+    await markBillingPaymentAttemptRemotePending(db, reservation.id)
+    let succeededIntent = null
+    try {
+      const intent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'usd',
+        customer: customerId,
+        payment_method: paymentMethodId,
+        off_session: true,
+        confirm: true,
+        description: 'Vortex Athletics account balance',
+        metadata: {
+          checkoutType: 'outstanding_balance',
+          familyBillingAccountId: String(account.id),
+          billingPaymentAttemptId: String(reservation.id),
+          authorizationDate: auth.date,
+          authorizationSource: auth.source.slice(0, 100),
+        },
+      }, { idempotencyKey: `billing-payment-attempt:${reservation.id}:intent` })
+      await attachBillingPaymentAttemptStripeObject(db, {
+        attemptId: reservation.id,
+        paymentIntentId: intent.id,
+        status: intent.status === 'succeeded' ? 'processing' : 'reconciliation_required',
+      })
+      if (intent.status !== 'succeeded') {
+        throw Object.assign(new Error(`Stripe payment requires additional action (${intent.status}).`), {
+          payment_intent: intent,
+        })
+      }
+      succeededIntent = intent
+      const settlement = await recordAndCompleteBillingPaymentAttempt(db, {
+        stripeObject: intent,
+        paymentIntentId: intent.id,
+        amountCents: intent.amount_received || intent.amount,
+        customerId,
+      })
+      if (settlement?.conflicted) {
+        throw new Error(`Stripe payment settlement requires reconciliation: ${settlement.reason}`)
+      }
+      const payment = settlement?.payment
+      if (!payment?.id) throw new Error('The successful Stripe payment was not recorded locally.')
+      await allocateHouseholdPayments(db, { accountId: account.id, actorType: 'system' })
+      await recordBillingActivity(db, {
+        eventKey: `outstanding-balance-paid:${account.id}:${intent.id}`,
+        accountId: account.id,
+        paymentId: payment.id,
+        eventType: 'outstanding_balance_payment_succeeded',
+        summary: 'Saved card payment collected for the prior-month balance.',
+        details: { amountCents: amount, billingPaymentAttemptId: reservation.id },
+        stripeObjectId: intent.id,
+        actorUserId,
+      })
+      return { payment, amountCents: amount, replayed: reservation.replayed }
+    } catch (error) {
+      const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
+      const canceledIntent = await retrieveVerifiedCanceledPaymentIntent(stripe, intent)
+      const finalFailure = Boolean(canceledIntent)
+      if (finalFailure) {
+        await releaseBillingPaymentAttempt(db, {
+          attemptId: reservation.id,
+          stripeObject: canceledIntent,
+          status: 'canceled',
+          reason: error?.message ?? String(error),
+        }).catch(() => {})
+      } else {
+        await attachBillingPaymentAttemptStripeObject(db, {
+          attemptId: reservation.id,
+          paymentIntentId: intent?.id ?? succeededIntent?.id ?? null,
+          status: 'reconciliation_required',
+        }).catch(() => {})
+      }
+      await recordBillingActivity(db, {
+        eventKey: `outstanding-balance-failed:${account.id}:${reservation.id}`,
+        accountId: account.id,
+        eventType: succeededIntent ? 'outstanding_balance_payment_reconciliation_required' : 'outstanding_balance_payment_failed',
+        summary: succeededIntent
+          ? 'Stripe accepted the saved-card balance payment, but local reconciliation is required.'
+          : 'Saved card payment failed for the prior-month balance.',
+        details: { amountCents: amount, reason: error?.message ?? String(error), billingPaymentAttemptId: reservation.id },
+        stripeObjectId: intent?.id ?? succeededIntent?.id ?? null,
+        actorUserId,
+      }).catch(() => {})
+      if (succeededIntent) {
+        throw new SavedCardCollectionError(
+          'Stripe accepted this balance payment, but local recording is still reconciling. Do not retry.',
+          { stripeStatus: 'succeeded' },
+        )
+      }
+      throw error
+    }
   })
-  try {
-    const intent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
-      customer: customerId,
-      payment_method: paymentMethodId,
-      off_session: true,
-      confirm: true,
-      description: 'Vortex Athletics account balance',
-      metadata: {
-        checkoutType: 'outstanding_balance',
-        familyBillingAccountId: String(account.id),
-        authorizationDate: auth.date,
-        authorizationSource: auth.source.slice(0, 100),
-      },
-    }, { idempotencyKey: `outstanding-balance-${account.id}-${attempt}` })
-    if (intent.status !== 'succeeded') throw new Error(`Stripe payment requires additional action (${intent.status}).`)
-    const payment = await recordStripePayment(pool, {
-      paymentIntentId: intent.id,
-      amountCents: intent.amount_received || intent.amount,
-      accountId: account.id,
-      customerId,
-    })
-    if (!payment?.id) throw new Error('The successful Stripe payment was not recorded locally.')
-    await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'system' })
-    await recordBillingActivity(pool, {
-      eventKey: `outstanding-balance-paid:${account.id}:${intent.id}`,
-      accountId: account.id,
-      paymentId: payment.id,
-      eventType: 'outstanding_balance_payment_succeeded',
-      summary: `Saved card payment collected for the prior-month balance.`,
-      details: { amountCents: amount },
-      stripeObjectId: intent.id,
-      actorUserId,
-    })
-    return { payment, amountCents: amount }
-  } catch (error) {
-    await recordBillingActivity(pool, {
-      eventKey: `outstanding-balance-failed:${account.id}:${attempt}`,
-      accountId: account.id,
-      eventType: 'outstanding_balance_payment_failed',
-      summary: `Saved card payment failed for the prior-month balance.`,
-      details: { amountCents: amount, reason: error?.message ?? String(error) },
-      actorUserId,
-    }).catch(() => {})
-    throw error
-  }
 }
 
 export async function collectCustomChargeWithSavedCard(pool, {
@@ -1146,172 +1597,237 @@ export async function collectCustomChargeWithSavedCard(pool, {
   attemptKey = null,
 }) {
   assertCustomCharge(charge)
-  if (charge.collection_status === 'paid') {
-    const payment = await pool.query(
-      `SELECT payment.*
-       FROM billing_payment_application application
-       JOIN billing_payment payment ON payment.id = application.billing_payment_id
-       WHERE application.billing_charge_id = $1`,
-      [charge.id],
-    ).then((result) => result.rows[0] ?? null)
-    if (!payment) throw new Error('This charge is marked paid but its payment application needs reconciliation.')
-    return { intent: null, payment, replayed: true }
-  }
-  assertCollectibleCustomCharge(charge)
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const auth = validateAuthorization(authorization, Number(charge.amount_cents))
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
-  const attempts = await pool.query(
-    `SELECT COUNT(*)::int AS count FROM billing_account_activity
-     WHERE related_charge_id = $1 AND event_type = 'saved_card_payment_attempted'`,
-    [charge.id],
-  )
-  const attempt = Number(attempts.rows[0]?.count ?? 0) + 1
-  await pool.query(
-    `UPDATE billing_charge
-     SET collection_status = 'processing', authorization_source = $2,
-         authorization_date = $3, authorization_note = $4
-     WHERE id = $1`,
-    [charge.id, auth.source, auth.date, auth.note],
-  )
-  await recordBillingActivity(pool, {
-    eventKey: `saved-card-attempt:${charge.id}:${attempt}`,
-    accountId: account.id,
-    memberId: charge.member_id,
-    chargeId: charge.id,
-    eventType: 'saved_card_payment_attempted',
-    summary: `Saved card charge attempted for ${charge.description}.`,
-    details: { amountCents: Number(charge.amount_cents), authorization: auth, attempt },
-    actorUserId,
-  })
-
-  let succeededIntent = null
-  try {
-    const intent = await stripe.paymentIntents.create(
-      {
-        amount: Number(charge.amount_cents),
-        currency: 'usd',
-        customer: customerId,
-        payment_method: paymentMethodId,
-        off_session: true,
-        confirm: true,
-        description: String(charge.description).slice(0, 500),
-        metadata: {
-          checkoutType: 'custom_charge',
-          familyBillingAccountId: String(account.id),
-          billingChargeId: String(charge.id),
-          authorizationDate: auth.date,
-          authorizationSource: auth.source.slice(0, 100),
-        },
-      },
-      { idempotencyKey: `custom-charge-${charge.id}-${attemptKey || `attempt-${attempt}`}` },
-    )
-    if (intent.status !== 'succeeded') {
-      throw Object.assign(new Error(`Stripe payment requires additional action (${intent.status}).`), {
-        payment_intent: intent,
-      })
+  const requestKey = String(attemptKey || randomUUID())
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    const currentCharge = await loadCharge(db, account.id, charge.id)
+    if (currentCharge.collection_status === 'paid') {
+      const payment = await db.query(
+        `SELECT payment.*
+         FROM billing_payment_application application
+         JOIN billing_payment payment ON payment.id = application.billing_payment_id
+         WHERE application.billing_charge_id = $1
+           AND payment.external_status IN ('settled', 'succeeded')
+         ORDER BY payment.id LIMIT 1`,
+        [currentCharge.id],
+      ).then((result) => result.rows[0] ?? null)
+      if (!payment) throw new Error('This charge is marked paid but its payment application needs reconciliation.')
+      return { intent: null, payment, replayed: true }
     }
-    succeededIntent = intent
-    const payment = await recordStripePayment(pool, {
-      paymentIntentId: intent.id,
-      amountCents: intent.amount_received || intent.amount,
+    assertCollectibleCustomCharge(currentCharge)
+    const existing = await loadBillingPaymentAttemptByRequestKey(db, {
       accountId: account.id,
-      customerId,
+      attemptType: 'charge_saved_card',
+      requestKey,
     })
-    if (!payment?.id) throw new Error('The successful Stripe payment was not recorded locally.')
-    await linkCustomerBillingPayment(pool, {
-      payment,
-      chargeId: charge.id,
+    if (existing?.status === 'succeeded' && existing.billing_payment_id) {
+      const payment = await db.query(`SELECT * FROM billing_payment WHERE id = $1`, [existing.billing_payment_id])
+        .then((result) => result.rows[0] ?? null)
+      return { intent: null, payment, replayed: true }
+    }
+    if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
+      throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
+    }
+    const amountCents = existing?.amount_cents
+      ?? await checkoutAmountForBillingCharge(db, { account, charge: currentCharge, requireManualCharge: true })
+    const auth = validateAuthorization(authorization, amountCents)
+    const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
       accountId: account.id,
-      stripeObjectId: intent.id,
-      actorType: 'system',
+      attemptType: 'charge_saved_card',
+      requestKey,
+      amountCents,
+      targetChargeId: currentCharge.id,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      metadata: { authorization: auth, actorUserId },
     })
-    return { intent, payment }
-  } catch (error) {
-    if (succeededIntent?.status === 'succeeded') {
-      await pool.query(
-        `UPDATE billing_charge
-         SET collection_status = 'processing', stripe_payment_intent_id = $2
-         WHERE id = $1`,
-        [charge.id, succeededIntent.id],
-      ).catch(() => {})
-      await pool.query(
-        `INSERT INTO stripe_billing_alert (
-           family_billing_account_id, alert_type, severity, stripe_object_id, message, details
-         ) VALUES ($1, 'custom_charge_reconciliation', 'critical', $2, $3, $4::jsonb)`,
-        [
-          account.id,
-          succeededIntent.id,
-          `Successful Stripe payment needs reconciliation for ${charge.description}.`,
-          JSON.stringify({ chargeId: Number(charge.id), amountCents: Number(charge.amount_cents), reason: error?.message ?? String(error) }),
-        ],
-      ).catch(() => {})
-      await recordBillingActivity(pool, {
-        eventKey: `saved-card-reconciliation:${charge.id}:${succeededIntent.id}`,
-        accountId: account.id,
-        memberId: charge.member_id,
-        chargeId: charge.id,
-        eventType: 'saved_card_payment_reconciliation_required',
-        summary: `Stripe accepted the saved-card charge for ${charge.description}, but local reconciliation is required.`,
-        details: { amountCents: Number(charge.amount_cents), reason: error?.message ?? String(error) },
-        stripeObjectId: succeededIntent.id,
-        actorUserId,
+    let customerId
+    let paymentMethodId
+    try {
+      customerId = await ensureStripeCustomer(db, stripe, account)
+      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
+    } catch (error) {
+      await releaseBillingPaymentAttempt(db, {
+        attemptId: reservation.id,
+        status: 'failed',
+        reason: `Stripe PaymentIntent creation was not started: ${error?.message ?? String(error)}`,
+        remoteCreationDefinitelyNotStarted: true,
       }).catch(() => {})
-      throw new SavedCardCollectionError(
-        'Stripe accepted this card payment, but local recording is still reconciling. Do not retry or send a fallback link.',
-        { fallback: null, stripeStatus: 'succeeded' },
-      )
+      throw error
     }
-    const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
-    await pool.query(
+    await db.query(
       `UPDATE billing_charge
-       SET collection_status = 'failed', stripe_payment_intent_id = COALESCE($2, stripe_payment_intent_id)
+       SET collection_status = 'processing', authorization_source = $2,
+           authorization_date = $3, authorization_note = $4
        WHERE id = $1`,
-      [charge.id, intent?.id ?? null],
+      [currentCharge.id, auth.source, auth.date, auth.note],
     )
-    await pool.query(
-      `INSERT INTO stripe_billing_alert (
-         family_billing_account_id, alert_type, severity, stripe_object_id, message, details
-       ) VALUES ($1, 'custom_charge_failed', 'warning', $2, $3, $4::jsonb)`,
-      [
-        account.id,
-        intent?.id ?? null,
-        `Saved card charge failed for ${charge.description}.`,
-        JSON.stringify({ chargeId: Number(charge.id), amountCents: Number(charge.amount_cents), reason: error?.message ?? String(error) }),
-      ],
-    ).catch(() => {})
-    await recordBillingActivity(pool, {
-      eventKey: `saved-card-failed:${charge.id}:${attempt}`,
+    await recordBillingActivity(db, {
+      eventKey: `saved-card-attempt:${currentCharge.id}:${reservation.id}`,
       accountId: account.id,
-      memberId: charge.member_id,
-      chargeId: charge.id,
-      eventType: 'saved_card_payment_failed',
-      summary: `Saved card charge failed for ${charge.description}.`,
-      details: { amountCents: Number(charge.amount_cents), reason: error?.message ?? String(error), attempt },
-      stripeObjectId: intent?.id ?? null,
+      memberId: currentCharge.member_id,
+      chargeId: currentCharge.id,
+      eventType: 'saved_card_payment_attempted',
+      summary: `Saved card charge attempted for ${currentCharge.description}.`,
+      details: { amountCents, authorization: auth, billingPaymentAttemptId: reservation.id },
       actorUserId,
     })
-    let fallback = null
+    await markBillingPaymentAttemptRemotePending(db, reservation.id)
+    let succeededIntent = null
     try {
-      fallback = await createCustomChargeCheckoutSession(pool, {
-        account,
-        charge,
-        successUrl,
-        cancelUrl,
-        actorUserId,
-        attemptKey: attemptKey ? `${attemptKey}-fallback` : null,
+      const intent = await stripe.paymentIntents.create(
+        {
+          amount: amountCents,
+          currency: 'usd',
+          customer: customerId,
+          payment_method: paymentMethodId,
+          off_session: true,
+          confirm: true,
+          description: String(currentCharge.description).slice(0, 500),
+          metadata: {
+            checkoutType: 'custom_charge',
+            familyBillingAccountId: String(account.id),
+            billingChargeId: String(currentCharge.id),
+            billingPaymentAttemptId: String(reservation.id),
+            authorizationDate: auth.date,
+            authorizationSource: auth.source.slice(0, 100),
+          },
+        },
+        { idempotencyKey: `billing-payment-attempt:${reservation.id}:intent` },
+      )
+      await attachBillingPaymentAttemptStripeObject(db, {
+        attemptId: reservation.id,
+        paymentIntentId: intent.id,
+        status: intent.status === 'succeeded' ? 'processing' : 'reconciliation_required',
       })
-    } catch {
-      // The ledger charge remains due even if a fallback link cannot be created.
+      if (intent.status !== 'succeeded') {
+        throw Object.assign(new Error(`Stripe payment requires additional action (${intent.status}).`), {
+          payment_intent: intent,
+        })
+      }
+      succeededIntent = intent
+      const settlement = await recordAndCompleteBillingPaymentAttempt(db, {
+        stripeObject: intent,
+        paymentIntentId: intent.id,
+        amountCents: intent.amount_received || intent.amount,
+        customerId,
+      })
+      if (settlement?.conflicted) {
+        throw new Error(`Stripe payment settlement requires reconciliation: ${settlement.reason}`)
+      }
+      const payment = settlement?.payment
+      if (!payment?.id) throw new Error('The successful Stripe payment was not recorded locally.')
+      await allocateHouseholdPayments(db, { accountId: account.id, actorType: 'system' })
+      await recordBillingActivity(db, {
+        eventKey: `custom-charge-paid:${currentCharge.id}:${payment.id}`,
+        accountId: account.id,
+        memberId: currentCharge.member_id,
+        chargeId: currentCharge.id,
+        paymentId: payment.id,
+        eventType: 'custom_charge_paid',
+        summary: `Payment received for ${currentCharge.description}.`,
+        afterValue: { paymentId: Number(payment.id), amountCents },
+        stripeObjectId: intent.id,
+        actorType: 'system',
+      })
+      return { intent, payment, replayed: reservation.replayed }
+    } catch (error) {
+      const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
+      const canceledIntent = await retrieveVerifiedCanceledPaymentIntent(stripe, intent)
+      const finalFailure = Boolean(canceledIntent)
+      if (finalFailure) {
+        await releaseBillingPaymentAttempt(db, {
+          attemptId: reservation.id,
+          stripeObject: canceledIntent,
+          status: 'canceled',
+          reason: error?.message ?? String(error),
+        }).catch(() => {})
+      } else {
+        await attachBillingPaymentAttemptStripeObject(db, {
+          attemptId: reservation.id,
+          paymentIntentId: intent?.id ?? succeededIntent?.id ?? null,
+          status: 'reconciliation_required',
+        }).catch(() => {})
+      }
+      await db.query(
+        `UPDATE billing_charge charge
+         SET collection_status = CASE
+               WHEN charge.collection_status = 'paid'
+                 OR COALESCE((
+                   SELECT SUM(CASE
+                     WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                     ELSE application.amount_cents
+                   END)
+                   FROM billing_payment_application application
+                   JOIN billing_payment payment ON payment.id = application.billing_payment_id
+                   WHERE application.billing_charge_id = charge.id
+                     AND payment.external_status IN ('settled', 'succeeded')
+                 ), 0) >= GREATEST(0, charge.amount_cents + COALESCE((
+                   SELECT SUM(adjustment.amount_cents)
+                   FROM billing_charge adjustment
+                   WHERE adjustment.related_charge_id = charge.id
+                     AND adjustment.source_type = 'charge_adjustment'
+                 ), 0)) THEN 'paid'
+               ELSE $2
+             END,
+             stripe_payment_intent_id = COALESCE($3, charge.stripe_payment_intent_id)
+         WHERE charge.id = $1`,
+        [currentCharge.id, finalFailure ? 'failed' : 'processing', intent?.id ?? succeededIntent?.id ?? null],
+      ).catch(() => {})
+      if (succeededIntent) {
+        await db.query(
+          `INSERT INTO stripe_billing_alert (
+             family_billing_account_id, alert_type, severity, stripe_object_id, message, details
+           ) VALUES ($1, 'custom_charge_reconciliation', 'critical', $2, $3, $4::jsonb)`,
+          [
+            account.id,
+            succeededIntent.id,
+            `Successful Stripe payment needs reconciliation for ${currentCharge.description}.`,
+            JSON.stringify({ chargeId: Number(currentCharge.id), amountCents, billingPaymentAttemptId: reservation.id, reason: error?.message ?? String(error) }),
+          ],
+        ).catch(() => {})
+      }
+      await recordBillingActivity(db, {
+        eventKey: `${succeededIntent ? 'saved-card-reconciliation' : 'saved-card-failed'}:${currentCharge.id}:${reservation.id}`,
+        accountId: account.id,
+        memberId: currentCharge.member_id,
+        chargeId: currentCharge.id,
+        eventType: succeededIntent ? 'saved_card_payment_reconciliation_required' : 'saved_card_payment_failed',
+        summary: succeededIntent
+          ? `Stripe accepted the saved-card charge for ${currentCharge.description}, but local reconciliation is required.`
+          : `Saved card charge failed for ${currentCharge.description}.`,
+        details: { amountCents, reason: error?.message ?? String(error), billingPaymentAttemptId: reservation.id },
+        stripeObjectId: intent?.id ?? succeededIntent?.id ?? null,
+        actorUserId,
+      }).catch(() => {})
+      if (!finalFailure) {
+        throw new SavedCardCollectionError(
+          succeededIntent
+            ? 'Stripe accepted this card payment, but local recording is still reconciling. Do not retry or send a fallback link.'
+            : 'This card attempt has an unresolved Stripe status. Do not retry or send a fallback link.',
+          { fallback: null, stripeStatus: intent?.status ?? succeededIntent?.status ?? null },
+        )
+      }
+      let fallback = null
+      try {
+        fallback = await createCustomChargeCheckoutSession(db, {
+          account,
+          charge: currentCharge,
+          successUrl,
+          cancelUrl,
+          actorUserId,
+          attemptKey: attemptKey ? `${attemptKey}-fallback` : null,
+        })
+      } catch {
+        // The immutable charge remains outstanding if a fallback cannot be created.
+      }
+      throw new SavedCardCollectionError(
+        error?.message ?? 'Saved card charge failed; the amount remains due.',
+        { fallback, stripeStatus: intent?.status ?? null },
+      )
     }
-    throw new SavedCardCollectionError(
-      error?.message ?? 'Saved card charge failed; the amount remains due.',
-      { fallback, stripeStatus: intent?.status ?? null },
-    )
-  }
+  })
 }
 
 export async function linkCustomerBillingPayment(pool, {
@@ -1366,7 +1882,9 @@ async function accountBalance(pool, accountId) {
   const result = await pool.query(
     `SELECT
        COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int
-       - COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int
+       - COALESCE((SELECT SUM(amount_cents) FROM billing_payment
+                   WHERE family_billing_account_id = $1
+                     AND external_status IN ('settled', 'succeeded')), 0)::int
        + COALESCE((SELECT SUM(amount_cents) FROM billing_refund
                    WHERE family_billing_account_id = $1 AND COALESCE(external_status, 'succeeded') = 'succeeded'), 0)::int
        AS balance_cents`,
@@ -1445,72 +1963,194 @@ export async function previewCustomerBillingRefund(pool, {
   }
 }
 
-export async function finalizeRefundLedgerTreatment(pool, refundOrId, { actorUserId = null, actorType = 'system' } = {}) {
-  const refund = typeof refundOrId === 'object'
+export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
+  actorUserId = null,
+  actorType = 'system',
+  collectionLockHeld = false,
+} = {}) {
+  const candidate = typeof refundOrId === 'object'
     ? refundOrId
     : await pool.query(`SELECT * FROM billing_refund WHERE id = $1`, [Number(refundOrId)]).then((result) => result.rows[0])
-  if (!refund || refund.external_status !== 'succeeded' || !refund.ledger_treatment) return refund ?? null
-  let offsetCredit = null
-  if (refund.ledger_treatment === 'reverse_charge') {
-    const result = await pool.query(
-      `INSERT INTO billing_charge (
-         family_billing_account_id, member_id, source_type, source_id,
-         description, amount_cents, gross_amount_cents, discount_amount_cents,
-         charge_type, billing_interval, related_charge_id,
-         collection_status, created_by_user_id, metadata
-       )
-       SELECT
-         $1, original.member_id, 'refund_offset', $2,
-         'Credit offset for refund #' || $3, -$4, -$4, 0,
-         'credit', 'one_time', original.id, 'none', $5,
-         jsonb_build_object('refundId', $3, 'ledgerTreatment', 'reverse_charge')
-       FROM billing_charge original WHERE original.id = $6
-       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
-       RETURNING *`,
-      [
-        refund.family_billing_account_id,
-        `refund:${refund.id}`,
-        refund.id,
-        Number(refund.amount_cents),
-        actorUserId,
-        refund.related_charge_id,
-      ],
-    )
-    offsetCredit = result.rows[0] ?? await pool.query(
-      `SELECT * FROM billing_charge WHERE source_type = 'refund_offset' AND source_id = $1`,
-      [`refund:${refund.id}`],
-    ).then((lookup) => lookup.rows[0] ?? null)
-    if (offsetCredit) {
-      await pool.query(
-        `UPDATE billing_refund SET offset_credit_charge_id = $2, updated_at = now() WHERE id = $1`,
-        [refund.id, offsetCredit.id],
-      )
-    }
+  if (!candidate) return null
+  const accountId = Number(candidate.family_billing_account_id)
+  if (!Number.isInteger(accountId) || accountId <= 0) {
+    throw new Error('Refund is not linked to a household billing account.')
   }
-  const applicationReversals = await reverseRefundedApplications(pool, { refund, actorType })
-  const membershipEnd = refund.ledger_treatment === 'reverse_charge'
-    ? await endRefundedAnnualMembership(pool, await getStripeClient(), refund)
-    : { ended: false, subscriptions: [] }
-  await recordBillingActivity(pool, {
-    eventKey: `refund-succeeded:${refund.id}`,
-    accountId: refund.family_billing_account_id,
-    chargeId: refund.related_charge_id,
-    paymentId: refund.payment_id,
-    refundId: refund.id,
-    eventType: 'refund_succeeded',
-    summary: `Refund #${refund.id} completed.`,
-    afterValue: {
-      amountCents: Number(refund.amount_cents),
-      ledgerTreatment: refund.ledger_treatment,
-      offsetCreditChargeId: offsetCredit ? Number(offsetCredit.id) : null,
-      paymentApplicationReversalIds: applicationReversals.map((row) => Number(row.id)),
-      annualMembershipEnded: membershipEnd.ended,
-    },
-    stripeObjectId: refund.stripe_refund_id,
-    actorUserId,
-    actorType,
-  })
-  return { ...refund, offset_credit_charge_id: offsetCredit?.id ?? refund.offset_credit_charge_id }
+
+  const finalizeUnderCollectionLock = async (db) => {
+    let transactionOpen = false
+    let finalized
+    let membershipEnd = { ended: false, subscriptions: [] }
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      const refund = await db.query(
+        `SELECT *
+           FROM billing_refund
+          WHERE id = $1 AND family_billing_account_id = $2
+          FOR UPDATE`,
+        [Number(candidate.id), accountId],
+      ).then((result) => result.rows[0] ?? null)
+      if (!refund) throw new Error('Refund was not found for this household account.')
+      if (refund.external_status !== 'succeeded' || !refund.ledger_treatment) {
+        await db.query('COMMIT')
+        transactionOpen = false
+        return refund
+      }
+
+      let offsetCredit = null
+      if (refund.ledger_treatment === 'reverse_charge') {
+        const relatedCharge = await db.query(
+          `SELECT id
+             FROM billing_charge
+            WHERE id = $1 AND family_billing_account_id = $2
+            FOR UPDATE`,
+          [Number(refund.related_charge_id), accountId],
+        ).then((result) => result.rows[0] ?? null)
+        if (!relatedCharge) throw new Error('Refund charge does not belong to this household account.')
+        const reserved = await db.query(
+          `SELECT 1
+             FROM billing_monthly_invoice_line line
+             JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
+            WHERE line.billing_charge_id = $1
+              AND invoice.status IN ('draft', 'open', 'payment_method_required', 'failed')
+            UNION ALL
+           SELECT 1
+             FROM billing_payment_attempt attempt
+             LEFT JOIN billing_payment_attempt_charge reservation
+               ON reservation.billing_payment_attempt_id = attempt.id
+            WHERE attempt.family_billing_account_id = $2
+              AND (
+                attempt.status IN ('pending', 'processing', 'reconciliation_required')
+                OR (attempt.status = 'reserved' AND attempt.expires_at > now())
+              )
+              AND (
+                reservation.billing_charge_id = $1
+                OR attempt.target_charge_id = $1
+              )
+            LIMIT 1`,
+          [relatedCharge.id, accountId],
+        )
+        if (reserved.rows[0]) {
+          const error = new Error('The refunded charge is reserved by an active collection attempt and requires reconciliation.')
+          error.code = 'REFUND_CHARGE_RESERVED'
+          throw error
+        }
+        const result = await db.query(
+          `INSERT INTO billing_charge (
+             family_billing_account_id, member_id, source_type, source_id,
+             description, amount_cents, gross_amount_cents, discount_amount_cents,
+             charge_type, billing_interval, related_charge_id,
+             collection_status, created_by_user_id, metadata
+           )
+           SELECT
+             $1, original.member_id, 'refund_offset', $2,
+             'Credit offset for refund #' || $3, -$4, -$4, 0,
+             'credit', 'one_time', original.id, 'none', $5,
+             jsonb_build_object('refundId', $3, 'ledgerTreatment', 'reverse_charge')
+           FROM billing_charge original
+           WHERE original.id = $6 AND original.family_billing_account_id = $1
+           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+           RETURNING *`,
+          [
+            accountId,
+            `refund:${refund.id}`,
+            refund.id,
+            Number(refund.amount_cents),
+            actorUserId,
+            refund.related_charge_id,
+          ],
+        )
+        offsetCredit = result.rows[0] ?? await db.query(
+          `SELECT *
+             FROM billing_charge
+            WHERE family_billing_account_id = $1
+              AND source_type = 'refund_offset'
+              AND source_id = $2
+            FOR UPDATE`,
+          [accountId, `refund:${refund.id}`],
+        ).then((lookup) => lookup.rows[0] ?? null)
+        if (!offsetCredit || Number(offsetCredit.related_charge_id) !== Number(refund.related_charge_id)) {
+          throw new Error(`Refund #${refund.id} has a conflicting ledger-offset credit.`)
+        }
+        await db.query(
+          `UPDATE billing_refund SET offset_credit_charge_id = $2, updated_at = now() WHERE id = $1`,
+          [refund.id, offsetCredit.id],
+        )
+      }
+
+      const applicationReversals = await reverseRefundedApplicationsLocked(db, { refund })
+      membershipEnd = refund.ledger_treatment === 'reverse_charge'
+        ? await endRefundedAnnualMembership(db, null, refund)
+        : membershipEnd
+      await recordBillingActivity(db, {
+        eventKey: `refund-succeeded:${refund.id}`,
+        accountId,
+        chargeId: refund.related_charge_id,
+        paymentId: refund.payment_id,
+        refundId: refund.id,
+        eventType: 'refund_succeeded',
+        summary: `Refund #${refund.id} completed.`,
+        afterValue: {
+          amountCents: Number(refund.amount_cents),
+          ledgerTreatment: refund.ledger_treatment,
+          offsetCreditChargeId: offsetCredit ? Number(offsetCredit.id) : null,
+          paymentApplicationReversalIds: applicationReversals.map((row) => Number(row.id)),
+          annualMembershipEnded: membershipEnd.ended,
+          annualMembershipSubscriptions: membershipEnd.subscriptions.map((row) => ({
+            billingSubscriptionId: Number(row.id),
+            stripeSubscriptionId: row.stripe_subscription_id ?? null,
+            memberId: row.member_id == null ? null : Number(row.member_id),
+            sourceId: row.source_id ?? null,
+          })),
+        },
+        stripeObjectId: refund.stripe_refund_id,
+        actorUserId,
+        actorType,
+      })
+      finalized = { ...refund, offset_credit_charge_id: offsetCredit?.id ?? refund.offset_credit_charge_id }
+      await db.query('COMMIT')
+      transactionOpen = false
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+
+    // Re-run allocation on the already-locked session, but in its own short
+    // transaction. This avoids nested BEGIN/COMMIT and lock reacquisition.
+    await allocateHouseholdPaymentsLocked(db, { accountId, actorType })
+
+    const remoteSubscriptions = membershipEnd.subscriptions.filter((row) => row.stripe_subscription_id)
+    if (remoteSubscriptions.length > 0) {
+      const stripe = await getStripeClient()
+      if (!stripe) {
+        const error = new Error('Stripe is unavailable; refunded annual membership cancellation remains pending.')
+        error.code = 'REFUND_MEMBERSHIP_STRIPE_CANCELLATION_PENDING'
+        throw error
+      }
+      await cancelRefundedAnnualMembershipSubscriptions(stripe, remoteSubscriptions)
+    }
+    return finalized
+  }
+  return collectionLockHeld
+    ? finalizeUnderCollectionLock(pool)
+    : withBillingAccountCollectionLock(pool, accountId, finalizeUnderCollectionLock)
+}
+
+export async function cancelRefundedAnnualMembershipSubscriptions(stripe, subscriptions) {
+  const results = []
+  for (const subscription of subscriptions) {
+    const subscriptionId = String(subscription?.stripe_subscription_id ?? '').trim()
+    if (!subscriptionId) continue
+    const remote = await stripe.subscriptions.retrieve(subscriptionId)
+    if (remote?.status === 'canceled') {
+      results.push({ id: subscriptionId, canceled: true, replayed: true })
+      continue
+    }
+    await stripe.subscriptions.cancel(subscriptionId, { prorate: false })
+    results.push({ id: subscriptionId, canceled: true, replayed: false })
+  }
+  return results
 }
 
 export async function createCustomerBillingRefund(pool, {
@@ -1529,67 +2169,85 @@ export async function createCustomerBillingRefund(pool, {
   const refundReason = String(reason ?? '').trim()
   if (!refundReason) throw new Error('A refund reason is required.')
   const requestKey = String(idempotencyKey ?? '').trim() || null
-  if (requestKey) {
-    const existing = await pool.query(
-      `SELECT * FROM billing_refund WHERE request_key = $1`,
-      [requestKey],
-    ).then((result) => result.rows[0] ?? null)
-    if (existing) {
-      const sameRequest =
-        Number(existing.family_billing_account_id) === Number(account.id) &&
-        Number(existing.payment_id) === Number(paymentId) &&
-        Number(existing.amount_cents) === Number(amountCents) &&
-        String(existing.ledger_treatment ?? '') === String(ledgerTreatment ?? '') &&
-        Number(existing.related_charge_id ?? 0) === Number(relatedChargeId ?? 0) &&
-        String(existing.exception_category ?? '') === String(exceptionCategory ?? '') &&
-        String(existing.evidence_note ?? '').trim() === String(evidenceNote ?? '').trim() &&
-        String(existing.reason ?? '').trim() === refundReason
-      if (!sameRequest) throw new Error('The refund request key was reused with different refund details.')
-      const finalized = await finalizeRefundLedgerTreatment(pool, existing, {
-        actorUserId,
-        actorType: 'admin',
-      })
-      return { refund: finalized, preview: null, replayed: true }
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    if (requestKey) {
+      const existing = await db.query(
+        `SELECT * FROM billing_refund WHERE request_key = $1`,
+        [requestKey],
+      ).then((result) => result.rows[0] ?? null)
+      if (existing) {
+        const sameRequest =
+          Number(existing.family_billing_account_id) === Number(account.id) &&
+          Number(existing.payment_id) === Number(paymentId) &&
+          Number(existing.amount_cents) === Number(amountCents) &&
+          String(existing.ledger_treatment ?? '') === String(ledgerTreatment ?? '') &&
+          Number(existing.related_charge_id ?? 0) === Number(relatedChargeId ?? 0) &&
+          String(existing.exception_category ?? '') === String(exceptionCategory ?? '') &&
+          String(existing.evidence_note ?? '').trim() === String(evidenceNote ?? '').trim() &&
+          String(existing.reason ?? '').trim() === refundReason
+        if (!sameRequest) throw new Error('The refund request key was reused with different refund details.')
+        const resumed = await createBillingRefund(db, {
+          accountId: account.id,
+          paymentId: paymentId == null ? null : Number(paymentId),
+          amountCents: Number(amountCents),
+          reason: refundReason,
+          createdByUserId: actorUserId,
+          exceptionCategory,
+          evidenceNote,
+          ledgerTreatment,
+          relatedChargeId: relatedChargeId == null ? null : Number(relatedChargeId),
+          requestKey,
+          collectionLockHeld: true,
+        })
+        const finalized = await finalizeRefundLedgerTreatment(db, resumed, {
+          actorUserId,
+          actorType: 'admin',
+          collectionLockHeld: true,
+        })
+        return { refund: finalized, preview: null, replayed: true }
+      }
     }
-  }
-  const preview = await previewCustomerBillingRefund(pool, {
-    account,
-    paymentId,
-    amountCents,
-    ledgerTreatment,
-    relatedChargeId,
-  })
-  const refund = await createBillingRefund(pool, {
-    accountId: account.id,
-    paymentId: preview.paymentId,
-    amountCents: preview.amountCents,
-    reason: refundReason,
-    createdByUserId: actorUserId,
-    exceptionCategory,
-    evidenceNote,
-    ledgerTreatment,
-    relatedChargeId: relatedChargeId == null ? null : Number(relatedChargeId),
-    requestKey,
-  })
-  const finalized = await finalizeRefundLedgerTreatment(pool, refund, {
-    actorUserId,
-    actorType: 'admin',
-  })
-  if (refund.external_status !== 'succeeded') {
-    await recordBillingActivity(pool, {
-      eventKey: `refund-created:${refund.id}`,
-      accountId: account.id,
-      chargeId: relatedChargeId,
-      paymentId: paymentId,
-      refundId: refund.id,
-      eventType: 'refund_pending',
-      summary: `Refund #${refund.id} was submitted to Stripe.`,
-      afterValue: { amountCents: preview.amountCents, ledgerTreatment, status: refund.external_status },
-      stripeObjectId: refund.stripe_refund_id,
-      actorUserId,
+    const preview = await previewCustomerBillingRefund(db, {
+      account,
+      paymentId,
+      amountCents,
+      ledgerTreatment,
+      relatedChargeId,
     })
-  }
-  return { refund: finalized, preview, replayed: Boolean(refund.idempotency_replayed) }
+    const refund = await createBillingRefund(db, {
+      accountId: account.id,
+      paymentId: preview.paymentId,
+      amountCents: preview.amountCents,
+      reason: refundReason,
+      createdByUserId: actorUserId,
+      exceptionCategory,
+      evidenceNote,
+      ledgerTreatment,
+      relatedChargeId: relatedChargeId == null ? null : Number(relatedChargeId),
+      requestKey,
+      collectionLockHeld: true,
+    })
+    const finalized = await finalizeRefundLedgerTreatment(db, refund, {
+      actorUserId,
+      actorType: 'admin',
+      collectionLockHeld: true,
+    })
+    if (refund.external_status !== 'succeeded') {
+      await recordBillingActivity(db, {
+        eventKey: `refund-created:${refund.id}`,
+        accountId: account.id,
+        chargeId: relatedChargeId,
+        paymentId: paymentId,
+        refundId: refund.id,
+        eventType: 'refund_pending',
+        summary: `Refund #${refund.id} was submitted to Stripe.`,
+        afterValue: { amountCents: preview.amountCents, ledgerTreatment, status: refund.external_status },
+        stripeObjectId: refund.stripe_refund_id,
+        actorUserId,
+      })
+    }
+    return { refund: finalized, preview, replayed: Boolean(refund.idempotency_replayed) }
+  })
 }
 
 export async function createCustomerBillingPaymentMethodLink(pool, {
@@ -1598,7 +2256,7 @@ export async function createCustomerBillingPaymentMethodLink(pool, {
   actorUserId,
 }) {
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const session = await createCustomerPortalSession(pool, { account, returnUrl })
+  const session = await createPaymentMethodSetupSession(pool, { account, returnUrl })
   if (!session?.url) throw new Error('Stripe did not return a payment-method update URL.')
   await recordBillingActivity(pool, {
     eventKey: `payment-method-link:${account.id}:${session.id}`,

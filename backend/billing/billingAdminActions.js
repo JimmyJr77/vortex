@@ -1,11 +1,5 @@
-let schemaEnsured = false
-
-export async function ensureBillingAdminActionSchema(pool) {
-  if (schemaEnsured) return
-  const fs = await import('fs')
-  const migrationPath = new URL('../migrations/249_billing_admin_action_log.sql', import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
-  schemaEnsured = true
+export async function ensureBillingAdminActionSchema() {
+  // Compatibility hook. Startup billing readiness owns this schema contract.
 }
 
 export async function beginBillingAdminAction(pool, {

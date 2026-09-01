@@ -18,13 +18,18 @@ function nextMonthStart(periodKey) {
   return next.toISOString().slice(0, 10)
 }
 
+function monthStart(dateValue) {
+  const value = dateOnly(dateValue)
+  return value ? `${value.slice(0, 7)}-01` : null
+}
+
 function periodBounds(periodValue) {
   const periodKey = billingMonthKey(periodValue)
   const start = `${periodKey}-01`
   const nextStart = nextMonthStart(periodKey)
   const endDate = new Date(`${nextStart}T00:00:00.000Z`)
   endDate.setUTCDate(endDate.getUTCDate() - 1)
-  return { periodKey, start, end: endDate.toISOString().slice(0, 10) }
+  return { periodKey, start, end: endDate.toISOString().slice(0, 10), next: nextStart }
 }
 
 function billingTypeFromBreakdown(value) {
@@ -46,28 +51,228 @@ function billingTypeFromBreakdown(value) {
   )
 }
 
-/** Pure lifecycle gate used by live billing, audit, and tests. */
-export function enrollmentBillsInPeriod(row, periodValue) {
-  const { start, end } = periodBounds(periodValue)
-  if (row.status !== 'confirmed' || row.orphaned_at != null) return false
-  if (billingTypeFromBreakdown(row.pricing_breakdown) === 'one_time') return false
+function field(row, snake, camel) {
+  return row?.[snake] ?? row?.[camel] ?? null
+}
 
-  const enrollmentStart = dateOnly(row.enrollment_start_date ?? row.created_at)
+/**
+ * Authoritative lifecycle classification shared by live pricing, migration
+ * shadow parity, charge posting, and final cutover verification.
+ */
+export function classifyEnrollmentBillingPeriod(row, periodValue, {
+  requireSubscriptionMapping = false,
+} = {}) {
+  const period = periodBounds(periodValue)
+  const sourceType = field(row, 'source_type', 'sourceType')
+  const sourceId = field(row, 'source_id', 'sourceId')
+  const signupIdValue = field(row, 'signup_id', 'signupId')
+  const signupId = signupIdValue == null ? null : Number(signupIdValue)
+  const signupStatus = requireSubscriptionMapping
+    ? field(row, 'signup_status', 'signupStatus')
+    : field(row, 'signup_status', 'signupStatus') ?? row?.status
+  const orphanedAt = field(row, 'signup_orphaned_at', 'signupOrphanedAt') ?? field(row, 'orphaned_at', 'orphanedAt')
+  const pricingBreakdown = field(row, 'pricing_breakdown', 'pricingBreakdown')
+
+  const result = (valid, billable, reason, extra = {}) => ({
+    valid,
+    billable,
+    reason,
+    periodKey: period.periodKey,
+    periodStart: period.start,
+    periodEnd: period.end,
+    nextPeriodStart: period.next,
+    allowsNoNextBill: false,
+    ...extra,
+  })
+
+  if (requireSubscriptionMapping) {
+    if (sourceType !== 'scheduling_signup' || !/^\d+$/.test(String(sourceId ?? ''))) {
+      return result(false, false, 'subscription_source_mapping_invalid')
+    }
+    if (!Number.isSafeInteger(signupId) || signupId <= 0 || String(signupId) !== String(sourceId)) {
+      return result(false, false, 'subscription_signup_mapping_missing')
+    }
+  }
+  if (orphanedAt != null) return result(false, false, 'signup_orphaned')
+  if (signupStatus !== 'confirmed') return result(false, false, 'signup_not_confirmed', { signupStatus })
+  if (billingTypeFromBreakdown(pricingBreakdown) === 'one_time') {
+    return result(false, false, 'one_time_enrollment_has_recurring_subscription')
+  }
+
+  const enrollmentStart = dateOnly(
+    field(row, 'enrollment_start_date', 'enrollmentStartDate') ??
+      field(row, 'signup_created_at', 'signupCreatedAt') ??
+      row?.created_at ?? row?.createdAt ?? field(row, 'start_date', 'startDate'),
+  )
   const activeStart = dateOnly(
-    row.offering_start_date ?? row.group_active_start ?? row.form_start_date,
+    field(row, 'offering_start_date', 'offeringStartDate') ??
+      field(row, 'group_active_start', 'groupActiveStart') ??
+      field(row, 'form_start_date', 'formStartDate') ??
+      field(row, 'class_active_start', 'classActiveStart'),
   )
   const activeEnd = dateOnly(
-    row.offering_end_date ?? row.group_active_end ?? row.form_end_date,
+    field(row, 'offering_end_date', 'offeringEndDate') ??
+      field(row, 'group_active_end', 'groupActiveEnd') ??
+      field(row, 'form_end_date', 'formEndDate') ??
+      field(row, 'class_active_end', 'classActiveEnd'),
   )
-  const cancellation = dateOnly(row.cancel_effective_date)
-  const pause = dateOnly(row.pause_effective_date)
+  const subscriptionEnd = dateOnly(field(row, 'end_date', 'endDate'))
+  const cancellation = dateOnly(field(row, 'cancel_effective_date', 'cancelEffectiveDate'))
+  const pause = dateOnly(field(row, 'pause_effective_date', 'pauseEffectiveDate'))
 
-  if (enrollmentStart && enrollmentStart > end) return false
-  if (activeStart && activeStart > end) return false
-  if (activeEnd && activeEnd < start) return false
-  if (cancellation && cancellation <= start) return false
-  if (pause && pause <= start) return false
-  return true
+  // An active local subscription left behind after service already ended is
+  // stale, not a valid target-month exclusion. Evaluate this before future or
+  // boundary exclusions so contradictory lifecycle dates fail closed.
+  if (activeEnd && activeEnd < period.start) {
+    return result(false, false, 'active_subscription_class_already_ended')
+  }
+  if (subscriptionEnd && subscriptionEnd < period.start) {
+    return result(false, false, 'active_subscription_already_ended')
+  }
+  if (enrollmentStart && enrollmentStart > period.end) {
+    const futureServiceStart = [enrollmentStart, activeStart]
+      .filter((value) => value && value > period.end)
+      .sort()
+      .at(-1)
+    return result(true, false, 'enrollment_starts_after_target_month', {
+      minimumNextBillDate: monthStart(futureServiceStart) ?? period.next,
+    })
+  }
+  if (activeStart && activeStart > period.end) {
+    return result(true, false, 'class_starts_after_target_month', {
+      minimumNextBillDate: monthStart(activeStart) ?? period.next,
+    })
+  }
+  if (cancellation && cancellation <= period.start) {
+    return result(true, false, 'cancellation_effective_by_target_month')
+  }
+  if (pause && pause <= period.start) {
+    return result(true, false, 'pause_effective_by_target_month')
+  }
+
+  const terminalCandidates = [
+    [activeEnd, 'class_ends_in_target_month'],
+    [subscriptionEnd, 'subscription_ends_in_target_month'],
+    [cancellation, 'cancellation_effective_next_boundary'],
+    [pause, 'pause_effective_next_boundary'],
+  ]
+  const terminal = terminalCandidates.find(([value]) => (
+    value && value >= period.start && value <= period.next
+  ))
+  return result(true, true, 'billable', terminal
+    ? { allowsNoNextBill: true, terminalReason: terminal[1], terminalDate: terminal[0] }
+    : {})
+}
+
+/**
+ * A lifecycle exclusion must not leave an earlier recurring schedule behind.
+ * Otherwise the ordinary catch-up worker can later charge a month that the
+ * canonical cutover deliberately excluded.
+ */
+export function validateEnrollmentBillingPeriodExclusionSchedule(
+  row,
+  periodValue,
+  lifecycle = null,
+) {
+  const period = periodBounds(periodValue)
+  const classification = lifecycle ?? classifyEnrollmentBillingPeriod(row, period.periodKey)
+  const nextBillDate = dateOnly(field(row, 'next_bill_date', 'nextBillDate'))
+  const base = {
+    applicable: classification.valid === true && classification.billable === false,
+    valid: true,
+    reason: null,
+    nextBillDate,
+    minimumNextBillDate: classification.minimumNextBillDate ?? null,
+  }
+  if (!base.applicable) return base
+
+  if (nextBillDate && !/^\d{4}-\d{2}-01$/.test(nextBillDate)) {
+    return { ...base, valid: false, reason: 'excluded_subscription_schedule_not_month_aligned' }
+  }
+
+  if (['enrollment_starts_after_target_month', 'class_starts_after_target_month'].includes(classification.reason)) {
+    const minimumNextBillDate = classification.minimumNextBillDate ?? period.next
+    if (!nextBillDate) {
+      return {
+        ...base,
+        valid: false,
+        reason: 'future_enrollment_schedule_missing',
+        minimumNextBillDate,
+      }
+    }
+    if (nextBillDate < minimumNextBillDate) {
+      return {
+        ...base,
+        valid: false,
+        reason: 'future_enrollment_schedule_before_service_month',
+        minimumNextBillDate,
+      }
+    }
+    return { ...base, minimumNextBillDate }
+  }
+
+  if (['cancellation_effective_by_target_month', 'pause_effective_by_target_month'].includes(classification.reason)) {
+    if (nextBillDate && nextBillDate < period.start) {
+      return {
+        ...base,
+        valid: false,
+        reason: 'excluded_subscription_prior_period_due',
+        minimumNextBillDate: period.start,
+      }
+    }
+    // The exact boundary remains legitimate while the scheduled lifecycle job
+    // atomically clears or pauses the subscription. A later date inside the
+    // excluded month would resurrect collection after that boundary.
+    if (nextBillDate && nextBillDate > period.start && nextBillDate < period.next) {
+      return {
+        ...base,
+        valid: false,
+        reason: 'excluded_subscription_target_period_due',
+        minimumNextBillDate: period.next,
+      }
+    }
+    return { ...base, minimumNextBillDate: period.start }
+  }
+
+  return {
+    ...base,
+    valid: false,
+    reason: 'unsupported_lifecycle_exclusion_schedule',
+  }
+}
+
+export function buildEnrollmentBillingPeriodManifest(rows = [], periodValue, options = {}) {
+  return rows.map((row) => {
+    const sourceId = field(row, 'source_id', 'sourceId')
+    const signupIdValue = field(row, 'signup_id', 'signupId')
+    const signupId = signupIdValue == null && /^\d+$/.test(String(sourceId ?? ''))
+      ? Number(sourceId)
+      : signupIdValue == null ? null : Number(signupIdValue)
+    const subscriptionIdValue = row?.subscription_id ?? row?.subscriptionId ?? row?.id
+    const lifecycle = classifyEnrollmentBillingPeriod(row, periodValue, options)
+    const exclusionSchedule = validateEnrollmentBillingPeriodExclusionSchedule(
+      row,
+      periodValue,
+      lifecycle,
+    )
+    return {
+      subscriptionId: subscriptionIdValue == null ? null : Number(subscriptionIdValue),
+      signupId,
+      subscriptionStatus: field(row, 'subscription_status', 'subscriptionStatus') ?? row?.status ?? null,
+      ...lifecycle,
+      exclusionScheduleValid: exclusionSchedule.applicable ? exclusionSchedule.valid : null,
+      exclusionScheduleReason: exclusionSchedule.applicable ? exclusionSchedule.reason : null,
+      exclusionNextBillDate: exclusionSchedule.applicable ? exclusionSchedule.nextBillDate : null,
+      exclusionMinimumNextBillDate: exclusionSchedule.applicable
+        ? exclusionSchedule.minimumNextBillDate
+        : null,
+    }
+  })
+}
+
+/** Pure lifecycle gate used by live billing, audit, and tests. */
+export function enrollmentBillsInPeriod(row, periodValue) {
+  return classifyEnrollmentBillingPeriod(row, periodValue).billable
 }
 
 async function loadEnrollmentLifecycle(pool, signupIds) {
@@ -129,6 +334,8 @@ export async function resolveFamilyEnrollmentPricing(pool, {
   periodKey = billingMonthKey(new Date()),
   subscriptions = null,
   charges = [],
+  ensureSchema = false,
+  strictPricing = false,
 } = {}) {
   const normalizedFamilyId = Number(familyId)
   const normalizedPeriodKey = billingMonthKey(periodKey)
@@ -146,6 +353,7 @@ export async function resolveFamilyEnrollmentPricing(pool, {
   const allLines = await buildFamilyExistingEnrollmentPreviewLines(pool, {
     familyId: normalizedFamilyId,
     pricingDate: billingPeriodEvaluationTime(normalizedPeriodKey),
+    ensureSchema,
   })
   const signupIds = allLines.map((line) => Number(line.signupId)).filter(Number.isFinite)
   const lifecycleRows = await loadEnrollmentLifecycle(pool, signupIds)
@@ -206,6 +414,7 @@ export async function resolveFamilyEnrollmentPricing(pool, {
     charges,
     periodKey: normalizedPeriodKey,
     lineMetadataBySignup: metadataBySignup,
+    strictPricing,
   })
   const metadata = metadataBySignup
   const lines = priced.lines.map((line) => {

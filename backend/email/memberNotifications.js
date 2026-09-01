@@ -197,8 +197,12 @@ export async function notifyPaymentReceipt(pool, {
         `
           SELECT
             COALESCE((SELECT SUM(amount_cents) FROM billing_charge WHERE family_billing_account_id = $1), 0)::int
-            - COALESCE((SELECT SUM(amount_cents) FROM billing_payment WHERE family_billing_account_id = $1), 0)::int
-            + COALESCE((SELECT SUM(amount_cents) FROM billing_refund WHERE family_billing_account_id = $1), 0)::int
+            - COALESCE((SELECT SUM(amount_cents) FROM billing_payment
+                        WHERE family_billing_account_id = $1
+                          AND external_status IN ('settled', 'succeeded')), 0)::int
+            + COALESCE((SELECT SUM(amount_cents) FROM billing_refund
+                        WHERE family_billing_account_id = $1
+                          AND COALESCE(external_status, 'succeeded') = 'succeeded'), 0)::int
             AS balance_cents
         `,
         [account.id],

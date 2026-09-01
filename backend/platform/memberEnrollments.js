@@ -12,7 +12,10 @@ import {
   slotLabelForSignupRow,
 } from '../scheduling/slotDisplayLabel.js'
 
-export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCancellations = false } = {}) {
+export async function queryFamilyMemberEnrollments(pool, memberIds, {
+  skipDueCancellations = false,
+  ensureSchema = true,
+} = {}) {
   if (!memberIds?.length) return []
 
   if (!skipDueCancellations) {
@@ -25,7 +28,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
   }
 
   const { resolveProgramsSchema, ensurePrimaryDisciplineTagColumn } = await import('../programs/schema.js')
-  await ensurePrimaryDisciplineTagColumn(pool)
+  if (ensureSchema) await ensurePrimaryDisciplineTagColumn(pool)
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
   const programFkColumn = schema.programFkColumn
@@ -106,7 +109,7 @@ export async function queryFamilyMemberEnrollments(pool, memberIds, { skipDueCan
   const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
   const formIds = schedulingResult.rows.map((row) => Number(row.form_id))
-  const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(pool, formIds)
+  const taxonomyByFormId = await loadEnrollmentTaxonomyByFormIds(pool, formIds, { ensureSchema })
 
   const schedulingRows = schedulingResult.rows.map((row) => {
     const displayStatus = row.cancellation_requested ? 'requested' : row.status

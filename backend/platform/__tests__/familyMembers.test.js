@@ -14,6 +14,8 @@ test('listActiveFamilyMemberIds includes fallback member when junction is empty'
   const ids = await listActiveFamilyMemberIds(pool, 42, { fallbackMemberId: 7 })
   assert.deepEqual(ids, [7])
   assert.match(queries[0].sql, /m\.family_id = \$1/)
+  assert.match(queries[0].sql, /NOT EXISTS/)
+  assert.match(queries[0].sql, /family_history\.member_id = m\.id/)
 })
 
 test('listActiveFamilyMemberIds dedupes fallback against query results', async () => {

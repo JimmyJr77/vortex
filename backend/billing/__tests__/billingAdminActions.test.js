@@ -11,7 +11,6 @@ test('billing admin actions preserve actor, related records, and completion outc
   const pool = {
     async query(sql, params = []) {
       calls.push({ sql, params })
-      if (sql.includes('CREATE TABLE') || sql.includes('-- Auditable')) return { rows: [] }
       if (sql.includes('INSERT INTO billing_admin_action')) return { rows: [{ id: 41, status: 'processing' }] }
       if (sql.includes('UPDATE billing_admin_action')) return { rows: [{ id: 41, status: params[1] }] }
       return { rows: [{ id: 41, action_type: 'payment_receipt_resent' }] }
@@ -35,4 +34,5 @@ test('billing admin actions preserve actor, related records, and completion outc
   assert.equal(finished.status, 'succeeded')
   const listed = await listBillingAdminActions(pool, 7)
   assert.equal(listed[0].action_type, 'payment_receipt_resent')
+  assert.equal(calls.some(({ sql }) => /\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)/i.test(sql)), false)
 })

@@ -18,38 +18,16 @@ import {
 import { loadCalendarRowsForSlotGroups } from './freePassEngine.js'
 import {
   safeSetSubscriptionPausedForSource,
+  setSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
 import { ensureBillingAccount } from './persistSignupCharges.js'
 import { resolveFamilyEnrollmentPricing } from '../billing/familyEnrollmentPricing.js'
 import { billingMonthKey } from '../billing/customerBillingPricing.js'
+import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
 
-export async function ensurePauseCreditTable(pool) {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS billing_pause_credit (
-      id                        BIGSERIAL PRIMARY KEY,
-      scheduling_signup_id      BIGINT NOT NULL REFERENCES scheduling_signup(id) ON DELETE CASCADE,
-      family_billing_account_id BIGINT NOT NULL REFERENCES family_billing_account(id) ON DELETE CASCADE,
-      member_id                 BIGINT REFERENCES member(id) ON DELETE SET NULL,
-      credit_cents              INTEGER NOT NULL CHECK (credit_cents > 0),
-      pause_date                DATE NOT NULL,
-      service_month             TEXT NOT NULL,
-      apply_on_month            TEXT NOT NULL,
-      remaining_classes         INTEGER,
-      credit_kind               TEXT NOT NULL DEFAULT 'pause',
-      applied_at                TIMESTAMPTZ,
-      created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
-      UNIQUE (scheduling_signup_id, pause_date)
-    )
-  `)
-  await pool.query(`
-    ALTER TABLE billing_pause_credit
-    ADD COLUMN IF NOT EXISTS credit_kind TEXT NOT NULL DEFAULT 'pause'
-  `)
-  await pool.query(`
-    CREATE INDEX IF NOT EXISTS idx_billing_pause_credit_apply
-      ON billing_pause_credit(apply_on_month)
-      WHERE applied_at IS NULL
-  `)
+export async function ensurePauseCreditTable() {
+  // Compatibility hook only. Migration 787 and process readiness own this
+  // schema so an enrollment request or recurring worker cannot execute DDL.
 }
 
 async function signupChargedForMonth(pool, signupId, monthStart, monthEnd) {
@@ -246,17 +224,24 @@ async function recordPauseCredit(pool, signup) {
 /**
  * Recompute household discount tiers and push updated discount/net onto active subscriptions.
  */
-export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
+export async function syncFamilyEnrollmentDiscounts(pool, familyId, {
+  strict = false,
+  periodKey = null,
+  syncStripe = true,
+} = {}) {
   if (!familyId) return { updated: 0 }
 
   let accountLines = []
   try {
     const pricing = await resolveFamilyEnrollmentPricing(pool, {
       familyId: Number(familyId),
-      periodKey: billingMonthKey(new Date()),
+      periodKey: periodKey ?? billingMonthKey(new Date()),
+      strictPricing: strict,
+      ensureSchema: false,
     })
     accountLines = pricing.lines ?? []
   } catch (err) {
+    if (strict) throw err
     console.warn('[pauseBilling] discount recompute failed:', err?.message ?? err)
     return { updated: 0 }
   }
@@ -287,6 +272,7 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
       }
     }
   } catch (err) {
+    if (strict) throw err
     console.warn('[pauseBilling] free-promo snapshot check:', err?.message ?? err)
   }
 
@@ -313,12 +299,21 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
         WHERE source_type = 'scheduling_signup'
           AND source_id = $1
           AND status = 'active'
+          AND family_billing_account_id IN (
+            SELECT id FROM family_billing_account WHERE family_id = $5
+          )
         RETURNING id
         `,
-        [String(line.signupId), gross, discount, net],
+        [String(line.signupId), gross, discount, net, Number(familyId)],
       )
       if (res.rows.length > 0) updated += 1
+      else if (strict) {
+        const error = new Error(`Enrollment ${line.signupId} changed during strict discount synchronization.`)
+        error.code = 'recurring_discount_sync_cas_failed'
+        throw error
+      }
     } catch (err) {
+      if (strict) throw err
       console.warn('[pauseBilling] subscription update', line.signupId, err?.message ?? err)
     }
   }
@@ -326,9 +321,20 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
   // Keep Stripe Prices aligned with household net amounts (e.g. 3-class / $450 → 20%).
   let stripeSync = { updated: 0 }
   try {
+    if (!syncStripe) return { updated, stripeUpdated: 0 }
     const { syncFamilyStripeSubscriptionAmounts } = await import('../billing/stripeSubscriptionSync.js')
     stripeSync = await syncFamilyStripeSubscriptionAmounts(pool, Number(familyId))
+    if (
+      strict &&
+      (stripeSync.reason || (stripeSync.results ?? []).some((result) => !['updated', 'unchanged'].includes(result.status)))
+    ) {
+      const error = new Error('Legacy Stripe subscription pricing did not synchronize exactly.')
+      error.code = 'legacy_stripe_discount_sync_failed'
+      error.details = stripeSync
+      throw error
+    }
   } catch (err) {
+    if (strict) throw err
     console.warn('[pauseBilling] stripe amount sync:', err?.message ?? err)
   }
 
@@ -339,7 +345,20 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
  * Post pending pause credits whose apply_on_month matches the billing period starting `periodStart`.
  * @returns {Promise<number>} credits posted
  */
-export async function applyPendingPauseCredits(pool, { periodStart }) {
+export async function applyPendingPauseCredits(pool, {
+  periodStart,
+  facilityId = null,
+  accountId = null,
+  strict = false,
+}) {
+  if (
+    strict &&
+    (accountId == null || facilityId == null || !/^\d{4}-\d{2}-\d{2}$/.test(String(periodStart ?? '')))
+  ) {
+    const error = new Error('Strict pause-credit posting requires an account, facility, and civil period date.')
+    error.code = 'strict_pause_credit_scope_required'
+    throw error
+  }
   const applyOnMonth = String(periodStart).slice(0, 7)
   let pending
   try {
@@ -350,12 +369,18 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
       FROM billing_pause_credit pc
       JOIN scheduling_signup s ON s.id = pc.scheduling_signup_id
       JOIN scheduling_form sf ON sf.id = s.form_id
-      WHERE pc.applied_at IS NULL AND pc.apply_on_month = $1
+      JOIN family_billing_account account ON account.id = pc.family_billing_account_id
+      JOIN family ON family.id = account.family_id
+      WHERE pc.applied_at IS NULL
+        AND pc.apply_on_month <= $1
+        AND ($2::bigint IS NULL OR family.facility_id = $2)
+        AND ($3::bigint IS NULL OR pc.family_billing_account_id = $3)
       ORDER BY pc.id
       `,
-      [applyOnMonth],
+      [applyOnMonth, facilityId, accountId],
     )
   } catch (err) {
+    if (strict) throw err
     console.warn('[pauseBilling] load pending credits:', err?.message ?? err)
     return 0
   }
@@ -387,12 +412,58 @@ export async function applyPendingPauseCredits(pool, { periodStart }) {
           -Math.abs(Number(row.credit_cents)),
         ],
       )
-      if (ins.rows.length > 0) {
-        await pool.query(`UPDATE billing_pause_credit SET applied_at = now() WHERE id = $1`, [row.id])
-        posted += 1
+      let chargeExists = ins.rows.length > 0
+      if (!chargeExists) {
+        const existing = await pool.query(
+          `SELECT id, family_billing_account_id, member_id, amount_cents,
+                  charge_type, billing_interval
+             FROM billing_charge
+            WHERE source_type = 'pause_credit' AND source_id = $1
+            LIMIT 1`,
+          [sourceId],
+        )
+        const prior = existing.rows[0] ?? null
+        chargeExists = Boolean(prior) &&
+          Number(prior.family_billing_account_id) === Number(row.family_billing_account_id) &&
+          (prior.member_id == null ? null : Number(prior.member_id)) ===
+            (row.member_id == null ? null : Number(row.member_id)) &&
+          Number(prior.amount_cents) === -Math.abs(Number(row.credit_cents)) &&
+          prior.charge_type === 'credit' &&
+          prior.billing_interval === 'one_time'
+        if (prior && !chargeExists) {
+          const error = new Error(`Pause credit ${row.id} conflicts with billing charge ${prior.id}.`)
+          error.code = 'pause_credit_idempotency_mismatch'
+          throw error
+        }
       }
+      if (!chargeExists) {
+        throw new Error(`Pause credit ${row.id} was not posted idempotently.`)
+      }
+      await pool.query(`UPDATE billing_pause_credit SET applied_at = now() WHERE id = $1`, [row.id])
+      if (ins.rows.length > 0) posted += 1
     } catch (err) {
+      if (strict) throw err
       console.warn('[pauseBilling] post credit', row.id, err?.message ?? err)
+    }
+  }
+  if (strict) {
+    const remaining = await pool.query(
+      `SELECT pc.id
+         FROM billing_pause_credit pc
+         JOIN family_billing_account account ON account.id = pc.family_billing_account_id
+         JOIN family ON family.id = account.family_id
+        WHERE pc.applied_at IS NULL
+          AND pc.apply_on_month <= $1
+          AND ($2::bigint IS NULL OR family.facility_id = $2)
+          AND ($3::bigint IS NULL OR pc.family_billing_account_id = $3)
+        ORDER BY pc.id
+        LIMIT 1`,
+      [applyOnMonth, facilityId, accountId],
+    )
+    if (remaining.rows[0]) {
+      const error = new Error(`Pause credit ${remaining.rows[0].id} remains unapplied for ${applyOnMonth}.`)
+      error.code = 'pause_credit_postcondition_failed'
+      throw error
     }
   }
   return posted
@@ -596,23 +667,49 @@ export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPau
  * Activate enrollments whose pause_effective_date has arrived (start-of-month pauses).
  * @returns {Promise<number>} count activated
  */
-export async function applyScheduledPauses(pool, { asOf = new Date() } = {}) {
-  const today = todayDateOnly(asOf)
+export async function applyScheduledPauses(pool, {
+  asOf = new Date(),
+  asOfDate = null,
+  strict = false,
+  accountId = null,
+  facilityId = null,
+  stripeStatusUpdater = setStripeSubscriptionOperationalStatus,
+} = {}) {
+  if (
+    strict &&
+    (accountId == null || facilityId == null || !/^\d{4}-\d{2}-\d{2}$/.test(String(asOfDate ?? '')))
+  ) {
+    const error = new Error('Strict scheduled-pause processing requires an account, facility, and civil as-of date.')
+    error.code = 'strict_scheduled_pause_scope_required'
+    throw error
+  }
+  const today = asOfDate ?? todayDateOnly(asOf)
+  const scoped = accountId != null || facilityId != null
   let due
   try {
     due = await pool.query(
       `
-      SELECT id, pause_effective_date, pause_mode
-      FROM scheduling_signup
-      WHERE pause_effective_date IS NOT NULL
-        AND pause_effective_date <= $1
-        AND status IN ('confirmed', 'waitlisted')
-        AND orphaned_at IS NULL
-      ORDER BY id
+      SELECT DISTINCT signup.id, signup.pause_effective_date, signup.pause_mode,
+             family.id AS family_id
+      FROM scheduling_signup signup
+      ${scoped ? `JOIN billing_subscription subscription
+        ON subscription.source_type = 'scheduling_signup'
+       AND subscription.source_id = signup.id::text
+       AND subscription.status <> 'cancelled'
+      JOIN family_billing_account account
+        ON account.id = subscription.family_billing_account_id
+      JOIN family ON family.id = account.family_id` : 'LEFT JOIN member ON member.id = signup.member_id LEFT JOIN family ON family.id = member.family_id'}
+      WHERE signup.pause_effective_date IS NOT NULL
+        AND signup.pause_effective_date <= $1
+        AND signup.status IN ('confirmed', 'waitlisted')
+        AND signup.orphaned_at IS NULL
+        ${scoped ? 'AND ($2::bigint IS NULL OR account.id = $2) AND ($3::bigint IS NULL OR family.facility_id = $3)' : ''}
+      ORDER BY signup.id
       `,
-      [today],
+      scoped ? [today, accountId, facilityId] : [today],
     )
   } catch (err) {
+    if (strict) throw err
     console.warn('[pauseBilling] applyScheduledPauses query:', err?.message ?? err)
     return 0
   }
@@ -621,26 +718,123 @@ export async function applyScheduledPauses(pool, { asOf = new Date() } = {}) {
   for (const row of due.rows) {
     const signupId = Number(row.id)
     const mode = row.pause_mode === 'prorated' ? 'prorated' : 'next_month'
-    const client = await pool.connect()
+    const ownsClient = typeof pool.release !== 'function' && typeof pool.connect === 'function'
+    const client = ownsClient ? await pool.connect() : pool
     try {
+      if (strict) {
+        const remoteSubscriptions = await client.query(
+          `SELECT stripe_subscription_id
+             FROM billing_subscription
+            WHERE family_billing_account_id = $1
+              AND source_type = 'scheduling_signup'
+              AND source_id = $2
+              AND status <> 'cancelled'
+              AND stripe_subscription_id IS NOT NULL
+            ORDER BY id`,
+          [Number(accountId), String(signupId)],
+        )
+        for (const subscription of remoteSubscriptions.rows) {
+          const outcome = await stripeStatusUpdater(subscription.stripe_subscription_id, 'paused')
+          if (outcome?.status !== 'paused') {
+            const error = new Error(`Stripe subscription ${subscription.stripe_subscription_id} could not be paused for enrollment ${signupId}.`)
+            error.code = 'enrollment_pause_stripe_sync_failed'
+            error.details = outcome
+            throw error
+          }
+        }
+      }
       await client.query('BEGIN')
+      if (strict) {
+        const locked = await client.query(
+          `SELECT id
+             FROM scheduling_signup
+            WHERE id = $1
+              AND pause_effective_date IS NOT NULL
+              AND pause_effective_date <= $2::date
+              AND status IN ('confirmed', 'waitlisted')
+              AND orphaned_at IS NULL
+            FOR UPDATE`,
+          [signupId, today],
+        )
+        if (!locked.rows[0]) {
+          await client.query('COMMIT')
+          continue
+        }
+        const lockedSubscriptions = await client.query(
+          `SELECT id
+             FROM billing_subscription
+            WHERE family_billing_account_id = $1
+              AND source_type = 'scheduling_signup'
+              AND source_id = $2
+              AND status <> 'cancelled'
+            ORDER BY id
+            FOR UPDATE`,
+          [Number(accountId), String(signupId)],
+        )
+        if (lockedSubscriptions.rows.length === 0) {
+          const error = new Error(`Enrollment ${signupId} lost its billing subscription before its pause.`)
+          error.code = 'enrollment_pause_subscription_missing'
+          throw error
+        }
+      }
       const { updateSignupLifecycleStatus } = await import('./enrollmentLifecycle.js')
-      await updateSignupLifecycleStatus(client, signupId, 'paused')
-      await client.query(
+      const signupStatus = await updateSignupLifecycleStatus(client, signupId, 'paused')
+      if (strict && !signupStatus.rows[0]) {
+        const error = new Error(`Enrollment ${signupId} changed while its pause was being applied.`)
+        error.code = 'enrollment_pause_cas_failed'
+        throw error
+      }
+      const cleared = await client.query(
         `
         UPDATE scheduling_signup
         SET pause_effective_date = NULL,
             pause_mode = $2
         WHERE id = $1
+          ${strict ? "AND status = 'paused' AND pause_effective_date <= $3::date" : ''}
+        RETURNING id
         `,
-        [signupId, mode],
+        strict ? [signupId, mode, today] : [signupId, mode],
       )
+      if (strict && !cleared.rows[0]) {
+        const error = new Error(`Enrollment ${signupId} pause schedule changed before it was cleared.`)
+        error.code = 'enrollment_pause_schedule_cas_failed'
+        throw error
+      }
+      if (strict) {
+        const pausedSubscriptions = await setSubscriptionPausedForSource(client, {
+          sourceType: 'scheduling_signup',
+          sourceId: signupId,
+          paused: true,
+        })
+        if (pausedSubscriptions.length === 0) {
+          const error = new Error(`Enrollment ${signupId} has no subscription to pause.`)
+          error.code = 'enrollment_pause_subscription_missing'
+          throw error
+        }
+        const remaining = await client.query(
+          `SELECT id
+             FROM billing_subscription
+            WHERE family_billing_account_id = $1
+              AND source_type = 'scheduling_signup'
+              AND source_id = $2
+              AND status NOT IN ('paused', 'cancelled')
+            LIMIT 1`,
+          [Number(accountId), String(signupId)],
+        )
+        if (remaining.rows[0]) {
+          const error = new Error(`Enrollment ${signupId} retained an active subscription after its pause.`)
+          error.code = 'enrollment_pause_postcondition_failed'
+          throw error
+        }
+      }
       await client.query('COMMIT')
-      await handleEnrollmentPauseBilling(pool, {
-        signupId,
-        enteringPaused: true,
-        pauseMode: mode,
-      })
+      if (!strict) {
+        await handleEnrollmentPauseBilling(pool, {
+          signupId,
+          enteringPaused: true,
+          pauseMode: mode,
+        })
+      }
       applied += 1
     } catch (err) {
       try {
@@ -648,9 +842,10 @@ export async function applyScheduledPauses(pool, { asOf = new Date() } = {}) {
       } catch {
         /* ignore */
       }
+      if (strict) throw err
       console.warn('[pauseBilling] applyScheduledPauses signup', signupId, err?.message ?? err)
     } finally {
-      client.release()
+      if (ownsClient) client.release()
     }
   }
   return applied

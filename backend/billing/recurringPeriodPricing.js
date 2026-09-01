@@ -189,6 +189,7 @@ export async function priceRecurringPeriod(pool, {
   proposedAdjustments = [],
   excludedAdjustmentIds = [],
   lineMetadataBySignup = new Map(),
+  strictPricing = false,
 }) {
   const normalizedPeriodKey = billingMonthKey(periodKey)
   const active = subscriptions.filter((subscription) => {
@@ -338,7 +339,14 @@ export async function priceRecurringPeriod(pool, {
       priced = eligible.map((subscription) => {
         const fallback = fallbackLine(subscription)
         const line = bySignup.get(fallback.signupId)
-        if (!line) return fallback
+        if (!line) {
+          if (strictPricing) {
+            const error = new Error(`Pricing engine omitted enrollment ${fallback.signupId}.`)
+            error.code = 'recurring_pricing_line_missing'
+            throw error
+          }
+          return fallback
+        }
         const grossCents = Number(line.baseCents ?? fallback.grossCents)
         const netCents = Number(line.finalCents ?? grossCents)
         return {
@@ -373,10 +381,18 @@ export async function priceRecurringPeriod(pool, {
         }
       })
     } catch (error) {
+      if (strictPricing) throw error
       console.warn('[billing] period discount preview:', error?.message ?? error)
     }
   }
-  if (priced.length === 0) priced = eligible.map(fallbackLine)
+  if (priced.length === 0) {
+    if (strictPricing && eligible.length > 0) {
+      const error = new Error('Pricing engine did not return authoritative recurring enrollment lines.')
+      error.code = 'recurring_pricing_engine_failed'
+      throw error
+    }
+    priced = eligible.map(fallbackLine)
+  }
 
   priced = priced.map((line) => {
     const adjustments = effectiveAdjustmentsBySignup.get(Number(line.signupId)) ?? []
@@ -414,6 +430,11 @@ export async function priceRecurringPeriod(pool, {
         priceAdjustment: appliedPromoAdjustments[0],
         priceAdjustments: appliedPromoAdjustments,
       }
+    }
+    if (strictPricing && promoAdjustments.length > 0) {
+      const error = new Error(`Pricing engine did not apply enrollment ${line.signupId}'s effective promotion.`)
+      error.code = 'recurring_pricing_adjustment_unresolved'
+      throw error
     }
     // Compatibility fallback for an incomplete legacy snapshot. New and migrated
     // promo assignments always resolve in the discount engine above.

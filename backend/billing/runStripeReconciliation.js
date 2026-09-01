@@ -6,6 +6,8 @@ import pg from 'pg'
 import { runStripeReconciliation } from './stripeReconciliation.js'
 import { getStripeClient } from './stripeBilling.js'
 import { repairSavedCardEnrollmentSubscriptions } from './enrollmentSubscriptionRepair.js'
+import { billingEnrollmentAutoRepairEnabled } from './billingFeatureFlags.js'
+import { assertRequiredBillingSchema } from './billingSchemaReadiness.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.join(__dirname, '..', '.env.local') })
@@ -16,13 +18,16 @@ const pool = new pg.Pool({
 })
 
 try {
+  await assertRequiredBillingSchema(pool)
   let enrollmentAutoPayRepair = null
   try {
     const stripe = await getStripeClient()
-    if (stripe) {
+    if (stripe && billingEnrollmentAutoRepairEnabled()) {
       enrollmentAutoPayRepair = await repairSavedCardEnrollmentSubscriptions(pool, stripe, {
         apply: true,
       })
+    } else if (stripe) {
+      enrollmentAutoPayRepair = { skipped: 'feature_disabled' }
     }
   } catch (error) {
     enrollmentAutoPayRepair = {

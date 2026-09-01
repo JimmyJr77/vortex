@@ -122,7 +122,39 @@ export interface CustomerBillingSubscription {
   pricingMonth: string
 }
 
+export interface CustomerBillingBundlePass {
+  id: number
+  memberId: number
+  memberName: string | null
+  programsId: number
+  packageId: string
+  packageLabel: string | null
+  classCountPurchased: number
+  classesRemaining: number
+  priceCents: number
+  status: string
+  expiresAt: string | null
+  purchasedAt: string | null
+}
+
+export interface CustomerBillingBundleUsage {
+  id: number
+  memberPassId: number
+  signupId: number | null
+  memberId: number | null
+  memberName: string | null
+  programsId: number
+  entryType: string
+  classesUsed: number
+  creditDelta: number | null
+  classesRemainingAfter: number
+  reason: string | null
+  packageLabel: string | null
+  createdAt: string
+}
+
 export interface CustomerBillingOverview {
+  revision: string | null
   account: {
     id: number
     familyId: number
@@ -145,6 +177,7 @@ export interface CustomerBillingOverview {
     paymentsCents: number
     refundsCents: number
     balanceCents: number
+    collectibleBalanceCents: number
     outstandingBalanceCents: number
     monthlyRecurringCents: number
     monthlyRecurringDiscountCents: number
@@ -186,6 +219,7 @@ export interface CustomerBillingOverview {
     subtotalCents: number
     creditCents: number
     totalCents: number
+    postPaymentCreditCents: number
     stripeInvoiceId: string | null
     hostedInvoiceUrl: string | null
     paymentAttemptedAt: string | null
@@ -194,6 +228,8 @@ export interface CustomerBillingOverview {
     lineCount: number
     lines: Array<{ id: number; memberName: string | null; description: string; lineType: string; amountCents: number }>
   }>
+  bundlePasses: CustomerBillingBundlePass[]
+  bundleUsage: CustomerBillingBundleUsage[]
   subscriptions: CustomerBillingSubscription[]
   adjustments: PriceAdjustment[]
 }
