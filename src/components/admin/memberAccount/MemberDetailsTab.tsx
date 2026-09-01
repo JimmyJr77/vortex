@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { formatDateForDisplay, formatTimestampDate, formatTimeSince, getMostRecentEnrollmentDate } from '../../../utils/dateUtils'
 import type { MemberDetailData, MemberFamilyData } from './types'
 
@@ -22,6 +23,15 @@ function formatAddress(member: MemberDetailData): string {
   return parts.length ? parts.join(', ') : 'N/A'
 }
 
+function DetailItem({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
+  return (
+    <div className={`flex min-w-0 items-baseline gap-2 text-sm ${className}`}>
+      <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+      <span className="min-w-0 break-words text-gray-900">{children}</span>
+    </div>
+  )
+}
+
 interface Props {
   member: MemberDetailData
   familyData: MemberFamilyData | null
@@ -33,73 +43,54 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
       {member.familyId && (
         <section className="rounded-lg border border-gray-200 bg-white p-4">
           <h4 className="text-sm font-semibold text-gray-900 mb-3">Family information</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-gray-600">Family name</span>
-              <div className="text-gray-900">{member.familyName || 'N/A'}</div>
-            </div>
-            <div>
-              <span className="text-gray-600">Family username</span>
-              <div className="text-gray-900">{member.familyUsername || familyData?.familyUsername || 'N/A'}</div>
-            </div>
-            <div>
-              <span className="text-gray-600">Family ID</span>
-              <div className="text-gray-900">{member.familyId}</div>
-            </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            <DetailItem label="Family name">{member.familyName || 'N/A'}</DetailItem>
+            <DetailItem label="Family username">{member.familyUsername || familyData?.familyUsername || 'N/A'}</DetailItem>
+            <DetailItem label="Family ID">{member.familyId}</DetailItem>
           </div>
         </section>
       )}
 
       <section className="rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact &amp; profile</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div><span className="text-gray-600">First name</span><div className="text-gray-900">{member.firstName}</div></div>
-          <div><span className="text-gray-600">Last name</span><div className="text-gray-900">{member.lastName}</div></div>
-          <div><span className="text-gray-600">Email</span><div className="text-gray-900">{member.email || 'N/A'}</div></div>
-          <div><span className="text-gray-600">Phone</span><div className="text-gray-900">{member.phone || 'N/A'}</div></div>
-          <div><span className="text-gray-600">Username</span><div className="text-gray-900">{member.username || 'N/A'}</div></div>
-          <div>
-            <span className="text-gray-600">Date of birth</span>
-            <div className="text-gray-900">
-              {member.dateOfBirth ? formatDateForDisplay(member.dateOfBirth) : 'N/A'}
-            </div>
-          </div>
-          {member.age != null && (
-            <div><span className="text-gray-600">Age</span><div className="text-gray-900">{member.age}</div></div>
-          )}
-          <div className="md:col-span-2">
-            <span className="text-gray-600">Address</span>
-            <div className="text-gray-900">{formatAddress(member)}</div>
-          </div>
+        <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <DetailItem label="First name">{member.firstName}</DetailItem>
+          <DetailItem label="Last name">{member.lastName}</DetailItem>
+          <DetailItem label="Email">{member.email || 'N/A'}</DetailItem>
+          <DetailItem label="Phone">{member.phone || 'N/A'}</DetailItem>
+          <DetailItem label="Username">{member.username || 'N/A'}</DetailItem>
+          <DetailItem label="Date of birth">{member.dateOfBirth ? formatDateForDisplay(member.dateOfBirth) : 'N/A'}</DetailItem>
+          {member.age != null && <DetailItem label="Age">{member.age}</DetailItem>}
+          <DetailItem label="Address" className="basis-full">{formatAddress(member)}</DetailItem>
         </div>
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="text-sm font-semibold text-gray-900 mb-3">Status &amp; roles</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-600">Account status</span>
-            <div className="mt-1">
-              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${member.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                {member.isActive ? 'Active' : 'Archived'}
-              </span>
-            </div>
-          </div>
-          <div>
-            <span className="text-gray-600">Enrollment status</span>
-            <div className="mt-1">
-              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                member.status === 'athlete' || member.status === 'enrolled'
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {member.status || 'Non-participant'}
-              </span>
-            </div>
-          </div>
-          <div className="md:col-span-2">
-            <span className="text-gray-600">Roles</span>
-            <div className="mt-1 flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <DetailItem label="Account status">
+            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${member.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+              {member.isActive ? 'Active' : 'Archived'}
+            </span>
+          </DetailItem>
+          <DetailItem label="Enrollment status">
+            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+              member.status === 'athlete' || member.status === 'enrolled'
+                ? 'bg-blue-50 text-blue-700'
+                : 'bg-gray-100 text-gray-600'
+            }`}>
+              {member.status || 'Non-participant'}
+            </span>
+          </DetailItem>
+          <DetailItem label="Waiver completion">
+            {member.hasCompletedWaivers
+              ? member.waiverCompletionDate
+                ? formatTimestampDate(member.waiverCompletionDate)
+                : 'Completed'
+              : 'Not completed'}
+          </DetailItem>
+          <DetailItem label="Roles" className="basis-full">
+            <span className="flex flex-wrap gap-1.5">
               {member.roles && member.roles.length > 0 ? (
                 member.roles.map((role) => (
                   <span key={role.id} className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700">
@@ -109,8 +100,8 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
               ) : (
                 <span className="text-gray-500">No roles assigned</span>
               )}
-            </div>
-          </div>
+            </span>
+          </DetailItem>
         </div>
       </section>
 
@@ -122,22 +113,6 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
               <div key={g.id} className="text-sm border border-gray-100 rounded-lg p-3">
                 <div className="font-medium text-gray-900">{g.firstName} {g.lastName}</div>
                 <div className="text-gray-600">{[g.email, g.phone, g.username].filter(Boolean).join(' · ') || '—'}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {member.children && member.children.length > 0 && (
-        <section className="rounded-lg border border-gray-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">Linked children</h4>
-          <div className="space-y-2">
-            {member.children.map((c) => (
-              <div key={c.id} className="text-sm border border-gray-100 rounded-lg p-3">
-                <div className="font-medium text-gray-900">{c.firstName} {c.lastName}</div>
-                <div className="text-gray-600">
-                  {[c.email, c.phone, c.dateOfBirth ? formatDateForDisplay(c.dateOfBirth) : null].filter(Boolean).join(' · ') || '—'}
-                </div>
               </div>
             ))}
           </div>
@@ -203,28 +178,6 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
           )}
         </section>
       )}
-
-      <section className="rounded-lg border border-gray-200 bg-white p-4">
-        <h4 className="text-sm font-semibold text-gray-900 mb-3">Waivers</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-600">Completed</span>
-            <div className="mt-1">
-              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                member.hasCompletedWaivers ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-              }`}>
-                {member.hasCompletedWaivers ? 'Yes' : 'No'}
-              </span>
-            </div>
-          </div>
-          {member.waiverCompletionDate && (
-            <div>
-              <span className="text-gray-600">Completion date</span>
-              <div className="text-gray-900">{formatTimestampDate(member.waiverCompletionDate)}</div>
-            </div>
-          )}
-        </div>
-      </section>
 
       {member.enrollments && member.enrollments.length > 0 && (
         <p className="text-xs text-gray-500">

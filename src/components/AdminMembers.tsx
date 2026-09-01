@@ -223,11 +223,7 @@ function matchesAccountViewFilter(member: UnifiedMember, filter: AccountViewFilt
   }
 }
 
-interface AdminMembersProps {
-  onOpenBilling?: (familyId: number, memberId: number) => void
-}
-
-export default function AdminMembers({ onOpenBilling }: AdminMembersProps) {
+export default function AdminMembers() {
   // Unified members state
   const [members, setMembers] = useState<UnifiedMember[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
@@ -391,7 +387,10 @@ export default function AdminMembers({ onOpenBilling }: AdminMembersProps) {
 
   const openMemberBilling = (member: UnifiedMember) => {
     if (member.familyId == null) return
-    onOpenBilling?.(member.familyId, member.id)
+    const url = new URL(window.location.href)
+    url.searchParams.set('adminBillingFamilyId', String(member.familyId))
+    url.searchParams.set('adminBillingMemberId', String(member.id))
+    window.open(url.toString(), '_blank', 'noopener,noreferrer')
   }
   
   // Effects

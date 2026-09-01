@@ -318,7 +318,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
     localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Billing Admin', email: 'billing@example.com', isMaster: true }))
   })
 
-  await page.route('**/api/**', async (route) => {
+  await page.context().route('**/api/**', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
     const json = (data: unknown, status = 200) => route.fulfill({
@@ -424,6 +424,42 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
       }])
+      return
+    }
+    if (url.pathname === '/api/admin/members/11') {
+      await json({
+        id: 11,
+        firstName: 'Jordan',
+        lastName: 'Rivera',
+        email: 'jordan@example.com',
+        phone: '(555) 010-2041',
+        username: 'jrivera',
+        dateOfBirth: '2014-08-18',
+        age: 12,
+        familyId: 42,
+        familyName: 'Rivera Household',
+        familyUsername: 'rivera-family',
+        billingStreet: '12 Main Street',
+        billingCity: 'Bowie',
+        billingState: 'MD',
+        billingZip: '20715',
+        status: 'enrolled',
+        isActive: true,
+        roles: [{ id: 'member-athlete', role: 'MEMBER_ATHLETE' }],
+        children: [{ id: 12, firstName: 'Taylor', lastName: 'Rivera', email: 'taylor@example.com' }],
+        hasCompletedWaivers: true,
+        waiverCompletionDate: '2026-08-18T15:25:00.000Z',
+      })
+      return
+    }
+    if (url.pathname === '/api/admin/families/42') {
+      await json({
+        familyUsername: 'rivera-family',
+        members: [
+          { id: 10, firstName: 'Alex', lastName: 'Rivera', email: 'alex.rivera@example.com', isFamilyPayer: true, isActive: true },
+          { id: 11, firstName: 'Jordan', lastName: 'Rivera', email: 'jordan@example.com', isActive: true },
+        ],
+      })
       return
     }
     if (url.pathname === '/api/admin/billing/cancellation-requests') {
@@ -644,17 +680,40 @@ test.describe('Account Billing & Enrollments administration', () => {
     }])
   })
 
-  test('opens the selected Vortex Account directly in Account Billing & Enrollments', async ({ page }) => {
+  test('opens the selected Vortex Account in a new Account Billing & Enrollments window', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
     await page.getByRole('button', { name: 'Vortex Accounts', exact: true }).click()
     await expect(page.getByRole('heading', { name: /Vortex Accounts/ })).toBeVisible()
+    const billingWindow = page.waitForEvent('popup')
     await page.getByRole('button', { name: "Open Jordan Rivera's Account Billing & Enrollments" }).click()
+    const popup = await billingWindow
+    await popup.waitForLoadState('domcontentloaded')
 
-    await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
-    await expect(page.getByText('Family #42 · Billing account #7')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
+    await expect(popup).toHaveURL(/adminBillingFamilyId=42/)
+    await expect(popup).toHaveURL(/adminBillingMemberId=11/)
+    await expect(popup.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
+    await expect(popup.getByText('Family #42 · Billing account #7')).toBeVisible()
+    await expect(popup.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
+  })
+
+  test('shows streamlined member details with waiver completion in status and roles', async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+    await openCustomerBilling(page, captured)
+
+    await page.getByRole('button', { name: 'Vortex Accounts', exact: true }).click()
+    const memberRow = page.getByRole('row', { name: /Rivera.*Jordan/ })
+    await memberRow.click()
+
+    await expect(page.getByRole('button', { name: 'Member Details', exact: true })).toHaveAttribute('class', /border-vortex-red/)
+    await expect(page.getByText('Family information', { exact: true })).toBeVisible()
+    await expect(page.getByText('Contact & profile', { exact: true })).toBeVisible()
+    const statusRoles = page.getByText('Status & roles', { exact: true }).locator('..')
+    await expect(statusRoles.getByText('Waiver completion', { exact: true })).toBeVisible()
+    await expect(statusRoles.getByText(/August 18, 2026/)).toBeVisible()
+    await expect(page.getByText('Linked children', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('Family members (2)', { exact: true })).toBeVisible()
   })
 
   test('opens an exact family ID directly at the household level', async ({ page }) => {

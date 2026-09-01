@@ -261,10 +261,15 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     setActiveGroup(groupForSection(tab))
   }, [])
 
-  const openMemberBilling = useCallback((familyId: number, memberId: number) => {
+  useEffect(() => {
+    if (accessLoading) return
+    const params = new URLSearchParams(window.location.search)
+    const familyId = Number(params.get('adminBillingFamilyId'))
+    const memberId = Number(params.get('adminBillingMemberId'))
+    if (!Number.isSafeInteger(familyId) || familyId <= 0 || !Number.isSafeInteger(memberId) || memberId <= 0) return
     setBillingAccountTarget({ familyId, memberId })
     goToSection('customerBilling')
-  }, [goToSection])
+  }, [accessLoading, goToSection])
 
   const adminFetch = useCallback(async <T,>(endpoint: string, options: RequestInit = {}): Promise<T> => {
     const res = await adminApiRequest(endpoint, options)
@@ -449,7 +454,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'admins':
         return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
       case 'membership':
-        return <AdminMembers onOpenBilling={openMemberBilling} />
+        return <AdminMembers />
       case 'messages':
         return (
           <AdminMessagesPanel
