@@ -3,6 +3,7 @@ export const DEPLOY_ACCESS_MIGRATIONS = Object.freeze([
   '801_canonical_member_relationships.sql',
   '802_retire_legacy_member_status_derivation.sql',
   '803_normalize_duplicate_legacy_usernames.sql',
+  '804_retire_legacy_member_column_contract.sql',
 ])
 
 export const REQUIRED_ACCESS_MIGRATIONS = DEPLOY_ACCESS_MIGRATIONS

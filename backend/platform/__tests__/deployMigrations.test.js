@@ -166,6 +166,15 @@ test('deploy checksum compatibility inventory is exact, filename-scoped, and can
         },
       ],
     },
+    '802_retire_legacy_member_status_derivation.sql': {
+      canonicalSha256: 'e1ccb13419a5ea49f7532989e83c0ccce86501b3bbbad17213cd2410fbafda9c',
+      historicalVariants: [
+        {
+          legacyChecksum: '3297345882',
+          sha256: 'ac46f48d7e7ab47bf7e52c69822ffe79725755c826d7be072bc4aa9ef0c4932f',
+        },
+      ],
+    },
   })
 
   for (const [filename, compatibility] of Object.entries(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {
@@ -306,6 +315,45 @@ test('deploy transactionally upgrades every approved historical checksum variant
       }
     }
   }
+})
+
+test('deploy accepts the original 802 checksum and applies its follow-up migration', async (t) => {
+  const migrationsDirectory = await migrationDirectory()
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  const client = fakeMigrationClient()
+  const historicalFilename = '802_retire_legacy_member_status_derivation.sql'
+  const followupFilename = '804_retire_legacy_member_column_contract.sql'
+
+  await fs.copyFile(
+    new URL(`../../migrations/${historicalFilename}`, import.meta.url),
+    path.join(migrationsDirectory, historicalFilename),
+  )
+
+  for (const filename of DEPLOY_MIGRATION_FILES) {
+    if (filename === followupFilename) continue
+    const sql = await fs.readFile(path.join(migrationsDirectory, filename), 'utf8')
+    client.applied.set(filename, migrationChecksum(sql))
+  }
+  client.applied.set(
+    historicalFilename,
+    DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY[historicalFilename].historicalVariants[0].sha256,
+  )
+
+  const result = await runDeployMigrations(client, {
+    migrationsDirectory,
+    logger: { info() {} },
+  })
+
+  assert.deepEqual(result.applied, [followupFilename])
+  assert.ok(result.skipped.includes(historicalFilename))
+  assert.equal(
+    client.applied.get(historicalFilename),
+    DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY[historicalFilename].historicalVariants[0].sha256,
+  )
+  assert.equal(
+    client.applied.get(followupFilename),
+    migrationChecksum(await fs.readFile(path.join(migrationsDirectory, followupFilename), 'utf8')),
+  )
 })
 
 test('deploy rejects an approved checksum under the wrong filename or changed canonical target', async (t) => {

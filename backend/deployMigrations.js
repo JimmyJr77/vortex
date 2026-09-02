@@ -64,6 +64,18 @@ export const DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY = Object.freeze({
       }),
     ]),
   }),
+  // The original 802 deployment retired defaults but still left the retired
+  // columns required. Migration 804 repairs that historical contract for
+  // existing databases; fresh databases run the current 802 directly.
+  '802_retire_legacy_member_status_derivation.sql': Object.freeze({
+    canonicalSha256: 'e1ccb13419a5ea49f7532989e83c0ccce86501b3bbbad17213cd2410fbafda9c',
+    historicalVariants: Object.freeze([
+      Object.freeze({
+        legacyChecksum: '3297345882',
+        sha256: 'ac46f48d7e7ab47bf7e52c69822ffe79725755c826d7be072bc4aa9ef0c4932f',
+      }),
+    ]),
+  }),
 })
 
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url))

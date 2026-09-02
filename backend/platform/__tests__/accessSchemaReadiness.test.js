@@ -78,6 +78,7 @@ test('identity/access readiness is separate from billing readiness and fails clo
     '801_canonical_member_relationships.sql',
     '802_retire_legacy_member_status_derivation.sql',
     '803_normalize_duplicate_legacy_usernames.sql',
+    '804_retire_legacy_member_column_contract.sql',
   ])
   assert.equal((await getRequiredAccessSchemaReadiness(readinessDb())).ready, true)
 

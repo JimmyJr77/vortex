@@ -6,6 +6,10 @@ const migrationUrl = new URL(
   '../../migrations/802_retire_legacy_member_status_derivation.sql',
   import.meta.url,
 )
+const contractFollowupMigrationUrl = new URL(
+  '../../migrations/804_retire_legacy_member_column_contract.sql',
+  import.meta.url,
+)
 
 test('legacy member status derivation is retired without deleting member data', async () => {
   const sql = await fs.readFile(migrationUrl, 'utf8')
@@ -25,5 +29,14 @@ test('legacy member status derivation is retired without deleting member data', 
   assert.match(sql, /ALTER TABLE member ALTER COLUMN has_completed_waivers DROP DEFAULT/)
   assert.match(sql, /ALTER TABLE member ALTER COLUMN has_completed_waivers DROP NOT NULL/)
   assert.doesNotMatch(sql, /DELETE\s+FROM\s+member\b/i)
+  assert.doesNotMatch(sql, /DROP\s+(?:TABLE|COLUMN)\b/i)
+})
+
+test('legacy member column-contract follow-up makes retired fields optional without dropping data', async () => {
+  const sql = await fs.readFile(contractFollowupMigrationUrl, 'utf8')
+
+  assert.match(sql, /ALTER TABLE member ALTER COLUMN status DROP NOT NULL/)
+  assert.match(sql, /ALTER TABLE member ALTER COLUMN parent_guardian_ids DROP NOT NULL/)
+  assert.match(sql, /ALTER TABLE member ALTER COLUMN has_completed_waivers DROP NOT NULL/)
   assert.doesNotMatch(sql, /DROP\s+(?:TABLE|COLUMN)\b/i)
 })
