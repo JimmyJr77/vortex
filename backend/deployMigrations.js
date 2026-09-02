@@ -51,6 +51,19 @@ export const DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY = Object.freeze({
       }),
     ]),
   }),
+  // The first production deployment recorded this exact access migration
+  // before its deterministic duplicate-username cleanup was added. A
+  // follow-up migration handles those existing databases; fresh databases run
+  // the current file directly.
+  '800_canonical_identity_access_context.sql': Object.freeze({
+    canonicalSha256: 'c17fc3e298b3e6bd51ea5e180cd0843733a7c973335a28e41b71e0563e8466f8',
+    historicalVariants: Object.freeze([
+      Object.freeze({
+        legacyChecksum: '2766698630',
+        sha256: '1f99fc49e2227e55f914c6dea3fa59932e6bcb402817fd05dbacf864367e7aa9',
+      }),
+    ]),
+  }),
 })
 
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url))

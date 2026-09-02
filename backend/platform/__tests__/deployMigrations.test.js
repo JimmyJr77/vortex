@@ -157,6 +157,15 @@ test('deploy checksum compatibility inventory is exact, filename-scoped, and can
         },
       ],
     },
+    '800_canonical_identity_access_context.sql': {
+      canonicalSha256: 'c17fc3e298b3e6bd51ea5e180cd0843733a7c973335a28e41b71e0563e8466f8',
+      historicalVariants: [
+        {
+          legacyChecksum: '2766698630',
+          sha256: '1f99fc49e2227e55f914c6dea3fa59932e6bcb402817fd05dbacf864367e7aa9',
+        },
+      ],
+    },
   })
 
   for (const [filename, compatibility] of Object.entries(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {
