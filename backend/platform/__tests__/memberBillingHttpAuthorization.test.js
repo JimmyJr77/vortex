@@ -104,11 +104,9 @@ function memberHeaders(extra = {}) {
   }
 }
 
-test('canonical member HTTP endpoints fail closed while the read rollout is inactive', { concurrency: false }, async () => {
+test('canonical member HTTP endpoints remain available when the global rollout flag is off', { concurrency: false }, async () => {
   const previousReadMode = process.env.BILLING_CANONICAL_READ_MODE
-  const previousV2 = process.env.MEMBER_BILLING_READ_V2
   process.env.BILLING_CANONICAL_READ_MODE = 'off'
-  process.env.MEMBER_BILLING_READ_V2 = 'true'
   const statements = []
   const pool = {
     async query(sql) {
@@ -116,7 +114,8 @@ test('canonical member HTTP endpoints fail closed while the read rollout is inac
       statements.push(statement)
       const auth = authenticationRows(statement)
       if (auth) return auth
-      throw new Error(`Billing query ran while canonical reads were off: ${statement}`)
+      if (statement.includes('WITH viewer AS')) return { rows: [] }
+      throw new Error(`Unexpected billing query: ${statement}`)
     },
   }
 
@@ -125,24 +124,20 @@ test('canonical member HTTP endpoints fail closed while the read rollout is inac
       path: '/api/members/billing/customer-account',
       headers: memberHeaders(),
     })
-    assert.equal(response.status, 503)
-    assert.equal(response.body.code, 'BILLING_CANONICAL_READ_INACTIVE')
+    assert.equal(response.status, 404)
+    assert.match(response.body.message, /Family billing account not found/i)
   } finally {
     if (previousReadMode == null) delete process.env.BILLING_CANONICAL_READ_MODE
     else process.env.BILLING_CANONICAL_READ_MODE = previousReadMode
-    if (previousV2 == null) delete process.env.MEMBER_BILLING_READ_V2
-    else process.env.MEMBER_BILLING_READ_V2 = previousV2
   }
-  assert.equal(statements.some((statement) => statement.includes('family_billing_account')), false)
+  assert.equal(statements.some((statement) => statement.includes('WITH viewer AS')), true)
 })
 
 test('an inactive household cannot reach canonical overview or payment checkout over HTTP', { concurrency: false }, async () => {
   const previousReadMode = process.env.BILLING_CANONICAL_READ_MODE
-  const previousV2 = process.env.MEMBER_BILLING_READ_V2
   const previousStripeEnabled = process.env.STRIPE_ENABLED
   const previousStripeSecret = process.env.STRIPE_SECRET_KEY
   process.env.BILLING_CANONICAL_READ_MODE = 'active'
-  process.env.MEMBER_BILLING_READ_V2 = 'true'
   process.env.STRIPE_ENABLED = 'true'
   process.env.STRIPE_SECRET_KEY = 'sk_test_member_http_authorization'
   const accountQueries = []
@@ -181,8 +176,6 @@ test('an inactive household cannot reach canonical overview or payment checkout 
   } finally {
     if (previousReadMode == null) delete process.env.BILLING_CANONICAL_READ_MODE
     else process.env.BILLING_CANONICAL_READ_MODE = previousReadMode
-    if (previousV2 == null) delete process.env.MEMBER_BILLING_READ_V2
-    else process.env.MEMBER_BILLING_READ_V2 = previousV2
     if (previousStripeEnabled == null) delete process.env.STRIPE_ENABLED
     else process.env.STRIPE_ENABLED = previousStripeEnabled
     if (previousStripeSecret == null) delete process.env.STRIPE_SECRET_KEY
@@ -198,10 +191,8 @@ test('an inactive household cannot reach canonical overview or payment checkout 
 
 test('unlinked staff ID collisions cannot access any member billing read or payer mutation', { concurrency: false }, async () => {
   const previousReadMode = process.env.BILLING_CANONICAL_READ_MODE
-  const previousV2 = process.env.MEMBER_BILLING_READ_V2
   const previousStripeEnabled = process.env.STRIPE_ENABLED
   process.env.BILLING_CANONICAL_READ_MODE = 'active'
-  process.env.MEMBER_BILLING_READ_V2 = 'true'
   process.env.STRIPE_ENABLED = 'true'
 
   const protectedRoutes = [
@@ -247,8 +238,6 @@ test('unlinked staff ID collisions cannot access any member billing read or paye
   } finally {
     if (previousReadMode == null) delete process.env.BILLING_CANONICAL_READ_MODE
     else process.env.BILLING_CANONICAL_READ_MODE = previousReadMode
-    if (previousV2 == null) delete process.env.MEMBER_BILLING_READ_V2
-    else process.env.MEMBER_BILLING_READ_V2 = previousV2
     if (previousStripeEnabled == null) delete process.env.STRIPE_ENABLED
     else process.env.STRIPE_ENABLED = previousStripeEnabled
   }
@@ -256,11 +245,9 @@ test('unlinked staff ID collisions cannot access any member billing read or paye
 
 test('an active linked non-payer cannot mutate household payment state', { concurrency: false }, async () => {
   const previousReadMode = process.env.BILLING_CANONICAL_READ_MODE
-  const previousV2 = process.env.MEMBER_BILLING_READ_V2
   const previousStripeEnabled = process.env.STRIPE_ENABLED
   const previousStripeSecret = process.env.STRIPE_SECRET_KEY
   process.env.BILLING_CANONICAL_READ_MODE = 'active'
-  process.env.MEMBER_BILLING_READ_V2 = 'true'
   process.env.STRIPE_ENABLED = 'true'
   process.env.STRIPE_SECRET_KEY = 'sk_test_linked_nonpayer'
   const statements = []
@@ -307,8 +294,6 @@ test('an active linked non-payer cannot mutate household payment state', { concu
   } finally {
     if (previousReadMode == null) delete process.env.BILLING_CANONICAL_READ_MODE
     else process.env.BILLING_CANONICAL_READ_MODE = previousReadMode
-    if (previousV2 == null) delete process.env.MEMBER_BILLING_READ_V2
-    else process.env.MEMBER_BILLING_READ_V2 = previousV2
     if (previousStripeEnabled == null) delete process.env.STRIPE_ENABLED
     else process.env.STRIPE_ENABLED = previousStripeEnabled
     if (previousStripeSecret == null) delete process.env.STRIPE_SECRET_KEY

@@ -104,7 +104,6 @@ import {
 } from '../billing/billingManualControls.js'
 import { registerCustomerBillingRoutes } from '../billing/customerBillingRoutes.js'
 import { createLegacyBillingEndpointMiddleware } from '../billing/billingLegacyRetirement.js'
-import { billingCanonicalReadMode } from '../billing/billingFeatureFlags.js'
 import { getAdminDashboard } from './adminDashboard.js'
 import { registerAccountDirectoryRoutes } from '../accounts/accountDirectory.js'
 import { listActiveFamilyMemberIds } from './familyMembers.js'
@@ -145,17 +144,6 @@ function sanitizeCheckoutAnalytics(raw) {
 
 function normalizeRoleKey(role) {
   return String(role || '').trim().toUpperCase()
-}
-
-export function memberBillingReadV2Enabled(environment = process.env) {
-  const canonicalReadMode = billingCanonicalReadMode(environment)
-  // Once legacy routes return 410 there is no safe UI rollback target. Keep the
-  // canonical reader on even if an obsolete flag value remains in deployment.
-  if (String(environment.BILLING_LEGACY_ENDPOINTS_MODE ?? 'enabled').trim().toLowerCase() === 'gone') {
-    return true
-  }
-  const rollbackEnabled = String(environment.MEMBER_BILLING_READ_V2 ?? 'true').trim().toLowerCase() !== 'false'
-  return rollbackEnabled && canonicalReadMode === 'active'
 }
 
 export function buildMemberCustomerBillingAccess(account, memberId, canViewHousehold = false) {
@@ -3026,13 +3014,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/members/billing/customer-account', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
-      if (!memberBillingReadV2Enabled()) {
-        return res.status(503).json({
-          success: false,
-          code: 'BILLING_CANONICAL_READ_INACTIVE',
-          message: 'Canonical household billing is not active for member reads.',
-        })
-      }
       const startedAt = Date.now()
       const ctx = req.platformAuth
       const memberId = linkedPlatformMemberId(ctx)
@@ -3083,13 +3064,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/members/billing/customer-account/transactions', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
-      if (!memberBillingReadV2Enabled()) {
-        return res.status(503).json({
-          success: false,
-          code: 'BILLING_CANONICAL_READ_INACTIVE',
-          message: 'Canonical household billing is not active for member reads.',
-        })
-      }
       const startedAt = Date.now()
       const ctx = req.platformAuth
       const memberId = linkedPlatformMemberId(ctx)
@@ -4569,7 +4543,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           tabOrder: config.member.tabOrder,
           navLayout: config.member.navLayout,
           stripeEnabled: isStripeEnabled(),
-          memberBillingReadV2: memberBillingReadV2Enabled(),
         },
       })
     } catch (err) {

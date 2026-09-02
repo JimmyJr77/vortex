@@ -159,12 +159,10 @@ async function openMemberPortal(
   page: Page,
   {
     isPayer = true,
-    memberBillingReadV2 = true,
     portalConfigFailure = false,
     hasMoreTransactions = false,
   }: {
     isPayer?: boolean
-    memberBillingReadV2?: boolean
     portalConfigFailure?: boolean
     hasMoreTransactions?: boolean
   } = {},
@@ -222,7 +220,9 @@ async function openMemberPortal(
         hiddenTabs: [],
         tabOrder: memberTabs,
         navLayout: memberTabs.map((key) => ({ type: 'tab', key })),
-        memberBillingReadV2,
+        // A stale deployment response cannot switch the portal back to the
+        // deprecated member billing screen.
+        memberBillingReadV2: false,
       })
       return
     }
@@ -394,16 +394,6 @@ test.describe('Member family billing', () => {
     await expect.poll(() => captured.transactionRequests).toBe(1)
     expect(captured.customerBillingRequests).toBe(1)
     expect(captured.legacyAccountRequests).toBe(0)
-  })
-
-  test('waits for portal configuration and uses only the legacy reader during rollback', async ({ page }) => {
-    const captured = await openMemberPortal(page, { memberBillingReadV2: false })
-
-    await page.getByRole('button', { name: 'Billing', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Current billing cycle', exact: true })).toBeVisible()
-    await expect.poll(() => captured.legacyAccountRequests).toBe(1)
-    expect(captured.customerBillingRequests).toBe(0)
-    expect(captured.transactionRequests).toBe(0)
   })
 
   test('portal configuration failure keeps canonical billing and never requests legacy data', async ({ page }) => {

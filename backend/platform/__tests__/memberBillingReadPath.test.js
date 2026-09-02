@@ -6,7 +6,6 @@ import {
   encodeMemberBillingTransactionCursor,
   linkedPlatformMemberId,
   loadAuthenticatedPlatformUser,
-  memberBillingReadV2Enabled,
   normalizeMemberBillingIdempotencyKey,
   resolveActiveMemberBillingFamilyId,
 } from '../registerRoutes.js'
@@ -92,40 +91,6 @@ test('ambiguous or invalid member billing family identity fails closed', async (
   assert.equal(
     await resolveActiveMemberBillingFamilyId(ambiguousPool, { memberId: 'invalid', facilityId: 9 }),
     null,
-  )
-})
-
-test('legacy member billing rollback is disabled after legacy endpoints are retired', () => {
-  assert.throws(
-    () => memberBillingReadV2Enabled({
-      BILLING_CANONICAL_READ_MODE: 'invalid',
-      BILLING_LEGACY_ENDPOINTS_MODE: 'gone',
-    }),
-    /BILLING_CANONICAL_READ_MODE/,
-  )
-  assert.equal(memberBillingReadV2Enabled({
-    MEMBER_BILLING_READ_V2: 'true',
-    BILLING_CANONICAL_READ_MODE: 'off',
-  }), false)
-  assert.equal(memberBillingReadV2Enabled({
-    MEMBER_BILLING_READ_V2: 'true',
-    BILLING_CANONICAL_READ_MODE: 'shadow',
-  }), false)
-  assert.equal(memberBillingReadV2Enabled({
-    MEMBER_BILLING_READ_V2: 'true',
-    BILLING_CANONICAL_READ_MODE: 'active',
-  }), true)
-  assert.equal(memberBillingReadV2Enabled({
-    MEMBER_BILLING_READ_V2: 'false',
-    BILLING_CANONICAL_READ_MODE: 'active',
-  }), false)
-  assert.equal(
-    memberBillingReadV2Enabled({
-      MEMBER_BILLING_READ_V2: 'false',
-      BILLING_CANONICAL_READ_MODE: 'off',
-      BILLING_LEGACY_ENDPOINTS_MODE: 'gone',
-    }),
-    true,
   )
 })
 
