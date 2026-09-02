@@ -42,6 +42,25 @@ UPDATE app_user
  WHERE username IS NOT NULL
    AND POSITION('@' IN username) > 0;
 
+-- A duplicated legacy username is not a usable sign-in identifier. When every
+-- affected account already has its own valid email login, remove just that
+-- ambiguous alias and preserve those email logins. Groups without a safe email
+-- login remain blocked by the duplicate preflight below rather than guessing
+-- which account should keep the username.
+WITH duplicated_usernames AS (
+  SELECT LOWER(BTRIM(username)) AS normalized_username
+    FROM app_user
+   WHERE NULLIF(BTRIM(username), '') IS NOT NULL
+   GROUP BY LOWER(BTRIM(username))
+  HAVING COUNT(*) > 1
+     AND BOOL_AND(POSITION('@' IN COALESCE(email, '')) > 1)
+)
+UPDATE app_user app_user_row
+   SET username = NULL,
+       updated_at = now()
+  FROM duplicated_usernames duplicate
+ WHERE LOWER(BTRIM(app_user_row.username)) = duplicate.normalized_username;
+
 DO $$
 DECLARE
   invalid_email TEXT;

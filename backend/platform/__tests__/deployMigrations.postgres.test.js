@@ -345,6 +345,12 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       );
 
       INSERT INTO app_user (
+        id, facility_id, role, email, username, full_name, password_hash
+      ) VALUES
+        (104, 10, 'MEMBER_ATHLETE', 'duplicate-one@test.invalid', 'legacy-shared', 'Duplicate Username One', 'hash'),
+        (105, 10, 'MEMBER_ATHLETE', 'duplicate-two@test.invalid', 'legacy-shared', 'Duplicate Username Two', 'hash');
+
+      INSERT INTO app_user (
         id, facility_id, role, email, full_name, password_hash, is_active
       ) VALUES (
         102, 10, 'ADMIN', 'legacy-disabled@test.invalid',
@@ -484,6 +490,17 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       email: 'legacy-username@test.invalid',
       username: null,
     })
+
+    const normalizedDuplicateUsernames = await client.query(
+      `SELECT id, email, username
+         FROM app_user
+        WHERE id IN (104, 105)
+        ORDER BY id`,
+    )
+    assert.deepEqual(normalizedDuplicateUsernames.rows, [
+      { id: '104', email: 'duplicate-one@test.invalid', username: null },
+      { id: '105', email: 'duplicate-two@test.invalid', username: null },
+    ])
 
     const legacyDisabledAccess = await client.query(
       `SELECT
