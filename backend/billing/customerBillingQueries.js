@@ -518,6 +518,10 @@ export async function buildCustomerBillingOverview(pool, {
   if (selectedMemberId != null && !members.some((member) => member.id === Number(selectedMemberId))) {
     throw new Error('Selected member does not belong to this family.')
   }
+  // Keep the ledger-card classification on the same upcoming month displayed
+  // by the recurring-fee card. A charge posted for the current (or past)
+  // month is already due and must remain in Outstanding balance.
+  const pricingMonth = upcomingRecurringPricingMonth()
 
   const rawSubscriptionsPromise = pool.query(
     `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
@@ -575,6 +579,7 @@ export async function buildCustomerBillingOverview(pool, {
     loadCanonicalFinancialSnapshot(pool, {
       accountId: account.id,
       subscriptions: result.rows,
+      recurringBillingMonth: pricingMonth,
     })
   ))
 
@@ -646,7 +651,6 @@ export async function buildCustomerBillingOverview(pool, {
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
   const nextBillDate = earliestActiveNextBillDate(rawSubscriptions.rows)
-  const pricingMonth = upcomingRecurringPricingMonth()
   const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId,

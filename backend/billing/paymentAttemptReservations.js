@@ -647,6 +647,16 @@ async function completeBillingPaymentAttemptLocked(db, {
     throw new BillingPaymentAttemptMappingConflict('Payment attempt did not apply its complete received amount.')
   }
 
+  // A payment can settle several charge reservations. The payment row is the
+  // canonical owner of its Stripe PaymentIntent, and the applications explain
+  // every funded charge. `billing_charge.stripe_payment_intent_id` is unique,
+  // so only a one-charge attempt may mirror that reference onto the charge.
+  const singleChargePaymentIntentId = reservations.length === 1
+    ? payment.stripe_payment_intent_id
+      ?? stripeObjectId(stripeObject?.payment_intent)
+      ?? stripeObjectId(stripeObject)
+    : null
+
   await db.query(
     `UPDATE billing_charge charge
         SET collection_status = CASE
@@ -675,7 +685,7 @@ async function completeBillingPaymentAttemptLocked(db, {
           FROM billing_payment_attempt_charge
          WHERE billing_payment_attempt_id = $1
       )`,
-    [attempt.id, attempt.target_charge_id, payment.stripe_payment_intent_id ?? stripeObjectId(stripeObject?.payment_intent) ?? stripeObjectId(stripeObject)],
+    [attempt.id, attempt.target_charge_id, singleChargePaymentIntentId],
   )
   const updated = await db.query(
     `UPDATE billing_payment_attempt

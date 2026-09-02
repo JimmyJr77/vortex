@@ -57,6 +57,34 @@ test('canonical snapshot includes a hidden corrective credit reflected by the ne
   assert.equal(snapshot.futureCreditsCents, 6376)
 })
 
+test('a posted prior-month tuition charge stays outstanding while the recurring card previews next month', () => {
+  const snapshot = buildCanonicalFinancialSnapshot({
+    totals: { charges_cents: 34000, payments_cents: 0, refunds_cents: 0 },
+    charges: [
+      {
+        id: 91,
+        amount_cents: 12750,
+        remaining_amount_cents: 12750,
+        charge_type: 'recurring',
+        service_period_start: '2026-09-01',
+      },
+      {
+        id: 92,
+        amount_cents: 12750,
+        remaining_amount_cents: 12750,
+        charge_type: 'recurring',
+        service_period_start: '2026-09-01',
+      },
+      { id: 93, amount_cents: 8500, remaining_amount_cents: 8500, charge_type: 'one_time' },
+    ],
+    recurringBillingMonth: '2026-10',
+  })
+
+  assert.equal(snapshot.outstandingBalanceCents, 34000)
+  assert.equal(snapshot.futureCreditsCents, 0)
+  assert.equal(snapshot.recurringBillingMonth, '2026-10')
+})
+
 test('canonical overview snapshot reads only lightweight ledger state and performs no DDL', async () => {
   const calls = []
   const pool = {
@@ -92,6 +120,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     accountId: 8,
     subscriptions: [{ status: 'active', next_bill_date: '2026-09-01', net_monthly_cents: 12000 }],
     asOf: new Date('2026-08-31T12:00:00.000Z'),
+    recurringBillingMonth: '2026-10',
   })
 
   assert.deepEqual(snapshot, {
@@ -109,7 +138,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
       method: 'card',
     },
     revision: 'revision-1',
-    recurringBillingMonth: '2026-09',
+    recurringBillingMonth: '2026-10',
     collectibleBalanceCents: 7000,
   })
   assert.equal(calls.length, 4)

@@ -11,6 +11,8 @@ interface CapturedRequests {
   newEnrollments?: Array<Record<string, unknown>>
   externalPayments?: Array<Record<string, unknown>>
   externalPaymentKeys?: string[]
+  balanceCollections?: Array<Record<string, unknown>>
+  balanceCollectionKeys?: string[]
   passAdjustments?: Array<Record<string, unknown>>
   passAdjustmentKeys?: string[]
   overviewLoads?: number
@@ -475,6 +477,8 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       captured.overviewLoads = (captured.overviewLoads ?? 0) + 1
       const recordedPaymentCents = (captured.externalPayments ?? [])
         .reduce((total, payment) => total + Number(payment.amountCents ?? 0), 0)
+        + (captured.balanceCollections ?? [])
+          .reduce((total, payment) => total + Number(payment.amountCents ?? 0), 0)
       let classesRemaining = overview.bundlePasses[0].classesRemaining
       const adjustmentUsage = (captured.passAdjustments ?? []).map((adjustment, index) => {
         const delta = Number(adjustment.delta ?? 0)
@@ -613,6 +617,18 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       captured.externalPayments?.push(request.postDataJSON() as Record<string, unknown>)
       captured.externalPaymentKeys?.push(request.headers()['idempotency-key'] ?? '')
       await json({ payment: { id: 701 }, replayed: false }, 201)
+      return
+    }
+    if (url.pathname === '/api/admin/customer-billing/families/42/process-outstanding-balance' && request.method() === 'POST') {
+      const collection = request.postDataJSON() as Record<string, unknown>
+      captured.balanceCollections?.push(collection)
+      captured.balanceCollectionKeys?.push(request.headers()['idempotency-key'] ?? '')
+      const amountCents = Number(collection.amountCents ?? 0)
+      await json({
+        payment: { id: 702, amountCents },
+        amountCents,
+        remainingBalanceCents: overview.summary.balanceCents - amountCents,
+      })
       return
     }
     if (url.pathname === '/api/admin/entitlements/multi-class-passes/55/adjustments' && request.method() === 'POST') {
@@ -829,6 +845,37 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.passAdjustmentKeys?.[0]).not.toBe(captured.externalPaymentKeys?.[0])
     expect(captured.overviewLoads).toBeGreaterThanOrEqual(3)
     expect(captured.transactionLoads).toBeGreaterThanOrEqual(3)
+  })
+
+  test('settles a saved-card account payment once, closes the form, and refreshes the remaining balance', async ({ page }) => {
+    const captured: CapturedRequests = {
+      searchQueries: [],
+      priceChanges: [],
+      customCharges: [],
+      customChargeKeys: [],
+      refunds: [],
+      refundKeys: [],
+      retryCount: 0,
+      balanceCollections: [],
+      balanceCollectionKeys: [],
+    }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+
+    await page.getByRole('button', { name: 'Process Payment' }).click()
+    const paymentDialog = page.getByRole('dialog', { name: 'Process Payment' })
+    await paymentDialog.getByLabel('Authorization source').fill('Phone authorization')
+    await paymentDialog.getByLabel('Authorization note').fill('Alex Rivera approved the exact account balance by phone.')
+    await paymentDialog.getByText('I confirm the exact amount of $145.00 for this saved-card charge.').click()
+    await paymentDialog.getByRole('button', { name: 'Charge $145.00' }).click()
+
+    await expect(paymentDialog).toHaveCount(0)
+    await expect(page.getByText('Saved card charged $145.00 and applied to the account balance. $0.00 remains.')).toBeVisible()
+    await expect(page.getByText('Account balance', { exact: true }).locator('..').getByText('$0.00', { exact: true })).toBeVisible()
+    expect(captured.balanceCollections).toHaveLength(1)
+    expect(captured.balanceCollections?.[0]).toMatchObject({ amountCents: 14_500 })
+    expect(captured.balanceCollectionKeys?.[0]).toMatch(/^balance-/)
+    expect(captured.balanceCollectionKeys?.[0]).toBe(captured.balanceCollections?.[0].requestKey)
   })
 
   test('keeps external payment recording available for a household credit balance', async ({ page }) => {

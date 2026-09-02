@@ -96,8 +96,10 @@ export async function loadCanonicalFinancialSnapshot(pool, {
   accountId,
   subscriptions = [],
   asOf = new Date(),
+  recurringBillingMonth = null,
 }) {
-  const recurringBillingMonth = canonicalRecurringBillingMonth(subscriptions, asOf)
+  const effectiveRecurringBillingMonth = recurringBillingMonth
+    ?? canonicalRecurringBillingMonth(subscriptions, asOf)
   const currentMonth = billingMonthKey(asOf)
   const [totalsResult, chargeResult, paymentResult, collectibleBalanceCents] = await Promise.all([
     pool.query(
@@ -315,7 +317,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
                 AND linked_credit.amount_cents < 0
            )
         ORDER BY candidate.created_at DESC, candidate.id DESC`,
-      [Number(accountId), recurringBillingMonth],
+      [Number(accountId), effectiveRecurringBillingMonth],
     ),
     pool.query(
       `/* canonical-billing:unapplied-payments */
@@ -366,7 +368,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
       charges: chargeResult.rows,
       payments: paymentResult.rows,
       subscriptions,
-      recurringBillingMonth,
+      recurringBillingMonth: effectiveRecurringBillingMonth,
     }),
     collectibleBalanceCents,
   }

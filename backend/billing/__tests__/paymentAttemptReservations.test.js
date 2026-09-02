@@ -278,6 +278,7 @@ function completionPool() {
   const state = {
     attempt,
     applications: [],
+    chargeUpdates: [],
     lockCalls: [],
     lines: [
       { billing_payment_attempt_id: 9, billing_charge_id: 10, amount_cents: 7000, description: 'July', member_id: 1 },
@@ -316,7 +317,10 @@ function completionPool() {
         state.applications.push({ paymentId: params[0], chargeId: params[1], amountCents: params[2], key: params[3] })
         return { rows: [] }
       }
-      if (text.includes('UPDATE billing_charge charge')) return { rows: [] }
+      if (text.includes('UPDATE billing_charge charge')) {
+        state.chargeUpdates.push(params)
+        return { rows: [] }
+      }
       if (text.includes("SET status = 'succeeded'")) {
         state.attempt = {
           ...state.attempt,
@@ -357,6 +361,7 @@ test('webhook completion applies only the charges carried by the reservation', a
     { paymentId: 22, chargeId: 10, amountCents: 7000, key: 'payment-attempt:9:charge:10' },
     { paymentId: 22, chargeId: 11, amountCents: 2000, key: 'payment-attempt:9:charge:11' },
   ])
+  assert.equal(pool.state.chargeUpdates[0][2], null)
   assert.ok(pool.state.lockCalls.some(({ text }) => text.includes('pg_advisory_lock')))
 })
 

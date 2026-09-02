@@ -1,5 +1,6 @@
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyPaymentRequest, notifyRefundReceipt } from '../email/memberNotifications.js'
+import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import {
   buildCustomerBillingOverview,
   ensureCustomerBillingAccount,
@@ -661,8 +662,27 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           attemptKey: idempotencyKey(req, 'outstanding-balance'),
         })
         notifyPaymentReceipt(pool, { account, payment: data.payment, billingUrl: `${publicAppUrl()}/?billing=portal-return` }).catch(() => {})
-        res.json({ success: true, data })
+        // The collector has already committed the payment and exact charge
+        // applications. Read the canonical balance after that commit so the
+        // UI can immediately show what was paid and what remains.
+        const snapshot = await loadCanonicalFinancialSnapshot(pool, { accountId: account.id })
+        res.json({
+          success: true,
+          data: {
+            ...data,
+            remainingBalanceCents: snapshot.balanceCents,
+            remainingCollectibleBalanceCents: snapshot.collectibleBalanceCents,
+          },
+        })
       } catch (error) {
+        if (error instanceof SavedCardCollectionError) {
+          return res.status(409).json({
+            success: false,
+            code: 'PAYMENT_RECONCILIATION_PENDING',
+            message: error.message,
+            data: { stripeStatus: error.stripeStatus },
+          })
+        }
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Prior-month balance could not be collected.' })
       }
     },
