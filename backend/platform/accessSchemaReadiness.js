@@ -1,8 +1,10 @@
 export const DEPLOY_ACCESS_MIGRATIONS = Object.freeze([
+  // This preflight resolves deterministic legacy identifiers before migration
+  // 800 installs its strict global login-namespace constraints.
+  '803_normalize_duplicate_legacy_usernames.sql',
   '800_canonical_identity_access_context.sql',
   '801_canonical_member_relationships.sql',
   '802_retire_legacy_member_status_derivation.sql',
-  '803_normalize_duplicate_legacy_usernames.sql',
   '804_retire_legacy_member_column_contract.sql',
 ])
 

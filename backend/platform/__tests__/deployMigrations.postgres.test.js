@@ -351,6 +351,12 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
         (105, 10, 'MEMBER_ATHLETE', 'duplicate-two@test.invalid', 'legacy-shared', 'Duplicate Username Two', 'hash');
 
       INSERT INTO app_user (
+        id, facility_id, role, email, username, full_name, password_hash
+      ) VALUES
+        (106, 10, 'MEMBER_ATHLETE', 'email-backed@test.invalid', 'legacy-required', 'Email-backed Duplicate', 'hash'),
+        (107, 10, 'MEMBER_ATHLETE', NULL, 'legacy-required', 'Username-only Duplicate', 'hash');
+
+      INSERT INTO app_user (
         id, facility_id, role, email, full_name, password_hash, is_active
       ) VALUES (
         102, 10, 'ADMIN', 'legacy-disabled@test.invalid',
@@ -500,6 +506,17 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
     assert.deepEqual(normalizedDuplicateUsernames.rows, [
       { id: '104', email: 'duplicate-one@test.invalid', username: null },
       { id: '105', email: 'duplicate-two@test.invalid', username: null },
+    ])
+
+    const preservedUsernameOnlyLogin = await client.query(
+      `SELECT id, email, username
+         FROM app_user
+        WHERE id IN (106, 107)
+        ORDER BY id`,
+    )
+    assert.deepEqual(preservedUsernameOnlyLogin.rows, [
+      { id: '106', email: 'email-backed@test.invalid', username: null },
+      { id: '107', email: null, username: 'legacy-required' },
     ])
 
     const legacyDisabledAccess = await client.query(
