@@ -344,7 +344,7 @@ export default function AdminMarketingVisibility({ canManage }: { canManage: boo
       </div>
 
       {notice && <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><CheckCircle2 className="h-5 w-5" />{notice}</div>}
-      {!canManage && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">You have read-only access. A marketing manager or master admin can update channels and create packages.</div>}
+      {!canManage && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">You have read-only access. A marketing manager or the Owner can update channels and create packages.</div>}
       {error && <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><AlertCircle className="h-5 w-5" />{error}</div>}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

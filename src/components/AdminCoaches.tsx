@@ -191,7 +191,7 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Coach Management</h2>
         <p className="text-sm text-gray-600">
-          Assign coaches from the top-level program down to a specific timeslot. Master admins can edit, archive, and permanently delete coach accounts.
+          Assign coaches from the top-level program down to a specific timeslot. Owners can edit, archive, and permanently delete coach accounts.
         </p>
       </div>
 

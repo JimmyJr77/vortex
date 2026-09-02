@@ -10,6 +10,7 @@ import {
   runDeployMigrations,
 } from '../../deployMigrations.js'
 import { assertDeployBillingSchema } from '../../billing/billingSchemaReadiness.js'
+import { assertDeployAccessSchema } from '../accessSchemaReadiness.js'
 
 const { Pool } = pg
 
@@ -59,15 +60,86 @@ async function resetPublicSchema(client) {
 async function createPrerequisiteSchema(client) {
   await client.query(`
     CREATE TABLE facility (
-      id BIGSERIAL PRIMARY KEY
+      id BIGSERIAL PRIMARY KEY,
+      name TEXT NOT NULL DEFAULT 'Test Facility',
+      timezone TEXT NOT NULL DEFAULT 'America/New_York',
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TYPE user_role AS ENUM ('MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE');
+
+    CREATE TABLE app_user (
+      id BIGSERIAL PRIMARY KEY,
+      facility_id BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+      role user_role NOT NULL,
+      email TEXT,
+      phone TEXT,
+      full_name TEXT NOT NULL,
+      password_hash TEXT,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE app_user_role (
+      id BIGSERIAL PRIMARY KEY,
+      user_id BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+      role user_role NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (user_id, role)
+    );
+
+    CREATE TABLE role (
+      id BIGSERIAL PRIMARY KEY,
+      key TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT,
+      is_system BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE member (
-      id BIGSERIAL PRIMARY KEY
+      id BIGSERIAL PRIMARY KEY,
+      facility_id BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+      family_id BIGINT,
+      app_user_id BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+      first_name TEXT NOT NULL DEFAULT 'Test',
+      last_name TEXT NOT NULL DEFAULT 'Member',
+      date_of_birth DATE,
+      status TEXT NOT NULL DEFAULT 'legacy',
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      parent_guardian_ids BIGINT[] NOT NULL DEFAULT '{}',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE family (
-      id BIGSERIAL PRIMARY KEY
+      id BIGSERIAL PRIMARY KEY,
+      facility_id BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
+      family_name TEXT NOT NULL DEFAULT 'Test Family'
+    );
+
+    CREATE TABLE family_member (
+      family_id BIGINT NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+      member_id BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (family_id, member_id)
+    );
+
+    CREATE TABLE parent_guardian_authority (
+      id BIGSERIAL PRIMARY KEY,
+      parent_member_id BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+      child_member_id BIGINT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+      has_legal_authority BOOLEAN NOT NULL DEFAULT TRUE,
+      relationship TEXT,
+      notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (parent_member_id, child_member_id)
     );
 
     CREATE TABLE family_billing_account (
@@ -249,6 +321,108 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       `INSERT INTO billing_payment (amount_cents, external_status)
        VALUES (100, NULL), (200, 'recorded'), (300, 'failed')`,
     )
+    await client.query(`
+      INSERT INTO role (key, name) VALUES
+        ('MASTER_ADMIN', 'Master Admin'),
+        ('ADMIN', 'Admin'),
+        ('COACH', 'Coach');
+
+      INSERT INTO facility (id, name) VALUES
+        (10, 'Unambiguous Owner Facility'),
+        (20, 'Ambiguous Owner Facility');
+
+      INSERT INTO app_user (id, facility_id, role, email, full_name, password_hash) VALUES
+        (101, 10, 'MASTER_ADMIN', 'owner@test.invalid', 'Only Owner', 'hash'),
+        (201, 20, 'MASTER_ADMIN', 'first@test.invalid', 'First Candidate', 'hash'),
+        (202, 20, 'MASTER_ADMIN', 'second@test.invalid', 'Second Candidate', 'hash');
+
+      INSERT INTO app_user (
+        id, facility_id, role, email, full_name, password_hash, is_active
+      ) VALUES (
+        102, 10, 'ADMIN', 'legacy-disabled@test.invalid',
+        'Legacy Disabled Administrator', 'hash', FALSE
+      );
+
+      INSERT INTO app_user_role (user_id, role)
+      SELECT id, role FROM app_user;
+
+      INSERT INTO family (id, facility_id, family_name) VALUES
+        (100, 10, 'Canonical Family'),
+        (101, 10, 'Alternate Family'),
+        (200, 20, 'Other Facility Family');
+
+      INSERT INTO member (
+        id, facility_id, family_id, first_name, last_name, date_of_birth, parent_guardian_ids
+      ) VALUES
+        (1001, 10, 100, 'Casey', 'Child', '2015-01-01', ARRAY[1002, 1003, 1004, 1001, 2001]::bigint[]),
+        (1002, 10, 100, 'Pat', 'Parent', '1985-01-01', ARRAY[]::bigint[]),
+        (1003, 10, 101, 'Alex', 'Guardian', '1988-01-01', ARRAY[]::bigint[]),
+        (1004, 10, 100, 'Unknown', 'Age', NULL, ARRAY[]::bigint[]),
+        (1010, 10, 100, 'Pointer', 'Wins', '1990-01-01', ARRAY[]::bigint[]),
+        (1020, 10, NULL, 'Oldest', 'Wins', '1990-01-01', ARRAY[]::bigint[]),
+        (2001, 20, 200, 'Cross', 'Facility', '1980-01-01', ARRAY[]::bigint[]);
+
+      UPDATE member SET app_user_id = 102 WHERE id = 1003;
+
+      INSERT INTO family_member (
+        family_id, member_id, is_active, joined_at, created_at
+      ) VALUES
+        (101, 1001, TRUE, '2025-01-01', '2025-01-01'),
+        (100, 1002, TRUE, '2025-01-01', '2025-01-01'),
+        (200, 1002, TRUE, '2025-01-01', '2025-01-01'),
+        (101, 1003, TRUE, '2025-01-01', '2025-01-01'),
+        (100, 1004, TRUE, '2025-01-01', '2025-01-01'),
+        (100, 1010, TRUE, '2026-01-01', '2026-01-01'),
+        (101, 1010, TRUE, '2025-01-01', '2025-01-01'),
+        (100, 1020, TRUE, '2026-01-01', '2026-01-01'),
+        (101, 1020, TRUE, '2025-01-01', '2025-01-01'),
+        (200, 2001, TRUE, '2025-01-01', '2025-01-01');
+
+      INSERT INTO parent_guardian_authority (
+        parent_member_id, child_member_id, has_legal_authority, relationship, notes
+      ) VALUES
+        (1002, 1001, FALSE, 'Parent', 'preserve metadata'),
+        (1004, 1001, TRUE, 'Unknown age', 'retain disabled'),
+        (1001, 1001, TRUE, 'Invalid self', 'retain disabled'),
+        (2001, 1001, TRUE, 'Invalid cross-facility', 'retain disabled');
+    `)
+
+    await assert.rejects(
+      runDeployMigrations(client, {
+        dryRun: true,
+        logger: { info() {} },
+      }),
+      (error) => {
+        assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+        assert.deepEqual(error.readiness?.ownerlessFacilityIds, [20])
+        return true
+      },
+    )
+    const afterAmbiguousDryRun = await client.query(
+      `SELECT column_name
+         FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'facility'
+          AND column_name = 'owner_user_id'`,
+    )
+    assert.equal(afterAmbiguousDryRun.rows.length, 0)
+
+    // Explicitly resolve the ambiguity before the deploy gate is allowed to
+    // pass. The migration never guesses between two owner candidates.
+    await client.query('DELETE FROM app_user WHERE id = 202')
+
+    // A login linked across facilities is a tenant-boundary violation. The
+    // migration must stop before installing the canonical access view; an
+    // operator must explicitly repair the relationship first.
+    await client.query('UPDATE member SET app_user_id = 201 WHERE id = 1002')
+    await assert.rejects(
+      runDeployMigrations(client, {
+        dryRun: true,
+        logger: { info() {} },
+      }),
+      /Canonical access migration blocked: member 1002 in facility 10 links to app_user 201 in facility 20/,
+    )
+    await client.query('UPDATE member SET app_user_id = NULL WHERE id = 1002')
 
     const dryRun = await runDeployMigrations(client, {
       dryRun: true,
@@ -272,6 +446,455 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
     assert.deepEqual(firstApply.applied, DEPLOY_MIGRATION_FILES)
     assert.deepEqual(firstApply.skipped, [])
     assert.equal(firstApply.readiness.ready, true)
+    assert.equal(firstApply.accessReadiness.ready, true)
+
+    const ownerBackfill = await client.query(
+      `SELECT id, owner_user_id FROM facility WHERE id IN (10, 20) ORDER BY id`,
+    )
+    assert.deepEqual(ownerBackfill.rows, [
+      { id: '10', owner_user_id: '101' },
+      { id: '20', owner_user_id: '201' },
+    ])
+
+    const legacyDisabledFlags = await client.query(
+      `SELECT is_active, staff_access_active, member_portal_access_active
+         FROM app_user
+        WHERE id = 102`,
+    )
+    assert.deepEqual(legacyDisabledFlags.rows[0], {
+      is_active: true,
+      staff_access_active: false,
+      member_portal_access_active: false,
+    })
+
+    const legacyDisabledAccess = await client.query(
+      `SELECT
+         family_id,
+         member_portal_status,
+         can_access_admin_portal,
+         can_access_member_portal
+       FROM v_app_user_access_context
+       WHERE user_id = 102`,
+    )
+    assert.deepEqual(legacyDisabledAccess.rows[0], {
+      family_id: '101',
+      member_portal_status: 'suspended',
+      can_access_admin_portal: false,
+      can_access_member_portal: false,
+    })
+
+    await client.query(`UPDATE app_user SET staff_access_active = TRUE WHERE id = 102`)
+    const restoredStaffAccess = await client.query(
+      `SELECT can_access_admin_portal, can_access_member_portal
+         FROM v_app_user_access_context
+        WHERE user_id = 102`,
+    )
+    assert.deepEqual(restoredStaffAccess.rows[0], {
+      can_access_admin_portal: true,
+      can_access_member_portal: false,
+    })
+
+    await client.query(`UPDATE app_user SET member_portal_access_active = TRUE WHERE id = 102`)
+    const restoredIndependentAccess = await client.query(
+      `SELECT can_access_admin_portal, can_access_member_portal
+         FROM v_app_user_access_context
+        WHERE user_id = 102`,
+    )
+    assert.deepEqual(restoredIndependentAccess.rows[0], {
+      can_access_admin_portal: true,
+      can_access_member_portal: true,
+    })
+
+    const canonicalFamilyLinks = await client.query(
+      `SELECT member_id, family_id, is_active
+         FROM family_member
+        WHERE member_id IN (1001, 1002, 1010, 1020)
+        ORDER BY member_id, family_id`,
+    )
+    assert.deepEqual(canonicalFamilyLinks.rows, [
+      { member_id: '1001', family_id: '100', is_active: true },
+      { member_id: '1001', family_id: '101', is_active: false },
+      { member_id: '1002', family_id: '100', is_active: true },
+      { member_id: '1002', family_id: '200', is_active: false },
+      { member_id: '1010', family_id: '100', is_active: true },
+      { member_id: '1010', family_id: '101', is_active: false },
+      { member_id: '1020', family_id: '100', is_active: false },
+      { member_id: '1020', family_id: '101', is_active: true },
+    ])
+    const canonicalFamilyPointers = await client.query(
+      `SELECT id, family_id
+         FROM member
+        WHERE id IN (1001, 1002, 1010, 1020)
+        ORDER BY id`,
+    )
+    assert.deepEqual(canonicalFamilyPointers.rows, [
+      { id: '1001', family_id: '100' },
+      { id: '1002', family_id: '100' },
+      { id: '1010', family_id: '100' },
+      { id: '1020', family_id: '101' },
+    ])
+
+    const canonicalGuardianAuthority = await client.query(
+      `SELECT
+         parent_member_id,
+         child_member_id,
+         has_legal_authority,
+         relationship,
+         notes
+       FROM parent_guardian_authority
+       WHERE child_member_id = 1001
+       ORDER BY parent_member_id`,
+    )
+    assert.deepEqual(canonicalGuardianAuthority.rows, [
+      {
+        parent_member_id: '1001',
+        child_member_id: '1001',
+        has_legal_authority: false,
+        relationship: 'Invalid self',
+        notes: 'retain disabled',
+      },
+      {
+        parent_member_id: '1002',
+        child_member_id: '1001',
+        has_legal_authority: true,
+        relationship: 'Parent',
+        notes: 'preserve metadata',
+      },
+      {
+        parent_member_id: '1003',
+        child_member_id: '1001',
+        has_legal_authority: true,
+        relationship: null,
+        notes: null,
+      },
+      {
+        parent_member_id: '1004',
+        child_member_id: '1001',
+        has_legal_authority: false,
+        relationship: 'Unknown age',
+        notes: 'retain disabled',
+      },
+      {
+        parent_member_id: '2001',
+        child_member_id: '1001',
+        has_legal_authority: false,
+        relationship: 'Invalid cross-facility',
+        notes: 'retain disabled',
+      },
+    ])
+    const compatibilityGuardianIds = await client.query(
+      `SELECT parent_guardian_ids FROM member WHERE id = 1001`,
+    )
+    assert.deepEqual(compatibilityGuardianIds.rows[0]?.parent_guardian_ids, [
+      '1002', '1003', '1004', '1001', '2001',
+    ])
+
+    const migratedLoginColumns = await client.query(
+      `SELECT column_name
+         FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'app_user'
+          AND column_name IN ('username', 'address')
+        ORDER BY column_name`,
+    )
+    assert.deepEqual(migratedLoginColumns.rows.map((row) => row.column_name), ['address', 'username'])
+
+    await assert.rejects(
+      client.query(
+        `UPDATE family_member
+            SET is_active = TRUE
+          WHERE family_id = 101 AND member_id = 1001`,
+      ),
+      /uq_family_member_one_active_per_member/,
+    )
+    await assert.rejects(
+      client.query(
+        `UPDATE family_member
+            SET is_active = TRUE
+          WHERE family_id = 200 AND member_id = 1002`,
+      ),
+      /same facility/,
+    )
+    await assert.rejects(
+      client.query(
+        `UPDATE parent_guardian_authority
+            SET has_legal_authority = TRUE
+          WHERE parent_member_id = 1001 AND child_member_id = 1001`,
+      ),
+      /different members in the same facility/,
+    )
+    await assert.rejects(
+      client.query(
+        `UPDATE parent_guardian_authority
+            SET has_legal_authority = TRUE
+          WHERE parent_member_id = 2001 AND child_member_id = 1001`,
+      ),
+      /different members in the same facility/,
+    )
+    await assert.rejects(
+      client.query(
+        `UPDATE parent_guardian_authority
+            SET has_legal_authority = TRUE
+          WHERE parent_member_id = 1004 AND child_member_id = 1001`,
+      ),
+      /identify an adult/,
+    )
+    await assert.rejects(
+      client.query(`UPDATE member SET date_of_birth = '2015-01-01' WHERE id = 1002`),
+      /remove active legal guardian authority/,
+    )
+    await assert.rejects(
+      client.query(`UPDATE member SET facility_id = 20 WHERE id = 1001`),
+      /remove active legal guardian authority/,
+    )
+
+    await client.query('BEGIN')
+    try {
+      await client.query(
+        `UPDATE family_member
+            SET is_active = FALSE
+          WHERE family_id = 100 AND member_id = 1001`,
+      )
+      const synchronizedPointer = await client.query(
+        `SELECT family_id FROM member WHERE id = 1001`,
+      )
+      assert.equal(synchronizedPointer.rows[0]?.family_id, null)
+    } finally {
+      await client.query('ROLLBACK')
+    }
+
+    await assert.rejects(
+      client.query(`UPDATE facility SET owner_user_id = 201 WHERE id = 10`),
+      /immutable/,
+    )
+    await client.query(`INSERT INTO facility (id, name) VALUES (30, 'Owner Bootstrap Guard')`)
+    await assert.rejects(client.query(`UPDATE facility SET owner_user_id = 101 WHERE id = 30`), /same facility/)
+    await client.query(`
+      INSERT INTO app_user (id, facility_id, role, email, full_name, password_hash)
+      VALUES (301, 30, 'ADMIN', 'bootstrap@test.invalid', 'Bootstrap Owner', 'hash')
+    `)
+    await client.query(`UPDATE app_user SET role = 'MASTER_ADMIN' WHERE id = 301`)
+    await client.query(`INSERT INTO app_user_role (user_id, role) VALUES (301, 'MASTER_ADMIN')`)
+    await client.query(`UPDATE facility SET owner_user_id = 301 WHERE id = 30`)
+    await client.query(`
+      INSERT INTO app_user (id, facility_id, role, email, full_name, password_hash)
+      VALUES (302, 30, 'ADMIN', 'staff@test.invalid', 'Administrator', 'hash')
+    `)
+    await assert.rejects(
+      client.query(`UPDATE app_user SET role = 'MASTER_ADMIN' WHERE id = 302`),
+      /reserved for facility\.owner_user_id/,
+    )
+    await assert.rejects(
+      client.query(`INSERT INTO app_user_role (user_id, role) VALUES (302, 'MASTER_ADMIN')`),
+      /reserved for facility\.owner_user_id/,
+    )
+    await client.query(`UPDATE app_user SET email = 'staff-updated@test.invalid' WHERE id = 302`)
+    await assert.rejects(
+      client.query(`UPDATE app_user SET email = ' OWNER@test.invalid ' WHERE id = 302`),
+      /uq_app_user_login_email_normalized/,
+    )
+    await client.query(`UPDATE app_user SET username = 'owner-login' WHERE id = 101`)
+    await assert.rejects(
+      client.query(`UPDATE app_user SET username = ' Owner-Login ' WHERE id = 302`),
+      /uq_app_user_login_username_normalized/,
+    )
+    await assert.rejects(
+      client.query(`UPDATE app_user SET username = 'staff@test.invalid' WHERE id = 302`),
+      /app_user_username_identifier_shape_check/,
+    )
+    await assert.rejects(
+      client.query(`UPDATE app_user SET email = 'not-an-email-login' WHERE id = 302`),
+      /app_user_email_identifier_shape_check/,
+    )
+    await client.query(`INSERT INTO app_user_role (user_id, role) VALUES (302, 'ADMIN')`)
+    await client.query(`UPDATE app_user_role SET role = 'COACH' WHERE user_id = 302 AND role = 'ADMIN'`)
+    await client.query(`DELETE FROM app_user_role WHERE user_id = 302 AND role = 'COACH'`)
+
+    // The view remains tenant-safe even if a privileged operator disables the
+    // write guard. Readiness still exposes the corrupted link and fails closed.
+    await client.query('BEGIN')
+    try {
+      await client.query('ALTER TABLE member DISABLE TRIGGER trg_member_app_user_facility_guard')
+      await client.query('UPDATE member SET app_user_id = 302 WHERE id = 1002')
+      const guardedCrossFacilityAccess = await client.query(
+        `SELECT family_id, member_portal_status, can_access_member_portal
+           FROM v_app_user_access_context
+          WHERE user_id = 302`,
+      )
+      assert.deepEqual(guardedCrossFacilityAccess.rows[0], {
+        family_id: null,
+        member_portal_status: 'no_login',
+        can_access_member_portal: false,
+      })
+      await assert.rejects(
+        assertDeployAccessSchema(client),
+        (error) => {
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.deepEqual(error.readiness?.crossFacilityMemberAppUserLinks, [{
+            memberId: 1002,
+            memberFacilityId: 10,
+            appUserId: 302,
+            appUserFacilityId: 30,
+          }])
+          return true
+        },
+      )
+    } finally {
+      await client.query('ROLLBACK')
+    }
+
+    await assert.rejects(
+      client.query(`UPDATE member SET app_user_id = 302 WHERE id = 1002`),
+      /member\.app_user_id must identify an app_user in the same facility/,
+    )
+    await client.query(`
+      INSERT INTO family (id, facility_id, family_name)
+      VALUES (300, 30, 'Independent Portal Family')
+    `)
+    await client.query(`
+      INSERT INTO member (
+        id, facility_id, family_id, app_user_id, first_name, last_name, date_of_birth
+      ) VALUES (
+        3002, 30, 300, 302, 'Independent', 'Administrator', '1980-01-01'
+      )
+    `)
+    await client.query(`
+      INSERT INTO family_member (family_id, member_id, is_active)
+      VALUES (300, 3002, TRUE)
+    `)
+    await assert.rejects(
+      client.query(`UPDATE member SET facility_id = 20 WHERE id = 3002`),
+      /member\.app_user_id must identify an app_user in the same facility/,
+    )
+    await assert.rejects(
+      client.query(`UPDATE app_user SET facility_id = 20 WHERE id = 302`),
+      /linked app_user cannot move to a different facility than its member/,
+    )
+    const initialIndependentAccess = await client.query(
+      `SELECT
+         family_id,
+         member_portal_status,
+         can_access_admin_portal,
+         can_access_member_portal
+       FROM v_app_user_access_context
+       WHERE user_id = 302`,
+    )
+    assert.deepEqual(initialIndependentAccess.rows[0], {
+      family_id: '300',
+      member_portal_status: 'active',
+      can_access_admin_portal: true,
+      can_access_member_portal: true,
+    })
+    await client.query(`UPDATE app_user SET staff_access_active = FALSE WHERE id = 302`)
+    const staffSuspendedAccess = await client.query(
+      `SELECT can_access_admin_portal, can_access_member_portal
+       FROM v_app_user_access_context
+       WHERE user_id = 302`,
+    )
+    assert.deepEqual(staffSuspendedAccess.rows[0], {
+      can_access_admin_portal: false,
+      can_access_member_portal: true,
+    })
+    await client.query(
+      `UPDATE app_user
+          SET staff_access_active = TRUE,
+              member_portal_access_active = FALSE
+        WHERE id = 302`,
+    )
+    const memberSuspendedAccess = await client.query(
+      `SELECT member_portal_status, can_access_admin_portal, can_access_member_portal
+       FROM v_app_user_access_context
+       WHERE user_id = 302`,
+    )
+    assert.deepEqual(memberSuspendedAccess.rows[0], {
+      member_portal_status: 'suspended',
+      can_access_admin_portal: true,
+      can_access_member_portal: false,
+    })
+    await client.query(`UPDATE app_user SET member_portal_access_active = TRUE WHERE id = 302`)
+    await assert.rejects(client.query(`UPDATE app_user SET is_active = FALSE WHERE id = 101`), /cannot be deactivated/)
+    await assert.rejects(client.query(`UPDATE app_user SET staff_access_active = FALSE WHERE id = 101`), /staff-suspended/)
+    await assert.rejects(
+      client.query(`UPDATE app_user SET facility_id = 20 WHERE id = 101`),
+      /cannot be deactivated or moved|reserved for facility\.owner_user_id/,
+    )
+    await assert.rejects(client.query(`DELETE FROM app_user WHERE id = 101`), /cannot be deleted/)
+
+    await client.query('BEGIN')
+    try {
+      await client.query('ALTER TABLE app_user ALTER COLUMN staff_access_active DROP DEFAULT')
+      await assert.rejects(
+        assertDeployAccessSchema(client),
+        (error) => {
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.ok(error.readiness?.invalidColumns?.includes('app_user.staff_access_active'))
+          return true
+        },
+      )
+    } finally {
+      await client.query('ROLLBACK')
+    }
+
+    await client.query('BEGIN')
+    try {
+      await client.query('ALTER TABLE app_user DISABLE TRIGGER trg_app_user_master_admin_owner_guard')
+      await client.query(`UPDATE app_user SET role = 'MASTER_ADMIN' WHERE id = 302`)
+      await assert.rejects(
+        assertDeployAccessSchema(client),
+        (error) => {
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.deepEqual(error.readiness?.invalidMasterAdminAssignments, [{
+            facilityId: 30,
+            userId: 302,
+          }])
+          return true
+        },
+      )
+    } finally {
+      await client.query('ROLLBACK')
+    }
+
+    await client.query('BEGIN')
+    try {
+      await client.query('DROP TRIGGER trg_facility_owner_user_id_guard ON facility')
+      await assert.rejects(
+        assertDeployAccessSchema(client),
+        (error) => {
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.ok(error.readiness?.missingTriggers?.includes('facility.trg_facility_owner_user_id_guard'))
+          return true
+        },
+      )
+    } finally {
+      await client.query('ROLLBACK')
+    }
+
+    await client.query('BEGIN')
+    try {
+      await client.query(`
+        CREATE FUNCTION update_member_athlete_status()
+        RETURNS TRIGGER AS $$
+        BEGIN
+          RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql;
+
+        CREATE TRIGGER trigger_update_athlete_status
+        BEFORE UPDATE ON member
+        FOR EACH ROW EXECUTE FUNCTION update_member_athlete_status();
+      `)
+      await assert.rejects(
+        assertDeployAccessSchema(client),
+        (error) => {
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.ok(error.readiness?.retiredTriggers?.includes('member.trigger_update_athlete_status'))
+          assert.ok(error.readiness?.retiredFunctions?.includes('update_member_athlete_status'))
+          return true
+        },
+      )
+    } finally {
+      await client.query('ROLLBACK')
+    }
 
     const normalizedPayments = await client.query(
       `SELECT amount_cents, external_status
@@ -358,9 +981,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       expectedObject: 'stripe_webhook_event.stripe_webhook_event_terminal_claim_check',
     })
 
-    const baselineFacility = await client.query(
-      'INSERT INTO facility DEFAULT VALUES RETURNING id',
-    )
+    const baselineFacility = { rows: [{ id: '10' }] }
     const baselineAccount = await client.query(
       `INSERT INTO family_billing_account (household_monthly_billing_enabled)
        VALUES (FALSE) RETURNING id`,

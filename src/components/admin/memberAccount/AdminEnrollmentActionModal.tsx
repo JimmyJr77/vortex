@@ -107,7 +107,6 @@ export default function AdminEnrollmentActionModal({
   onClose: () => void
   onChanged: () => void
 }) {
-  const isLegacy = false
   const status = normalizeAdminEnrollmentStatus(row.status)
   const hasScheduledPause = Boolean(row.pause_effective_date) && status !== 'paused'
   const [busy, setBusy] = useState<string | null>(null)
@@ -192,12 +191,7 @@ export default function AdminEnrollmentActionModal({
             <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>
           )}
 
-          {isLegacy ? (
-            <p className="text-xs text-gray-500">
-              This is a legacy enrollment. Only deletion is available.
-            </p>
-          ) : (
-            <div>
+          <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Status
               </div>
@@ -319,11 +313,9 @@ export default function AdminEnrollmentActionModal({
                   Billing pauses on {formatPauseDate(row.pause_effective_date)}. Enrollment stays active until then.
                 </p>
               )}
-            </div>
-          )}
+          </div>
 
-          {!isLegacy && (
-            <div>
+          <div>
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <Percent className="w-3.5 h-3.5" /> Discount
               </div>
@@ -409,8 +401,7 @@ export default function AdminEnrollmentActionModal({
                   </button>
                 )}
               </div>
-            </div>
-          )}
+          </div>
 
           <div className="border-t border-gray-100 pt-4">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-500">

@@ -7,8 +7,15 @@ import {
   DEPLOY_BILLING_MIGRATIONS,
   assertDeployBillingSchema,
 } from './billing/billingSchemaReadiness.js'
+import {
+  DEPLOY_ACCESS_MIGRATIONS,
+  assertDeployAccessSchema,
+} from './platform/accessSchemaReadiness.js'
 
-export const DEPLOY_MIGRATION_FILES = DEPLOY_BILLING_MIGRATIONS
+export const DEPLOY_MIGRATION_FILES = Object.freeze([
+  ...DEPLOY_BILLING_MIGRATIONS,
+  ...DEPLOY_ACCESS_MIGRATIONS,
+])
 export const DEPLOY_MIGRATION_LOCK_ID = 884679201
 
 // A small number of billing migrations were edited in place before immutable
@@ -234,12 +241,18 @@ export async function runDeployMigrations(client, {
       if (result === 'applied') applied.push(filename)
       else skipped.push(filename)
     }
-    const readiness = await assertDeployBillingSchema(client)
+    const billingReadiness = await assertDeployBillingSchema(client)
+    const accessReadiness = await assertDeployAccessSchema(client)
+    const readiness = {
+      ready: billingReadiness.ready && accessReadiness.ready,
+      billing: billingReadiness,
+      access: accessReadiness,
+    }
     if (dryRun) {
       await client.query('ROLLBACK')
       dryRunTransactionOpen = false
     }
-    return { applied, skipped, readiness, dryRun }
+    return { applied, skipped, readiness, billingReadiness, accessReadiness, dryRun }
   } catch (error) {
     if (dryRunTransactionOpen) {
       await client.query('ROLLBACK').catch(() => {})

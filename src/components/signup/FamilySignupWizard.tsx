@@ -92,7 +92,7 @@ interface SignupMemberForm {
   password: string
   confirmPassword: string
   emailSource?: EmailSource
-  useParentPassword?: boolean
+  portalAccessRequested?: boolean
   currentSchool?: string
   graduationYear?: number | ''
 }
@@ -183,7 +183,7 @@ const emptyMember = (): SignupMemberForm => ({
   password: '',
   confirmPassword: '',
   emailSource: 'parent',
-  useParentPassword: false,
+  portalAccessRequested: false,
   currentSchool: '',
   graduationYear: '',
 })
@@ -234,7 +234,7 @@ function mapApiMemberToForm(
     password: '',
     confirmPassword: '',
     emailSource,
-    useParentPassword: false,
+    portalAccessRequested: Boolean(record.username),
     currentSchool: record.currentSchool || '',
     graduationYear: record.graduationYear ?? '',
   }
@@ -750,11 +750,10 @@ export default function FamilySignupWizard({
     const parentEmailValue = parentEmailOptions[0]?.value ?? primaryAdult.email
 
     const handleNameBlur = async () => {
+      if (member.portalAccessRequested !== true) return
       const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
       if (suggested) onChange({ username: suggested })
     }
-
-    const useParentPassword = member.useParentPassword ?? false
 
     return (
       <div className="grid gap-3 md:grid-cols-2">
@@ -809,25 +808,33 @@ export default function FamilySignupWizard({
           <option value="non-binary">Non-binary</option>
           <option value="prefer-not-to-say">Prefer not to say</option>
         </select>
-        <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
         <label className="md:col-span-2 flex items-start gap-2 text-sm text-gray-800">
           <input
             type="checkbox"
             className="mt-1"
-            checked={useParentPassword}
+            checked={member.portalAccessRequested === true}
             onChange={(e) => {
               const checked = e.target.checked
-              onChange(
-                checked
-                  ? { useParentPassword: true, password: '', confirmPassword: '' }
-                  : { useParentPassword: false },
-              )
+              onChange(checked
+                ? { portalAccessRequested: true }
+                : {
+                    portalAccessRequested: false,
+                    username: '',
+                    password: '',
+                    confirmPassword: '',
+                  })
             }}
           />
-          <span>Use Parent/Guardian password</span>
+          <span>
+            Create a separate Member Portal login
+            <span className="mt-0.5 block text-xs text-gray-500">
+              Leave this off for children or anyone who does not need their own sign-in. Access can be set up later.
+            </span>
+          </span>
         </label>
-        {!useParentPassword && (
+        {member.portalAccessRequested === true && (
           <>
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
             <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
             <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
           </>
@@ -887,7 +894,6 @@ export default function FamilySignupWizard({
   const validateFamilyMembersStep = (members: SignupMemberForm[] = additionalMembers) => {
     for (const member of members) {
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
-      if (!member.username?.trim()) return `Username is required for ${member.firstName || 'each member'}.`
       const minor = Boolean(member.dateOfBirth) && !isAdult(member.dateOfBirth)
       if (usesParentContactEmail(member)) {
         if (!minor) {
@@ -899,15 +905,13 @@ export default function FamilySignupWizard({
       } else if (!member.email?.trim()) {
         return `Email is required for ${member.firstName || 'each member'}.`
       }
-      if (member.useParentPassword && !isAdminEdit) {
-        if (!primaryAdult.password || primaryAdult.password.length < 8) {
-          return 'Primary adult password is required when sharing login with a family member.'
-        }
+      if (member.portalAccessRequested === true && !member.username?.trim()) {
+        return `Username is required to create Member Portal access for ${member.firstName || 'this member'}.`
       }
-      if (!isAdminEdit && !member.useParentPassword) {
+      if (!isAdminEdit && member.portalAccessRequested === true) {
         if (!member.password || member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
-      } else if (member.password && !member.useParentPassword) {
+      } else if (member.portalAccessRequested === true && member.password) {
         if (member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
       }
@@ -980,12 +984,21 @@ export default function FamilySignupWizard({
     }
 
     if (checkedTemplateIds.length > 0 && signatureName.trim() && savedMemberIds.length > 0) {
-      const signerId = primaryAdult.memberId ?? savedMemberIds[0]
-      for (const memberId of savedMemberIds) {
+      const signerId = primaryAdult.memberId
+      const waiverTargetIds = membersToSave
+        .filter((member) => (
+          member.memberId != null
+          && (member.memberId === signerId || (member.dateOfBirth !== '' && !isAdult(member.dateOfBirth)))
+        ))
+        .map((member) => Number(member.memberId))
+      if (!signerId) {
+        throw new Error('Select a verified adult signer before recording waiver acceptance.')
+      }
+      for (const memberId of waiverTargetIds) {
         for (const templateId of checkedTemplateIds) {
           const waiver = waivers.find((w) => w.id === templateId)
           if (waiver?.acceptance_id) continue
-          await adminApiRequest(`/api/admin/members/${memberId}/waivers/acceptance`, {
+          const acceptanceResponse = await adminApiRequest(`/api/admin/members/${memberId}/waivers/acceptance`, {
             method: 'POST',
             body: JSON.stringify({
               waiverTemplateId: templateId,
@@ -993,6 +1006,10 @@ export default function FamilySignupWizard({
               signatureName: signatureName.trim(),
             }),
           })
+          if (!acceptanceResponse.ok) {
+            const acceptancePayload = await acceptanceResponse.json().catch(() => ({}))
+            throw new Error(acceptancePayload.message || 'Unable to record waiver acceptance.')
+          }
         }
       }
     }
@@ -1067,12 +1084,9 @@ export default function FamilySignupWizard({
       additionalMembers: (isMinorStart ? additionalMembers.slice(0, 1) : additionalMembers).map((member) => ({
         ...member,
         email: usesParentContactEmail(member) ? '' : member.email,
-        ...(member.useParentPassword && !isMinorStart
-          ? {
-              password: primaryAdult.password,
-              confirmPassword: primaryAdult.confirmPassword,
-            }
-          : {}),
+        username: member.portalAccessRequested === true ? member.username : '',
+        password: member.portalAccessRequested === true ? member.password : '',
+        confirmPassword: member.portalAccessRequested === true ? member.confirmPassword : '',
         addressStreet: primaryAdult.addressStreet,
         addressCity: primaryAdult.addressCity,
         addressState: primaryAdult.addressState,

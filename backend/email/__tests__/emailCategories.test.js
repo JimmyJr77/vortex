@@ -19,6 +19,7 @@ test('parent account categories are transactional', () => {
     'parent_account_created',
     'password_reset',
     'registration_confirmation',
+    'daily_roster_manual',
   ]) {
     assert.equal(streamForCategory(c), STREAM_TRANSACTIONAL, c)
     assert.ok(isTransactional(c), c)

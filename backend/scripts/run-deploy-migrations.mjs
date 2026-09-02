@@ -53,7 +53,8 @@ try {
     success: true,
     applied: result.applied,
     skipped: result.skipped,
-    billingSchemaReady: result.readiness.ready,
+    billingSchemaReady: result.billingReadiness.ready,
+    accessSchemaReady: result.accessReadiness.ready,
   }))
 } catch (error) {
   console.error('[migrate:deploy]', error?.message ?? error)

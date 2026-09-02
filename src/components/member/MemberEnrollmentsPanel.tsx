@@ -29,7 +29,7 @@ export interface MemberEnrollmentRow {
   cancel_effective_date?: string | null
   cancel_requested_at?: string | null
   created_at?: string | null
-  source?: 'scheduling' | 'drop_in' | 'legacy'
+  source?: 'scheduling' | 'drop_in'
   enrollment_type?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
   enrollmentType?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
   attendance_date?: string | null
@@ -54,6 +54,8 @@ interface Props {
   onEnrollmentsChanged?: (result?: MemberEnrollmentCancelResult) => void | Promise<void>
   /** Admin read-only: hide manage actions */
   readOnly?: boolean
+  /** Canonical self/payer/guardian scope for member-side enrollment changes. */
+  manageableMemberIds?: number[]
   defaultView?: ViewMode
   /** Hide class/member view toggle (e.g. embedded admin by-member list) */
   hideViewToggle?: boolean
@@ -205,7 +207,7 @@ function textOrDash(value?: string | null) {
 }
 
 function canManageEnrollment(row: MemberEnrollmentRow) {
-  return row.source !== 'legacy' && row.source !== 'drop_in'
+  return row.source !== 'drop_in'
 }
 
 function statusBadge(row: MemberEnrollmentRow) {
@@ -257,10 +259,12 @@ function EnrollmentTable({
   rows,
   columns,
   onManage,
+  manageableMemberIds,
 }: {
   rows: MemberEnrollmentRow[]
   columns: EnrollmentColumn[]
   onManage?: (row: MemberEnrollmentRow) => void
+  manageableMemberIds?: ReadonlySet<number>
 }) {
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() =>
     Object.fromEntries(columns.map((column) => [column.key, column.width])),
@@ -367,7 +371,7 @@ function EnrollmentTable({
               ))}
               {showActions && (
                 <td className="py-3 pr-4 text-center">
-                  {canManageEnrollment(row) ? (
+                  {canManageEnrollment(row) && (manageableMemberIds?.has(row.member_id) ?? true) ? (
                     <button
                       type="button"
                       onClick={() => onManage?.(row)}
@@ -530,6 +534,7 @@ export default function MemberEnrollmentsPanel({
   multiClassPasses = [],
   onEnrollmentsChanged,
   readOnly = false,
+  manageableMemberIds = [],
   defaultView = 'member',
   hideViewToggle = false,
   embedded = false,
@@ -547,6 +552,10 @@ export default function MemberEnrollmentsPanel({
   const displayEnrollments = useMemo(
     () => enrichEnrollmentsFromClassesOffered(enrollments, classesOffered),
     [enrollments, classesOffered],
+  )
+  const manageableMemberIdSet = useMemo(
+    () => new Set(manageableMemberIds.map(Number).filter(Number.isSafeInteger)),
+    [manageableMemberIds],
   )
 
   const byClass = useMemo(() => {
@@ -671,6 +680,7 @@ export default function MemberEnrollmentsPanel({
           <EnrollmentTable
             rows={displayEnrollments}
             onManage={handleManage}
+            manageableMemberIds={manageableMemberIdSet}
             columns={BY_MEMBER_COLUMNS}
           />
         ) : view === 'class' ? (
@@ -681,6 +691,7 @@ export default function MemberEnrollmentsPanel({
                 <EnrollmentTable
                   rows={rows}
                   onManage={handleManage}
+                  manageableMemberIds={manageableMemberIdSet}
                   columns={BY_CLASS_COLUMNS.map((column) => column.key === 'member'
                     ? { ...column, cell: (row) => memberDisplayName(row, currentMemberId) }
                     : column)}
@@ -698,6 +709,7 @@ export default function MemberEnrollmentsPanel({
                   <EnrollmentTable
                     rows={rows}
                     onManage={handleManage}
+                    manageableMemberIds={manageableMemberIdSet}
                     columns={BY_MEMBER_COLUMNS}
                   />
                 </section>

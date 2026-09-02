@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import DateOfBirthInput from './DateOfBirthInput'
-import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
+import { formatDateForDisplay, getTodayDateString, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
 import { confirmEnrollmentCheckoutSession, clearPendingEnrollmentId, readPendingEnrollmentId } from '../utils/schedulingApi'
@@ -63,8 +63,13 @@ interface FamilyMember {
   date_of_birth?: string | null
   age?: number | null
   user_id?: number | null
-  is_adult?: boolean
-  marked_for_removal?: boolean
+  canEditProfile?: boolean
+}
+
+interface HouseholdAccess {
+  isPayer: boolean
+  isGuardian: boolean
+  canAddFamilyMembers: boolean
 }
 
 // Unified Member interface (matching AdminMembers format)
@@ -78,14 +83,13 @@ interface UnifiedMember {
   dateOfBirth?: string | null
   age?: number | null
   medicalNotes?: string | null
-  internalFlags?: string | null
-  status: string
   isActive: boolean
   familyIsActive?: boolean
   familyId?: number | null
   familyName?: string | null
+  isFamilyPayer?: boolean
+  canEditProfile?: boolean
   username?: string | null
-  roles: Array<{ id: string; role: string }> | string[]
   enrollments: Array<{
     id: number
     program_id: number
@@ -111,9 +115,6 @@ interface MemberApiRecord {
   age?: number | null
   medicalNotes?: string | null
   medical_notes?: string | null
-  internalFlags?: string | null
-  internal_flags?: string | null
-  status?: string
   isActive?: boolean
   familyIsActive?: boolean
   family_is_active?: boolean
@@ -122,22 +123,63 @@ interface MemberApiRecord {
   familyName?: string | null
   family_name?: string | null
   username?: string | null
-  roles?: UnifiedMember['roles']
-  role?: unknown
   enrollments?: UnifiedMember['enrollments']
   createdAt?: string
   created_at?: string
   updatedAt?: string
   updated_at?: string
-  is_adult?: boolean
-  athlete_type?: string
   profileComplete?: boolean
   mustChangePassword?: boolean
   isFamilyPayer?: boolean
+  payerMemberId?: number | null
+  canEditProfile?: boolean
+  householdAccess?: HouseholdAccess
 }
 
 interface FamilyViewData {
   members: UnifiedMember[]
+}
+
+function participationLabel(enrollments: MemberEnrollmentRow[], memberId: number): string {
+  const rows = enrollments.filter((enrollment) => enrollment.member_id === memberId)
+  if (rows.length === 0) return 'Never enrolled'
+  const today = getTodayDateString()
+  const states = rows.map((row) => {
+    const status = row.status.toLowerCase()
+    const endDate = row.offering_end_date ?? row.attendance_date ?? row.attendanceDate
+    if (
+      status === 'cancelled'
+      || status === 'completed'
+      || (row.cancel_effective_date != null && row.cancel_effective_date <= today)
+      || (endDate != null && endDate < today)
+    ) return 'former'
+    if (status === 'waitlisted') return 'waitlisted'
+    if (status === 'paused') return 'paused'
+    if (status === 'confirmed' || status === 'requested') {
+      const startDate = [row.enrollment_start_date, row.offering_start_date]
+        .filter((date): date is string => Boolean(date))
+        .sort()
+        .at(-1)
+      return startDate != null && startDate > today ? 'upcoming' : 'current'
+    }
+    return 'former'
+  })
+  if (states.includes('current')) return 'Current'
+  if (states.includes('upcoming')) return 'Upcoming'
+  if (states.includes('paused')) return 'Paused'
+  if (states.includes('waitlisted')) return 'Waitlisted'
+  return 'Former'
+}
+
+function dateIsAdult(dateOfBirth: string | null | undefined): boolean {
+  if (!dateOfBirth) return false
+  const birthDate = parseDateOnly(dateOfBirth)
+  if (!birthDate) return false
+  const today = new Date()
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const monthDelta = today.getMonth() - birthDate.getMonth()
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) age -= 1
+  return age >= 18
 }
 
 interface EventDateTimeEntry {
@@ -226,6 +268,7 @@ export default function MemberDashboard({
     email: '',
     phone: '',
     dateOfBirth: '',
+    hasLegalAuthority: false,
   })
   const [addingFamilyMember, setAddingFamilyMember] = useState(false)
   
@@ -267,15 +310,12 @@ export default function MemberDashboard({
     isFinished: boolean
     parentGuardianIds?: number[]
     parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }>
-    hasCompletedWaivers?: boolean
-    waiverCompletionDate?: string | null
     sections: {
       contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
       loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
       statusVerification: { isExpanded: boolean }
       personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
       parentGuardians?: { isExpanded: boolean; tempData: { parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> } }
-      waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
       previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
     }
     athleteId?: number | null
@@ -451,25 +491,6 @@ export default function MemberDashboard({
   }
 
 
-  // Check if current member is an adult (can edit family members).
-  // Logged-in member/athlete accounts are treated as adults — youth athletes
-  // are added as family members without their own login — and the backend
-  // re-checks adulthood by date of birth on every mutation.
-  const isAdult = () => {
-    const roles: unknown[] = Array.isArray(profileData?.roles)
-      ? profileData.roles
-      : profileData?.role ? [profileData.role] : []
-    if (roles.length === 0) return true
-    return roles.some((role) => {
-      const roleName = typeof role === 'string'
-        ? role
-        : role != null && typeof role === 'object' && 'role' in role && typeof role.role === 'string'
-          ? role.role
-          : undefined
-      return roleName != null && ['MEMBER_ATHLETE', 'ADMIN', 'MASTER_ADMIN'].includes(roleName)
-    })
-  }
-
   // Handle view member - similar to AdminMembers
   const handleViewMember = async (member: UnifiedMember) => {
     try {
@@ -514,7 +535,7 @@ export default function MemberDashboard({
         addressState: addressParts.state,
         addressZip: addressParts.zip,
         username: member.username || '',
-        password: 'vortex',
+        password: '',
         enrollments: (member.enrollments || []).map(e => ({
           id: e.id,
           program_id: e.program_id,
@@ -535,8 +556,6 @@ export default function MemberDashboard({
         isFinished: false,
         isActive: member.isActive,
         parentGuardians: [],
-        hasCompletedWaivers: false,
-        waiverCompletionDate: null,
         sections: {
           contactInfo: {
             isExpanded: true,
@@ -555,7 +574,7 @@ export default function MemberDashboard({
             isExpanded: false,
             tempData: {
               username: member.username || '',
-              password: 'vortex'
+              password: ''
             }
           },
           statusVerification: { isExpanded: false },
@@ -569,13 +588,6 @@ export default function MemberDashboard({
               injuryHistoryBodyPart: '',
               injuryHistoryNotes: '',
               noInjuryHistory: true
-            }
-          },
-          waivers: {
-            isExpanded: false,
-            tempData: {
-              hasCompletedWaivers: false,
-              waiverCompletionDate: null
             }
           }
         }
@@ -895,6 +907,7 @@ export default function MemberDashboard({
       }
       
       setProfileData(member)
+      const payerMemberId = member.payerMemberId == null ? null : Number(member.payerMemberId)
       
       // Convert current member to UnifiedMember format
       const currentMember: UnifiedMember = {
@@ -907,14 +920,13 @@ export default function MemberDashboard({
         dateOfBirth: member.dateOfBirth || member.date_of_birth,
         age: member.age,
         medicalNotes: member.medicalNotes || member.medical_notes,
-        internalFlags: member.internalFlags || member.internal_flags,
-        status: member.status || 'Active',
         isActive: member.isActive !== undefined ? member.isActive : true,
         familyIsActive: member.familyIsActive || member.family_is_active,
         familyId: member.familyId || member.family_id,
         familyName: member.familyName || member.family_name,
+        isFamilyPayer: member.isFamilyPayer === true,
+        canEditProfile: member.canEditProfile === true,
         username: member.username,
-        roles: member.roles || [],
         enrollments: member.enrollments || [],
         createdAt: member.createdAt || member.created_at,
         updatedAt: member.updatedAt || member.updated_at
@@ -934,7 +946,7 @@ export default function MemberDashboard({
           date_of_birth: fm.dateOfBirth || fm.date_of_birth,
           age: fm.age,
           user_id: fm.id,
-          is_adult: fm.is_adult ?? (fm.athlete_type ? fm.athlete_type === 'adult' : false)
+          canEditProfile: fm.canEditProfile === true,
         }))
         setFamilyMembers(convertedFamilyMembers)
         
@@ -950,14 +962,13 @@ export default function MemberDashboard({
             dateOfBirth: fm.dateOfBirth || fm.date_of_birth,
             age: fm.age,
             medicalNotes: fm.medicalNotes || fm.medical_notes,
-            internalFlags: fm.internalFlags || fm.internal_flags,
-            status: fm.status || 'Active',
             isActive: fm.isActive !== undefined ? fm.isActive : true,
             familyIsActive: fm.familyIsActive || fm.family_is_active,
             familyId: fm.familyId || fm.family_id,
             familyName: fm.familyName || fm.family_name,
+            isFamilyPayer: payerMemberId != null && Number(fm.id) === payerMemberId,
+            canEditProfile: fm.canEditProfile === true,
             username: fm.username,
-            roles: fm.roles || [],
             enrollments: fm.enrollments || [],
             createdAt: fm.createdAt || fm.created_at,
             updatedAt: fm.updatedAt || fm.updated_at
@@ -980,6 +991,14 @@ export default function MemberDashboard({
       setError('First and last name are required')
       return
     }
+    if (!addFamilyMemberData.dateOfBirth) {
+      setError('Date of birth is required so age and household access are set correctly.')
+      return
+    }
+    if (!dateIsAdult(addFamilyMemberData.dateOfBirth) && !addFamilyMemberData.hasLegalAuthority) {
+      setError('Confirm that you are this youth member\'s parent or legal guardian.')
+      return
+    }
     setAddingFamilyMember(true)
     setError(null)
     try {
@@ -995,13 +1014,21 @@ export default function MemberDashboard({
           email: addFamilyMemberData.email || null,
           phone: addFamilyMemberData.phone || null,
           dateOfBirth: addFamilyMemberData.dateOfBirth || null,
+          hasLegalAuthority: addFamilyMemberData.hasLegalAuthority,
         }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok || data.success === false) {
         throw new Error(data.message || 'Failed to add family member')
       }
-      setAddFamilyMemberData({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '' })
+      setAddFamilyMemberData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        hasLegalAuthority: false,
+      })
       setShowAddFamilyMember(false)
       await fetchProfileData()
     } catch (err) {
@@ -1602,19 +1629,6 @@ export default function MemberDashboard({
       setEnrollmentsLoading(false)
     }
   }
-  const enrollmentSummaryForMember = (memberId: number) => {
-    const rows = enrollments.filter((e) => e.member_id === memberId)
-    if (rows.length === 0) return null
-    const byClass = new Map<string, number>()
-    for (const row of rows) {
-      const name = row.class_name || 'Class'
-      byClass.set(name, (byClass.get(name) || 0) + 1)
-    }
-    return [...byClass.entries()]
-      .map(([name, count]) => (count > 1 ? `${name} (${count} slots)` : name))
-      .join(', ')
-  }
-
   const enrollableMembers: EnrollableMember[] = (() => {
     const out: EnrollableMember[] = []
     const seen = new Set<number>()
@@ -1671,8 +1685,7 @@ export default function MemberDashboard({
     // This function will need to be updated when we can fetch classes
     const enrolledCategoryIds: number[] = []
 
-    // Family reps / adults can act on behalf of the family (re-checked server-side).
-    const isParent = isAdult()
+    const isParent = profileData?.householdAccess?.isGuardian === true
 
     // Check event tags
     switch (event.tagType) {
@@ -2124,7 +2137,7 @@ export default function MemberDashboard({
                     <h3 className="text-xl font-bold text-black">
                       Family Members ({members.length})
                     </h3>
-                    {isAdult() && (
+                    {profileData?.householdAccess?.canAddFamilyMembers === true && (
                       <button
                         type="button"
                         onClick={() => setShowAddFamilyMember((value) => !value)}
@@ -2175,10 +2188,28 @@ export default function MemberDashboard({
                         />
                         <DateOfBirthInput
                           value={addFamilyMemberData.dateOfBirth}
-                          onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+                          onChange={(e) => setAddFamilyMemberData((prev) => ({
+                            ...prev,
+                            dateOfBirth: e.target.value,
+                            hasLegalAuthority: dateIsAdult(e.target.value) ? false : prev.hasLegalAuthority,
+                          }))}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
                       </div>
+                      {addFamilyMemberData.dateOfBirth && !dateIsAdult(addFamilyMemberData.dateOfBirth) && (
+                        <label className="mt-4 flex items-start gap-2 text-sm text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={addFamilyMemberData.hasLegalAuthority}
+                            onChange={(event) => setAddFamilyMemberData((prev) => ({
+                              ...prev,
+                              hasLegalAuthority: event.target.checked,
+                            }))}
+                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                          />
+                          <span>I am this youth member&apos;s parent or legal guardian.</span>
+                        </label>
+                      )}
                       <div className="flex justify-end gap-2 mt-4">
                         <button
                           type="button"
@@ -2213,15 +2244,14 @@ export default function MemberDashboard({
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Member</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Contact</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap">Age</th>
-                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
+                            <th className="py-3 px-4 font-semibold whitespace-nowrap">Participation</th>
                             <th className="py-3 px-4 font-semibold whitespace-nowrap w-0 text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {members.map((member) => {
                             const isCurrent = member.id === profileData?.id
-                            const enrollmentSummary = enrollmentSummaryForMember(member.id)
-                            const hasEnrollments = !!enrollmentSummary
+                            const participation = participationLabel(enrollments, member.id)
                             return (
                               <tr key={member.id} className="border-b border-gray-100 hover:bg-gray-50/80">
                                 <td className="py-3 px-4 align-middle">
@@ -2243,12 +2273,17 @@ export default function MemberDashboard({
                                   {member.age ?? '—'}
                                 </td>
                                 <td className="py-3 px-4 align-middle">
-                                  <div className="flex flex-wrap gap-1">
-                                    <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">Active</span>
-                                    {hasEnrollments && (
-                                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">Athlete</span>
-                                    )}
-                                  </div>
+                                  <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${
+                                    participation === 'Current'
+                                      ? 'bg-blue-50 text-blue-700'
+                                      : participation === 'Upcoming'
+                                        ? 'bg-cyan-50 text-cyan-700'
+                                        : participation === 'Waitlisted'
+                                          ? 'bg-amber-50 text-amber-800'
+                                          : 'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {participation}
+                                  </span>
                                 </td>
                                 <td className="py-3 px-4 align-middle">
                                   <div className="flex items-center justify-end gap-0.5">
@@ -2260,7 +2295,7 @@ export default function MemberDashboard({
                                     >
                                       <Eye className="w-4 h-4" />
                                     </button>
-                                    {(isAdult() || member.id === profileData?.id) && (
+                                    {member.canEditProfile === true && (
                                       <button
                                         type="button"
                                         onClick={() => handleEditMember(member)}
@@ -2285,7 +2320,7 @@ export default function MemberDashboard({
                     Payment History
                   </h3>
                   <p className="text-gray-600 text-sm mb-6">
-                    Family payment history is visible to the billing payer and guardian accounts.
+                    Payment History is available to the household billing payer.
                   </p>
                   <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">
                     Card collection is currently handled externally. Reconciled payment records appear below.
@@ -2354,6 +2389,9 @@ export default function MemberDashboard({
                   loading={enrollmentsLoading}
                   currentMemberId={profileData?.id != null ? Number(profileData.id) : undefined}
                   memberToken={token}
+                  manageableMemberIds={members
+                    .filter((member) => member.canEditProfile === true)
+                    .map((member) => member.id)}
                   onEnrollmentsChanged={async (result) => {
                     if (result?.immediate) {
                       setEnrollments((prev) => prev.filter((e) => e.id !== result.signupId))
@@ -2389,7 +2427,7 @@ export default function MemberDashboard({
                   {!classesOfferedLoading && !classesOfferedError && classesOffered.length === 0 && (
                     <div className="text-center py-12 text-gray-500">No classes are listed at this time.</div>
                   )}
-                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && token && profileData?.id != null && (
+                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && token && profileData?.id != null && profileData.householdAccess?.isPayer === true && (
                     <MemberClassesOfferedEnroll
                       apiUrl={apiUrl}
                       memberToken={token}
@@ -2408,6 +2446,11 @@ export default function MemberDashboard({
                         }
                       }}
                     />
+                  )}
+                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && profileData?.householdAccess?.isPayer !== true && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                      Class enrollment is managed by your household payer. Ask the payer to sign in to add or purchase an enrollment.
+                    </div>
                   )}
                 </div>
               </motion.div>
@@ -3065,12 +3108,12 @@ export default function MemberDashboard({
                   </div>
                 </div>
 
-                {/* Status and Roles */}
+                {/* Independent lifecycle and derived participation facts */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Status and Roles</h4>
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Status</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-xs font-semibold text-gray-500">Status:</span>
+                      <span className="text-xs font-semibold text-gray-500">Record:</span>
                       <div className="mt-1">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
                           viewingMember.isActive 
@@ -3082,29 +3125,23 @@ export default function MemberDashboard({
                       </div>
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-gray-500">Enrollment Status:</span>
+                      <span className="text-xs font-semibold text-gray-500">Participation:</span>
                       <div className="mt-1">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                          viewingMember.status === 'athlete' || viewingMember.status === 'enrolled'
-                            ? 'bg-blue-50 text-blue-700' 
-                            : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {viewingMember.status || 'Non-Participant'}
+                        <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700">
+                          {participationLabel(enrollments, viewingMember.id)}
                         </span>
                       </div>
                     </div>
-                    <div className="md:col-span-2">
-                      <span className="text-xs font-semibold text-gray-500">Roles:</span>
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {viewingMember.roles && viewingMember.roles.length > 0 ? (
-                          viewingMember.roles.map((role, idx) => (
-                            <span key={idx} className="px-2 py-1 rounded text-xs font-semibold bg-purple-50 text-purple-700">
-                              {typeof role === 'string' ? role : role.role}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-gray-500 text-sm">No roles assigned</span>
-                        )}
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500">Household:</span>
+                      <div className="mt-1 text-sm text-gray-900">
+                        {viewingMember.isFamilyPayer ? 'Payer' : viewingMember.familyId ? 'Family member' : 'No family'}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500">Age group:</span>
+                      <div className="mt-1 text-sm text-gray-900">
+                        {viewingMember.age == null ? 'DOB missing' : viewingMember.age < 18 ? 'Youth' : 'Adult'}
                       </div>
                     </div>
                   </div>
@@ -3217,21 +3254,13 @@ export default function MemberDashboard({
                 )}
 
                 {/* Additional Information */}
-                {(viewingMember.medicalNotes || viewingMember.internalFlags) && (
+                {viewingMember.medicalNotes && (
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Additional Information</h4>
-                    {viewingMember.medicalNotes && (
-                      <div className="mb-3">
-                        <span className="text-xs font-semibold text-gray-500">Medical Notes:</span>
-                        <div className="text-gray-900 mt-1">{viewingMember.medicalNotes}</div>
-                      </div>
-                    )}
-                    {viewingMember.internalFlags && (
-                      <div>
-                        <span className="text-xs font-semibold text-gray-500">Internal Flags:</span>
-                        <div className="text-gray-900 mt-1">{viewingMember.internalFlags}</div>
-                      </div>
-                    )}
+                    <div>
+                      <span className="text-xs font-semibold text-gray-500">Medical Notes:</span>
+                      <div className="text-gray-900 mt-1">{viewingMember.medicalNotes}</div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -3247,7 +3276,7 @@ export default function MemberDashboard({
                 >
                   Close
                 </button>
-                {(isAdult() || viewingMember.id === profileData?.id) && (
+                {viewingMember.canEditProfile === true && (
                   <button
                     onClick={() => {
                       setShowViewModal(false)

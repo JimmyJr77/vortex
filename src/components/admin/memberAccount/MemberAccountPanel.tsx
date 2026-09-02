@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { adminApiRequest } from '../../../utils/api'
 import MemberDetailsTab from './MemberDetailsTab'
 import MemberAccountSecurityTab from './MemberAccountSecurityTab'
 import MemberStaffNotesTab from './MemberStaffNotesTab'
 import MemberMissedClassesTab from './MemberMissedClassesTab'
-import type { MemberAccountTab, MemberDetailData, MemberFamilyData, MemberRole } from './types'
+import type {
+  MemberAccountTab,
+  MemberDetailData,
+  MemberDirectorySummary,
+  MemberFamilyData,
+} from './types'
 
 const TABS: Array<{ id: MemberAccountTab; label: string }> = [
   { id: 'details', label: 'Member Details' },
@@ -17,19 +22,33 @@ const TABS: Array<{ id: MemberAccountTab; label: string }> = [
 interface Props {
   memberId: number
   memberName: string
-  listRoles?: MemberRole[]
+  directorySummary: MemberDirectorySummary
   initialTab?: MemberAccountTab
+  onAccountChanged?: () => void | Promise<void>
+  canManageSecurity?: boolean
+  canManageNotes?: boolean
+  canManageMissedClasses?: boolean
 }
-
-const EMPTY_ROLES: MemberRole[] = []
 
 export default function MemberAccountPanel({
   memberId,
   memberName,
-  listRoles = EMPTY_ROLES,
+  directorySummary,
   initialTab = 'details',
+  onAccountChanged,
+  canManageSecurity = false,
+  canManageNotes = false,
+  canManageMissedClasses = false,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<MemberAccountTab>(initialTab)
+  const availableTabs = useMemo(() => TABS.filter((tab) => (
+    tab.id === 'details'
+    || (tab.id === 'security' && canManageSecurity)
+    || (tab.id === 'notes' && canManageNotes)
+    || (tab.id === 'missed-classes' && canManageMissedClasses)
+  )), [canManageMissedClasses, canManageNotes, canManageSecurity])
+  const [activeTab, setActiveTab] = useState<MemberAccountTab>(
+    availableTabs.some((tab) => tab.id === initialTab) ? initialTab : 'details',
+  )
   const [member, setMember] = useState<MemberDetailData | null>(null)
   const [familyData, setFamilyData] = useState<MemberFamilyData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -43,9 +62,6 @@ export default function MemberAccountPanel({
       if (!memberRes.ok) throw new Error(`Failed to load member (${memberRes.status})`)
       const memberJson = await memberRes.json()
       const detail: MemberDetailData = memberJson.data ?? memberJson
-      if (!detail.roles?.length && listRoles.length > 0) {
-        detail.roles = listRoles
-      }
       setMember(detail)
 
       if (detail.familyId) {
@@ -66,15 +82,15 @@ export default function MemberAccountPanel({
     } finally {
       setLoading(false)
     }
-  }, [listRoles, memberId])
+  }, [memberId])
 
   useEffect(() => {
     void load()
   }, [load])
 
   useEffect(() => {
-    setActiveTab(initialTab)
-  }, [memberId, initialTab])
+    setActiveTab(availableTabs.some((tab) => tab.id === initialTab) ? initialTab : 'details')
+  }, [availableTabs, memberId, initialTab])
 
   return (
     <div className="border-t border-gray-200 bg-gray-50/80 px-4 py-4">
@@ -83,7 +99,7 @@ export default function MemberAccountPanel({
       </div>
 
       <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-4">
-        {TABS.map((tab) => (
+        {availableTabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -107,10 +123,14 @@ export default function MemberAccountPanel({
         <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm">{error}</div>
       ) : member ? (
         <>
-          {activeTab === 'details' && <MemberDetailsTab member={member} familyData={familyData} />}
-          {activeTab === 'security' && <MemberAccountSecurityTab memberId={memberId} />}
-          {activeTab === 'notes' && <MemberStaffNotesTab memberId={memberId} />}
-          {activeTab === 'missed-classes' && <MemberMissedClassesTab memberId={memberId} />}
+          {activeTab === 'details' && (
+            <MemberDetailsTab member={member} familyData={familyData} directorySummary={directorySummary} />
+          )}
+          {activeTab === 'security' && canManageSecurity && (
+            <MemberAccountSecurityTab memberId={memberId} onAccessChange={onAccountChanged} />
+          )}
+          {activeTab === 'notes' && canManageNotes && <MemberStaffNotesTab memberId={memberId} />}
+          {activeTab === 'missed-classes' && canManageMissedClasses && <MemberMissedClassesTab memberId={memberId} />}
         </>
       ) : null}
     </div>

@@ -29,25 +29,19 @@ export async function findMemberByEmail(db, email) {
   const res = await db.query(
     `
     SELECT m.*,
-      (
-        (m.password_hash IS NOT NULL AND m.password_hash <> '')
-        OR (au.password_hash IS NOT NULL AND au.password_hash <> '')
-      ) AS has_password,
+      (au.password_hash IS NOT NULL AND au.password_hash <> '') AS has_password,
       au.password_hash AS app_user_password_hash
     FROM member m
-    LEFT JOIN app_user au ON au.id = m.app_user_id AND au.is_active = TRUE
+    LEFT JOIN app_user au
+      ON au.id = m.app_user_id
+     AND au.facility_id = m.facility_id
+     AND au.is_active = TRUE
     WHERE m.is_active = TRUE
       AND (
         LOWER(TRIM(m.email)) = $1
         OR LOWER(TRIM(au.email)) = $1
       )
-      AND (
-        $2::bigint IS NULL
-        OR m.facility_id IS NULL
-        OR m.facility_id = $2
-        OR au.facility_id IS NULL
-        OR au.facility_id = $2
-      )
+      AND m.facility_id = $2
     ORDER BY
       CASE WHEN LOWER(TRIM(m.email)) = $1 THEN 0 ELSE 1 END,
       CASE WHEN m.app_user_id IS NOT NULL THEN 0 ELSE 1 END
@@ -64,25 +58,19 @@ export async function findMemberById(db, memberId) {
 }
 
 export async function findMemberForAppUser(db, userId) {
-  const userResult = await db.query('SELECT id, email FROM app_user WHERE id = $1', [userId])
-  const appUser = userResult.rows[0]
-  if (!appUser) return null
-
   const res = await db.query(
     `
     SELECT m.*,
-      (m.password_hash IS NOT NULL AND m.password_hash <> '') AS has_password
+      (au.password_hash IS NOT NULL AND au.password_hash <> '') AS has_password
     FROM member m
+    JOIN app_user au
+      ON au.id = m.app_user_id
+     AND au.facility_id = m.facility_id
     WHERE m.is_active = TRUE
-      AND (
-        m.app_user_id = $1
-        OR (m.app_user_id IS NULL AND m.id = $1)
-        OR (m.app_user_id IS NULL AND LOWER(TRIM(m.email)) = LOWER(TRIM($2)))
-      )
-    ORDER BY CASE WHEN m.app_user_id = $1 THEN 0 ELSE 1 END
+      AND m.app_user_id = $1
     LIMIT 1
     `,
-    [userId, appUser.email],
+    [userId],
   )
   return res.rows[0] || null
 }
@@ -90,16 +78,15 @@ export async function findMemberForAppUser(db, userId) {
 async function syncAppUser(client, member, passwordHash) {
   const fullName = `${member.first_name} ${member.last_name}`.trim()
   const facilityId = member.facility_id
-  const role = 'MEMBER_ATHLETE'
-
-  const existing = await client.query('SELECT id FROM app_user WHERE id = $1', [member.id])
-  if (existing.rows.length > 0) {
-    await client.query(
+  if (member.app_user_id) {
+    const updated = await client.query(
       `
       UPDATE app_user
       SET full_name = $1, email = $2, phone = $3, username = $4,
-          password_hash = $5, role = $6, is_active = TRUE, facility_id = $7, updated_at = NOW()
-      WHERE id = $8
+          password_hash = $5, updated_at = NOW()
+      WHERE id = $6
+        AND facility_id = $7
+      RETURNING id
       `,
       [
         fullName,
@@ -107,31 +94,59 @@ async function syncAppUser(client, member, passwordHash) {
         member.phone,
         member.username,
         passwordHash,
-        role,
-        facilityId,
-        member.id,
-      ],
-    )
-  } else {
-    await client.query(
-      `
-      INSERT INTO app_user (
-        id, full_name, email, phone, username, password_hash,
-        role, is_active, facility_id, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE, $8, NOW(), NOW())
-      `,
-      [
-        member.id,
-        fullName,
-        member.email,
-        member.phone,
-        member.username,
-        passwordHash,
-        role,
+        member.app_user_id,
         facilityId,
       ],
     )
+    if (updated.rows.length === 0) {
+      throw new Error('The linked Member Portal login is missing or belongs to another facility.')
+    }
+    return Number(updated.rows[0].id)
   }
+
+  if (!member.email && !member.username) {
+    throw new Error('Email or username is required to create a Member Portal login.')
+  }
+  const conflict = await client.query(
+    `SELECT id
+       FROM app_user
+      WHERE (
+          ($1::text IS NOT NULL AND LOWER(BTRIM(email)) = LOWER(BTRIM($1)))
+          OR ($2::text IS NOT NULL AND LOWER(BTRIM(username)) = LOWER(BTRIM($2)))
+        )
+      LIMIT 1`,
+    [member.email || null, member.username || null],
+  )
+  if (conflict.rows.length > 0) {
+    throw new Error('A login with this email or username already exists. Link it explicitly instead of creating another identity.')
+  }
+
+  const created = await client.query(
+    `INSERT INTO app_user (
+       full_name, email, phone, username, password_hash,
+       role, is_active, facility_id, created_at, updated_at
+     ) VALUES ($1, $2, $3, $4, $5, 'MEMBER_ATHLETE'::user_role, TRUE, $6, NOW(), NOW())
+     RETURNING id`,
+    [fullName, member.email, member.phone, member.username, passwordHash, facilityId],
+  )
+  const userId = Number(created.rows[0].id)
+  await client.query(
+    `INSERT INTO app_user_role (user_id, role)
+     VALUES ($1, 'MEMBER_ATHLETE'::user_role)
+     ON CONFLICT DO NOTHING`,
+    [userId],
+  )
+  await client.query(
+    `UPDATE member
+        SET app_user_id = $2,
+            password_hash = NULL,
+            updated_at = NOW()
+      WHERE id = $1`,
+    [member.id, userId],
+  )
+  member.app_user_id = userId
+  member.password_hash = null
+  return userId
 }
 
 function generateUsernameFromEmail(email) {
@@ -163,19 +178,15 @@ export async function createMemberStub(
     `
     INSERT INTO member (
       facility_id, family_id, first_name, last_name, email, phone,
-      username, password_hash, status, is_active, profile_complete, signup_source
-    ) VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, 'legacy', TRUE, FALSE, 'scheduling')
+      username, password_hash, is_active, profile_complete, signup_source
+    ) VALUES ($1, NULL, $2, $3, $4, $5, $6, NULL, TRUE, FALSE, 'scheduling')
     RETURNING *
     `,
-    [facilityId, firstName, lastName, email.trim(), phone, username, passwordHash],
+    [facilityId, firstName, lastName, email.trim(), phone, username],
   )
   const member = insert.rows[0]
 
-  try {
-    await syncAppUser(client, member, passwordHash)
-  } catch (err) {
-    console.error('[createMemberStub] app_user sync failed:', err.message)
-  }
+  await syncAppUser(client, member, passwordHash)
 
   return member.id
 }
@@ -184,22 +195,29 @@ export async function updateMemberPassword(client, memberId, password, { mustCha
   const passwordHash = await bcrypt.hash(password, 10)
   const res = await client.query(
     `
-    UPDATE member
-    SET password_hash = $1,
-        must_change_password = $2,
-        updated_at = NOW()
-    WHERE id = $3
-    RETURNING *
+    SELECT *
+    FROM member
+    WHERE id = $1
+      AND is_active = TRUE
+    FOR UPDATE
     `,
-    [passwordHash, Boolean(mustChangePassword), memberId],
+    [memberId],
   )
   if (res.rows.length === 0) {
     throw new Error('Member not found')
   }
   const member = res.rows[0]
-  if (member.email || member.username) {
-    await syncAppUser(client, member, passwordHash)
-  }
+  await syncAppUser(client, member, passwordHash)
+  await client.query(
+    `UPDATE member
+        SET password_hash = NULL,
+            must_change_password = $2,
+            updated_at = NOW()
+      WHERE id = $1`,
+    [memberId, Boolean(mustChangePassword)],
+  )
+  member.password_hash = null
+  member.must_change_password = Boolean(mustChangePassword)
   return member
 }
 

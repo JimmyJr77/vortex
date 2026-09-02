@@ -16,14 +16,20 @@ const JWT_SECRET = 'admin-billing-facility-isolation-secret'
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
 
 function authenticationResult(sql) {
-  if (sql.includes('FROM app_user au')) {
+  if (sql.includes('FROM v_app_user_access_context')) {
     return {
       rows: [{
-        id: 91,
+        user_id: 91,
         facility_id: 7,
-        role: 'ADMIN',
+        primary_storage_role: 'ADMIN',
+        storage_roles: ['ADMIN'],
+        staff_roles: ['ADMINISTRATOR'],
         is_active: true,
-        is_master_admin: false,
+        is_owner: false,
+        member_portal_status: 'no_login',
+        can_access_admin_portal: true,
+        can_access_coach_portal: false,
+        can_access_member_portal: false,
       }],
     }
   }
@@ -76,14 +82,28 @@ async function invokeRoute(app, { method = 'GET', path, params = {}, query = {},
   })
 }
 
-test('route scope comes only from authenticated facility and grants global scope only to master admin', () => {
+test('route scope always comes from the authenticated facility, including for its owner', () => {
   assert.deepEqual(
     authenticatedAdminBillingScope({ user: { facility_id: 7 }, isMasterAdmin: false }),
     { facilityId: 7, allowGlobal: false },
   )
   assert.deepEqual(
-    authenticatedAdminBillingScope({ user: { facility_id: null }, isMasterAdmin: true }),
-    { facilityId: null, allowGlobal: true },
+    authenticatedAdminBillingScope({
+      user: { facility_id: 7 },
+      isMasterAdmin: true,
+      isOwner: true,
+      roles: ['MASTER_ADMIN'],
+    }),
+    { facilityId: 7, allowGlobal: false },
+  )
+  assert.throws(
+    () => authenticatedAdminBillingScope({
+      user: { facility_id: null },
+      isMasterAdmin: true,
+      isOwner: true,
+      roles: ['MASTER_ADMIN'],
+    }),
+    /authenticated facility scope is required/i,
   )
   assert.throws(
     () => authenticatedAdminBillingScope({ user: { facility_id: null }, isMasterAdmin: false }),

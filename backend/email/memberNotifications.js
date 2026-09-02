@@ -7,10 +7,11 @@ import { sendRefundReceiptEmail } from './refundReceiptEmail.js'
 import { sendPaymentRequestEmail } from './paymentRequestEmail.js'
 import {
   resolveMemberContactEmail,
-  listFamilyGuardianEmails,
+  resolveMemberOwnContactEmail,
+  listMemberGuardianContacts,
+  resolveMemberHouseholdPayerContact,
   loadMemberRow,
   dedupeEmails,
-  resolveAppUserEmail,
 } from './memberContact.js'
 
 /**
@@ -85,7 +86,9 @@ export async function notifyEnrollmentReceipt(pool, params) {
     const member = await loadMemberRow(pool, memberId)
     if (!member) return { sent: false, skipped: true }
 
-    const contact = await resolveMemberContactEmail(pool, member)
+    const contact = await resolveMemberContactEmail(pool, member, {
+      includeBillingPayer: true,
+    })
     if (!contact?.email) return { sent: false, skipped: true, reason: 'no_contact_email' }
 
     const athleteName =
@@ -97,7 +100,7 @@ export async function notifyEnrollmentReceipt(pool, params) {
       memberId: Number(memberId),
       recipientEmail: contact.email,
       athleteName,
-      guardianName: contact.guardianName,
+      guardianName: contact.contactRole === 'member' ? null : contact.contactName,
       programName: rest.programName,
       slotLabel: rest.slotLabel || '',
       status: rest.status || 'confirmed',
@@ -128,21 +131,21 @@ export async function notifyEnrollmentReceipt(pool, params) {
 /**
  * Resolve the billing payer's email + display name for a family billing account.
  * Prefers the payer member's contact, falls back to the account billing email.
- * @returns {Promise<{ to: string|null, guardianName: string|null }>}
+ * @returns {Promise<{ to: string|null, payerName: string|null }>}
  */
 async function resolvePayerRecipient(pool, account) {
   let to = null
-  let guardianName = null
+  let payerName = null
   if (account?.payer_member_id != null) {
     const payer = await loadMemberRow(pool, Number(account.payer_member_id))
     if (payer) {
-      const contact = await resolveMemberContactEmail(pool, payer)
+      const contact = await resolveMemberOwnContactEmail(pool, payer)
       to = contact?.email ?? null
-      guardianName = contact?.guardianName ?? payer.first_name ?? null
+      payerName = contact?.contactName ?? payer.first_name ?? null
     }
   }
   if (!to && account?.billing_email) to = String(account.billing_email).trim()
-  return { to, guardianName }
+  return { to, payerName }
 }
 
 export async function notifyPaymentRequest(pool, {
@@ -157,11 +160,11 @@ export async function notifyPaymentRequest(pool, {
     if (!account?.id || !checkoutUrl || Number(amountCents) <= 0) {
       return { sent: false, skipped: true }
     }
-    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    const { to, payerName } = await resolvePayerRecipient(pool, account)
     if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
     const result = await sendPaymentRequestEmail({
       to,
-      guardianName,
+      guardianName: payerName,
       amountCents,
       checkoutUrl,
       expiresAt,
@@ -187,7 +190,7 @@ export async function notifyPaymentReceipt(pool, {
   try {
     if (!account?.id || !payment) return { sent: false, skipped: true }
 
-    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    const { to, payerName } = await resolvePayerRecipient(pool, account)
     if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
 
     // Remaining balance after this payment (charges − payments + refunds).
@@ -214,7 +217,7 @@ export async function notifyPaymentReceipt(pool, {
 
     const result = await sendPaymentReceiptEmail({
       to,
-      guardianName,
+      guardianName: payerName,
       amountCents: Number(payment.amount_cents ?? 0),
       method: payment.method ?? null,
       paidAt: payment.paid_at ?? null,
@@ -247,11 +250,11 @@ export async function notifyPaymentReceipt(pool, {
 export async function notifyPaymentFailed(pool, { account, amountCents, reason = null, updatePaymentUrl = null, idempotencyKey = null, bestEffort = true }) {
   try {
     if (!account?.id) return { sent: false, skipped: true }
-    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    const { to, payerName } = await resolvePayerRecipient(pool, account)
     if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
     const result = await sendPaymentFailedEmail({
       to,
-      guardianName,
+      guardianName: payerName,
       amountCents: Number(amountCents ?? 0),
       reason,
       updatePaymentUrl,
@@ -272,11 +275,11 @@ export async function notifyRefundReceipt(pool, { account, refund, billingUrl = 
     if (!account?.id || !refund || refund.external_status !== 'succeeded') {
       return { sent: false, skipped: true }
     }
-    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    const { to, payerName } = await resolvePayerRecipient(pool, account)
     if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
     const result = await sendRefundReceiptEmail({
       to,
-      guardianName,
+      guardianName: payerName,
       amountCents: Number(refund.amount_cents ?? 0),
       reason: refund.reason ?? null,
       reference: refund.external_reference ?? refund.stripe_refund_id ?? null,
@@ -295,31 +298,30 @@ export async function notifyRefundReceipt(pool, { account, refund, billingUrl = 
 
 /**
  * @param {import('pg').Pool} pool
- * @param {{ familyId: number; newMemberId: number; addedByMemberId?: number | null; familyName?: string | null; bestEffort?: boolean }} params
+ * @param {{ familyId: number; newMemberId: number; addedByUserId?: number | null; familyName?: string | null; bestEffort?: boolean }} params
  */
-export async function notifyFamilyGuardiansNewMember(pool, params) {
-  const { familyId, newMemberId, familyName = null, addedByUserId = null, bestEffort = true } = params
+export async function notifyHouseholdContactsNewMember(pool, params) {
+  const { familyId, newMemberId, familyName = null, bestEffort = true } = params
   try {
     const newMember = await loadMemberRow(pool, newMemberId)
     if (!newMember) return { sent: false, skipped: true }
 
-    let guardianEmails = await listFamilyGuardianEmails(pool, familyId, {
-      excludeMemberId: newMemberId,
-    })
-
-    const actorEmail = addedByUserId ? await resolveAppUserEmail(pool, addedByUserId) : null
-    if (actorEmail) {
-      guardianEmails = dedupeEmails([...guardianEmails, actorEmail])
+    let recipients = await listMemberGuardianContacts(pool, newMemberId)
+    if (recipients.length === 0) {
+      const payer = await resolveMemberHouseholdPayerContact(pool, newMemberId, {
+        excludeMemberId: newMemberId,
+      })
+      if (payer) recipients = [payer]
     }
 
-    if (guardianEmails.length === 0) {
+    if (recipients.length === 0) {
       console.warn(
-        '[memberNotifications] family_member_added: no guardian emails for family',
+        '[memberNotifications] family_member_added: no authorized household contact for family',
         familyId,
         'newMember',
         newMemberId,
       )
-      return { sent: false, skipped: true, reason: 'no_guardians' }
+      return { sent: false, skipped: true, reason: 'no_household_contact' }
     }
 
     const newMemberName = `${newMember.first_name || ''} ${newMember.last_name || ''}`.trim() || 'New member'
@@ -330,30 +332,11 @@ export async function notifyFamilyGuardiansNewMember(pool, params) {
     }
 
     const results = []
-    for (const to of dedupeEmails(guardianEmails)) {
-      const guardian = await pool.query(
-        `
-          SELECT m.first_name
-          FROM family_member fm
-          JOIN member m ON m.id = fm.member_id
-          LEFT JOIN app_user au ON au.id = m.app_user_id
-          WHERE fm.family_id = $2
-            AND LOWER(COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(au.email), ''))) = LOWER($1)
-          LIMIT 1
-        `,
-        [to, familyId],
-      )
-      let guardianFirstName = guardian.rows[0]?.first_name || null
-      if (!guardianFirstName && actorEmail && to.toLowerCase() === actorEmail.toLowerCase() && addedByUserId) {
-        const actor = await pool.query(
-          `SELECT split_part(COALESCE(full_name, ''), ' ', 1) AS first_name FROM app_user WHERE id = $1`,
-          [addedByUserId],
-        )
-        guardianFirstName = actor.rows[0]?.first_name || null
-      }
+    for (const to of dedupeEmails(recipients.map((recipient) => recipient.email))) {
+      const recipient = recipients.find((candidate) => candidate.email.toLowerCase() === to.toLowerCase())
       const r = await sendFamilyMemberAddedEmail({
         to,
-        guardianFirstName,
+        guardianFirstName: recipient?.contactName || null,
         newMemberName,
         familyName: familyLabel,
       })
@@ -371,3 +354,7 @@ export async function notifyFamilyGuardiansNewMember(pool, params) {
     throw err
   }
 }
+
+// Compatibility export for existing signup and admin callers. The canonical
+// function name reflects that a billing payer is not a legal guardian.
+export const notifyFamilyGuardiansNewMember = notifyHouseholdContactsNewMember

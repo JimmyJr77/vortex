@@ -23,6 +23,7 @@ test('buildMemberArchiveBlockers explains classes and family payment responsibil
     [
       { id: 101, class_name: 'Tornadoes', status: 'confirmed' },
       { id: 102, class_name: 'Cyclones', status: 'paused' },
+      { id: 103, class_name: 'Twisters', status: 'waitlisted' },
     ],
     [
       {
@@ -40,6 +41,7 @@ test('buildMemberArchiveBlockers explains classes and family payment responsibil
   ])
   assert.match(blockers[0].message, /Tornadoes \(enrolled\)/)
   assert.match(blockers[0].message, /Cyclones \(paused\)/)
+  assert.match(blockers[0].message, /Twisters \(waitlisted\)/)
   assert.match(blockers[1].message, /Vortex Family \(covers Taylor Vortex\)/)
   assert.match(blockers[1].message, /Assign another family payer/)
 })
@@ -77,6 +79,29 @@ test('getMemberArchivePreflight returns structured blockers without writing', as
   assert.equal(result.blockers.length, 2)
 })
 
+test('getMemberArchivePreflight blocks canonical waitlisted enrollment records', async () => {
+  const db = {
+    async query(sql, params = []) {
+      if (sql.includes('FROM member') && sql.includes('WHERE id = $1')) {
+        return { rows: [member] }
+      }
+      if (sql.includes('FROM scheduling_signup s') && sql.includes('JOIN scheduling_form')) {
+        assert.deepEqual(params, [75, ['confirmed', 'paused', 'waitlisted']])
+        return { rows: [{ id: 103, class_name: 'Twisters', status: 'waitlisted' }] }
+      }
+      if (sql.includes('FROM family_billing_account fba')) return { rows: [] }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+
+  const result = await getMemberArchivePreflight(db, 75)
+
+  assert.equal(result.canArchive, false)
+  assert.equal(result.blockers[0].type, 'active_enrollments')
+  assert.equal(result.blockers[0].details[0].status, 'waitlisted')
+  assert.match(result.blockers[0].message, /Twisters \(waitlisted\)/)
+})
+
 test('setMemberArchived rolls back and does not update a blocked member', async () => {
   const queries = []
   const client = {
@@ -101,9 +126,9 @@ test('setMemberArchived rolls back and does not update a blocked member', async 
   assert.equal(queries.some((sql) => sql.includes('UPDATE member')), false)
 })
 
-test('setMemberArchived archives the member and linked login in one transaction', async () => {
+test('setMemberArchived changes record lifecycle without mutating portal access', async () => {
   const queries = []
-  const updatedMember = { ...member, is_active: false, status: 'archived' }
+  const updatedMember = { ...member, is_active: false }
   const client = {
     async query(sql, params = []) {
       queries.push({ sql, params })
@@ -115,7 +140,6 @@ test('setMemberArchived archives the member and linked login in one transaction'
       if (sql.includes('FROM family_billing_account fba')) return { rows: [] }
       if (sql.includes('UPDATE family_billing_account')) return { rows: [] }
       if (sql.includes('UPDATE member')) return { rows: [updatedMember] }
-      if (sql.includes('UPDATE app_user')) return { rows: [] }
       throw new Error(`Unexpected query: ${sql}`)
     },
     release() {},
@@ -124,10 +148,10 @@ test('setMemberArchived archives the member and linked login in one transaction'
 
   const result = await setMemberArchived(pool, 75, true)
 
-  assert.equal(result.member.status, 'archived')
+  assert.equal(result.member.is_active, false)
+  assert.equal(result.member.status, 'legacy')
   assert.equal(queries.at(-1).sql, 'COMMIT')
   const memberUpdate = queries.find((entry) => entry.sql.includes('UPDATE member'))
   assert.deepEqual(memberUpdate.params.slice(0, 2), [false, 75])
-  const loginUpdate = queries.find((entry) => entry.sql.includes('UPDATE app_user'))
-  assert.deepEqual(loginUpdate.params, [false, 34])
+  assert.equal(queries.some((entry) => entry.sql.includes('UPDATE app_user')), false)
 })

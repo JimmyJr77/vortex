@@ -35,20 +35,26 @@ export async function resetMemberPasswordByEmail(
   try {
     await client.query('BEGIN')
     const userResult = await client.query(
-      `SELECT id, email, full_name
-       FROM app_user
-       WHERE LOWER(email) = $1
-         AND is_active = TRUE
-       LIMIT 1
+      `SELECT account.id, account.email, account.full_name
+       FROM app_user account
+       JOIN member linked_member
+         ON linked_member.app_user_id = account.id
+        AND linked_member.facility_id = account.facility_id
+       WHERE LOWER(BTRIM(account.email)) = $1
+         AND account.is_active = TRUE
+         AND account.member_portal_access_active = TRUE
+         AND linked_member.is_active = TRUE
+       ORDER BY account.id
+       LIMIT 2
        FOR UPDATE`,
       [normalizedEmail],
     )
 
-    const user = userResult.rows[0]
-    if (!user) {
+    if (userResult.rows.length !== 1) {
       await client.query('COMMIT')
       return { accountFound: false, sent: false, userId: null }
     }
+    const user = userResult.rows[0]
 
     const temporaryPassword = createTemporaryPassword(12)
     const passwordHash = await hashPassword(temporaryPassword)

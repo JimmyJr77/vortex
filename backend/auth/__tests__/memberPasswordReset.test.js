@@ -7,14 +7,14 @@ import {
 } from '../memberPasswordReset.js'
 import { sendTemporaryPasswordEmail } from '../../scheduling/tempPasswordEmail.js'
 
-function resetPool({ user = null } = {}) {
+function resetPool({ user = null, users = null } = {}) {
   const events = []
   const client = {
     async query(sql, params = []) {
       const normalizedSql = String(sql).replace(/\s+/g, ' ').trim()
       events.push({ sql: normalizedSql, params })
-      if (normalizedSql.startsWith('SELECT id, email, full_name')) {
-        return { rows: user ? [user] : [] }
+      if (normalizedSql.startsWith('SELECT account.id, account.email, account.full_name')) {
+        return { rows: users ?? (user ? [user] : []) }
       }
       return { rows: [] }
     },
@@ -51,11 +51,33 @@ test('unknown member reset returns generic no-account result without sending', a
   assert.equal(sent, false)
   assert.deepEqual(events.map((event) => event.sql), [
     'BEGIN',
-    'SELECT id, email, full_name FROM app_user WHERE LOWER(email) = $1 AND is_active = TRUE LIMIT 1 FOR UPDATE',
+    'SELECT account.id, account.email, account.full_name FROM app_user account JOIN member linked_member ON linked_member.app_user_id = account.id AND linked_member.facility_id = account.facility_id WHERE LOWER(BTRIM(account.email)) = $1 AND account.is_active = TRUE AND account.member_portal_access_active = TRUE AND linked_member.is_active = TRUE ORDER BY account.id LIMIT 2 FOR UPDATE',
     'COMMIT',
     'RELEASE',
   ])
   assert.deepEqual(events[1].params, ['missing@example.com'])
+})
+
+test('ambiguous cross-facility email does not reset either login', async () => {
+  const { pool, events } = resetPool({
+    users: [account, { ...account, id: 84 }],
+  })
+  let sent = false
+
+  const result = await resetMemberPasswordByEmail(pool, account.email, {
+    createTemporaryPassword: () => 'TempPassword1',
+    hashPassword: async () => 'hashed',
+    sendTemporaryEmail: async () => {
+      sent = true
+      return { sent: true }
+    },
+  })
+
+  assert.deepEqual(result, { accountFound: false, sent: false, userId: null })
+  assert.equal(sent, false)
+  assert.equal(events.some((event) => event.sql.startsWith('UPDATE app_user')), false)
+  assert.equal(events.some((event) => event.sql.startsWith('UPDATE member')), false)
+  assert.equal(events.some((event) => event.sql === 'COMMIT'), true)
 })
 
 test('delivery failure rolls back the temporary password update', async () => {

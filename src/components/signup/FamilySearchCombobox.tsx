@@ -74,7 +74,7 @@ export default function FamilySearchCombobox({
 
   const pickFamily = (family: FamilySearchOption) => {
     onSelect(family)
-    onQueryChange(family.familyName || family.familyUsername || '')
+    onQueryChange(family.familyName || '')
     setOpen(false)
     setActiveIndex(-1)
   }
@@ -145,7 +145,6 @@ export default function FamilySearchCombobox({
           {options.map((family, index) => {
             const label = family.familyName || 'Unnamed family'
             const sub = [
-              family.familyUsername ? `@${family.familyUsername}` : null,
               family.memberCount != null ? `${family.memberCount} member(s)` : null,
             ]
               .filter(Boolean)

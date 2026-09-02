@@ -728,9 +728,13 @@ export async function queryCoachRosterMembers(pool, {
         m.last_name,
         m.email,
         m.phone,
-        m.has_completed_waivers,
         required_waivers.required_count,
         accepted_waivers.accepted_count,
+        CASE
+          WHEN required_waivers.required_count = 0 THEN 'not_required'
+          WHEN accepted_waivers.accepted_count >= required_waivers.required_count THEN 'current'
+          ELSE 'action_required'
+        END AS waiver_status,
         crn.attendance_status,
         crn.note
       FROM roster_ids rm
@@ -739,6 +743,7 @@ export async function queryCoachRosterMembers(pool, {
         SELECT COUNT(*)::int AS required_count
         FROM waiver_template wt
         WHERE wt.facility_id = m.facility_id
+          AND wt.is_required = TRUE
           AND wt.active_from <= now()
           AND (wt.active_to IS NULL OR wt.active_to > now())
       ) required_waivers ON TRUE
@@ -747,6 +752,8 @@ export async function queryCoachRosterMembers(pool, {
         FROM member_waiver_acceptance mwa
         JOIN waiver_template wt ON wt.id = mwa.waiver_template_id
         WHERE mwa.member_id = m.id
+          AND wt.facility_id = m.facility_id
+          AND wt.is_required = TRUE
           AND wt.active_from <= now()
           AND (wt.active_to IS NULL OR wt.active_to > now())
       ) accepted_waivers ON TRUE
@@ -838,29 +845,95 @@ export async function queryCoachMemberPickerList(pool, { coachUserId, facilityId
   }))
 }
 
-/** Parent/guardian member IDs when the athlete is under 18. */
-export async function queryMinorChildGuardianMemberIds(pool, childMemberId) {
-  const r = await pool.query(
-    `
-      SELECT DISTINCT guardian_id AS id
-      FROM (
-        SELECT unnest(m.parent_guardian_ids) AS guardian_id
-        FROM member m
-        WHERE m.id = $1
-          AND m.date_of_birth IS NOT NULL
-          AND m.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
-        UNION
-        SELECT pga.parent_member_id AS guardian_id
-        FROM parent_guardian_authority pga
-        JOIN member child ON child.id = pga.child_member_id
-        WHERE pga.child_member_id = $1
-          AND pga.has_legal_authority = TRUE
-          AND child.date_of_birth IS NOT NULL
-          AND child.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
-      ) guardians
-      WHERE guardian_id IS NOT NULL
-    `,
-    [childMemberId],
+function canonicalRelationshipId(value) {
+  const id = Number(value)
+  return Number.isSafeInteger(id) && id > 0 ? id : null
+}
+
+async function queryCanonicalMinorGuardianRelationships(pool, {
+  childMemberId = null,
+  guardianMemberId = null,
+  facilityId,
+}) {
+  const childId = childMemberId == null ? null : canonicalRelationshipId(childMemberId)
+  const guardianId = guardianMemberId == null ? null : canonicalRelationshipId(guardianMemberId)
+  const scopedFacilityId = canonicalRelationshipId(facilityId)
+  if (scopedFacilityId == null || (childId == null && guardianId == null)) return []
+  if (childMemberId != null && childId == null) return []
+  if (guardianMemberId != null && guardianId == null) return []
+
+  const result = await pool.query(
+    `SELECT DISTINCT
+       child.id AS child_member_id,
+       guardian.id AS guardian_member_id,
+       guardian_access.email AS guardian_email
+     FROM member child
+     JOIN parent_guardian_authority authority
+       ON authority.child_member_id = child.id
+      AND authority.has_legal_authority = TRUE
+     JOIN member guardian
+       ON guardian.id = authority.parent_member_id
+      AND guardian.facility_id = child.facility_id
+      AND guardian.is_active = TRUE
+     JOIN family_member child_household
+       ON child_household.member_id = child.id
+      AND child_household.is_active = TRUE
+     JOIN family_member guardian_household
+       ON guardian_household.member_id = guardian.id
+      AND guardian_household.family_id = child_household.family_id
+      AND guardian_household.is_active = TRUE
+     JOIN family household
+       ON household.id = child_household.family_id
+      AND household.facility_id = $3
+     JOIN facility facility_row
+       ON facility_row.id = household.facility_id
+     JOIN v_app_user_access_context guardian_access
+       ON guardian_access.user_id = guardian.app_user_id
+      AND guardian_access.member_id = guardian.id
+      AND guardian_access.facility_id = $3
+      AND guardian_access.can_access_member_portal = TRUE
+     WHERE child.facility_id = $3
+       AND child.is_active = TRUE
+       AND child.date_of_birth IS NOT NULL
+       AND child.date_of_birth > (
+         (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(facility_row.timezone, 'America/New_York'))::date
+         - INTERVAL '18 years'
+       )::date
+       AND guardian.id <> child.id
+       AND guardian.date_of_birth IS NOT NULL
+       AND guardian.date_of_birth <= (
+         (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(facility_row.timezone, 'America/New_York'))::date
+         - INTERVAL '18 years'
+       )::date
+       AND ($1::bigint IS NULL OR child.id = $1)
+       AND ($2::bigint IS NULL OR guardian.id = $2)
+     ORDER BY child.id, guardian.id`,
+    [childId, guardianId, scopedFacilityId],
   )
-  return r.rows.map((row) => Number(row.id)).filter((id) => Number.isFinite(id))
+  return result.rows
+}
+
+/** Active household guardians allowed to use the Member Portal for a minor. */
+export async function queryMinorChildGuardianMemberIds(pool, childMemberId, facilityId) {
+  const rows = await queryCanonicalMinorGuardianRelationships(pool, { childMemberId, facilityId })
+  return rows
+    .map((row) => Number(row.guardian_member_id))
+    .filter((id) => Number.isSafeInteger(id) && id > 0)
+}
+
+/** Canonical guardian contacts for a minor, sourced from the linked login. */
+export async function queryMinorChildGuardianContacts(pool, childMemberId, facilityId) {
+  const rows = await queryCanonicalMinorGuardianRelationships(pool, { childMemberId, facilityId })
+  return rows.map((row) => ({
+    memberId: Number(row.guardian_member_id),
+    email: row.guardian_email ? String(row.guardian_email).trim() : null,
+  }))
+}
+
+/** Minor household members a canonical guardian may access in the Member Portal. */
+export async function queryGuardianMinorChildMemberIds(pool, guardianMemberId, facilityId) {
+  const rows = await queryCanonicalMinorGuardianRelationships(pool, { guardianMemberId, facilityId })
+  return rows
+    .map((row) => Number(row.child_member_id))
+    .filter((id) => Number.isSafeInteger(id) && id > 0)
 }

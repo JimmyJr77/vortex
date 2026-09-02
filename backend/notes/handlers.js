@@ -19,28 +19,63 @@ function mapNoteRow(row) {
   }
 }
 
-// Resolve the current admin's display name (app_user.full_name → admins name → email).
+async function subjectBelongsToFacility(pool, subjectType, subjectId, facilityId) {
+  const normalizedSubjectId = Number(subjectId)
+  const normalizedFacilityId = Number(facilityId)
+  if (!Number.isSafeInteger(normalizedSubjectId) || normalizedSubjectId <= 0
+    || !Number.isSafeInteger(normalizedFacilityId) || normalizedFacilityId <= 0) {
+    return false
+  }
+  if (subjectType === 'member') {
+    const result = await pool.query(
+      'SELECT 1 FROM member WHERE id = $1 AND facility_id = $2 LIMIT 1',
+      [normalizedSubjectId, normalizedFacilityId],
+    )
+    return result.rows.length === 1
+  }
+  if (subjectType === 'registration') {
+    // Legacy inquiries did not store facility_id. A linked member supplies the
+    // tenant boundary; unlinked inquiries are visible only on a single-facility
+    // installation so a multi-facility deployment fails closed.
+    const result = await pool.query(
+      `SELECT 1
+         FROM registrations registration
+         LEFT JOIN member linked_member ON linked_member.id = registration.member_id
+        WHERE registration.id = $1
+          AND (
+            linked_member.facility_id = $2
+            OR (
+              registration.member_id IS NULL
+              AND (SELECT COUNT(*) FROM facility) = 1
+              AND EXISTS (SELECT 1 FROM facility WHERE id = $2)
+            )
+          )
+        LIMIT 1`,
+      [normalizedSubjectId, normalizedFacilityId],
+    )
+    return result.rows.length === 1
+  }
+  return false
+}
+
+// Resolve the current admin's display name from the canonical, facility-scoped
+// app_user identity. Legacy admin rows are not an authorization or identity
+// fallback.
 export async function resolveAdminAuthor(pool, req) {
   const adminId = req.adminId
   const adminEmail = req.adminEmail || null
+  const facilityId = req.canonicalAccess?.facilityId
   let name = null
-  if (adminId != null) {
+  if (adminId != null && facilityId != null) {
     try {
-      const u = await pool.query('SELECT full_name FROM app_user WHERE id = $1', [adminId])
+      const u = await pool.query(
+        'SELECT full_name FROM app_user WHERE id = $1 AND facility_id = $2',
+        [adminId, facilityId],
+      )
       if (u.rows[0]?.full_name) name = u.rows[0].full_name
     } catch {
-      // app_user may not be available; fall through
-    }
-    if (!name) {
-      try {
-        const a = await pool.query(
-          `SELECT COALESCE(first_name || ' ' || last_name, email) AS name FROM admins WHERE id = $1`,
-          [adminId],
-        )
-        if (a.rows[0]?.name) name = a.rows[0].name
-      } catch {
-        // ignore
-      }
+      // Preserve note creation even when the display-name lookup fails. The
+      // stable canonical author id and authenticated email are still recorded.
     }
   }
   return { authorKind: 'admin', authorId: adminId ?? null, authorEmail: adminEmail, authorName: name || adminEmail }
@@ -53,6 +88,9 @@ export function createNotesHandlers(pool) {
         const { subjectType, subjectId, noteType } = req.query
         if (!SUBJECT_TYPES.includes(subjectType) || !subjectId) {
           return res.status(400).json({ success: false, message: 'subjectType and subjectId are required' })
+        }
+        if (!await subjectBelongsToFacility(pool, subjectType, subjectId, req.canonicalAccess?.facilityId)) {
+          return res.status(404).json({ success: false, message: 'Note subject not found' })
         }
         const params = [subjectType, subjectId]
         let typeSql = ''
@@ -87,6 +125,9 @@ export function createNotesHandlers(pool) {
         if (!body || !String(body).trim()) {
           return res.status(400).json({ success: false, message: 'Note body is required' })
         }
+        if (!await subjectBelongsToFacility(pool, subjectType, subjectId, req.canonicalAccess?.facilityId)) {
+          return res.status(404).json({ success: false, message: 'Note subject not found' })
+        }
         const author = await resolveAdminAuthor(pool, req)
         const result = await pool.query(
           `
@@ -114,6 +155,18 @@ export function createNotesHandlers(pool) {
 
     async deleteNote(req, res) {
       try {
+        const note = await pool.query(
+          'SELECT subject_type, subject_id FROM note WHERE id = $1 AND is_deleted = FALSE LIMIT 1',
+          [req.params.id],
+        )
+        if (note.rows.length === 0 || !await subjectBelongsToFacility(
+          pool,
+          note.rows[0].subject_type,
+          note.rows[0].subject_id,
+          req.canonicalAccess?.facilityId,
+        )) {
+          return res.status(404).json({ success: false, message: 'Note not found' })
+        }
         const result = await pool.query(
           'UPDATE note SET is_deleted = TRUE WHERE id = $1 RETURNING id',
           [req.params.id],
@@ -133,6 +186,7 @@ export function createNotesHandlers(pool) {
 // Append a staff note (used when registration admin_notes changes via the existing PUT).
 export async function appendStaffNote(pool, req, subjectType, subjectId, body, source = 'admin_ui') {
   if (!body || !String(body).trim()) return null
+  if (!await subjectBelongsToFacility(pool, subjectType, subjectId, req.canonicalAccess?.facilityId)) return null
   const author = await resolveAdminAuthor(pool, req)
   const result = await pool.query(
     `

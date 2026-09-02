@@ -10,6 +10,7 @@ import {
 } from '../signup/waiverSigningUtils'
 import Login from '../Login'
 import { getApiUrl } from '../../utils/api'
+import { parseDateOnly } from '../../utils/dateUtils'
 import {
   persistMemberSession,
   type PortalAccount,
@@ -40,6 +41,7 @@ interface FamilyMemberRow {
   firstName: string
   lastName: string
   dateOfBirth?: string | null
+  canSignWaiver: boolean
 }
 
 interface AthleteMembershipRow {
@@ -74,6 +76,17 @@ function memberDisplayName(member: FamilyMemberRow): string {
   return [member.firstName, member.lastName].filter(Boolean).join(' ').trim() || 'Athlete'
 }
 
+function dateIsAdult(dateOfBirth: string | null | undefined): boolean {
+  if (!dateOfBirth) return false
+  const birthDate = parseDateOnly(dateOfBirth)
+  if (!birthDate) return false
+  const today = new Date()
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const monthDelta = today.getMonth() - birthDate.getMonth()
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) age -= 1
+  return age >= 18
+}
+
 export default function WaiversMembershipsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const isClassEnrollmentMembershipPrompt = searchParams.get('source') === 'class-enrollment'
@@ -100,6 +113,7 @@ export default function WaiversMembershipsPage() {
     email: '',
     phone: '',
     dateOfBirth: '',
+    hasLegalAuthority: false,
   })
 
   const [athleteRows, setAthleteRows] = useState<AthleteMembershipRow[]>([])
@@ -134,6 +148,7 @@ export default function WaiversMembershipsPage() {
         firstName: String(row.first_name || row.firstName || ''),
         lastName: String(row.last_name || row.lastName || ''),
         dateOfBirth: (row.date_of_birth || row.dateOfBirth || null) as string | null,
+        canSignWaiver: row.canSignWaiver === true,
       }))
       .filter((row: FamilyMemberRow) => Number.isFinite(row.id) && row.id > 0)
   }, [])
@@ -382,6 +397,14 @@ export default function WaiversMembershipsPage() {
       setError('First and last name are required.')
       return
     }
+    if (!addForm.dateOfBirth) {
+      setError('Date of birth is required so age and household access are set correctly.')
+      return
+    }
+    if (!dateIsAdult(addForm.dateOfBirth) && !addForm.hasLegalAuthority) {
+      setError('Confirm that you are this youth member\'s parent or legal guardian.')
+      return
+    }
     setBusy(true)
     setError(null)
     try {
@@ -398,12 +421,20 @@ export default function WaiversMembershipsPage() {
           email: addForm.email.trim() || null,
           phone: addForm.phone.trim() || null,
           dateOfBirth: addForm.dateOfBirth || null,
+          hasLegalAuthority: addForm.hasLegalAuthority,
         }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.message || 'Failed to add family member.')
       setAddedDuringVisit(true)
-      setAddForm({ firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '' })
+      setAddForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        hasLegalAuthority: false,
+      })
       const members = await loadFamilyMembers(token)
       setFamilyMembers(members)
     } catch (err) {
@@ -456,10 +487,15 @@ export default function WaiversMembershipsPage() {
       setError(validationError)
       return
     }
+    const waiverTargets = familyMembers.filter((member) => member.canSignWaiver)
+    if (waiverTargets.length === 0) {
+      setError('A verified adult must sign for themselves or for a youth member under their legal authority.')
+      return
+    }
     setBusy(true)
     setError(null)
     try {
-      const memberIds = familyMembers.map((m) => m.id)
+      const memberIds = waiverTargets.map((member) => member.id)
       const unsignedIds = waivers.filter((w) => !w.acceptance_id).map((w) => w.id)
       const apiUrl = getApiUrl()
       const res = await fetch(`${apiUrl}/api/members/waivers/accept-all`, {
@@ -768,11 +804,29 @@ export default function WaiversMembershipsPage() {
               />
               <DateOfBirthInput
                 value={addForm.dateOfBirth}
-                onChange={(e) => setAddForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+                onChange={(e) => setAddForm((prev) => ({
+                  ...prev,
+                  dateOfBirth: e.target.value,
+                  hasLegalAuthority: dateIsAdult(e.target.value) ? false : prev.hasLegalAuthority,
+                }))}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 containerClassName="md:col-span-2"
                 required
               />
+              {addForm.dateOfBirth && !dateIsAdult(addForm.dateOfBirth) && (
+                <label className="md:col-span-2 flex items-start gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={addForm.hasLegalAuthority}
+                    onChange={(event) => setAddForm((prev) => ({
+                      ...prev,
+                      hasLegalAuthority: event.target.checked,
+                    }))}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                  />
+                  <span>I am this youth member&apos;s parent or legal guardian.</span>
+                </label>
+              )}
               <button
                 type="button"
                 disabled={busy}
@@ -809,11 +863,14 @@ export default function WaiversMembershipsPage() {
             <div>
               <h2 className="font-semibold text-gray-900">Sign waivers</h2>
               <p className="text-sm text-gray-600 mt-1">
-                One parent signature covers all family members listed below.
+                Your signature covers you and the youth members for whom you are a parent or legal guardian.
               </p>
-              {familyMembers.length > 0 && (
+              {familyMembers.some((member) => member.canSignWaiver) && (
                 <p className="text-xs text-gray-500 mt-2">
-                  Signing for: {familyMembers.map(memberDisplayName).join(', ')}
+                  Signing for: {familyMembers
+                    .filter((member) => member.canSignWaiver)
+                    .map(memberDisplayName)
+                    .join(', ')}
                 </p>
               )}
             </div>

@@ -63,3 +63,26 @@ test('daily roster email groups athletes and escapes roster data', () => {
   assert.match(result.html, /New &lt;Athlete&gt;/)
   assert.match(result.text, /New registrations: 1/)
 })
+
+test('manual schedule email contains only the selected day roster', () => {
+  const result = renderDailyRosterEmail({
+    date: '2026-07-31',
+    dateLabel: 'Friday, July 31, 2026',
+    classCount: 1,
+    athleteCount: 1,
+    newRegistrationCount: 1,
+    newRegistrations: [{ name: 'Unrelated New Athlete', className: 'Another class', status: 'confirmed' }],
+    classes: [{
+      startTime: '09:00',
+      timeLabel: '9:00 AM–10:00 AM',
+      className: 'Ninja Level 1',
+      programName: 'Youth',
+      athleteCount: 1,
+      athletes: [{ name: 'Sam Lee' }],
+    }],
+  }, { includeNewRegistrations: false })
+
+  assert.match(result.text, /Sam Lee/)
+  assert.doesNotMatch(result.text, /New registrations|Unrelated New Athlete/)
+  assert.doesNotMatch(result.html, /New registrations|Unrelated New Athlete/)
+})

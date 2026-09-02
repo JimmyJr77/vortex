@@ -29,6 +29,8 @@ import {
   queryCoachUserIdsForMember,
   queryCoachMemberPickerList,
   queryMinorChildGuardianMemberIds,
+  queryMinorChildGuardianContacts,
+  queryGuardianMinorChildMemberIds,
 } from './coachRoster.js'
 import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './coachingSchemaEnsure.js'
 import {
@@ -3585,11 +3587,20 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const report = buildGymnasticsFocusReport(reportInput)
       await client.query(`UPDATE coaching.gymnastics_evaluation SET report = $2::jsonb WHERE id = $1`, [created.rows[0].id, JSON.stringify(report)])
       await client.query('COMMIT')
-      const athleteName = memberId == null ? 'Athlete' : (await pool.query(`SELECT trim(concat(first_name, ' ', last_name)) AS name, email, parent_guardian_ids FROM public.member WHERE id = $1`, [memberId])).rows[0]
-      const guardianRows = memberId == null || !athleteName?.parent_guardian_ids?.length ? { rows: [] } : await pool.query(`SELECT email FROM public.member WHERE id = ANY($1::bigint[]) AND email IS NOT NULL`, [athleteName.parent_guardian_ids])
+      const athleteName = memberId == null
+        ? { name: 'Athlete', email: null }
+        : (await pool.query(
+            `SELECT trim(concat(first_name, ' ', last_name)) AS name, email
+             FROM public.member
+             WHERE id = $1 AND facility_id = $2`,
+            [memberId, facilityId],
+          )).rows[0]
+      const guardianContacts = memberId == null
+        ? []
+        : await queryMinorChildGuardianContacts(pool, memberId, facilityId)
       const recipients = [...new Set([
         ...recipientEmails,
-        ...(guardianRows.rows || []).map((row) => row.email),
+        ...guardianContacts.map((guardian) => guardian.email),
         athleteName?.email,
       ].filter(Boolean))]
       if (recipients.length > 0 && isEmailConfigured()) {
@@ -5273,10 +5284,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return message
   }
 
-  async function memberCanAccessMessageThread(viewerMemberId, threadMemberId) {
+  async function memberCanAccessMessageThread(viewerMemberId, threadMemberId, facilityId) {
     if (threadMemberId == null) return false
     if (Number(threadMemberId) === Number(viewerMemberId)) return true
-    const guardianIds = await queryMinorChildGuardianMemberIds(pool, threadMemberId)
+    const guardianIds = await queryMinorChildGuardianMemberIds(pool, threadMemberId, facilityId)
     return guardianIds.includes(Number(viewerMemberId))
   }
 
@@ -5293,7 +5304,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           payload: { thread_id: thread.id, message_id: message.id },
         })
 
-        const guardianIds = await queryMinorChildGuardianMemberIds(pool, thread.member_id)
+        const guardianIds = await queryMinorChildGuardianMemberIds(
+          pool,
+          thread.member_id,
+          thread.facility_id,
+        )
         if (guardianIds.length > 0) {
           const athleteRow = await pool.query(
             `SELECT first_name, last_name FROM public.member WHERE id = $1`,
@@ -5498,7 +5513,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       ok(res, await setMessageThreadFavorite(pool, { threadId, facilityId, memberId, favorite }))
@@ -5521,7 +5536,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       ok(res, await setMessageThreadInboxHidden(pool, { threadId, facilityId, memberId, hidden }))
@@ -6003,6 +6018,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
+      const guardianChildIds = await queryGuardianMinorChildMemberIds(pool, memberId, facilityId)
       const favJoin = messageThreadFavoriteJoinSql({ memberId, threadAlias: 't', favAlias: 'fav' })
       const inboxHideSql = messageThreadInboxHideFilterSql({ memberId, threadAlias: 't' })
       const result = await pool.query(
@@ -6027,25 +6043,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
                 WHERE p.thread_id = t.id AND p.member_id = $2
               )
               OR t.member_id = $2
-              OR (
-                t.member_id IS NOT NULL
-                AND athlete.date_of_birth IS NOT NULL
-                AND athlete.date_of_birth > (CURRENT_DATE - INTERVAL '18 years')
-                AND (
-                  $2 = ANY(athlete.parent_guardian_ids)
-                  OR EXISTS (
-                    SELECT 1 FROM parent_guardian_authority pga
-                    WHERE pga.child_member_id = athlete.id
-                      AND pga.parent_member_id = $2
-                      AND pga.has_legal_authority = TRUE
-                  )
-                )
-              )
+              OR t.member_id = ANY($3::bigint[])
             )
           ${inboxHideSql}
           ORDER BY ${MESSAGE_THREAD_FAVORITE_ORDER}
         `,
-        [facilityId, memberId],
+        [facilityId, memberId, guardianChildIds],
       )
       let rows = result.rows
       rows = await enrichThreadsWithTags(pool, rows)
@@ -6070,7 +6073,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadCheck.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadCheck.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       const data = await loadThreadMessages(threadId, facilityId)
@@ -6134,7 +6137,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       const message = await appendThreadMessage(threadId, {
@@ -6161,7 +6164,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       if (thread.subject_locked) return bad(res, 'Thread name is locked.', 403)
@@ -6189,7 +6192,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (threadRes.rows.length === 0) return bad(res, 'Thread not found.', 404)
       const thread = threadRes.rows[0]
       const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
-      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id)) {
+      if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
       const result = await addRecipientsToThread(pool, threadId, facilityId, req.body)
@@ -6457,6 +6460,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const ctx = req.platformAuth
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
+      const facilityId = ctx.user.facility_id
+      const guardianChildIds = await queryGuardianMinorChildMemberIds(pool, memberId, facilityId)
       const [results, skills, prs, evaluations] = await Promise.all([
         pool.query(
           `SELECT ar.value_numeric, ar.unit, ar.tested_at, a.name as assessment_name, t.name as tenet_name
@@ -6499,11 +6504,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
            FROM coaching.gymnastics_evaluation ge
            JOIN public.member m ON m.id = ge.member_id
            LEFT JOIN public.app_user u ON u.id = ge.coach_user_id
-           WHERE ge.facility_id = $1 AND (
-             ge.member_id = $2 OR $2 = ANY(COALESCE(m.parent_guardian_ids, ARRAY[]::BIGINT[]))
-             OR EXISTS (SELECT 1 FROM parent_guardian_authority pga WHERE pga.child_member_id = m.id AND pga.parent_member_id = $2 AND pga.has_legal_authority = TRUE)
-           ) ORDER BY ge.evaluated_at DESC, ge.id DESC`,
-          [ctx.user.facility_id, memberId],
+           WHERE ge.facility_id = $1
+             AND (ge.member_id = $2 OR ge.member_id = ANY($3::bigint[]))
+           ORDER BY ge.evaluated_at DESC, ge.id DESC`,
+          [facilityId, memberId, guardianChildIds],
         ),
       ])
       ok(res, { results: results.rows, skills: skills.rows, prs: prs.rows, evaluations: evaluations.rows })

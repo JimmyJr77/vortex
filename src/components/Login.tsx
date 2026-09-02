@@ -14,6 +14,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
   const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
   const [resetEmail, setResetEmail] = useState('')
+  const [resetAccountType, setResetAccountType] = useState<'member' | 'staff'>('member')
   const [forgotMode, setForgotMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
@@ -57,7 +58,10 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     setIsSubmitting(true)
     try {
       const apiUrl = getApiUrl()
-      const response = await fetch(`${apiUrl}/api/members/request-password-reset`, {
+      const resetPath = resetAccountType === 'staff'
+        ? '/api/admin/request-password-reset'
+        : '/api/members/request-password-reset'
+      const response = await fetch(`${apiUrl}${resetPath}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail }),
@@ -107,7 +111,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
               </h2>
               <p className="text-gray-600">
                 {forgotMode
-                  ? 'Enter your account email to receive a temporary password.'
+                  ? 'Choose the portal you use, then enter its account email.'
                   : 'Enter your email or username to access your account'}
               </p>
             </div>
@@ -125,6 +129,40 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                   If an account exists for this email, a temporary password has been sent.
                 </div>
               )}
+              {forgotMode ? (
+                <fieldset>
+                  <legend className="block text-gray-700 text-sm font-bold mb-2">Account type</legend>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      ['member', 'Member / family'],
+                      ['staff', 'Staff / coach'],
+                    ] as const).map(([value, label]) => (
+                      <label
+                        key={value}
+                        className={`cursor-pointer rounded-lg border px-3 py-2 text-center text-sm font-medium ${
+                          resetAccountType === value
+                            ? 'border-vortex-red bg-red-50 text-vortex-red'
+                            : 'border-gray-300 text-gray-700'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="resetAccountType"
+                          value={value}
+                          checked={resetAccountType === value}
+                          onChange={() => {
+                            setResetAccountType(value)
+                            setResetSent(false)
+                            setError('')
+                          }}
+                          className="sr-only"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
               <div>
                 <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
                   {forgotMode ? 'Account Email' : 'Email or Username'}

@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { loadCanonicalAccessContext } from './accessContext.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
 import {
   createAccountInviteTokenRecord,
@@ -30,24 +31,55 @@ import {
 } from '../scheduling/slotSort.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 
-function isAdult(dateOfBirth) {
-  if (!dateOfBirth) return true
-  const birthDate = new Date(dateOfBirth)
-  if (Number.isNaN(birthDate.getTime())) return true
-  const today = new Date()
-  const age = today.getFullYear() - birthDate.getFullYear()
-    - (today.getMonth() < birthDate.getMonth()
-      || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0)
+const DEFAULT_FACILITY_TIME_ZONE = 'America/New_York'
+
+function parseDateOnly(value) {
+  const match = String(value || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/)
+  if (!match) return null
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+  const daysInMonth = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]) return null
+  return { year, month, day }
+}
+
+function currentDateInTimeZone(timeZone = DEFAULT_FACILITY_TIME_ZONE, now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.year}-${values.month}-${values.day}`
+}
+
+export function isAdultOnDate(dateOfBirth, asOfDate = currentDateInTimeZone()) {
+  const birth = parseDateOnly(dateOfBirth)
+  const asOf = parseDateOnly(asOfDate)
+  if (!birth || !asOf) return false
+  const age = asOf.year - birth.year
+    - (asOf.month < birth.month || (asOf.month === birth.month && asOf.day < birth.day) ? 1 : 0)
   return age >= 18
 }
 
-function memberUsesParentContactEmail(memberInput, payerEmail) {
+export function validateSignupUsername(value) {
+  const username = String(value || '').trim()
+  if (username.includes('@')) {
+    throw new Error('Usernames cannot contain @. Use an email address only in the email field.')
+  }
+  return username
+}
+
+function memberUsesParentContactEmail(memberInput, payerEmail, asOfDate) {
   const emailSource = String(memberInput.emailSource || memberInput.email_source || '').toLowerCase()
   if (emailSource === 'parent') return true
   if (emailSource === 'youth') return false
 
   const dob = memberInput.dateOfBirth || memberInput.date_of_birth
-  const minor = dob && !isAdult(dob)
+  const minor = dob && !isAdultOnDate(dob, asOfDate)
   if (!minor) return false
 
   const email = String(memberInput.email || '').trim().toLowerCase()
@@ -55,8 +87,8 @@ function memberUsesParentContactEmail(memberInput, payerEmail) {
   return Boolean(email && payer && email === payer)
 }
 
-function resolveStoredMemberEmail(memberInput, payerEmail) {
-  if (memberUsesParentContactEmail(memberInput, payerEmail)) {
+function resolveStoredMemberEmail(memberInput, payerEmail, asOfDate) {
+  if (memberUsesParentContactEmail(memberInput, payerEmail, asOfDate)) {
     return null
   }
   const email = String(memberInput.email || '').trim()
@@ -81,10 +113,19 @@ async function assertMemberEmailAvailable(client, facilityId, email) {
   if (!normalized) return
   const existing = await client.query(
     `
-      SELECT id FROM member
-      WHERE facility_id = $1
-        AND email IS NOT NULL
-        AND LOWER(TRIM(email)) = $2
+      SELECT id
+        FROM member
+       WHERE facility_id = $1
+         AND email IS NOT NULL
+         AND LOWER(TRIM(email)) = $2
+      UNION ALL
+      SELECT id
+        FROM app_user
+       WHERE facility_id = $1
+         AND (
+           LOWER(BTRIM(email)) = $2
+           OR LOWER(BTRIM(username)) = $2
+         )
       LIMIT 1
     `,
     [facilityId, normalized],
@@ -125,20 +166,181 @@ async function resolveFacilityId(client, explicitFacilityId = null) {
   return Number(facility.rows[0].id)
 }
 
-async function activeRequiredWaiverTemplateIds(client, facilityId) {
-  const res = await client.query(
-    `
-      SELECT id
-      FROM waiver_template
+async function resolveFacilitySignupDate(client, facilityId) {
+  const result = await client.query(
+    `SELECT
+       (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(timezone, ''), $2))::date::text AS facility_date
+       FROM facility
+      WHERE id = $1
+      LIMIT 1`,
+    [Number(facilityId), DEFAULT_FACILITY_TIME_ZONE],
+  )
+  if (!result.rows[0]?.facility_date) {
+    throw new Error('Signup facility was not found.')
+  }
+  return String(result.rows[0].facility_date)
+}
+
+function normalizeAcceptedWaiverTemplateIds(value) {
+  if (value == null) return []
+  if (!Array.isArray(value)) {
+    throw new Error('Accepted waiver template IDs must be provided as a list.')
+  }
+  const ids = value.map(Number)
+  if (ids.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
+    throw new Error('One or more selected waiver templates are invalid or unavailable.')
+  }
+  if (new Set(ids).size !== ids.length) {
+    throw new Error('Accepted waiver template IDs must be unique.')
+  }
+  return ids
+}
+
+export async function validateSignupWaiverTemplateIds(client, {
+  facilityId,
+  acceptedTemplateIds,
+}) {
+  const normalizedFacilityId = Number(facilityId)
+  if (!Number.isSafeInteger(normalizedFacilityId) || normalizedFacilityId <= 0) {
+    throw new Error('A valid facility is required to accept waivers.')
+  }
+  const normalizedAcceptedIds = normalizeAcceptedWaiverTemplateIds(acceptedTemplateIds)
+  const result = await client.query(
+    `SELECT id, waiver_type, is_required
+       FROM waiver_template
       WHERE facility_id = $1
         AND active_from <= now()
         AND (active_to IS NULL OR active_to > now())
-        AND is_required = TRUE
-      ORDER BY id
-    `,
-    [facilityId],
+      ORDER BY id`,
+    [normalizedFacilityId],
   )
-  return res.rows.map((row) => Number(row.id))
+  const availableById = new Map(result.rows.map((row) => [Number(row.id), row]))
+  if (normalizedAcceptedIds.some((id) => !availableById.has(id))) {
+    throw new Error('One or more selected waiver templates are invalid or unavailable.')
+  }
+
+  const acceptedIdSet = new Set(normalizedAcceptedIds)
+  const missingRequired = result.rows
+    .filter((row) => row.is_required === true && !acceptedIdSet.has(Number(row.id)))
+  if (missingRequired.length > 0) {
+    throw new Error('All required waivers must be accepted.')
+  }
+
+  return {
+    acceptedTemplateIds: normalizedAcceptedIds,
+    acceptedTemplates: normalizedAcceptedIds.map((id) => availableById.get(id)),
+  }
+}
+
+export async function resolveSignupWaiverTargetMemberIds(client, {
+  facilityId,
+  signerMemberId,
+  candidateMemberIds,
+  asOfDate = null,
+}) {
+  const normalizedFacilityId = Number(facilityId)
+  const normalizedSignerId = Number(signerMemberId)
+  const normalizedCandidateIds = [...new Set((candidateMemberIds || []).map(Number))]
+  if (
+    !Number.isSafeInteger(normalizedFacilityId)
+    || normalizedFacilityId <= 0
+    || !Number.isSafeInteger(normalizedSignerId)
+    || normalizedSignerId <= 0
+    || normalizedCandidateIds.some((id) => !Number.isSafeInteger(id) || id <= 0)
+  ) {
+    throw new Error('Waiver signer and member IDs must be valid.')
+  }
+  if (normalizedCandidateIds.length === 0) return []
+  const rawSignupDate = asOfDate || await resolveFacilitySignupDate(client, normalizedFacilityId)
+  if (!parseDateOnly(rawSignupDate)) {
+    throw new Error('A valid facility signup date is required to accept waivers.')
+  }
+  const signupDate = String(rawSignupDate).slice(0, 10)
+
+  const result = await client.query(
+    `SELECT DISTINCT target.id
+       FROM member signer
+       JOIN family_member signer_membership
+         ON signer_membership.member_id = signer.id
+        AND signer_membership.is_active = TRUE
+       JOIN family_member target_membership
+         ON target_membership.family_id = signer_membership.family_id
+        AND target_membership.is_active = TRUE
+       JOIN member target
+         ON target.id = target_membership.member_id
+        AND target.facility_id = signer.facility_id
+        AND target.is_active = TRUE
+      WHERE signer.id = $1
+        AND signer.facility_id = $2
+        AND signer.is_active = TRUE
+        AND signer.date_of_birth IS NOT NULL
+        AND signer.date_of_birth <= ($4::date - INTERVAL '18 years')::date
+        AND target.id = ANY($3::bigint[])
+        AND (
+          target.id = signer.id
+          OR (
+            target.date_of_birth IS NOT NULL
+            AND target.date_of_birth > ($4::date - INTERVAL '18 years')::date
+            AND EXISTS (
+              SELECT 1
+                FROM parent_guardian_authority authority
+               WHERE authority.parent_member_id = signer.id
+                 AND authority.child_member_id = target.id
+                 AND authority.has_legal_authority = TRUE
+            )
+          )
+        )`,
+    [normalizedSignerId, normalizedFacilityId, normalizedCandidateIds, signupDate],
+  )
+  const authorizedIds = new Set(result.rows.map((row) => Number(row.id)))
+  return normalizedCandidateIds.filter((id) => authorizedIds.has(id))
+}
+
+export async function initializeSignupBillingAccount(client, {
+  enabled,
+  populateExisting = false,
+  familyId,
+  payerMemberId,
+  billingEmail,
+  billingPhone,
+  billingStreet,
+  billingCity,
+  billingState,
+  billingZip,
+}) {
+  if (enabled !== true) return false
+  const conflictAction = populateExisting === true
+    ? `DO UPDATE SET
+         payer_member_id = EXCLUDED.payer_member_id,
+         billing_email = EXCLUDED.billing_email,
+         billing_phone = EXCLUDED.billing_phone,
+         billing_street = EXCLUDED.billing_street,
+         billing_city = EXCLUDED.billing_city,
+         billing_state = EXCLUDED.billing_state,
+         billing_zip = EXCLUDED.billing_zip,
+         is_active = TRUE,
+         updated_at = now()`
+    : 'DO NOTHING'
+  const created = await client.query(
+    `INSERT INTO family_billing_account (
+       family_id, payer_member_id, billing_email, billing_phone,
+       billing_street, billing_city, billing_state, billing_zip, is_active
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
+     ON CONFLICT (family_id) ${conflictAction}
+     RETURNING id`,
+    [
+      Number(familyId),
+      Number(payerMemberId),
+      billingEmail || null,
+      billingPhone || null,
+      billingStreet || null,
+      billingCity || null,
+      billingState || null,
+      billingZip || null,
+    ],
+  )
+  return created.rows.length === 1
 }
 
 async function applyYouthAthleteFields(client, memberId, memberInput) {
@@ -156,58 +358,83 @@ async function applyYouthAthleteFields(client, memberId, memberInput) {
   }
 }
 
-async function syncMemberWaiverFlag(client, memberId) {
-  const member = await client.query(`SELECT facility_id FROM member WHERE id = $1`, [memberId])
-  if (member.rows.length === 0) return
-  const requiredIds = await activeRequiredWaiverTemplateIds(client, member.rows[0].facility_id)
-  if (requiredIds.length === 0) return
-  const accepted = await client.query(
-    `
-      SELECT COUNT(DISTINCT waiver_template_id)::int as count
-      FROM member_waiver_acceptance
-      WHERE member_id = $1 AND waiver_template_id = ANY($2::bigint[])
-    `,
-    [memberId, requiredIds],
-  )
-  const complete = Number(accepted.rows[0]?.count ?? 0) >= requiredIds.length
+export async function syncCanonicalGuardianAuthority(client, childMemberId, parentGuardianIds = []) {
+  const childId = Number(childMemberId)
+  if (!Number.isSafeInteger(childId) || childId <= 0) {
+    throw new Error('A valid child member id is required to update guardian authority.')
+  }
+
+  const guardianIds = [...new Set(parentGuardianIds.map(Number))]
+  if (guardianIds.some((id) => !Number.isSafeInteger(id) || id <= 0 || id === childId)) {
+    throw new Error('Guardian authority requires valid, distinct member ids.')
+  }
+
   await client.query(
-    `
-      UPDATE member
-      SET has_completed_waivers = $2,
-          waiver_completion_date = CASE WHEN $2 THEN COALESCE(waiver_completion_date, now()) ELSE waiver_completion_date END,
-          updated_at = now()
-      WHERE id = $1
-    `,
-    [memberId, complete],
+    `UPDATE parent_guardian_authority
+        SET has_legal_authority = FALSE,
+            updated_at = now()
+      WHERE child_member_id = $1
+        AND has_legal_authority = TRUE`,
+    [childId],
   )
+
+  for (const guardianId of guardianIds) {
+    await client.query(
+      `INSERT INTO parent_guardian_authority (
+         parent_member_id,
+         child_member_id,
+         has_legal_authority
+       ) VALUES ($1, $2, TRUE)
+       ON CONFLICT (parent_member_id, child_member_id) DO UPDATE SET
+         has_legal_authority = TRUE,
+         updated_at = now()`,
+      [guardianId, childId],
+    )
+  }
+
+  return guardianIds
 }
 
-async function recordWaiverAcceptances(client, {
-  memberIds,
+export async function recordSignupWaiverAcceptances(client, {
+  candidateMemberIds,
   acceptedTemplateIds,
+  facilityId,
   signerMemberId,
   signatureName,
   comments,
   paymentPolicyAcknowledged,
   ipAddress,
   userAgent,
+  asOfDate = null,
 }) {
-  const templatesRes = await client.query(
-    `SELECT id, waiver_type FROM waiver_template WHERE id = ANY($1::bigint[])`,
-    [acceptedTemplateIds],
+  const validatedWaivers = await validateSignupWaiverTemplateIds(client, {
+    facilityId,
+    acceptedTemplateIds,
+  })
+  const memberIds = await resolveSignupWaiverTargetMemberIds(client, {
+    facilityId,
+    signerMemberId,
+    candidateMemberIds,
+    asOfDate,
+  })
+  const waiverTypeById = new Map(
+    validatedWaivers.acceptedTemplates.map((row) => [Number(row.id), row.waiver_type]),
   )
   for (const memberId of memberIds) {
-    for (const templateId of acceptedTemplateIds) {
-      const isPayment = templatesRes.rows.some(
-        (row) => Number(row.id) === templateId && row.waiver_type === 'PAYMENT_POLICY',
-      )
-      await client.query(
+    for (const templateId of validatedWaivers.acceptedTemplateIds) {
+      const isPayment = waiverTypeById.get(templateId) === 'PAYMENT_POLICY'
+      const recorded = await client.query(
         `
           INSERT INTO member_waiver_acceptance (
             member_id, waiver_template_id, accepted_by_member_id,
             signature_name, ip_address, user_agent, comments, payment_policy_acknowledged
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          SELECT $1, template.id, $3, $4, $5, $6, $7, $8
+            FROM waiver_template template
+           WHERE template.id = $2
+             AND template.facility_id = $9
+             AND template.active_from <= now()
+             AND (template.active_to IS NULL OR template.active_to > now())
           ON CONFLICT (member_id, waiver_template_id) DO UPDATE SET
             accepted_by_member_id = EXCLUDED.accepted_by_member_id,
             accepted_at = now(),
@@ -216,6 +443,7 @@ async function recordWaiverAcceptances(client, {
             user_agent = EXCLUDED.user_agent,
             comments = EXCLUDED.comments,
             payment_policy_acknowledged = EXCLUDED.payment_policy_acknowledged
+          RETURNING member_id, waiver_template_id
         `,
         [
           memberId,
@@ -226,10 +454,13 @@ async function recordWaiverAcceptances(client, {
           userAgent,
           comments,
           isPayment ? paymentPolicyAcknowledged : false,
+          Number(facilityId),
         ],
       )
+      if (recorded.rows.length !== 1) {
+        throw new Error('One or more selected waiver templates are invalid or unavailable.')
+      }
     }
-    await syncMemberWaiverFlag(client, memberId)
   }
 }
 
@@ -619,7 +850,9 @@ async function suggestUsername(client, firstName, lastName) {
       `
         SELECT 1 FROM member WHERE LOWER(username) = LOWER($1)
         UNION ALL
-        SELECT 1 FROM app_user WHERE LOWER(username) = LOWER($1)
+        SELECT 1 FROM app_user
+         WHERE LOWER(username) = LOWER($1)
+            OR LOWER(email) = LOWER($1)
         LIMIT 1
       `,
       [username],
@@ -631,69 +864,20 @@ async function suggestUsername(client, firstName, lastName) {
   return `${baseUsername}${Date.now()}`
 }
 
-/** Youth / guardian-managed members get MEMBER_ATHLETE without login credentials. */
-async function ensureMemberAthleteAccount(client, memberId) {
-  const res = await client.query(
-    `
-      SELECT id, facility_id, first_name, last_name, email, phone, username, app_user_id
-      FROM member
-      WHERE id = $1 AND is_active = TRUE
-    `,
-    [memberId],
-  )
-  const member = res.rows[0]
-  if (!member) return null
-
-  const fullName = `${member.first_name || ''} ${member.last_name || ''}`.trim()
-  const userId = Number(member.id)
-
-  await client.query(
-    `
-      INSERT INTO app_user (
-        id, facility_id, role, email, phone, full_name, username, password_hash, is_active
-      )
-      VALUES ($1, $2, 'MEMBER_ATHLETE'::user_role, $3, $4, $5, $6, NULL, TRUE)
-      ON CONFLICT (id) DO UPDATE SET
-        role = 'MEMBER_ATHLETE'::user_role,
-        email = EXCLUDED.email,
-        phone = EXCLUDED.phone,
-        full_name = EXCLUDED.full_name,
-        username = COALESCE(EXCLUDED.username, app_user.username),
-        is_active = TRUE,
-        updated_at = now()
-    `,
-    [userId, member.facility_id, member.email, member.phone, fullName, member.username],
-  )
-
-  await client.query(
-    `
-      INSERT INTO app_user_role (user_id, role)
-      VALUES ($1, 'MEMBER_ATHLETE'::user_role)
-      ON CONFLICT DO NOTHING
-    `,
-    [userId],
-  )
-
-  if (Number(member.app_user_id) !== userId) {
-    await client.query(
-      `UPDATE member SET app_user_id = $1, updated_at = now() WHERE id = $1`,
-      [userId],
-    )
-  }
-
-  return userId
-}
-
-async function createMemberRecord(client, facilityId, familyId, memberInput, { parentGuardianIds = [], payerEmail = null } = {}) {
+async function createMemberRecord(client, facilityId, familyId, memberInput, {
+  parentGuardianIds = [],
+  payerEmail = null,
+  asOfDate = null,
+} = {}) {
   const passwordHash = memberInput.password ? await bcrypt.hash(memberInput.password, 10) : null
   const dob = memberInput.dateOfBirth || memberInput.date_of_birth || null
-  const minor = dob && !isAdult(dob)
+  const minor = dob && !isAdultOnDate(dob, asOfDate)
   const address = memberInput.addressStreet || memberInput.address || null
-  const hasCredentials = Boolean(memberInput.username && passwordHash)
-  const storeUsername = hasCredentials ? memberInput.username : (!minor ? memberInput.username : null)
-  const storePasswordHash = hasCredentials ? passwordHash : (!minor ? passwordHash : null)
+  const requestedUsername = validateSignupUsername(memberInput.username)
+  const hasCredentials = Boolean(requestedUsername && passwordHash)
+  const storeUsername = hasCredentials ? requestedUsername : (!minor ? requestedUsername || null : null)
   const storedEmail = payerEmail != null
-    ? resolveStoredMemberEmail(memberInput, payerEmail)
+    ? resolveStoredMemberEmail(memberInput, payerEmail, asOfDate)
     : (String(memberInput.email || '').trim() || null)
 
   const inserted = await client.query(
@@ -702,9 +886,9 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
         facility_id, family_id, first_name, last_name, email, phone,
         date_of_birth, username, password_hash,
         address, billing_street, billing_city, billing_state, billing_zip,
-        parent_guardian_ids, gender, status, is_active, profile_complete, signup_source
+        gender, is_active, profile_complete, signup_source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'legacy', TRUE, TRUE, $17)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, TRUE, TRUE, $16)
       RETURNING *
     `,
     [
@@ -716,13 +900,12 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
       memberInput.phone || null,
       dob,
       storeUsername,
-      storePasswordHash,
+      null,
       address,
       memberInput.addressStreet || memberInput.billingStreet || null,
       memberInput.addressCity || memberInput.billingCity || null,
       memberInput.addressState || memberInput.billingState || null,
       memberInput.addressZip || memberInput.billingZip || null,
-      parentGuardianIds.length > 0 ? parentGuardianIds : null,
       memberInput.gender || null,
       memberInput.signupSource || 'family_signup',
     ],
@@ -738,40 +921,61 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
     [familyId, member.id],
   )
 
+  await syncCanonicalGuardianAuthority(client, member.id, parentGuardianIds)
+
   if (hasCredentials && (storedEmail || memberInput.username)) {
     const fullName = `${memberInput.firstName} ${memberInput.lastName}`.trim()
-    await client.query(
+    const loginConflict = await client.query(
+      `SELECT id
+         FROM app_user
+        WHERE (
+            $1::text IS NOT NULL
+            AND (
+              LOWER(BTRIM(email)) = LOWER(BTRIM($1))
+              OR LOWER(BTRIM(username)) = LOWER(BTRIM($1))
+            )
+          ) OR (
+            $2::text IS NOT NULL
+            AND (
+              LOWER(BTRIM(email)) = LOWER(BTRIM($2))
+              OR LOWER(BTRIM(username)) = LOWER(BTRIM($2))
+            )
+          )
+        LIMIT 1`,
+      [storedEmail, requestedUsername || null],
+    )
+    if (loginConflict.rows.length > 0) {
+      throw new Error('A login with this email or username already exists. Ask an administrator to link the existing login explicitly.')
+    }
+    const login = await client.query(
       `
         INSERT INTO app_user (
-          id, facility_id, role, email, phone, full_name, username, password_hash, is_active, address
+          facility_id, role, email, phone, full_name, username, password_hash, is_active, address
         )
-        VALUES ($1, $2, 'MEMBER_ATHLETE'::user_role, $3, $4, $5, $6, $7, TRUE, $8)
-        ON CONFLICT (id) DO UPDATE SET
-          email = EXCLUDED.email,
-          phone = EXCLUDED.phone,
-          full_name = EXCLUDED.full_name,
-          username = EXCLUDED.username,
-          password_hash = EXCLUDED.password_hash,
-          updated_at = now()
+        VALUES ($1, 'MEMBER_ATHLETE'::user_role, $2, $3, $4, $5, $6, TRUE, $7)
+        RETURNING id
       `,
       [
-        member.id,
         facilityId,
         storedEmail,
         memberInput.phone || null,
         fullName,
-        memberInput.username || null,
+        requestedUsername || null,
         passwordHash,
         address,
       ],
     )
+    const loginUserId = Number(login.rows[0].id)
     await client.query(
       `INSERT INTO app_user_role (user_id, role) VALUES ($1, 'MEMBER_ATHLETE'::user_role) ON CONFLICT DO NOTHING`,
-      [member.id],
+      [loginUserId],
     )
-    await client.query(`UPDATE member SET app_user_id = $1 WHERE id = $1`, [member.id])
-  } else if (minor) {
-    await ensureMemberAthleteAccount(client, member.id)
+    await client.query(
+      `UPDATE member SET app_user_id = $2, updated_at = now() WHERE id = $1`,
+      [member.id, loginUserId],
+    )
+    member.app_user_id = loginUserId
+    member.password_hash = null
   }
 
   if (minor) {
@@ -785,7 +989,8 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, { p
 export async function createPortalFamilyMember(client, {
   facilityId,
   familyId,
-  payerMember,
+  responsibleMember,
+  legalGuardianMemberId = null,
   input,
 }) {
   const firstName = String(input?.firstName || input?.first_name || '').trim()
@@ -795,15 +1000,22 @@ export async function createPortalFamilyMember(client, {
   }
 
   const dob = input?.dateOfBirth || input?.date_of_birth || null
-  // Portal add is parent-driven; missing DOB almost always means a child profile.
-  const minor = !dob || !isAdult(dob)
-  if (minor && !payerMember?.id) {
-    throw new Error('Could not resolve guardian for this family member.')
+  if (!dob) {
+    throw new Error('Date of birth is required so age and household access are derived correctly.')
+  }
+  if (!parseDateOnly(dob)) {
+    throw new Error('Date of birth must be a valid calendar date in YYYY-MM-DD format.')
+  }
+  const signupDate = await resolveFacilitySignupDate(client, facilityId)
+  const minor = !isAdultOnDate(dob, signupDate)
+  const guardianId = Number(legalGuardianMemberId)
+  if (minor && (!Number.isSafeInteger(guardianId) || guardianId <= 0)) {
+    throw new Error('A parent or legal guardian must explicitly accept responsibility for a youth member.')
   }
 
-  const payerEmail = String(payerMember?.email || '').trim() || null
+  const responsibleEmail = String(responsibleMember?.email || '').trim() || null
   let email = String(input?.email || '').trim() || null
-  if (minor && email && payerEmail && email.toLowerCase() === payerEmail.toLowerCase()) {
+  if (minor && email && responsibleEmail && email.toLowerCase() === responsibleEmail.toLowerCase()) {
     email = null
   } else if (email) {
     await assertMemberEmailAvailable(client, facilityId, email)
@@ -817,8 +1029,9 @@ export async function createPortalFamilyMember(client, {
     dateOfBirth: dob,
     signupSource: 'portal_add_family',
   }, {
-    parentGuardianIds: minor ? [Number(payerMember.id)] : [],
-    payerEmail: minor ? payerEmail : null,
+    parentGuardianIds: minor ? [guardianId] : [],
+    payerEmail: minor ? responsibleEmail : null,
+    asOfDate: signupDate,
   })
 
   return member
@@ -884,11 +1097,13 @@ async function processFamilySignup(client, payload, options = {}) {
   const {
     facilityId: explicitFacilityId = null,
     joinExistingFamilyId = null,
+    initializePendingFamilyBilling = false,
     ipAddress = null,
     userAgent = null,
   } = options
 
   const facilityId = await resolveFacilityId(client, explicitFacilityId)
+  const signupDate = await resolveFacilitySignupDate(client, facilityId)
   const primaryAdult = payload.primaryAdult
   const additionalMembers = Array.isArray(payload.additionalMembers) ? payload.additionalMembers : []
   const enrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
@@ -916,10 +1131,10 @@ async function processFamilySignup(client, payload, options = {}) {
   if (!String(primaryAdult.addressZip || '').trim()) {
     throw new Error('Primary adult ZIP code is required.')
   }
-  if (!primaryAdult.dateOfBirth || !isAdult(primaryAdult.dateOfBirth)) {
+  if (!parseDateOnly(primaryAdult.dateOfBirth) || !isAdultOnDate(primaryAdult.dateOfBirth, signupDate)) {
     throw new Error('Primary account holder must be 18 or older.')
   }
-  if (!String(primaryAdult.username || '').trim()) {
+  if (!validateSignupUsername(primaryAdult.username)) {
     throw new Error('Primary adult username is required.')
   }
   if (!primaryAdult.password || primaryAdult.password.length < 8) {
@@ -933,15 +1148,17 @@ async function processFamilySignup(client, payload, options = {}) {
   await assertMemberEmailAvailable(client, facilityId, primaryEmail)
 
   const signatureName = String(waivers.signatureName || '').trim()
-  const acceptedTemplateIds = (waivers.acceptedTemplateIds || []).map(Number).filter(Number.isFinite)
-  const requiredIds = await activeRequiredWaiverTemplateIds(client, facilityId)
-  const missing = requiredIds.filter((id) => !acceptedTemplateIds.includes(id))
-  if (missing.length > 0) throw new Error('All required waivers must be accepted.')
+  const waiverSelection = await validateSignupWaiverTemplateIds(client, {
+    facilityId,
+    acceptedTemplateIds: waivers.acceptedTemplateIds,
+  })
+  const acceptedTemplateIds = waiverSelection.acceptedTemplateIds
   if (!signatureName) throw new Error('Waiver signature name is required.')
 
   let familyId = joinExistingFamilyId ? Number(joinExistingFamilyId) : null
   let familyUsername = null
   let familyHadMembersBefore = false
+  let createdNewFamily = false
 
   if (familyId) {
     familyHadMembersBefore = (await countActiveFamilyMembers(client, familyId)) > 0
@@ -952,9 +1169,13 @@ async function processFamilySignup(client, payload, options = {}) {
     if (familyCheck.rows.length === 0) throw new Error('Existing family not found.')
     familyUsername = familyCheck.rows[0].family_username
   } else {
+    createdNewFamily = true
     const familyName = payload.familyName || `${primaryAdult.lastName} Family`
     familyUsername = await generateFamilyUsername(client, familyName, facilityId)
-    const familyPasswordHash = await bcrypt.hash(primaryAdult.password, 10)
+    // Family credentials are retired as an access boundary. Keep an
+    // unguessable compatibility hash only while the nullable legacy column is
+    // still present; never duplicate the payer's login secret into it.
+    const familyPasswordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10)
     const familyRes = await client.query(
       `
         INSERT INTO family (facility_id, family_name, family_username, family_password_hash)
@@ -970,37 +1191,22 @@ async function processFamilySignup(client, payload, options = {}) {
   const payerMember = await createMemberRecord(client, facilityId, familyId, {
     ...primaryAdult,
     signupSource: options.admin ? 'admin_family_signup' : 'public_family_signup',
+  }, {
+    asOfDate: signupDate,
   })
 
-  await client.query(
-    `
-      INSERT INTO family_billing_account (
-        family_id, payer_member_id, billing_email, billing_phone,
-        billing_street, billing_city, billing_state, billing_zip, is_active
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
-      ON CONFLICT (family_id) DO UPDATE SET
-        payer_member_id = COALESCE(family_billing_account.payer_member_id, EXCLUDED.payer_member_id),
-        billing_email = EXCLUDED.billing_email,
-        billing_phone = EXCLUDED.billing_phone,
-        billing_street = EXCLUDED.billing_street,
-        billing_city = EXCLUDED.billing_city,
-        billing_state = EXCLUDED.billing_state,
-        billing_zip = EXCLUDED.billing_zip,
-        is_active = TRUE,
-        updated_at = now()
-    `,
-    [
-      familyId,
-      payerMember.id,
-      primaryAdult.email || null,
-      primaryAdult.phone || null,
-      primaryAdult.addressStreet || null,
-      primaryAdult.addressCity || null,
-      primaryAdult.addressState || null,
-      primaryAdult.addressZip || null,
-    ],
-  )
+  await initializeSignupBillingAccount(client, {
+    enabled: createdNewFamily || initializePendingFamilyBilling === true,
+    populateExisting: createdNewFamily || initializePendingFamilyBilling === true,
+    familyId,
+    payerMemberId: payerMember.id,
+    billingEmail: primaryAdult.email,
+    billingPhone: primaryAdult.phone,
+    billingStreet: primaryAdult.addressStreet,
+    billingCity: primaryAdult.addressCity,
+    billingState: primaryAdult.addressState,
+    billingZip: primaryAdult.addressZip,
+  })
 
   const createdMembers = [{ clientIndex: 0, member: payerMember }]
 
@@ -1014,16 +1220,16 @@ async function processFamilySignup(client, payload, options = {}) {
       addressZip: primaryAdult.addressZip,
     }
     const dob = merged.dateOfBirth
-    const minor = dob && !isAdult(dob)
-    const guardians = minor ? [payerMember.id] : []
     if (!merged.firstName || !merged.lastName) {
       throw new Error('Each family member needs a first and last name.')
     }
-    if (!merged.username?.trim()) {
-      throw new Error(`Username is required for ${merged.firstName} ${merged.lastName}.`)
+    if (!parseDateOnly(dob)) {
+      throw new Error(`Date of birth is required for ${merged.firstName} ${merged.lastName}.`)
     }
+    const minor = !isAdultOnDate(dob, signupDate)
+    const guardians = minor ? [payerMember.id] : []
 
-    const usesParentContact = memberUsesParentContactEmail(merged, primaryAdult.email)
+    const usesParentContact = memberUsesParentContactEmail(merged, primaryAdult.email, signupDate)
     if (usesParentContact) {
       if (!minor) {
         throw new Error(`${merged.firstName} ${merged.lastName} must have their own email address.`)
@@ -1039,22 +1245,29 @@ async function processFamilySignup(client, payload, options = {}) {
       await assertMemberEmailAvailable(client, facilityId, merged.email)
     }
 
-    if (merged.useParentPassword) {
-      if (!primaryAdult.password || primaryAdult.password.length < 8) {
-        throw new Error('Primary adult password is required when sharing login with a family member.')
+    if (merged.useParentPassword === true) {
+      throw new Error('Family members cannot share another person\'s password. Create a separate Member Portal login or leave portal access off.')
+    }
+    const portalAccessRequested = merged.portalAccessRequested === true
+    if (portalAccessRequested) {
+      if (!merged.username?.trim()) {
+        throw new Error(`Username is required to create Member Portal access for ${merged.firstName} ${merged.lastName}.`)
       }
-      merged.password = primaryAdult.password
-      merged.confirmPassword = primaryAdult.confirmPassword
-    }
-    if (!merged.password || merged.password.length < 8) {
-      throw new Error(`Password must be at least 8 characters for ${merged.firstName} ${merged.lastName}.`)
-    }
-    if (merged.password !== merged.confirmPassword) {
-      throw new Error(`Passwords do not match for ${merged.firstName} ${merged.lastName}.`)
+      if (!merged.password || merged.password.length < 8) {
+        throw new Error(`Password must be at least 8 characters for ${merged.firstName} ${merged.lastName}.`)
+      }
+      if (merged.password !== merged.confirmPassword) {
+        throw new Error(`Passwords do not match for ${merged.firstName} ${merged.lastName}.`)
+      }
+    } else {
+      merged.username = null
+      merged.password = null
+      merged.confirmPassword = null
     }
     const member = await createMemberRecord(client, facilityId, familyId, merged, {
       parentGuardianIds: guardians,
       payerEmail: primaryAdult.email,
+      asOfDate: signupDate,
     })
     createdMembers.push({ clientIndex: i + 1, member })
   }
@@ -1084,15 +1297,17 @@ async function processFamilySignup(client, payload, options = {}) {
     createdMembers,
   })
 
-  await recordWaiverAcceptances(client, {
-    memberIds: allMemberIds,
+  await recordSignupWaiverAcceptances(client, {
+    candidateMemberIds: allMemberIds,
     acceptedTemplateIds,
+    facilityId,
     signerMemberId: payerMember.id,
     signatureName,
     comments: waivers.comments ?? null,
     paymentPolicyAcknowledged: waivers.paymentPolicyAcknowledged === true,
     ipAddress,
     userAgent,
+    asOfDate: signupDate,
   })
 
   return {
@@ -1120,17 +1335,14 @@ async function loadAdminAuth(pool, jwtSecret, req) {
   const decoded = jwt.verify(token, jwtSecret)
   const userId = decoded.userId || decoded.adminId
   if (!userId) return null
-  const userRes = await pool.query(
-    `
-      SELECT au.id, au.facility_id, au.is_active, COALESCE(ap.is_master_admin, false) as is_master_admin
-      FROM app_user au
-      LEFT JOIN admin_profile ap ON ap.user_id = au.id
-      WHERE au.id = $1
-    `,
-    [userId],
-  )
-  if (userRes.rows.length === 0 || userRes.rows[0].is_active === false) return null
-  return userRes.rows[0]
+  const access = await loadCanonicalAccessContext(pool, userId)
+  if (!access?.isActive || !access.portalAccess.admin) return null
+  return {
+    id: access.userId,
+    facility_id: access.facilityId,
+    is_owner: access.isOwner,
+    storage_roles: access.storageRoles,
+  }
 }
 
 function adminAuthMiddleware(pool, jwtSecret) {
@@ -1142,6 +1354,71 @@ function adminAuthMiddleware(pool, jwtSecret) {
       next()
     } catch {
       return res.status(401).json({ success: false, message: 'Invalid or expired token' })
+    }
+  }
+}
+
+function adminSignupPermissionMiddleware(pool) {
+  return async (req, res, next) => {
+    if (req.adminAuth?.is_owner === true) return next()
+    try {
+      const requiredPermissions = ['members.edit']
+      const requestedEnrollments = Array.isArray(req.body?.enrollments) ? req.body.enrollments : []
+      if (requestedEnrollments.length > 0) requiredPermissions.push('scheduling.manage')
+
+      const result = await pool.query(
+        `WITH requested(permission_key) AS (
+           SELECT UNNEST($2::text[])
+         ), assigned AS (
+           SELECT DISTINCT role_key
+             FROM (
+               SELECT account.role::text AS role_key
+                 FROM app_user account
+                WHERE account.id = $1
+               UNION ALL
+               SELECT assignment.role::text
+                 FROM app_user_role assignment
+                WHERE assignment.user_id = $1
+             ) roles
+         ), decisions AS (
+           SELECT
+             requested.permission_key,
+             COALESCE(
+               (
+                 SELECT override.effect = 'allow'
+                   FROM app_user_permission_override override
+                   JOIN permission permission_row ON permission_row.id = override.permission_id
+                  WHERE override.user_id = $1
+                    AND permission_row.key = requested.permission_key
+                  LIMIT 1
+               ),
+               EXISTS (
+                 SELECT 1
+                   FROM assigned
+                   JOIN role role_row ON role_row.key = assigned.role_key
+                   JOIN role_permission grant_row ON grant_row.role_id = role_row.id
+                   JOIN permission permission_row ON permission_row.id = grant_row.permission_id
+                  WHERE permission_row.key = requested.permission_key
+               )
+             ) AS allowed
+           FROM requested
+         )
+         SELECT BOOL_AND(allowed) AS allowed
+           FROM decisions`,
+        [req.adminAuth.id, requiredPermissions],
+      )
+      if (result.rows[0]?.allowed !== true) {
+        return res.status(403).json({
+          success: false,
+          message: requestedEnrollments.length > 0
+            ? 'Creating an account with enrollments requires member-edit and scheduling permissions.'
+            : 'Creating an account requires member-edit permission.',
+        })
+      }
+      return next()
+    } catch (error) {
+      console.error('[signup] permission check failed:', error?.message || error)
+      return res.status(500).json({ success: false, message: 'Permission check failed' })
     }
   }
 }
@@ -1489,7 +1766,11 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     }
   })
 
-  app.post('/api/admin/signup/family', adminAuthMiddleware(pool, jwtSecret), async (req, res) => {
+  app.post(
+    '/api/admin/signup/family',
+    adminAuthMiddleware(pool, jwtSecret),
+    adminSignupPermissionMiddleware(pool),
+    async (req, res) => {
     const client = await pool.connect()
     try {
       await ensureSignupSchema(pool)
@@ -1511,7 +1792,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     } finally {
       client.release()
     }
-  })
+    },
+  )
 
   app.post('/api/signup/minor-start', async (req, res) => {
     const client = await pool.connect()
@@ -1523,7 +1805,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       if (!minor?.firstName || !minor?.lastName) {
         return res.status(400).json({ success: false, message: 'Minor first and last name are required.' })
       }
-      if (!minor.dateOfBirth || isAdult(minor.dateOfBirth)) {
+      if (!parseDateOnly(minor.dateOfBirth)) {
         return res.status(400).json({ success: false, message: 'Minor must be under 18.' })
       }
       if (!parentEmail) {
@@ -1532,6 +1814,10 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
 
       await client.query('BEGIN')
       const facilityId = await resolveFacilityId(client)
+      const signupDate = await resolveFacilitySignupDate(client, facilityId)
+      if (isAdultOnDate(minor.dateOfBirth, signupDate)) {
+        throw new Error('Minor must be under 18.')
+      }
       const familyName = `${minor.lastName} Family (Pending)`
       const familyUsername = await generateFamilyUsername(client, familyName, facilityId)
       const tempPasswordHash = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10)
@@ -1549,9 +1835,9 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
         `
           INSERT INTO member (
             facility_id, family_id, first_name, last_name, email, phone, date_of_birth, gender,
-            status, is_active, signup_source
+            is_active, signup_source
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'legacy', TRUE, 'minor_invite_pending')
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE, 'minor_invite_pending')
           RETURNING *
         `,
         [
@@ -1710,25 +1996,23 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       }, {
         joinExistingFamilyId: familyId,
         facilityId: invite.facility_id,
+        initializePendingFamilyBilling: true,
         ipAddress: req.ip,
         userAgent: req.get('user-agent') ?? null,
       })
 
       if (Number.isFinite(minorMemberId)) {
-        await client.query(
-          `
-            UPDATE member
-            SET parent_guardian_ids = ARRAY[$2]::bigint[], updated_at = now()
-            WHERE id = $1
-          `,
-          [minorMemberId, result.payerMemberId],
-        )
-        const requiredIds = await activeRequiredWaiverTemplateIds(client, invite.facility_id)
-        const acceptedTemplateIds = (waivers.acceptedTemplateIds || []).map(Number).filter(Number.isFinite)
+        await syncCanonicalGuardianAuthority(client, minorMemberId, [result.payerMemberId])
+        const waiverSelection = await validateSignupWaiverTemplateIds(client, {
+          facilityId: invite.facility_id,
+          acceptedTemplateIds: waivers.acceptedTemplateIds,
+        })
+        const acceptedTemplateIds = waiverSelection.acceptedTemplateIds
         if (acceptedTemplateIds.length > 0) {
-          await recordWaiverAcceptances(client, {
-            memberIds: [minorMemberId],
+          await recordSignupWaiverAcceptances(client, {
+            candidateMemberIds: [minorMemberId],
             acceptedTemplateIds,
+            facilityId: invite.facility_id,
             signerMemberId: result.payerMemberId,
             signatureName: String(waivers.signatureName || '').trim(),
             comments: waivers.comments ?? null,
@@ -1736,11 +2020,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             ipAddress: req.ip,
             userAgent: req.get('user-agent') ?? null,
           })
-        } else if (requiredIds.length > 0) {
-          throw new Error('All required waivers must be accepted for the minor.')
         }
 
-        await ensureMemberAthleteAccount(client, minorMemberId)
         await client.query(
           `
             UPDATE member

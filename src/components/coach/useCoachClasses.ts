@@ -16,7 +16,7 @@ export interface RosterMember {
   last_name: string
   email?: string | null
   phone?: string | null
-  has_completed_waivers: boolean
+  waiver_status: 'current' | 'action_required' | 'not_required'
   required_count?: number
   accepted_count?: number
   attendance_status?: string | null

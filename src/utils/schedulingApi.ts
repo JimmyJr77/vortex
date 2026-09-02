@@ -103,6 +103,7 @@ export interface DailyRosterAthlete {
   firstName: string
   lastName: string
   name: string
+  age: number | null
   email: string
   phone: string
   status: string
@@ -1826,7 +1827,7 @@ export interface AdminPortalEnrollmentRow {
   cancel_effective_date?: string | null
   cancel_requested_at?: string | null
   created_at?: string | null
-  source?: 'scheduling' | 'drop_in' | 'legacy'
+  source?: 'scheduling' | 'drop_in'
   enrollment_type?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
   enrollmentType?: 'monthly' | 'temporary_block' | 'one_time' | 'drop_in'
   attendance_date?: string | null
@@ -1866,6 +1867,7 @@ export interface AdminClassRegistrationSummary {
   schedule: string
   formActive: boolean
   enrollmentCount: number
+  maxParticipants: number
   statusLabel: string
 }
 
@@ -1882,6 +1884,7 @@ export interface AdminFormSlotEnrollmentRow extends AdminEnrollmentRow {
   member_id: number
   member_first_name: string
   member_last_name: string
+  family_id: number | null
 }
 
 export async function adminFetchFormSlotEnrollments(
@@ -1964,6 +1967,19 @@ export async function adminFetchSchedulingForms(): Promise<SchedulingFormSummary
 export async function adminFetchDailyRoster(date: string): Promise<DailyRoster> {
   const params = new URLSearchParams({ date })
   const res = await adminApiRequest(`/api/admin/scheduling/daily-roster?${params.toString()}`)
+  return parseJson(res)
+}
+
+export async function adminEmailDailyRoster(
+  date: string,
+  to: string,
+  idempotencyKey?: string,
+): Promise<{ date: string; recipient: string; classCount: number; athleteCount: number }> {
+  const res = await adminApiRequest('/api/admin/scheduling/daily-roster/email', {
+    method: 'POST',
+    headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+    body: JSON.stringify({ date, to }),
+  })
   return parseJson(res)
 }
 

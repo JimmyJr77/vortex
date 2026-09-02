@@ -10,7 +10,7 @@ interface GroupCard {
 const DESCRIPTIONS: Partial<Record<GroupId, string>> = {
   messaging: 'Staff messaging with athletes, coaches, and admins.',
   faqLibrary: 'Master FAQ entries for conversations and the member FAQs menu.',
-  accounts: 'Admins, Vortex accounts, and access control.',
+  accounts: 'Members, household billing, and staff access.',
   leads: 'Inbound inquiries from prospective families.',
   classSetup: 'Classes, coaches, and scheduling.',
   registrations: 'Class registrations and event signups.',

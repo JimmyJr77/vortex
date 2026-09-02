@@ -157,7 +157,10 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
   })
 }
 
-export async function buildDailyRoster(pool, date = dateInTimeZone(), { registeredSince = null } = {}) {
+export async function buildDailyRoster(pool, date = dateInTimeZone(), {
+  registeredSince = null,
+  includeNewRegistrations = true,
+} = {}) {
   const rosterDate = validateRosterDate(date)
   if (!rosterDate) throw new Error('Roster date must be a valid YYYY-MM-DD date')
 
@@ -180,16 +183,20 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
             s.time_slot_id,
             s.member_id,
             COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
-            COALESCE(NULLIF(TRIM(m.last_name), ''), NULLIF(TRIM(s.last_name), ''), '') AS last_name
-            ,COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(s.email), ''), '') AS email
-            ,COALESCE(NULLIF(TRIM(m.phone), ''), NULLIF(TRIM(s.phone), ''), '') AS phone
-            ,CASE
+            COALESCE(NULLIF(TRIM(m.last_name), ''), NULLIF(TRIM(s.last_name), ''), '') AS last_name,
+            CASE
+              WHEN m.date_of_birth IS NULL THEN NULL
+              ELSE EXTRACT(YEAR FROM AGE($2::date, m.date_of_birth))::int
+            END AS age,
+            COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(s.email), ''), '') AS email,
+            COALESCE(NULLIF(TRIM(m.phone), ''), NULLIF(TRIM(s.phone), ''), '') AS phone,
+            CASE
                WHEN one_time.id IS NOT NULL THEN 'one_time'
                WHEN sg.offering_id IS NOT NULL THEN 'temporary_block'
                ELSE 'monthly'
-             END AS enrollment_type
-            ,CASE WHEN one_time.id IS NOT NULL THEN 'one_time' ELSE 'recurring' END AS billing_type
-            ,COALESCE(one_time.amount_cents, 0)::int AS amount_cents
+             END AS enrollment_type,
+            CASE WHEN one_time.id IS NOT NULL THEN 'one_time' ELSE 'recurring' END AS billing_type,
+            COALESCE(one_time.amount_cents, 0)::int AS amount_cents
           FROM scheduling_signup s
           LEFT JOIN member m ON m.id = s.member_id
           LEFT JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
@@ -217,8 +224,13 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
     ? await pool.query(
         `SELECT d.id, d.form_id, d.slot_group_id, d.member_id,
                 d.first_name, d.last_name, d.email, d.phone, d.status,
-                d.amount_cents, d.benefit_type
+                d.amount_cents, d.benefit_type,
+                CASE
+                  WHEN m.date_of_birth IS NULL THEN NULL
+                  ELSE EXTRACT(YEAR FROM AGE($2::date, m.date_of_birth))::int
+                END AS age
            FROM drop_in_registration d
+           LEFT JOIN member m ON m.id = d.member_id
           WHERE d.slot_group_id = ANY($1::bigint[])
             AND d.class_date = $2::date
             AND d.status IN ('confirmed', 'attended')
@@ -242,6 +254,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
         firstName: signup.first_name || '',
         lastName: signup.last_name || '',
         name: `${signup.first_name || ''} ${signup.last_name || ''}`.trim() || 'Unnamed athlete',
+        age: signup.age != null ? Number(signup.age) : null,
         email: signup.email || '',
         phone: signup.phone || '',
         status: 'confirmed',
@@ -262,6 +275,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
         firstName: dropIn.first_name || '',
         lastName: dropIn.last_name || '',
         name: `${dropIn.first_name || ''} ${dropIn.last_name || ''}`.trim() || 'Unnamed athlete',
+        age: dropIn.age != null ? Number(dropIn.age) : null,
         email: dropIn.email || '',
         phone: dropIn.phone || '',
         status: dropIn.status,
@@ -288,9 +302,11 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
     }
   })
 
-  const newRegistrations = await loadRegistrationDetails(pool, registeredSince
-    ? { registeredSince }
-    : { registrationDate: rosterDate })
+  const newRegistrations = includeNewRegistrations
+    ? await loadRegistrationDetails(pool, registeredSince
+      ? { registeredSince }
+      : { registrationDate: rosterDate })
+    : []
 
   return {
     date: rosterDate,
@@ -304,19 +320,21 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), { register
   }
 }
 
-export function renderDailyRosterEmail(roster) {
+export function renderDailyRosterEmail(roster, { includeNewRegistrations = true } = {}) {
   const subject = `Daily roster — ${roster.dateLabel}`
   const textLines = [
     subject,
     `${roster.classCount} classes · ${roster.athleteCount} enrollments`,
     '',
   ]
-  textLines.push(`New registrations: ${roster.newRegistrationCount || 0}`, '')
-  for (const registration of roster.newRegistrations || []) {
-    textLines.push(`• ${registration.name} — ${registration.className} (${registration.status})`)
+  if (includeNewRegistrations) {
+    textLines.push(`New registrations: ${roster.newRegistrationCount || 0}`, '')
+    for (const registration of roster.newRegistrations || []) {
+      textLines.push(`• ${registration.name} — ${registration.className} (${registration.status})`)
+    }
+    if (!(roster.newRegistrations || []).length) textLines.push('No new registrations.')
+    textLines.push('')
   }
-  if (!(roster.newRegistrations || []).length) textLines.push('No new registrations.')
-  textLines.push('')
 
   const newRegistrationsHtml = (roster.newRegistrations || []).length
     ? `<ul style="margin:10px 0 22px;padding-left:22px">${roster.newRegistrations.map((registration) => `<li style="padding:3px 0"><strong>${escapeHtml(registration.name)}</strong> — ${escapeHtml(registration.className)} (${escapeHtml(registration.status)})</li>`).join('')}</ul>`
@@ -346,26 +364,65 @@ export function renderDailyRosterEmail(roster) {
     text: textLines.join('\n').trim(),
     html: `<h1 style="font-size:24px;margin:0 0 6px">Daily roster</h1>
       <p style="margin:0 0 22px;color:#4b5563">${escapeHtml(roster.dateLabel)} · ${roster.classCount} classes · ${roster.athleteCount} enrollments</p>
-      <h2 style="font-size:18px;margin:0">New registrations (${roster.newRegistrationCount || 0})</h2>
-      ${newRegistrationsHtml}
+      ${includeNewRegistrations ? `<h2 style="font-size:18px;margin:0">New registrations (${roster.newRegistrationCount || 0})</h2>
+      ${newRegistrationsHtml}` : ''}
       ${sections.join('') || '<p>No classes are scheduled for this date.</p>'}`,
   }
 }
 
+export async function sendDailyRoster(pool, {
+  date = dateInTimeZone(),
+  to = process.env.DAILY_ROSTER_EMAIL || DEFAULT_ROSTER_RECIPIENT,
+  registeredSince = null,
+  includeNewRegistrations = true,
+  category = 'daily_roster',
+  templateVersion = 'daily_roster_v1',
+  idempotencyKey,
+} = {}) {
+  const roster = await buildDailyRoster(pool, date, {
+    registeredSince,
+    includeNewRegistrations,
+  })
+  const message = renderDailyRosterEmail(roster, { includeNewRegistrations })
+  const delivery = await sendEmail({
+    to,
+    ...message,
+    category,
+    templateVersion,
+    idempotencyKey,
+  })
+  return { roster, delivery, recipient: to }
+}
+
+/** Sends the once-daily operational roster, including registrations added in the last day. */
 export async function emailDailyRoster(pool, {
   date = dateInTimeZone(),
   to = process.env.DAILY_ROSTER_EMAIL || DEFAULT_ROSTER_RECIPIENT,
 } = {}) {
-  const roster = await buildDailyRoster(pool, date, {
-    registeredSince: new Date(Date.now() - 24 * 60 * 60 * 1000),
-  })
-  const message = renderDailyRosterEmail(roster)
-  const delivery = await sendEmail({
+  return sendDailyRoster(pool, {
+    date,
     to,
-    ...message,
-    category: 'daily_roster',
-    templateVersion: 'daily_roster_v1',
-    idempotencyKey: `daily-roster-${roster.date}-${String(to).trim().toLowerCase()}`,
+    registeredSince: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    idempotencyKey: `daily-roster-${date}-${String(to).trim().toLowerCase()}`,
   })
-  return { roster, delivery, recipient: to }
+}
+
+/**
+ * Sends the selected day's schedule from Daily Enrollments. This deliberately uses
+ * its own category so an on-demand message never suppresses the scheduled daily
+ * operational roster (or vice versa).
+ */
+export async function emailDailyRosterManually(pool, {
+  date = dateInTimeZone(),
+  to,
+  idempotencyKey,
+} = {}) {
+  return sendDailyRoster(pool, {
+    date,
+    to,
+    includeNewRegistrations: false,
+    category: 'daily_roster_manual',
+    templateVersion: 'daily_roster_manual_v1',
+    idempotencyKey,
+  })
 }

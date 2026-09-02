@@ -1,11 +1,15 @@
-const ACTIVE_ENROLLMENT_STATUSES = ['confirmed', 'paused']
+const ACTIVE_ENROLLMENT_STATUSES = ['confirmed', 'paused', 'waitlisted']
 
 function memberName(member) {
   return [member?.first_name, member?.last_name].filter(Boolean).join(' ').trim() || 'This member'
 }
 
 function enrollmentLabel(enrollment) {
-  const statusLabel = enrollment.status === 'paused' ? 'paused' : 'enrolled'
+  const statusLabel = enrollment.status === 'paused'
+    ? 'paused'
+    : enrollment.status === 'waitlisted'
+      ? 'waitlisted'
+      : 'enrolled'
   return `${enrollment.class_name || 'Unnamed class'} (${statusLabel})`
 }
 
@@ -56,13 +60,14 @@ export function buildMemberArchiveBlockers(member, enrollments, paymentAccounts)
   return blockers
 }
 
-async function loadMember(db, memberId, lockMember) {
+async function loadMember(db, memberId, lockMember, facilityId = null) {
   const result = await db.query(
-    `SELECT id, first_name, last_name, family_id, app_user_id, is_active, status
+    `SELECT id, first_name, last_name, family_id, app_user_id, is_active
      FROM member
      WHERE id = $1
+       AND ($2::bigint IS NULL OR facility_id = $2)
      ${lockMember ? 'FOR UPDATE' : ''}`,
-    [memberId],
+    [memberId, facilityId],
   )
   return result.rows[0] || null
 }
@@ -126,8 +131,11 @@ async function loadPaymentAccountsForOtherMembers(db, memberId) {
 }
 
 /** Load the reasons that currently prevent a member from being archived. */
-export async function getMemberArchivePreflight(db, memberId, { lockMember = false } = {}) {
-  const member = await loadMember(db, memberId, lockMember)
+export async function getMemberArchivePreflight(db, memberId, {
+  lockMember = false,
+  facilityId = null,
+} = {}) {
+  const member = await loadMember(db, memberId, lockMember, facilityId)
   if (!member) {
     return { found: false, canArchive: false, member: null, blockers: [] }
   }
@@ -147,19 +155,22 @@ export async function getMemberArchivePreflight(db, memberId, { lockMember = fal
 }
 
 /**
- * Archive/unarchive a member and its linked login atomically. Archive blockers
- * are rechecked inside the transaction to protect the write endpoint itself.
+ * Archive/unarchive the member record. Portal suspension is deliberately a
+ * separate control; archive blockers are rechecked inside the transaction.
  */
-export async function setMemberArchived(pool, memberId, archived) {
+export async function setMemberArchived(pool, memberId, archived, { facilityId = null } = {}) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
 
     let preflight
     if (archived) {
-      preflight = await getMemberArchivePreflight(client, memberId, { lockMember: true })
+      preflight = await getMemberArchivePreflight(client, memberId, {
+        lockMember: true,
+        facilityId,
+      })
     } else {
-      const member = await loadMember(client, memberId, true)
+      const member = await loadMember(client, memberId, true, facilityId)
       preflight = {
         found: Boolean(member),
         canArchive: Boolean(member),
@@ -192,34 +203,14 @@ export async function setMemberArchived(pool, memberId, archived) {
     const memberResult = await client.query(
       `UPDATE member
        SET is_active = $1,
-           status = CASE
-             WHEN $1 = FALSE THEN 'archived'
-             WHEN EXISTS (
-               SELECT 1
-               FROM scheduling_signup s
-               WHERE s.member_id = member.id
-                 AND s.status = ANY($3::text[])
-                 AND s.orphaned_at IS NULL
-                 AND s.archived_at IS NULL
-                 AND (s.cancel_effective_date IS NULL OR s.cancel_effective_date > CURRENT_DATE)
-             ) THEN 'enrolled'
-             ELSE 'legacy'
-           END,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
+         AND ($3::bigint IS NULL OR facility_id = $3)
        RETURNING *`,
-      [!archived, memberId, ACTIVE_ENROLLMENT_STATUSES],
+      [!archived, memberId, facilityId],
     )
 
     const updatedMember = memberResult.rows[0]
-    if (updatedMember?.app_user_id) {
-      await client.query(
-        `UPDATE app_user
-         SET is_active = $1, updated_at = CURRENT_TIMESTAMP
-         WHERE id = $2`,
-        [!archived, updatedMember.app_user_id],
-      )
-    }
 
     await client.query('COMMIT')
     return {

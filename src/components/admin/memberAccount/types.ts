@@ -1,13 +1,22 @@
+import type { AccountDirectoryRow } from '../accountDirectory'
+
 export type MemberAccountTab =
   | 'details'
   | 'security'
   | 'notes'
   | 'missed-classes'
 
-export interface MemberRole {
-  id: string
-  role: string
-}
+export type MemberDirectorySummary = Pick<
+  AccountDirectoryRow,
+  | 'recordStatus'
+  | 'portalAccess'
+  | 'staffAccess'
+  | 'household'
+  | 'participation'
+  | 'waiver'
+  | 'ageGroup'
+  | 'dataQuality'
+>
 
 export interface MemberEnrollment {
   id: number
@@ -43,10 +52,8 @@ export interface MemberDetailData {
   billingCity?: string | null
   billingState?: string | null
   billingZip?: string | null
-  status?: string
   isActive?: boolean
   isFamilyPayer?: boolean
-  roles?: MemberRole[]
   enrollments?: MemberEnrollment[]
   parentGuardians?: Array<{
     id: number
@@ -73,8 +80,6 @@ export interface MemberDetailData {
   }>
   medicalNotes?: string | null
   internalFlags?: string | null
-  hasCompletedWaivers?: boolean
-  waiverCompletionDate?: string | null
   createdAt?: string
   updatedAt?: string
 }

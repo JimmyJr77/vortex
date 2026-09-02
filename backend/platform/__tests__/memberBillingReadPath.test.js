@@ -135,7 +135,21 @@ test('platform auth resolves member identity only through an explicit app-user l
     async query(sql, params) {
       captured = { sql, params }
       return {
-        rows: [{ id: 9, member_id: 74, family_id: 42, is_active: true }],
+        rows: [{
+          user_id: 9,
+          facility_id: 1,
+          primary_storage_role: 'MEMBER_ATHLETE',
+          storage_roles: ['MEMBER_ATHLETE'],
+          staff_roles: [],
+          member_id: 74,
+          family_id: 42,
+          member_portal_status: 'active',
+          is_active: true,
+          is_owner: false,
+          can_access_admin_portal: false,
+          can_access_coach_portal: false,
+          can_access_member_portal: true,
+        }],
       }
     },
   }
@@ -143,10 +157,10 @@ test('platform auth resolves member identity only through an explicit app-user l
   const user = await loadAuthenticatedPlatformUser(pool, 9)
   assert.equal(user.member_id, 74)
   assert.deepEqual(captured.params, [9])
-  assert.match(captured.sql, /LEFT JOIN LATERAL/)
-  assert.match(captured.sql, /candidate\.app_user_id = au\.id/)
-  assert.doesNotMatch(captured.sql, /candidate\.id = au\.id/)
-  assert.doesNotMatch(captured.sql, /candidate\.app_user_id IS NULL/)
+  assert.match(captured.sql, /v_app_user_access_context/)
+  assert.match(captured.sql, /WHERE user_id = \$1/)
+  assert.doesNotMatch(captured.sql, /admin_profile/)
+  assert.doesNotMatch(captured.sql, /email\s*=/i)
   assert.equal(linkedPlatformMemberId({ user }), 74)
   assert.equal(linkedPlatformMemberId({ user: { id: 74, member_id: null } }), null)
 })

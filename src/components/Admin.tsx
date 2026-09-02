@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
-import AdminAdmins from './AdminAdmins'
 import AdminInquiries from './AdminInquiries'
 import AdminMembers from './AdminMembers'
 import AdminClasses from './AdminClasses'
@@ -101,11 +100,11 @@ interface BillingAccountTarget {
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
-  { id: 'admins', label: 'Admins', permission: 'admins.manage' },
-  { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
+  { id: 'admins', label: 'Staff Access', permission: 'admin_access.manage' },
+  { id: 'membership', label: 'Members', permission: 'members.view' },
   { id: 'messages', label: 'Messages' },
   { id: 'faqs', label: 'FAQ library' },
-  { id: 'access', label: 'Access', permission: 'admin_access.manage' },
+  { id: 'access', label: 'Staff Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
   { id: 'classSetupOverview', label: 'Class Master', permission: 'classes.view' },
   { id: 'classes', label: 'Program & Class Creation', permission: 'classes.view' },
@@ -148,7 +147,7 @@ const GROUPS: GroupDef[] = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'customerBilling', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'customerBilling', 'access'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
@@ -384,7 +383,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'competitors':
         return <AdminCompetitors />
       case 'access':
-        return <AdminAccess />
+        return <AdminAccess currentUserId={accessContext?.userId ?? null} />
       case 'billing':
         return (
           <div className="space-y-6">
@@ -452,9 +451,33 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'events':
         return <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
       case 'admins':
-        return <AdminAdmins adminInfo={adminInfo} setAdminInfo={setAdminInfo} />
+        // Retain old deep links while consolidating the duplicate Admins and
+        // Access screens around the canonical staff-access model.
+        return <AdminAccess currentUserId={accessContext?.userId ?? null} />
       case 'membership':
-        return <AdminMembers />
+        return (
+          <AdminMembers
+            canCreateAccounts={Boolean(
+              accessContext?.isMasterAdmin
+              || (
+                accessContext?.permissions.includes('members.edit')
+                && accessContext?.permissions.includes('scheduling.manage')
+              )
+            )}
+            canViewBilling={Boolean(
+              accessContext?.isMasterAdmin || accessContext?.permissions.includes('billing.view')
+            )}
+            canEditMembers={Boolean(
+              accessContext?.isMasterAdmin || accessContext?.permissions.includes('members.edit')
+            )}
+            canArchiveMembers={Boolean(
+              accessContext?.isMasterAdmin || accessContext?.permissions.includes('members.archive')
+            )}
+            canManageClasses={Boolean(
+              accessContext?.isMasterAdmin || accessContext?.permissions.includes('classes.manage')
+            )}
+          />
+        )
       case 'messages':
         return (
           <AdminMessagesPanel

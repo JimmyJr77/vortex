@@ -1,18 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, Power, Save, UserPlus, X } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
 import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 
 interface AccessUser {
   id: number
-  email: string
+  email: string | null
   fullName: string
   phone?: string | null
   username?: string | null
   roles: string[]
   isActive: boolean
   isMasterAdmin: boolean
+  isOwner?: boolean
+  memberId?: number | null
+  staffRoles?: Array<'OWNER' | 'ADMINISTRATOR' | 'COACH'>
+  portalAccess?: {
+    admin: boolean
+    coach: boolean
+    member: boolean
+    memberStatus: 'active' | 'setup_required' | 'suspended' | 'no_login'
+  }
 }
 
 interface AccessRole {
@@ -27,25 +35,23 @@ interface Permission {
   description?: string | null
 }
 
-const roleOrder = ['MASTER_ADMIN', 'ADMIN', 'COACH', 'MEMBER_ATHLETE']
+const assignableRoleOrder = ['ADMIN', 'COACH'] as const
+const staffRoleSet = new Set<string>(['MASTER_ADMIN', ...assignableRoleOrder])
 
 const ROLE_LABELS: Record<string, string> = {
-  MASTER_ADMIN: 'Master Admin',
-  ADMIN: 'Admin',
+  MASTER_ADMIN: 'Owner',
+  ADMIN: 'Administrator',
   COACH: 'Coach',
-  MEMBER_ATHLETE: 'Member / Athlete',
 }
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
-  MASTER_ADMIN: 'Full control over everything. Cannot be limited.',
-  ADMIN: 'Full admin access. Master admins can apply limits below.',
-  COACH: 'Access to the coaching portal.',
-  MEMBER_ATHLETE: 'Logged-in account that registers themselves or family for classes.',
+  MASTER_ADMIN: 'Full company control, including access management and destructive actions.',
+  ADMIN: 'Daily account, enrollment, billing, scheduling, and waiver operations.',
+  COACH: 'Assignment-scoped coaching, roster, attendance, and safety information.',
 }
 
 const roleLabel = (role: string) => ROLE_LABELS[role] ?? role.replaceAll('_', ' ')
 
-/** Master Admin and Admin are mutually exclusive admin tiers. */
 function applyRoleToggle(currentRoles: string[], role: string): string[] {
   if (currentRoles.includes(role)) {
     const next = currentRoles.filter((r) => r !== role)
@@ -60,11 +66,22 @@ function applyRoleToggle(currentRoles: string[], role: string): string[] {
   return next
 }
 
+const emptyNewStaffForm = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  username: '',
+  password: '',
+  roles: ['ADMIN'] as string[],
+}
+
 function normalizeAdminRoleSelection(roles: string[]): string[] {
-  if (roles.includes('MASTER_ADMIN') && roles.includes('ADMIN')) {
-    return roles.filter((role) => role !== 'ADMIN')
+  const staffRoles = roles.filter((role) => staffRoleSet.has(role))
+  if (staffRoles.includes('MASTER_ADMIN') && staffRoles.includes('ADMIN')) {
+    return staffRoles.filter((role) => role !== 'ADMIN')
   }
-  return roles
+  return staffRoles
 }
 
 function splitFullName(fullName: string): { firstName: string; lastName: string } {
@@ -78,7 +95,7 @@ function combineFullName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.trim()
 }
 
-export default function AdminAccess() {
+export default function AdminAccess({ currentUserId = null }: { currentUserId?: number | null }) {
   const [users, setUsers] = useState<AccessUser[]>([])
   const [roles, setRoles] = useState<AccessRole[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -88,7 +105,11 @@ export default function AdminAccess() {
   const [denyPermissions, setDenyPermissions] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [updatingActive, setUpdatingActive] = useState(false)
+  const [showNewStaff, setShowNewStaff] = useState(false)
+  const [creatingStaff, setCreatingStaff] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [newStaffForm, setNewStaffForm] = useState(emptyNewStaffForm)
   const [profileForm, setProfileForm] = useState({
     firstName: '',
     lastName: '',
@@ -102,10 +123,13 @@ export default function AdminAccess() {
     () => users.find((u) => u.id === selectedUserId) ?? null,
     [selectedUserId, users],
   )
-  const selectedUserIsProtected = useMemo(
-    () => isDefaultMasterEmail(selectedUser?.email),
-    [selectedUser?.email],
+  const staffUsers = useMemo(
+    () => users.filter((user) => user.isOwner === true || user.roles.some((role) => staffRoleSet.has(role))),
+    [users],
   )
+  const selectedUserIsOwner = selectedUser?.isOwner === true
+  const canEditSelectedProfile = !selectedUserIsOwner
+    || (currentUserId != null && selectedUser?.id === currentUserId)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -120,19 +144,23 @@ export default function AdminAccess() {
       const usersJson = await usersRes.json()
       const rolesJson = await rolesRes.json()
       const nextUsers: AccessUser[] = usersJson.data ?? []
+      const nextStaffUsers = nextUsers.filter(
+        (user) => user.isOwner === true || user.roles.some((role) => staffRoleSet.has(role)),
+      )
       setUsers(nextUsers)
       setRoles(rolesJson.data?.roles ?? [])
       setPermissions(rolesJson.data?.permissions ?? [])
-      const initial = selectedUserId ?? nextUsers[0]?.id ?? null
-      setSelectedUserId(initial)
-      const currentUser = nextUsers.find((u) => u.id === initial)
-      setSelectedRoles(normalizeAdminRoleSelection(currentUser?.roles ?? []))
+      setSelectedUserId((current) => (
+        nextStaffUsers.some((user) => user.id === current)
+          ? current
+          : nextStaffUsers[0]?.id ?? null
+      ))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load access settings')
     } finally {
       setLoading(false)
     }
-  }, [selectedUserId])
+  }, [])
 
   useEffect(() => {
     void load()
@@ -145,25 +173,33 @@ export default function AdminAccess() {
       setProfileForm({
         firstName,
         lastName,
-        email: selectedUser.email,
+        email: selectedUser.email ?? '',
         phone: formatPhoneForDisplay(selectedUser.phone ?? ''),
         username: selectedUser.username ?? '',
         password: '',
       })
+      setAllowPermissions([])
+      setDenyPermissions([])
+      let cancelled = false
       const loadOverrides = async () => {
         try {
           const res = await adminApiRequest(`/api/admin/access/users/${selectedUser.id}/permissions`)
           if (!res.ok) return
           const json = await res.json()
+          if (cancelled) return
           setAllowPermissions(json.data?.allow ?? [])
           setDenyPermissions(json.data?.deny ?? [])
         } catch (err) {
+          if (cancelled) return
           console.warn('Unable to load permission overrides:', err)
           setAllowPermissions([])
           setDenyPermissions([])
         }
       }
       void loadOverrides()
+      return () => {
+        cancelled = true
+      }
     }
   }, [selectedUser])
 
@@ -186,22 +222,27 @@ export default function AdminAccess() {
   }
 
   const saveProfileAndAccess = async () => {
-    if (!selectedUserId) return
+    if (!selectedUserId || !canEditSelectedProfile) return
+    if (profileForm.username.includes('@')) {
+      setError('Username cannot contain @. Use the email field for email sign-in.')
+      return
+    }
+    if (profileForm.password && profileForm.password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
     setSaving(true)
     setError(null)
     try {
-      const body: Record<string, string> = selectedUserIsProtected
-        ? {
-            email: profileForm.email.trim(),
-            phone: profileForm.phone.trim(),
-          }
-        : {
-            fullName: combineFullName(profileForm.firstName, profileForm.lastName),
-            email: profileForm.email.trim(),
-            phone: profileForm.phone.trim(),
-            username: profileForm.username.trim(),
-          }
-      if (!selectedUserIsProtected && profileForm.password.trim()) {
+      const body: Record<string, string> = {
+        fullName: combineFullName(profileForm.firstName, profileForm.lastName),
+        phone: profileForm.phone.trim(),
+        username: profileForm.username.trim(),
+      }
+      if (profileForm.email.trim()) {
+        body.email = profileForm.email.trim()
+      }
+      if (profileForm.password.trim()) {
         body.password = profileForm.password
       }
       const profileRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
@@ -213,7 +254,7 @@ export default function AdminAccess() {
         throw new Error(data.message || 'Failed to update account profile')
       }
 
-      if (!selectedUserIsProtected) {
+      if (!selectedUserIsOwner) {
         const roleRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/roles`, {
           method: 'PUT',
           body: JSON.stringify({
@@ -245,6 +286,72 @@ export default function AdminAccess() {
     }
   }
 
+  const createStaff = async () => {
+    const fullName = combineFullName(newStaffForm.firstName, newStaffForm.lastName)
+    if (!fullName || (!newStaffForm.email.trim() && !newStaffForm.username.trim()) || !newStaffForm.password) {
+      setError('Name, password, and either email or username are required.')
+      return
+    }
+    if (newStaffForm.password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (newStaffForm.username.includes('@')) {
+      setError('Username cannot contain @. Use the email field for email sign-in.')
+      return
+    }
+
+    setCreatingStaff(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest('/api/admin/access/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          fullName,
+          email: newStaffForm.email.trim() || null,
+          phone: newStaffForm.phone.trim() || null,
+          username: newStaffForm.username.trim() || null,
+          password: newStaffForm.password,
+          roles: newStaffForm.roles,
+        }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.message || 'Failed to create staff account')
+
+      const createdId = Number(payload.data?.id)
+      if (Number.isSafeInteger(createdId)) setSelectedUserId(createdId)
+      setNewStaffForm(emptyNewStaffForm)
+      setShowNewStaff(false)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create staff account')
+    } finally {
+      setCreatingStaff(false)
+    }
+  }
+
+  const updateActiveStatus = async () => {
+    if (!selectedUser || selectedUserIsOwner) return
+    const nextActive = !selectedUser.isActive
+    if (!nextActive && !window.confirm(`Suspend staff access for ${selectedUser.fullName}?`)) return
+
+    setUpdatingActive(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/access/users/${selectedUser.id}/active`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive: nextActive }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.message || 'Failed to update staff access')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update staff access')
+    } finally {
+      setUpdatingActive(false)
+    }
+  }
+
   const rolePermissions = useMemo(() => {
     const set = new Set<string>()
     for (const role of roles) {
@@ -259,11 +366,24 @@ export default function AdminAccess() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Access Control</h2>
-        <p className="text-sm text-gray-600">
-          Master admins have all permissions. Admins and coaches inherit permissions from roles, with optional user-specific grants.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Staff Access</h2>
+          <p className="text-sm text-gray-600">
+            Assign staff access using clear presets. Member Portal access is managed from the linked member account, not as a staff role.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setNewStaffForm(emptyNewStaffForm)
+            setShowNewStaff(true)
+          }}
+          className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-medium text-white"
+        >
+          <UserPlus className="h-4 w-4" />
+          New staff
+        </button>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
@@ -277,10 +397,10 @@ export default function AdminAccess() {
         <div className="grid gap-4 lg:grid-cols-[minmax(260px,360px)_1fr]">
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100">
-              <span className="font-semibold">Accounts</span>
+              <span className="font-semibold">Staff</span>
             </div>
             <div className="divide-y divide-gray-100 max-h-[640px] overflow-y-auto">
-              {users.map((user) => (
+              {staffUsers.map((user) => (
                 <button
                   key={user.id}
                   type="button"
@@ -290,12 +410,15 @@ export default function AdminAccess() {
                   }`}
                 >
                   <div className="font-semibold text-gray-900">{user.fullName}</div>
-                  <div className="text-xs text-gray-500">{user.email}</div>
+                  <div className="text-xs text-gray-500">{user.email || user.username || 'No sign-in identifier'}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {user.roles.map(roleLabel).join(', ')} {!user.isActive ? '• Inactive' : ''}
+                    {normalizeAdminRoleSelection(user.roles).map(roleLabel).join(', ')} {!user.isActive ? '• Suspended' : ''}
                   </div>
                 </button>
               ))}
+              {staffUsers.length === 0 && (
+                <p className="px-4 py-6 text-sm text-gray-500">No staff accounts found.</p>
+              )}
             </div>
           </div>
 
@@ -306,37 +429,51 @@ export default function AdminAccess() {
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">{selectedUser.fullName}</h3>
                     <p className="text-sm text-gray-500">
-                      {selectedUser.email} • {selectedUser.isActive ? 'Active' : 'Inactive'}
+                      {selectedUser.email || selectedUser.username || 'No sign-in identifier'} • {selectedUser.isActive ? 'Staff access active' : 'Staff access suspended'}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-end">
-                    <button
-                      type="button"
-                      onClick={() => void saveProfileAndAccess()}
-                      disabled={saving}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg text-sm disabled:opacity-60"
-                    >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      {selectedUserIsProtected ? 'Save contact info' : 'Save Profile & Access'}
-                    </button>
+                    {!selectedUserIsOwner && (
+                      <button
+                        type="button"
+                        onClick={() => void updateActiveStatus()}
+                        disabled={updatingActive}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 disabled:opacity-60"
+                      >
+                        {updatingActive ? <Loader2 className="h-4 w-4 animate-spin" /> : <Power className="h-4 w-4" />}
+                        {selectedUser.isActive ? 'Suspend access' : 'Restore access'}
+                      </button>
+                    )}
+                    {canEditSelectedProfile ? (
+                      <button
+                        type="button"
+                        onClick={() => void saveProfileAndAccess()}
+                        disabled={saving}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg text-sm disabled:opacity-60"
+                      >
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        {selectedUserIsOwner ? 'Save owner profile' : 'Save profile & access'}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
 
-                {selectedUserIsProtected && (
+                {selectedUserIsOwner && (
                   <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    This is the permanent owner account. Only email and phone can be changed.
+                    {canEditSelectedProfile
+                      ? 'This is the permanent owner account. Its profile can change, but ownership and full access cannot be removed here.'
+                      : 'This is the permanent owner account. Only the Owner can edit this profile; ownership and full access cannot be delegated or removed.'}
                   </p>
                 )}
 
-                <section className="grid gap-3 sm:grid-cols-2">
+                <fieldset disabled={!canEditSelectedProfile} className="grid gap-3 sm:grid-cols-2 disabled:opacity-70">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">First name</label>
                     <input
                       type="text"
                       value={profileForm.firstName}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, firstName: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
-                      disabled={selectedUserIsProtected}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
                   <div>
@@ -345,8 +482,7 @@ export default function AdminAccess() {
                       type="text"
                       value={profileForm.lastName}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, lastName: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
-                      disabled={selectedUserIsProtected}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
                   <div>
@@ -377,11 +513,9 @@ export default function AdminAccess() {
                       type="text"
                       value={profileForm.username}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, username: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100"
-                      disabled={selectedUserIsProtected}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
-                  {!selectedUserIsProtected && (
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">New password</label>
                     <input
@@ -389,83 +523,217 @@ export default function AdminAccess() {
                       value={profileForm.password}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, password: e.target.value }))}
                       placeholder="Leave blank to keep current"
+                      minLength={8}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
-                  )}
-                </section>
+                </fieldset>
 
-                <section className={selectedUserIsProtected ? 'opacity-60 pointer-events-none' : undefined}>
-                  <h4 className="font-semibold text-gray-900 mb-2">Roles</h4>
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                    {roleOrder.map((role) => (
-                      <label key={role} className="flex items-start gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                        <input
-                          type="checkbox"
-                          className="mt-0.5"
-                          checked={selectedRoles.includes(role)}
-                          onChange={() => toggleRole(role)}
-                        />
-                        <span>
-                          <span className="block font-medium text-gray-900">{roleLabel(role)}</span>
-                          {ROLE_DESCRIPTIONS[role] && (
-                            <span className="block text-xs text-gray-500">{ROLE_DESCRIPTIONS[role]}</span>
-                          )}
+                {!selectedUserIsOwner && (
+                  <section>
+                    <h4 className="font-semibold text-gray-900 mb-2">Staff access</h4>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {assignableRoleOrder.map((role) => (
+                        <label key={role} className="flex items-start gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                          <input
+                            type="checkbox"
+                            className="mt-0.5"
+                            checked={selectedRoles.includes(role)}
+                            onChange={() => toggleRole(role)}
+                          />
+                          <span>
+                            <span className="block font-medium text-gray-900">{roleLabel(role)}</span>
+                            {ROLE_DESCRIPTIONS[role] && (
+                              <span className="block text-xs text-gray-500">{ROLE_DESCRIPTIONS[role]}</span>
+                            )}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {!selectedUserIsOwner && (
+                  <details className="rounded-lg border border-gray-200 bg-gray-50/60 p-4">
+                    <summary className="cursor-pointer font-semibold text-gray-900">
+                      Advanced custom access
+                    </summary>
+                    <p className="text-xs text-gray-500 mt-2 mb-3">
+                      Presets should cover normal staff access. Use these exceptions only when a documented business need requires them.
+                    </p>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {permissions.map((permission) => (
+                        <div key={permission.key} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm space-y-2">
+                          <div>
+                            <span className="block font-medium text-gray-900">{permission.key}</span>
+                            {permission.description && <span className="block text-xs text-gray-500">{permission.description}</span>}
+                          </div>
+                          <div className="flex gap-4 text-xs">
+                            <label className="flex items-center gap-1">
+                              <input
+                                type="checkbox"
+                                checked={allowPermissions.includes(permission.key)}
+                                onChange={() => togglePermission(permission.key)}
+                              />
+                              Allow
+                            </label>
+                            <label className="flex items-center gap-1">
+                              <input
+                                type="checkbox"
+                                checked={denyPermissions.includes(permission.key)}
+                                onChange={() => toggleDenyPermission(permission.key)}
+                              />
+                              Deny
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <h5 className="font-semibold text-gray-900 mt-4 mb-2">Effective permissions</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {[...rolePermissions].sort().map((permission) => (
+                        <span key={permission} className="rounded-full bg-white border border-gray-200 px-3 py-1 text-xs text-gray-700">
+                          {permission}
                         </span>
-                      </label>
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                  <h4 className="font-semibold text-gray-900 mb-2">Permission Overrides &amp; Limits</h4>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Use <span className="font-medium">Deny</span> to limit what an admin can do, or <span className="font-medium">Allow</span> to grant an extra permission beyond their role. Master admins are never limited.
-                  </p>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    {permissions.map((permission) => (
-                      <div key={permission.key} className="rounded-lg border border-gray-200 px-3 py-2 text-sm space-y-2">
-                        <div>
-                          <span className="block font-medium text-gray-900">{permission.key}</span>
-                          {permission.description && <span className="block text-xs text-gray-500">{permission.description}</span>}
-                        </div>
-                        <div className="flex gap-4 text-xs">
-                          <label className="flex items-center gap-1">
-                            <input
-                              type="checkbox"
-                              checked={allowPermissions.includes(permission.key)}
-                              onChange={() => togglePermission(permission.key)}
-                            />
-                            Allow
-                          </label>
-                          <label className="flex items-center gap-1">
-                            <input
-                              type="checkbox"
-                              checked={denyPermissions.includes(permission.key)}
-                              onChange={() => toggleDenyPermission(permission.key)}
-                            />
-                            Deny
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                  <h4 className="font-semibold text-gray-900 mb-2">Effective Permissions</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {[...rolePermissions].sort().map((permission) => (
-                      <span key={permission} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
-                        {permission}
-                      </span>
-                    ))}
-                  </div>
-                </section>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </>
             ) : (
               <p className="text-gray-500">Select an account to edit access.</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {showNewStaff && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-staff-title"
+            className="w-full max-w-2xl rounded-xl bg-white p-5 shadow-xl"
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h3 id="new-staff-title" className="text-lg font-bold text-gray-900">New staff account</h3>
+                <p className="text-sm text-gray-500">Create an Administrator, Coach, or combined staff login.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewStaff(false)}
+                aria-label="Close new staff dialog"
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-medium text-gray-700">
+                First name
+                <input
+                  autoFocus
+                  type="text"
+                  value={newStaffForm.firstName}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, firstName: event.target.value }))}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="text-xs font-medium text-gray-700">
+                Last name
+                <input
+                  type="text"
+                  value={newStaffForm.lastName}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, lastName: event.target.value }))}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="text-xs font-medium text-gray-700">
+                Email
+                <input
+                  type="email"
+                  value={newStaffForm.email}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, email: event.target.value }))}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="text-xs font-medium text-gray-700">
+                Phone
+                <input
+                  type="tel"
+                  value={newStaffForm.phone}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, phone: formatPhoneNumber(event.target.value) }))}
+                  maxLength={PHONE_INPUT_MAX_LENGTH}
+                  placeholder={PHONE_INPUT_PLACEHOLDER}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="text-xs font-medium text-gray-700">
+                Username
+                <input
+                  type="text"
+                  value={newStaffForm.username}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, username: event.target.value }))}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="text-xs font-medium text-gray-700">
+                Temporary password
+                <input
+                  type="password"
+                  value={newStaffForm.password}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, password: event.target.value }))}
+                  minLength={8}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+            </div>
+
+            <fieldset className="mt-4">
+              <legend className="text-sm font-semibold text-gray-900">Staff access</legend>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {assignableRoleOrder.map((role) => (
+                  <label key={role} className="flex items-start gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5"
+                      checked={newStaffForm.roles.includes(role)}
+                      onChange={() => setNewStaffForm((current) => ({
+                        ...current,
+                        roles: current.roles.includes(role)
+                          ? current.roles.filter((entry) => entry !== role)
+                          : [...current.roles, role],
+                      }))}
+                    />
+                    <span>
+                      <span className="block font-medium text-gray-900">{roleLabel(role)}</span>
+                      <span className="block text-xs text-gray-500">{ROLE_DESCRIPTIONS[role]}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowNewStaff(false)}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void createStaff()}
+                disabled={creatingStaff || newStaffForm.roles.length === 0}
+                className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              >
+                {creatingStaff && <Loader2 className="h-4 w-4 animate-spin" />}
+                Create staff account
+              </button>
+            </div>
           </div>
         </div>
       )}

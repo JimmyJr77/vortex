@@ -103,6 +103,7 @@ export async function buildAdminClassRegistrationSummaries(pool) {
         sf.title AS form_title,
         sf.is_active AS form_active,
         sg.id AS slot_group_id,
+        sg.max_participants,
         ts.id AS time_slot_id,
         ts.week_letter,
         ts.schedule_mode,
@@ -220,7 +221,8 @@ export async function buildAdminClassRegistrationSummaries(pool) {
           offeringDates: offering.offering_dates,
           schedule,
           formActive: Boolean(line.form_active),
-          enrollmentCount: counts.total,
+          enrollmentCount: counts.confirmed,
+          maxParticipants: Number(line.max_participants) || 0,
           statusLabel: registrationStatusLabel(counts),
           counts,
         },
@@ -253,6 +255,7 @@ export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId,
         s.slot_group_id, s.time_slot_id, sg.offering_id,
         m.first_name AS member_first_name,
         m.last_name AS member_last_name,
+        m.family_id,
         COALESCE(class_p.display_name, class_p.name, sf.title) AS class_name,
         COALESCE(sf.programs_id, class_p.${programFkColumn}) AS program_id,
         COALESCE(pr.display_name, pr.name) AS program_name,
@@ -274,6 +277,7 @@ export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId,
         AND s.slot_group_id = $2
         AND s.orphaned_at IS NULL
         AND s.archived_at IS NULL
+        AND s.status IN ('confirmed', 'waitlisted', 'paused')
         AND ($3::bigint IS NULL OR s.time_slot_id IS NULL OR s.time_slot_id = $3)
       ORDER BY m.last_name, m.first_name, s.id
     `,
@@ -360,6 +364,7 @@ export async function buildAdminFormSlotEnrollments(pool, { formId, slotGroupId,
         member_id: Number(row.member_id),
         member_first_name: row.member_first_name || '',
         member_last_name: row.member_last_name || '',
+        family_id: row.family_id != null ? Number(row.family_id) : null,
         sport_name: sportName,
         program_name: programName,
         class_name: className,

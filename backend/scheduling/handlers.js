@@ -12,7 +12,12 @@ import {
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
 import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
-import { buildDailyRoster, dateInTimeZone, validateRosterDate } from './dailyRoster.js'
+import {
+  buildDailyRoster,
+  dateInTimeZone,
+  emailDailyRosterManually,
+  validateRosterDate,
+} from './dailyRoster.js'
 import { sendRegistrationNotification } from './registrationNotificationEmail.js'
 import { broadcastMessageEvent } from '../platform/messageRealtime.js'
 import { sendDemotionEmail } from './demotionEmail.js'
@@ -1419,6 +1424,11 @@ const memberPasswordUpdateSchema = Joi.object({
   }),
 })
 
+const dailyRosterEmailSchema = Joi.object({
+  date: Joi.string().trim().required(),
+  to: Joi.string().trim().email().max(320).required(),
+})
+
 const authChangePasswordSchema = Joi.object({
   formId: Joi.number().integer().required(),
   signupAuthToken: Joi.string().trim().required(),
@@ -1869,6 +1879,55 @@ export function createSchedulingHandlers(pool) {
       } catch (err) {
         console.error('[scheduling] adminDailyRoster:', err)
         res.status(500).json({ success: false, message: 'Failed to generate daily roster' })
+      }
+    },
+
+    async adminEmailDailyRoster(req, res) {
+      const { error, value } = dailyRosterEmailSchema.validate(req.body, {
+        abortEarly: true,
+        stripUnknown: true,
+      })
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0]?.message || 'A valid date and email address are required' })
+      }
+
+      const date = validateRosterDate(value.date)
+      if (!date) {
+        return res.status(400).json({ success: false, message: 'date must be a valid YYYY-MM-DD date' })
+      }
+
+      try {
+        const idempotencyKey = String(req.get('Idempotency-Key') || '').trim() || undefined
+        const result = await emailDailyRosterManually(pool, {
+          date,
+          to: value.to,
+          idempotencyKey,
+        })
+
+        if (!result.delivery.sent) {
+          return res.status(409).json({
+            success: false,
+            message: result.delivery.reason === 'duplicate'
+              ? 'This schedule email was already sent for this request.'
+              : 'The schedule email was not sent. Please try again shortly.',
+          })
+        }
+
+        return res.json({
+          success: true,
+          data: {
+            date: result.roster.date,
+            recipient: result.recipient,
+            classCount: result.roster.classCount,
+            athleteCount: result.roster.athleteCount,
+          },
+        })
+      } catch (err) {
+        console.error('[scheduling] adminEmailDailyRoster:', err?.cause || err)
+        return res.status(503).json({
+          success: false,
+          message: err?.message || 'Failed to send daily schedule email',
+        })
       }
     },
 

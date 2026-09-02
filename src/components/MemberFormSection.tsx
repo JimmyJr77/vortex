@@ -39,15 +39,13 @@ type FamilyMemberData = {
   isFinished: boolean
   parentGuardianIds?: number[] // Legacy: Array of parent/guardian member IDs (for children) - deprecated, use parentGuardians
   parentGuardians?: Array<{ id: number; relationship: string; relationshipOther?: string }> // Array of parent/guardian with relationships
-  hasCompletedWaivers?: boolean // Waiver completion status
-  waiverCompletionDate?: string | null // Date when waivers were completed
   sections: {
     contactInfo: { isExpanded: boolean; tempData: { firstName: string; lastName: string; email: string; phone: string; addressStreet: string; addressCity: string; addressState: string; addressZip: string } }
     loginSecurity: { isExpanded: boolean; tempData: { username: string; password: string } }
     statusVerification: { isExpanded: boolean }
     personalData?: { isExpanded: boolean; tempData: { dateOfBirth: string; gender: string; medicalConcerns: string; injuryHistoryDate: string; injuryHistoryBodyPart: string; injuryHistoryNotes: string; noInjuryHistory: boolean } }
     parentGuardians?: { isExpanded: boolean; tempData: { parentGuardians: Array<{ id: number; relationship: string; relationshipOther?: string }> } }
-    waivers?: { isExpanded: boolean; tempData: { hasCompletedWaivers: boolean; waiverCompletionDate: string | null } }
+    waivers?: { isExpanded: boolean }
     previousClasses?: { isExpanded: boolean; tempData: { experience: string } }
   }
   athleteId?: number | null
@@ -101,7 +99,7 @@ export default function MemberFormSection({
 
   // Helper to update member's section tempData
   const updateSectionTempData = (
-    section: 'contactInfo' | 'loginSecurity' | 'statusVerification' | 'personalData' | 'parentGuardians' | 'waivers' | 'previousClasses',
+    section: 'contactInfo' | 'loginSecurity' | 'personalData' | 'parentGuardians' | 'previousClasses',
     updates: Record<string, unknown>
   ) => {
     onUpdateMember(member.id, (prev) => ({
@@ -110,7 +108,7 @@ export default function MemberFormSection({
         ...prev.sections,
         [section]: {
           ...prev.sections[section],
-          ...(section === 'statusVerification' ? {} : { tempData: { ...(prev.sections[section]?.tempData || {}), ...updates } })
+          tempData: { ...(prev.sections[section]?.tempData || {}), ...updates }
         }
       }
     }))
@@ -191,17 +189,6 @@ export default function MemberFormSection({
     } else {
       updateSectionTempData('contactInfo', updates)
     }
-  }
-
-  // Determine enrollment status based on enrollments
-  const getEnrollmentStatus = (): 'non-participant' | 'athlete' => {
-    const enrollments = member.enrollments || []
-    return enrollments.length > 0 ? 'athlete' : 'non-participant'
-  }
-
-  // Get active/idle status
-  const getActiveStatus = (): 'active' | 'idle' => {
-    return member.isActive !== false ? 'active' : 'idle'
   }
 
   return (
@@ -937,53 +924,8 @@ export default function MemberFormSection({
             </button>
             {member.sections.waivers?.isExpanded && (
               <div className="p-4 bg-white">
-                <div className="space-y-4">
-                  <div>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={member.hasCompletedWaivers || false}
-                        onChange={(e) => {
-                          onUpdateMember(member.id, (prev) => ({
-                            ...prev,
-                            hasCompletedWaivers: e.target.checked,
-                            waiverCompletionDate: e.target.checked ? getTodayDateString() : null
-                          }))
-                          updateSectionTempData('waivers', {
-                            hasCompletedWaivers: e.target.checked,
-                            waiverCompletionDate: e.target.checked ? getTodayDateString() : null
-                          })
-                        }}
-                        className="w-4 h-4 text-vortex-red bg-white border-gray-300 rounded focus:ring-vortex-red"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        Has Completed Waivers
-                      </span>
-                    </label>
-                  </div>
-                  {member.hasCompletedWaivers && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Waiver Completion Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formatDateForInput(member.waiverCompletionDate) || getTodayDateString()}
-                        onChange={(e) => {
-                          onUpdateMember(member.id, (prev) => ({
-                            ...prev,
-                            waiverCompletionDate: e.target.value
-                          }))
-                          updateSectionTempData('waivers', { waiverCompletionDate: e.target.value })
-                        }}
-                        className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
-                        max={new Date().toISOString().split('T')[0]}
-                      />
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    Note: Athlete status requires both enrollment and completed waivers
-                  </p>
+                <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-900">
+                  Waiver status is calculated from signed, currently required waiver records. Complete or review waivers in the Waivers tab; it cannot be changed manually from a profile.
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button
@@ -1005,99 +947,47 @@ export default function MemberFormSection({
             )}
           </div>
 
-          {/* 5. Status Verification Section */}
+          {/* 5. Record and enrollment summary */}
           <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => onToggleSection(member.id, 'statusVerification')}
               className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold flex justify-between items-center rounded-t"
             >
-              <span>5. Status Verification</span>
+              <span>5. Record &amp; Enrollment Summary</span>
               <span>{member.sections.statusVerification.isExpanded ? '−' : '+'}</span>
             </button>
             {!member.sections.statusVerification.isExpanded && (
               <div className="p-4 bg-white">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Enrollment Status:</span>
+                    <span className="text-sm font-medium text-gray-700">Member record</span>
                     <div className="mt-1">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        getEnrollmentStatus() === 'athlete' 
-                          ? 'bg-green-50 text-green-700' 
+                        member.isActive !== false
+                          ? 'bg-green-50 text-green-700'
                           : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {getEnrollmentStatus() === 'athlete' ? 'Athlete' : 'Non-Participant'}
+                        {member.isActive !== false ? 'Active' : 'Archived'}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Activity Status:</span>
-                    <div className="mt-1">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        getActiveStatus() === 'active' 
-                          ? 'bg-blue-50 text-blue-700' 
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {getActiveStatus() === 'active' ? 'Active' : 'Idle'}
-                      </span>
-                    </div>
+                    <span className="text-sm font-medium text-gray-700">Enrollment records</span>
+                    <div className="mt-1 text-sm text-gray-900">{member.enrollments?.length || 0}</div>
                   </div>
                 </div>
-                {member.enrollments && member.enrollments.length > 0 && (
-                  <div className="mt-4">
-                    <span className="text-sm font-medium text-gray-700">Enrolled Classes: {member.enrollments.length}</span>
-                  </div>
-                )}
               </div>
             )}
             {member.sections.statusVerification.isExpanded && (
               <div className="p-4 bg-white">
                 <div className="space-y-4">
-                  {/* Enrollment Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Enrollment Status</label>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-2 rounded font-semibold ${
-                        getEnrollmentStatus() === 'athlete' 
-                          ? 'bg-green-50 text-green-700' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {getEnrollmentStatus() === 'athlete' ? 'Athlete' : 'Non-Participant'}
-                      </span>
-                      <span className="text-gray-500 text-sm">
-                        {getEnrollmentStatus() === 'athlete' 
-                          ? '(Member has enrolled in at least one class)' 
-                          : '(Member has not enrolled in any classes)'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Activity Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Activity Status</label>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-2 rounded font-semibold ${
-                        getActiveStatus() === 'active' 
-                          ? 'bg-blue-50 text-blue-700' 
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {getActiveStatus() === 'active' ? 'Active' : 'Idle'}
-                      </span>
-                      <span className="text-gray-500 text-sm">
-                        {getActiveStatus() === 'active' 
-                          ? '(Member account is active)' 
-                          : '(Member account is inactive)'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Enrolled Classes */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Enrolled Classes ({member.enrollments?.length || 0})
+                      Enrollment records ({member.enrollments?.length || 0})
                     </label>
                     {!member.enrollments || member.enrollments.length === 0 ? (
-                      <div className="text-gray-500 text-sm">No classes enrolled. Members can enroll through the member portal or admin can enroll them in the Enrollments tab.</div>
+                      <div className="text-gray-500 text-sm">No enrollment records.</div>
                     ) : (
                       <div className="space-y-2">
                         {member.enrollments.map((enrollment) => {
@@ -1252,4 +1142,3 @@ export default function MemberFormSection({
     </div>
   )
 }
-

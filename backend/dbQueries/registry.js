@@ -21,8 +21,7 @@ const memberOwnFields = [
   { key: 'address', label: 'Address', expr: 't0.address', type: 'text' },
   { key: 'date_of_birth', label: 'Date of birth', expr: 't0.date_of_birth', type: 'date' },
   { key: 'gender', label: 'Gender', expr: 't0.gender', type: 'text' },
-  { key: 'status', label: 'Status', expr: 't0.status', type: 'text' },
-  { key: 'is_active', label: 'Active', expr: 't0.is_active', type: 'boolean' },
+  { key: 'is_active', label: 'Record active', expr: 't0.is_active', type: 'boolean' },
   { key: 'billing_street', label: 'Billing street', expr: 't0.billing_street', type: 'text' },
   { key: 'billing_city', label: 'Billing city', expr: 't0.billing_city', type: 'text' },
   { key: 'billing_state', label: 'Billing state', expr: 't0.billing_state', type: 'text' },
@@ -44,7 +43,7 @@ export const ENTITIES = {
       family: {
         label: 'Family',
         cardinality: 'one',
-        joinSql: 'LEFT JOIN family j_family ON j_family.id = t0.family_id',
+        joinSql: 'LEFT JOIN family_member j_family_membership ON j_family_membership.member_id = t0.id AND j_family_membership.is_active = TRUE LEFT JOIN family j_family ON j_family.id = j_family_membership.family_id',
         fields: [
           { key: 'family_name', label: 'Family name', expr: 'j_family.family_name', type: 'text' },
         ],
@@ -175,13 +174,14 @@ export const ENTITIES = {
       members: {
         label: 'Members',
         cardinality: 'many',
-        from: 'member tgt',
-        baseLink: 'tgt.family_id',
+        from: 'family_member bridge JOIN member tgt ON tgt.id = bridge.member_id',
+        baseLink: 'bridge.family_id',
+        extraWhere: 'bridge.is_active = TRUE',
         fields: [
           { key: 'first_name', label: 'Member first name', expr: 'tgt.first_name', type: 'text' },
           { key: 'last_name', label: 'Member last name', expr: 'tgt.last_name', type: 'text' },
           { key: 'email', label: 'Member email', expr: 'tgt.email', type: 'text' },
-          { key: 'status', label: 'Member status', expr: 'tgt.status', type: 'text' },
+          { key: 'is_active', label: 'Member record active', expr: 'tgt.is_active', type: 'boolean' },
         ],
       },
     },
@@ -213,7 +213,7 @@ export const ENTITIES = {
         fields: [
           { key: 'first_name', label: 'Member first name', expr: 'j_member.first_name', type: 'text' },
           { key: 'last_name', label: 'Member last name', expr: 'j_member.last_name', type: 'text' },
-          { key: 'status', label: 'Member status', expr: 'j_member.status', type: 'text' },
+          { key: 'is_active', label: 'Member record active', expr: 'j_member.is_active', type: 'boolean' },
         ],
       },
       notes: {

@@ -1,19 +1,6 @@
 import type { ReactNode } from 'react'
-import { formatDateForDisplay, formatTimestampDate, formatTimeSince, getMostRecentEnrollmentDate } from '../../../utils/dateUtils'
-import type { MemberDetailData, MemberFamilyData } from './types'
-
-function formatMemberRoleLabel(role: string): string {
-  const labels: Record<string, string> = {
-    MEMBER_ATHLETE: 'Member / Athlete',
-    MASTER_ADMIN: 'Master Admin',
-    ADMIN: 'Admin',
-    COACH: 'Coach',
-    STAFF: 'Staff',
-    PARENT_GUARDIAN: 'Parent/Guardian',
-    ATHLETE: 'Athlete',
-  }
-  return labels[role] || role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
+import { formatDateForDisplay, formatTimestampDate } from '../../../utils/dateUtils'
+import type { MemberDetailData, MemberDirectorySummary, MemberFamilyData } from './types'
 
 function formatAddress(member: MemberDetailData): string {
   if (member.address?.trim()) return member.address.trim()
@@ -32,12 +19,76 @@ function DetailItem({ label, children, className = '' }: { label: string; childr
   )
 }
 
+function StatusPill({
+  children,
+  tone = 'gray',
+}: {
+  children: string
+  tone?: 'green' | 'blue' | 'cyan' | 'amber' | 'purple' | 'red' | 'gray'
+}) {
+  const tones = {
+    green: 'bg-green-50 text-green-700',
+    blue: 'bg-blue-50 text-blue-700',
+    cyan: 'bg-cyan-50 text-cyan-700',
+    amber: 'bg-amber-50 text-amber-800',
+    purple: 'bg-purple-50 text-purple-700',
+    red: 'bg-red-50 text-red-700',
+    gray: 'bg-gray-100 text-gray-600',
+  }
+  return <span className={`inline-flex rounded px-2 py-0.5 text-xs font-semibold ${tones[tone]}`}>{children}</span>
+}
+
+function ParticipationSummary({ summary }: { summary: MemberDirectorySummary }) {
+  const values = [
+    summary.participation.current > 0
+      ? <StatusPill key="current" tone="blue">{`${summary.participation.current} current`}</StatusPill>
+      : null,
+    summary.participation.upcoming > 0
+      ? <StatusPill key="upcoming" tone="cyan">{`${summary.participation.upcoming} upcoming`}</StatusPill>
+      : null,
+    summary.participation.waitlisted > 0
+      ? <StatusPill key="waitlisted" tone="amber">{`${summary.participation.waitlisted} waitlisted`}</StatusPill>
+      : null,
+    summary.participation.paused > 0
+      ? <StatusPill key="paused">{`${summary.participation.paused} paused`}</StatusPill>
+      : null,
+    summary.participation.former > 0 && summary.participation.current === 0 && summary.participation.upcoming === 0
+      ? <StatusPill key="former">Former</StatusPill>
+      : null,
+  ].filter(Boolean)
+
+  return values.length > 0 ? <span className="flex flex-wrap gap-1.5">{values}</span> : <span>Never enrolled</span>
+}
+
+function PortalStatus({ status }: { status: MemberDirectorySummary['portalAccess']['status'] }) {
+  if (status === 'active') return <StatusPill tone="green">Active</StatusPill>
+  if (status === 'setup_required') return <StatusPill tone="amber">Setup required</StatusPill>
+  if (status === 'suspended') return <StatusPill tone="red">Suspended</StatusPill>
+  return <StatusPill>No login</StatusPill>
+}
+
+function formatDataQualityIssue(issue: string): string {
+  const normalized = issue.replaceAll('_', ' ')
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1)
+}
+
 interface Props {
   member: MemberDetailData
   familyData: MemberFamilyData | null
+  directorySummary: MemberDirectorySummary
 }
 
-export default function MemberDetailsTab({ member, familyData }: Props) {
+export default function MemberDetailsTab({ member, familyData, directorySummary }: Props) {
+  const recordIsActive = directorySummary.recordStatus === 'active'
+  const portalStatus = directorySummary.portalAccess.status
+  const staffLabels = directorySummary.staffAccess.labels
+  const householdLabels = [
+    directorySummary.household.isPayer ? 'Payer' : null,
+    directorySummary.household.isGuardian ? 'Guardian' : null,
+    directorySummary.household.isDependent ? 'Dependent' : null,
+  ].filter((label): label is string => Boolean(label))
+  const waiverCompletedAt = directorySummary.waiver.lastAcceptedAt
+
   return (
     <div className="space-y-5">
       {member.familyId && (
@@ -45,7 +96,6 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
           <h4 className="text-sm font-semibold text-gray-900 mb-3">Family information</h4>
           <div className="flex flex-wrap gap-x-10 gap-y-5">
             <DetailItem label="Family name">{member.familyName || 'N/A'}</DetailItem>
-            <DetailItem label="Family username">{member.familyUsername || familyData?.familyUsername || 'N/A'}</DetailItem>
             <DetailItem label="Family ID">{member.familyId}</DetailItem>
           </div>
         </section>
@@ -66,43 +116,63 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-4">
-        <h4 className="text-sm font-semibold text-gray-900 mb-3">Status &amp; roles</h4>
+        <h4 className="text-sm font-semibold text-gray-900 mb-3">Status &amp; access</h4>
         <div className="flex flex-wrap gap-x-10 gap-y-5">
-          <DetailItem label="Account status">
-            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${member.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-              {member.isActive ? 'Active' : 'Archived'}
-            </span>
+          <DetailItem label="Record">
+            <StatusPill tone={recordIsActive ? 'green' : 'gray'}>{recordIsActive ? 'Active' : 'Archived'}</StatusPill>
           </DetailItem>
-          <DetailItem label="Roles">
+          <DetailItem label="Household">
             <span className="flex flex-wrap gap-1.5">
-              {member.roles && member.roles.length > 0 ? (
-                member.roles.map((role) => (
-                  <span key={role.id} className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700">
-                    {formatMemberRoleLabel(role.role)}
-                  </span>
+              {householdLabels.length > 0 ? (
+                householdLabels.map((label) => (
+                  <StatusPill key={label} tone={label === 'Payer' ? 'purple' : label === 'Guardian' ? 'blue' : 'gray'}>
+                    {label}
+                  </StatusPill>
                 ))
               ) : (
-                <span className="text-gray-500">No roles assigned</span>
+                <span className="text-gray-500">None</span>
               )}
             </span>
           </DetailItem>
-          <DetailItem label="Enrollment status">
-            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-              member.status === 'athlete' || member.status === 'enrolled'
-                ? 'bg-blue-50 text-blue-700'
-                : 'bg-gray-100 text-gray-600'
-            }`}>
-              {member.status || 'Non-participant'}
+          <DetailItem label="Portal access">
+            <PortalStatus status={portalStatus} />
+          </DetailItem>
+          <DetailItem label="Staff access">
+            <span className="flex flex-wrap gap-1.5">
+              {staffLabels.length > 0
+                ? (
+                    <>
+                      {staffLabels.map((label) => <StatusPill key={label} tone="purple">{label}</StatusPill>)}
+                      {directorySummary.staffAccess.status === 'suspended' ? <StatusPill tone="red">Suspended</StatusPill> : null}
+                    </>
+                  )
+                : <span className="text-gray-500">None</span>}
             </span>
           </DetailItem>
-          <DetailItem label="Waiver completion">
-            {member.hasCompletedWaivers
-              ? member.waiverCompletionDate
-                ? formatTimestampDate(member.waiverCompletionDate)
-                : 'Completed'
-              : 'Not completed'}
+          <DetailItem label="Participation">
+            <ParticipationSummary summary={directorySummary} />
+          </DetailItem>
+          <DetailItem label="Waiver">
+            {directorySummary.waiver.status === 'not_required' ? (
+              <StatusPill>Not required</StatusPill>
+            ) : directorySummary.waiver.status === 'action_required' ? (
+              <StatusPill tone="amber">Action required</StatusPill>
+            ) : (
+              <span className="flex flex-col items-start gap-1">
+                <StatusPill tone="green">Current</StatusPill>
+                {waiverCompletedAt ? (
+                  <span className="text-xs text-gray-500">Completed {formatTimestampDate(waiverCompletedAt)}</span>
+                ) : null}
+              </span>
+            )}
           </DetailItem>
         </div>
+        {directorySummary.dataQuality.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <span className="font-semibold">Data review:</span>{' '}
+            {directorySummary.dataQuality.map(formatDataQualityIssue).join(' · ')}
+          </div>
+        ) : null}
       </section>
 
       {member.parentGuardians && member.parentGuardians.length > 0 && (
@@ -135,7 +205,7 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
                 )}
                 <div className="font-medium text-gray-900">{fm.firstName} {fm.lastName}</div>
                 <div className="text-gray-600 text-xs mt-0.5">
-                  {[fm.email, fm.phone, fm.isFamilyPayer ? 'Family payer' : null, fm.isActive === false ? 'Archived' : null]
+                  {[fm.email, fm.phone, fm.isFamilyPayer ? 'Payer' : null, fm.isActive === false ? 'Archived' : null]
                     .filter(Boolean)
                     .join(' · ')}
                 </div>
@@ -161,32 +231,14 @@ export default function MemberDetailsTab({ member, familyData }: Props) {
         </section>
       )}
 
-      {(member.medicalNotes || member.internalFlags) && (
+      {member.medicalNotes && (
         <section className="rounded-lg border border-gray-200 bg-white p-4">
           <h4 className="text-sm font-semibold text-gray-900 mb-3">Additional information</h4>
-          {member.medicalNotes && (
-            <div className="text-sm mb-2">
-              <span className="text-gray-600">Medical notes</span>
-              <div className="text-gray-900 whitespace-pre-wrap">{member.medicalNotes}</div>
-            </div>
-          )}
-          {member.internalFlags && (
-            <div className="text-sm">
-              <span className="text-gray-600">Internal flags</span>
-              <div className="text-gray-900 whitespace-pre-wrap">{member.internalFlags}</div>
-            </div>
-          )}
+          <div className="text-sm">
+            <span className="text-gray-600">Medical notes</span>
+            <div className="text-gray-900 whitespace-pre-wrap">{member.medicalNotes}</div>
+          </div>
         </section>
-      )}
-
-      {member.enrollments && member.enrollments.length > 0 && (
-        <p className="text-xs text-gray-500">
-          Last enrollment: {formatTimeSince(
-            getMostRecentEnrollmentDate(
-              member.enrollments.map((e) => ({ created_at: e.created_at, createdAt: e.createdAt })),
-            ),
-          )}
-        </p>
       )}
 
       {(member.createdAt || member.updatedAt) && (

@@ -9,16 +9,25 @@ import { registerPlatformRoutes } from '../registerRoutes.js'
 const JWT_SECRET = 'member-http-authorization-test-secret'
 
 function authenticationRows(sql, userOverrides = {}) {
-  if (sql.includes('FROM app_user au')) {
+  if (sql.includes('FROM v_app_user_access_context')) {
+    const memberId = userOverrides.member_id === undefined ? 74 : userOverrides.member_id
+    const role = userOverrides.role ?? 'MEMBER_ATHLETE'
+    const linked = memberId != null
     return {
       rows: [{
-        id: 9,
-        member_id: 74,
+        user_id: 9,
+        member_id: memberId,
         family_id: 999,
         facility_id: 3,
-        role: 'MEMBER',
+        primary_storage_role: role,
+        storage_roles: [role],
+        staff_roles: ['MASTER_ADMIN', 'ADMIN'].includes(role) ? ['ADMINISTRATOR'] : role === 'COACH' ? ['COACH'] : [],
         is_active: true,
-        is_master_admin: false,
+        is_owner: false,
+        member_portal_status: linked ? 'active' : 'no_login',
+        can_access_admin_portal: ['MASTER_ADMIN', 'ADMIN'].includes(role),
+        can_access_coach_portal: role === 'COACH',
+        can_access_member_portal: linked,
         ...userOverrides,
       }],
     }

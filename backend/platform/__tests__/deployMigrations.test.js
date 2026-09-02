@@ -74,6 +74,9 @@ function fakeMigrationClient() {
         || text.includes('pg_trigger')
         || text.includes('pg_proc')
         || text.includes('pg_constraint')
+        || text.includes('FROM facility')
+        || text.includes('FROM app_user au')
+        || text.includes('FROM member m')
       ) return { rows: [] }
       if (/^SELECT \d+;/.test(text)) {
         return { rows: [] }
