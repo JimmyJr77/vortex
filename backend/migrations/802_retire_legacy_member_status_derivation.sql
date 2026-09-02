@@ -19,9 +19,11 @@ DROP FUNCTION IF EXISTS update_member_athlete_status();
 DROP FUNCTION IF EXISTS update_athlete_status_on_enrollment();
 
 -- Canonical creation paths do not stamp misleading compatibility values.
--- Keep the columns readable during the retirement window, but require any
--- remaining legacy writer to opt in explicitly instead of inheriting a fake
--- "legacy" status, an empty guardian cache, or a false waiver cache.
+-- Keep the columns readable during the retirement window, but make the
+-- retired status optional so canonical writes do not need to invent a fake
+-- value. Remaining legacy writers must opt in explicitly instead of
+-- inheriting a fake "legacy" status, an empty guardian cache, or a false
+-- waiver cache.
 DO $$
 BEGIN
   IF EXISTS (
@@ -29,18 +31,21 @@ BEGIN
      WHERE table_schema = 'public' AND table_name = 'member' AND column_name = 'status'
   ) THEN
     ALTER TABLE member ALTER COLUMN status DROP DEFAULT;
+    ALTER TABLE member ALTER COLUMN status DROP NOT NULL;
   END IF;
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
      WHERE table_schema = 'public' AND table_name = 'member' AND column_name = 'parent_guardian_ids'
   ) THEN
     ALTER TABLE member ALTER COLUMN parent_guardian_ids DROP DEFAULT;
+    ALTER TABLE member ALTER COLUMN parent_guardian_ids DROP NOT NULL;
   END IF;
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
      WHERE table_schema = 'public' AND table_name = 'member' AND column_name = 'has_completed_waivers'
   ) THEN
     ALTER TABLE member ALTER COLUMN has_completed_waivers DROP DEFAULT;
+    ALTER TABLE member ALTER COLUMN has_completed_waivers DROP NOT NULL;
   END IF;
 END $$;
 

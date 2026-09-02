@@ -73,6 +73,7 @@ async function createPrerequisiteSchema(client) {
       facility_id BIGINT NOT NULL REFERENCES facility(id) ON DELETE CASCADE,
       role user_role NOT NULL,
       email TEXT,
+      username TEXT,
       phone TEXT,
       full_name TEXT NOT NULL,
       password_hash TEXT,
@@ -337,6 +338,13 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
         (202, 20, 'MASTER_ADMIN', 'second@test.invalid', 'Second Candidate', 'hash');
 
       INSERT INTO app_user (
+        id, facility_id, role, username, full_name, password_hash
+      ) VALUES (
+        103, 10, 'MEMBER_ATHLETE', 'legacy-username@test.invalid',
+        'Legacy Username Identifier', 'hash'
+      );
+
+      INSERT INTO app_user (
         id, facility_id, role, email, full_name, password_hash, is_active
       ) VALUES (
         102, 10, 'ADMIN', 'legacy-disabled@test.invalid',
@@ -465,6 +473,16 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       is_active: true,
       staff_access_active: false,
       member_portal_access_active: false,
+    })
+
+    const normalizedLegacyUsername = await client.query(
+      `SELECT email, username
+         FROM app_user
+        WHERE id = 103`,
+    )
+    assert.deepEqual(normalizedLegacyUsername.rows[0], {
+      email: 'legacy-username@test.invalid',
+      username: null,
     })
 
     const legacyDisabledAccess = await client.query(

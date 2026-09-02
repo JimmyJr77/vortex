@@ -26,6 +26,22 @@ UPDATE app_user
  WHERE email IS DISTINCT FROM NULLIF(BTRIM(email), '')
     OR username IS DISTINCT FROM NULLIF(BTRIM(username), '');
 
+-- Earlier member-login writes sometimes placed an email address in username.
+-- That is one identifier in the email namespace, not a second username. Keep
+-- the sign-in usable by promoting it when email is blank, then clear the
+-- invalid username before the namespace constraints are installed. If this
+-- produces a duplicate email, the explicit duplicate preflight below still
+-- blocks deployment instead of selecting an identity arbitrarily.
+UPDATE app_user
+   SET email = CASE
+                 WHEN email IS NULL THEN username
+                 ELSE email
+               END,
+       username = NULL,
+       updated_at = now()
+ WHERE username IS NOT NULL
+   AND POSITION('@' IN username) > 0;
+
 DO $$
 DECLARE
   invalid_email TEXT;
