@@ -803,6 +803,7 @@ export async function buildSignupOrderPreview(
     expandHouseholdExisting = true,
     pricingDate = Date.now(),
     ensureSchema = true,
+    excludeSignupIds = [],
   },
 ) {
   const slotSignups = []
@@ -815,7 +816,15 @@ export async function buildSignupOrderPreview(
     }
   }
 
-  const existing = await loadExistingEnrollments(pool, memberId)
+  // Administrative class moves price the destination against the household as
+  // it will exist after the source enrollment leaves.  Keeping the exclusion
+  // here (rather than faking a second enrollment) preserves the same pricing
+  // and discount engine used by normal enrollment.
+  const excludedSignupIds = new Set(
+    (excludeSignupIds ?? []).map(Number).filter(Number.isFinite),
+  )
+  const existing = (await loadExistingEnrollments(pool, memberId))
+    .filter((entry) => !excludedSignupIds.has(Number(entry.id)))
   const existingKeys = new Set(existing.map((entry) => entry.slotKey))
 
   const filteredNew = slotSignups.filter((entry) => {
@@ -843,8 +852,9 @@ export async function buildSignupOrderPreview(
 
   // Household enrollments for display / combined monthly totals. Member-scoped
   // `existing` stays for duplicate checks and marginal pricing for this athlete.
-  const householdExisting =
+  const householdExisting = (
     familyId != null ? await loadFamilyExistingEnrollments(pool, familyId) : existing
+  ).filter((entry) => !excludedSignupIds.has(Number(entry.id)))
 
   const formIds = new Set([
     ...householdExisting.map((entry) => entry.formId),

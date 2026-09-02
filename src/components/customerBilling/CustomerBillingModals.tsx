@@ -99,10 +99,12 @@ export function PriceAdjustmentModal({
   enrollment,
   onClose,
   onSaved,
+  onSwap,
 }: {
   enrollment: CustomerBillingEnrollment
   onClose: () => void
   onSaved: (message: string) => void
+  onSwap?: (enrollment: CustomerBillingEnrollment) => void
 }) {
   const assignedPromos = enrollment.priceAdjustments.filter(
     (adjustment) =>
@@ -265,6 +267,15 @@ export function PriceAdjustmentModal({
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="space-y-4">
+          {onSwap ? (
+            <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950">
+              <div className="font-semibold">Move to another class</div>
+              <p className="mt-1 text-violet-800">Choose a replacement class and schedule. The account will preview any unused-class credit and new-class prorated cost before the move is applied.</p>
+              <button type="button" onClick={() => onSwap(enrollment)} className="mt-3 rounded-lg border border-violet-300 bg-white px-3 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-100">
+                Choose replacement class
+              </button>
+            </div>
+          ) : null}
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm">
             <div className="flex justify-between"><span className="text-gray-500">Standard price</span><strong>{money(enrollment.classCostCents)}</strong></div>
             {enrollment.automaticDiscountComponents.map((component, index) => (

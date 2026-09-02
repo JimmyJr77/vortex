@@ -20,6 +20,10 @@ import {
   previewCustomerBillingEnrollmentCancellation,
 } from './customerBillingEnrollmentCancellation.js'
 import {
+  moveCustomerBillingEnrollmentClass,
+  previewCustomerBillingEnrollmentClassSwap,
+} from './customerBillingEnrollmentSwap.js'
+import {
   collectCustomChargeWithSavedCard,
   collectOutstandingBalanceWithSavedCard,
   billAnnualMembershipNow,
@@ -542,6 +546,43 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.json({ success: true, data })
       } catch (error) {
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Cancellation preview failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/enrollments/:signupId/class-swap/preview',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await previewCustomerBillingEnrollmentClassSwap(pool, {
+          signupId: Number(req.params.signupId),
+          facilityId: facilityId(req),
+          input: req.body,
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Class move preview failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/enrollments/:signupId/class-swap',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await moveCustomerBillingEnrollmentClass(pool, {
+          signupId: Number(req.params.signupId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'class-swap'),
+          input: req.body,
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] class swap:', error)
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Class move failed.' })
       }
     },
   )

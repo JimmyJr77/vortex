@@ -9,13 +9,29 @@ import {
   type SchedulingFormSummary,
   type SchedulingTimeSlot,
 } from '../../utils/schedulingApi'
-import type { CustomerBillingMember } from './types'
+import { adminApiRequest } from '../../utils/api'
+import type { CustomerBillingEnrollment, CustomerBillingMember } from './types'
 
 interface ScheduleChoice {
   slotGroupId: number
   timeSlotId: number
   label: string
   availability: string
+  isFull: boolean
+}
+
+interface ClassSwapPreview {
+  effectiveDate: string
+  sourceMonthlyCents: number
+  replacementMonthlyCents: number
+  sourceRemainingClasses: number
+  unusedSourceCreditCents: number
+  replacementFirstMonthCents: number
+  replacementRemainingClasses: number | null
+  settlementKind: 'one_time_charge' | 'account_credit' | 'no_change'
+  settlementAmountCents: number
+  ledgerDeltaCents: number
+  resultingBalanceCents: number
 }
 
 interface Props {
@@ -23,6 +39,16 @@ interface Props {
   initialMemberId: number | null
   onClose: () => void
   onCreated: (message: string) => void
+  swapEnrollment?: CustomerBillingEnrollment | null
+}
+
+function money(cents: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((Number(cents) || 0) / 100)
+}
+
+function newRequestKey() {
+  const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  return `class-swap-${suffix}`
 }
 
 function classLabel(form: SchedulingFormSummary): string {
@@ -68,6 +94,7 @@ function scheduleChoices(detail: SchedulingFormDetail | null): ScheduleChoice[] 
         availability: slot.spotsRemaining > 0
           ? `${slot.spotsRemaining} spot${slot.spotsRemaining === 1 ? '' : 's'} remaining`
           : 'Full · joins waitlist',
+        isFull: slot.spotsRemaining <= 0,
       })))
 }
 
@@ -76,6 +103,7 @@ export default function NewBillingEnrollmentModal({
   initialMemberId,
   onClose,
   onCreated,
+  swapEnrollment = null,
 }: Props) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | ''>(
     initialMemberId ?? members[0]?.id ?? '',
@@ -93,8 +121,12 @@ export default function NewBillingEnrollmentModal({
   const [detailError, setDetailError] = useState<string | null>(null)
   const [selectedScheduleKey, setSelectedScheduleKey] = useState<string | null>(null)
   const [reviewing, setReviewing] = useState(false)
+  const [swapPreview, setSwapPreview] = useState<ClassSwapPreview | null>(null)
+  const [swapReason, setSwapReason] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [swapRequestKey] = useState(newRequestKey)
+  const isSwap = swapEnrollment != null
 
   useEffect(() => {
     let cancelled = false
@@ -174,12 +206,16 @@ export default function NewBillingEnrollmentModal({
     `${choice.slotGroupId}:${choice.timeSlotId}` === selectedScheduleKey
   )) ?? null
   const selectedMember = members.find((member) => member.id === selectedMemberId) ?? null
-  const canReview = Boolean(selectedMember && selectedForm && selectedSchedule && enrollmentDate)
+  const canReview = Boolean(
+    selectedMember && selectedForm && selectedSchedule && enrollmentDate &&
+    (!isSwap || (!selectedSchedule.isFull && swapReason.trim())),
+  )
 
   const selectClass = (formId: number) => {
     setSelectedFormId(formId)
     setSelectedScheduleKey(null)
     setReviewing(false)
+    setSwapPreview(null)
     setError(null)
   }
 
@@ -188,6 +224,34 @@ export default function NewBillingEnrollmentModal({
     setSubmitting(true)
     setError(null)
     try {
+      if (swapEnrollment) {
+        const response = await adminApiRequest(
+          `/api/admin/customer-billing/enrollments/${swapEnrollment.id}/class-swap`,
+          {
+            method: 'POST',
+            headers: { 'Idempotency-Key': swapRequestKey },
+            body: JSON.stringify({
+              targetFormId: selectedForm.id,
+              targetSlotGroupId: selectedSchedule.slotGroupId,
+              targetTimeSlotId: selectedSchedule.timeSlotId,
+              effectiveDate: enrollmentDate,
+              reason: swapReason.trim(),
+              requestKey: swapRequestKey,
+            }),
+          },
+        )
+        const body = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(body.message || 'The class move could not be applied.')
+        const delta = Number(body.data?.ledgerDeltaCents ?? swapPreview?.ledgerDeltaCents ?? 0)
+        onCreated(
+          delta > 0
+            ? `Class move completed. ${money(delta)} was added to the account balance as a one-time prorated charge.`
+            : delta < 0
+              ? `Class move completed. ${money(Math.abs(delta))} was added to the account as a prorated credit.`
+              : 'Class move completed with no net prorated balance change.',
+        )
+        return
+      }
       await adminCreateSignup({
         formId: selectedForm.id,
         slotGroupId: selectedSchedule.slotGroupId,
@@ -199,6 +263,39 @@ export default function NewBillingEnrollmentModal({
       onCreated(`${selectedMember.name} was added to ${classLabel(selectedForm)}. The billing account has been refreshed.`)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'The enrollment could not be added.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const reviewSelection = async () => {
+    if (!selectedMember || !selectedForm || !selectedSchedule) return
+    if (!swapEnrollment) {
+      setReviewing(true)
+      return
+    }
+    setSubmitting(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/enrollments/${swapEnrollment.id}/class-swap/preview`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            targetFormId: selectedForm.id,
+            targetSlotGroupId: selectedSchedule.slotGroupId,
+            targetTimeSlotId: selectedSchedule.timeSlotId,
+            effectiveDate: enrollmentDate,
+            reason: swapReason.trim(),
+          }),
+        },
+      )
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.message || 'The class move could not be previewed.')
+      setSwapPreview(body.data)
+      setReviewing(true)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'The class move could not be previewed.')
     } finally {
       setSubmitting(false)
     }
@@ -216,8 +313,8 @@ export default function NewBillingEnrollmentModal({
         <div className="flex items-start justify-between border-b border-gray-200 px-6 py-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-vortex-red">Account Billing &amp; Enrollments</p>
-            <h2 id="new-billing-enrollment-title" className="mt-1 text-xl font-black text-gray-950">Add family enrollment</h2>
-            <p className="mt-1 text-sm text-gray-500">Select a family member, class, schedule, and effective enrollment date.</p>
+            <h2 id="new-billing-enrollment-title" className="mt-1 text-xl font-black text-gray-950">{isSwap ? 'Move to another class' : 'Add family enrollment'}</h2>
+            <p className="mt-1 text-sm text-gray-500">{isSwap ? 'Choose a replacement class and schedule, then review any prorated balance change before applying the move.' : 'Select a family member, class, schedule, and effective enrollment date.'}</p>
           </div>
           <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50" aria-label="Close new enrollment">
             <X className="h-5 w-5" />
@@ -230,26 +327,24 @@ export default function NewBillingEnrollmentModal({
           {reviewing && selectedMember && selectedForm && selectedSchedule ? (
             <div className="mx-auto max-w-2xl space-y-5">
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-                <div className="flex items-center gap-2 text-emerald-800"><CheckCircle2 className="h-5 w-5" /><h3 className="font-bold">Review enrollment addition</h3></div>
-                <p className="mt-2 text-sm text-emerald-900">Are you sure you want to add this enrollment?</p>
+                <div className="flex items-center gap-2 text-emerald-800"><CheckCircle2 className="h-5 w-5" /><h3 className="font-bold">{isSwap ? 'Review class move' : 'Review enrollment addition'}</h3></div>
+                <p className="mt-2 text-sm text-emerald-900">{isSwap ? 'The current enrollment remains in the audit as cancelled and the replacement begins on the selected date.' : 'Are you sure you want to add this enrollment?'}</p>
               </div>
               <dl className="grid gap-x-6 gap-y-4 rounded-xl border border-gray-200 bg-gray-50 p-5 sm:grid-cols-2">
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Family member</dt><dd className="mt-1 font-semibold text-gray-950">{selectedMember.name}</dd></div>
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Effective start</dt><dd className="mt-1 font-semibold text-gray-950">{formatDate(enrollmentDate)}</dd></div>
-                <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Class</dt><dd className="mt-1 font-semibold text-gray-950">{classLabel(selectedForm)}</dd><dd className="text-sm text-gray-600">{programLabel(selectedForm)}</dd></div>
+                <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">{isSwap ? 'Replacement class' : 'Class'}</dt><dd className="mt-1 font-semibold text-gray-950">{classLabel(selectedForm)}</dd><dd className="text-sm text-gray-600">{programLabel(selectedForm)}</dd></div>
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Schedule</dt><dd className="mt-1 font-semibold text-gray-950">{selectedSchedule.label}</dd><dd className="text-sm text-gray-600">{selectedSchedule.availability}</dd></div>
               </dl>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
-                <strong>This will change the billing account for {selectedMember.name}.</strong>
-                <p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p>
-              </div>
+              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Unused source-class credit</span><strong className="mt-1 block text-lg">{money(swapPreview.unusedSourceCreditCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused class{swapPreview.sourceRemainingClasses === 1 ? '' : 'es'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement first-period cost</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled class{swapPreview.replacementRemainingClasses === 1 ? '' : 'es'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">{swapPreview.settlementKind === 'one_time_charge' ? `${money(swapPreview.settlementAmountCents)} will be added as a one-time prorated account charge. The saved card will not be charged automatically.` : swapPreview.settlementKind === 'account_credit' ? `${money(swapPreview.settlementAmountCents)} will be recorded as an account credit. It can offset a future bill; use the existing refund action only if funds must return to the card.` : 'The unused credit and replacement cost offset exactly; no one-time balance entry is needed.'}</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
             </div>
           ) : (
             <div className="space-y-6">
               <div className="grid gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-2">
-                <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Family member</span><select aria-label="Family member" value={selectedMemberId} onChange={(event) => { setSelectedMemberId(event.target.value ? Number(event.target.value) : ''); setReviewing(false) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"><option value="">Select a family member</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}{member.isActive ? '' : ' (inactive)'}</option>)}</select></label>
-                <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4" /> Enrollment start date</span><input aria-label="Enrollment start date" type="date" min={getTodayDateString()} value={enrollmentDate} onChange={(event) => { setEnrollmentDate(event.target.value); setReviewing(false) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900" /></label>
+                {isSwap ? <div className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Athlete</span><div className="mt-2 h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 font-normal text-gray-900">{selectedMember?.name ?? swapEnrollment?.memberName}</div><p className="mt-1 text-xs font-normal text-gray-500">Replacing {swapEnrollment?.class_name || 'the current class'}.</p></div> : <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Family member</span><select aria-label="Family member" value={selectedMemberId} onChange={(event) => { setSelectedMemberId(event.target.value ? Number(event.target.value) : ''); setReviewing(false) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"><option value="">Select a family member</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}{member.isActive ? '' : ' (inactive)'}</option>)}</select></label>}
+                <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4" /> {isSwap ? 'Move effective date' : 'Enrollment start date'}</span><input aria-label={isSwap ? 'Move effective date' : 'Enrollment start date'} type="date" min={getTodayDateString()} value={enrollmentDate} onChange={(event) => { setEnrollmentDate(event.target.value); setReviewing(false); setSwapPreview(null) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900" /></label>
               </div>
+              {isSwap ? <label className="block text-sm font-semibold text-gray-700">Administrative reason<textarea aria-label="Class move reason" rows={2} value={swapReason} onChange={(event) => { setSwapReason(event.target.value); setReviewing(false); setSwapPreview(null) }} className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-normal text-gray-900" placeholder="Required for the billing and enrollment audit" /></label> : null}
 
               <section aria-labelledby="class-selection-title">
                 <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 id="class-selection-title" className="font-bold text-gray-950">Find a class</h3><p className="mt-1 text-sm text-gray-500">Search and filter active class offerings before selecting a schedule.</p></div><span className="text-sm text-gray-500">{visibleForms.length} classes</span></div>
@@ -270,14 +365,14 @@ export default function NewBillingEnrollmentModal({
                 </div>
               </section>
 
-              {selectedForm ? <section aria-labelledby="schedule-selection-title" className="rounded-xl border border-gray-200 bg-white p-4"><div><h3 id="schedule-selection-title" className="font-bold text-gray-950">Select a schedule</h3><p className="mt-1 text-sm text-gray-500">{classLabel(selectedForm)} · {classDates(selectedForm)}</p></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{detailLoading ? <div className="col-span-full flex items-center gap-2 py-4 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading schedules…</div> : null}{detailError ? <div role="alert" className="col-span-full text-sm text-red-700">{detailError}</div> : null}{!detailLoading && !detailError && schedules.map((schedule) => { const key = `${schedule.slotGroupId}:${schedule.timeSlotId}`; const selected = selectedScheduleKey === key; return <button key={key} type="button" onClick={() => { setSelectedScheduleKey(key); setReviewing(false) }} className={`rounded-lg border p-3 text-left transition-colors ${selected ? 'border-vortex-red bg-red-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}><span className="block font-semibold text-gray-950">{schedule.label}</span><span className="mt-1 block text-xs text-gray-500">{schedule.availability}</span></button> })}{!detailLoading && !detailError && schedules.length === 0 ? <div className="col-span-full py-4 text-sm text-gray-500">No active schedules are available for this class.</div> : null}</div></section> : null}
+              {selectedForm ? <section aria-labelledby="schedule-selection-title" className="rounded-xl border border-gray-200 bg-white p-4"><div><h3 id="schedule-selection-title" className="font-bold text-gray-950">Select a schedule</h3><p className="mt-1 text-sm text-gray-500">{classLabel(selectedForm)} · {classDates(selectedForm)}</p></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{detailLoading ? <div className="col-span-full flex items-center gap-2 py-4 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading schedules…</div> : null}{detailError ? <div role="alert" className="col-span-full text-sm text-red-700">{detailError}</div> : null}{!detailLoading && !detailError && schedules.map((schedule) => { const key = `${schedule.slotGroupId}:${schedule.timeSlotId}`; const selected = selectedScheduleKey === key; return <button key={key} type="button" disabled={isSwap && schedule.isFull} onClick={() => { setSelectedScheduleKey(key); setReviewing(false); setSwapPreview(null) }} className={`rounded-lg border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${selected ? 'border-vortex-red bg-red-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}><span className="block font-semibold text-gray-950">{schedule.label}</span><span className="mt-1 block text-xs text-gray-500">{schedule.availability}{isSwap && schedule.isFull ? ' · unavailable for a class move' : ''}</span></button> })}{!detailLoading && !detailError && schedules.length === 0 ? <div className="col-span-full py-4 text-sm text-gray-500">No active schedules are available for this class.</div> : null}</div></section> : null}
             </div>
           )}
         </div>
 
         <div className="flex flex-wrap justify-between gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
           {reviewing ? <button type="button" onClick={() => setReviewing(false)} disabled={submitting} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"><ArrowLeft className="h-4 w-4" /> Back to edit</button> : <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button>}
-          {reviewing ? <button type="button" onClick={() => void confirmEnrollment()} disabled={submitting} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Yes, add enrollment</button> : <button type="button" onClick={() => setReviewing(true)} disabled={!canReview || detailLoading} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">Review addition <ChevronRight className="h-4 w-4" /></button>}
+          {reviewing ? <button type="button" onClick={() => void confirmEnrollment()} disabled={submitting || (isSwap && !swapPreview)} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} {isSwap ? 'Confirm class move' : 'Yes, add enrollment'}</button> : <button type="button" onClick={() => void reviewSelection()} disabled={!canReview || detailLoading || submitting} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{isSwap ? 'Review class move' : 'Review addition'} <ChevronRight className="h-4 w-4" /></button>}
         </div>
       </div>
     </div>

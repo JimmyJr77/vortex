@@ -15,6 +15,8 @@ interface CapturedRequests {
   balanceCollectionKeys?: string[]
   passAdjustments?: Array<Record<string, unknown>>
   passAdjustmentKeys?: string[]
+  classSwaps?: Array<Record<string, unknown>>
+  classSwapKeys?: string[]
   overviewLoads?: number
   transactionLoads?: number
 }
@@ -536,6 +538,38 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
       })
       return
     }
+    if (url.pathname === '/api/admin/customer-billing/enrollments/501/class-swap/preview') {
+      await json({
+        sourceClassName: 'Monday Foundations',
+        replacementClassName: 'Saturday Tumbling',
+        replacementSchedule: 'Saturday · 10:00 AM–11:00 AM',
+        effectiveDate: '2026-09-01',
+        sourceMonthlyCents: 10500,
+        replacementMonthlyCents: 13500,
+        sourceRemainingClasses: 3,
+        unusedSourceCreditCents: 7875,
+        replacementFirstMonthCents: 10125,
+        replacementRemainingClasses: 3,
+        settlementKind: 'one_time_charge',
+        settlementAmountCents: 2250,
+        ledgerDeltaCents: 2250,
+        resultingBalanceCents: 16750,
+      })
+      return
+    }
+    if (url.pathname === '/api/admin/customer-billing/enrollments/501/class-swap') {
+      const swap = request.postDataJSON() as Record<string, unknown>
+      captured.classSwaps?.push(swap)
+      captured.classSwapKeys?.push(request.headers()['idempotency-key'] ?? '')
+      await json({
+        sourceSignupId: 501,
+        replacementSignupId: 904,
+        settlementKind: 'one_time_charge',
+        settlementAmountCents: 2250,
+        ledgerDeltaCents: 2250,
+      }, 201)
+      return
+    }
     if (url.pathname === '/api/admin/customer-billing/families/42/transactions') {
       captured.transactionLoads = (captured.transactionLoads ?? 0) + 1
       const recordedPayments = (captured.externalPayments ?? []).map((payment, index) => ({
@@ -669,6 +703,43 @@ async function findRiveraAccount(page: Page) {
 }
 
 test.describe('Account Billing & Enrollments administration', () => {
+  test('moves a current enrollment after previewing the prorated ledger impact once', async ({ page }) => {
+    const captured: CapturedRequests = {
+      searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0,
+      classSwaps: [], classSwapKeys: [],
+    }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+
+    const mondayEnrollment = page.getByRole('row', { name: /Monday Foundations/ })
+    await mondayEnrollment.getByRole('button', { name: 'Modify' }).click()
+    await page.getByRole('button', { name: 'Choose replacement class' }).click()
+
+    const dialog = page.getByRole('dialog', { name: 'Move to another class' })
+    await expect(dialog).toBeVisible()
+    await dialog.getByLabel('Move effective date').fill('2026-09-01')
+    await dialog.getByLabel('Class move reason').fill('Schedule change requested by family')
+    await dialog.getByRole('button', { name: /Saturday Tumbling/ }).click()
+    await dialog.getByRole('button', { name: /Saturday.*10:00 AM/ }).click()
+    await dialog.getByRole('button', { name: 'Review class move' }).click()
+
+    await expect(dialog.getByText('Billing impact')).toBeVisible()
+    await expect(dialog.getByText('$22.50 will be added as a one-time prorated account charge. The saved card will not be charged automatically.')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Confirm class move' }).click()
+
+    await expect(page.getByText('Class move completed. $22.50 was added to the account balance as a one-time prorated charge.')).toBeVisible()
+    expect(captured.classSwaps).toHaveLength(1)
+    expect(captured.classSwaps?.[0]).toMatchObject({
+      targetFormId: 900,
+      targetSlotGroupId: 901,
+      targetTimeSlotId: 902,
+      effectiveDate: '2026-09-01',
+      reason: 'Schedule change requested by family',
+    })
+    expect(captured.classSwapKeys?.[0]).toMatch(/^class-swap-/)
+    expect(captured.classSwapKeys?.[0]).toBe(captured.classSwaps?.[0].requestKey)
+  })
+
   test('adds a family enrollment only after showing its billing-account impact', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0, newEnrollments: [] }
     await openCustomerBilling(page, captured)

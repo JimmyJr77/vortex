@@ -1033,6 +1033,7 @@ export default function AdminCustomerBilling({
   const [success, setSuccess] = useState<string | null>(null)
   const [lastActionUrl, setLastActionUrl] = useState<string | null>(null)
   const [priceEnrollment, setPriceEnrollment] = useState<CustomerBillingEnrollment | null>(null)
+  const [swapEnrollment, setSwapEnrollment] = useState<CustomerBillingEnrollment | null>(null)
   const [chargeToModify, setChargeToModify] = useState<BillingTransaction | null>(null)
   const [customChargeOpen, setCustomChargeOpen] = useState(false)
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
@@ -1619,13 +1620,14 @@ export default function AdminCustomerBilling({
         </>
       ) : null}
 
-      {priceEnrollment ? <PriceAdjustmentModal enrollment={priceEnrollment} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} /> : null}
+      {priceEnrollment ? <PriceAdjustmentModal enrollment={priceEnrollment} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} onSwap={(enrollment) => { setPriceEnrollment(null); setSwapEnrollment(enrollment) }} /> : null}
       {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
       {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
       {externalPaymentOpen && overview ? <ExternalPaymentModal familyId={overview.account.familyId} collectibleBalanceCents={overview.summary.collectibleBalanceCents} onClose={() => setExternalPaymentOpen(false)} onSaved={handleSaved} /> : null}
       {passToAdjust ? <PassAdjustmentModal pass={passToAdjust} onClose={() => setPassToAdjust(null)} onSaved={handleSaved} /> : null}
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
+      {swapEnrollment && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={swapEnrollment.memberId} swapEnrollment={swapEnrollment} onClose={() => setSwapEnrollment(null)} onCreated={(message) => { setSwapEnrollment(null); void refresh(message) }} /> : null}
       {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}
 
       {saving ? <div className="fixed bottom-5 right-5 z-[210] inline-flex items-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-xl"><Loader2 className="h-4 w-4 animate-spin" /> Updating billing account…</div> : null}
