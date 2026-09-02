@@ -175,6 +175,15 @@ test('deploy checksum compatibility inventory is exact, filename-scoped, and can
         },
       ],
     },
+    '803_normalize_duplicate_legacy_usernames.sql': {
+      canonicalSha256: '85a9dc4f5b732c2a1ec0e0b84f46ac1829384013886b4a2127a43d6ef2eee857',
+      historicalVariants: [
+        {
+          legacyChecksum: '4138141813',
+          sha256: '5a7fe1b572d0e9e31d890289bc5c5310e6b067c512eb103ed592c06e7c021fc5',
+        },
+      ],
+    },
   })
 
   for (const [filename, compatibility] of Object.entries(DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY)) {

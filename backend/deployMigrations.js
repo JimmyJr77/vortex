@@ -76,6 +76,18 @@ export const DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY = Object.freeze({
       }),
     ]),
   }),
+  // Render recorded this exact short-lived 803 source while the preflight was
+  // being moved into 805. It is behaviorally safe because 805 has already run
+  // before the canonical access checks on that database.
+  '803_normalize_duplicate_legacy_usernames.sql': Object.freeze({
+    canonicalSha256: '85a9dc4f5b732c2a1ec0e0b84f46ac1829384013886b4a2127a43d6ef2eee857',
+    historicalVariants: Object.freeze([
+      Object.freeze({
+        legacyChecksum: '4138141813',
+        sha256: '5a7fe1b572d0e9e31d890289bc5c5310e6b067c512eb103ed592c06e7c021fc5',
+      }),
+    ]),
+  }),
 })
 
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url))
