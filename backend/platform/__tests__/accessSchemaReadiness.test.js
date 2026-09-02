@@ -74,10 +74,11 @@ function readinessDb({
 
 test('identity/access readiness is separate from billing readiness and fails closed', async () => {
   assert.deepEqual(DEPLOY_ACCESS_MIGRATIONS, [
-    '803_normalize_duplicate_legacy_usernames.sql',
+    '805_preflight_legacy_login_identifier_normalization.sql',
     '800_canonical_identity_access_context.sql',
     '801_canonical_member_relationships.sql',
     '802_retire_legacy_member_status_derivation.sql',
+    '803_normalize_duplicate_legacy_usernames.sql',
     '804_retire_legacy_member_column_contract.sql',
   ])
   assert.equal((await getRequiredAccessSchemaReadiness(readinessDb())).ready, true)
