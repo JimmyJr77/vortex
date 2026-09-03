@@ -44,6 +44,7 @@ const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsO
 const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
+const Storefront = lazyWithRetry(() => import('./components/store/Storefront'))
 
 function PageLoader() {
   return (
@@ -149,8 +150,15 @@ function App() {
     }
     setMemberToken(token)
     setMember(accountData)
-    setActivePortal(bestPortalForAccount(accountData))
-    setShowMemberDashboard(true)
+    // Keep a shopper in the public storefront after account login so their
+    // cart and chosen checkout method remain immediately available.
+    if (location.pathname === '/store') {
+      setActivePortal('website')
+      setShowMemberDashboard(false)
+    } else {
+      setActivePortal(bestPortalForAccount(accountData))
+      setShowMemberDashboard(true)
+    }
   }
 
   const handleLogout = () => {
@@ -307,6 +315,10 @@ function App() {
           <Route
             path="/enroll"
             element={<SchedulingPage />}
+          />
+          <Route
+            path="/store"
+            element={<Storefront memberToken={memberToken} mode="public" onSignIn={() => setIsLoginOpen(true)} />}
           />
           <Route path="/drop-in" element={<DropInPage />} />
           <Route

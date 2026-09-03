@@ -14,6 +14,7 @@ export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
   { kind: 'item', label: 'Fit & Flip', to: '/fit-and-flip', indented: true },
   { kind: 'item', label: 'Drop-In Classes', to: '/drop-in', indented: true },
   { kind: 'item', label: 'Contact & Location', to: '/contact' },
+  { kind: 'item', label: 'Store', to: '/store' },
   { kind: 'specialPages' },
   { kind: 'divider' },
   {

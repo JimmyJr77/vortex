@@ -40,6 +40,7 @@ import {
   syncStripeSubscriptionStatus,
 } from '../billing/stripeWebhookLifecycle.js'
 import { recordAuthoritativeStripeInvoicePayment } from '../billing/stripeInvoicePayments.js'
+import { completeStoreStripeCheckout, registerStoreRoutes } from '../store/registerRoutes.js'
 import {
   createCustomerBalanceCheckoutSession,
   validateAnnualMembershipRenewalDiscount,
@@ -1073,6 +1074,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
   registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission })
   registerAccountDirectoryRoutes(app, pool, { jwtSecret, requirePermission })
+  registerStoreRoutes(app, pool, {
+    memberAuth: memberBillingAuthMiddleware(pool, jwtSecret),
+    requirePermission: (permission) => requirePermission(pool, jwtSecret, permission),
+  })
 
   app.get('/api/admin/dashboard', ...adminPortalAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
@@ -3596,6 +3601,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         ) {
           await completeStripeWebhookEvent(pool, event, webhookClaim)
           return res.json({ received: true, paymentPending: true })
+        }
+        const isStoreCheckout =
+          isCheckoutFulfillmentEvent
+          && obj.metadata?.checkoutType === 'store'
+          && obj.metadata?.storeOrderId
+        if (isStoreCheckout) {
+          const outcome = await completeStoreStripeCheckout(pool, obj)
+          await completeStripeWebhookEvent(pool, event, webhookClaim)
+          return res.json({ received: true, storeOrder: outcome.handled === true })
         }
         const isEnrollmentCheckout =
           isCheckoutFulfillmentEvent &&

@@ -9,6 +9,7 @@ import {
   CreditCard,
   FileText,
   Bell,
+  ShoppingBag,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { MemberTab } from '../MemberDashboard'
@@ -27,6 +28,7 @@ const CARD_ICONS: Record<Exclude<MemberTab, 'home'>, ComponentType<{ className?:
   messages: MessageSquare,
   faqs: CircleHelp,
   events: Calendar,
+  store: ShoppingBag,
   billing: CreditCard,
   waivers: FileText,
   preferences: Bell,

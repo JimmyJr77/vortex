@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp } from 'lucide-react'
+import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp, ShoppingBag } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import DateOfBirthInput from './DateOfBirthInput'
 import { formatDateForDisplay, getTodayDateString, parseDateOnly } from '../utils/dateUtils'
@@ -17,6 +17,7 @@ import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from './member/Membe
 import { enrollmentClassHeading } from '../utils/enrollmentDisplayLine'
 import MemberHomePanel from './member/MemberHomePanel'
 import MemberCustomerBilling, { type MemberCustomerBillingData } from './member/MemberCustomerBilling'
+import Storefront from './store/Storefront'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../utils/notificationNavigation'
@@ -37,7 +38,7 @@ interface MemberDashboardProps {
   onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
 }
 
-export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'faqs' | 'preferences'
+export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'store' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'faqs' | 'preferences'
 
 const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'home', label: 'Home', icon: Home },
@@ -48,6 +49,7 @@ const NAV: Array<{ tab: MemberTab; label: string; icon: typeof Home }> = [
   { tab: 'messages', label: 'Messages', icon: MessageSquare },
   { tab: 'faqs', label: 'FAQs', icon: CircleHelp },
   { tab: 'events', label: 'Events', icon: Calendar },
+  { tab: 'store', label: 'Store', icon: ShoppingBag },
   { tab: 'billing', label: 'Billing', icon: CreditCard },
   { tab: 'waivers', label: 'Waivers', icon: FileText },
   { tab: 'preferences', label: 'Preferences', icon: Bell },
@@ -2874,6 +2876,22 @@ export default function MemberDashboard({
                   transactionsLoading={customerTransactionsLoading}
                   transactionsLoadingMore={customerTransactionsLoadingMore}
                   formatMoney={formatMoney}
+                />
+              </motion.div>
+            )}
+
+            {activeTab === 'store' && (
+              <motion.div
+                key="store"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Storefront
+                  mode="member"
+                  memberToken={token}
+                  memberName={profileData?.firstName}
                 />
               </motion.div>
             )}
