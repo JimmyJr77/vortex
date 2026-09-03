@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Archive, Check, ClipboardList, LoaderCircle, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
+import { Archive, Check, ClipboardList, Download, History, LoaderCircle, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
 import {
   adminAdjustStoreInventory,
   adminCollectStoreOrderPayment,
@@ -7,6 +7,8 @@ import {
   adminCreateStoreOrder,
   adminCreateStoreProduct,
   adminDeleteStoreDiscount,
+  adminDownloadStoreActionAudit,
+  adminFetchStoreActionAudit,
   adminFetchStoreDashboard,
   adminFetchStoreDiscountCodes,
   adminFetchStoreProducts,
@@ -15,6 +17,7 @@ import {
   adminUpdateStoreOrder,
   adminUpdateStoreProduct,
   type StoreCartLine,
+  type StoreActionAudit,
   type StoreDiscountCode,
   type StoreMemberOption,
   type StoreOrder,
@@ -25,17 +28,44 @@ import {
 
 const formatMoney = (cents: number) => `$${(cents / 100).toFixed(2)}`
 
-const emptyProduct: { sku: string; name: string; description: string; category: StoreCategory; price: string; inventory: string; isPublic: boolean } = {
+const STORE_CATEGORY_OPTIONS: Array<{ value: StoreCategory; label: string }> = [
+  { value: 'clothing', label: 'Clothing' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'food', label: 'Food' },
+  { value: 'drink', label: 'Drink' },
+  { value: 'other', label: 'Other' },
+]
+
+const storeTagLabels = (tags: StoreCategory[]) => (
+  tags.map((tag) => STORE_CATEGORY_OPTIONS.find((option) => option.value === tag)?.label ?? tag).join(', ')
+)
+
+const storeCategoryLabel = (category: StoreCategory) => storeTagLabels([category])
+
+const emptyProduct: { sku: string; name: string; description: string; tags: StoreCategory[]; price: string; inventory: string; isPublic: boolean } = {
   sku: '',
   name: '',
   description: '',
-  category: 'apparel',
+  tags: ['clothing'],
   price: '',
   inventory: '',
   isPublic: true,
 }
 type DiscountForm = { code: string; type: 'percent' | 'amount'; value: string; minimum: string; max: string }
 const emptyDiscount: DiscountForm = { code: '', type: 'percent', value: '', minimum: '', max: '' }
+type AuditSortKey = 'date' | 'person' | 'action'
+
+const auditActionLabel = (action: string) => action.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+
+function auditSummary(event: StoreActionAudit) {
+  const details = event.details
+  const changes = details.changes
+  if (changes && typeof changes === 'object' && !Array.isArray(changes)) return `Changed: ${Object.keys(changes).join(', ')}`
+  const item = typeof details.productName === 'string' ? details.productName : typeof details.name === 'string' ? details.name : ''
+  const order = typeof details.orderNumber === 'string' ? details.orderNumber : ''
+  const code = typeof details.code === 'string' ? details.code : typeof details.discountCode === 'string' ? details.discountCode : ''
+  return [item, order, code].filter(Boolean).join(' · ') || 'Details saved in the audit record.'
+}
 
 export default function AdminStore() {
   const [products, setProducts] = useState<StoreProduct[]>([])
@@ -53,6 +83,7 @@ export default function AdminStore() {
   const [discountForm, setDiscountForm] = useState<DiscountForm>(emptyDiscount)
   const [saleCart, setSaleCart] = useState<Record<number, number>>({})
   const [productSearch, setProductSearch] = useState('')
+  const [saleCategory, setSaleCategory] = useState<StoreCategory | 'all'>('all')
   const [salePayment, setSalePayment] = useState<StorePaymentMethod>('card')
   const [saleCode, setSaleCode] = useState('')
   const [memberSearch, setMemberSearch] = useState('')
@@ -61,6 +92,13 @@ export default function AdminStore() {
   const [saleEmail, setSaleEmail] = useState('')
   const [saleName, setSaleName] = useState('')
   const [saleReference, setSaleReference] = useState('')
+  const [pendingCardEntryUrl, setPendingCardEntryUrl] = useState<string | null>(null)
+  const [auditActions, setAuditActions] = useState<StoreActionAudit[]>([])
+  const [showAuditActions, setShowAuditActions] = useState(false)
+  const [auditLoading, setAuditLoading] = useState(false)
+  const [auditExporting, setAuditExporting] = useState(false)
+  const [auditSort, setAuditSort] = useState<AuditSortKey>('date')
+  const [auditSortDirection, setAuditSortDirection] = useState<'asc' | 'desc'>('desc')
 
   const reload = useCallback(async () => {
     setLoading(true)
@@ -83,7 +121,22 @@ export default function AdminStore() {
     }
   }, [])
 
+  const loadAuditActions = useCallback(async () => {
+    setAuditLoading(true)
+    try {
+      setAuditActions(await adminFetchStoreActionAudit())
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not load the store action audit.')
+    } finally {
+      setAuditLoading(false)
+    }
+  }, [])
+
   useEffect(() => { void reload() }, [reload])
+
+  useEffect(() => {
+    if (showAuditActions) void loadAuditActions()
+  }, [showAuditActions, loadAuditActions])
 
   useEffect(() => {
     if (!memberSearch.trim() || selectedMember?.name === memberSearch) {
@@ -99,19 +152,27 @@ export default function AdminStore() {
   const activeProducts = useMemo(() => products.filter((product) => product.isActive), [products])
   const saleProducts = useMemo(() => {
     const query = productSearch.trim().toLocaleLowerCase()
-    if (!query) return activeProducts
-    return activeProducts.filter((product) => [
-      product.name,
-      product.sku,
-      product.description ?? '',
-      product.category.replace('_', ' '),
-    ].some((value) => value.toLocaleLowerCase().includes(query)))
-  }, [activeProducts, productSearch])
+    return activeProducts.filter((product) => {
+      const matchesSearch = !query || [
+        product.name,
+        product.sku,
+        product.description ?? '',
+      storeTagLabels(product.tags),
+      ].some((value) => value.toLocaleLowerCase().includes(query))
+      return matchesSearch && (saleCategory === 'all' || product.tags.includes(saleCategory))
+    })
+  }, [activeProducts, productSearch, saleCategory])
   const saleLines = useMemo(() => activeProducts.flatMap((product) => {
     const quantity = saleCart[product.id] ?? 0
     return quantity > 0 ? [{ product, quantity }] : []
   }), [activeProducts, saleCart])
   const saleSubtotal = saleLines.reduce((sum, line) => sum + line.product.priceCents * line.quantity, 0)
+  const sortedAuditActions = useMemo(() => [...auditActions].sort((left, right) => {
+    const direction = auditSortDirection === 'asc' ? 1 : -1
+    if (auditSort === 'date') return direction * (new Date(left.occurredAt).getTime() - new Date(right.occurredAt).getTime())
+    if (auditSort === 'person') return direction * left.actorName.localeCompare(right.actorName)
+    return direction * auditActionLabel(left.action).localeCompare(auditActionLabel(right.action))
+  }), [auditActions, auditSort, auditSortDirection])
 
   const runSave = async (task: () => Promise<void>, success: string) => {
     setSaving(true)
@@ -121,10 +182,31 @@ export default function AdminStore() {
       await task()
       setNotice(success)
       await reload()
+      if (showAuditActions) await loadAuditActions()
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Store update failed.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const sortAuditBy = (sort: AuditSortKey) => {
+    if (auditSort === sort) setAuditSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc')
+    else {
+      setAuditSort(sort)
+      setAuditSortDirection(sort === 'date' ? 'desc' : 'asc')
+    }
+  }
+
+  const downloadActionAudit = async () => {
+    setAuditExporting(true)
+    setError(null)
+    try {
+      await adminDownloadStoreActionAudit()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not download the store action audit.')
+    } finally {
+      setAuditExporting(false)
     }
   }
 
@@ -133,7 +215,7 @@ export default function AdminStore() {
       sku: productForm.sku,
       name: productForm.name,
       description: productForm.description,
-      category: productForm.category,
+      tags: productForm.tags,
       priceCents: Math.round(Number(productForm.price) * 100),
       inventoryQuantity: productForm.inventory === '' ? null : Number(productForm.inventory),
       isPublic: productForm.isPublic,
@@ -145,6 +227,17 @@ export default function AdminStore() {
     setEditingProductId(null)
   }, editingProductId == null ? 'Store item added.' : 'Store item updated.')
 
+  const toggleProductTag = (tag: StoreCategory) => {
+    setProductForm((form) => {
+      const hasTag = form.tags.includes(tag)
+      if (hasTag && form.tags.length === 1) return form
+      return {
+        ...form,
+        tags: hasTag ? form.tags.filter((currentTag) => currentTag !== tag) : [...form.tags, tag],
+      }
+    })
+  }
+
   const startEditingProduct = (product: StoreProduct) => {
     setEditingProductId(product.id)
     setCopySourceProductId('')
@@ -152,7 +245,7 @@ export default function AdminStore() {
       sku: product.sku,
       name: product.name,
       description: product.description ?? '',
-      category: product.category,
+      tags: product.tags,
       price: (product.priceCents / 100).toFixed(2),
       inventory: product.inventoryQuantity == null ? '' : String(product.inventoryQuantity),
       isPublic: product.isPublic,
@@ -177,7 +270,7 @@ export default function AdminStore() {
       sku: '',
       name: product.name,
       description: product.description ?? '',
-      category: product.category,
+      tags: product.tags,
       price: (product.priceCents / 100).toFixed(2),
       inventory: product.inventoryQuantity == null ? '' : String(product.inventoryQuantity),
       isPublic: product.isPublic,
@@ -216,7 +309,7 @@ export default function AdminStore() {
 
   const recordSale = () => void runSave(async () => {
     const items: StoreCartLine[] = saleLines.map(({ product, quantity }) => ({ productId: product.id, quantity }))
-    await adminCreateStoreOrder({
+    const order = await adminCreateStoreOrder({
       memberId: selectedMember?.id ?? null,
       purchaserName: saleName || null,
       purchaserEmail: saleEmail || null,
@@ -225,10 +318,11 @@ export default function AdminStore() {
       discountCode: saleCode || undefined,
       externalReference: saleReference || undefined,
     })
+    setPendingCardEntryUrl(order.stripeCheckoutUrl)
     setSaleCart({})
     setSaleCode('')
     setSaleReference('')
-  }, 'Sale recorded and receipt sent when an email is available.')
+  }, salePayment === 'card' ? 'Secure card entry is ready. The sale will be marked paid after Stripe confirms it.' : 'Sale recorded and receipt sent when an email is available.')
 
   const updateProduct = (product: StoreProduct, change: Partial<StoreProduct>, success = 'Store item updated.') => void runSave(async () => {
     await adminUpdateStoreProduct(product.id, change)
@@ -262,35 +356,82 @@ export default function AdminStore() {
 
       <div className="space-y-6">
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-100 p-5"><div className="flex items-center gap-2"><ReceiptText className="h-5 w-5 text-vortex-red" /><h3 className="font-display text-xl font-bold text-gray-950">New front-desk sale</h3></div><p className="mt-1 text-sm text-gray-600">Record cash, check, mobile payment, card terminal, or add the purchase to a member’s account.</p></div>
+          <div className="border-b border-gray-100 p-5"><div className="flex items-center gap-2"><ReceiptText className="h-5 w-5 text-vortex-red" /><h3 className="font-display text-xl font-bold text-gray-950">New front-desk sale</h3></div><p className="mt-1 text-sm text-gray-600">Record cash, check, or mobile payment, prepare secure card entry, or add the purchase to a member’s account.</p></div>
           <div className="grid gap-5 p-5 lg:grid-cols-2">
             <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wide text-gray-500">Member (optional except monthly account)<div className="relative mt-1"><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-gray-400" /><input value={memberSearch} onChange={(event) => { setMemberSearch(event.target.value); setSelectedMember(null) }} placeholder="Search member" className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-black" />{memberOptions.length > 0 && <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">{memberOptions.map((member) => <button type="button" key={member.id} onClick={() => chooseMember(member)} className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"><strong>{member.name}</strong>{member.email && <span className="ml-2 text-xs text-gray-500">{member.email}</span>}</button>)}</div>}</div></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Receipt name<input value={saleName} onChange={(event) => setSaleName(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Receipt email<input type="email" value={saleEmail} onChange={(event) => setSaleEmail(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label></div></div>
-            <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wide text-gray-500">Payment method<select value={salePayment} onChange={(event) => setSalePayment(event.target.value as StorePaymentMethod)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black"><option value="card">Card terminal</option><option value="billing_account">Bill monthly account</option><option value="cash">Cash</option><option value="check">Check</option><option value="mobile">Mobile payment</option></select></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Store code<input value={saleCode} onChange={(event) => setSaleCode(event.target.value.toUpperCase())} placeholder="Optional" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold outline-none focus:border-black" /></label><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Reference<input value={saleReference} onChange={(event) => setSaleReference(event.target.value)} placeholder="Check #, mobile ID…" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label></div></div>
+            <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wide text-gray-500">Payment method<select value={salePayment} onChange={(event) => { const paymentMethod = event.target.value as StorePaymentMethod; setSalePayment(paymentMethod); if (paymentMethod !== 'card') setPendingCardEntryUrl(null) }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black"><option value="card">Input credit/debit details</option><option value="card_terminal" disabled>Card terminal (not available)</option><option value="billing_account">Bill monthly account</option><option value="cash">Cash</option><option value="check">Check</option><option value="mobile">Mobile payment</option></select></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Store code<input value={saleCode} onChange={(event) => setSaleCode(event.target.value.toUpperCase())} placeholder="Optional" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold outline-none focus:border-black" /></label><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Reference<input value={saleReference} onChange={(event) => setSaleReference(event.target.value)} placeholder="Check #, mobile ID…" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label></div></div>
           </div>
-          <div className="border-t border-gray-100 p-5"><div className="mb-3 flex flex-wrap items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-wide text-gray-500">Add items</p><label className="relative block w-full sm:w-64"><span className="sr-only">Search store products</span><Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" /><input value={productSearch} onChange={(event) => setProductSearch(event.target.value)} placeholder="Search products or SKU" className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm outline-none focus:border-black" />{productSearch && <button type="button" onClick={() => setProductSearch('')} aria-label="Clear product search" className="absolute right-2 top-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"><X className="h-4 w-4" /></button>}</label></div><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{saleProducts.map((product) => { const quantity = saleCart[product.id] ?? 0; const out = product.inventoryQuantity === 0; return <div key={product.id} className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2.5"><div className="min-w-0"><strong className="block truncate text-sm text-gray-900">{product.name}</strong><span className="text-xs text-gray-500">{formatMoney(product.priceCents)}{product.inventoryQuantity != null ? ` · ${product.inventoryQuantity} in stock` : ''}</span></div>{quantity === 0 ? <button type="button" disabled={out} onClick={() => setSaleQuantity(product, 1)} className="rounded-md bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red disabled:opacity-40">Add</button> : <div className="flex items-center gap-2"><button type="button" onClick={() => setSaleQuantity(product, quantity - 1)} className="rounded border border-gray-300 p-1"><X className="h-3.5 w-3.5" /></button><strong className="text-sm">{quantity}</strong><button type="button" disabled={product.inventoryQuantity != null && quantity >= product.inventoryQuantity} onClick={() => setSaleQuantity(product, quantity + 1)} className="rounded border border-gray-300 p-1 disabled:opacity-40"><Plus className="h-3.5 w-3.5" /></button></div>}</div> })}</div>{saleProducts.length === 0 && <p className="rounded-lg border border-dashed border-gray-300 px-3 py-5 text-center text-sm text-gray-500">No active products match “{productSearch}”.</p>}<div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gray-950 px-4 py-3 text-white"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}Record sale</button></div></div>
+          <div className="border-t border-gray-100 p-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Add items</p>
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <div role="group" aria-label="Product type filters" className="flex flex-wrap gap-1.5">
+                  <button type="button" onClick={() => setSaleCategory('all')} aria-pressed={saleCategory === 'all'} className={`rounded-md px-2.5 py-1.5 text-xs font-bold ${saleCategory === 'all' ? 'bg-black text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>All</button>
+                  {STORE_CATEGORY_OPTIONS.map((option) => <button type="button" key={option.value} onClick={() => setSaleCategory(option.value)} aria-pressed={saleCategory === option.value} className={`rounded-md px-2.5 py-1.5 text-xs font-bold ${saleCategory === option.value ? 'bg-black text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>{option.label}</button>)}
+                </div>
+                <label className="relative block w-full sm:w-64"><span className="sr-only">Search store products</span><Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" /><input value={productSearch} onChange={(event) => setProductSearch(event.target.value)} placeholder="Search products or SKU" className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm outline-none focus:border-black" />{productSearch && <button type="button" onClick={() => setProductSearch('')} aria-label="Clear product search" className="absolute right-2 top-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"><X className="h-4 w-4" /></button>}</label>
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {saleProducts.map((product) => {
+                const quantity = saleCart[product.id] ?? 0
+                const out = product.inventoryQuantity === 0
+                return <div key={product.id} className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2.5"><div className="min-w-0"><strong className="block truncate text-sm text-gray-900">{product.name}</strong><span className="text-xs text-gray-500">{formatMoney(product.priceCents)}{product.inventoryQuantity != null ? ` · ${product.inventoryQuantity} in stock` : ''}</span></div>{quantity === 0 ? <button type="button" disabled={out} onClick={() => setSaleQuantity(product, 1)} className="rounded-md bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red disabled:opacity-40">Add</button> : <div className="flex items-center gap-2"><button type="button" onClick={() => setSaleQuantity(product, quantity - 1)} className="rounded border border-gray-300 p-1"><X className="h-3.5 w-3.5" /></button><strong className="text-sm">{quantity}</strong><button type="button" disabled={product.inventoryQuantity != null && quantity >= product.inventoryQuantity} onClick={() => setSaleQuantity(product, quantity + 1)} className="rounded border border-gray-300 p-1 disabled:opacity-40"><Plus className="h-3.5 w-3.5" /></button></div>}</div>
+              })}
+            </div>
+            {saleProducts.length === 0 && <p className="rounded-lg border border-dashed border-gray-300 px-3 py-5 text-center text-sm text-gray-500">No active {saleCategory === 'all' ? '' : `${storeTagLabels([saleCategory]).toLocaleLowerCase()} `}products match “{productSearch}”.</p>}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gray-950 px-4 py-3 text-white"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}{salePayment === 'card' ? 'Prepare secure card entry' : 'Record sale'}</button></div>
+            {pendingCardEntryUrl && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950"><div><strong className="block">Secure card entry is ready.</strong><span className="text-xs text-sky-800">Enter the customer’s card directly in Stripe. This sale stays pending until Stripe confirms payment.</span></div><a href={pendingCardEntryUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-bold text-white hover:bg-sky-800">Input credit/debit details</a></div>}
+          </div>
         </section>
 
         <section id="store-item-form" className="min-w-0 scroll-mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2"><PackagePlus className="h-5 w-5 text-vortex-red" /><h3 className="font-display text-xl font-bold text-gray-950">Add store item</h3></div>{editingProductId != null && <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-amber-800">Editing item</span>}</div>
           <div className="mt-4 grid gap-3">
-            <label className="grid gap-1 text-xs font-bold uppercase tracking-wide text-gray-500">
-              Copy an existing item
-              <select value={copySourceProductId} disabled={editingProductId != null} onChange={(event) => copyProductToForm(event.target.value)} className="w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black disabled:cursor-not-allowed disabled:bg-gray-100">
-                <option value="">Start a new item</option>
-                {products.map((product) => <option key={product.id} value={product.id}>{product.name} · {product.sku}{product.isActive ? '' : ' (archived)'}</option>)}
-              </select>
-              <span className="font-normal normal-case text-gray-500">{editingProductId != null ? 'Save your changes or cancel to add a new item.' : 'Copies item details and price; enter a new SKU before saving.'}</span>
-            </label>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><input value={productForm.name} onChange={(event) => setProductForm((form) => ({ ...form, name: event.target.value }))} placeholder="Item name" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input value={productForm.sku} onChange={(event) => setProductForm((form) => ({ ...form, sku: event.target.value.toUpperCase() }))} placeholder="SKU" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold uppercase outline-none focus:border-black" /></div>
-            <input value={productForm.description} onChange={(event) => setProductForm((form) => ({ ...form, description: event.target.value }))} placeholder="Brief description" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><select value={productForm.category} onChange={(event) => setProductForm((form) => ({ ...form, category: event.target.value as typeof form.category }))} className="w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"><option value="apparel">Apparel</option><option value="food_drink">Food & drink</option><option value="other">Other</option></select><input type="number" min="0" step="0.01" value={productForm.price} onChange={(event) => setProductForm((form) => ({ ...form, price: event.target.value }))} placeholder="Price" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input type="number" min="0" step="1" value={productForm.inventory} onChange={(event) => setProductForm((form) => ({ ...form, inventory: event.target.value }))} placeholder="Stock" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(180px,1fr)]">
+              <div className="grid gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-xs font-bold uppercase tracking-wide text-gray-500">
+                    Copy item
+                    <select value={copySourceProductId} disabled={editingProductId != null} onChange={(event) => copyProductToForm(event.target.value)} title={editingProductId != null ? 'Save your changes or cancel to add a new item.' : 'Copies item details and price; enter a new SKU before saving.'} className="w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black disabled:cursor-not-allowed disabled:bg-gray-100">
+                      <option value="">Start a new item</option>
+                      {products.map((product) => <option key={product.id} value={product.id}>{product.name} · {product.sku}{product.isActive ? '' : ' (archived)'}</option>)}
+                    </select>
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><input value={productForm.name} onChange={(event) => setProductForm((form) => ({ ...form, name: event.target.value }))} placeholder="Item name" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input value={productForm.sku} onChange={(event) => setProductForm((form) => ({ ...form, sku: event.target.value.toUpperCase() }))} placeholder="SKU" aria-label="SKU" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold uppercase outline-none focus:border-black" /></div>
+                <input value={productForm.description} onChange={(event) => setProductForm((form) => ({ ...form, description: event.target.value }))} placeholder="Brief description" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><input type="number" min="0" step="0.01" value={productForm.price} onChange={(event) => setProductForm((form) => ({ ...form, price: event.target.value }))} placeholder="Price" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input type="number" min="0" step="1" value={productForm.inventory} onChange={(event) => setProductForm((form) => ({ ...form, inventory: event.target.value }))} placeholder="Stock" className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div>
+              </div>
+              <fieldset className="flex min-h-[218px] self-stretch flex-col gap-1 text-xs font-bold uppercase tracking-wide text-gray-500">
+                <legend>Item tags</legend>
+                <div role="group" aria-label="Item tags" className="grid flex-1 content-start gap-1.5 rounded-lg border border-gray-300 bg-white p-2 normal-case tracking-normal">
+                  {STORE_CATEGORY_OPTIONS.map((option) => {
+                    const isSelected = productForm.tags.includes(option.value)
+                    const isOnlyTag = isSelected && productForm.tags.length === 1
+                    return <button
+                      type="button"
+                      key={option.value}
+                      aria-pressed={isSelected}
+                      disabled={isOnlyTag}
+                      aria-label={`${isSelected ? 'Remove' : 'Add'} ${option.label} tag`}
+                      title={isOnlyTag ? 'Each item needs at least one tag' : `${isSelected ? 'Remove' : 'Add'} ${option.label} tag`}
+                      onClick={() => toggleProductTag(option.value)}
+                      className={`rounded-md px-2.5 py-1.5 text-left text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isSelected ? 'bg-gray-950 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                      {option.label}
+                    </button>
+                  })}
+                </div>
+              </fieldset>
+            </div>
             <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" checked={productForm.isPublic} onChange={(event) => setProductForm((form) => ({ ...form, isPublic: event.target.checked }))} />Show in public/member store</label>
             <div className="flex flex-wrap gap-3"><button type="button" disabled={saving} onClick={submitProduct} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-bold text-white hover:bg-vortex-red disabled:opacity-50">{editingProductId != null ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}{editingProductId != null ? 'Save changes' : 'Add item'}</button>{editingProductId != null && <button type="button" disabled={saving} onClick={cancelProductEdit} className="min-h-11 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50">Cancel</button>}</div>
           </div>
         </section>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5"><div><h3 className="font-display text-xl font-bold text-gray-950">Catalog & inventory</h3><p className="mt-1 text-sm text-gray-600">Archive instead of deleting anything with order history.</p></div>{lowStock.length > 0 && <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800">{lowStock.length} low-stock item{lowStock.length === 1 ? '' : 's'}</span>}</div><div className="overflow-x-auto"><table className="min-w-[780px] w-full text-sm"><thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500"><tr><th className="px-5 py-3">Item</th><th className="px-5 py-3">Price</th><th className="px-5 py-3">Inventory</th><th className="px-5 py-3">Visibility</th><th className="px-5 py-3 text-right">Actions</th></tr></thead><tbody className="divide-y divide-gray-100">{products.map((product) => <tr key={product.id} className={!product.isActive ? 'bg-gray-50 text-gray-400' : ''}><td className="px-5 py-3"><strong className="text-gray-900">{product.name}</strong><span className="ml-2 text-xs text-gray-500">{product.sku} · {product.category.replace('_', ' ')}</span></td><td className="px-5 py-3"><input type="number" min="0" step="0.01" defaultValue={(product.priceCents / 100).toFixed(2)} onBlur={(event) => { const cents = Math.round(Number(event.target.value) * 100); if (Number.isSafeInteger(cents) && cents !== product.priceCents) updateProduct(product, { priceCents: cents }, 'Price updated.') }} className="w-20 rounded border border-gray-300 px-2 py-1.5 font-semibold text-gray-900" /></td><td className="px-5 py-3"><span className={product.inventoryQuantity != null && product.inventoryQuantity <= 5 ? 'font-bold text-amber-700' : 'text-gray-700'}>{product.inventoryQuantity == null ? 'Not tracked' : product.inventoryQuantity}</span>{product.inventoryQuantity != null && <button type="button" onClick={() => adjustInventory(product)} className="ml-2 text-xs font-bold text-vortex-red hover:underline">Adjust</button>}</td><td className="px-5 py-3"><label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700"><input type="checkbox" checked={product.isPublic} disabled={!product.isActive || saving} onChange={(event) => updateProduct(product, { isPublic: event.target.checked }, event.target.checked ? 'Item is now public.' : 'Item is now front-desk only.')} />Public</label></td><td className="px-5 py-3 text-right"><div className="inline-flex items-center gap-1"><button type="button" disabled={saving} onClick={() => startEditingProduct(product)} className="inline-flex items-center gap-1 rounded px-2 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:text-gray-950 disabled:opacity-40"><Pencil className="h-3.5 w-3.5" />Edit</button><button type="button" aria-label={`Archive ${product.name}`} title="Archive item" disabled={saving || !product.isActive} onClick={() => updateProduct(product, { isActive: false }, 'Item archived.') } className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"><Archive className="h-3.5 w-3.5" /></button></div></td></tr>)}</tbody></table></div></section>
+      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5"><div><h3 className="font-display text-xl font-bold text-gray-950">Catalog & inventory</h3><p className="mt-1 text-sm text-gray-600">Archive instead of deleting anything with order history.</p></div>{lowStock.length > 0 && <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800">{lowStock.length} low-stock item{lowStock.length === 1 ? '' : 's'}</span>}</div><div className="overflow-x-auto"><table className="min-w-[780px] w-full text-sm"><thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500"><tr><th className="px-5 py-3">Item</th><th className="px-5 py-3">Price</th><th className="px-5 py-3">Inventory</th><th className="px-5 py-3">Visibility</th><th className="px-5 py-3 text-right">Actions</th></tr></thead><tbody className="divide-y divide-gray-100">{products.map((product) => <tr key={product.id} className={!product.isActive ? 'bg-gray-50 text-gray-400' : ''}><td className="px-5 py-3"><strong className="text-gray-900">{product.name}</strong><span className="ml-2 text-xs text-gray-500">{product.sku} · {storeCategoryLabel(product.category)}</span></td><td className="px-5 py-3"><input type="number" min="0" step="0.01" defaultValue={(product.priceCents / 100).toFixed(2)} onBlur={(event) => { const cents = Math.round(Number(event.target.value) * 100); if (Number.isSafeInteger(cents) && cents !== product.priceCents) updateProduct(product, { priceCents: cents }, 'Price updated.') }} className="w-20 rounded border border-gray-300 px-2 py-1.5 font-semibold text-gray-900" /></td><td className="px-5 py-3"><span className={product.inventoryQuantity != null && product.inventoryQuantity <= 5 ? 'font-bold text-amber-700' : 'text-gray-700'}>{product.inventoryQuantity == null ? 'Not tracked' : product.inventoryQuantity}</span>{product.inventoryQuantity != null && <button type="button" onClick={() => adjustInventory(product)} className="ml-2 text-xs font-bold text-vortex-red hover:underline">Adjust</button>}</td><td className="px-5 py-3"><label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700"><input type="checkbox" checked={product.isPublic} disabled={!product.isActive || saving} onChange={(event) => updateProduct(product, { isPublic: event.target.checked }, event.target.checked ? 'Item is now public.' : 'Item is now front-desk only.')} />Public</label></td><td className="px-5 py-3 text-right"><div className="inline-flex items-center gap-1"><button type="button" aria-label={`Edit ${product.name}`} title="Edit item" disabled={saving} onClick={() => startEditingProduct(product)} className="inline-flex rounded p-1.5 text-gray-700 hover:bg-gray-100 hover:text-gray-950 disabled:opacity-40"><Pencil className="h-3.5 w-3.5" /></button><button type="button" aria-label={`Archive ${product.name}`} title="Archive item" disabled={saving || !product.isActive} onClick={() => updateProduct(product, { isActive: false }, 'Item archived.') } className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"><Archive className="h-3.5 w-3.5" /></button></div></td></tr>)}</tbody></table></div></section>
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><Tag className="h-5 w-5 text-vortex-red" /><div><h3 className="font-display text-xl font-bold text-gray-950">Store discount codes</h3><p className="text-sm text-gray-600">These apply only to the store.</p></div></div><div className="mt-4 grid gap-3"><div className="grid grid-cols-3 gap-3"><input value={discountForm.code} onChange={(event) => setDiscountForm((form) => ({ ...form, code: event.target.value.toUpperCase() }))} placeholder="CODE" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-bold uppercase outline-none focus:border-black" /><select value={discountForm.type} onChange={(event) => setDiscountForm((form) => ({ ...form, type: event.target.value as typeof form.type }))} className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"><option value="percent">Percent</option><option value="amount">Dollar amount</option></select><input type="number" min="1" step={discountForm.type === 'amount' ? '0.01' : '1'} value={discountForm.value} onChange={(event) => setDiscountForm((form) => ({ ...form, value: event.target.value }))} placeholder={discountForm.type === 'amount' ? '$ off' : '% off'} className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div><div className="grid grid-cols-2 gap-3"><input type="number" min="0" step="0.01" value={discountForm.minimum} onChange={(event) => setDiscountForm((form) => ({ ...form, minimum: event.target.value }))} placeholder="Minimum order $ (optional)" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input type="number" min="1" step="1" value={discountForm.max} onChange={(event) => setDiscountForm((form) => ({ ...form, max: event.target.value }))} placeholder="Max uses (optional)" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div><button type="button" disabled={saving} onClick={createDiscount} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-50"><Plus className="h-4 w-4" />Add store code</button></div><div className="mt-5 divide-y divide-gray-100 border-t border-gray-100">{discounts.length === 0 ? <p className="py-4 text-sm text-gray-500">No store discount codes yet.</p> : discounts.map((discount) => <div key={discount.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"><div><strong className="text-gray-950">{discount.code}</strong><span className="ml-2 text-gray-500">{discount.discountType === 'percent' ? `${discount.value}% off` : `${formatMoney(discount.value)} off`} · {discount.redemptionCount}{discount.maxRedemptions == null ? '' : `/${discount.maxRedemptions}`} uses</span></div><div className="flex gap-2"><button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreDiscount(discount.id, { isActive: !discount.isActive }) }, discount.isActive ? 'Store code disabled.' : 'Store code enabled.')} className={`rounded px-2.5 py-1.5 text-xs font-bold ${discount.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{discount.isActive ? 'Active' : 'Disabled'}</button><button type="button" onClick={() => void runSave(async () => { await adminDeleteStoreDiscount(discount.id) }, 'Store discount code deleted.')} className="rounded px-2 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Delete</button></div></div>)}</div></section>
@@ -327,6 +468,55 @@ export default function AdminStore() {
             ))}
           </div>
         </section>
+      </div>
+      <div className="border-t border-gray-200 pt-2">
+        <button type="button" onClick={() => setShowAuditActions((shown) => !shown)} aria-expanded={showAuditActions} className="inline-flex items-center gap-2 px-1 py-2 text-sm font-semibold text-vortex-red hover:underline">
+          <History className="h-4 w-4" />
+          Audit actions
+        </button>
+        {showAuditActions && (
+          <section className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
+              <div>
+                <h3 className="font-display text-xl font-bold text-gray-950">Action audit</h3>
+                <p className="mt-1 text-sm text-gray-600">An immutable record of catalog, discount, inventory, and sale activity.</p>
+              </div>
+              <button type="button" onClick={() => void downloadActionAudit()} disabled={auditExporting} className="inline-flex items-center gap-1.5 px-1 py-2 text-sm font-semibold text-vortex-red hover:underline disabled:cursor-not-allowed disabled:opacity-50">
+                {auditExporting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download action audit
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 px-5 py-3 text-xs font-semibold text-gray-600">
+              <span className="mr-1 uppercase tracking-wide text-gray-500">Sort by</span>
+              {([['date', 'Date'], ['person', 'Person'], ['action', 'Action']] as Array<[AuditSortKey, string]>).map(([sort, label]) => (
+                <button type="button" key={sort} onClick={() => sortAuditBy(sort)} aria-pressed={auditSort === sort} className={`rounded-md px-2.5 py-1.5 ${auditSort === sort ? 'bg-gray-950 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                  {label}{auditSort === sort ? (auditSortDirection === 'asc' ? ' ↑' : ' ↓') : ''}
+                </button>
+              ))}
+            </div>
+            <div className="max-h-[32rem] overflow-auto">
+              {auditLoading ? (
+                <p className="flex items-center gap-2 p-5 text-sm text-gray-600"><LoaderCircle className="h-4 w-4 animate-spin" />Loading action audit…</p>
+              ) : sortedAuditActions.length === 0 ? (
+                <p className="p-5 text-sm text-gray-600">No Store Desk actions have been recorded yet.</p>
+              ) : (
+                <table className="min-w-[760px] w-full text-sm">
+                  <thead className="sticky top-0 bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
+                    <tr><th className="px-5 py-3">When</th><th className="px-5 py-3">Person</th><th className="px-5 py-3">Action</th><th className="px-5 py-3">Details</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {sortedAuditActions.map((event) => <tr key={event.id}>
+                      <td className="whitespace-nowrap px-5 py-3 text-gray-600">{new Date(event.occurredAt).toLocaleString()}</td>
+                      <td className="px-5 py-3 font-semibold text-gray-900">{event.actorName}</td>
+                      <td className="px-5 py-3"><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{auditActionLabel(event.action)}</span></td>
+                      <td className="px-5 py-3 text-gray-600">{auditSummary(event)}</td>
+                    </tr>)}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
+        )}
       </div>
       {loading && <div className="fixed bottom-5 right-5 inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white shadow-lg"><LoaderCircle className="h-4 w-4 animate-spin" />Loading store</div>}
     </div>

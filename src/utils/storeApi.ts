@@ -1,6 +1,6 @@
 import { adminApiRequest, getApiUrl } from './api'
 
-export type StoreCategory = 'apparel' | 'food_drink' | 'other'
+export type StoreCategory = 'clothing' | 'equipment' | 'food' | 'drink' | 'other'
 export type StorePaymentMethod = 'billing_account' | 'card' | 'cash' | 'check' | 'mobile'
 
 export interface StoreProduct {
@@ -9,6 +9,7 @@ export interface StoreProduct {
   name: string
   description: string | null
   category: StoreCategory
+  tags: StoreCategory[]
   priceCents: number
   inventoryQuantity: number | null
   isPublic: boolean
@@ -129,12 +130,40 @@ export interface StoreDashboard {
   orders: StoreOrder[]
 }
 
+export interface StoreActionAudit {
+  id: number
+  action: string
+  entityType: string
+  entityId: number | null
+  actorName: string
+  details: Record<string, unknown>
+  occurredAt: string
+}
+
 export const adminFetchStoreDashboard = () => adminRequest<StoreDashboard>('/api/admin/store/dashboard')
 export const adminFetchStoreProducts = () => adminRequest<StoreProduct[]>('/api/admin/store/products')
 export const adminFetchStoreDiscountCodes = () => adminRequest<StoreDiscountCode[]>('/api/admin/store/discount-codes')
+export const adminFetchStoreActionAudit = () => adminRequest<StoreActionAudit[]>('/api/admin/store/audit')
+
+export async function adminDownloadStoreActionAudit() {
+  const response = await adminApiRequest('/api/admin/store/audit/export')
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(payload?.message || `Could not export the store action audit (${response.status}).`)
+  }
+  const file = await response.blob()
+  const url = URL.createObjectURL(file)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `store-action-audit-${new Date().toISOString().slice(0, 10)}.xlsx`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
 
 export async function adminCreateStoreProduct(input: {
-  sku: string; name: string; description?: string; category: StoreCategory; priceCents: number
+  sku: string; name: string; description?: string; tags: StoreCategory[]; priceCents: number
   inventoryQuantity: number | null; isPublic: boolean; sortOrder?: number
 }) {
   return adminRequest<StoreProduct>('/api/admin/store/products', {

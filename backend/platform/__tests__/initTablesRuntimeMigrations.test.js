@@ -56,6 +56,8 @@ test('platform boot includes every schema contract required by current Admin rou
     '798_checkout_fulfillment_idempotency.sql',
     '799_billing_payment_stripe_invoice_link.sql',
     '806_storefront.sql',
+    '807_store_product_categories.sql',
+    '808_store_action_audit.sql',
   ])
 })
 

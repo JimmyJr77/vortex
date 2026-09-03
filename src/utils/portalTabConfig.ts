@@ -170,7 +170,7 @@ export const MEMBER_PORTAL_HOME_CARD_COPY: Record<
   messages: { title: 'Messages', description: 'Talk with your coaches.' },
   faqs: { title: 'FAQs', description: 'Answers curated by your coaches and staff.' },
   events: { title: 'Events', description: 'Upcoming events and signups.' },
-  store: { title: 'Store', description: 'Shop Vortex apparel for gym pickup.' },
+  store: { title: 'Store', description: 'Shop Vortex gear and front-desk essentials for gym pickup.' },
   billing: { title: 'Billing', description: 'Statements and payment history.' },
   waivers: { title: 'Waivers', description: 'Review and sign required waivers.' },
   preferences: { title: 'Preferences', description: 'Critical alerts and notification settings.' },

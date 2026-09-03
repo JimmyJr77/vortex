@@ -19,6 +19,9 @@ interface StorefrontProps {
 }
 
 const formatMoney = (cents: number) => `$${(cents / 100).toFixed(2)}`
+const formatTags = (tags: StoreProduct['tags']) => tags
+  .map((tag) => `${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`)
+  .join(' · ')
 
 export default function Storefront({ memberToken = null, memberName = null, onSignIn, mode = 'public' }: StorefrontProps) {
   const [products, setProducts] = useState<StoreProduct[]>([])
@@ -131,7 +134,7 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">
-            <div><h2 className="font-display text-2xl font-bold text-gray-950">Shop apparel</h2><p className="mt-1 text-sm text-gray-600">Simple, durable, and ready for the gym.</p></div>
+            <div><h2 className="font-display text-2xl font-bold text-gray-950">Shop the store</h2><p className="mt-1 text-sm text-gray-600">Simple, durable, and ready for the gym.</p></div>
             <span className="text-sm font-semibold text-gray-600">{itemCount} item{itemCount === 1 ? '' : 's'} in cart</span>
           </div>
           {loading ? (
@@ -146,7 +149,7 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
                 return (
                   <article key={product.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                     <div className="mb-5 flex h-24 items-end rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 p-3">
-                      <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gray-600">{product.category === 'apparel' ? 'Apparel' : product.category.replace('_', ' ')}</span>
+                      <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gray-600">{formatTags(product.tags)}</span>
                     </div>
                     <h3 className="text-lg font-bold text-gray-950">{product.name}</h3>
                     <p className="mt-1 min-h-10 text-sm leading-5 text-gray-600">{product.description || 'Vortex training essential.'}</p>
@@ -168,9 +171,9 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
           {cartItems.length === 0 ? <p className="py-8 text-center text-sm text-gray-500">Your cart is ready when you are.</p> : <>
             <div className="mt-4 space-y-3 border-y border-gray-100 py-4">{cartItems.map(({ product, quantity }) => <div key={product.id} className="flex justify-between gap-3 text-sm"><span className="min-w-0"><strong className="block truncate text-gray-900">{product.name}</strong><span className="text-gray-500">Qty {quantity}</span></span><span className="shrink-0 font-semibold text-gray-900">{formatMoney(product.priceCents * quantity)}</span></div>)}</div>
             <label className="mt-4 block text-xs font-bold uppercase tracking-wide text-gray-500">Store discount code<input value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} placeholder="Optional" className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium uppercase outline-none transition focus:border-black" /></label>
-            {memberToken ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setPaymentMethod('card')} className={`rounded-lg border px-3 py-2.5 text-left text-sm font-semibold ${paymentMethod === 'card' ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}><CreditCard className="mb-1 h-4 w-4" />Card</button><button type="button" onClick={() => setPaymentMethod('billing_account')} className={`rounded-lg border px-3 py-2.5 text-left text-sm font-semibold ${paymentMethod === 'billing_account' ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}><ReceiptText className="mb-1 h-4 w-4" />Monthly account</button><label className="col-span-2 text-xs font-bold uppercase tracking-wide text-gray-500">Pay at gym<select value={['cash', 'check', 'mobile'].includes(paymentMethod) ? paymentMethod : ''} onChange={(event) => setPaymentMethod(event.target.value as StorePaymentMethod)} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold normal-case tracking-normal text-gray-700 outline-none focus:border-black"><option value="" disabled>Choose cash, check, or mobile payment</option><option value="cash">Cash at pickup</option><option value="check">Check at pickup</option><option value="mobile">Mobile payment at pickup</option></select></label></div> : <p className="mt-4 rounded-lg bg-gray-50 px-3 py-2.5 text-xs leading-5 text-gray-600">Sign in with your Vortex account to pay by card, bill the purchase to your monthly account, or reserve it for cash, check, or mobile payment at the gym.</p>}
+            {memberToken ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setPaymentMethod('card')} className={`rounded-lg border px-3 py-2.5 text-left text-sm font-semibold ${paymentMethod === 'card' ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}><CreditCard className="mb-1 h-4 w-4" />Card</button><button type="button" onClick={() => setPaymentMethod('billing_account')} className={`rounded-lg border px-3 py-2.5 text-left text-sm font-semibold ${paymentMethod === 'billing_account' ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}><ReceiptText className="mb-1 h-4 w-4" />Monthly account</button></div> : <p className="mt-4 rounded-lg bg-gray-50 px-3 py-2.5 text-xs leading-5 text-gray-600">Sign in with your Vortex account to pay by card or bill the purchase to your monthly account.</p>}
             <div className="mt-4 flex items-end justify-between"><span className="text-sm text-gray-600">Subtotal</span><strong className="text-xl text-gray-950">{formatMoney(subtotalCents)}</strong></div>
-            <button type="button" disabled={checkoutLoading} onClick={() => void handleCheckout()} className="mt-4 min-h-12 w-full rounded-lg bg-vortex-red px-4 py-3 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60">{checkoutLoading ? 'Preparing order…' : memberToken ? paymentMethod === 'card' ? 'Continue to card payment' : paymentMethod === 'billing_account' ? 'Bill to monthly account' : 'Reserve for pickup payment' : 'Sign in to checkout'}</button>
+            <button type="button" disabled={checkoutLoading} onClick={() => void handleCheckout()} className="mt-4 min-h-12 w-full rounded-lg bg-vortex-red px-4 py-3 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-60">{checkoutLoading ? 'Preparing order…' : memberToken ? paymentMethod === 'card' ? 'Continue to card payment' : 'Bill to monthly account' : 'Sign in to checkout'}</button>
             <p className="mt-3 text-center text-xs leading-5 text-gray-500">Pickup only at Vortex Athletics. Taxes, if applicable, are confirmed at checkout.</p>
           </>}
         </aside>

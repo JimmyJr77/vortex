@@ -3,10 +3,17 @@ import { checkoutFingerprint, checkoutIdempotencyConflict, normalizeCheckoutRequ
 import { getStripeClient, stripeEnabled } from '../billing/stripeBilling.js'
 import { sendStoreOrderReceiptEmail } from '../email/storeReceiptEmail.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
+import { createXlsxWorkbook } from './xlsxExport.js'
 
 const PICKUP_NOTE = 'Pickup at Vortex Athletics. We do not ship store items.'
-const MEMBER_PAYMENT_METHODS = new Set(['billing_account', 'card', 'cash', 'check', 'mobile'])
+const STORE_PRODUCT_CATEGORIES = new Set(['clothing', 'equipment', 'food', 'drink', 'other'])
+const MEMBER_PAYMENT_METHODS = new Set(['billing_account', 'card'])
 const ADMIN_PAYMENT_METHODS = new Set(['billing_account', 'card', 'cash', 'check', 'mobile'])
+
+function normalizeProductTags(value, fallback = []) {
+  const source = Array.isArray(value) ? value : value == null ? fallback : [value]
+  return [...new Set(source.map((tag) => String(tag ?? '').trim()).filter((tag) => STORE_PRODUCT_CATEGORIES.has(tag)))]
+}
 
 function integer(value, fallback = null) {
   const parsed = Number(value)
@@ -28,12 +35,14 @@ function orderNumber() {
 }
 
 function serializeProduct(row) {
+  const tags = normalizeProductTags(row.tags, [row.category])
   return {
     id: Number(row.id),
     sku: row.sku,
     name: row.name,
     description: row.description ?? null,
     category: row.category,
+    tags,
     priceCents: Number(row.price_cents),
     inventoryQuantity: row.inventory_quantity == null ? null : Number(row.inventory_quantity),
     isPublic: row.is_public === true,
@@ -58,6 +67,86 @@ function serializeDiscount(row) {
     isActive: row.is_active === true,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  }
+}
+
+function serializeStoreAudit(row) {
+  return {
+    id: Number(row.id),
+    action: row.action,
+    entityType: row.entity_type,
+    entityId: row.entity_id == null ? null : Number(row.entity_id),
+    actorName: row.actor_label,
+    details: row.details && typeof row.details === 'object' ? row.details : {},
+    occurredAt: row.occurred_at,
+  }
+}
+
+function productAuditSnapshot(row) {
+  return {
+    sku: row.sku,
+    name: row.name,
+    description: row.description ?? null,
+    tags: normalizeProductTags(row.tags, [row.category]),
+    priceCents: Number(row.price_cents),
+    inventoryQuantity: row.inventory_quantity == null ? null : Number(row.inventory_quantity),
+    isPublic: row.is_public === true,
+    isActive: row.is_active === true,
+    sortOrder: Number(row.sort_order ?? 0),
+  }
+}
+
+function changedProductFields(before, after) {
+  return Object.keys(after).reduce((changes, key) => {
+    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
+      changes[key] = { before: before[key], after: after[key] }
+    }
+    return changes
+  }, {})
+}
+
+async function recordStoreAudit(client, {
+  facilityId,
+  actorUserId = null,
+  action,
+  entityType,
+  entityId = null,
+  details = {},
+}) {
+  await client.query(
+    `INSERT INTO store_action_audit (
+       facility_id, actor_user_id, actor_label, action, entity_type, entity_id, details
+     ) VALUES (
+       $1, $2,
+       COALESCE(
+         (SELECT NULLIF(TRIM(COALESCE(full_name, '')), '')
+            FROM app_user WHERE id = $2 AND facility_id = $1),
+         'System'
+       ),
+       $3, $4, $5, $6::jsonb
+     )`,
+    [facilityId, actorUserId, action, entityType, entityId, JSON.stringify(details)],
+  )
+}
+
+function spreadsheetText(value) {
+  const text = String(value ?? '')
+  return /^[=+\-@]/.test(text) ? `'${text}` : text
+}
+
+function auditExportRow(event) {
+  const details = event.details ?? {}
+  return {
+    Timestamp: new Date(event.occurredAt).toISOString(),
+    Action: spreadsheetText(event.action),
+    'Performed by': spreadsheetText(event.actorName),
+    'Record type': spreadsheetText(event.entityType),
+    'Record ID': event.entityId ?? '',
+    Item: spreadsheetText(details.productName ?? details.name ?? ''),
+    SKU: spreadsheetText(details.sku ?? ''),
+    'Order number': spreadsheetText(details.orderNumber ?? ''),
+    'Discount code': spreadsheetText(details.code ?? ''),
+    'Details (JSON)': spreadsheetText(JSON.stringify(details)),
   }
 }
 
@@ -219,6 +308,19 @@ async function reserveProducts(client, { facilityId, rawItems, allowInternal, or
        VALUES ($1, $2, $3, 'order_reserved', $4)`,
       [line.productId, orderId, -line.quantity, actorUserId],
     )
+    await recordStoreAudit(client, {
+      facilityId,
+      actorUserId,
+      action: 'inventory_reserved_for_sale',
+      entityType: 'inventory',
+      entityId: line.productId,
+      details: {
+        productName: line.product.name,
+        sku: line.product.sku,
+        quantityDelta: -line.quantity,
+        orderId,
+      },
+    })
   }
   return lines
 }
@@ -363,7 +465,7 @@ async function createStoreOrder(pool, {
     const name = purchaserName || (member ? `${member.first_name || ''} ${member.last_name || ''}`.trim() : null)
     const email = purchaserEmail || member?.email || null
     const preliminarySubtotal = 0
-    const awaitsPayment = source !== 'admin' && ['card', 'cash', 'check', 'mobile'].includes(paymentMethod)
+    const awaitsPayment = paymentMethod === 'card'
     const inserted = await client.query(
       `INSERT INTO store_order (
          facility_id, order_number, member_id, family_billing_account_id,
@@ -462,6 +564,32 @@ async function createStoreOrder(pool, {
     }
     if (!awaitsPayment || totalCents === 0) await consumeDiscount(client, discount.row?.id)
     const order = await getOrder(client, orderId)
+    await recordStoreAudit(client, {
+      facilityId,
+      actorUserId,
+      action: 'sale_recorded',
+      entityType: 'sale',
+      entityId: orderId,
+      details: {
+        orderNumber: order.orderNumber,
+        source: order.source,
+        purchaserName: order.purchaserName,
+        purchaserEmail: order.purchaserEmail,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
+        subtotalCents: order.subtotalCents,
+        discountCents: order.discountCents,
+        totalCents: order.totalCents,
+        discountCode: order.discountCode,
+        items: order.items.map((item) => ({
+          productName: item.productName,
+          sku: item.sku,
+          quantity: item.quantity,
+          unitPriceCents: item.unitPriceCents,
+          lineTotalCents: item.lineTotalCents,
+        })),
+      },
+    })
     await client.query('COMMIT')
     return { order, reused: false }
   } catch (error) {
@@ -507,6 +635,7 @@ async function createCardCheckout(pool, order) {
     }))
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
+    payment_method_types: ['card'],
     customer_email: order.purchaserEmail || undefined,
     line_items: stripeLineItems,
     metadata: {
@@ -533,6 +662,7 @@ export async function completeStoreStripeCheckout(pool, session) {
   if (orderId == null) return { handled: false }
   const client = await pool.connect()
   let order
+  let paymentCompleted = false
   try {
     await client.query('BEGIN')
     const current = await client.query(`SELECT * FROM store_order WHERE id = $1 FOR UPDATE`, [orderId])
@@ -550,8 +680,23 @@ export async function completeStoreStripeCheckout(pool, session) {
         [orderId, session.payment_intent ?? session.id ?? null],
       )
       await consumeDiscount(client, row.discount_code_id)
+      paymentCompleted = true
     }
     order = await getOrder(client, orderId)
+    if (paymentCompleted) {
+      await recordStoreAudit(client, {
+        facilityId: Number(row.facility_id),
+        action: 'sale_card_payment_completed',
+        entityType: 'sale',
+        entityId: orderId,
+        details: {
+          orderNumber: row.order_number,
+          totalCents: Number(row.total_cents),
+          paymentMethod: 'card',
+          stripePaymentIntent: session.payment_intent ?? null,
+        },
+      })
+    }
     await client.query('COMMIT')
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
@@ -607,6 +752,20 @@ async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
          VALUES ($1, $2, $3, 'order_cancelled', $4)`,
         [item.product_id, orderId, item.quantity, actorUserId],
       )
+      await recordStoreAudit(client, {
+        facilityId,
+        actorUserId,
+        action: 'inventory_restored_after_cancellation',
+        entityType: 'inventory',
+        entityId: Number(item.product_id),
+        details: {
+          productName: item.product_name,
+          sku: item.sku,
+          quantityDelta: Number(item.quantity),
+          orderNumber: row.order_number,
+          orderId,
+        },
+      })
     }
     if (row.payment_status === 'billed_to_account' && row.family_billing_account_id) {
       await client.query(
@@ -636,6 +795,14 @@ async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
       [orderId],
     )
     const order = await getOrder(client, orderId)
+    await recordStoreAudit(client, {
+      facilityId,
+      actorUserId,
+      action: 'sale_cancelled',
+      entityType: 'sale',
+      entityId: orderId,
+      details: { orderNumber: row.order_number, paymentStatus: row.payment_status, totalCents: Number(row.total_cents) },
+    })
     await client.query('COMMIT')
     return order
   } catch (error) {
@@ -667,6 +834,19 @@ async function collectStoreOrderPayment(pool, { orderId, facilityId, actorUserId
     )
     await consumeDiscount(client, row.discount_code_id)
     const order = await getOrder(client, orderId)
+    await recordStoreAudit(client, {
+      facilityId,
+      actorUserId,
+      action: 'sale_payment_collected',
+      entityType: 'sale',
+      entityId: orderId,
+      details: {
+        orderNumber: row.order_number,
+        paymentMethod: row.payment_method,
+        totalCents: Number(row.total_cents),
+        externalReference: row.external_reference ?? null,
+      },
+    })
     await client.query('COMMIT')
     return order
   } catch (error) {
@@ -744,8 +924,9 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
       const memberId = integer(req.platformAuth?.user?.member_id, null)
       const paymentMethod = String(req.body?.paymentMethod ?? '')
       if (!facilityId || !memberId || !MEMBER_PAYMENT_METHODS.has(paymentMethod)) {
-        return res.status(400).json({ success: false, message: 'Choose a supported store payment method.' })
+        return res.status(400).json({ success: false, message: 'Choose card payment or monthly account billing.' })
       }
+      if (paymentMethod === 'card' && !stripeEnabled()) return res.status(503).json({ success: false, message: 'Card payment is unavailable right now. Please use monthly account billing.' })
       const requestKey = normalizeCheckoutRequestKey(req.get('Idempotency-Key'), 'member-store')
       const result = await createStoreOrder(pool, {
         facilityId,
@@ -818,6 +999,60 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
     }
   })
 
+  app.get('/api/admin/store/audit', ...requirePermission('billing.view'), async (req, res) => {
+    try {
+      const facilityId = await resolveFacilityId(pool, req.platformAuth)
+      const result = await pool.query(
+        `SELECT id, action, entity_type, entity_id, actor_label, details, occurred_at
+           FROM store_action_audit
+          WHERE facility_id = $1
+          ORDER BY occurred_at DESC, id DESC`,
+        [facilityId],
+      )
+      res.json({ success: true, data: result.rows.map(serializeStoreAudit) })
+    } catch (error) {
+      handleRouteError(res, error, 'Could not load the store action audit.')
+    }
+  })
+
+  app.get('/api/admin/store/audit/export', ...requirePermission('billing.view'), async (req, res) => {
+    try {
+      const facilityId = await resolveFacilityId(pool, req.platformAuth)
+      const result = await pool.query(
+        `SELECT id, action, entity_type, entity_id, actor_label, details, occurred_at
+           FROM store_action_audit
+          WHERE facility_id = $1
+          ORDER BY occurred_at DESC, id DESC`,
+        [facilityId],
+      )
+      const events = result.rows.map(serializeStoreAudit)
+      const file = createXlsxWorkbook({
+        sheetName: 'Action audit',
+        columns: [
+          { header: 'Timestamp', key: 'Timestamp', width: 24 },
+          { header: 'Action', key: 'Action', width: 34 },
+          { header: 'Performed by', key: 'Performed by', width: 24 },
+          { header: 'Record type', key: 'Record type', width: 18 },
+          { header: 'Record ID', key: 'Record ID', width: 12 },
+          { header: 'Item', key: 'Item', width: 30 },
+          { header: 'SKU', key: 'SKU', width: 18 },
+          { header: 'Order number', key: 'Order number', width: 24 },
+          { header: 'Discount code', key: 'Discount code', width: 18 },
+          { header: 'Details (JSON)', key: 'Details (JSON)', width: 100 },
+        ],
+        rows: events.map(auditExportRow),
+      })
+      const date = new Date().toISOString().slice(0, 10)
+      res.status(200)
+        .set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        .set('Content-Disposition', `attachment; filename="store-action-audit-${date}.xlsx"`)
+        .set('Cache-Control', 'no-store')
+        .send(file)
+    } catch (error) {
+      handleRouteError(res, error, 'Could not export the store action audit.')
+    }
+  })
+
   app.get('/api/admin/store/products', ...requirePermission('billing.view'), async (req, res) => {
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
@@ -829,62 +1064,111 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
   })
 
   app.post('/api/admin/store/products', ...requirePermission('billing.manage'), async (req, res) => {
+    let client
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const name = String(req.body?.name ?? '').trim()
       const sku = String(req.body?.sku ?? '').trim().toUpperCase()
       const priceCents = moneyCents(req.body?.priceCents)
       const inventory = req.body?.inventoryQuantity == null || req.body?.inventoryQuantity === '' ? null : integer(req.body.inventoryQuantity, null)
-      const category = String(req.body?.category ?? 'other')
-      if (!name || !sku || priceCents == null || !['apparel', 'food_drink', 'other'].includes(category) || (inventory != null && inventory < 0)) {
-        return res.status(400).json({ success: false, message: 'Name, SKU, valid price, category, and inventory are required.' })
+      const tags = normalizeProductTags(req.body?.tags, [req.body?.category ?? 'other'])
+      const category = tags[0] ?? 'other'
+      if (!name || !sku || priceCents == null || tags.length === 0 || (inventory != null && inventory < 0)) {
+        return res.status(400).json({ success: false, message: 'Name, SKU, valid price, tag, and inventory are required.' })
       }
-      const result = await pool.query(
-        `INSERT INTO store_product (facility_id, sku, name, description, category, price_cents, inventory_quantity, is_public, sort_order)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const result = await client.query(
+        `INSERT INTO store_product (facility_id, sku, name, description, category, tags, price_cents, inventory_quantity, is_public, sort_order)
+         VALUES ($1, $2, $3, $4, $5, $6::text[], $7, $8, $9, $10)
          RETURNING *`,
-        [facilityId, sku, name, String(req.body?.description ?? '').trim() || null, category, priceCents, inventory, req.body?.isPublic !== false, integer(req.body?.sortOrder, 0)],
+        [facilityId, sku, name, String(req.body?.description ?? '').trim() || null, category, tags, priceCents, inventory, req.body?.isPublic !== false, integer(req.body?.sortOrder, 0)],
       )
+      await recordStoreAudit(client, {
+        facilityId,
+        actorUserId: integer(req.platformAuth?.user?.id, null),
+        action: 'product_created',
+        entityType: 'product',
+        entityId: Number(result.rows[0].id),
+        details: productAuditSnapshot(result.rows[0]),
+      })
+      await client.query('COMMIT')
       res.status(201).json({ success: true, data: serializeProduct(result.rows[0]) })
     } catch (error) {
+      await client?.query('ROLLBACK').catch(() => {})
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'That SKU is already in use.' })
       handleRouteError(res, error, 'Could not create store product.')
+    } finally {
+      client?.release()
     }
   })
 
   app.patch('/api/admin/store/products/:id', ...requirePermission('billing.manage'), async (req, res) => {
+    let client
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const id = integer(req.params.id, null)
       if (!id) return res.status(400).json({ success: false, message: 'Invalid product.' })
-      const existing = await pool.query(`SELECT * FROM store_product WHERE id = $1 AND facility_id = $2`, [id, facilityId])
-      if (!existing.rows[0]) return res.status(404).json({ success: false, message: 'Store product not found.' })
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const existing = await client.query(`SELECT * FROM store_product WHERE id = $1 AND facility_id = $2 FOR UPDATE`, [id, facilityId])
+      if (!existing.rows[0]) throw Object.assign(new Error('Store product not found.'), { statusCode: 404 })
       const current = existing.rows[0]
+      const existingTags = normalizeProductTags(current.tags, [current.category])
+      const tags = normalizeProductTags(
+        req.body?.tags === undefined
+          ? req.body?.category == null ? existingTags : [req.body.category]
+          : req.body.tags,
+        existingTags,
+      )
       const next = {
         name: req.body?.name == null ? current.name : String(req.body.name).trim(),
         sku: req.body?.sku == null ? current.sku : String(req.body.sku).trim().toUpperCase(),
         description: req.body?.description == null ? current.description : String(req.body.description).trim() || null,
-        category: req.body?.category == null ? current.category : String(req.body.category),
+        category: tags[0] ?? null,
+        tags,
         priceCents: req.body?.priceCents == null ? Number(current.price_cents) : moneyCents(req.body.priceCents),
         inventory: req.body?.inventoryQuantity === undefined ? current.inventory_quantity : (req.body.inventoryQuantity == null || req.body.inventoryQuantity === '' ? null : integer(req.body.inventoryQuantity, null)),
         isPublic: req.body?.isPublic == null ? current.is_public : req.body.isPublic === true,
         isActive: req.body?.isActive == null ? current.is_active : req.body.isActive === true,
         sortOrder: req.body?.sortOrder == null ? Number(current.sort_order) : integer(req.body.sortOrder, null),
       }
-      if (!next.name || !next.sku || next.priceCents == null || next.priceCents < 0 || next.inventory != null && next.inventory < 0 || !['apparel', 'food_drink', 'other'].includes(next.category) || next.sortOrder == null) {
-        return res.status(400).json({ success: false, message: 'Product details are invalid.' })
-      }
-      const result = await pool.query(
-        `UPDATE store_product SET sku = $3, name = $4, description = $5, category = $6,
-             price_cents = $7, inventory_quantity = $8, is_public = $9, is_active = $10,
-             sort_order = $11, updated_at = now()
+      if (!next.name || !next.sku || next.priceCents == null || next.priceCents < 0 || next.inventory != null && next.inventory < 0 || next.tags.length === 0 || next.sortOrder == null) throw Object.assign(new Error('Product details are invalid.'), { statusCode: 400 })
+      const result = await client.query(
+        `UPDATE store_product SET sku = $3, name = $4, description = $5, category = $6, tags = $7::text[],
+             price_cents = $8, inventory_quantity = $9, is_public = $10, is_active = $11,
+             sort_order = $12, updated_at = now()
            WHERE id = $1 AND facility_id = $2 RETURNING *`,
-        [id, facilityId, next.sku, next.name, next.description, next.category, next.priceCents, next.inventory, next.isPublic, next.isActive, next.sortOrder],
+        [id, facilityId, next.sku, next.name, next.description, next.category, next.tags, next.priceCents, next.inventory, next.isPublic, next.isActive, next.sortOrder],
       )
+      const before = productAuditSnapshot(current)
+      const after = productAuditSnapshot(result.rows[0])
+      const changes = changedProductFields(before, after)
+      if (Object.keys(changes).length > 0) {
+        const action = changes.priceCents
+          ? 'product_price_updated'
+          : changes.inventoryQuantity
+            ? 'inventory_updated_with_product'
+            : changes.isActive?.after === false
+              ? 'product_archived'
+              : 'product_updated'
+        await recordStoreAudit(client, {
+          facilityId,
+          actorUserId: integer(req.platformAuth?.user?.id, null),
+          action,
+          entityType: 'product',
+          entityId: id,
+          details: { productName: after.name, sku: after.sku, changes },
+        })
+      }
+      await client.query('COMMIT')
       res.json({ success: true, data: serializeProduct(result.rows[0]) })
     } catch (error) {
+      await client?.query('ROLLBACK').catch(() => {})
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'That SKU is already in use.' })
       handleRouteError(res, error, 'Could not update store product.')
+    } finally {
+      client?.release()
     }
   })
 
@@ -905,7 +1189,24 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         if (product.inventory_quantity == null) throw Object.assign(new Error('Enable inventory tracking for this product before adjusting its count.'), { statusCode: 400 })
         if (Number(product.inventory_quantity) + delta < 0) throw Object.assign(new Error('Inventory cannot go below zero.'), { statusCode: 400 })
         const update = await client.query(`UPDATE store_product SET inventory_quantity = inventory_quantity + $2, updated_at = now() WHERE id = $1 RETURNING *`, [productId, delta])
-        await client.query(`INSERT INTO store_inventory_adjustment (product_id, quantity_delta, reason, created_by_user_id) VALUES ($1, $2, $3, $4)`, [productId, delta, String(req.body.reason).trim(), integer(req.platformAuth?.user?.id, null)])
+        const reason = String(req.body.reason).trim()
+        const actorUserId = integer(req.platformAuth?.user?.id, null)
+        await client.query(`INSERT INTO store_inventory_adjustment (product_id, quantity_delta, reason, created_by_user_id) VALUES ($1, $2, $3, $4)`, [productId, delta, reason, actorUserId])
+        await recordStoreAudit(client, {
+          facilityId,
+          actorUserId,
+          action: 'inventory_adjusted',
+          entityType: 'inventory',
+          entityId: productId,
+          details: {
+            productName: update.rows[0].name,
+            sku: update.rows[0].sku,
+            quantityDelta: delta,
+            previousQuantity: Number(product.inventory_quantity),
+            newQuantity: Number(update.rows[0].inventory_quantity),
+            reason,
+          },
+        })
         await client.query('COMMIT')
         res.json({ success: true, data: serializeProduct(update.rows[0]) })
       } catch (error) {
@@ -930,6 +1231,7 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
   })
 
   app.post('/api/admin/store/discount-codes', ...requirePermission('billing.manage'), async (req, res) => {
+    let client
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const code = normalizedCode(req.body?.code)
@@ -940,46 +1242,93 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
       if (!/^[A-Z0-9_-]{3,32}$/.test(code) || !['percent', 'amount'].includes(type) || value == null || value <= 0 || (type === 'percent' && value > 100) || minimum == null || (max != null && max <= 0)) {
         return res.status(400).json({ success: false, message: 'Discount code details are invalid.' })
       }
-      const result = await pool.query(
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const result = await client.query(
         `INSERT INTO store_discount_code (facility_id, code, discount_type, value, minimum_order_cents, max_redemptions, starts_at, ends_at, is_active)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE) RETURNING *`,
         [facilityId, code, type, value, minimum, max, req.body?.startsAt || null, req.body?.endsAt || null],
       )
+      await recordStoreAudit(client, {
+        facilityId,
+        actorUserId: integer(req.platformAuth?.user?.id, null),
+        action: 'discount_created',
+        entityType: 'discount',
+        entityId: Number(result.rows[0].id),
+        details: { code, discount: serializeDiscount(result.rows[0]) },
+      })
+      await client.query('COMMIT')
       res.status(201).json({ success: true, data: serializeDiscount(result.rows[0]) })
     } catch (error) {
+      await client?.query('ROLLBACK').catch(() => {})
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'That store discount code already exists.' })
       handleRouteError(res, error, 'Could not create store discount code.')
+    } finally {
+      client?.release()
     }
   })
 
   app.patch('/api/admin/store/discount-codes/:id', ...requirePermission('billing.manage'), async (req, res) => {
+    let client
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const id = integer(req.params.id, null)
       if (!id) return res.status(400).json({ success: false, message: 'Invalid discount code.' })
-      const current = await pool.query(`SELECT * FROM store_discount_code WHERE id = $1 AND facility_id = $2`, [id, facilityId])
-      if (!current.rows[0]) return res.status(404).json({ success: false, message: 'Store discount code not found.' })
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const current = await client.query(`SELECT * FROM store_discount_code WHERE id = $1 AND facility_id = $2 FOR UPDATE`, [id, facilityId])
+      if (!current.rows[0]) throw Object.assign(new Error('Store discount code not found.'), { statusCode: 404 })
       const row = current.rows[0]
-      const result = await pool.query(
+      const result = await client.query(
         `UPDATE store_discount_code SET is_active = $3, updated_at = now() WHERE id = $1 AND facility_id = $2 RETURNING *`,
         [id, facilityId, req.body?.isActive == null ? row.is_active : req.body.isActive === true],
       )
+      if (result.rows[0].is_active !== row.is_active) {
+        await recordStoreAudit(client, {
+          facilityId,
+          actorUserId: integer(req.platformAuth?.user?.id, null),
+          action: result.rows[0].is_active ? 'discount_enabled' : 'discount_disabled',
+          entityType: 'discount',
+          entityId: id,
+          details: { code: row.code, previousIsActive: row.is_active, isActive: result.rows[0].is_active },
+        })
+      }
+      await client.query('COMMIT')
       res.json({ success: true, data: serializeDiscount(result.rows[0]) })
     } catch (error) {
+      await client?.query('ROLLBACK').catch(() => {})
       handleRouteError(res, error, 'Could not update store discount code.')
+    } finally {
+      client?.release()
     }
   })
 
   app.delete('/api/admin/store/discount-codes/:id', ...requirePermission('billing.manage'), async (req, res) => {
+    let client
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const id = integer(req.params.id, null)
-      const result = await pool.query(`DELETE FROM store_discount_code WHERE id = $1 AND facility_id = $2 RETURNING id`, [id, facilityId])
-      if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Store discount code not found.' })
+      if (!id) return res.status(400).json({ success: false, message: 'Invalid discount code.' })
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const result = await client.query(`DELETE FROM store_discount_code WHERE id = $1 AND facility_id = $2 RETURNING *`, [id, facilityId])
+      if (!result.rows[0]) throw Object.assign(new Error('Store discount code not found.'), { statusCode: 404 })
+      await recordStoreAudit(client, {
+        facilityId,
+        actorUserId: integer(req.platformAuth?.user?.id, null),
+        action: 'discount_deleted',
+        entityType: 'discount',
+        entityId: id,
+        details: { code: result.rows[0].code, discount: serializeDiscount(result.rows[0]) },
+      })
+      await client.query('COMMIT')
       res.json({ success: true })
     } catch (error) {
+      await client?.query('ROLLBACK').catch(() => {})
       if (error?.code === '23503') return res.status(409).json({ success: false, message: 'This code has order history and can be disabled instead.' })
       handleRouteError(res, error, 'Could not delete store discount code.')
+    } finally {
+      client?.release()
     }
   })
 
@@ -1011,6 +1360,7 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
       if (!facilityId || !ADMIN_PAYMENT_METHODS.has(paymentMethod) || (paymentMethod === 'billing_account' && !memberId)) {
         return res.status(400).json({ success: false, message: 'Choose a valid payment method and member for monthly billing.' })
       }
+      if (paymentMethod === 'card' && !stripeEnabled()) return res.status(503).json({ success: false, message: 'Secure card entry is unavailable right now. Use another payment method.' })
       const clientKey = String(req.get('Idempotency-Key') ?? `admin-store-${randomUUID()}`)
       const requestKey = normalizeCheckoutRequestKey(clientKey, 'admin-store')
       const result = await createStoreOrder(pool, {
@@ -1028,9 +1378,13 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         allowInternal: true,
         requireBillingPayer: false,
       })
-      await sendReceiptIfNeeded(pool, result.order.id).catch((error) => {
-        console.warn('[store] receipt email failed:', error?.message || error)
-      })
+      if (paymentMethod === 'card' && result.order.status === 'awaiting_payment') {
+        result.order.stripeCheckoutUrl = await createCardCheckout(pool, result.order)
+      } else {
+        await sendReceiptIfNeeded(pool, result.order.id).catch((error) => {
+          console.warn('[store] receipt email failed:', error?.message || error)
+        })
+      }
       res.status(result.reused ? 200 : 201).json({ success: true, data: result.order, reused: result.reused })
     } catch (error) {
       handleRouteError(res, error, 'Could not record store sale.')
@@ -1061,16 +1415,29 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         const order = await cancelStoreOrder(pool, { orderId, facilityId, actorUserId: integer(req.platformAuth?.user?.id, null) })
         return res.json({ success: true, data: order })
       }
-      const update = await pool.query(
-        `UPDATE store_order SET status = 'fulfilled', picked_up_at = COALESCE(picked_up_at, now()), updated_at = now()
-          WHERE id = $1 AND facility_id = $2 AND status = 'placed' RETURNING id`,
-        [orderId, facilityId],
-      )
-      if (!update.rows[0]) return res.status(409).json({ success: false, message: 'Only placed orders can be marked picked up.' })
       const client = await pool.connect()
       try {
+        await client.query('BEGIN')
+        const update = await client.query(
+          `UPDATE store_order SET status = 'fulfilled', picked_up_at = COALESCE(picked_up_at, now()), updated_at = now()
+            WHERE id = $1 AND facility_id = $2 AND status = 'placed' RETURNING *`,
+          [orderId, facilityId],
+        )
+        if (!update.rows[0]) throw Object.assign(new Error('Only placed orders can be marked picked up.'), { statusCode: 409 })
         const order = await getOrder(client, orderId)
+        await recordStoreAudit(client, {
+          facilityId,
+          actorUserId: integer(req.platformAuth?.user?.id, null),
+          action: 'sale_fulfilled',
+          entityType: 'sale',
+          entityId: orderId,
+          details: { orderNumber: order.orderNumber, totalCents: order.totalCents },
+        })
+        await client.query('COMMIT')
         res.json({ success: true, data: order })
+      } catch (error) {
+        await client.query('ROLLBACK').catch(() => {})
+        throw error
       } finally {
         client.release()
       }
