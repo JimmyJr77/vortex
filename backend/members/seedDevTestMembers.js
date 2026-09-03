@@ -155,6 +155,20 @@ export async function clearDevTestMembers(pool) {
       await client.query('DELETE FROM member WHERE id = ANY($1::bigint[])', [memberIds])
     }
     await client.query(`DELETE FROM family WHERE family_username LIKE 'devseed_%'`)
+    // Local databases restored from a snapshot can have a member sequence
+    // behind existing rows. Keep the repeatable dev seed from colliding with
+    // a real local account after its previous test records are cleared.
+    await client.query(
+      `SELECT setval(
+        pg_get_serial_sequence('member', 'id'),
+        GREATEST(
+          COALESCE((SELECT MAX(id) FROM member), 0),
+          COALESCE((SELECT MAX(id) FROM app_user), 0),
+          1
+        ),
+        TRUE
+      )`,
+    )
     await client.query('COMMIT')
     return { removed: memberIds.length }
   } catch (err) {
