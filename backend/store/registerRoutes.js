@@ -168,6 +168,7 @@ function serializeOrder(row, items = []) {
     discountCode: row.discount_code ?? null,
     fulfillmentNote: row.fulfillment_note,
     pickedUpAt: row.picked_up_at ?? null,
+    receiptSentAt: row.receipt_sent_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     stripeCheckoutUrl: row.stripe_checkout_session_url ?? null,
@@ -360,6 +361,89 @@ async function consumeDiscount(client, id) {
       WHERE id = $1`,
     [id],
   )
+}
+
+async function sendStoreOrderReceipt(pool, {
+  orderId,
+  facilityId,
+  purchaserEmail,
+  actorUserId = null,
+}) {
+  const email = String(purchaserEmail ?? '').trim()
+  if (!email) throw Object.assign(new Error('Enter an email address for the receipt.'), { statusCode: 400 })
+
+  const client = await pool.connect()
+  let order
+  try {
+    await client.query('BEGIN')
+    const current = await client.query(
+      `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
+      [orderId, facilityId],
+    )
+    if (!current.rows[0]) throw Object.assign(new Error('Store order not found.'), { statusCode: 404 })
+    if (!['placed', 'fulfilled'].includes(current.rows[0].status)) {
+      throw Object.assign(new Error('Receipts can only be sent for confirmed store orders.'), { statusCode: 400 })
+    }
+    await client.query(
+      `UPDATE store_order SET purchaser_email = $2, updated_at = now() WHERE id = $1`,
+      [orderId, email],
+    )
+    order = await getOrder(client, orderId)
+    await client.query('COMMIT')
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {})
+    throw error
+  } finally {
+    client.release()
+  }
+
+  const result = await sendStoreOrderReceiptEmail({
+    to: order.purchaserEmail,
+    purchaserName: order.purchaserName,
+    orderNumber: order.orderNumber,
+    items: order.items,
+    subtotalCents: order.subtotalCents,
+    discountCents: order.discountCents,
+    totalCents: order.totalCents,
+    paymentMethod: order.paymentMethod,
+    pickupNote: order.fulfillmentNote || PICKUP_NOTE,
+    idempotencyKey: `store-order-receipt:${order.id}:manual:${randomUUID()}`,
+  })
+  if (!result.sent) {
+    throw Object.assign(new Error('Receipt email could not be sent. Check email settings or try again.'), { statusCode: 422 })
+  }
+  await pool.query(
+    `UPDATE store_order SET receipt_sent_at = now(), updated_at = now() WHERE id = $1`,
+    [orderId],
+  )
+  const auditClient = await pool.connect()
+  try {
+    await auditClient.query('BEGIN')
+    await recordStoreAudit(auditClient, {
+      facilityId,
+      actorUserId,
+      action: 'receipt_emailed',
+      entityType: 'sale',
+      entityId: orderId,
+      details: {
+        orderNumber: order.orderNumber,
+        purchaserEmail: order.purchaserEmail,
+      },
+    })
+    await auditClient.query('COMMIT')
+  } catch (error) {
+    await auditClient.query('ROLLBACK').catch(() => {})
+    throw error
+  } finally {
+    auditClient.release()
+  }
+
+  const refreshClient = await pool.connect()
+  try {
+    return await getOrder(refreshClient, orderId)
+  } finally {
+    refreshClient.release()
+  }
 }
 
 async function sendReceiptIfNeeded(pool, orderId) {
@@ -1397,8 +1481,18 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
       const orderId = integer(req.params.id, null)
       const status = String(req.body?.status ?? '')
       const action = String(req.body?.action ?? '')
-      if (!orderId || !(['fulfilled', 'cancelled'].includes(status) || action === 'collect_payment')) {
+      if (!orderId || !(['fulfilled', 'cancelled'].includes(status) || ['collect_payment', 'send_receipt'].includes(action))) {
         return res.status(400).json({ success: false, message: 'Choose a valid order status.' })
+      }
+      if (action === 'send_receipt') {
+        const purchaserEmail = String(req.body?.purchaserEmail ?? '').trim()
+        const order = await sendStoreOrderReceipt(pool, {
+          orderId,
+          facilityId,
+          purchaserEmail,
+          actorUserId: integer(req.platformAuth?.user?.id, null),
+        })
+        return res.json({ success: true, data: order })
       }
       if (action === 'collect_payment') {
         const order = await collectStoreOrderPayment(pool, {

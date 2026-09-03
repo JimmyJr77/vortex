@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Archive, Check, ClipboardList, Copy, Download, History, LoaderCircle, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
+import { Archive, Check, ClipboardList, Copy, Download, History, LoaderCircle, Mail, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
 import {
   adminAdjustStoreInventory,
   adminCollectStoreOrderPayment,
@@ -13,6 +13,7 @@ import {
   adminFetchStoreDiscountCodes,
   adminFetchStoreProducts,
   adminSearchStoreMembers,
+  adminSendStoreOrderReceipt,
   adminUpdateStoreDiscount,
   adminUpdateStoreOrder,
   adminUpdateStoreProduct,
@@ -249,12 +250,11 @@ export default function AdminStore() {
   const [saleCart, setSaleCart] = useState<Record<number, number>>({})
   const [productSearch, setProductSearch] = useState('')
   const [salePayment, setSalePayment] = useState<StorePaymentMethod>('card')
-  const [saleCode, setSaleCode] = useState('')
   const [memberSearch, setMemberSearch] = useState('')
   const [memberOptions, setMemberOptions] = useState<StoreMemberOption[]>([])
   const [selectedMember, setSelectedMember] = useState<StoreMemberOption | null>(null)
   const [saleEmail, setSaleEmail] = useState('')
-  const [saleName, setSaleName] = useState('')
+  const [receiptEmailDrafts, setReceiptEmailDrafts] = useState<Record<number, string>>({})
   const [saleReference, setSaleReference] = useState('')
   const [pendingCardEntryUrl, setPendingCardEntryUrl] = useState<string | null>(null)
   const [auditActions, setAuditActions] = useState<StoreActionAudit[]>([])
@@ -303,6 +303,16 @@ export default function AdminStore() {
   useEffect(() => {
     if (showAuditActions) void loadAuditActions()
   }, [showAuditActions, loadAuditActions])
+
+  useEffect(() => {
+    setReceiptEmailDrafts((current) => {
+      const next = { ...current }
+      for (const order of orders) {
+        if (next[order.id] === undefined) next[order.id] = order.purchaserEmail ?? ''
+      }
+      return next
+    })
+  }, [orders])
 
   useEffect(() => {
     if (!memberSearch.trim() || selectedMember?.name === memberSearch) {
@@ -515,8 +525,7 @@ export default function AdminStore() {
   const chooseMember = (member: StoreMemberOption) => {
     setSelectedMember(member)
     setMemberSearch(member.name)
-    setSaleName(member.name)
-    setSaleEmail(member.email || '')
+    if (member.email) setSaleEmail(member.email)
     setMemberOptions([])
   }
 
@@ -524,18 +533,29 @@ export default function AdminStore() {
     const items: StoreCartLine[] = saleLines.map(({ product, quantity }) => ({ productId: product.id, quantity }))
     const order = await adminCreateStoreOrder({
       memberId: selectedMember?.id ?? null,
-      purchaserName: saleName || null,
-      purchaserEmail: saleEmail || null,
+      purchaserEmail: saleEmail.trim() || null,
       paymentMethod: salePayment,
       items,
-      discountCode: saleCode || undefined,
       externalReference: saleReference || undefined,
     })
     setPendingCardEntryUrl(order.stripeCheckoutUrl)
     setSaleCart({})
-    setSaleCode('')
     setSaleReference('')
-  }, salePayment === 'card' ? 'Secure card entry is ready. The sale will be marked paid after Stripe confirms it.' : 'Sale recorded and receipt sent when an email is available.')
+    setSaleEmail('')
+    setSelectedMember(null)
+    setMemberSearch('')
+  }, salePayment === 'card' ? 'Secure card entry is ready. The sale will be marked paid after Stripe confirms it.' : 'Sale recorded.')
+
+  const emailOrderReceipt = (order: StoreOrder) => {
+    const purchaserEmail = receiptEmailDrafts[order.id]?.trim() ?? ''
+    if (!purchaserEmail) {
+      setError('Enter an email address for the receipt.')
+      return
+    }
+    void runSave(async () => {
+      await adminSendStoreOrderReceipt(order.id, purchaserEmail)
+    }, order.receiptSentAt ? 'Receipt resent.' : 'Receipt emailed.')
+  }
 
   const updateProduct = (product: StoreProduct, change: Partial<StoreProduct>, success = 'Store item updated.') => void runSave(async () => {
     await adminUpdateStoreProduct(product.id, change)
@@ -590,8 +610,46 @@ export default function AdminStore() {
             <p className="mt-1 text-sm text-gray-600">Record cash, check, or mobile payment, prepare secure card entry, or add the purchase to a member’s account.</p>
           </div>
           <div className="grid gap-5 p-5 lg:grid-cols-2">
-            <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wide text-gray-500">Member (optional except monthly account)<div className="relative mt-1"><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-gray-400" /><input value={memberSearch} onChange={(event) => { setMemberSearch(event.target.value); setSelectedMember(null) }} placeholder="Search member" className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-black" />{memberOptions.length > 0 && <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">{memberOptions.map((member) => <button type="button" key={member.id} onClick={() => chooseMember(member)} className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"><strong>{member.name}</strong>{member.email && <span className="ml-2 text-xs text-gray-500">{member.email}</span>}</button>)}</div>}</div></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Receipt name<input value={saleName} onChange={(event) => setSaleName(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Receipt email<input type="email" value={saleEmail} onChange={(event) => setSaleEmail(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label></div></div>
-            <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wide text-gray-500">Payment method<select value={salePayment} onChange={(event) => { const paymentMethod = event.target.value as StorePaymentMethod; setSalePayment(paymentMethod); if (paymentMethod !== 'card') setPendingCardEntryUrl(null) }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black"><option value="card">Input credit/debit details</option><option value="card_terminal" disabled>Card terminal (not available)</option><option value="billing_account">Bill monthly account</option><option value="cash">Cash</option><option value="check">Check</option><option value="mobile">Mobile payment</option></select></label><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Store code<input value={saleCode} onChange={(event) => setSaleCode(event.target.value.toUpperCase())} placeholder="Optional" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold outline-none focus:border-black" /></label><label className="text-xs font-bold uppercase tracking-wide text-gray-500">Reference<input value={saleReference} onChange={(event) => setSaleReference(event.target.value)} placeholder="Check #, mobile ID…" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" /></label></div></div>
+            <div className="space-y-3">
+              <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
+                Member (optional except monthly account)
+                <div className="relative mt-1">
+                  <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <input value={memberSearch} onChange={(event) => { setMemberSearch(event.target.value); setSelectedMember(null) }} placeholder="Search member" className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-black" />
+                  {memberOptions.length > 0 && (
+                    <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                      {memberOptions.map((member) => (
+                        <button type="button" key={member.id} onClick={() => chooseMember(member)} className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50">
+                          <strong>{member.name}</strong>
+                          {member.email && <span className="ml-2 text-xs text-gray-500">{member.email}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </label>
+              <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
+                Receipt email (optional)
+                <input type="email" value={saleEmail} onChange={(event) => setSaleEmail(event.target.value)} placeholder="Email receipt after checkout" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" />
+              </label>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
+                Payment method
+                <select value={salePayment} onChange={(event) => { const paymentMethod = event.target.value as StorePaymentMethod; setSalePayment(paymentMethod); if (paymentMethod !== 'card') setPendingCardEntryUrl(null) }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black">
+                  <option value="card">Input credit/debit details</option>
+                  <option value="card_terminal" disabled>Card terminal (not available)</option>
+                  <option value="billing_account">Bill monthly account</option>
+                  <option value="cash">Cash</option>
+                  <option value="check">Check</option>
+                  <option value="mobile">Mobile payment</option>
+                </select>
+              </label>
+              <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
+                Reference or Notes
+                <input value={saleReference} onChange={(event) => setSaleReference(event.target.value)} placeholder="Check #, mobile ID, notes…" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black" />
+              </label>
+            </div>
           </div>
           <div className="border-t border-gray-100 p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -808,7 +866,7 @@ export default function AdminStore() {
             <ClipboardList className="h-5 w-5 text-vortex-red" />
             <div>
               <h3 className="font-display text-xl font-bold text-gray-950">Recent sales & pickup</h3>
-              <p className="text-sm text-gray-600">Collect pickup payments, then mark placed orders picked up at the gym.</p>
+              <p className="text-sm text-gray-600">Collect pickup payments, mark orders picked up, and email receipts any time after checkout.</p>
             </div>
           </div>
           <div className="mt-4 divide-y divide-gray-100">
@@ -819,7 +877,9 @@ export default function AdminStore() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <strong className="text-sm text-gray-950">{order.orderNumber}</strong>
-                    <span className="ml-2 text-xs text-gray-500">{order.purchaserName || 'Walk-in'} · {new Date(order.createdAt).toLocaleDateString()}</span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      {order.purchaserEmail || 'No receipt email'} · {new Date(order.createdAt).toLocaleDateString()}
+                    </span>
                     <p className="mt-1 text-xs text-gray-600">{order.items.map((item) => `${item.quantity}× ${item.productName}`).join(', ')}</p>
                   </div>
                   <strong className="text-sm text-gray-950">{formatMoney(order.totalCents)}</strong>
@@ -828,9 +888,32 @@ export default function AdminStore() {
                   <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{order.paymentMethod.replace('_', ' ')}</span>
                   <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${order.status === 'fulfilled' ? 'bg-green-100 text-green-800' : order.status === 'placed' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600'}`}>{order.status === 'fulfilled' ? 'Picked up' : order.status.replace('_', ' ')}</span>
                   {order.status === 'placed' && <button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreOrder(order.id, 'fulfilled') }, 'Order marked picked up.')} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red"><Check className="h-3.5 w-3.5" />Picked up</button>}
-                  {order.status === 'awaiting_payment' && ['cash', 'check', 'mobile'].includes(order.paymentMethod) && <button type="button" onClick={() => void runSave(async () => { await adminCollectStoreOrderPayment(order.id) }, 'Payment collected and receipt sent.')} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red"><Check className="h-3.5 w-3.5" />Collect payment</button>}
+                  {order.status === 'awaiting_payment' && ['cash', 'check', 'mobile'].includes(order.paymentMethod) && <button type="button" onClick={() => void runSave(async () => { await adminCollectStoreOrderPayment(order.id) }, 'Payment collected.')} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red"><Check className="h-3.5 w-3.5" />Collect payment</button>}
                   {(order.status === 'awaiting_payment' || order.paymentStatus === 'billed_to_account') && <button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreOrder(order.id, 'cancelled') }, 'Order cancelled and stock returned.')} className="rounded px-2.5 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancel</button>}
                 </div>
+                {['placed', 'fulfilled'].includes(order.status) && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <input
+                      type="email"
+                      value={receiptEmailDrafts[order.id] ?? ''}
+                      onChange={(event) => setReceiptEmailDrafts((current) => ({ ...current, [order.id]: event.target.value }))}
+                      placeholder="Receipt email"
+                      className="min-w-[220px] flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-black"
+                    />
+                    <button
+                      type="button"
+                      disabled={saving || !receiptEmailDrafts[order.id]?.trim()}
+                      onClick={() => emailOrderReceipt(order)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                      {order.receiptSentAt ? 'Resend receipt' : 'Email receipt'}
+                    </button>
+                    {order.receiptSentAt && (
+                      <span className="text-xs text-gray-500">Last sent {new Date(order.receiptSentAt).toLocaleString()}</span>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

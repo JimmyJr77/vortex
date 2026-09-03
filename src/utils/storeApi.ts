@@ -61,6 +61,7 @@ export interface StoreOrder {
   discountCode: string | null
   fulfillmentNote: string
   pickedUpAt: string | null
+  receiptSentAt: string | null
   createdAt: string
   updatedAt: string
   stripeCheckoutUrl: string | null
@@ -209,7 +210,7 @@ export async function adminSearchStoreMembers(query: string): Promise<StoreMembe
 }
 
 export async function adminCreateStoreOrder(payload: {
-  memberId?: number | null; purchaserName?: string | null; purchaserEmail?: string | null
+  memberId?: number | null; purchaserEmail?: string | null
   items: StoreCartLine[]; paymentMethod: StorePaymentMethod; discountCode?: string; externalReference?: string
 }) {
   return adminRequest<StoreOrder>('/api/admin/store/orders', {
@@ -228,5 +229,13 @@ export async function adminUpdateStoreOrder(id: number, status: 'fulfilled' | 'c
 export async function adminCollectStoreOrderPayment(id: number) {
   return adminRequest<StoreOrder>(`/api/admin/store/orders/${id}`, {
     method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'collect_payment' }),
+  })
+}
+
+export async function adminSendStoreOrderReceipt(id: number, purchaserEmail: string) {
+  return adminRequest<StoreOrder>(`/api/admin/store/orders/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'send_receipt', purchaserEmail }),
   })
 }
