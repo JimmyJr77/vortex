@@ -645,6 +645,7 @@ for (const source of ['/assets/(.*)', '/fonts/(.*)']) {
 
 const spaOnlyPaths = [
   '/copy',
+  '/store',
   '/signup/family',
   '/signup/invite',
   '/verify-email',
