@@ -43,7 +43,7 @@ import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard, ShoppingBag } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -84,7 +84,7 @@ interface Category {
 
 type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -149,7 +149,8 @@ const GROUPS: GroupDef[] = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'customerBilling', 'store', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'customerBilling', 'access'] },
+  { id: 'store', label: 'Store', icon: ShoppingBag, sections: ['store'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },

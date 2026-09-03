@@ -20,11 +20,20 @@ import {
   type StoreOrder,
   type StorePaymentMethod,
   type StoreProduct,
+  type StoreCategory,
 } from '../../utils/storeApi'
 
 const formatMoney = (cents: number) => `$${(cents / 100).toFixed(2)}`
 
-const emptyProduct = { sku: '', name: '', description: '', category: 'apparel' as const, price: '', inventory: '', isPublic: true }
+const emptyProduct: { sku: string; name: string; description: string; category: StoreCategory; price: string; inventory: string; isPublic: boolean } = {
+  sku: '',
+  name: '',
+  description: '',
+  category: 'apparel',
+  price: '',
+  inventory: '',
+  isPublic: true,
+}
 type DiscountForm = { code: string; type: 'percent' | 'amount'; value: string; minimum: string; max: string }
 const emptyDiscount: DiscountForm = { code: '', type: 'percent', value: '', minimum: '', max: '' }
 
@@ -39,6 +48,7 @@ export default function AdminStore() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [productForm, setProductForm] = useState(emptyProduct)
+  const [copySourceProductId, setCopySourceProductId] = useState('')
   const [discountForm, setDiscountForm] = useState<DiscountForm>(emptyDiscount)
   const [saleCart, setSaleCart] = useState<Record<number, number>>({})
   const [salePayment, setSalePayment] = useState<StorePaymentMethod>('card')
@@ -117,7 +127,26 @@ export default function AdminStore() {
       isPublic: productForm.isPublic,
     })
     setProductForm(emptyProduct)
+    setCopySourceProductId('')
   }, 'Store item added.')
+
+  const copyProductToForm = (productId: string) => {
+    setCopySourceProductId(productId)
+    const product = products.find((item) => String(item.id) === productId)
+    if (!product) {
+      setProductForm(emptyProduct)
+      return
+    }
+    setProductForm({
+      sku: '',
+      name: product.name,
+      description: product.description ?? '',
+      category: product.category,
+      price: (product.priceCents / 100).toFixed(2),
+      inventory: product.inventoryQuantity == null ? '' : String(product.inventoryQuantity),
+      isPublic: product.isPublic,
+    })
+  }
 
   const createDiscount = () => void runSave(async () => {
     await adminCreateStoreDiscount({
@@ -205,7 +234,24 @@ export default function AdminStore() {
           <div className="border-t border-gray-100 p-5"><p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-500">Add items</p><div className="grid gap-2 sm:grid-cols-2">{activeProducts.map((product) => { const quantity = saleCart[product.id] ?? 0; const out = product.inventoryQuantity === 0; return <div key={product.id} className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2.5"><div className="min-w-0"><strong className="block truncate text-sm text-gray-900">{product.name}</strong><span className="text-xs text-gray-500">{formatMoney(product.priceCents)}{product.inventoryQuantity != null ? ` · ${product.inventoryQuantity} in stock` : ''}</span></div>{quantity === 0 ? <button type="button" disabled={out} onClick={() => setSaleQuantity(product, 1)} className="rounded-md bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red disabled:opacity-40">Add</button> : <div className="flex items-center gap-2"><button type="button" onClick={() => setSaleQuantity(product, quantity - 1)} className="rounded border border-gray-300 p-1"><X className="h-3.5 w-3.5" /></button><strong className="text-sm">{quantity}</strong><button type="button" disabled={product.inventoryQuantity != null && quantity >= product.inventoryQuantity} onClick={() => setSaleQuantity(product, quantity + 1)} className="rounded border border-gray-300 p-1 disabled:opacity-40"><Plus className="h-3.5 w-3.5" /></button></div>}</div> })}</div><div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gray-950 px-4 py-3 text-white"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}Record sale</button></div></div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><PackagePlus className="h-5 w-5 text-vortex-red" /><h3 className="font-display text-xl font-bold text-gray-950">Add store item</h3></div><div className="mt-4 grid gap-3"><div className="grid grid-cols-2 gap-3"><input value={productForm.name} onChange={(event) => setProductForm((form) => ({ ...form, name: event.target.value }))} placeholder="Item name" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input value={productForm.sku} onChange={(event) => setProductForm((form) => ({ ...form, sku: event.target.value.toUpperCase() }))} placeholder="SKU" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold uppercase outline-none focus:border-black" /></div><input value={productForm.description} onChange={(event) => setProductForm((form) => ({ ...form, description: event.target.value }))} placeholder="Brief description" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><div className="grid grid-cols-3 gap-3"><select value={productForm.category} onChange={(event) => setProductForm((form) => ({ ...form, category: event.target.value as typeof form.category }))} className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"><option value="apparel">Apparel</option><option value="food_drink">Food & drink</option><option value="other">Other</option></select><input type="number" min="0" step="0.01" value={productForm.price} onChange={(event) => setProductForm((form) => ({ ...form, price: event.target.value }))} placeholder="Price" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input type="number" min="0" step="1" value={productForm.inventory} onChange={(event) => setProductForm((form) => ({ ...form, inventory: event.target.value }))} placeholder="Stock" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div><label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" checked={productForm.isPublic} onChange={(event) => setProductForm((form) => ({ ...form, isPublic: event.target.checked }))} />Show in public/member store</label><button type="button" disabled={saving} onClick={createProduct} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-bold text-white hover:bg-vortex-red disabled:opacity-50"><Plus className="h-4 w-4" />Add item</button></div></section>
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2"><PackagePlus className="h-5 w-5 text-vortex-red" /><h3 className="font-display text-xl font-bold text-gray-950">Add store item</h3></div>
+          <div className="mt-4 grid gap-3">
+            <label className="grid gap-1 text-xs font-bold uppercase tracking-wide text-gray-500">
+              Copy an existing item
+              <select value={copySourceProductId} onChange={(event) => copyProductToForm(event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-normal normal-case outline-none focus:border-black">
+                <option value="">Start a new item</option>
+                {products.map((product) => <option key={product.id} value={product.id}>{product.name} · {product.sku}{product.isActive ? '' : ' (archived)'}</option>)}
+              </select>
+              <span className="font-normal normal-case text-gray-500">Copies item details and price; enter a new SKU before saving.</span>
+            </label>
+            <div className="grid grid-cols-2 gap-3"><input value={productForm.name} onChange={(event) => setProductForm((form) => ({ ...form, name: event.target.value }))} placeholder="Item name" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input value={productForm.sku} onChange={(event) => setProductForm((form) => ({ ...form, sku: event.target.value.toUpperCase() }))} placeholder="SKU" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-semibold uppercase outline-none focus:border-black" /></div>
+            <input value={productForm.description} onChange={(event) => setProductForm((form) => ({ ...form, description: event.target.value }))} placeholder="Brief description" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" />
+            <div className="grid grid-cols-3 gap-3"><select value={productForm.category} onChange={(event) => setProductForm((form) => ({ ...form, category: event.target.value as typeof form.category }))} className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm"><option value="apparel">Apparel</option><option value="food_drink">Food & drink</option><option value="other">Other</option></select><input type="number" min="0" step="0.01" value={productForm.price} onChange={(event) => setProductForm((form) => ({ ...form, price: event.target.value }))} placeholder="Price" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /><input type="number" min="0" step="1" value={productForm.inventory} onChange={(event) => setProductForm((form) => ({ ...form, inventory: event.target.value }))} placeholder="Stock" className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black" /></div>
+            <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" checked={productForm.isPublic} onChange={(event) => setProductForm((form) => ({ ...form, isPublic: event.target.checked }))} />Show in public/member store</label>
+            <button type="button" disabled={saving} onClick={createProduct} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-bold text-white hover:bg-vortex-red disabled:opacity-50"><Plus className="h-4 w-4" />Add item</button>
+          </div>
+        </section>
       </div>
 
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5"><div><h3 className="font-display text-xl font-bold text-gray-950">Catalog & inventory</h3><p className="mt-1 text-sm text-gray-600">Archive instead of deleting anything with order history.</p></div>{lowStock.length > 0 && <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800">{lowStock.length} low-stock item{lowStock.length === 1 ? '' : 's'}</span>}</div><div className="overflow-x-auto"><table className="min-w-[780px] w-full text-sm"><thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500"><tr><th className="px-5 py-3">Item</th><th className="px-5 py-3">Price</th><th className="px-5 py-3">Inventory</th><th className="px-5 py-3">Visibility</th><th className="px-5 py-3 text-right">Actions</th></tr></thead><tbody className="divide-y divide-gray-100">{products.map((product) => <tr key={product.id} className={!product.isActive ? 'bg-gray-50 text-gray-400' : ''}><td className="px-5 py-3"><strong className="text-gray-900">{product.name}</strong><span className="ml-2 text-xs text-gray-500">{product.sku} · {product.category.replace('_', ' ')}</span></td><td className="px-5 py-3"><input type="number" min="0" step="0.01" defaultValue={(product.priceCents / 100).toFixed(2)} onBlur={(event) => { const cents = Math.round(Number(event.target.value) * 100); if (Number.isSafeInteger(cents) && cents !== product.priceCents) updateProduct(product, { priceCents: cents }, 'Price updated.') }} className="w-20 rounded border border-gray-300 px-2 py-1.5 font-semibold text-gray-900" /></td><td className="px-5 py-3"><span className={product.inventoryQuantity != null && product.inventoryQuantity <= 5 ? 'font-bold text-amber-700' : 'text-gray-700'}>{product.inventoryQuantity == null ? 'Not tracked' : product.inventoryQuantity}</span>{product.inventoryQuantity != null && <button type="button" onClick={() => adjustInventory(product)} className="ml-2 text-xs font-bold text-vortex-red hover:underline">Adjust</button>}</td><td className="px-5 py-3"><label className="inline-flex items-center gap-2 text-xs font-semibold text-gray-700"><input type="checkbox" checked={product.isPublic} disabled={!product.isActive || saving} onChange={(event) => updateProduct(product, { isPublic: event.target.checked }, event.target.checked ? 'Item is now public.' : 'Item is now front-desk only.')} />Public</label></td><td className="px-5 py-3 text-right"><button type="button" disabled={saving || !product.isActive} onClick={() => updateProduct(product, { isActive: false }, 'Item archived.') } className="inline-flex items-center gap-1 rounded px-2 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"><Archive className="h-3.5 w-3.5" />Archive</button></td></tr>)}</tbody></table></div></section>
