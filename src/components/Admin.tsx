@@ -23,6 +23,7 @@ import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import CancellationReviewPanel from './billing/CancellationReviewPanel'
 import DisputeCasesPanel from './billing/DisputeCasesPanel'
 import StripeOperationsPanel from './billing/StripeOperationsPanel'
+import StripePaymentsPanel from './billing/StripePaymentsPanel'
 import AdminWaivers from './AdminWaivers'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
@@ -83,7 +84,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -99,7 +100,7 @@ interface BillingAccountTarget {
   memberId: number | null
 }
 
-const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
+const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; masterAdminOnly?: boolean }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
   { id: 'admins', label: 'Staff Access', permission: 'admin_access.manage' },
@@ -119,6 +120,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'customerBilling', label: 'Account Billing & Enrollments', permission: 'billing.view' },
   { id: 'store', label: 'Store', permission: 'billing.view' },
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
+  { id: 'stripePayments', label: 'Stripe Payments', permission: 'billing.view', masterAdminOnly: true },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
   { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
@@ -155,7 +157,7 @@ const GROUPS: GroupDef[] = [
   { id: 'store', label: 'Store', icon: ShoppingBag, sections: ['store'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
-  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
+  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing', 'stripePayments'] },
   { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
   { id: 'opportunityResearch', label: 'Opportunities', icon: Target, sections: ['opportunities'] },
   { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
@@ -237,6 +239,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const visibleTabs = useMemo(
     () =>
       tabDefinitions.filter((tab) => {
+        if (tab.masterAdminOnly && !accessContext?.isMasterAdmin) return false
         if (!tab.permission) return true
         if (!accessContext) return false
         return accessContext.isMasterAdmin || accessContext.permissions.includes(tab.permission)
@@ -401,6 +404,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             <StripeOperationsPanel />
           </div>
         )
+      case 'stripePayments':
+        return <StripePaymentsPanel />
       case 'customerBilling':
         return (
           <AdminCustomerBilling

@@ -93,6 +93,7 @@ import {
 import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
 import { listDisputeCases, syncDisputeCase, updateDisputeEvidence } from '../billing/disputeOperations.js'
 import { getStripeOperationsDashboard, runStripeReconciliation } from '../billing/stripeReconciliation.js'
+import { listStripePayments } from '../billing/stripePayments.js'
 import { buildPaymentRegistrationReport } from '../billing/paymentRegistrationReport.js'
 import {
   beginBillingAdminAction,
@@ -4124,6 +4125,27 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     } catch (error) {
       console.error('[stripe] operations dashboard:', error)
       res.status(errorStatus(error, 500)).json({ success: false, message: 'Failed to load Stripe operations.' })
+    }
+  })
+
+  app.get('/api/admin/stripe/payments', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    try {
+      // A Stripe-wide view cannot be safely filtered to a facility, so reserve
+      // it for the Facility Owner rather than accidentally exposing another
+      // facility's Stripe transactions to a staff billing role.
+      if (req.platformAuth?.isMasterAdmin !== true) {
+        return res.status(403).json({ success: false, message: 'Facility Owner access is required.' })
+      }
+      if (!isStripeEnabled()) {
+        return res.status(503).json({ success: false, message: 'Stripe payments are unavailable because Stripe is not configured.' })
+      }
+      const stripe = await getStripeClient()
+      const data = await listStripePayments(stripe)
+      res.setHeader('Cache-Control', 'no-store')
+      res.json({ success: true, data })
+    } catch (error) {
+      console.error('[stripe] payments list:', error)
+      res.status(error?.statusCode ?? 500).json({ success: false, message: error?.message || 'Failed to load Stripe payments.' })
     }
   })
 
