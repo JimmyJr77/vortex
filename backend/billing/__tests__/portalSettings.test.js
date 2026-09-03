@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import {
   COACH_PORTAL_TAB_KEYS,
   COACH_PORTAL_TAB_LABELS,
+  MEMBER_PORTAL_TAB_KEYS,
+  MEMBER_PORTAL_TAB_LABELS,
   normalizePortalConfig,
 } from '../../platform/portalSettings.js'
 
@@ -30,12 +32,23 @@ test('normalizePortalConfig defaults to empty hidden lists and canonical order',
     'messages',
     'faqs',
     'events',
+    'store',
     'billing',
     'waivers',
     'preferences',
   ])
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'needs', 'library'])
   assert.ok(config.coach.tabOrder.includes('flip-fit'))
+})
+
+test('member portal preserves the Store selection', () => {
+  const config = normalizePortalConfig({
+    member: { hiddenTabs: ['store'], tabOrder: ['home', 'store', 'billing'] },
+  })
+  assert.ok(MEMBER_PORTAL_TAB_KEYS.includes('store'))
+  assert.equal(MEMBER_PORTAL_TAB_LABELS.store, 'Store')
+  assert.deepEqual(config.member.hiddenTabs, ['store'])
+  assert.deepEqual(config.member.tabOrder.slice(0, 3), ['home', 'store', 'billing'])
 })
 
 test('coach portal exposes the Flip & Fit tab and label', () => {

@@ -4523,9 +4523,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: updated.rows[0] })
   })
 
-  app.get('/api/admin/portal-settings', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (_req, res) => {
+  app.get('/api/admin/portal-settings', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
     try {
-      const config = await loadPortalConfig(pool)
+      const config = await loadPortalConfig(pool, req.platformAuth?.user?.facility_id ?? null)
       res.json({ success: true, data: config })
     } catch (err) {
       console.error('[admin] portal-settings get:', err)
@@ -4538,7 +4538,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       const config = await savePortalConfig(pool, {
         member: req.body?.member,
         coach: req.body?.coach,
-      })
+      }, req.platformAuth?.user?.facility_id ?? null)
       res.json({ success: true, data: config })
     } catch (err) {
       console.error('[admin] portal-settings put:', err)

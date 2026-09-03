@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { LayoutGrid, Menu, ShoppingBag, UserCircle, X } from 'lucide-react'
+import { LayoutGrid, Menu, UserCircle, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
@@ -123,15 +123,6 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                     <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="hidden min-[1075px]:inline">Classes &amp; Events</span>
                   </motion.span>
-                </Link>
-                <Link
-                  to="/store"
-                  className="flex min-w-[3rem] flex-none items-center justify-center gap-2 rounded-lg border border-white/40 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-105 hover:border-white hover:bg-white hover:text-black min-[1075px]:min-w-0 min-[1075px]:px-4 min-[1075px]:py-2.5 min-[1075px]:text-sm"
-                  aria-label="Vortex Store"
-                  title="Vortex Store"
-                >
-                  <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="hidden min-[1075px]:inline">Store</span>
                 </Link>
               </>
             )}
