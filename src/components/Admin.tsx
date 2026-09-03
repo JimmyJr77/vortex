@@ -17,6 +17,7 @@ import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminCustomerBilling from './AdminCustomerBilling'
+import AdminBillingOverview from './AdminBillingOverview'
 import AdminStore from './admin/AdminStore'
 import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import CancellationReviewPanel from './billing/CancellationReviewPanel'
@@ -82,7 +83,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -95,7 +96,7 @@ interface AccessContext {
 
 interface BillingAccountTarget {
   familyId: number
-  memberId: number
+  memberId: number | null
 }
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
@@ -103,6 +104,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
   { id: 'admins', label: 'Staff Access', permission: 'admin_access.manage' },
   { id: 'membership', label: 'Members', permission: 'members.view' },
+  { id: 'billingOverview', label: 'Billing Overview', permission: 'billing.view' },
   { id: 'messages', label: 'Messages' },
   { id: 'faqs', label: 'FAQ library' },
   { id: 'access', label: 'Staff Access', permission: 'admin_access.manage' },
@@ -149,7 +151,7 @@ const GROUPS: GroupDef[] = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'customerBilling', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'customerBilling', 'access'] },
   { id: 'store', label: 'Store', icon: ShoppingBag, sections: ['store'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
@@ -268,8 +270,11 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     const params = new URLSearchParams(window.location.search)
     const familyId = Number(params.get('adminBillingFamilyId'))
     const memberId = Number(params.get('adminBillingMemberId'))
-    if (!Number.isSafeInteger(familyId) || familyId <= 0 || !Number.isSafeInteger(memberId) || memberId <= 0) return
-    setBillingAccountTarget({ familyId, memberId })
+    if (!Number.isSafeInteger(familyId) || familyId <= 0) return
+    setBillingAccountTarget({
+      familyId,
+      memberId: Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null,
+    })
     goToSection('customerBilling')
   }, [accessLoading, goToSection])
 
@@ -401,6 +406,15 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           <AdminCustomerBilling
             accountTarget={billingAccountTarget}
             onAccountTargetConsumed={() => setBillingAccountTarget(null)}
+          />
+        )
+      case 'billingOverview':
+        return (
+          <AdminBillingOverview
+            onOpenFamily={(familyId, memberId) => {
+              setBillingAccountTarget({ familyId, memberId })
+              goToSection('customerBilling')
+            }}
           />
         )
       case 'store':

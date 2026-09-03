@@ -999,7 +999,7 @@ function ActivityPanel({ rows, hasMore, loading, onLoadMore }: { rows: BillingAc
 
 interface BillingAccountTarget {
   familyId: number
-  memberId: number
+  memberId: number | null
 }
 
 interface AdminCustomerBillingProps {

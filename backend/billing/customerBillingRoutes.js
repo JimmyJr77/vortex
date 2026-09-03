@@ -1,6 +1,7 @@
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyPaymentRequest, notifyRefundReceipt } from '../email/memberNotifications.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
+import { listBillingAnomalies } from './billingAnomalies.js'
 import {
   buildCustomerBillingOverview,
   ensureCustomerBillingAccount,
@@ -9,6 +10,7 @@ import {
   listCustomerBillingTransactions,
   searchCustomerBilling,
 } from './customerBillingQueries.js'
+import { listCustomerBillingOverviews } from './customerBillingOverviewList.js'
 import {
   createEnrollmentPriceAdjustment,
   previewEnrollmentPriceAdjustment,
@@ -106,6 +108,23 @@ function transactionFilters(req, accountId) {
 
 export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission }) {
   app.get(
+    '/api/admin/customer-billing/anomalies',
+    ...requirePermission(pool, jwtSecret, 'billing.view'),
+    async (req, res) => {
+      try {
+        const data = await listBillingAnomalies(pool, { facilityId: facilityId(req) })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] anomalies:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Billing anomalies could not be loaded.',
+        })
+      }
+    },
+  )
+
+  app.get(
     '/api/admin/customer-billing/search',
     ...requirePermission(pool, jwtSecret, 'billing.view'),
     async (req, res) => {
@@ -118,6 +137,22 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] search:', error)
         res.status(errorStatus(error)).json({ success: false, message: 'Customer billing search failed.' })
+      }
+    },
+  )
+
+  app.get(
+    '/api/admin/customer-billing/overview',
+    ...requirePermission(pool, jwtSecret, 'billing.view'),
+    async (req, res) => {
+      try {
+        const data = await listCustomerBillingOverviews(pool, {
+          facilityId: facilityId(req),
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] overview list:', error)
+        res.status(errorStatus(error)).json({ success: false, message: 'Billing overview failed to load.' })
       }
     },
   )
