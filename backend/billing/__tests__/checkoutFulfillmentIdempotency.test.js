@@ -68,6 +68,7 @@ test('annual fulfillment rejects a paid Session whose amount or currency differs
   const request = { currency: 'usd', expected_amount_cents: 7000 }
   const paid = {
     mode: 'payment',
+    status: 'complete',
     payment_status: 'paid',
     currency: 'usd',
     amount_total: 7000,
@@ -80,6 +81,22 @@ test('annual fulfillment rejects a paid Session whose amount or currency differs
   assert.deepEqual(
     validateAnnualMembershipCheckoutSettlement({ ...paid, currency: 'cad' }, request),
     { ok: false, reason: 'settlement_currency_mismatch' },
+  )
+  assert.deepEqual(
+    validateAnnualMembershipCheckoutSettlement(
+      { ...paid, customer: 'cus_other' },
+      request,
+      { expectedCustomerId: 'cus_family' },
+    ),
+    { ok: false, reason: 'settlement_customer_mismatch' },
+  )
+  assert.deepEqual(
+    validateAnnualMembershipCheckoutSettlement(
+      { ...paid, customer: 'cus_family' },
+      request,
+      { expectedCustomerId: 'cus_family' },
+    ),
+    { ok: true },
   )
 })
 

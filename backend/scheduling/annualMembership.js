@@ -61,10 +61,14 @@ function redemptionIsActive(row, asOfDate) {
  * Active annual membership window for a member, if any.
  * @param {import('pg').Pool|import('pg').PoolClient} pool
  * @param {number} memberId
- * @param {{ asOf?: Date, feeId?: number|null }} [opts]
+ * @param {{ asOf?: Date, feeId?: number|null, strict?: boolean }} [opts]
  * @returns {Promise<ActiveAnnualMembership|null>}
  */
-export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Date(), feeId = null } = {}) {
+export async function loadActiveAnnualMembership(
+  pool,
+  memberId,
+  { asOf = new Date(), feeId = null, strict = false } = {},
+) {
   if (!memberId) return null
   const asOfDate = asOf instanceof Date ? asOf : new Date(asOf)
   const asOfKey = toUtcDateString(asOfDate)
@@ -124,7 +128,8 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
           : Number(row.billing_subscription_id),
       }
     }
-  } catch {
+  } catch (error) {
+    if (strict) throw error
     return null
   }
 

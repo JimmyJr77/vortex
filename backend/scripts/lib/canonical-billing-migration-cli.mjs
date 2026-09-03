@@ -81,15 +81,41 @@ function positiveOption(name, { required = false } = {}) {
 function ssl(connectionString) {
   if (process.env.DATABASE_SSL === 'false') return false
   if (process.env.DATABASE_SSL === 'true') return { rejectUnauthorized: false }
-  return /render\.com|neon\.tech|supabase\.co|rds\.amazonaws\.com/i.test(String(connectionString ?? ''))
+  const hostname = new URL(String(connectionString)).hostname
+  return /(?:^|\.)(?:render\.com|neon\.tech|supabase\.co|rds\.amazonaws\.com)$/i.test(hostname)
     ? { rejectUnauthorized: false }
     : false
 }
 
-export function migrationHasFailure(report) {
-  return report?.cohortStopped === true || (report?.accounts ?? []).some((account) =>
-    account.state === 'error' || account.state === 'missing' || account.eligible === false,
-  )
+export function migrationHasFailure(report, {
+  allowReviewedManualForwardAdoption = false,
+} = {}) {
+  return report?.cohortStopped === true || (report?.accounts ?? []).some((account) => {
+    if (account.state === 'error' || account.state === 'missing') return true
+    if (account.eligible !== false) return false
+    if (!allowReviewedManualForwardAdoption) return true
+    const blocking = (account.exceptions ?? []).filter((issue) => (
+      ['blocking', 'critical'].includes(String(issue?.severity ?? ''))
+    ))
+    return !(
+      account.sourceCollectionMode === 'manual'
+      && account.payerValidationStatus === 'verified'
+      && account.parityStatus === 'matched'
+      && blocking.length > 0
+      && blocking.every((issue) => issue.code === 'manual_collection_requires_review')
+    )
+  })
+}
+
+export function resolveCanonicalDatabaseUrl(environment = process.env) {
+  const candidates = ['EXTERNAL_DB_URL', 'DATABASE_URL', 'DB_URL']
+    .map((name) => ({ name, value: String(environment[name] ?? '').trim() }))
+    .filter((entry) => entry.value)
+  if (candidates.length === 0) throw new Error('EXTERNAL_DB_URL, DATABASE_URL, or DB_URL is required.')
+  if (new Set(candidates.map((entry) => entry.value)).size !== 1) {
+    throw new Error(`Database URL variables disagree: ${candidates.map((entry) => entry.name).join(', ')}.`)
+  }
+  return candidates[0].value
 }
 
 async function targetMonthForRun(pool, runId) {
@@ -190,6 +216,19 @@ export async function runCanonicalBillingMigrationCli(command) {
   ])
   if (!supported.has(command)) throw new Error(`Unsupported canonical billing migration command: ${command}.`)
   const apply = process.argv.includes('--apply')
+  const forwardAdoptionBootstrap = process.argv.includes('--forward-adoption')
+  if (forwardAdoptionBootstrap && command !== 'audit') {
+    throw new Error('--forward-adoption is supported only by the audit command that creates its immutable run.')
+  }
+  if (
+    forwardAdoptionBootstrap
+    && !String(option('cohort') ?? '').startsWith('forward-adoption')
+  ) {
+    throw new Error('--forward-adoption requires --cohort=forward-adoption-....')
+  }
+  if (forwardAdoptionBootstrap && option('run') != null) {
+    throw new Error('--forward-adoption creates its immutable audit run; omit --run and resume with the same idempotency key.')
+  }
   if (process.argv.includes('--dry-run') && apply) throw new Error('Choose either --apply or --dry-run, not both.')
   if (apply && option('as-of')) throw new Error('--as-of is allowed only for a dry run.')
   const explicitTargetMonth = option('target-month')
@@ -202,13 +241,19 @@ export async function runCanonicalBillingMigrationCli(command) {
   const dryRepairWithoutRun = !apply && ['repair', 'repair-waived-memberships'].includes(command)
   const runRequired = !familyProvisioning && command !== 'audit' && !dryRepairWithoutRun
   const runId = positiveOption('run', { required: runRequired })
-  const connectionString = process.env.EXTERNAL_DB_URL || process.env.DATABASE_URL || process.env.DB_URL
-  if (!connectionString) throw new Error('EXTERNAL_DB_URL, DATABASE_URL, or DB_URL is required.')
+  const connectionString = resolveCanonicalDatabaseUrl(process.env)
   const pool = new pg.Pool({ connectionString, ssl: ssl(connectionString) })
+  let dryClient = null
   try {
+    if (!apply) {
+      dryClient = await pool.connect()
+      await dryClient.query('BEGIN TRANSACTION READ ONLY')
+      await dryClient.query("SET LOCAL statement_timeout = '60s'")
+    }
+    const db = dryClient ?? pool
     let accountIds = scope.accountIds
     if (scope.all && command === 'verify') {
-      accountIds = await pool.query(
+      accountIds = await db.query(
         `SELECT family_billing_account_id
            FROM billing_account_migration
           WHERE billing_migration_run_id = $1
@@ -224,7 +269,7 @@ export async function runCanonicalBillingMigrationCli(command) {
       throw new Error('The requested scope contains no billing accounts.')
     }
     let targetMonth = explicitTargetMonth
-    if (!targetMonth && runId) targetMonth = await targetMonthForRun(pool, runId)
+    if (!targetMonth && runId) targetMonth = await targetMonthForRun(db, runId)
     if (['audit', 'repair', 'repair-waived-memberships'].includes(command)) {
       targetMonth = requireTargetMonth(targetMonth)
     }
@@ -233,7 +278,7 @@ export async function runCanonicalBillingMigrationCli(command) {
     const stripe = familyProvisioning ? null : await stripeFor(command, apply)
     const provenance = apply ? await currentApplyProvenance(process.env) : null
     if (apply && runId != null) {
-      const run = await migrationRunForCli(pool, runId)
+      const run = await migrationRunForCli(db, runId)
       assertBillingMigrationRunContract(run, {
         accountIds,
         requireRunning: true,
@@ -244,7 +289,7 @@ export async function runCanonicalBillingMigrationCli(command) {
     }
     let report
     if (command === 'audit') {
-      report = await auditCanonicalBillingMigration(pool, {
+      report = await auditCanonicalBillingMigration(db, {
         accountIds,
         includeAllActiveFamilies: scope.all,
         targetMonth,
@@ -256,9 +301,10 @@ export async function runCanonicalBillingMigrationCli(command) {
         codeVersion: provenance?.codeVersion ?? null,
         manifestChecksum: provenance?.manifestChecksum ?? null,
         cohort: option('cohort') || 'manual',
+        forwardAdoption: forwardAdoptionBootstrap,
       })
     } else if (familyProvisioning) {
-      report = await repairMissingCanonicalBillingAccounts(pool, {
+      report = await repairMissingCanonicalBillingAccounts(db, {
         familyIds: scope.familyIds,
         targetMonth,
         now,
@@ -269,7 +315,7 @@ export async function runCanonicalBillingMigrationCli(command) {
         cohort: option('cohort') || 'family-account-bootstrap',
       })
     } else if (command === 'repair') {
-      report = await repairCanonicalBillingMigration(pool, {
+      report = await repairCanonicalBillingMigration(db, {
         runId,
         accountIds,
         targetMonth,
@@ -278,7 +324,7 @@ export async function runCanonicalBillingMigrationCli(command) {
         apply,
       })
     } else if (command === 'repair-waived-memberships') {
-      report = await repairWaivedAnnualMembershipsCanonicalMigration(pool, {
+      report = await repairWaivedAnnualMembershipsCanonicalMigration(db, {
         runId,
         accountIds,
         // Apply mode derives this only from the immutable run in the service.
@@ -288,9 +334,9 @@ export async function runCanonicalBillingMigrationCli(command) {
         apply,
       })
     } else if (command === 'prepare') {
-      report = await prepareCanonicalBillingMigration(pool, { runId, accountIds, stripe, now, apply })
+      report = await prepareCanonicalBillingMigration(db, { runId, accountIds, stripe, now, apply })
     } else if (command === 'adopt') {
-      report = await adoptCanonicalHouseholdBillingMigration(pool, {
+      report = await adoptCanonicalHouseholdBillingMigration(db, {
         runId,
         accountIds,
         stripe,
@@ -298,17 +344,24 @@ export async function runCanonicalBillingMigrationCli(command) {
         apply,
       })
     } else if (command === 'advance') {
-      report = await advanceCanonicalBillingMigration(pool, { runId, accountIds, stripe, now, apply })
+      report = await advanceCanonicalBillingMigration(db, { runId, accountIds, stripe, now, apply })
     } else if (command === 'verify') {
-      report = await verifyCanonicalBillingMigration(pool, { runId, accountIds, stripe, now, apply })
+      report = await verifyCanonicalBillingMigration(db, { runId, accountIds, stripe, now, apply })
     } else {
-      report = await rollbackCanonicalBillingMigration(pool, { runId, accountIds, stripe, apply })
+      report = await rollbackCanonicalBillingMigration(db, { runId, accountIds, stripe, apply })
     }
+    if (dryClient) await dryClient.query('COMMIT')
     console.log(JSON.stringify(report, null, 2))
-    if (apply && migrationHasFailure(report)) process.exitCode = 1
+    if (apply && migrationHasFailure(report, {
+      allowReviewedManualForwardAdoption: forwardAdoptionBootstrap,
+    })) process.exitCode = 1
     if (!apply) console.error('Dry run only. Re-run with --apply after reviewing this report and enabling the required safety flags.')
     return report
+  } catch (error) {
+    if (dryClient) await dryClient.query('ROLLBACK').catch(() => {})
+    throw error
   } finally {
+    dryClient?.release()
     await pool.end()
   }
 }

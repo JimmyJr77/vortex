@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
 import {
   authoritativeBillingDateExceptions,
   buildLockedBillingParityDimensions,
@@ -17,6 +18,7 @@ import {
   assertBoundaryRevalidationContract,
   assertBoundaryRevalidationInvariant,
   assertRecurringSummaryMatchesAcceptedPricing,
+  assertUniqueLocalStripeCustomerOwner,
   auditCanonicalBillingMigration,
   buildCanonicalLocalEnrollmentRepairPlans,
   buildPaidLegacyInvoiceSettlementPlan,
@@ -27,6 +29,7 @@ import {
   inspectCustomerCollectorsBeforeHouseholdActivation,
   inspectRemoteCutoverReversibility,
   prepareCanonicalBillingMigration,
+  preparePaidLegacyInvoiceSettlementEntry,
   recoverBoundaryRetirementBeforeDetachment,
   repairBundleEntitlementBalances,
   repairProvableFamilyMemberLinks,
@@ -168,6 +171,102 @@ test('paid legacy invoices require exact frozen item, period, price, currency, a
     (error) => error.code === 'target_month_paid_legacy_invoice_parity_failed' &&
       error.details.issues.some((issue) => issue.code === 'legacy_invoice_line_evidence_mismatch'),
   )
+})
+
+test('paid legacy settlement recheck uses exact Invoice Payments proof when invoice.payment_intent is omitted', async () => {
+  const invoice = {
+    id: 'in_paid_without_legacy_pi',
+    status: 'paid',
+    paid: true,
+    subscription: 'sub_22',
+    customer: 'cus_1',
+    currency: 'usd',
+    amount_due: 12_000,
+    amount_paid: 12_000,
+    amount_remaining: 0,
+    amount_overpaid: 0,
+    starting_balance: 0,
+    ending_balance: 0,
+    pre_payment_credit_notes_amount: 0,
+    post_payment_credit_notes_amount: 0,
+    collection_method: 'charge_automatically',
+  }
+  const invoicePaymentCalls = []
+  const invoicePayment = (boundInvoice) => ({
+    id: 'inpay_22',
+    status: 'paid',
+    invoice: boundInvoice,
+    amount_paid: 12_000,
+    currency: 'usd',
+    payment: { type: 'payment_intent', payment_intent: 'pi_22' },
+  })
+  const invoiceRetrieveCalls = []
+  const stripe = {
+    invoices: {
+      async retrieve(...args) {
+        invoiceRetrieveCalls.push(args)
+        return invoice
+      },
+    },
+    invoicePayments: {
+      async list(params) {
+        invoicePaymentCalls.push(params)
+        return {
+          data: [invoicePayment(params.invoice ? invoice.id : invoice)],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve(id) {
+        assert.equal(id, 'pi_22')
+        return {
+          id,
+          status: 'succeeded',
+          amount_received: 12_000,
+          currency: 'usd',
+          customer: 'cus_1',
+          payment_method: {
+            id: 'pm_22',
+            type: 'card',
+            customer: 'cus_1',
+            card: { brand: 'visa', last4: '4242' },
+          },
+          latest_charge: {
+            payment_method_details: {
+              type: 'card',
+              card: { brand: 'visa', last4: '4242' },
+            },
+          },
+        }
+      },
+    },
+  }
+  const db = {
+    async query(sql) {
+      assert.match(String(sql), /FROM billing_subscription/)
+      return { rows: [] }
+    },
+  }
+  const entry = {
+    stripeInvoiceId: invoice.id,
+    stripeSubscriptionId: 'sub_22',
+    stripeCustomerId: 'cus_1',
+    stripePaymentIntentId: 'pi_22',
+    amountCents: 12_000,
+  }
+
+  const result = await preparePaidLegacyInvoiceSettlementEntry(db, stripe, entry, {
+    accountId: 7,
+  })
+
+  assert.equal(Object.hasOwn(invoice, 'payment_intent'), false)
+  assert.deepEqual(invoiceRetrieveCalls, [[invoice.id]])
+  assert.equal(invoicePaymentCalls.length, 2)
+  assert.equal(result.prepared.paymentIntentId, 'pi_22')
+  assert.equal(result.prepared.accountId, 7)
+  assert.equal(result.prepared.amountCents, 12_000)
+  assert.equal(result.prepared.method, 'Visa •••• 4242')
 })
 
 test('paid legacy settlement rejects per-enrollment pricing drift even when account totals are unchanged', () => {
@@ -859,6 +958,72 @@ test('forward adoption requires explicit activation and the permanent subscripti
   )
 })
 
+function forwardAdoptionAuthorizationDb(forwardAdoption) {
+  let migrationReadCount = 0
+  const run = {
+    id: 9,
+    migration_key: 'canonical-household-billing-v1',
+    mode: 'apply',
+    status: 'running',
+    code_version: 'release-1',
+    manifest_checksum: 'a'.repeat(64),
+    facility_id: 2,
+    target_month: '2026-09-01',
+    facility_timezone: 'America/New_York',
+    cohort: 'forward-adoption-manual',
+    configuration: {
+      accountIds: [101],
+      targetMonth: '2026-09-01',
+      cohort: 'forward-adoption-manual',
+      ...(forwardAdoption == null ? {} : { forwardAdoption }),
+    },
+  }
+  return {
+    get migrationReadCount() { return migrationReadCount },
+    async query(sql) {
+      const text = String(sql)
+      if (/SELECT \* FROM billing_migration_run/.test(text)) return { rows: [run] }
+      if (/SELECT family_billing_account_id, cutover_month/.test(text)) {
+        return { rows: [{ family_billing_account_id: 101, cutover_month: '2026-09-01' }] }
+      }
+      if (/SELECT \*\s+FROM billing_account_migration\s+WHERE/.test(text)) {
+        migrationReadCount += 1
+        return { rows: [] }
+      }
+      throw new Error(`Unexpected query: ${text}`)
+    },
+  }
+}
+
+test('forward adoption rejects an ordinary immutable audit run before reading account state', async () => {
+  for (const marker of [null, false]) {
+    const db = forwardAdoptionAuthorizationDb(marker)
+    await assert.rejects(
+      adoptCanonicalHouseholdBillingMigration(db, {
+        runId: 9,
+        accountIds: [101],
+        stripe: {},
+        apply: false,
+      }),
+      (error) => error.code === 'forward_adoption_run_not_authorized',
+    )
+    assert.equal(db.migrationReadCount, 0)
+  }
+})
+
+test('forward adoption accepts a run carrying the immutable authorization marker', async () => {
+  const db = forwardAdoptionAuthorizationDb(true)
+  const report = await adoptCanonicalHouseholdBillingMigration(db, {
+    runId: 9,
+    accountIds: [101],
+    stripe: {},
+    apply: false,
+  })
+  assert.equal(db.migrationReadCount, 1)
+  assert.equal(report.accounts[0].accountId, 101)
+  assert.match(report.accounts[0].error, /does not contain billing account/)
+})
+
 test('household-only collection phase opens the migration gate without weakening other checks', async () => {
   const environment = {
     BILLING_CANONICAL_READ_MODE: 'shadow',
@@ -1032,6 +1197,18 @@ test('canonical cutover gates independently require audit, parity, payer, and St
     ...audit,
     items: [{ local: { stripeSubscriptionId: 'sub_1' }, remote: null }],
   }), false)
+  assert.equal(auditPassesCanonicalCutoverGates({
+    ...audit,
+    initialStripeSnapshot: {
+      ...audit.initialStripeSnapshot,
+      customerSubscriptionInventory: {
+        subscriptions: [
+          { id: 'sub_1', classification: 'nonannual' },
+          { id: 'sub_annual', classification: 'annual_membership' },
+        ],
+      },
+    },
+  }), false)
 })
 
 function forwardAdoptionGateFixture(overrides = {}) {
@@ -1104,6 +1281,23 @@ test('forward adoption accepts only explicit ledger-only evidence and no-card st
   )
 })
 
+test('forward adoption inventories schedules before subscriptions while holding the collection lock', () => {
+  const source = fs.readFileSync(new URL('../canonicalBillingMigration.js', import.meta.url), 'utf8')
+  const inspection = source.slice(
+    source.indexOf('async function inspectForwardAdoptionAccount'),
+    source.indexOf('async function activateForwardAdoptedAccount'),
+  )
+  assert.ok(
+    inspection.indexOf('inspectStripeCustomerSubscriptionScheduleInventory')
+      < inspection.indexOf('auditCanonicalBillingAccount'),
+  )
+  const adoption = source.slice(
+    source.indexOf('export async function adoptCanonicalHouseholdBillingMigration'),
+    source.indexOf('export async function advanceCanonicalBillingMigration'),
+  )
+  assert.match(adoption, /withBillingAccountCollectionLock[\s\S]*inspectForwardAdoptionAccount/)
+})
+
 test('forward adoption rejects local collectors, schedules, unproven activation, and invoice drift', () => {
   const fixture = forwardAdoptionGateFixture({
     localCollectors: [{ id: 22, stripeSubscriptionId: 'sub_22' }],
@@ -1164,6 +1358,18 @@ test('stored migration cutover gates fail closed on payer, parity, or Stripe evi
     initial_stripe_snapshot: {
       ...legacyMigration.initial_stripe_snapshot,
       customer: { customerId: 'cus_1', hasDefaultPaymentMethod: false },
+    },
+  }), false)
+  assert.equal(storedMigrationPassesCanonicalCutoverGates({
+    ...legacyMigration,
+    accepted_stripe_snapshot: {
+      ...legacyMigration.initial_stripe_snapshot,
+      customerSubscriptionInventory: {
+        subscriptions: [
+          { id: 'sub_1', classification: 'nonannual' },
+          { id: 'sub_annual', classification: 'annual_membership' },
+        ],
+      },
     },
   }), false)
 })
@@ -1264,11 +1470,25 @@ test('household activation fails closed when customer-wide inventory finds an or
   const boundaryUnix = Date.parse('2026-09-01T04:00:00.000Z') / 1000
   const nextBoundaryUnix = Date.parse('2026-10-01T04:00:00.000Z') / 1000
   const db = {
-    async query() {
-      throw new Error('Activation inventory must not exempt any recurring Stripe subscription.')
+    async query(sql) {
+      if (String(sql).includes('canonical-migration:stripe-customer-owner')) {
+        return { rows: [{ id: 9, is_active: true }] }
+      }
+      if (String(sql).includes('FROM billing_subscription')) return { rows: [] }
+      throw new Error(`Unexpected query: ${sql}`)
     },
   }
   const stripe = {
+    subscriptionSchedules: {
+      async list() {
+        return { data: [], has_more: false }
+      },
+    },
+    subscriptions: {
+      async list() {
+        return { data: [], has_more: false }
+      },
+    },
     invoices: {
       async list() {
         return {
@@ -1315,6 +1535,77 @@ test('household activation fails closed when customer-wide inventory finds an or
       return true
     },
   )
+})
+
+test('household activation rejects a live annual Stripe subscription after schedule-first inventory', async () => {
+  const calls = []
+  const db = {
+    async query(sql) {
+      if (String(sql).includes('canonical-migration:stripe-customer-owner')) {
+        return { rows: [{ id: 9, is_active: true }] }
+      }
+      if (String(sql).includes('FROM billing_subscription')) {
+        return {
+          rows: [{
+            id: 20,
+            status: 'active',
+            source_type: 'annual_membership',
+            pricing_option_key: 'annual_membership',
+            stripe_subscription_id: 'sub_annual',
+          }],
+        }
+      }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+  const stripe = {
+    subscriptionSchedules: {
+      async list() {
+        calls.push('schedules')
+        return {
+          data: [{ id: 'sub_sched_released', status: 'released', customer: 'cus_9' }],
+          has_more: false,
+        }
+      },
+    },
+    subscriptions: {
+      async list() {
+        calls.push('subscriptions')
+        return {
+          data: [{
+            id: 'sub_annual',
+            status: 'active',
+            customer: 'cus_9',
+            metadata: {},
+            items: { data: [] },
+          }],
+          has_more: false,
+        }
+      },
+    },
+    invoices: {
+      async list() {
+        calls.push('invoices')
+        return { data: [], has_more: false }
+      },
+    },
+  }
+
+  await assert.rejects(
+    inspectCustomerCollectorsBeforeHouseholdActivation(db, stripe, {
+      account: { id: 9, stripe_customer_id: 'cus_9' },
+      billingMonth: '2026-09-01',
+      facilityTimezone: 'America/New_York',
+    }),
+    (error) => {
+      assert.equal(error.code, 'stripe_customer_live_subscription_present')
+      assert.equal(error.forwardOnly, true)
+      assert.equal(error.details.inventory.liveSubscriptionCount, 1)
+      assert.equal(error.details.inventory.annualMembershipCount, 1)
+      return true
+    },
+  )
+  assert.deepEqual(calls, ['schedules', 'subscriptions'])
 })
 
 test('canonical account verification inventories the whole Stripe customer by default', async () => {
@@ -1494,7 +1785,9 @@ test('payer audit blocks invalid billing contact and duplicate Stripe customer o
     billing_email: 'not-an-email',
     payer_email: 'payer@example.com',
     stripe_customer_id: 'cus_shared',
-    stripe_customer_active_account_count: 2,
+    // The second owner may be inactive; historical ownership is still
+    // ambiguous and must block any new canonical collector.
+    stripe_customer_account_count: 2,
     family_facility_id: 2,
     payer_facility_id: 2,
     facility_ids: [2],
@@ -1507,6 +1800,33 @@ test('payer audit blocks invalid billing contact and duplicate Stripe customer o
     'billing_contact_email_invalid',
     'stripe_customer_shared_between_accounts',
   ])
+})
+
+test('canonical activation rejects a Stripe customer retained by an inactive local account', async () => {
+  const db = {
+    async query(sql, params) {
+      assert.match(String(sql), /canonical-migration:stripe-customer-owner/)
+      assert.deepEqual(params, ['cus_shared'])
+      return {
+        rows: [
+          { id: 8, is_active: true },
+          { id: 19, is_active: false },
+        ],
+      }
+    },
+  }
+
+  await assert.rejects(
+    assertUniqueLocalStripeCustomerOwner(db, {
+      accountId: 8,
+      stripeCustomerId: 'cus_shared',
+    }),
+    (error) => (
+      error?.code === 'stripe_customer_shared_between_accounts'
+      && error?.forwardOnly === true
+      && error?.details?.ownerAccountIds?.join(',') === '8,19'
+    ),
+  )
 })
 
 test('inactive direct-family payer is blocked rather than classified as repairable', () => {

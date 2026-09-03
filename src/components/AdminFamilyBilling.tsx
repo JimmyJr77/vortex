@@ -228,6 +228,12 @@ function money(cents: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((cents ?? 0) / 100)
 }
 
+function newPaymentRequestKey(): string {
+  const suffix = globalThis.crypto?.randomUUID?.()
+    ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  return `external-payment-${suffix}`
+}
+
 export default function AdminFamilyBilling() {
   const [showPaymentReport, setShowPaymentReport] = useState(false)
   const [familyId, setFamilyId] = useState('')
@@ -240,10 +246,12 @@ export default function AdminFamilyBilling() {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [lastPaymentLink, setLastPaymentLink] = useState<string | null>(null)
+  const [paymentLinkRequestKey, setPaymentLinkRequestKey] = useState(newPaymentRequestKey)
   const [charge, setCharge] = useState({ memberId: '', description: '', amount: '', chargeType: 'one_time' })
   const [paymentProviderName, setPaymentProviderName] = useState('External Payment Processor')
   const [stripeEnabled, setStripeEnabled] = useState(false)
-  const [payment, setPayment] = useState({ amount: '', method: '', note: '', externalReference: '', externalStatus: 'recorded' })
+  const [payment, setPayment] = useState({ amount: '', method: '', note: '', externalReference: '' })
+  const [paymentRequestKey, setPaymentRequestKey] = useState(newPaymentRequestKey)
   const [refund, setRefund] = useState({ amount: '', reason: '', paymentId: '', externalReference: '' })
   const [operations, setOperations] = useState<StripeOperations | null>(null)
   const [operationsLoading, setOperationsLoading] = useState(false)
@@ -387,19 +395,19 @@ export default function AdminFamilyBilling() {
   const addPayment = () =>
     withSaving(async () => {
       if (!account || !payment.amount.trim()) return
-      const res = await adminApiRequest(`/api/admin/families/${account.familyId}/payments`, {
+      const res = await adminApiRequest(`/api/admin/customer-billing/families/${account.familyId}/payments`, {
         method: 'POST',
+        headers: { 'Idempotency-Key': paymentRequestKey },
         body: JSON.stringify({
           amountCents: Math.round(Number(payment.amount) * 100),
           method: payment.method || null,
           note: payment.note || null,
-          externalProcessor: paymentProviderName,
           externalReference: payment.externalReference || null,
-          externalStatus: payment.externalStatus || 'recorded',
         }),
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to record payment')
-      setPayment({ amount: '', method: '', note: '', externalReference: '', externalStatus: 'recorded' })
+      setPayment({ amount: '', method: '', note: '', externalReference: '' })
+      setPaymentRequestKey(newPaymentRequestKey())
       await loadFamily(account.familyId)
     })
 
@@ -408,10 +416,12 @@ export default function AdminFamilyBilling() {
       if (!account) return
       const res = await adminApiRequest(`/api/admin/families/${account.familyId}/payment-link`, {
         method: 'POST',
+        headers: { 'Idempotency-Key': paymentLinkRequestKey },
       })
       const body = await res.json().catch(() => ({}))
       if (body.data?.url) setLastPaymentLink(body.data.url)
       if (!res.ok) throw new Error(body.message || 'Failed to create payment link')
+      setPaymentLinkRequestKey(newPaymentRequestKey())
       setSuccessMessage(
         `Secure ${money(body.data.amountCents)} payment link sent to ${body.data.recipientEmail}.`,
       )
@@ -850,11 +860,17 @@ export default function AdminFamilyBilling() {
               <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
                 <h3 className="font-bold text-gray-900">Record Payment</h3>
                 <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-xs text-blue-900">
-                  Card collection is handled by <strong>{paymentProviderName}</strong>. Record reconciled payments here.
+                  Card collection is handled by <strong>{paymentProviderName}</strong>. Record only a confirmed manual or external payment here; this action is blocked while an automatic invoice or remote payment attempt is active.
                   {!stripeEnabled && ' Stripe wiring exists but is disabled.'}
                 </div>
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Amount dollars" value={payment.amount} onChange={(e) => setPayment((prev) => ({ ...prev, amount: e.target.value }))} />
-                <input required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Method (required)" value={payment.method} onChange={(e) => setPayment((prev) => ({ ...prev, method: e.target.value }))} />
+                <select required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" value={payment.method} onChange={(e) => setPayment((prev) => ({ ...prev, method: e.target.value }))}>
+                  <option value="">Select payment method</option>
+                  <option value="cash">Cash</option>
+                  <option value="check">Check</option>
+                  <option value="bank_transfer">Bank transfer</option>
+                  <option value="other">Other confirmed payment</option>
+                </select>
                 <input required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Reconciliation or payment note (required)" value={payment.note} onChange={(e) => setPayment((prev) => ({ ...prev, note: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="External payment reference" value={payment.externalReference} onChange={(e) => setPayment((prev) => ({ ...prev, externalReference: e.target.value }))} />
                 <button type="button" onClick={() => void addPayment()} disabled={saving || !payment.method.trim() || !payment.note.trim()} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">

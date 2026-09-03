@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { buildBalanceCheckoutParams } from '../stripeBilling.js'
+import { buildBalanceCheckoutParams, createCheckoutSession } from '../stripeBilling.js'
 
 test('balance checkout uses the authoritative balance and expires in 24 hours', () => {
   const params = buildBalanceCheckoutParams({
@@ -34,5 +34,20 @@ test('balance checkout rejects non-positive collection amounts', () => {
         cancelUrl: 'https://example.com/cancel',
       }),
     /positive balance/,
+  )
+})
+
+test('legacy direct balance Checkout cannot create a payment without a durable attempt', async () => {
+  await assert.rejects(
+    createCheckoutSession({}, {
+      account: { id: 44 },
+      balanceCents: 25_500,
+      successUrl: 'https://example.test/success',
+      cancelUrl: 'https://example.test/cancel',
+    }),
+    (error) => (
+      error?.code === 'DIRECT_BALANCE_CHECKOUT_DISABLED'
+      && /reserved customer-balance Checkout flow/.test(error.message)
+    ),
   )
 })

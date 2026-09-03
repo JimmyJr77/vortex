@@ -12,7 +12,20 @@ import {
 } from './billingFeatureFlags.js'
 import { facilityMonth, isValidTimeZone } from './canonicalBillingMigrationState.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import {
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from './paidCheckoutCollectionGuard.js'
 import { loadCanonicalCollectibleBalanceCents } from './canonicalBillingAccount.js'
+import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
+import { listStripeInvoicePaymentInventory } from './stripeInvoicePaymentBinding.js'
+import {
+  BillingMigrationSafetyError,
+  inspectStripeCustomerBillingMonthCollectors,
+  inspectStripeCustomerSubscriptionInventory,
+  inspectStripeCustomerSubscriptionScheduleInventory,
+} from './canonicalBillingMigrationStripe.js'
 
 let schemaEnsured = false
 
@@ -57,22 +70,24 @@ function dateOnly(value) {
   return match?.[0] ?? null
 }
 
+function invoiceBillingMonthKey(value) {
+  return dateOnly(value)?.slice(0, 7) ?? null
+}
+
 export function stripeInvoiceIsPaid(invoice) {
   return invoice?.status === 'paid' || invoice?.paid === true
 }
 
-async function defaultPaymentMethod(stripe, customerId) {
+async function defaultPaymentMethod(stripe, customerId, billingMonth) {
   const customer = await stripe.customers.retrieve(customerId, {
     expand: ['invoice_settings.default_payment_method'],
   })
   if (customer.deleted) return null
-  let method = customer.invoice_settings?.default_payment_method ?? null
-  // Stripe expands this field to either a PaymentMethod object or null.  Null
-  // is also an object in JavaScript, so guard it before reading its id.
-  if (method && typeof method === 'object') method = method.id
-  if (method) return method
-  const methods = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
-  return methods.data?.[0]?.id ?? null
+  const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
+    expectedCustomerId: customerId,
+    billingMonth,
+  })
+  return selection.readiness.ready ? selection.readiness.paymentMethodId : null
 }
 
 async function markInvoice(pool, invoiceId, values) {
@@ -110,7 +125,7 @@ async function createPaymentMethodAlert(pool, accountId, invoice) {
     },
     alertType: 'monthly_invoice_payment_method_required',
     severity: 'warning',
-    message: `Monthly household invoice for ${String(invoice.billing_month).slice(0, 7)} needs a saved card or payment link.`,
+    message: `Monthly household invoice for ${invoiceBillingMonthKey(invoice.billing_month) ?? 'unknown month'} needs a saved card or payment link.`,
   }).catch(() => {})
 }
 
@@ -124,6 +139,790 @@ async function loadActiveCanonicalBillingMigration(pool, accountId) {
       LIMIT 1`,
     [Number(accountId)],
   ).then((result) => result.rows[0] ?? null)
+}
+
+function validPositiveInteger(value) {
+  const parsed = Number(value)
+  return Number.isSafeInteger(parsed) && parsed > 0
+}
+
+async function loadHouseholdInvoiceAuthority(pool, {
+  accountId,
+  invoiceId,
+  billingMonth,
+  stripeInvoiceId,
+  stripeCustomerId,
+  facilityTimeZone,
+  migrationAuthorization = null,
+  paymentOnly = true,
+}) {
+  const saga = migrationAuthorization != null
+  if (saga && (
+    !validPositiveInteger(migrationAuthorization.migrationId)
+    || !validPositiveInteger(migrationAuthorization.runId)
+    || !String(migrationAuthorization.leaseOwner ?? '').trim()
+    || dateOnly(migrationAuthorization.effectiveCollectionMonth) !== dateOnly(billingMonth)
+  )) return null
+  return pool.query(
+    `SELECT migration.id, migration.billing_migration_run_id, migration.state
+       FROM billing_monthly_invoice invoice
+       JOIN family_billing_account account
+         ON account.id = invoice.family_billing_account_id
+       JOIN family ON family.id = account.family_id
+       JOIN facility ON facility.id = family.facility_id
+       JOIN billing_account_migration migration
+         ON migration.family_billing_account_id = account.id
+       JOIN billing_migration_run run
+         ON run.id = migration.billing_migration_run_id
+       CROSS JOIN LATERAL (
+         SELECT CASE
+           WHEN NULLIF(migration.parity_snapshot ->> 'collectionDeferredToMonth', '') IS NULL
+             THEN migration.cutover_month
+           WHEN migration.parity_snapshot ->> 'collectionDeferredToMonth'
+                ~ '^[0-9]{4}-(0[1-9]|1[0-2])-01$'
+             THEN (migration.parity_snapshot ->> 'collectionDeferredToMonth')::date
+           ELSE NULL::date
+         END AS effective_month
+       ) boundary
+      WHERE account.id = $1
+        AND account.is_active = TRUE
+        AND account.household_monthly_billing_enabled = TRUE
+        AND account.stripe_customer_id = $5
+        AND facility.timezone = $6
+        AND run.facility_timezone = facility.timezone
+        AND EXISTS (
+          SELECT 1
+            FROM member current_payer
+           WHERE current_payer.id = account.payer_member_id
+             AND current_payer.facility_id = family.facility_id
+             AND ${canonicalActiveHouseholdMemberPredicate({
+               memberAlias: 'current_payer',
+               familyIdReference: 'account.family_id',
+               membershipAlias: 'current_payer_membership',
+               historyAlias: 'current_payer_history',
+             })}
+        )
+        AND NOT EXISTS (
+          SELECT 1
+            FROM family_billing_account customer_owner
+           WHERE customer_owner.id <> account.id
+             AND customer_owner.stripe_customer_id = account.stripe_customer_id
+        )
+        AND invoice.id = $2
+        AND invoice.billing_month = $3::date
+        AND invoice.stripe_invoice_id = $4
+        AND (
+          ($11::boolean = TRUE AND invoice.status = 'open')
+          OR
+          ($11::boolean = FALSE
+            AND invoice.status IN ('draft', 'open', 'failed', 'payment_method_required'))
+        )
+        AND invoice.total_cents > 0
+        AND migration.target_collection_mode = 'household_monthly'
+        AND migration.payer_validation_status = 'verified'
+        AND migration.parity_status = 'matched'
+        AND migration.household_activated_at IS NOT NULL
+        AND migration.snapshot_hash ~ '^[0-9a-f]{64}$'
+        AND migration.accepted_snapshot_hash ~ '^[0-9a-f]{64}$'
+        AND migration.accepted_baseline_version > 0
+        AND migration.accepted_at IS NOT NULL
+        AND migration.accepted_account_snapshot ->> 'id' ~ '^[0-9]+$'
+        AND (migration.accepted_account_snapshot ->> 'id')::bigint = account.id
+        AND migration.accepted_account_snapshot ->> 'familyId' ~ '^[0-9]+$'
+        AND (migration.accepted_account_snapshot ->> 'familyId')::bigint = account.family_id
+        AND migration.accepted_account_snapshot ->> 'facilityId' ~ '^[0-9]+$'
+        AND (migration.accepted_account_snapshot ->> 'facilityId')::bigint = family.facility_id
+        AND migration.accepted_account_snapshot ->> 'payerMemberId' ~ '^[0-9]+$'
+        AND (migration.accepted_account_snapshot ->> 'payerMemberId')::bigint = account.payer_member_id
+        AND migration.accepted_account_snapshot ->> 'facilityTimezone' = facility.timezone
+        AND (
+          migration.accepted_account_snapshot ->> 'stripeCustomerId' = account.stripe_customer_id
+          OR (
+            jsonb_typeof(migration.accepted_account_snapshot -> 'stripeCustomerId') = 'null'
+            AND EXISTS (
+              SELECT 1
+                FROM billing_account_activity payment_method_activity
+               WHERE payment_method_activity.family_billing_account_id = account.id
+                 AND payment_method_activity.event_type = 'payment_method_link_created'
+                 AND payment_method_activity.occurred_at >= migration.accepted_at
+            )
+          )
+        )
+        AND run.mode = 'apply'
+        AND run.migration_key = 'canonical-household-billing-v1'
+        AND NULLIF(BTRIM(run.code_version), '') IS NOT NULL
+        AND run.manifest_checksum ~ '^[0-9a-f]{64}$'
+        AND run.target_month = migration.cutover_month
+        AND run.facility_id = family.facility_id
+        AND COALESCE(run.configuration -> 'accountIds', '[]'::jsonb)
+              @> to_jsonb(ARRAY[account.id])
+        AND boundary.effective_month IS NOT NULL
+        AND boundary.effective_month <=
+              date_trunc('month', now() AT TIME ZONE facility.timezone)::date
+        AND invoice.billing_month <=
+              date_trunc('month', now() AT TIME ZONE facility.timezone)::date
+        AND (
+          ($7::boolean = FALSE
+            AND migration.state = 'verified'
+            AND migration.verified_at IS NOT NULL
+            AND run.status IN ('running', 'completed', 'completed_with_exceptions')
+            AND invoice.billing_month >= boundary.effective_month)
+          OR
+          ($7::boolean = TRUE
+            AND migration.id = $8
+            AND run.id = $9
+            AND migration.state = 'household_active'
+            AND migration.lease_owner = $10
+            AND migration.lease_expires_at > now()
+            AND run.status = 'running'
+            AND invoice.billing_month = boundary.effective_month)
+        )
+      ORDER BY migration.id DESC
+      LIMIT 1`,
+    [
+      Number(accountId),
+      Number(invoiceId),
+      dateOnly(billingMonth),
+      String(stripeInvoiceId),
+      String(stripeCustomerId),
+      String(facilityTimeZone),
+      saga,
+      saga ? Number(migrationAuthorization.migrationId) : null,
+      saga ? Number(migrationAuthorization.runId) : null,
+      saga ? String(migrationAuthorization.leaseOwner) : null,
+      paymentOnly,
+    ],
+  ).then((result) => result.rows[0] ?? null)
+}
+
+async function raiseHouseholdPaymentBoundaryAlert(pool, {
+  account,
+  invoice,
+  stripeInvoiceId,
+  code,
+  message,
+  details = {},
+}) {
+  await recordStripeBillingAlert(pool, {
+    event: { id: `household-payment-boundary:${invoice.id}:${code}` },
+    object: {
+      id: stripeInvoiceId ?? `monthly-invoice:${invoice.id}`,
+      customer: account.stripe_customer_id ?? null,
+      metadata: {
+        familyBillingAccountId: String(account.id),
+        monthlyInvoiceId: String(invoice.id),
+        billingMonth: dateOnly(invoice.billing_month)?.slice(0, 7) ?? '',
+      },
+    },
+    alertType: code,
+    severity: 'critical',
+    message,
+  }).catch(() => {})
+  throw new BillingMigrationSafetyError(code, message, details, { forwardOnly: true })
+}
+
+async function assertFreshHouseholdInvoiceStructure(pool, {
+  account,
+  invoice,
+  stripe,
+  stripeInvoiceId,
+  stripeCustomerId,
+  billingMonth,
+  allowedLocalStatuses = ['open'],
+  expectedRemoteStatus = 'open',
+  verificationFailureCode = 'household_payment_invoice_verification_failed',
+  mismatchCode = 'household_payment_invoice_mismatch',
+  action = 'payment',
+  allowRemoteCustomerAsHistoricalIdentity = false,
+}) {
+  let inspection
+  try {
+    inspection = await inspectFreshPayableHouseholdInvoice(pool, stripe, {
+      accountId: account?.id,
+      invoiceId: invoice?.id,
+      stripeInvoiceId,
+      stripeCustomerId,
+      billingMonth,
+      allowedLocalStatuses,
+      expectedRemoteStatus,
+      allowRemoteCustomerAsHistoricalIdentity,
+    })
+  } catch (error) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: verificationFailureCode,
+      message: `Household invoice ${action} was blocked because the final Stripe invoice could not be verified.`,
+      details: { accountId: Number(account?.id), reason: error?.message ?? String(error) },
+    })
+  }
+  if (!inspection.verified) {
+    const issueCodes = inspection.issues.map((issue) => issue.code).filter(Boolean).join(', ')
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: mismatchCode,
+      message: `Household invoice ${action} was blocked because the final Stripe invoice no longer exactly matches the local household invoice${issueCodes ? ` (${issueCodes})` : ''}.`,
+      details: { accountId: Number(account?.id), issues: inspection.issues },
+    })
+  }
+  return inspection
+}
+
+async function assertFreshHouseholdInvoicePaymentBinding(pool, {
+  account,
+  invoice,
+  stripe,
+  stripeInvoiceId,
+  stripeCustomerId,
+  expectedStatus = 'open',
+  verificationFailureCode = 'household_payment_binding_verification_failed',
+  mismatchCode = 'household_payment_binding_mismatch',
+  action = 'payment',
+}) {
+  let inspection
+  try {
+    inspection = await inspectRemoteHouseholdInvoicePaymentBinding(stripe, {
+      stripeInvoiceId,
+      stripeCustomerId,
+      totalCents: Number(invoice?.total_cents),
+      durablePaymentIntentId: stripeObjectId(invoice?.stripe_payment_intent_id),
+      expectedStatus,
+    })
+  } catch (error) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: verificationFailureCode,
+      message: `Household invoice ${action} was blocked because its final Stripe payment binding could not be verified.`,
+      details: { accountId: Number(account?.id), reason: error?.message ?? String(error) },
+    })
+  }
+  if (!inspection.verified) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: mismatchCode,
+      message: `Household invoice ${action} was blocked because its final Stripe payment binding is not exact.`,
+      details: { accountId: Number(account?.id), issues: inspection.issues },
+    })
+  }
+  return inspection
+}
+
+async function inspectFreshHouseholdCollectorBoundary(stripe, {
+  accountId,
+  stripeCustomerId,
+  billingMonth,
+  facilityTimeZone,
+  stripeInvoiceId,
+}) {
+  // Keep these reads ordered. A Stripe schedule can release on its own: if
+  // subscription inventory were sampled first, the schedule could disappear
+  // before its newly-created subscription was visible to that earlier read.
+  // Sampling the schedule first means either it is blocked while live or its
+  // released subscription is caught by the subsequent subscription scan.
+  const schedules = await inspectStripeCustomerSubscriptionScheduleInventory(stripe, {
+    stripeCustomerId,
+    accountId,
+  })
+  const subscriptions = await inspectStripeCustomerSubscriptionInventory(stripe, {
+    stripeCustomerId,
+    accountId,
+    localSubscriptions: [],
+  })
+  const collectors = await inspectStripeCustomerBillingMonthCollectors(stripe, {
+    stripeCustomerId,
+    billingMonth: dateOnly(billingMonth),
+    facilityTimezone: facilityTimeZone,
+    expectedStripeInvoiceIds: [stripeInvoiceId],
+    excludedSubscriptionIds: [],
+  })
+  return { schedules, subscriptions, collectors }
+}
+
+function householdCollectorBoundaryIsSafe({ schedules, subscriptions, collectors }) {
+  return subscriptions.verified === true
+    && Number(subscriptions.snapshot?.liveSubscriptionCount ?? -1) === 0
+    && schedules.verified === true
+    && Number(schedules.snapshot?.liveScheduleCount ?? -1) === 0
+    && collectors.verified === true
+    && Number(collectors.snapshot?.collectorCount ?? -1) === 1
+    && Number(collectors.snapshot?.householdInvoiceCount ?? -1) === 1
+}
+
+async function loadHouseholdInvoicePaymentStructure(pool, {
+  accountId,
+  invoiceId,
+  billingMonth,
+  stripeInvoiceId,
+}) {
+  const invoice = await pool.query(
+    `/* household-payment:invoice-structure */
+     SELECT id, family_billing_account_id, billing_month, status,
+            subtotal_cents, credit_cents, total_cents, stripe_invoice_id,
+            stripe_payment_intent_id, payment_attempted_at
+       FROM billing_monthly_invoice
+      WHERE id = $1
+        AND family_billing_account_id = $2
+        AND billing_month = $3::date
+        AND stripe_invoice_id = $4
+      LIMIT 1`,
+    [Number(invoiceId), Number(accountId), dateOnly(billingMonth), String(stripeInvoiceId)],
+  ).then((result) => result.rows[0] ?? null)
+  if (!invoice) return null
+  const lines = await pool.query(
+    `/* household-payment:invoice-lines */
+     SELECT id, billing_charge_id, line_type, amount_cents, stripe_invoice_item_id
+       FROM billing_monthly_invoice_line
+      WHERE billing_monthly_invoice_id = $1
+      ORDER BY id`,
+    [Number(invoice.id)],
+  )
+  return { invoice, lines: lines.rows }
+}
+
+function stripeAdjustmentCollectionIsEmpty(rows) {
+  return rows === null || (Array.isArray(rows) && rows.length === 0)
+}
+
+function stripeInvoiceLineInvoiceItemId(line) {
+  if (line?.parent?.type !== 'invoice_item_details') return null
+  return stripeObjectId(line.parent?.invoice_item_details?.invoice_item)
+}
+
+async function listRemoteInvoiceLines(stripe, remoteId) {
+  return listStripeCollection(
+    (params) => stripe.invoices.listLineItems(String(remoteId), params),
+    { limit: 100 },
+    'starting_after',
+  )
+}
+
+async function inspectRemoteHouseholdInvoicePaymentBinding(stripe, {
+  stripeInvoiceId,
+  stripeCustomerId,
+  totalCents,
+  durablePaymentIntentId = null,
+  expectedStatus = 'open',
+}) {
+  if (!['open', 'paid'].includes(expectedStatus)) {
+    throw new Error(`Unsupported household Invoice Payment verification state: ${expectedStatus}.`)
+  }
+  if (!stripe?.invoicePayments?.list || !stripe?.paymentIntents?.retrieve) {
+    throw new Error('Stripe Invoice Payment and PaymentIntent retrieval are required at the household payment boundary.')
+  }
+
+  const invoicePayments = await listStripeInvoicePaymentInventory(stripe, { stripeInvoiceId })
+  if (!Array.isArray(invoicePayments)) {
+    throw new Error('Stripe Invoice Payment inventory is unavailable at the household payment boundary.')
+  }
+  const issues = []
+  let paymentIntentId = null
+  if (invoicePayments.length !== 1) {
+    issues.push({ code: 'remote_invoice_payment_count_mismatch', count: invoicePayments.length })
+  } else {
+    const invoicePayment = invoicePayments[0]
+    paymentIntentId = invoicePayment?.payment?.type === 'payment_intent'
+      ? stripeObjectId(invoicePayment.payment.payment_intent)
+      : null
+    const expectedAmountPaid = expectedStatus === 'paid' ? Number(totalCents) : null
+    if (
+      !invoicePayment?.id
+      || invoicePayment?.is_default !== true
+      || invoicePayment?.status !== expectedStatus
+      || stripeObjectId(invoicePayment?.invoice) !== String(stripeInvoiceId)
+      || String(invoicePayment?.currency ?? '').toLowerCase() !== 'usd'
+      || !Number.isSafeInteger(invoicePayment?.amount_requested)
+      || Number(invoicePayment.amount_requested) !== Number(totalCents)
+      || invoicePayment?.amount_paid !== expectedAmountPaid
+      || !paymentIntentId
+      || (durablePaymentIntentId && String(durablePaymentIntentId) !== paymentIntentId)
+    ) {
+      issues.push({ code: 'remote_invoice_default_payment_mismatch' })
+    } else {
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+      const expectedIntentStatus = expectedStatus === 'paid' ? 'succeeded' : 'requires_payment_method'
+      const expectedAmountReceived = expectedStatus === 'paid' ? Number(totalCents) : 0
+      if (
+        paymentIntent?.id !== paymentIntentId
+        || paymentIntent?.status !== expectedIntentStatus
+        || stripeObjectId(paymentIntent?.customer) !== String(stripeCustomerId)
+        || String(paymentIntent?.currency ?? '').toLowerCase() !== 'usd'
+        || !Number.isSafeInteger(paymentIntent?.amount)
+        || Number(paymentIntent.amount) !== Number(totalCents)
+        || !Number.isSafeInteger(paymentIntent?.amount_received)
+        || Number(paymentIntent.amount_received) !== expectedAmountReceived
+      ) {
+        issues.push({ code: 'remote_invoice_default_payment_intent_mismatch' })
+      }
+    }
+  }
+
+  return {
+    verified: issues.length === 0,
+    issues,
+    paymentIntentId,
+    invoicePaymentCount: invoicePayments.length,
+  }
+}
+
+async function inspectFreshPayableHouseholdInvoice(pool, stripe, {
+  accountId,
+  invoiceId,
+  stripeInvoiceId,
+  stripeCustomerId,
+  billingMonth,
+  allowedLocalStatuses = ['open'],
+  expectedRemoteStatus = 'open',
+  allowRemoteCustomerAsHistoricalIdentity = false,
+}) {
+  if (!['open', 'paid'].includes(expectedRemoteStatus)) {
+    throw new Error(`Unsupported household invoice verification state: ${expectedRemoteStatus}.`)
+  }
+  if (
+    !stripe?.invoices?.retrieve
+    || !stripe?.invoices?.listLineItems
+    || !stripe?.invoicePayments?.list
+    || !stripe?.paymentIntents?.retrieve
+  ) {
+    throw new Error('Stripe invoice, line, and payment retrieval are required at the household payment boundary.')
+  }
+  const local = await loadHouseholdInvoicePaymentStructure(pool, {
+    accountId,
+    invoiceId,
+    billingMonth,
+    stripeInvoiceId,
+  })
+  if (!local) {
+    return { verified: false, issues: [{ code: 'local_invoice_identity_mismatch' }] }
+  }
+  const remote = await stripe.invoices.retrieve(String(stripeInvoiceId))
+  const lines = await listRemoteInvoiceLines(stripe, String(stripeInvoiceId))
+  const issues = []
+  const remoteCustomerId = stripeObjectId(remote?.customer)
+  const verifiedStripeCustomerId = stripeCustomerId
+    || (allowRemoteCustomerAsHistoricalIdentity ? remoteCustomerId : null)
+  const expectedMonth = dateOnly(billingMonth)?.slice(0, 7) ?? null
+  const totalCents = Number(local.invoice.total_cents)
+  const expectedMetadata = {
+    householdMonthlyInvoice: 'true',
+    monthlyInvoiceId: String(local.invoice.id),
+    familyBillingAccountId: String(accountId),
+    billingMonth: expectedMonth,
+  }
+
+  const acceptedLocalStatuses = new Set(allowedLocalStatuses.map(String))
+  if (!acceptedLocalStatuses.has(String(local.invoice.status ?? ''))) {
+    issues.push({ code: 'local_invoice_not_open', status: local.invoice.status ?? null })
+  }
+  if (remote?.id !== String(stripeInvoiceId)) {
+    issues.push({ code: 'remote_invoice_identity_mismatch', remoteInvoiceId: remote?.id ?? null })
+  }
+  if (!verifiedStripeCustomerId || remoteCustomerId !== String(verifiedStripeCustomerId)) {
+    issues.push({ code: 'remote_invoice_customer_mismatch' })
+  }
+  for (const [key, expected] of Object.entries(expectedMetadata)) {
+    if (String(remote?.metadata?.[key] ?? '') !== String(expected ?? '')) {
+      issues.push({ code: 'remote_invoice_metadata_mismatch', key })
+    }
+  }
+  if (remote?.status !== expectedRemoteStatus) {
+    issues.push({
+      code: 'remote_invoice_status_mismatch',
+      expectedStatus: expectedRemoteStatus,
+      status: remote?.status ?? null,
+    })
+  }
+  // A household invoice first published before a payment method existed is a
+  // send_invoice object. Once a reusable method is added, Vortex still makes
+  // the reviewed off-session collection explicitly through invoices.pay.
+  if (!['charge_automatically', 'send_invoice'].includes(remote?.collection_method)) {
+    issues.push({ code: 'remote_invoice_collection_method_mismatch' })
+  }
+  if (remote?.auto_advance !== false) {
+    issues.push({ code: 'remote_invoice_auto_advance_enabled' })
+  }
+  if (String(remote?.currency ?? '').toLowerCase() !== 'usd') {
+    issues.push({ code: 'remote_invoice_currency_mismatch', currency: remote?.currency ?? null })
+  }
+  for (const field of ['subtotal', 'total', 'amount_due']) {
+    if (!Number.isSafeInteger(remote?.[field]) || Number(remote[field]) !== totalCents) {
+      issues.push({ code: 'remote_invoice_amount_mismatch', field })
+    }
+  }
+  const expectedAmountPaid = expectedRemoteStatus === 'paid' ? totalCents : 0
+  const expectedAmountRemaining = expectedRemoteStatus === 'paid' ? 0 : totalCents
+  if (!Number.isSafeInteger(remote?.amount_paid) || Number(remote.amount_paid) !== expectedAmountPaid) {
+    issues.push({ code: 'remote_invoice_amount_mismatch', field: 'amount_paid' })
+  }
+  if (!Number.isSafeInteger(remote?.amount_remaining) || Number(remote.amount_remaining) !== expectedAmountRemaining) {
+    issues.push({ code: 'remote_invoice_amount_mismatch', field: 'amount_remaining' })
+  }
+  const unexpectedAdjustment = (
+    ['amount_overpaid', 'starting_balance', 'pre_payment_credit_notes_amount', 'post_payment_credit_notes_amount']
+      .some((field) => !Number.isSafeInteger(remote?.[field]) || Number(remote[field]) !== 0)
+    || !stripeAdjustmentCollectionIsEmpty(remote?.total_discount_amounts)
+    || !stripeAdjustmentCollectionIsEmpty(remote?.total_taxes)
+    || !stripeAdjustmentCollectionIsEmpty(remote?.total_pretax_credit_amounts)
+    || !stripeAdjustmentCollectionIsEmpty(remote?.discounts)
+    || !stripeAdjustmentCollectionIsEmpty(remote?.default_tax_rates)
+    || remote?.shipping_cost !== null
+    || remote?.automatic_tax?.enabled !== false
+  )
+  if (unexpectedAdjustment) issues.push({ code: 'remote_invoice_unexpected_adjustment' })
+
+  const expectedLines = new Map(local.lines.map((line) => [String(line.id), line]))
+  const seen = new Set()
+  for (const line of lines) {
+    const lineId = String(line?.metadata?.monthlyInvoiceLineId ?? '')
+    const expected = expectedLines.get(lineId)
+    const stripeInvoiceItemId = stripeInvoiceLineInvoiceItemId(line)
+    if (
+      !expected
+      || String(line?.metadata?.monthlyInvoiceId ?? '') !== String(local.invoice.id)
+      || !stripeInvoiceItemId
+    ) {
+      issues.push({
+        code: stripeInvoiceItemId ? 'remote_invoice_line_unexpected' : 'remote_invoice_line_parent_mismatch',
+        stripeInvoiceLineId: line?.id ?? null,
+        stripeInvoiceItemId,
+      })
+      continue
+    }
+    if (seen.has(lineId)) {
+      issues.push({ code: 'remote_invoice_line_duplicate', monthlyInvoiceLineId: lineId })
+      continue
+    }
+    seen.add(lineId)
+    if (
+      !expected.stripe_invoice_item_id
+      || String(stripeInvoiceItemId) !== String(expected.stripe_invoice_item_id)
+      || !Number.isSafeInteger(line?.amount)
+      || Number(line.amount) !== Number(expected.amount_cents)
+      || !Number.isSafeInteger(line?.subtotal)
+      || Number(line.subtotal) !== Number(expected.amount_cents)
+      || String(line?.currency ?? '').toLowerCase() !== 'usd'
+      || stripeObjectId(line?.invoice) !== String(stripeInvoiceId)
+      || String(line?.metadata?.billingChargeId ?? '') !== String(expected.billing_charge_id)
+      || String(line?.metadata?.lineType ?? '') !== String(expected.line_type)
+      || !stripeAdjustmentCollectionIsEmpty(line?.discount_amounts)
+      || !stripeAdjustmentCollectionIsEmpty(line?.taxes)
+      || !stripeAdjustmentCollectionIsEmpty(line?.pretax_credit_amounts)
+    ) {
+      issues.push({ code: 'remote_invoice_line_mismatch', monthlyInvoiceLineId: lineId })
+    }
+  }
+  for (const lineId of expectedLines.keys()) {
+    if (!seen.has(lineId)) {
+      issues.push({ code: 'remote_invoice_line_missing', monthlyInvoiceLineId: lineId })
+    }
+  }
+
+  const paymentBinding = await inspectRemoteHouseholdInvoicePaymentBinding(stripe, {
+    stripeInvoiceId,
+    stripeCustomerId: verifiedStripeCustomerId,
+    totalCents,
+    durablePaymentIntentId: stripeObjectId(local.invoice.stripe_payment_intent_id),
+    expectedStatus: expectedRemoteStatus,
+  })
+  issues.push(...paymentBinding.issues)
+  return {
+    verified: issues.length === 0,
+    issues,
+    remoteInvoice: remote,
+    snapshot: {
+      stripeInvoiceId: remote?.id ?? null,
+      stripeCustomerId: remoteCustomerId,
+      totalCents,
+      currency: remote?.currency ?? null,
+      lineCount: lines.length,
+      invoicePaymentCount: paymentBinding.invoicePaymentCount,
+      paymentIntentId: paymentBinding.paymentIntentId,
+    },
+  }
+}
+
+/**
+ * Prevent a draft Stripe invoice from becoming a payable hosted invoice until
+ * both canonical authority and the fresh remote collector inventory are exact.
+ * The payment boundary below repeats both checks immediately before charging.
+ */
+export async function assertHouseholdInvoicePublicationBoundary(pool, {
+  account,
+  invoice,
+  stripe,
+  stripeInvoiceId,
+  stripeCustomerId = account?.stripe_customer_id,
+  billingMonth = invoice?.billing_month,
+  facilityTimeZone = account?.facility_timezone,
+  migrationAuthorization = null,
+} = {}) {
+  let evidence
+  try {
+    evidence = await inspectFreshHouseholdCollectorBoundary(stripe, {
+      accountId: account.id,
+      stripeCustomerId,
+      billingMonth,
+      facilityTimeZone,
+      stripeInvoiceId,
+    })
+  } catch (error) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: 'household_invoice_publication_remote_inventory_failed',
+      message: 'Household invoice publication was blocked because Stripe collector inventory could not be verified.',
+      details: { accountId: Number(account.id), reason: error?.message ?? String(error) },
+    })
+  }
+  if (!householdCollectorBoundaryIsSafe(evidence)) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: 'household_invoice_publication_collector_conflict',
+      message: 'Household invoice publication was blocked because Stripe contains another recurring or target-month collector.',
+      details: {
+        accountId: Number(account.id),
+        subscriptions: evidence.subscriptions.snapshot,
+        schedules: evidence.schedules.snapshot,
+        collectors: evidence.collectors.snapshot,
+        issues: [
+          ...evidence.subscriptions.issues,
+          ...evidence.schedules.issues,
+          ...evidence.collectors.issues,
+        ],
+      },
+    })
+  }
+  const migration = await loadHouseholdInvoiceAuthority(pool, {
+    accountId: account?.id,
+    invoiceId: invoice?.id,
+    stripeCustomerId,
+    stripeInvoiceId,
+    billingMonth,
+    facilityTimeZone,
+    migrationAuthorization,
+    paymentOnly: false,
+  })
+  if (!migration) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account: { ...account, stripe_customer_id: stripeCustomerId },
+      invoice,
+      stripeInvoiceId,
+      code: 'household_invoice_publication_authority_missing',
+      message: 'Household invoice publication was blocked because verified canonical migration authority is missing, changed, or not yet effective.',
+      details: { accountId: Number(account?.id), billingMonth: dateOnly(billingMonth) },
+    })
+  }
+  return { migration, ...evidence }
+}
+
+/**
+ * Last irreversible collection gate. Every caller, including migration and
+ * repair tooling, must prove durable canonical authority and a fresh, empty
+ * Stripe recurring-collector inventory immediately before invoices.pay.
+ */
+export async function assertHouseholdPaymentBoundary(pool, {
+  account,
+  invoice,
+  stripe,
+  stripeInvoiceId,
+  stripeCustomerId = account?.stripe_customer_id,
+  billingMonth = invoice?.billing_month,
+  facilityTimeZone = account?.facility_timezone,
+  migrationAuthorization = null,
+} = {}) {
+  let evidence
+  try {
+    evidence = await inspectFreshHouseholdCollectorBoundary(stripe, {
+      accountId: account.id,
+      stripeCustomerId,
+      billingMonth,
+      facilityTimeZone,
+      stripeInvoiceId,
+    })
+  } catch (error) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: 'household_payment_remote_inventory_failed',
+      message: 'Household payment was blocked because Stripe collector inventory could not be verified.',
+      details: { accountId: Number(account.id), reason: error?.message ?? String(error) },
+    })
+  }
+
+  if (!householdCollectorBoundaryIsSafe(evidence)) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account,
+      invoice,
+      stripeInvoiceId,
+      code: 'household_payment_collector_conflict',
+      message: 'Household payment was blocked because Stripe contains another recurring or target-month collector.',
+      details: {
+        accountId: Number(account.id),
+        subscriptions: evidence.subscriptions.snapshot,
+        schedules: evidence.schedules.snapshot,
+        collectors: evidence.collectors.snapshot,
+        issues: [
+          ...evidence.subscriptions.issues,
+          ...evidence.schedules.issues,
+          ...evidence.collectors.issues,
+        ],
+      },
+    })
+  }
+
+  const payableInvoice = await assertFreshHouseholdInvoiceStructure(pool, {
+    account,
+    invoice,
+    stripe,
+    stripeInvoiceId,
+    stripeCustomerId,
+    billingMonth,
+  })
+
+  // The method selected while the draft was being assembled is only a hint for
+  // Stripe's collection_method. Resolve the current customer-owned method again
+  // at the irreversible boundary and never pass the earlier ID to invoices.pay.
+  const paymentMethodId = await defaultPaymentMethod(stripe, stripeCustomerId, billingMonth)
+
+  // The durable state check is intentionally after the remote scans, adjacent
+  // to the payment reservation and Stripe call. A migration lease that expires
+  // during inventory cannot authorize a charge.
+  const migration = await loadHouseholdInvoiceAuthority(pool, {
+    accountId: account?.id,
+    invoiceId: invoice?.id,
+    stripeCustomerId,
+    stripeInvoiceId,
+    billingMonth,
+    facilityTimeZone,
+    migrationAuthorization,
+    paymentOnly: true,
+  })
+  if (!migration) {
+    await raiseHouseholdPaymentBoundaryAlert(pool, {
+      account: { ...account, stripe_customer_id: stripeCustomerId },
+      invoice,
+      stripeInvoiceId,
+      code: 'household_payment_canonical_authority_missing',
+      message: 'Household payment was blocked because verified canonical migration authority is missing or expired.',
+      details: {
+        accountId: Number(account?.id),
+        billingMonth: dateOnly(billingMonth),
+        migrationId: migration?.id == null ? null : Number(migration.id),
+        migrationState: migration?.state ?? null,
+      },
+    })
+  }
+  return { migration, payableInvoice, paymentMethodId, ...evidence }
 }
 
 function migrationManagedActivationResult(account, migration) {
@@ -165,7 +964,7 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe 
       if (
         String(remote?.metadata?.monthlyInvoiceId ?? '') !== String(invoice.id)
         || String(remote?.metadata?.familyBillingAccountId ?? '') !== String(accountId)
-        || String(remote?.metadata?.billingMonth ?? '') !== String(invoice.billing_month).slice(0, 7)
+        || String(remote?.metadata?.billingMonth ?? '') !== invoiceBillingMonthKey(invoice.billing_month)
       ) {
         throw new Error(`Prior Stripe invoice ${invoice.stripe_invoice_id} does not match monthly invoice ${invoice.id}.`)
       }
@@ -177,11 +976,36 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe 
         if (settlement?.conflicted) {
           throw new Error(`Paid prior household invoice requires reconciliation: ${settlement.reason}`)
         }
+        if (!settlement?.invoice) {
+          throw new Error(`Paid prior household invoice ${invoice.stripe_invoice_id} lost its local settlement mapping.`)
+        }
         continue
       }
 
-      const paymentIntentId = stripeObjectId(remote.payment_intent)
-        ?? invoice.stripe_payment_intent_id
+      if (remote.status === 'open') {
+        let binding
+        try {
+          binding = await inspectRemoteHouseholdInvoicePaymentBinding(stripe, {
+            stripeInvoiceId: invoice.stripe_invoice_id,
+            stripeCustomerId: stripeObjectId(remote.customer),
+            totalCents: Number(invoice.total_cents),
+            durablePaymentIntentId: stripeObjectId(invoice.stripe_payment_intent_id),
+            expectedStatus: 'open',
+          })
+        } catch (error) {
+          throw new Error(`Prior monthly invoice ${invoice.stripe_invoice_id} payment inventory could not be verified before voiding: ${error?.message ?? error}`)
+        }
+        if (!binding.verified) {
+          const issueCodes = binding.issues.map((issue) => issue.code).filter(Boolean).join(', ')
+          throw new Error(
+            `Prior monthly invoice ${invoice.stripe_invoice_id} has unsafe Invoice Payment inventory${issueCodes ? ` (${issueCodes})` : ''}; roll-forward stopped.`,
+          )
+        }
+      }
+
+      const paymentIntentId = remote.status === 'open'
+        ? null
+        : (stripeObjectId(remote.payment_intent) ?? invoice.stripe_payment_intent_id)
       if (paymentIntentId) {
         if (typeof stripe?.paymentIntents?.retrieve !== 'function') {
           throw new Error(`Prior monthly invoice ${invoice.stripe_invoice_id} has an unverifiable payment attempt.`)
@@ -198,6 +1022,9 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe 
           })
           if (settlement?.conflicted) {
             throw new Error(`Paid prior household invoice requires reconciliation: ${settlement.reason}`)
+          }
+          if (!settlement?.invoice) {
+            throw new Error(`Paid prior household invoice ${invoice.stripe_invoice_id} lost its local settlement mapping.`)
           }
           continue
         }
@@ -228,7 +1055,7 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe 
       eventKey: `monthly-invoice-voided:${invoice.id}:roll-forward`,
       accountId,
       eventType: 'monthly_invoice_voided',
-      summary: `Monthly household invoice for ${String(invoice.billing_month).slice(0, 7)} was voided so its unpaid items can carry forward.`,
+      summary: `Monthly household invoice for ${invoiceBillingMonthKey(invoice.billing_month) ?? 'unknown month'} was voided so its unpaid items can carry forward.`,
       details: { monthlyInvoiceId: Number(invoice.id), billingMonth: invoice.billing_month },
       stripeObjectId: invoice.stripe_invoice_id,
       actorType: 'system',
@@ -242,6 +1069,73 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
   try {
     await client.query('BEGIN')
     await client.query('SELECT pg_advisory_xact_lock($1)', [Number(accountId)])
+    const activeEnrollmentCheckout = await findActiveEnrollmentCheckoutBalanceCollector(
+      client,
+      accountId,
+    )
+    if (activeEnrollmentCheckout) {
+      await client.query('COMMIT')
+      return {
+        invoice: null,
+        created: false,
+        lines: [],
+        blocked: 'active_enrollment_checkout_balance_collector',
+        blockedOwnerId: Number(activeEnrollmentCheckout.owner_id),
+      }
+    }
+    const paidCheckoutPending = await client.query(
+      `SELECT id
+         FROM billing_payment
+        WHERE family_billing_account_id = $1
+          AND external_status = 'reconciliation_required'
+          AND (
+            position('[paid-checkout-fulfillment-pending:' in COALESCE(note, '')) > 0
+            OR position('[paid-checkout-refund-required:' in COALESCE(note, '')) > 0
+          )
+        LIMIT 1`,
+      [accountId],
+    )
+    if (paidCheckoutPending.rows[0]) {
+      await client.query('COMMIT')
+      return {
+        invoice: null,
+        created: false,
+        lines: [],
+        blocked: 'paid_checkout_fulfillment_pending',
+      }
+    }
+    const unresolvedRefund = await client.query(
+      `SELECT id
+         FROM billing_refund
+        WHERE family_billing_account_id = $1
+          AND external_status = 'reconciliation_required'
+        LIMIT 1`,
+      [accountId],
+    )
+    if (unresolvedRefund.rows[0]) {
+      await client.query('COMMIT')
+      return {
+        invoice: null,
+        created: false,
+        lines: [],
+        blocked: 'stripe_refund_reconciliation_required',
+      }
+    }
+    const completedCheckoutPaymentGap = await findCompletedPaidCheckoutFulfillmentGap(
+      client,
+      accountId,
+    )
+    if (completedCheckoutPaymentGap) {
+      await client.query('COMMIT')
+      return {
+        invoice: null,
+        created: false,
+        lines: [],
+        blocked: 'paid_checkout_owner_payment_gap',
+        blockedOwnerKind: completedCheckoutPaymentGap.owner_kind,
+        blockedOwnerId: Number(completedCheckoutPaymentGap.owner_id),
+      }
+    }
     const existing = await client.query(
       `SELECT * FROM billing_monthly_invoice
         WHERE family_billing_account_id = $1 AND billing_month = $2::date`,
@@ -262,6 +1156,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
               GREATEST(
                 0,
                 charge.amount_cents
+                  + COALESCE(refund_offset.offset_cents, 0)
                   - COALESCE(application.applied_cents, 0)
                   - COALESCE(credit_application.applied_cents, 0)
               )::int AS remaining_cents
@@ -275,17 +1170,32 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
               AND settled_payment.external_status IN ('settled', 'succeeded')
          ) application ON TRUE
          LEFT JOIN LATERAL (
+           SELECT COALESCE(SUM(offset_charge.amount_cents), 0)::int AS offset_cents
+             FROM billing_charge offset_charge
+            WHERE offset_charge.related_charge_id = charge.id
+              AND offset_charge.source_type = 'refund_offset'
+         ) refund_offset ON TRUE
+         LEFT JOIN LATERAL (
            SELECT SUM(credit.amount_cents)::int AS applied_cents
              FROM billing_charge_credit_application credit
              JOIN billing_monthly_invoice_line target_line
                ON target_line.id = credit.target_invoice_line_id
+             JOIN billing_monthly_invoice_line credit_line
+               ON credit_line.id = credit.credit_invoice_line_id
+             JOIN billing_charge credit_source
+               ON credit_source.id = credit_line.billing_charge_id
             WHERE target_line.billing_charge_id = charge.id
+              AND NOT (
+                credit_source.related_charge_id = charge.id
+                AND credit_source.source_type = 'refund_offset'
+              )
          ) credit_application ON TRUE
         WHERE charge.family_billing_account_id = $1
           AND charge.amount_cents > 0
           AND GREATEST(
                 0,
                 charge.amount_cents
+                  + COALESCE(refund_offset.offset_cents, 0)
                   - COALESCE(application.applied_cents, 0)
                   - COALESCE(credit_application.applied_cents, 0)
               ) > 0
@@ -348,6 +1258,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
          ) consumed ON TRUE
         WHERE charge.family_billing_account_id = $1
           AND charge.amount_cents < 0
+          AND charge.source_type <> 'refund_offset'
           AND GREATEST(
                 0,
                 ABS(charge.amount_cents) - COALESCE(consumed.consumed_cents, 0)
@@ -446,12 +1357,25 @@ function paymentIntentFromError(error) {
 }
 
 async function priorPaymentAttemptCanAdvance(stripe, invoice) {
-  if (invoice.status !== 'failed' || !invoice.stripe_payment_intent_id) return false
+  const priorAttempt = paymentAttemptDate(invoice.payment_attempted_at)
+  if (
+    priorAttempt
+    && !invoice.stripe_payment_intent_id
+    && ['open', 'failed'].includes(String(invoice.status))
+  ) {
+    throw new Error(
+      `Household invoice ${invoice.id} has an unknown Stripe payment outcome; manual reconciliation is required before retry.`,
+    )
+  }
+  if (!['failed', 'payment_method_required'].includes(String(invoice.status))) return false
+  if (!invoice.stripe_payment_intent_id) {
+    return false
+  }
   if (typeof stripe?.paymentIntents?.retrieve !== 'function') {
     throw new Error(`Cannot verify failed payment intent ${invoice.stripe_payment_intent_id}; household invoice retry stopped.`)
   }
   const intent = await stripe.paymentIntents.retrieve(invoice.stripe_payment_intent_id)
-  if (['requires_payment_method', 'canceled'].includes(intent?.status)) return true
+  if (intent?.status === 'requires_payment_method') return true
   throw new Error(
     `Payment intent ${invoice.stripe_payment_intent_id} is ${intent?.status || 'unknown'}; household invoice retry stopped to prevent duplicate collection.`,
   )
@@ -468,10 +1392,12 @@ async function reservePaymentAttempt(pool, invoice, stripe) {
     payment_attempted_at: attemptedAt,
     failure_message: null,
   }
-  // A non-null payment intent on a failed row proves that Stripe completed the
-  // prior attempt. Clearing it while durably advancing the timestamp creates a
-  // new attempt generation. When the outcome is unknown, retain both the token
-  // and null intent so a restarted worker replays the exact same Stripe key.
+  // A non-null payment intent in a confirmed failure state proves that Stripe
+  // completed the prior attempt. Clearing it while durably advancing the
+  // timestamp creates a new attempt generation. A prior attempt with no durable
+  // PaymentIntent is blocked above: replaying its idempotency key with a newly
+  // selected method could change Stripe request parameters after an unknown
+  // outcome.
   if (priorFailureConfirmed) values.stripe_payment_intent_id = null
   const saved = await markInvoice(pool, invoice.id, values)
   return {
@@ -485,7 +1411,7 @@ function remoteInvoiceMetadataMatches(remote, { account, invoice }) {
     remote
     && String(remote.metadata?.monthlyInvoiceId ?? '') === String(invoice.id)
     && String(remote.metadata?.familyBillingAccountId ?? '') === String(account.id)
-    && String(remote.metadata?.billingMonth ?? '') === String(invoice.billing_month).slice(0, 7)
+    && String(remote.metadata?.billingMonth ?? '') === invoiceBillingMonthKey(invoice.billing_month)
   )
 }
 
@@ -497,6 +1423,7 @@ function remoteInvoiceMatches(remote, { account, invoice, customerId }) {
 async function listStripeCollection(fetchPage, initialParams, cursorField) {
   const rows = []
   let cursor = null
+  const cursors = new Set()
   do {
     const response = await fetchPage({
       ...initialParams,
@@ -509,6 +1436,10 @@ async function listStripeCollection(fetchPage, initialParams, cursorField) {
     if (response?.has_more && !cursor) {
       throw new Error('Stripe pagination did not return a continuation cursor.')
     }
+    if (cursor && cursors.has(cursor)) {
+      throw new Error('Stripe pagination repeated a continuation cursor.')
+    }
+    if (cursor) cursors.add(cursor)
   } while (cursor)
   return rows
 }
@@ -578,12 +1509,12 @@ async function ensureRemoteInvoice(pool, { account, invoice, stripe, customerId,
       collection_method: collectionMethod,
       ...(collectionMethod === 'send_invoice' ? { days_until_due: 30 } : {}),
       auto_advance: false,
-      description: `Vortex Athletics household billing — ${String(invoice.billing_month).slice(0, 7)}`,
+      description: `Vortex Athletics household billing — ${invoiceBillingMonthKey(invoice.billing_month) ?? 'unknown month'}`,
       metadata: {
         householdMonthlyInvoice: 'true',
         monthlyInvoiceId: String(invoice.id),
         familyBillingAccountId: String(account.id),
-        billingMonth: String(invoice.billing_month).slice(0, 7),
+        billingMonth: invoiceBillingMonthKey(invoice.billing_month),
       },
     }, { idempotencyKey: `household-monthly-invoice:${invoice.id}:create` })
   }
@@ -666,11 +1597,9 @@ async function ensureRemoteInvoiceItems(pool, { invoice, lines, remote, stripe, 
 }
 
 async function syncAlreadyFinalizedInvoice(pool, {
-  account,
   invoice,
   remote,
   stripe,
-  paymentMethodId = null,
 }) {
   if (stripeInvoiceIsPaid(remote)) {
     const settlement = await recordAndApplyHouseholdMonthlyInvoicePayment(pool, { invoice: remote, stripe })
@@ -678,28 +1607,14 @@ async function syncAlreadyFinalizedInvoice(pool, {
       throw new Error(`Paid household invoice requires reconciliation: ${settlement.reason}`)
     }
     if (settlement?.invoice) return settlement.invoice
-    return markInvoice(pool, invoice.id, {
-      status: 'paid',
-      paid_at: remote.status_transitions?.paid_at
-        ? new Date(Number(remote.status_transitions.paid_at) * 1000)
-        : new Date(),
-      hosted_invoice_url: remote.hosted_invoice_url ?? null,
-      failure_message: null,
-    })
+    throw new Error(`Paid household invoice ${remote.id} lost its local settlement mapping.`)
   }
   if (remote.status === 'open') {
-    const status = paymentMethodId ? 'open' : 'payment_method_required'
-    const saved = await markInvoice(pool, invoice.id, {
-      status,
-      hosted_invoice_url: remote.hosted_invoice_url ?? null,
-      failure_message: null,
-    })
-    if (status === 'payment_method_required') await createPaymentMethodAlert(pool, account.id, saved ?? invoice)
-    // An automatic-payment invoice can be open because the worker stopped
-    // after finalization but before the idempotent pay call completed. Return
-    // null so the caller resumes that stable Stripe operation. A paid remote
-    // invoice is handled above, which prevents duplicate collection.
-    return status === 'payment_method_required' ? (saved ?? invoice) : null
+    // An open invoice remains resumable, but its hosted URL must not be exposed
+    // until the post-finalization structure and payment bindings are verified.
+    // A paid remote invoice is handled above, which prevents duplicate
+    // collection when an earlier Stripe response was interrupted.
+    return null
   }
   if (remote.status === 'void') {
     return markInvoice(pool, invoice.id, { status: 'void', failure_message: 'Stripe invoice was voided.' })
@@ -710,18 +1625,40 @@ async function syncAlreadyFinalizedInvoice(pool, {
   return null
 }
 
-async function pushInvoiceToStripe(pool, { account, invoice, lines, stripe }) {
+async function pushInvoiceToStripe(pool, {
+  account,
+  invoice,
+  lines,
+  stripe,
+  billingMonth,
+  facilityTimeZone,
+  migrationAuthorization,
+}) {
   const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const paymentMethodId = await defaultPaymentMethod(stripe, customerId)
+  const paymentMethodId = await defaultPaymentMethod(stripe, customerId, billingMonth)
   const collectionMethod = paymentMethodId ? 'charge_automatically' : 'send_invoice'
   const remote = await ensureRemoteInvoice(pool, { account, invoice, stripe, customerId, collectionMethod })
+  // A URL stored by an older/interrupted run is not trusted until this run has
+  // reverified the finalized Stripe invoice below.
+  await markInvoice(pool, invoice.id, { hosted_invoice_url: null })
   await ensureRemoteInvoiceItems(pool, { invoice, lines, remote, stripe, customerId })
-  const alreadyFinalized = await syncAlreadyFinalizedInvoice(pool, {
+  // A draft invoice is not payable and auto-advance is disabled. Recheck the
+  // canonical migration and complete remote collector inventory before this
+  // invoice can be finalized into either an automatic charge or hosted link.
+  await assertHouseholdInvoicePublicationBoundary(pool, {
     account,
+    invoice,
+    stripe,
+    stripeInvoiceId: remote.id,
+    stripeCustomerId: customerId,
+    billingMonth,
+    facilityTimeZone,
+    migrationAuthorization,
+  })
+  const alreadyFinalized = await syncAlreadyFinalizedInvoice(pool, {
     invoice,
     remote,
     stripe,
-    paymentMethodId,
   })
   if (alreadyFinalized) return alreadyFinalized
 
@@ -734,38 +1671,99 @@ async function pushInvoiceToStripe(pool, { account, invoice, lines, stripe }) {
     : remote
   if (finalized.status !== 'open') {
     const finalizedWithoutPayment = await syncAlreadyFinalizedInvoice(pool, {
-      account,
       invoice,
       remote: finalized,
       stripe,
-      paymentMethodId,
     })
     if (finalizedWithoutPayment) return finalizedWithoutPayment
     throw new Error(`Stripe invoice ${remote.id} finalized with unexpected status ${finalized.status}.`)
   }
-  const saved = await markInvoice(pool, invoice.id, {
-    status: paymentMethodId ? 'open' : 'payment_method_required',
-    hosted_invoice_url: finalized.hosted_invoice_url ?? null,
+  await assertFreshHouseholdInvoiceStructure(pool, {
+    account,
+    invoice,
+    stripe,
+    stripeInvoiceId: remote.id,
+    stripeCustomerId: customerId,
+    billingMonth,
+    allowedLocalStatuses: ['draft', 'open', 'failed', 'payment_method_required'],
+    verificationFailureCode: 'household_invoice_publication_verification_failed',
+    mismatchCode: 'household_invoice_publication_invoice_mismatch',
+    action: 'publication',
   })
-  if (!paymentMethodId) {
+  // Remote finalization and the local payable state are durable and safely
+  // resumable. Do not reserve a payment-attempt generation until every remote
+  // and canonical pre-pay gate below has passed.
+  const openedInvoice = await markInvoice(pool, invoice.id, {
+    status: 'open',
+    failure_message: null,
+  })
+  if (!openedInvoice) {
+    throw new Error(`Household invoice ${invoice.id} could not enter its payable state.`)
+  }
+  const boundary = await assertHouseholdPaymentBoundary(pool, {
+    account,
+    invoice: openedInvoice,
+    stripe,
+    stripeInvoiceId: remote.id,
+    stripeCustomerId: customerId,
+    billingMonth,
+    facilityTimeZone,
+    migrationAuthorization,
+  })
+  if (!boundary.paymentMethodId) {
+    // Stripe can add or advance an Invoice Payment independently after the
+    // broader boundary scan. Re-read the complete binding inventory directly
+    // beside the only local write that exposes the hosted payment surface.
+    await assertFreshHouseholdInvoicePaymentBinding(pool, {
+      account,
+      invoice: openedInvoice,
+      stripe,
+      stripeInvoiceId: remote.id,
+      stripeCustomerId: customerId,
+      expectedStatus: 'open',
+      verificationFailureCode: 'household_invoice_publication_payment_binding_verification_failed',
+      mismatchCode: 'household_invoice_publication_payment_binding_mismatch',
+      action: 'publication',
+    })
+    const saved = await markInvoice(pool, invoice.id, {
+      status: 'payment_method_required',
+      hosted_invoice_url: finalized.hosted_invoice_url ?? null,
+      failure_message: null,
+    })
     await createPaymentMethodAlert(pool, account.id, saved ?? invoice)
     return saved ?? invoice
   }
-  const paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe)
-  await markInvoice(pool, invoice.id, {
-    hosted_invoice_url: finalized.hosted_invoice_url ?? null,
+  // Keep this read immediately adjacent to invoices.pay. In particular, do not
+  // let a second paid/open/external binding appear after the canonical authority
+  // check and then collect the same invoice again here.
+  await assertFreshHouseholdInvoicePaymentBinding(pool, {
+    account,
+    invoice: openedInvoice,
+    stripe,
+    stripeInvoiceId: remote.id,
+    stripeCustomerId: customerId,
+    expectedStatus: 'open',
   })
+  // This durable timestamp defines the idempotency generation and therefore
+  // belongs directly beside the first possible Stripe pay dispatch. Any gate
+  // failure above leaves no false "unknown outcome" marker behind.
+  const paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe)
   try {
     const paid = await stripe.invoices.pay(
       remote.id,
-      { payment_method: paymentMethodId },
+      { payment_method: boundary.paymentMethodId },
       { idempotencyKey: paymentAttempt.idempotencyKey },
     )
     const paymentConfirmed = stripeInvoiceIsPaid(paid)
     const attempted = await markInvoice(pool, invoice.id, {
       status: paymentConfirmed ? 'open' : 'failed',
       stripe_payment_intent_id: typeof paid.payment_intent === 'string' ? paid.payment_intent : paid.payment_intent?.id ?? null,
-      hosted_invoice_url: paid.hosted_invoice_url ?? finalized.hosted_invoice_url ?? null,
+      // Never expose a second payment surface after an automatic attempt unless
+      // Stripe has already made the invoice terminal. A non-paid response can
+      // still carry a processing or action-required PaymentIntent.
+      hosted_invoice_url: paymentConfirmed
+        ? (paid.hosted_invoice_url ?? finalized.hosted_invoice_url ?? null)
+        : null,
       failure_message: paymentConfirmed ? null : 'Stripe did not confirm the invoice payment.',
     })
     // Stripe normally delivers invoice.paid immediately afterwards, but record
@@ -778,6 +1776,7 @@ async function pushInvoiceToStripe(pool, { account, invoice, lines, stripe }) {
         throw new Error(`Paid household invoice requires reconciliation: ${settlement.reason}`)
       }
       if (settlement?.invoice) return settlement.invoice
+      throw new Error(`Paid household invoice ${paid.id} lost its local settlement mapping.`)
     }
     return attempted
   } catch (error) {
@@ -785,7 +1784,10 @@ async function pushInvoiceToStripe(pool, { account, invoice, lines, stripe }) {
     return markInvoice(pool, invoice.id, {
       status: 'failed',
       ...(paymentIntentId ? { stripe_payment_intent_id: paymentIntentId } : {}),
-      hosted_invoice_url: finalized.hosted_invoice_url ?? null,
+      // The request outcome may be unknown or its PaymentIntent may still be
+      // processing, so publishing the hosted page here could create a second
+      // collector for the same invoice.
+      hosted_invoice_url: null,
       failure_message: String(error?.message ?? error).slice(0, 500),
     })
   }
@@ -799,6 +1801,7 @@ export async function createHouseholdMonthlyInvoice(pool, {
   actorUserId = null,
   environment = process.env,
   stripeClient = undefined,
+  migrationAuthorization = null,
 }) {
   await ensureHouseholdMonthlyInvoiceSchema(pool)
   if (!billingHouseholdInvoiceEnabled(environment)) {
@@ -824,7 +1827,12 @@ export async function createHouseholdMonthlyInvoice(pool, {
       await allocateHouseholdPayments(db, { accountId: account.id, actorType: 'system' })
     }
     const local = await createLocalHouseholdInvoice(db, { accountId: account.id, billingMonth: month })
-    if (!local.invoice) return { ...local, skipped: 'no_open_charges' }
+    if (!local.invoice) {
+      return {
+        ...local,
+        skipped: local.blocked ?? 'no_open_charges',
+      }
+    }
 
     const resumable = local.invoice.status === 'draft'
       || local.invoice.status === 'open'
@@ -858,7 +1866,15 @@ export async function createHouseholdMonthlyInvoice(pool, {
         skipped: 'stripe_unavailable',
       }
     }
-    const invoice = await pushInvoiceToStripe(db, { account, invoice: local.invoice, lines: local.lines, stripe })
+    const invoice = await pushInvoiceToStripe(db, {
+      account,
+      invoice: local.invoice,
+      lines: local.lines,
+      stripe,
+      billingMonth: month,
+      facilityTimeZone,
+      migrationAuthorization,
+    })
     return { invoice, lines: local.lines, created: local.created, resumed: !local.created }
   })
 }
@@ -1261,7 +2277,7 @@ async function finishHouseholdInvoiceSettlement(db, { invoice, local, payment })
     accountId: local.family_billing_account_id,
     paymentId: payment.id,
     eventType: 'monthly_invoice_paid',
-    summary: `Household monthly invoice for ${String(local.billing_month).slice(0, 7)} was paid.`,
+    summary: `Household monthly invoice for ${invoiceBillingMonthKey(local.billing_month) ?? 'unknown month'} was paid.`,
     afterValue: { monthlyInvoiceId: Number(local.id), paymentId: Number(payment.id), totalCents: Number(local.total_cents) },
     stripeObjectId: local.stripe_invoice_id ?? invoice?.id ?? null,
     actorType: 'stripe',
@@ -1294,6 +2310,100 @@ export async function applyHouseholdMonthlyInvoicePayment(pool, { invoice, payme
   })
 }
 
+async function assertPaidHouseholdInvoiceSettlementBoundary(pool, stripe, local) {
+  // Once Stripe has settled an invoice, current collection authority is no
+  // longer the ownership source for the cash receipt. The durable local
+  // invoice ID plus its exact Stripe invoice, metadata, lines, amount, Invoice
+  // Payment, and PaymentIntent form the historical settlement identity. This
+  // lets a delayed webhook record real cash even if the account was disabled
+  // or remapped after Stripe charged it.
+  const settlementIdentity = { id: local.family_billing_account_id, stripe_customer_id: null }
+  const inspection = await assertFreshHouseholdInvoiceStructure(pool, {
+    account: settlementIdentity,
+    invoice: local,
+    stripe,
+    stripeInvoiceId: local.stripe_invoice_id,
+    stripeCustomerId: null,
+    billingMonth: local.billing_month,
+    allowedLocalStatuses: ['draft', 'open', 'failed', 'payment_method_required', 'paid'],
+    expectedRemoteStatus: 'paid',
+    verificationFailureCode: 'household_paid_invoice_verification_failed',
+    mismatchCode: 'household_paid_invoice_mismatch',
+    action: 'paid settlement',
+    allowRemoteCustomerAsHistoricalIdentity: true,
+  })
+  const historicalCustomerId = inspection.snapshot?.stripeCustomerId ?? null
+
+  // Current drift still matters for every future collection, but it must not
+  // erase an already-settled receipt. Record it as a critical, idempotent
+  // anomaly and continue using the immutable paid-invoice identity above.
+  let account = null
+  let authorityLookupError = null
+  try {
+    account = await pool.query(
+      `/* household-paid:account */
+       SELECT account.id,
+              account.stripe_customer_id,
+              account.is_active,
+              (
+                SELECT COUNT(*)::integer
+                  FROM family_billing_account customer_owner
+                 WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+              ) AS stripe_customer_owner_count
+         FROM family_billing_account account
+        WHERE account.id = $1
+        LIMIT 1`,
+      [Number(local.family_billing_account_id)],
+    ).then((result) => result.rows[0] ?? null)
+  } catch (error) {
+    authorityLookupError = error
+  }
+  const authorityDrifted = (
+    !account
+    || account.is_active !== true
+    || String(account.stripe_customer_id ?? '') !== String(historicalCustomerId ?? '')
+    || Number(account.stripe_customer_owner_count) !== 1
+  )
+  if (authorityDrifted || authorityLookupError) {
+    const reasons = [
+      !account ? 'account missing' : null,
+      account && account.is_active !== true ? 'account inactive' : null,
+      account && String(account.stripe_customer_id ?? '') !== String(historicalCustomerId ?? '')
+        ? 'customer remapped'
+        : null,
+      account && Number(account.stripe_customer_owner_count) !== 1
+        ? `current customer has ${Number(account.stripe_customer_owner_count) || 0} local owners`
+        : null,
+      authorityLookupError ? `authority lookup failed: ${authorityLookupError.message ?? String(authorityLookupError)}` : null,
+    ].filter(Boolean)
+    await recordStripeBillingAlert(pool, {
+      event: { id: `household-paid-authority-drift:${local.id}` },
+      object: {
+        // Keep this deliberately narrow: neither a shared Customer nor a
+        // pre-existing PaymentIntent row may override the immutable local
+        // monthly-invoice account used for this anomaly.
+        id: local.stripe_invoice_id,
+        status: inspection.remoteInvoice?.status ?? 'paid',
+        amount_due: inspection.remoteInvoice?.amount_due ?? Number(local.total_cents),
+        currency: inspection.remoteInvoice?.currency ?? 'usd',
+        metadata: {
+          familyBillingAccountId: String(local.family_billing_account_id),
+          monthlyInvoiceId: String(local.id),
+        },
+      },
+      alertType: 'household_paid_invoice_current_authority_drift',
+      severity: 'critical',
+      message: `Stripe reports household invoice ${local.stripe_invoice_id} paid, but current future-collection authority is unsafe (${reasons.join(', ') || 'unknown drift'}). Historical settlement recording will continue from the exact invoice identity.`,
+    }).catch(() => {})
+  }
+  return {
+    inspection,
+    verifiedInvoice: inspection.remoteInvoice,
+    accountId: Number(local.family_billing_account_id),
+    customerId: historicalCustomerId,
+  }
+}
+
 /** Atomically insert and exactly map a paid household Stripe invoice. */
 export async function recordAndApplyHouseholdMonthlyInvoicePayment(pool, {
   invoice,
@@ -1309,7 +2419,23 @@ export async function recordAndApplyHouseholdMonthlyInvoicePayment(pool, {
     [invoice?.id],
   ).then((result) => result.rows[0] ?? null)
   if (!local) return null
-  const preparedPayment = await preparePaymentFunction(pool, invoice, { stripe })
+  // Webhook payloads and earlier retrieve responses are not sufficient paid
+  // evidence. Re-read the exact immutable invoice structure plus the complete
+  // all-status Invoice Payment inventory before any ledger write.
+  const paidBoundary = stripe
+    ? await assertPaidHouseholdInvoiceSettlementBoundary(pool, stripe, local)
+    : null
+  const settlementInvoice = paidBoundary?.verifiedInvoice ?? invoice
+  const preparedPayment = await preparePaymentFunction(pool, settlementInvoice, {
+    stripe,
+    historicalSettlementBinding: paidBoundary ? {
+      kind: 'household_monthly',
+      accountId: paidBoundary.accountId,
+      customerId: paidBoundary.customerId,
+      invoiceId: local.stripe_invoice_id,
+      monthlyInvoiceId: local.id,
+    } : null,
+  })
   if (!preparedPayment) throw new Error('The paid Stripe household invoice could not be prepared for recording.')
   if (Number(preparedPayment.accountId) !== Number(local.family_billing_account_id)) {
     throw new Error('Prepared Stripe invoice payment belongs to a different household account.')
@@ -1326,13 +2452,17 @@ export async function recordAndApplyHouseholdMonthlyInvoicePayment(pool, {
       ).then((result) => result.rows[0] ?? null)
       const payment = await recordPaymentFunction(db, preparedPayment)
       if (!payment?.id) throw new Error('The paid Stripe household invoice was not recorded locally.')
-      if (beforeMapping) await beforeMapping({ db, invoice, local: locked, payment })
+      if (beforeMapping) await beforeMapping({ db, invoice: settlementInvoice, local: locked, payment })
       await db.query('SAVEPOINT household_invoice_payment_mapping')
       try {
-        const updated = await applyHouseholdMonthlyInvoicePaymentLocked(db, { invoice, local: locked, payment })
+        const updated = await applyHouseholdMonthlyInvoicePaymentLocked(db, {
+          invoice: settlementInvoice,
+          local: locked,
+          payment,
+        })
         await db.query('RELEASE SAVEPOINT household_invoice_payment_mapping')
         await db.query('COMMIT')
-        await finishSettlementFunction(db, { invoice, local: locked, payment })
+        await finishSettlementFunction(db, { invoice: settlementInvoice, local: locked, payment })
         return { invoice: updated, payment, conflicted: false, reason: null }
       } catch (error) {
         if (error?.code !== 'HOUSEHOLD_INVOICE_PAYMENT_CONFLICT') throw error

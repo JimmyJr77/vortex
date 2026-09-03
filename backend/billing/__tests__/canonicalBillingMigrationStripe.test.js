@@ -8,6 +8,7 @@ import {
   inspectStripeCustomerSubscriptionScheduleInventory,
   inspectStripeHouseholdInvoice,
   listTargetMonthLegacyInvoices,
+  retrieveStripeCustomerReadiness,
   retireStripeSubscription,
   scheduleStripeSubscriptionForCutover,
   validateRemoteSubscriptionForMigration,
@@ -57,6 +58,73 @@ function fakeStripe(initial = {}) {
     },
   }
 }
+
+test('customer readiness uses one target-month rule for card and Link methods', async () => {
+  const readinessFor = (paymentMethod) => retrieveStripeCustomerReadiness({
+    customers: {
+      async retrieve() {
+        return {
+          id: 'cus_1',
+          deleted: false,
+          invoice_settings: { default_payment_method: paymentMethod },
+        }
+      },
+    },
+  }, 'cus_1', { billingMonth: '2026-10-01' })
+
+  const link = await readinessFor({
+    id: 'pm_link', type: 'link', customer: 'cus_1', link: { email: null },
+  })
+  assert.equal(link.ready, true)
+  assert.equal(link.snapshot.paymentMethodType, 'link')
+
+  const expiringCard = await readinessFor({
+    id: 'pm_card',
+    type: 'card',
+    customer: 'cus_1',
+    card: { last4: '4242', exp_month: 9, exp_year: 2026 },
+  })
+  assert.equal(expiringCard.ready, false)
+  assert.equal(expiringCard.reason, 'payment_method_card_expired_for_billing_month')
+
+  const foreignCard = await readinessFor({
+    id: 'pm_foreign',
+    type: 'card',
+    customer: 'cus_other',
+    card: { last4: '4242', exp_month: 12, exp_year: 2030 },
+  })
+  assert.equal(foreignCard.ready, false)
+  assert.equal(foreignCard.reason, 'payment_method_customer_mismatch')
+})
+
+test('customer readiness rejects Stripe metadata owned by another billing account', async () => {
+  const result = await retrieveStripeCustomerReadiness({
+    customers: {
+      async retrieve() {
+        return {
+          id: 'cus_shared',
+          deleted: false,
+          metadata: { familyBillingAccountId: '19' },
+          invoice_settings: {
+            default_payment_method: {
+              id: 'pm_card',
+              type: 'card',
+              customer: 'cus_shared',
+              card: { exp_month: 12, exp_year: 2030 },
+            },
+          },
+        }
+      },
+    },
+  }, 'cus_shared', {
+    billingMonth: '2026-10-01',
+    expectedAccountId: 8,
+  })
+
+  assert.equal(result.ready, false)
+  assert.equal(result.reason, 'stripe_customer_metadata_owner_conflict')
+  assert.equal(result.snapshot.metadataFamilyBillingAccountId, '19')
+})
 
 test('Stripe cutover scheduling is confirmed and replay-safe', async () => {
   const stripe = fakeStripe()
@@ -265,6 +333,7 @@ test('customer subscription inventory paginates and exactly maps class and annua
   assert.equal(calls.length, 2)
   assert.equal(calls[1].starting_after, 'sub_class')
   assert.equal(calls[0].status, 'all')
+  assert.equal(calls[0].expand, undefined)
 })
 
 test('forward adoption inventories active and future Stripe subscription schedules', async () => {
@@ -312,6 +381,47 @@ test('forward adoption inventories active and future Stripe subscription schedul
   })
   assert.equal(noCustomer.verified, true)
   assert.equal(noCustomer.snapshot.liveScheduleCount, 0)
+})
+
+test('customer collector inventories fail closed for unknown Stripe statuses', async () => {
+  const subscriptions = await inspectStripeCustomerSubscriptionInventory({
+    subscriptions: {
+      async list() {
+        return {
+          data: [customerSubscription('sub_future_status', { status: 'future_collectible_status' })],
+          has_more: false,
+        }
+      },
+    },
+  }, {
+    stripeCustomerId: 'cus_1',
+    accountId: 9,
+    localSubscriptions: [],
+  })
+  assert.equal(subscriptions.verified, false)
+  assert.equal(subscriptions.snapshot.liveSubscriptionCount, 1)
+  assert.deepEqual(subscriptions.issues.map((issue) => issue.code), [
+    'stripe_customer_subscription_status_unrecognized',
+  ])
+
+  const schedules = await inspectStripeCustomerSubscriptionScheduleInventory({
+    subscriptionSchedules: {
+      async list() {
+        return {
+          data: [{ id: 'sub_sched_future_status', status: 'future_schedule_status', customer: 'cus_1' }],
+          has_more: false,
+        }
+      },
+    },
+  }, {
+    stripeCustomerId: 'cus_1',
+    accountId: 9,
+  })
+  assert.equal(schedules.verified, false)
+  assert.equal(schedules.snapshot.liveScheduleCount, 1)
+  assert.deepEqual(schedules.issues.map((issue) => issue.code), [
+    'stripe_customer_subscription_schedule_status_unrecognized',
+  ])
 })
 
 test('annual exclusion requires an authoritative local or metadata mapping, never a label', async () => {
@@ -530,6 +640,99 @@ test('target-month invoice discovery paginates invoices and service-period lines
   assert.equal(Object.hasOwn(invoiceCalls[0], 'created'), false)
   assert.equal(invoiceCalls[1].starting_after, 'in_old')
   assert.equal(lineCalls.at(-1)[1].starting_after, 'il_old')
+})
+
+test('paid target-month discovery proves its PaymentIntent through Invoice Payments when invoice.payment_intent is omitted', async () => {
+  const boundaryUnix = Date.parse('2026-09-01T00:00:00.000Z') / 1000
+  const nextBoundaryUnix = Date.parse('2026-10-01T00:00:00.000Z') / 1000
+  const invoice = {
+    id: 'in_paid_without_legacy_pi',
+    status: 'paid',
+    paid: true,
+    created: boundaryUnix,
+    period_start: boundaryUnix,
+    period_end: nextBoundaryUnix,
+    subscription: 'sub_1',
+    customer: 'cus_1',
+    currency: 'usd',
+    amount_due: 12_000,
+    amount_paid: 12_000,
+    amount_remaining: 0,
+    collection_method: 'charge_automatically',
+  }
+  const invoicePaymentCalls = []
+  const invoicePayment = (boundInvoice) => ({
+    id: 'inpay_1',
+    status: 'paid',
+    invoice: boundInvoice,
+    amount_paid: 12_000,
+    currency: 'usd',
+    payment: { type: 'payment_intent', payment_intent: 'pi_paid_1' },
+  })
+  const stripe = {
+    invoices: {
+      async list() { return { data: [invoice], has_more: false } },
+      async listLineItems() {
+        return {
+          data: [{
+            id: 'il_paid_1',
+            amount: 12_000,
+            currency: 'usd',
+            quantity: 1,
+            period: { start: boundaryUnix, end: nextBoundaryUnix },
+            pricing: { price_details: { price: 'price_1' } },
+            parent: {
+              subscription_item_details: {
+                subscription: 'sub_1',
+                subscription_item: 'si_1',
+              },
+            },
+          }],
+          has_more: false,
+        }
+      },
+    },
+    invoicePayments: {
+      async list(params) {
+        invoicePaymentCalls.push(params)
+        return {
+          data: [invoicePayment(params.invoice ? invoice.id : invoice)],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve(id) {
+        assert.equal(id, 'pi_paid_1')
+        return {
+          id,
+          status: 'succeeded',
+          amount_received: 12_000,
+          currency: 'usd',
+          customer: 'cus_1',
+        }
+      },
+    },
+  }
+
+  const found = await listTargetMonthLegacyInvoices(stripe, {
+    subscriptionId: 'sub_1',
+    boundaryUnix,
+    nextBoundaryUnix,
+  })
+
+  assert.equal(Object.hasOwn(invoice, 'payment_intent'), false)
+  assert.equal(found.length, 1)
+  assert.equal(found[0].paymentIntentId, 'pi_paid_1')
+  assert.equal(found[0].paymentIntentStatus, 'succeeded')
+  assert.equal(found[0].paymentIntentAmountReceived, 12_000)
+  assert.equal(invoicePaymentCalls.length, 2)
+  assert.equal(invoicePaymentCalls[0].invoice, invoice.id)
+  assert.deepEqual(invoicePaymentCalls[1].payment, {
+    type: 'payment_intent',
+    payment_intent: 'pi_paid_1',
+  })
+  assert.deepEqual(invoicePaymentCalls[1].expand, ['data.invoice'])
 })
 
 test('cycle collector inventory finds unlinked legacy invoices and excludes annual memberships', async () => {
@@ -803,24 +1006,53 @@ test('positive local household invoice without a remote ID fails verification', 
 })
 
 test('paid Stripe status verifies when the deprecated paid boolean is absent', async () => {
+  const remoteInvoice = {
+    id: 'in_paid',
+    customer: 'cus_1',
+    status: 'paid',
+    currency: 'usd',
+    subtotal: 5000,
+    total: 5000,
+    amount_due: 5000,
+    amount_paid: 5000,
+    amount_remaining: 0,
+    metadata: {
+      householdMonthlyInvoice: 'true',
+      monthlyInvoiceId: '5',
+      familyBillingAccountId: '9',
+      billingMonth: '2026-09',
+    },
+  }
+  const invoicePayment = (boundInvoice) => ({
+    id: 'inpay_paid',
+    status: 'paid',
+    invoice: boundInvoice,
+    amount_paid: 5000,
+    currency: 'usd',
+    payment: { type: 'payment_intent', payment_intent: 'pi_paid' },
+  })
   const stripe = {
     invoices: {
       async retrieve() {
+        return remoteInvoice
+      },
+    },
+    invoicePayments: {
+      async list(params) {
         return {
-          id: 'in_paid',
+          data: [invoicePayment(params.invoice ? remoteInvoice.id : remoteInvoice)],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve() {
+        return {
+          id: 'pi_paid',
+          status: 'succeeded',
+          amount_received: 5000,
+          currency: 'usd',
           customer: 'cus_1',
-          status: 'paid',
-          subtotal: 5000,
-          total: 5000,
-          amount_due: 5000,
-          amount_paid: 5000,
-          amount_remaining: 0,
-          metadata: {
-            householdMonthlyInvoice: 'true',
-            monthlyInvoiceId: '5',
-            familyBillingAccountId: '9',
-            billingMonth: '2026-09',
-          },
         }
       },
     },
@@ -854,6 +1086,115 @@ test('paid Stripe status verifies when the deprecated paid boolean is absent', a
     },
     lines: [{ id: 11, billingChargeId: 21, amountCents: 5000, stripeInvoiceItemId: 'ii_paid' }],
   })
+  assert.equal(Object.hasOwn(remoteInvoice, 'payment_intent'), false)
   assert.equal(result.verified, true)
   assert.deepEqual(result.issues, [])
+  assert.equal(result.snapshot.paymentIntentId, 'pi_paid')
+  assert.equal(result.snapshot.paymentIntentStatus, 'succeeded')
+  assert.equal(result.snapshot.paymentIntentAmountReceivedCents, 5000)
+})
+
+test('paid household verification rejects extra open and duplicate paid Invoice Payment bindings', async () => {
+  const remoteInvoice = {
+    id: 'in_paid',
+    customer: 'cus_1',
+    status: 'paid',
+    paid: true,
+    currency: 'usd',
+    subtotal: 5000,
+    total: 5000,
+    amount_due: 5000,
+    amount_paid: 5000,
+    amount_remaining: 0,
+    payment_intent: {
+      id: 'pi_paid',
+      status: 'succeeded',
+      amount_received: 5000,
+    },
+    metadata: {
+      householdMonthlyInvoice: 'true',
+      monthlyInvoiceId: '5',
+      familyBillingAccountId: '9',
+      billingMonth: '2026-09',
+    },
+  }
+  const paidBinding = {
+    id: 'inpay_paid',
+    status: 'paid',
+    invoice: remoteInvoice.id,
+    amount_paid: 5000,
+    currency: 'usd',
+    payment: { type: 'payment_intent', payment_intent: 'pi_paid' },
+  }
+  const extraBindings = [
+    {
+      id: 'inpay_open',
+      status: 'open',
+      invoice: remoteInvoice.id,
+      currency: 'usd',
+      payment: { type: 'payment_intent', payment_intent: 'pi_open' },
+    },
+    {
+      id: 'inpay_second_paid',
+      status: 'paid',
+      invoice: remoteInvoice.id,
+      amount_paid: 5000,
+      currency: 'usd',
+      payment: { type: 'payment_intent', payment_intent: 'pi_second_paid' },
+    },
+  ]
+
+  for (const extraBinding of extraBindings) {
+    const stripe = {
+      invoices: {
+        async retrieve() { return remoteInvoice },
+      },
+      invoicePayments: {
+        async list() {
+          return { data: [paidBinding, extraBinding], has_more: false }
+        },
+      },
+      paymentIntents: {
+        async retrieve() {
+          throw new Error('Ambiguous invoice bindings must fail before PaymentIntent retrieval.')
+        },
+      },
+      invoiceItems: {
+        async list() {
+          return {
+            data: [{
+              id: 'ii_paid',
+              amount: 5000,
+              metadata: {
+                monthlyInvoiceId: '5',
+                monthlyInvoiceLineId: '11',
+                billingChargeId: '21',
+              },
+            }],
+            has_more: false,
+          }
+        },
+      },
+    }
+
+    const result = await inspectStripeHouseholdInvoice(stripe, {
+      accountId: 9,
+      stripeCustomerId: 'cus_1',
+      billingMonth: '2026-09-01',
+      invoice: {
+        id: 5,
+        status: 'paid',
+        stripeInvoiceId: remoteInvoice.id,
+        subtotalCents: 5000,
+        totalCents: 5000,
+      },
+      lines: [{ id: 11, billingChargeId: 21, amountCents: 5000, stripeInvoiceItemId: 'ii_paid' }],
+    })
+
+    assert.equal(result.verified, false, extraBinding.id)
+    assert.deepEqual(result.issues.map((issue) => issue.code), [
+      'remote_household_invoice_payment_binding_invalid',
+    ])
+    assert.equal(result.snapshot.paymentIntentId, null)
+  }
 })

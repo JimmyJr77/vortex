@@ -9,12 +9,16 @@ import {
 } from './customerBillingPricing.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { classifyStripePaymentMethodReadiness } from './stripePaymentMethodReadiness.js'
 
 function cents(value) {
   return Number(value ?? 0) || 0
 }
 
 function monthKey(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 7)
+  }
   const match = String(value ?? '').match(/^(\d{4}-\d{2})/)
   return match ? match[1] : null
 }
@@ -30,10 +34,34 @@ export function yearToDateBounds(asOf = new Date()) {
   return { year, start: `${year}-01-01`, throughMonth: current }
 }
 
-export function familyAutopayScheduled({ householdMonthlyBillingEnabled, cardOnFile, hasLegacyStripeSubscription }) {
-  if (householdMonthlyBillingEnabled && cardOnFile) return true
-  if (!householdMonthlyBillingEnabled && hasLegacyStripeSubscription) return true
-  return false
+export function familyAutopayStatus({
+  householdMonthlyBillingEnabled,
+  cardOnFile,
+  hasLegacyStripeSubscription,
+  hasVerifiedHouseholdMigration,
+  effectiveCollectionMonth,
+  billingMonth,
+}) {
+  if (hasLegacyStripeSubscription) return 'legacy_collector_conflict'
+  if (!householdMonthlyBillingEnabled || !hasVerifiedHouseholdMigration) return 'migration_required'
+  const effective = monthKey(effectiveCollectionMonth)
+  const target = monthKey(billingMonth)
+  if (!effective || !target) return 'migration_required'
+  if (!cardOnFile) return 'payment_method_required'
+  if (effective > target) return 'scheduled_later'
+  return 'ready'
+}
+
+export function familyAutopayScheduled(input) {
+  return familyAutopayStatus(input) === 'ready'
+}
+
+export function paymentMethodReadyForBillingMonth(summary, billingMonth) {
+  if (summary?.available !== true) return false
+  return classifyStripePaymentMethodReadiness(summary?.paymentMethod, {
+    expectedCustomerId: summary?.customerId,
+    billingMonth,
+  }).ready
 }
 
 async function mapLimit(items, limit, mapper) {
@@ -94,15 +122,59 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
        fba.id AS billing_account_id,
        fba.payer_member_id,
        fba.stripe_customer_id,
+       (
+         SELECT COUNT(*)::integer
+           FROM family_billing_account customer_owner
+          WHERE customer_owner.stripe_customer_id = fba.stripe_customer_id
+       ) AS stripe_customer_owner_count,
        fba.household_monthly_billing_enabled,
+       facility.timezone AS facility_timezone,
+       canonical_autopay.id IS NOT NULL AS has_verified_household_migration,
+       canonical_autopay.effective_month AS household_collection_effective_month,
        payer.id AS payer_id,
        payer.first_name AS payer_first_name,
        payer.last_name AS payer_last_name,
        first_member.id AS first_member_id
      FROM family f
+     JOIN facility ON facility.id = f.facility_id
      LEFT JOIN family_billing_account fba
        ON fba.family_id = f.id AND fba.is_active = TRUE
      LEFT JOIN member payer ON payer.id = fba.payer_member_id
+     LEFT JOIN LATERAL (
+       SELECT migration.id,
+              CASE
+                WHEN NULLIF(migration.parity_snapshot ->> 'collectionDeferredToMonth', '') IS NULL
+                  THEN migration.cutover_month
+                WHEN migration.parity_snapshot ->> 'collectionDeferredToMonth'
+                     ~ '^[0-9]{4}-(0[1-9]|1[0-2])-01$'
+                  THEN (migration.parity_snapshot ->> 'collectionDeferredToMonth')::date
+                ELSE NULL::date
+              END AS effective_month
+         FROM billing_account_migration migration
+         JOIN billing_migration_run run ON run.id = migration.billing_migration_run_id
+        WHERE migration.family_billing_account_id = fba.id
+          AND migration.state = 'verified'
+          AND migration.verified_at IS NOT NULL
+          AND migration.target_collection_mode = 'household_monthly'
+          AND migration.payer_validation_status = 'verified'
+          AND migration.parity_status = 'matched'
+          AND migration.household_activated_at IS NOT NULL
+          AND migration.snapshot_hash ~ '^[0-9a-f]{64}$'
+          AND migration.accepted_snapshot_hash ~ '^[0-9a-f]{64}$'
+          AND migration.accepted_baseline_version > 0
+          AND migration.accepted_at IS NOT NULL
+          AND run.mode = 'apply'
+          AND run.status IN ('running', 'completed', 'completed_with_exceptions')
+          AND run.migration_key = 'canonical-household-billing-v1'
+          AND NULLIF(BTRIM(run.code_version), '') IS NOT NULL
+          AND run.manifest_checksum ~ '^[0-9a-f]{64}$'
+          AND run.target_month = migration.cutover_month
+          AND run.facility_id = f.facility_id
+          AND COALESCE(run.configuration -> 'accountIds', '[]'::jsonb)
+                @> to_jsonb(ARRAY[fba.id])
+        ORDER BY migration.id DESC
+        LIMIT 1
+     ) canonical_autopay ON TRUE
      LEFT JOIN LATERAL (
        SELECT m.id
          FROM member m
@@ -322,10 +394,11 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     ),
     pool.query(
       `SELECT id, family_billing_account_id, status, net_monthly_cents, discount_amount_cents,
-              source_type, pricing_option_key, stripe_subscription_id
+              source_type, pricing_option_key, stripe_subscription_id,
+              stripe_subscription_item_id, stripe_subscription_schedule_id
          FROM billing_subscription
         WHERE family_billing_account_id = ANY($1::bigint[])
-          AND status = 'active'`,
+          AND status IN ('active', 'paused')`,
       [accountIds],
     ),
   ])
@@ -337,7 +410,10 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   const remainingCharges = groupByAccount(chargeResult.rows)
   const unappliedPayments = groupByAccount(paymentResult.rows)
   const refundsByAccount = new Map(refundResult.rows.map((row) => [Number(row.family_billing_account_id), cents(row.refunds_cents)]))
-  const subscriptionsByAccount = groupByAccount(subscriptionResult.rows)
+  const collectorSubscriptionsByAccount = groupByAccount(subscriptionResult.rows)
+  const subscriptionsByAccount = groupByAccount(
+    subscriptionResult.rows.filter((subscription) => subscription.status === 'active'),
+  )
 
   const monthLookup = (rows, accountId, month, field) => {
     const list = rows.get(accountId) ?? []
@@ -383,7 +459,14 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   const cardsByAccount = new Map()
   await mapLimit(families.rows.filter((row) => row.stripe_customer_id), 5, async (row) => {
     try {
-      const summary = await loadDefaultPaymentMethodSummary(row)
+      const effectiveCollectionMonth = monthKey(row.household_collection_effective_month)
+      const requiredPaymentMethodMonth = [pricingMonth, effectiveCollectionMonth]
+        .filter(Boolean)
+        .sort()
+        .at(-1)
+      const summary = await loadDefaultPaymentMethodSummary(row, {
+        billingMonth: requiredPaymentMethodMonth,
+      })
       cardsByAccount.set(Number(row.billing_account_id), summary)
     } catch {
       cardsByAccount.set(Number(row.billing_account_id), { available: false, paymentMethod: null })
@@ -411,8 +494,25 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
       const paymentMethod = cardsByAccount.get(accountId)
       const last4 = paymentMethod?.paymentMethod?.last4 ?? null
       const householdMonthlyBillingEnabled = row.household_monthly_billing_enabled === true
-      const hasLegacyStripeSubscription = (subscriptionsByAccount.get(accountId) ?? [])
-        .some((subscription) => Boolean(subscription.stripe_subscription_id))
+      const hasLegacyStripeSubscription = (collectorSubscriptionsByAccount.get(accountId) ?? [])
+        .some((subscription) => Boolean(
+          subscription.stripe_subscription_id
+          || subscription.stripe_subscription_item_id
+          || subscription.stripe_subscription_schedule_id,
+        ))
+      const effectiveCollectionMonth = monthKey(row.household_collection_effective_month)
+      const requiredPaymentMethodMonth = [pricingMonth, effectiveCollectionMonth]
+        .filter(Boolean)
+        .sort()
+        .at(-1)
+      const autopayStatus = familyAutopayStatus({
+        householdMonthlyBillingEnabled,
+        cardOnFile: paymentMethodReadyForBillingMonth(paymentMethod, requiredPaymentMethodMonth),
+        hasLegacyStripeSubscription,
+        hasVerifiedHouseholdMigration: row.has_verified_household_migration === true,
+        effectiveCollectionMonth,
+        billingMonth: billingMonthInTimeZone(asOf, row.facility_timezone),
+      })
       return serializeFamilyRow(row, {
         yearToDatePaidCents: cents(totals.year_to_date_paid_cents),
         months: monthValues,
@@ -420,11 +520,9 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         monthlyRecurringCents: recurringByFamily.get(Number(row.family_id)) ?? 0,
         futureCreditsCents: snapshot?.futureCreditsCents ?? 0,
         accountBalanceCents: snapshot?.balanceCents ?? 0,
-        autopay: familyAutopayScheduled({
-          householdMonthlyBillingEnabled,
-          cardOnFile: Boolean(last4),
-          hasLegacyStripeSubscription,
-        }),
+        autopay: autopayStatus === 'ready',
+        autopayStatus,
+        autopayEffectiveMonth: effectiveCollectionMonth,
         cardOnFile: {
           last4,
           brand: paymentMethod?.paymentMethod?.brand ?? null,
@@ -449,6 +547,8 @@ function serializeFamilyRow(row, metrics) {
     futureCreditsCents: metrics.futureCreditsCents,
     accountBalanceCents: metrics.accountBalanceCents,
     autopay: metrics.autopay,
+    autopayStatus: metrics.autopayStatus ?? 'migration_required',
+    autopayEffectiveMonth: metrics.autopayEffectiveMonth ?? null,
     cardOnFile: metrics.cardOnFile,
   }
 }

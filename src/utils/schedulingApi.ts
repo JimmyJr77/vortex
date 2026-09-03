@@ -1291,7 +1291,14 @@ export async function createEnrollmentCheckoutSession(
     /** Reuse after an uncertain network result to replay the same Checkout safely. */
     idempotencyKey?: string
   },
-): Promise<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }> {
+): Promise<{
+  url?: string
+  skipCheckout?: boolean
+  alreadyCompleted?: boolean
+  requiresReview?: boolean
+  status?: 'completed' | 'already_completed' | 'quarantined'
+  pendingEnrollmentId?: number
+}> {
   const { idempotencyKey, ...requestPayload } = payload
   const requestKey = idempotencyKey ?? checkoutRequestKey('enrollment', requestPayload)
   const res = await fetch(`${getApiUrl()}/api/members/billing/enrollment-checkout-session`, {
@@ -1303,7 +1310,14 @@ export async function createEnrollmentCheckoutSession(
     },
     body: JSON.stringify(requestPayload),
   })
-  return parseJson<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }>(res)
+  return parseJson<{
+    url?: string
+    skipCheckout?: boolean
+    alreadyCompleted?: boolean
+    requiresReview?: boolean
+    status?: 'completed' | 'already_completed' | 'quarantined'
+    pendingEnrollmentId?: number
+  }>(res)
 }
 
 export type AnnualMembershipOffer = {
@@ -1341,7 +1355,17 @@ export async function createAnnualMembershipCheckoutSession(
     /** Reuse after an uncertain network result to replay the same Checkout safely. */
     idempotencyKey?: string
   },
-): Promise<{ url?: string; checkoutSessionId?: string; free?: boolean; memberIds?: number[]; renewsOn?: string }> {
+): Promise<{
+  url?: string
+  checkoutSessionId?: string
+  free?: boolean
+  skipCheckout?: boolean
+  alreadyCompleted?: boolean
+  requiresReview?: boolean
+  status?: 'completed' | 'already_active' | 'quarantined'
+  memberIds?: number[]
+  renewsOn?: string
+}> {
   const { idempotencyKey, ...requestPayload } = payload
   const requestKey = idempotencyKey ?? checkoutRequestKey('annual-membership', requestPayload)
   const res = await fetch(`${getApiUrl()}/api/members/billing/annual-membership-checkout`, {
@@ -1357,6 +1381,10 @@ export async function createAnnualMembershipCheckoutSession(
     url?: string
     checkoutSessionId?: string
     free?: boolean
+    skipCheckout?: boolean
+    alreadyCompleted?: boolean
+    requiresReview?: boolean
+    status?: 'completed' | 'already_active' | 'quarantined'
     memberIds?: number[]
     renewsOn?: string
   }>(res)

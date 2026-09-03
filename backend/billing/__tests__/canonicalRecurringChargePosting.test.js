@@ -724,6 +724,9 @@ test('invoice orchestration keeps the account lock while charge parity runs befo
   }
   const lockedDb = { query: async () => ({ rows: [] }) }
   const result = await ensureHouseholdCollectionInvoice(db, {
+    id: 17,
+    billing_migration_run_id: 12,
+    lease_owner: 'migration-worker-1',
     parity_snapshot: { timezone: TIMEZONE },
   }, {
     accountId: 9,
@@ -750,8 +753,14 @@ test('invoice orchestration keeps the account lock while charge parity runs befo
       events.push('charges-committed')
       return { verified: true, expectedChargeCount: 1, expectedNetCents: 12_000 }
     },
-    invoiceFactory: async (receivedDb) => {
+    invoiceFactory: async (receivedDb, options) => {
       assert.equal(receivedDb, lockedDb)
+      assert.deepEqual(options.migrationAuthorization, {
+        migrationId: 17,
+        runId: 12,
+        leaseOwner: 'migration-worker-1',
+        effectiveCollectionMonth: TARGET_MONTH,
+      })
       events.push('stripe-invoice')
       return { created: true, invoice: { id: 77 } }
     },

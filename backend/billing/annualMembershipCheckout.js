@@ -9,7 +9,9 @@ import {
   stripeEnabled,
   ensureStripeBillingSchema,
   ensureStripeCustomer,
+  applyAndSettlePaidCheckoutFulfillment,
   recordEnrollmentStripePayment,
+  recordPaidCheckoutFulfillmentQuarantine,
 } from './stripeBilling.js'
 import { ensureStripeCatalogSchema } from './stripeCatalogSync.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
@@ -26,10 +28,14 @@ import {
   createEnrollmentAnnualMembershipSubscriptions,
   preserveEnrollmentCheckoutPaymentMethod,
 } from './stripeEnrollmentCheckout.js'
-import { allocateHouseholdPayments } from './paymentAllocation.js'
+import {
+  allocateHouseholdPayments,
+  allocateHouseholdPaymentsLocked,
+} from './paymentAllocation.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import {
+  FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE,
   checkoutSessionHasForbiddenSubscriptionCollector,
   rejectForbiddenSubscriptionCheckoutCompletion,
 } from './checkoutSessionCollectionPolicy.js'
@@ -39,6 +45,8 @@ import {
   normalizeCheckoutRequestKey,
   stripeCheckoutIdempotencyKey,
 } from './checkoutIdempotency.js'
+import { findActivePurchaseCheckoutOwner } from './purchaseCheckoutAdmission.js'
+import { findCompletedPaidCheckoutFulfillmentGap } from './paidCheckoutCollectionGuard.js'
 
 export const ANNUAL_MEMBERSHIP_SPORT_NAME = 'Membership'
 export const ANNUAL_MEMBERSHIP_PROGRAM_NAME = 'Annual Membership'
@@ -232,6 +240,10 @@ export function annualCheckoutSnapshot(fee, pricedMembers) {
   const members = [...pricedMembers]
     .map((row) => ({
       memberId: Number(row.memberId),
+      memberName: [row.member?.first_name, row.member?.last_name]
+        .filter(Boolean)
+        .join(' ')
+        .trim(),
       feeId: Number(fee.id),
       feeName: String(fee.name || ANNUAL_MEMBERSHIP_PROGRAM_NAME),
       triggerType: fee.triggerType,
@@ -315,9 +327,19 @@ export function parseAnnualCheckoutSnapshot(request) {
   return snapshot
 }
 
-export function validateAnnualMembershipCheckoutSettlement(session, request) {
-  if (!annualMembershipCheckoutSessionIsPaid(session)) return { ok: false, reason: 'unpaid' }
-  if (String(session?.mode ?? 'payment') !== 'payment') {
+export function validateAnnualMembershipCheckoutSettlement(session, request, {
+  expectedCustomerId,
+  allowForbiddenSubscriptionCollector = false,
+} = {}) {
+  const paid = allowForbiddenSubscriptionCollector
+    ? session?.payment_status === 'paid'
+    : annualMembershipCheckoutSessionIsPaid(session)
+  if (!paid) return { ok: false, reason: 'unpaid' }
+  if (session?.status !== 'complete') return { ok: false, reason: 'settlement_not_complete' }
+  const allowedModes = allowForbiddenSubscriptionCollector
+    ? new Set(['payment', 'subscription'])
+    : new Set(['payment'])
+  if (!allowedModes.has(String(session?.mode ?? 'payment'))) {
     return { ok: false, reason: 'settlement_mode_mismatch' }
   }
   if (String(session?.currency ?? '').toLowerCase() !== String(request?.currency ?? '')) {
@@ -327,7 +349,204 @@ export function validateAnnualMembershipCheckoutSettlement(session, request) {
     !Number.isInteger(Number(session?.amount_total)) ||
     Number(session.amount_total) !== Number(request?.expected_amount_cents)
   ) return { ok: false, reason: 'settlement_amount_mismatch' }
+  if (expectedCustomerId !== undefined) {
+    const expected = String(expectedCustomerId ?? '').trim()
+    const observed = typeof session?.customer === 'string'
+      ? session.customer
+      : session?.customer?.id ?? null
+    if (!expected || String(observed ?? '') !== expected) {
+      return { ok: false, reason: 'settlement_customer_mismatch' }
+    }
+  }
   return { ok: true }
+}
+
+/** Verify an open or terminal Stripe Session against immutable annual terms. */
+export function assertAnnualMembershipCheckoutSessionBinding(
+  session,
+  request,
+  snapshot,
+  { expectedCustomerId } = {},
+) {
+  const metadata = session?.metadata ?? {}
+  const observedCustomerId = typeof session?.customer === 'string'
+    ? session.customer
+    : session?.customer?.id ?? null
+  const paidMembers = (snapshot?.members ?? [])
+    .filter((row) => Number(row.netCents) > 0)
+    .map((row) => Number(row.memberId))
+  const metadataMemberIds = String(metadata.memberIds ?? '')
+    .split(',')
+    .filter(Boolean)
+    .map(Number)
+  const expectedFeeId = Number(
+    (snapshot?.members ?? []).find((row) => Number(row.netCents) > 0)?.feeId,
+  )
+  const problems = []
+  if (!session?.id) problems.push('checkout_session_missing')
+  if (!['open', 'complete', 'expired'].includes(String(session?.status ?? ''))) {
+    problems.push('checkout_status_unsupported')
+  }
+  if (session?.mode !== 'payment') problems.push('checkout_mode_mismatch')
+  if (String(session?.currency ?? '').toLowerCase() !== String(request?.currency ?? '')) {
+    problems.push('checkout_currency_mismatch')
+  }
+  if (Number(session?.amount_total) !== Number(request?.expected_amount_cents)) {
+    problems.push('checkout_amount_mismatch')
+  }
+  if (expectedCustomerId !== undefined) {
+    if (!expectedCustomerId || String(observedCustomerId ?? '') !== String(expectedCustomerId)) {
+      problems.push('checkout_customer_mismatch')
+    }
+  }
+  if (metadata.checkoutType !== 'annual_membership') problems.push('checkout_type_mismatch')
+  if (Number(metadata.annualMembershipCheckoutRequestId) !== Number(request?.id)) {
+    problems.push('checkout_request_mismatch')
+  }
+  if (Number(metadata.familyBillingAccountId) !== Number(request?.family_billing_account_id)) {
+    problems.push('billing_account_mismatch')
+  }
+  if (Number(metadata.payerMemberId) !== Number(request?.payer_member_id)) {
+    problems.push('payer_mismatch')
+  }
+  if (String(metadata.pricingSnapshotHash ?? '') !== String(request?.pricing_snapshot_hash ?? '')) {
+    problems.push('pricing_snapshot_mismatch')
+  }
+  if (Number(metadata.amountCents) !== Number(request?.expected_amount_cents)) {
+    problems.push('metadata_amount_mismatch')
+  }
+  if (
+    paidMembers.length === 0
+    || metadataMemberIds.length !== paidMembers.length
+    || metadataMemberIds.some((memberId, index) => memberId !== paidMembers[index])
+    || Number(metadata.memberId) !== paidMembers[0]
+  ) problems.push('member_snapshot_mismatch')
+  if (!Number.isSafeInteger(expectedFeeId) || Number(metadata.feeId) !== expectedFeeId) {
+    problems.push('fee_snapshot_mismatch')
+  }
+  if (session?.payment_status === 'paid' && session?.status !== 'complete') {
+    problems.push('paid_checkout_not_complete')
+  }
+  if (problems.length > 0) {
+    const error = checkoutIdempotencyConflict(
+      'Stripe Checkout does not match the immutable annual membership request.',
+    )
+    error.problems = problems
+    throw error
+  }
+  return true
+}
+
+/**
+ * Prove paid cash against only the immutable annual Checkout request and its
+ * exact bound Stripe Session. Current payer, customer ownership, and member
+ * eligibility are intentionally checked later and can quarantine entitlement
+ * creation without hiding the payment.
+ */
+export function validateAnnualMembershipPaidSettlementBinding(session, request, snapshot) {
+  const settlement = validateAnnualMembershipCheckoutSettlement(session, request, {
+    allowForbiddenSubscriptionCollector: true,
+  })
+  if (!settlement.ok) return settlement
+
+  const requestId = Number(request?.id)
+  const accountId = Number(request?.family_billing_account_id)
+  const payerMemberId = Number(request?.payer_member_id)
+  const metadata = session?.metadata ?? {}
+  const customerId = typeof session?.customer === 'string'
+    ? session.customer
+    : session?.customer?.id ?? null
+  const paidMembers = (snapshot?.members ?? [])
+    .filter((row) => Number(row.netCents) > 0)
+    .map((row) => Number(row.memberId))
+  const metadataMemberIds = String(metadata.memberIds ?? '')
+    .split(',')
+    .filter(Boolean)
+    .map(Number)
+  const expectedFeeId = Number(
+    (snapshot?.members ?? []).find((row) => Number(row.netCents) > 0)?.feeId,
+  )
+  const problems = []
+
+  if (!Number.isSafeInteger(requestId) || requestId <= 0) problems.push('checkout_request_missing')
+  if (!Number.isSafeInteger(accountId) || accountId <= 0) problems.push('billing_account_missing')
+  if (!Number.isSafeInteger(payerMemberId) || payerMemberId <= 0) problems.push('payer_missing')
+  if (!session?.id) problems.push('checkout_session_missing')
+  if (
+    !request?.stripe_checkout_session_id
+    || String(request.stripe_checkout_session_id) !== String(session?.id ?? '')
+  ) problems.push('checkout_session_mismatch')
+  if (metadata.checkoutType !== 'annual_membership') problems.push('checkout_type_mismatch')
+  if (Number(metadata.annualMembershipCheckoutRequestId) !== requestId) {
+    problems.push('checkout_request_mismatch')
+  }
+  if (Number(metadata.familyBillingAccountId) !== accountId) problems.push('billing_account_mismatch')
+  if (Number(metadata.payerMemberId) !== payerMemberId) problems.push('payer_mismatch')
+  if (String(metadata.pricingSnapshotHash ?? '') !== String(request?.pricing_snapshot_hash ?? '')) {
+    problems.push('pricing_snapshot_mismatch')
+  }
+  if (Number(metadata.amountCents) !== Number(request?.expected_amount_cents)) {
+    problems.push('metadata_amount_mismatch')
+  }
+  if (
+    paidMembers.length === 0
+    || metadataMemberIds.length !== paidMembers.length
+    || metadataMemberIds.some((memberId, index) => memberId !== paidMembers[index])
+    || Number(metadata.memberId) !== paidMembers[0]
+  ) problems.push('member_snapshot_mismatch')
+  if (!Number.isSafeInteger(expectedFeeId) || Number(metadata.feeId) !== expectedFeeId) {
+    problems.push('fee_snapshot_mismatch')
+  }
+  if (!customerId) problems.push('stripe_customer_missing')
+
+  return problems.length > 0
+    ? { ok: false, reason: 'immutable_settlement_binding_mismatch', problems }
+    : { ok: true, requestId, accountId, payerMemberId, customerId, paidMembers }
+}
+
+async function quarantinePaidAnnualMembershipCheckout(pool, {
+  request,
+  session,
+  payment,
+  reason,
+}) {
+  const normalizedReason = String(reason ?? 'current_authorization_changed_after_payment')
+  const message = `[paid-checkout-refund-required] ${normalizedReason}`.slice(0, 500)
+  return withBillingAccountCollectionLock(pool, request.family_billing_account_id, async (db) => {
+    let transactionOpen = false
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      const quarantined = await db.query(
+        `UPDATE annual_membership_checkout_request
+            SET status = 'quarantined', error_message = $2, updated_at = now()
+          WHERE id = $1
+            AND status <> 'completed'
+          RETURNING status, error_message`,
+        [Number(request.id), message],
+      ).then((result) => result.rows[0] ?? null)
+      if (!quarantined) {
+        await db.query('COMMIT')
+        transactionOpen = false
+        return { status: 'completed' }
+      }
+
+      const quarantine = await recordPaidCheckoutFulfillmentQuarantine(db, {
+        checkoutKind: 'annual_membership',
+        ownerId: Number(request.id),
+        accountId: Number(request.family_billing_account_id),
+        session,
+        payment,
+        reason: message,
+      })
+      await db.query('COMMIT')
+      transactionOpen = false
+      return { status: 'quarantined', payment: quarantine.payment }
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+  })
 }
 
 function annualCheckoutReplayResult(request) {
@@ -815,7 +1034,7 @@ function assertAnnualRequestBinding(request, { requestFingerprint, payerMemberId
   parseAnnualCheckoutSnapshot(request)
 }
 
-async function createAnnualRequestAndActivateWaived(pool, {
+export async function createAnnualRequestAndActivateWaived(pool, {
   account,
   payerMemberId,
   requestKey,
@@ -828,13 +1047,48 @@ async function createAnnualRequestAndActivateWaived(pool, {
     try {
       await db.query('BEGIN')
       transactionOpen = true
+      let request = await db.query(
+        `SELECT *
+           FROM annual_membership_checkout_request
+          WHERE family_billing_account_id = $1 AND request_key = $2
+          FOR UPDATE`,
+        [account.id, requestKey],
+      ).then((result) => result.rows[0] ?? null)
+      if (request) {
+        assertAnnualRequestBinding(request, { requestFingerprint, payerMemberId })
+        await db.query('COMMIT')
+        transactionOpen = false
+        return request
+      }
+
+      const activePurchaseCheckout = await findActivePurchaseCheckoutOwner(db, account.id)
+      if (activePurchaseCheckout) {
+        throw checkoutIdempotencyConflict(
+          'This household already has a payable enrollment or annual-membership Checkout. Resume or reconcile it before opening another purchase Checkout.',
+        )
+      }
+      const completedCheckoutGap = await findCompletedPaidCheckoutFulfillmentGap(db, account.id)
+      if (completedCheckoutGap) {
+        throw checkoutIdempotencyConflict(
+          'This household has a completed paid Checkout without exact local fulfillment. Reconcile it before opening another purchase Checkout.',
+        )
+      }
+      for (const member of snapshot.members) {
+        const activeMembership = await loadActiveAnnualMembership(db, Number(member.memberId), {
+          strict: true,
+        })
+        if (activeMembership) {
+          throw checkoutIdempotencyConflict(
+            'One of these athletes already has an active annual membership. Refresh before starting another checkout.',
+          )
+        }
+      }
       const overlappingRequest = await db.query(
         `SELECT request.id
            FROM annual_membership_checkout_request request
           WHERE request.family_billing_account_id = $1
             AND request.request_key <> $2
             AND request.status IN ('pending', 'fulfilling')
-            AND request.expires_at > now()
             AND EXISTS (
               SELECT 1
                 FROM jsonb_array_elements(request.pricing_snapshot->'members') member_price
@@ -849,7 +1103,7 @@ async function createAnnualRequestAndActivateWaived(pool, {
           'An annual membership checkout is already open for one of these athletes. Resume that checkout or wait for it to expire.',
         )
       }
-      let request = await db.query(
+      request = await db.query(
         `INSERT INTO annual_membership_checkout_request (
            family_billing_account_id, payer_member_id, request_key, request_fingerprint,
            pricing_snapshot, pricing_snapshot_hash, currency, expected_amount_cents
@@ -969,6 +1223,123 @@ async function createAnnualRequestAndActivateWaived(pool, {
   })
 }
 
+export async function persistAnnualMembershipCheckoutSessionState(pool, {
+  request,
+  session,
+  requestFingerprint,
+  payerMemberId,
+  expectedCustomerId,
+}) {
+  const accountId = Number(request?.family_billing_account_id)
+  const requestId = Number(request?.id)
+  const sessionExpiresAt = Number(session?.expires_at)
+  if (
+    !Number.isSafeInteger(accountId) || accountId <= 0
+    || !Number.isSafeInteger(requestId) || requestId <= 0
+    || !Number.isSafeInteger(sessionExpiresAt) || sessionExpiresAt <= 0
+  ) {
+    throw checkoutIdempotencyConflict(
+      'Stripe did not return an exact annual-membership Checkout expiration. The pending request remains reserved for reconciliation.',
+    )
+  }
+  if (session?.status === 'open' && !session?.url) {
+    throw checkoutIdempotencyConflict(
+      'Stripe did not return a payable annual-membership Checkout URL. The pending request remains reserved for reconciliation.',
+    )
+  }
+
+  return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+    let transactionOpen = false
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      const locked = await db.query(
+        `SELECT request.*, account.stripe_customer_id, account.is_active,
+                (
+                  SELECT COUNT(*)::integer
+                    FROM family_billing_account customer_owner
+                   WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+                ) AS stripe_customer_owner_count
+           FROM annual_membership_checkout_request request
+           JOIN family_billing_account account
+             ON account.id = request.family_billing_account_id
+          WHERE request.id = $1
+            AND request.request_fingerprint = $2
+          LIMIT 1
+          FOR UPDATE OF request, account`,
+        [requestId, requestFingerprint],
+      ).then((result) => result.rows[0] ?? null)
+      if (!locked) {
+        throw checkoutIdempotencyConflict('Annual membership checkout reservation changed during creation.')
+      }
+      if (
+        expectedCustomerId !== undefined
+        && (
+          locked.is_active !== true
+          || String(locked.stripe_customer_id ?? '') !== String(expectedCustomerId)
+          || Number(locked.stripe_customer_owner_count) !== 1
+        )
+      ) {
+        throw checkoutIdempotencyConflict(
+          'The annual-membership payer or canonical Stripe customer changed before Checkout binding.',
+        )
+      }
+      assertAnnualRequestBinding(locked, { requestFingerprint, payerMemberId })
+      const lockedSnapshot = parseAnnualCheckoutSnapshot(locked)
+      assertAnnualMembershipCheckoutSessionBinding(session, locked, lockedSnapshot, {
+        ...(expectedCustomerId !== undefined ? { expectedCustomerId } : {}),
+      })
+      const linked = await db.query(
+        `UPDATE annual_membership_checkout_request
+            SET stripe_checkout_session_id = $2,
+                stripe_checkout_session_url = CASE WHEN $6 = 'open' THEN $3 ELSE NULL END,
+                expires_at = to_timestamp($5::double precision),
+                status = CASE
+                  WHEN $6 = 'expired' THEN 'expired'
+                  WHEN $6 = 'open' AND status = 'expired' THEN 'pending'
+                  ELSE status
+                END,
+                error_message = CASE
+                  WHEN $6 = 'expired' THEN 'Stripe Checkout Session expired.'
+                  WHEN $6 = 'open' AND status IN ('pending', 'fulfilling', 'expired') THEN NULL
+                  ELSE error_message
+                END,
+                updated_at = now()
+          WHERE id = $1
+            AND request_fingerprint = $4
+            AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
+            AND status IN ('pending', 'fulfilling', 'failed', 'expired')
+          RETURNING *`,
+        [
+          requestId,
+          String(session.id),
+          session.url ?? null,
+          requestFingerprint,
+          sessionExpiresAt,
+          String(session.status),
+        ],
+      ).then((result) => result.rows[0] ?? null)
+      if (!linked) {
+        throw checkoutIdempotencyConflict('Annual membership checkout session binding changed during creation.')
+      }
+      await db.query(
+        `UPDATE annual_membership_checkout_promo_reservation
+            SET expires_at = to_timestamp($2::double precision)
+          WHERE checkout_request_id = $1
+            AND consumed_at IS NULL
+            AND released_at IS NULL`,
+        [requestId, sessionExpiresAt],
+      )
+      await db.query('COMMIT')
+      transactionOpen = false
+      return linked
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+  })
+}
+
 /**
  * Create Stripe Checkout for annual membership only (no class enrollment).
  * Accepts a single athleteMemberId or memberIds[] — one Checkout, one line item per athlete.
@@ -1015,9 +1386,14 @@ export async function createAnnualMembershipCheckoutSession(
   let request = await loadAnnualCheckoutRequest(pool, account.id, requestKey)
   if (request) {
     assertAnnualRequestBinding(request, { requestFingerprint, payerMemberId })
-    const completed = annualCheckoutReplayResult(request)
+    const completed = !request.stripe_checkout_session_id
+      ? annualCheckoutReplayResult(request)
+      : null
     if (completed) return completed
-    if (['failed', 'expired', 'quarantined'].includes(String(request.status))) {
+    if (
+      !request.stripe_checkout_session_id
+      && ['failed', 'expired', 'quarantined'].includes(String(request.status))
+    ) {
       throw checkoutIdempotencyConflict(
         'This annual membership checkout can no longer be resumed. Start it again with a new Idempotency-Key.',
       )
@@ -1048,6 +1424,25 @@ export async function createAnnualMembershipCheckoutSession(
 
   if (request.stripe_checkout_session_id) {
     const replay = await stripe.checkout.sessions.retrieve(request.stripe_checkout_session_id)
+    if (replay?.status === 'complete' && replay?.payment_status === 'paid') {
+      const commitResult = await commitAnnualMembershipCheckout(pool, {
+        stripeSession: replay,
+        accountId: Number(account.id),
+      })
+      const terminalStatus = String(commitResult?.status ?? '')
+      if (!['completed', 'already_active', 'quarantined'].includes(terminalStatus)) {
+        throw checkoutIdempotencyConflict(
+          `The paid annual membership Checkout could not be finalized (${terminalStatus || 'unknown'}). Do not start another payment; contact support.`,
+        )
+      }
+      return {
+        ...commitResult,
+        skipCheckout: true,
+        alreadyCompleted: ['completed', 'already_active'].includes(terminalStatus),
+        requiresReview: terminalStatus === 'quarantined',
+        replayed: true,
+      }
+    }
     if (checkoutSessionHasForbiddenSubscriptionCollector(replay)) {
       await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
         session: replay,
@@ -1055,8 +1450,58 @@ export async function createAnnualMembershipCheckoutSession(
         accountId: account.id,
       })
     }
+    const storedSnapshot = parseAnnualCheckoutSnapshot(request)
+    if (replay?.status === 'expired' && replay?.payment_status !== 'paid') {
+      request = await persistAnnualMembershipCheckoutSessionState(pool, {
+        request,
+        session: replay,
+        requestFingerprint,
+        payerMemberId,
+      })
+      throw checkoutIdempotencyConflict(
+        'This annual membership Checkout expired. Start it again with a new Idempotency-Key.',
+      )
+    }
+    const completed = annualCheckoutReplayResult(request)
+    if (completed) return completed
+    if (request.status === 'completed') {
+      throw checkoutIdempotencyConflict(
+        'The completed annual-membership request does not match a completed Stripe Checkout. Reconcile it before starting another payment.',
+      )
+    }
+    if (replay?.status !== 'open' || !replay?.url) {
+      throw checkoutIdempotencyConflict(
+        'This annual membership Checkout is no longer payable. Do not start another payment until its status is reconciled.',
+      )
+    }
+    const currentAccount = await loadActiveAnnualMembershipAccount(pool, account.id)
+    const accountContext = requireActiveAnnualMembershipAccount(currentAccount, payerMemberId)
+    await requireActiveAnnualMembershipPayer(pool, accountContext)
+    for (const member of storedSnapshot.members) {
+      const access = await ensureAnnualMembershipFamilyMemberAccess(pool, {
+        familyId: accountContext.familyId,
+        memberId: Number(member.memberId),
+        facilityId: accountContext.facilityId,
+      })
+      if (!access.ok) {
+        throw annualMembershipAccountError(access.message, access.status)
+      }
+    }
+    const customerId = await ensureStripeCustomer(pool, stripe, currentAccount)
+    request = await persistAnnualMembershipCheckoutSessionState(pool, {
+      request,
+      session: replay,
+      requestFingerprint,
+      payerMemberId,
+      expectedCustomerId: customerId,
+    })
+    if (['failed', 'expired', 'quarantined'].includes(String(request.status))) {
+      throw checkoutIdempotencyConflict(
+        'This annual membership checkout can no longer be resumed. Start it again with a new Idempotency-Key.',
+      )
+    }
     return {
-      url: replay.url ?? request.stripe_checkout_session_url ?? null,
+      url: replay.url,
       checkoutSessionId: replay.id,
       replayed: true,
     }
@@ -1069,13 +1514,20 @@ export async function createAnnualMembershipCheckoutSession(
   }
 
   const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const memberNames = await pool.query(
-    `SELECT id, first_name, last_name FROM member WHERE id = ANY($1::bigint[])`,
-    [paidMembers.map((row) => row.memberId)],
-  ).then((result) => new Map(result.rows.map((row) => [Number(row.id), row])))
+  const missingSnapshotNames = paidMembers
+    .filter((row) => !String(row.memberName ?? '').trim())
+    .map((row) => Number(row.memberId))
+  const memberNames = missingSnapshotNames.length > 0
+    ? await pool.query(
+      `SELECT id, first_name, last_name FROM member WHERE id = ANY($1::bigint[])`,
+      [missingSnapshotNames],
+    ).then((result) => new Map(result.rows.map((row) => [Number(row.id), row])))
+    : new Map()
   const lineItems = paidMembers.map((row) => {
     const member = memberNames.get(Number(row.memberId)) ?? {}
-    const athleteName = [member.first_name, member.last_name].filter(Boolean).join(' ').trim()
+    const athleteName = String(row.memberName ?? '').trim()
+      || [member.first_name, member.last_name].filter(Boolean).join(' ').trim()
+      || `Athlete #${Number(row.memberId)}`
     const promoSuffix = row.promo ? ` (promo ${String(row.promo.code).toUpperCase()})` : ''
     const productName = `${row.feeName || ANNUAL_MEMBERSHIP_PROGRAM_NAME}${
       athleteName ? ` · ${athleteName}` : ''
@@ -1122,22 +1574,43 @@ export async function createAnnualMembershipCheckoutSession(
       requestKey,
     ),
   })
+  request = await persistAnnualMembershipCheckoutSessionState(pool, {
+    request,
+    session,
+    requestFingerprint,
+    payerMemberId,
+    expectedCustomerId: customerId,
+  })
 
-  const linked = await pool.query(
-    `UPDATE annual_membership_checkout_request
-        SET stripe_checkout_session_id = $2,
-            stripe_checkout_session_url = $3,
-            updated_at = now()
-      WHERE id = $1
-        AND request_fingerprint = $4
-        AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
-      RETURNING id`,
-    [request.id, session.id, session.url ?? null, requestFingerprint],
-  )
-  if (!linked.rows[0]) {
-    throw checkoutIdempotencyConflict('Annual membership checkout session binding changed during creation.')
+  if (session.status === 'complete' && session.payment_status === 'paid') {
+    const commitResult = await commitAnnualMembershipCheckout(pool, {
+      stripeSession: session,
+      accountId: Number(account.id),
+    })
+    const terminalStatus = String(commitResult?.status ?? '')
+    if (!['completed', 'already_active', 'quarantined'].includes(terminalStatus)) {
+      throw checkoutIdempotencyConflict(
+        `The paid annual membership Checkout could not be finalized (${terminalStatus || 'unknown'}). Do not start another payment; contact support.`,
+      )
+    }
+    return {
+      ...commitResult,
+      skipCheckout: true,
+      alreadyCompleted: ['completed', 'already_active'].includes(terminalStatus),
+      requiresReview: terminalStatus === 'quarantined',
+      replayed: true,
+    }
   }
-
+  if (session.status === 'expired') {
+    throw checkoutIdempotencyConflict(
+      'This annual membership Checkout expired. Start it again with a new Idempotency-Key.',
+    )
+  }
+  if (session.status !== 'open') {
+    throw checkoutIdempotencyConflict(
+      'This annual membership Checkout is no longer payable. Do not start another payment until it is reconciled.',
+    )
+  }
   return { url: session.url, checkoutSessionId: session.id }
 }
 
@@ -1176,7 +1649,12 @@ async function persistAnnualMembershipLedger(pool, {
           'netAmountCents', $5::int
         )), $12)
       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-      DO NOTHING
+      DO UPDATE SET stripe_checkout_session_id = COALESCE(
+        billing_charge.stripe_checkout_session_id,
+        EXCLUDED.stripe_checkout_session_id
+      )
+      WHERE billing_charge.stripe_checkout_session_id IS NULL
+         OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
       RETURNING *
     `,
     [
@@ -1205,6 +1683,9 @@ async function persistAnnualMembershipLedger(pool, {
     Number(charge.amount_cents) !== net ||
     Number(charge.gross_amount_cents ?? gross) !== gross ||
     Number(charge.discount_amount_cents ?? 0) !== discount
+    || String(charge.stripe_checkout_session_id ?? '') !== String(checkoutSessionId ?? '')
+    || Number(charge.metadata?.annualMembershipCheckoutRequestId)
+      !== Number(checkoutRequestId)
   ) {
     throw checkoutIdempotencyConflict('Existing annual membership charge conflicts with the checkout price snapshot.')
   }
@@ -1212,6 +1693,63 @@ async function persistAnnualMembershipLedger(pool, {
   // Membership activation is derived from payment applications below. This
   // charge intentionally does not create an entitlement by itself.
   return charge
+}
+
+async function settleCompletedAnnualMembershipCheckout(pool, {
+  request,
+  snapshot,
+  session,
+  payment,
+  purchasedAt,
+}) {
+  const accountId = Number(request.family_billing_account_id)
+  const requestId = Number(request.id)
+  return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+    let transactionOpen = false
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      for (const row of snapshot.members.filter((member) => Number(member.netCents) > 0)) {
+        await persistAnnualMembershipLedger(db, {
+          accountId,
+          memberId: row.memberId,
+          fee: {
+            id: row.feeId,
+            name: row.feeName,
+            triggerType: row.triggerType,
+            applyBasis: row.applyBasis,
+            amountCents: row.grossCents,
+          },
+          checkoutSessionId: session.id,
+          checkoutRequestId: requestId,
+          purchasedAt,
+          grossCents: row.grossCents,
+          discountCents: row.discountCents,
+          promoCode: row.promo?.code ?? null,
+        })
+      }
+      const settled = await applyAndSettlePaidCheckoutFulfillment(db, {
+        session,
+        accountId,
+        payment,
+        targetAmountCents: Number(session.amount_total),
+        applicationNamespace: `annual-checkout:${requestId}`,
+        allocationReason: 'annual_membership_checkout_exact',
+        manageTransaction: false,
+      })
+      await db.query('COMMIT')
+      transactionOpen = false
+      await allocateHouseholdPaymentsLocked(db, {
+        accountId,
+        actorType: 'stripe',
+        idempotencyNamespace: `annual-checkout-remainder:${requestId}`,
+      })
+      return settled
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+  })
 }
 
 /**
@@ -1227,18 +1765,14 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
   if (!session?.id) return { status: 'none' }
   if (session.metadata?.checkoutType !== 'annual_membership') return { status: 'none' }
 
-  await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
-    session,
-    checkoutKind: 'annual_membership',
-    accountId: accountId ?? session.metadata?.familyBillingAccountId,
-  })
-
-  let preloadedAccount = null
-  if (accountId != null) {
-    preloadedAccount = await loadActiveAnnualMembershipAccount(pool, accountId)
-    if (!preloadedAccount) return { status: 'error', reason: 'account_inactive' }
+  if (session?.payment_status !== 'paid') {
+    await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+      session,
+      checkoutKind: 'annual_membership',
+      accountId: accountId ?? session.metadata?.familyBillingAccountId,
+    })
+    return { status: 'unpaid' }
   }
-  if (!annualMembershipCheckoutSessionIsPaid(session)) return { status: 'unpaid' }
 
   const requestId = Number(session.metadata?.annualMembershipCheckoutRequestId)
   if (!Number.isInteger(requestId) || requestId <= 0) {
@@ -1257,151 +1791,438 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
   }
 
   const memberIds = snapshot.members.map((row) => Number(row.memberId))
-  const metadataAccountId = Number(session.metadata.familyBillingAccountId)
-  const resolvedAccountId = accountId ?? Number(request.family_billing_account_id)
+  const resolvedAccountId = Number(request.family_billing_account_id)
   if (memberIds.length === 0 || !resolvedAccountId) {
     return { status: 'error', reason: 'missing_metadata' }
   }
-  if (
-    Number(request.family_billing_account_id) !== Number(resolvedAccountId) ||
-    metadataAccountId !== Number(resolvedAccountId) ||
-    String(session.metadata?.pricingSnapshotHash ?? '') !== String(request.pricing_snapshot_hash) ||
-    (request.stripe_checkout_session_id && String(request.stripe_checkout_session_id) !== String(session.id))
-  ) {
-    return { status: 'error', reason: 'account_mismatch' }
+  const durableSettlement = validateAnnualMembershipPaidSettlementBinding(
+    session,
+    request,
+    snapshot,
+  )
+  if (!durableSettlement.ok) {
+    return { status: 'error', reason: durableSettlement.reason }
   }
-
-  const account = preloadedAccount ?? await loadActiveAnnualMembershipAccount(pool, resolvedAccountId)
-  if (!account) return { status: 'error', reason: 'account_inactive' }
-  const metadataPayerMemberId = Number(session.metadata.payerMemberId)
-  let accountContext
-  try {
-    accountContext = requireActiveAnnualMembershipAccount(account, metadataPayerMemberId)
-    await requireActiveAnnualMembershipPayer(pool, accountContext)
-  } catch {
-    return { status: 'error', reason: 'payer_mismatch' }
-  }
-  if (
-    Number(request.payer_member_id) !== metadataPayerMemberId ||
-    Number(request.payer_member_id) !== Number(accountContext.payerMemberId)
-  ) return { status: 'error', reason: 'payer_mismatch' }
-
-  const settlement = validateAnnualMembershipCheckoutSettlement(session, request)
-  if (!settlement.ok) return { status: 'error', reason: settlement.reason }
-
-  for (const memberId of memberIds) {
-    const access = await ensureAnnualMembershipFamilyMemberAccess(pool, {
-      familyId: accountContext.familyId,
-      memberId,
-      facilityId: accountContext.facilityId,
-    })
-    if (!access.ok) return { status: 'error', reason: 'member_scope_invalid' }
-  }
-
   const purchasedAt = session.created ? new Date(session.created * 1000) : new Date()
   const stripe = await getStripeClient()
-
-  const payment = await recordEnrollmentStripePayment(pool, stripe, {
+  let payment = await recordEnrollmentStripePayment(pool, stripe, {
     session,
     accountId: resolvedAccountId,
     paidAt: purchasedAt,
+    fulfillmentPending: true,
   })
+
+  if (request.status === 'quarantined') {
+    const quarantine = await quarantinePaidAnnualMembershipCheckout(pool, {
+      request,
+      session,
+      payment,
+      reason: request.error_message ?? 'paid_checkout_refund_required',
+    })
+    payment = quarantine.payment
+    return {
+      status: 'quarantined',
+      reason: 'paid_checkout_refund_required',
+      memberIds,
+      payment,
+    }
+  }
+
+  try {
+    await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+      session,
+      checkoutKind: 'annual_membership',
+      accountId: resolvedAccountId,
+    })
+  } catch (error) {
+    if (error?.code !== FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE) throw error
+    const quarantinedPayment = await quarantinePaidAnnualMembershipCheckout(pool, {
+      request,
+      session,
+      payment,
+      reason: error.message,
+    })
+    if (quarantinedPayment.status === 'completed') {
+      payment = await settleCompletedAnnualMembershipCheckout(pool, {
+        request,
+        snapshot,
+        session,
+        payment,
+        purchasedAt,
+      })
+      return { status: 'already_active', memberIds, payment }
+    }
+    return {
+      status: 'quarantined',
+      reason: 'forbidden_subscription_checkout',
+      memberIds,
+      payment: quarantinedPayment.payment,
+    }
+  }
+
+  if (request.status === 'completed') {
+    payment = await settleCompletedAnnualMembershipCheckout(pool, {
+      request,
+      snapshot,
+      session,
+      payment,
+      purchasedAt,
+    })
+    return { status: 'already_active', memberIds, payment }
+  }
+
+  let authorizationFailure = null
+  if (accountId != null && Number(accountId) !== resolvedAccountId) {
+    authorizationFailure = 'account_mismatch'
+  }
+
+  const account = authorizationFailure
+    ? null
+    : await loadActiveAnnualMembershipAccount(pool, resolvedAccountId)
+  if (!authorizationFailure && !account) authorizationFailure = 'account_inactive'
+
+  const metadataPayerMemberId = Number(session.metadata.payerMemberId)
+  let accountContext = null
+  if (!authorizationFailure) {
+    try {
+      accountContext = requireActiveAnnualMembershipAccount(account, metadataPayerMemberId)
+      await requireActiveAnnualMembershipPayer(pool, accountContext)
+    } catch {
+      authorizationFailure = 'payer_mismatch'
+    }
+  }
+  if (
+    !authorizationFailure
+    && (
+      Number(request.payer_member_id) !== metadataPayerMemberId
+      || Number(request.payer_member_id) !== Number(accountContext?.payerMemberId)
+    )
+  ) authorizationFailure = 'payer_mismatch'
+
+  if (!authorizationFailure) {
+    const currentCustomerSettlement = validateAnnualMembershipCheckoutSettlement(session, request, {
+      expectedCustomerId: account.stripe_customer_id,
+    })
+    if (!currentCustomerSettlement.ok) authorizationFailure = currentCustomerSettlement.reason
+  }
+
+  if (!authorizationFailure) {
+    for (const memberId of memberIds) {
+      const access = await ensureAnnualMembershipFamilyMemberAccess(pool, {
+        familyId: accountContext.familyId,
+        memberId,
+        facilityId: accountContext.facilityId,
+      })
+      if (!access.ok) {
+        authorizationFailure = 'member_scope_invalid'
+        break
+      }
+    }
+  }
+
+  if (authorizationFailure) {
+    const quarantinedPayment = await quarantinePaidAnnualMembershipCheckout(pool, {
+      request,
+      session,
+      payment,
+      reason: authorizationFailure,
+    })
+    if (quarantinedPayment.status === 'completed') {
+      payment = await settleCompletedAnnualMembershipCheckout(pool, {
+        request,
+        snapshot,
+        session,
+        payment,
+        purchasedAt,
+      })
+      return { status: 'already_active', memberIds, payment }
+    }
+    return {
+      status: 'quarantined',
+      reason: authorizationFailure,
+      memberIds,
+      payment: quarantinedPayment.payment,
+    }
+  }
+
   await preserveEnrollmentCheckoutPaymentMethod(pool, stripe, {
     stripeSession: session,
     familyBillingAccountId: resolvedAccountId,
   })
 
-  if (request.status !== 'completed') {
-    await withBillingAccountCollectionLock(pool, resolvedAccountId, async (db) => {
+  const fulfillment = await withBillingAccountCollectionLock(
+    pool,
+    resolvedAccountId,
+    async (db) => {
       let transactionOpen = false
       try {
         await db.query('BEGIN')
         transactionOpen = true
+        // Membership authorization is partly defined by the presence or
+        // absence of family_member history. Existing row locks alone cannot
+        // stop a concurrent INSERT from changing that result, so freeze
+        // membership DML until entitlement and exact payment settlement commit.
+        await db.query('LOCK TABLE family_member IN SHARE MODE')
         request = await db.query(
-          `SELECT * FROM annual_membership_checkout_request WHERE id = $1 FOR UPDATE`,
+          `SELECT request.*,
+                  account.payer_member_id AS locked_account_payer_member_id
+             FROM annual_membership_checkout_request request
+             JOIN family_billing_account account
+               ON account.id = request.family_billing_account_id
+             JOIN family household_family
+               ON household_family.id = account.family_id
+            WHERE request.id = $1
+            FOR UPDATE OF request
+            FOR SHARE OF account, household_family`,
           [requestId],
         ).then((result) => result.rows[0] ?? null)
-        if (!request) throw checkoutIdempotencyConflict('Annual membership checkout request disappeared during fulfillment.')
+        if (!request) {
+          throw checkoutIdempotencyConflict(
+            'Annual membership checkout request disappeared during fulfillment.',
+          )
+        }
         assertAnnualRequestBinding(request, {
           requestFingerprint: request.request_fingerprint,
           payerMemberId: accountContext.payerMemberId,
         })
-        if (request.status !== 'completed') {
+        // Use only the freshly locked immutable snapshot for every entitlement
+        // and exact-charge mutation below.
+        snapshot = parseAnnualCheckoutSnapshot(request)
+        assertAnnualMembershipCheckoutSessionBinding(session, request, snapshot, {
+          expectedCustomerId: durableSettlement.customerId,
+        })
+        const lockedMemberIds = [...new Set(
+          snapshot.members.map((member) => Number(member.memberId)),
+        )].filter((memberId) => Number.isSafeInteger(memberId) && memberId > 0)
+        const authorizationMemberIds = [...new Set([
+          ...lockedMemberIds,
+          Number(request.locked_account_payer_member_id),
+        ])].filter((memberId) => Number.isSafeInteger(memberId) && memberId > 0)
+        const lockedMembers = await db.query(
+          `SELECT member.id
+             FROM member
+            WHERE member.id = ANY($1::bigint[])
+            ORDER BY member.id
+            FOR SHARE`,
+          [authorizationMemberIds],
+        )
+        const lockedMemberSet = new Set(lockedMembers.rows.map((row) => Number(row.id)))
+        if (lockedMemberIds.some((memberId) => !lockedMemberSet.has(memberId))) {
+          throw annualMembershipAccountError(
+            'One or more annual membership athletes are no longer active.',
+          )
+        }
+
+        if (request.status === 'completed') {
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'already_active', payment }
+        }
+        if (request.status === 'quarantined') {
+          const quarantine = await recordPaidCheckoutFulfillmentQuarantine(db, {
+            checkoutKind: 'annual_membership',
+            ownerId: Number(request.id),
+            accountId: resolvedAccountId,
+            session,
+            payment,
+            reason: request.error_message ?? 'paid_checkout_refund_required',
+          })
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'quarantined', payment: quarantine.payment }
+        }
+        if (!['pending', 'fulfilling'].includes(String(request.status))) {
+          const message = `[paid-checkout-refund-required] invalid_request_status:${String(request.status)}`
           await db.query(
             `UPDATE annual_membership_checkout_request
-                SET status = 'fulfilling', updated_at = now(), error_message = NULL
-              WHERE id = $1`,
-            [requestId],
+                SET status = 'quarantined', error_message = $2, updated_at = now()
+              WHERE id = $1 AND status <> 'completed'`,
+            [requestId, message],
           )
-          for (const row of snapshot.members.filter((member) => Number(member.netCents) > 0)) {
-            await persistAnnualMembershipLedger(db, {
-              accountId: resolvedAccountId,
-              memberId: row.memberId,
-              fee: {
-                id: row.feeId,
-                name: row.feeName,
-                triggerType: row.triggerType,
-                applyBasis: row.applyBasis,
-                amountCents: row.grossCents,
-              },
-              checkoutSessionId: session.id,
-              checkoutRequestId: requestId,
-              purchasedAt,
-              grossCents: row.grossCents,
-              discountCents: row.discountCents,
-              promoCode: row.promo?.code ?? null,
-            })
-            if (row.promo?.ruleId && row.discountCents > 0) {
-              await recordMembershipPromoRedemption(db, {
-                requestId,
-                ruleId: row.promo.ruleId,
-                memberId: row.memberId,
-                familyId: accountContext.familyId,
-                discountCents: row.discountCents,
+          const quarantine = await recordPaidCheckoutFulfillmentQuarantine(db, {
+            checkoutKind: 'annual_membership',
+            ownerId: Number(request.id),
+            accountId: resolvedAccountId,
+            session,
+            payment,
+            reason: message,
+          })
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'quarantined', payment: quarantine.payment }
+        }
+
+        // Recheck mutable authorization while holding the same account lock that
+        // serializes monthly invoice creation. A payer/customer/member change
+        // cannot race the final entitlement transaction unnoticed.
+        const lockedAccount = await loadActiveAnnualMembershipAccount(db, resolvedAccountId)
+        let lockedContext = null
+        let lockedFailure = null
+        try {
+          lockedContext = requireActiveAnnualMembershipAccount(
+            lockedAccount,
+            Number(session.metadata.payerMemberId),
+          )
+          await requireActiveAnnualMembershipPayer(db, lockedContext)
+          if (
+            Number(request.payer_member_id) !== Number(lockedContext.payerMemberId)
+            || String(lockedAccount.stripe_customer_id ?? '')
+              !== String(durableSettlement.customerId)
+          ) {
+            lockedFailure = 'locked_account_binding_changed'
+          }
+          if (!lockedFailure) {
+            for (const memberId of memberIds) {
+              const access = await ensureAnnualMembershipFamilyMemberAccess(db, {
+                familyId: lockedContext.familyId,
+                memberId,
+                facilityId: lockedContext.facilityId,
               })
+              if (!access.ok) {
+                lockedFailure = 'locked_member_scope_invalid'
+                break
+              }
             }
-            await createEnrollmentAnnualMembershipSubscriptions(db, null, {
-              preview: {
-                additionalFees: {
-                  items: [{
-                    feeId: row.feeId,
-                    name: row.feeName,
-                    amountCents: row.grossCents,
-                    grossAmountCents: row.grossCents,
-                    triggerType: row.triggerType,
-                    applyBasis: row.applyBasis,
-                  }],
-                },
-              },
-              stripeSession: null,
-              familyBillingAccountId: resolvedAccountId,
+          }
+        } catch {
+          lockedFailure = 'locked_payer_invalid'
+        }
+        if (lockedFailure) {
+          const message = `[paid-checkout-refund-required] ${lockedFailure}`
+          await db.query(
+            `UPDATE annual_membership_checkout_request
+                SET status = 'quarantined', error_message = $2, updated_at = now()
+              WHERE id = $1 AND status IN ('pending', 'fulfilling')`,
+            [requestId, message],
+          )
+          const quarantine = await recordPaidCheckoutFulfillmentQuarantine(db, {
+            checkoutKind: 'annual_membership',
+            ownerId: Number(request.id),
+            accountId: resolvedAccountId,
+            session,
+            payment,
+            reason: message,
+          })
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'quarantined', payment: quarantine.payment }
+        }
+
+        const claimed = await db.query(
+          `UPDATE annual_membership_checkout_request
+              SET status = 'fulfilling', updated_at = now(), error_message = NULL
+            WHERE id = $1 AND status IN ('pending', 'fulfilling')
+            RETURNING id`,
+          [requestId],
+        )
+        if (!claimed.rows[0]) {
+          throw checkoutIdempotencyConflict(
+            'Annual membership checkout changed before fulfillment could be claimed.',
+          )
+        }
+        for (const row of snapshot.members.filter((member) => Number(member.netCents) > 0)) {
+          await persistAnnualMembershipLedger(db, {
+            accountId: resolvedAccountId,
+            memberId: row.memberId,
+            fee: {
+              id: row.feeId,
+              name: row.feeName,
+              triggerType: row.triggerType,
+              applyBasis: row.applyBasis,
+              amountCents: row.grossCents,
+            },
+            checkoutSessionId: session.id,
+            checkoutRequestId: requestId,
+            purchasedAt,
+            grossCents: row.grossCents,
+            discountCents: row.discountCents,
+            promoCode: row.promo?.code ?? null,
+          })
+          if (row.promo?.ruleId && row.discountCents > 0) {
+            await recordMembershipPromoRedemption(db, {
+              requestId,
+              ruleId: row.promo.ruleId,
               memberId: row.memberId,
-              purchasedAt,
+              familyId: lockedContext.familyId,
+              discountCents: row.discountCents,
             })
           }
+          await createEnrollmentAnnualMembershipSubscriptions(db, null, {
+            preview: {
+              additionalFees: {
+                items: [{
+                  feeId: row.feeId,
+                  name: row.feeName,
+                  amountCents: row.grossCents,
+                  grossAmountCents: row.grossCents,
+                  triggerType: row.triggerType,
+                  applyBasis: row.applyBasis,
+                }],
+              },
+            },
+            stripeSession: null,
+            familyBillingAccountId: resolvedAccountId,
+            memberId: row.memberId,
+            purchasedAt,
+          })
+        }
+        payment = await applyAndSettlePaidCheckoutFulfillment(db, {
+          session,
+          accountId: resolvedAccountId,
+          payment,
+          targetAmountCents: Number(session.amount_total),
+          applicationNamespace: `annual-checkout:${requestId}`,
+          allocationReason: 'annual_membership_checkout_exact',
+          manageTransaction: false,
+        })
+        const completed = await db.query(
+          `UPDATE annual_membership_checkout_request
+              SET status = 'completed',
+                  completed_at = COALESCE(completed_at, now()),
+                  updated_at = now()
+            WHERE id = $1 AND status = 'fulfilling'
+            RETURNING id`,
+          [requestId],
+        )
+        if (!completed.rows[0]) {
+          throw checkoutIdempotencyConflict(
+            'Annual membership checkout could not be marked completed.',
+          )
         }
         await db.query('COMMIT')
         transactionOpen = false
+        await allocateHouseholdPaymentsLocked(db, {
+          accountId: resolvedAccountId,
+          actorType: 'stripe',
+          idempotencyNamespace: `annual-checkout-remainder:${requestId}`,
+        })
+        return { status: 'completed', payment }
       } catch (error) {
         if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
         throw error
       }
-    })
-  }
-  await allocateHouseholdPayments(pool, {
-    accountId: resolvedAccountId,
-    actorType: 'stripe',
-  })
-  const completed = await pool.query(
-    `UPDATE annual_membership_checkout_request
-        SET status = 'completed', completed_at = COALESCE(completed_at, now()), updated_at = now()
-      WHERE id = $1 AND status IN ('pending', 'fulfilling', 'completed')
-      RETURNING *`,
-    [requestId],
-  ).then((result) => result.rows[0] ?? null)
-  if (!completed) return { status: 'error', reason: 'request_completion_failed' }
+    },
+  )
 
-  if (request.status === 'completed') return { status: 'already_active', memberIds, payment }
+  if (fulfillment.status === 'quarantined') {
+    return {
+      status: 'quarantined',
+      reason: 'locked_authorization_or_request_conflict',
+      memberIds,
+      payment: fulfillment.payment,
+    }
+  }
+  payment = fulfillment.payment
+  if (fulfillment.status === 'already_active') {
+    payment = await settleCompletedAnnualMembershipCheckout(pool, {
+      request,
+      snapshot,
+      session,
+      payment,
+      purchasedAt,
+    })
+    return { status: 'already_active', memberIds, payment }
+  }
 
   return {
     status: 'completed',

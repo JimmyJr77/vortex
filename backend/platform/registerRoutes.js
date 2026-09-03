@@ -30,6 +30,7 @@ import {
   recordStripePayment,
   recordEnrollmentStripePayment,
   getStripeClient,
+  stripeEventCreatedAt,
   stripeWebhookRawBody,
   logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
@@ -40,6 +41,15 @@ import {
   syncStripeSubscriptionStatus,
 } from '../billing/stripeWebhookLifecycle.js'
 import { recordAuthoritativeStripeInvoicePayment } from '../billing/stripeInvoicePayments.js'
+import {
+  resolveStripePaymentIntentInvoice,
+  StripeInvoicePaymentBindingConflict,
+} from '../billing/stripeInvoicePaymentBinding.js'
+import {
+  inspectStripePaymentIntentCheckoutSession,
+  StripeCheckoutPaymentBindingConflict,
+  stripePaymentIntentOwnershipIsFresh,
+} from '../billing/stripeCheckoutPaymentBinding.js'
 import { completeStoreStripeCheckout, registerStoreRoutes } from '../store/registerRoutes.js'
 import {
   createCustomerBalanceCheckoutSession,
@@ -80,10 +90,10 @@ import {
 import {
   beginStripeWebhookEvent,
   completeStripeWebhookEvent,
-  createBillingRefund,
   failStripeWebhookEvent,
   recordStripeBillingAlert,
   resolveStripeBillingAlert,
+  stripeRefundReadyForLedgerFinalization,
   syncStripeRefund,
 } from '../billing/stripeOperations.js'
 import {
@@ -102,19 +112,21 @@ import {
 } from '../billing/billingAdminActions.js'
 import {
   validateManualChargeInput,
-  validateManualPaymentInput,
 } from '../billing/billingManualControls.js'
 import { registerCustomerBillingRoutes } from '../billing/customerBillingRoutes.js'
+import { recordAdminExternalPayment } from '../billing/customerBillingAdminOperations.js'
 import { createLegacyBillingEndpointMiddleware } from '../billing/billingLegacyRetirement.js'
 import { getAdminDashboard } from './adminDashboard.js'
 import { registerAccountDirectoryRoutes } from '../accounts/accountDirectory.js'
 import { listActiveFamilyMemberIds } from './familyMembers.js'
 import { recordBillingActivityBestEffort } from '../billing/billingActivity.js'
 import {
+  createCustomerBillingRefund,
   finalizeRefundLedgerTreatment,
   linkCustomerBillingPayment,
 } from '../billing/customerBillingPayments.js'
 import {
+  BillingPaymentAttemptMappingConflict,
   findBillingPaymentAttemptForStripeObject,
   recordAndCompleteBillingPaymentAttempt,
   releaseBillingPaymentAttempt,
@@ -280,6 +292,109 @@ export function requireTerminalStripeCheckoutCommit(result, checkoutKind) {
   error.checkoutKind = checkoutKind
   error.commitStatus = status
   throw error
+}
+
+export function requireDurableGenericStripePaymentOwner({
+  eventType,
+  reservedAttempt,
+  recordedPayment,
+  paymentIntent,
+} = {}) {
+  const durableOwner = reservedAttempt ?? recordedPayment ?? null
+  if (durableOwner) return durableOwner
+
+  if (eventType === 'payment_intent.succeeded') {
+    const paymentIntentId = typeof paymentIntent?.id === 'string' ? paymentIntent.id : null
+    throw new StripeInvoicePaymentBindingConflict(
+      `Stripe PaymentIntent ${paymentIntentId ?? '(missing)'} has neither a paid invoice binding nor a durable payment-attempt owner; settlement was deferred.`,
+      { stripePaymentIntentId: paymentIntentId, durablePaymentAttemptFound: false },
+    )
+  }
+
+  const isPaidCheckout = (
+    eventType === 'checkout.session.completed'
+    || eventType === 'checkout.session.async_payment_succeeded'
+  ) && (
+    paymentIntent?.mode === 'payment'
+    || paymentIntent?.payment_status === 'paid'
+  )
+  if (isPaidCheckout) {
+    const checkoutSessionId = typeof paymentIntent?.id === 'string' ? paymentIntent.id : null
+    throw new StripeCheckoutPaymentBindingConflict(
+      `Paid Stripe Checkout Session ${checkoutSessionId ?? '(missing)'} has no durable payment-attempt owner; settlement was deferred.`,
+      { stripeCheckoutSessionId: checkoutSessionId, durablePaymentAttemptFound: false },
+    )
+  }
+
+  return null
+}
+
+export class StripePaymentOwnerPendingError extends Error {
+  constructor(paymentIntentId, details = {}) {
+    super(`Stripe PaymentIntent ${paymentIntentId ?? '(missing)'} is waiting for its durable payment owner.`)
+    this.name = 'StripePaymentOwnerPendingError'
+    this.code = 'stripe_payment_owner_pending'
+    this.details = { stripePaymentIntentId: paymentIntentId ?? null, ...details }
+  }
+}
+
+export async function findDurableRecordedStripePayment(pool, {
+  paymentIntent,
+  accountId = null,
+} = {}) {
+  const paymentIntentId = typeof paymentIntent?.id === 'string' ? paymentIntent.id : null
+  if (!paymentIntentId) return null
+  const result = await pool.query(
+    `SELECT *
+       FROM billing_payment
+      WHERE stripe_payment_intent_id = $1
+      ORDER BY id
+      LIMIT 2`,
+    [paymentIntentId],
+  )
+  if (result.rows.length === 0) return null
+
+  const payment = result.rows[0]
+  const amountCents = paymentIntent?.amount_received
+  const customerId = typeof paymentIntent?.customer === 'string'
+    ? paymentIntent.customer
+    : paymentIntent?.customer?.id ?? null
+  const expectedAccountId = Number(accountId)
+  const mismatch = result.rows.length !== 1
+    || !['settled', 'succeeded'].includes(String(payment.external_status ?? ''))
+    || !Number.isSafeInteger(amountCents)
+    || amountCents <= 0
+    || Number(payment.amount_cents) !== amountCents
+    || String(payment.stripe_customer_id ?? '') !== String(customerId ?? '')
+    || (
+      Number.isFinite(expectedAccountId)
+      && expectedAccountId > 0
+      && Number(payment.family_billing_account_id) !== expectedAccountId
+    )
+  if (mismatch) {
+    throw new StripeInvoicePaymentBindingConflict(
+      `Recorded Stripe PaymentIntent ${paymentIntentId} does not have one exact, settled ledger owner.`,
+      {
+        stripePaymentIntentId: paymentIntentId,
+        recordedPaymentCount: result.rows.length,
+        recordedPaymentId: payment?.id ?? null,
+        recordedAccountId: payment?.family_billing_account_id ?? null,
+        recordedAmountCents: payment?.amount_cents ?? null,
+        recordedCustomerId: payment?.stripe_customer_id ?? null,
+        recordedStatus: payment?.external_status ?? null,
+        expectedAccountId: Number.isFinite(expectedAccountId) && expectedAccountId > 0
+          ? expectedAccountId
+          : null,
+        expectedAmountCents: amountCents ?? null,
+        expectedCustomerId: customerId,
+      },
+    )
+  }
+  return { ...payment, newly_inserted: false }
+}
+
+export function stripePaymentReceiptIdempotencyKey(payment) {
+  return payment?.id == null ? null : `stripe-payment-receipt:${payment.id}`
 }
 
 const MEMBER_BILLING_TRANSACTION_CURSOR_KIND = 'member-customer-billing-transactions-v1'
@@ -886,13 +1001,6 @@ function mapPayment(row) {
     stripeInvoiceId: row.stripe_invoice_id ?? null,
     createdAt: row.created_at,
   }
-}
-
-function normalizeLegacyManualPaymentStatus(value) {
-  const status = String(value ?? '').trim().toLowerCase()
-  if (!status || status === 'recorded' || status === 'settled') return 'settled'
-  if (status === 'succeeded') return 'succeeded'
-  throw new Error('externalStatus must identify a completed payment (settled or succeeded).')
 }
 
 function mapCharge(row) {
@@ -2251,6 +2359,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Stripe is not enabled.' })
     }
+    const clientRequestKey = String(req.get('Idempotency-Key') ?? '').trim()
+    if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(clientRequestKey)) {
+      return res.status(400).json({
+        success: false,
+        message: 'An Idempotency-Key header with 8–120 URL-safe characters is required.',
+      })
+    }
     const account = await loadBillingAccountForFacility(pool, {
       familyId: Number(req.params.familyId),
       facilityId: req.platformAuth?.user?.facility_id ?? null,
@@ -2263,9 +2378,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         account,
         successUrl: `${base}/?billing=paid`,
         cancelUrl: `${base}/?billing=cancelled`,
-        idempotencyKey: req.get('Idempotency-Key')
-          ? `legacy-admin-balance-checkout:${String(req.get('Idempotency-Key')).slice(0, 120)}`
-          : null,
+        idempotencyKey: `legacy-admin-balance-checkout:${clientRequestKey}`,
         attemptType: 'admin_balance_checkout',
       })
       if (!session?.url) throw new Error('Stripe did not return a checkout URL.')
@@ -2282,7 +2395,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         amountCents: session.amountCents,
         checkoutUrl: session.url,
         expiresAt: session.expiresAt,
-        idempotencyKey: `admin-payment-request-${action.id}`,
+        idempotencyKey: `admin-payment-request-${session.id}`,
         bestEffort: false,
       })
       if (!delivery.sent) {
@@ -2305,8 +2418,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         eventKey: `payment-link-sent:${action.id}`,
         accountId: account.id,
         eventType: 'payment_link_sent',
-        summary: `Secure ${balanceCents}-cent account-balance payment link sent.`,
-        details: { amountCents: balanceCents, recipientEmail: delivery.email, expiresAt: session.expiresAt },
+        summary: `Secure ${session.amountCents}-cent account-balance payment link sent.`,
+        details: { amountCents: session.amountCents, recipientEmail: delivery.email, expiresAt: session.expiresAt },
         stripeObjectId: session.id,
         actorUserId: req.platformAuth?.user?.id ?? null,
       })
@@ -2315,7 +2428,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         data: {
           url: session.url,
           expiresAt: session.expiresAt,
-          amountCents: balanceCents,
+          amountCents: session.amountCents,
           recipientEmail: delivery.email,
           action: completed,
         },
@@ -2458,117 +2571,98 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       facilityId: req.platformAuth?.user?.facility_id ?? null,
     })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    let validated
-    try {
-      validated = validateManualPaymentInput({
-        amountCents: req.body?.amountCents,
-        method: req.body?.method,
-        note: req.body?.note ?? req.body?.notes,
-        recordedByUserId: req.platformAuth?.user?.id ?? null,
+    const clientRequestKey = String(
+      req.get('Idempotency-Key') ?? req.body?.requestKey ?? '',
+    ).trim()
+    if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(clientRequestKey)) {
+      return res.status(400).json({
+        success: false,
+        message: 'An Idempotency-Key header with 8–120 URL-safe characters is required.',
       })
-    } catch (error) {
-      return res.status(400).json({ success: false, message: error.message })
     }
-    let externalStatus
     try {
-      externalStatus = normalizeLegacyManualPaymentStatus(req.body?.externalStatus)
-    } catch (error) {
-      return res.status(400).json({ success: false, message: error.message })
-    }
-    let paymentRow
-    await withHouseholdMonthlyInvoiceAccountLock(pool, account.id, async (client) => {
-      const payment = await client.query(
-        `
-          INSERT INTO billing_payment (
-            family_billing_account_id,
-            amount_cents,
-            paid_at,
-            method,
-            note,
-            external_processor,
-            external_reference,
-            external_status,
-            stripe_customer_id,
-            stripe_payment_intent_id,
-            recorded_by_user_id
-          )
-          VALUES ($1, $2, COALESCE($3::timestamptz, now()), $4, $5, $6, $7, $8, $9, $10, $11)
-          RETURNING *
-        `,
-        [
-          account.id,
-          validated.amount,
-          req.body?.paidAt ?? req.body?.paymentDate ?? null,
-          validated.method,
-          validated.note,
-          req.body?.externalProcessor ?? process.env.PAYMENTS_PROVIDER ?? 'external',
-          req.body?.externalReference ?? null,
-          externalStatus,
-          req.body?.stripeCustomerId ?? null,
-          req.body?.stripePaymentIntentId ?? null,
-          validated.recordedByUserId,
-        ],
-      )
-      paymentRow = payment.rows[0]
-      await allocateHouseholdPayments(client, { accountId: account.id, actorType: 'admin' })
-      await recordBillingActivityBestEffort(client, {
-        eventKey: `manual-payment-recorded:${paymentRow.id}`,
-        accountId: account.id,
-        paymentId: paymentRow.id,
-        eventType: 'manual_payment_recorded',
-        summary: 'External or manual payment was recorded.',
-        afterValue: mapPayment(paymentRow),
+      // Keep the legacy URL safe for cached clients during retirement, but do
+      // not keep a second payment implementation. The canonical operation is
+      // idempotent, accepts only manual/external methods, and blocks while a
+      // household invoice or remote payment attempt owns the balance.
+      const data = await recordAdminExternalPayment(pool, {
+        familyId: Number(req.params.familyId),
+        facilityId: req.platformAuth?.user?.facility_id ?? null,
         actorUserId: req.platformAuth?.user?.id ?? null,
+        requestKey: `external-payment:${clientRequestKey}`,
+        input: {
+          amountCents: req.body?.amountCents,
+          paidAt: req.body?.paidAt ?? req.body?.paymentDate ?? null,
+          method: req.body?.method,
+          note: req.body?.note ?? req.body?.notes,
+          externalReference: req.body?.externalReference ?? null,
+        },
       })
-    })
-    res.json({ success: true, data: mapPayment(paymentRow) })
-    notifyPaymentReceipt(pool, {
-      account,
-      payment: paymentRow,
-      billingUrl: `${publicAppUrl()}/?billing=portal-return`,
-    }).catch(() => {})
+      return res.status(data.replayed ? 200 : 201).json({ success: true, data })
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error?.message ?? 'External payment could not be recorded.',
+      })
+    }
   })
 
   app.post('/api/admin/families/:familyId/refunds', ...requirePermission(pool, jwtSecret, 'billing.manage'), legacyBillingEndpoint, async (req, res) => {
+    const clientRequestKey = String(
+      req.get('Idempotency-Key') ?? req.body?.requestKey ?? '',
+    ).trim()
+    if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(clientRequestKey)) {
+      return res.status(400).json({
+        success: false,
+        message: 'An Idempotency-Key header with 8–120 URL-safe characters is required.',
+      })
+    }
+    const amountCents = Number(req.body?.amountCents)
+    if (!Number.isInteger(amountCents) || amountCents <= 0) {
+      return res.status(400).json({ success: false, message: 'Positive amountCents is required.' })
+    }
+    const paymentId = Number(req.body?.paymentId)
+    if (!Number.isInteger(paymentId) || paymentId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'An exact Stripe paymentId is required.',
+      })
+    }
+    const ledgerTreatment = String(req.body?.ledgerTreatment ?? '')
+    if (!['reverse_charge', 'return_overpayment'].includes(ledgerTreatment)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Choose whether the refund reverses a charge or returns an unapplied overpayment.',
+      })
+    }
     const account = await loadBillingAccountForFacility(pool, {
       familyId: Number(req.params.familyId),
       facilityId: req.platformAuth?.user?.facility_id ?? null,
     })
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const amountCents = Number(req.body?.amountCents)
-    if (!Number.isFinite(amountCents) || amountCents <= 0) {
-      return res.status(400).json({ success: false, message: 'Positive amountCents is required.' })
-    }
-    const paymentId = req.body?.paymentId != null ? Number(req.body.paymentId) : null
     const createdBy = req.platformAuth?.user?.id ?? null
     try {
-      const refund = await createBillingRefund(pool, {
-        accountId: account.id,
+      const data = await createCustomerBillingRefund(pool, {
+        account,
+        actorUserId: createdBy,
         paymentId,
         amountCents,
         reason: req.body?.reason ?? null,
-        externalReference: req.body?.externalReference ?? null,
-        createdByUserId: createdBy,
         exceptionCategory: req.body?.exceptionCategory ?? null,
         evidenceNote: req.body?.evidenceNote ?? null,
+        ledgerTreatment,
+        relatedChargeId: req.body?.relatedChargeId ?? null,
+        idempotencyKey: `legacy-refund:${clientRequestKey}`,
       })
-      await recordBillingActivityBestEffort(pool, {
-        eventKey: `legacy-refund-created:${refund.id}`,
-        accountId: account.id,
-        paymentId,
-        refundId: refund.id,
-        eventType: refund.external_status === 'succeeded' ? 'refund_succeeded' : 'refund_created',
-        summary: `Refund #${refund.id} was created.`,
-        afterValue: { amountCents, status: refund.external_status },
-        stripeObjectId: refund.stripe_refund_id ?? null,
-        actorUserId: createdBy,
-      })
+      const refund = data.refund
       res.json({ success: true, data: refund })
-      notifyRefundReceipt(pool, {
-        account,
-        refund,
-        billingUrl: `${publicAppUrl()}/?billing=portal-return`,
-      }).catch(() => {})
+      if (!data.replayed && refund?.external_status === 'succeeded') {
+        notifyRefundReceipt(pool, {
+          account,
+          refund,
+          billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+        }).catch(() => {})
+      }
     } catch (error) {
       console.error('[stripe] refund:', error)
       res.status(400).json({ success: false, message: error?.message ?? 'Refund failed.' })
@@ -3316,7 +3410,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         idempotencyKey: req.get('Idempotency-Key'),
       })
       // A 100%-waived promo activates memberships immediately with no Stripe session.
-      if (result?.free) {
+      if (result?.free || result?.skipCheckout) {
         return res.json({ success: true, data: result })
       }
       if (!result?.url) {
@@ -3473,7 +3567,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
       }
       if (result.skipCheckout) {
-        return res.json({ success: true, data: { skipCheckout: true } })
+        return res.json({ success: true, data: result })
       }
       res.json({ success: true, data: { url: result.url, pendingEnrollmentId: result.pendingEnrollmentId } })
     } catch (err) {
@@ -3580,7 +3674,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           await completeStripeWebhookEvent(pool, event, webhookClaim)
           return res.json({ received: true, paymentMethodUpdated: true })
         }
-        if (isCheckoutFulfillmentEvent && checkoutKind) {
+        if (
+          isCheckoutFulfillmentEvent
+          && checkoutKind
+          && obj.payment_status !== 'paid'
+        ) {
           await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
             session: obj,
             checkoutKind,
@@ -3624,6 +3722,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             pendingEnrollmentId: Number(obj.metadata.pendingEnrollmentId),
             stripeSession: obj,
           })
+          if (commitResult?.status === 'quarantined') {
+            await completeStripeWebhookEvent(pool, event, webhookClaim)
+            return res.json({ received: true, quarantined: true, paymentRecorded: true })
+          }
           requireTerminalStripeCheckoutCommit(commitResult, 'enrollment')
         }
         if (isAnnualMembershipCheckout) {
@@ -3633,6 +3735,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               ? Number(obj.metadata.familyBillingAccountId)
               : null,
           })
+          if (commitResult?.status === 'quarantined') {
+            await completeStripeWebhookEvent(pool, event, webhookClaim)
+            return res.json({ received: true, quarantined: true, paymentRecorded: true })
+          }
           requireTerminalStripeCheckoutCommit(commitResult, 'annual_membership')
         }
         let accountId = obj.metadata?.familyBillingAccountId
@@ -3642,11 +3748,56 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         let reservedAttempt = null
         let reservedAttemptConflict = null
         let invoiceOutcome = null
-        if (event.type === 'payment_intent.succeeded' && obj.invoice) {
-          const stripe = await getStripeClient()
-          const invoice = typeof obj.invoice === 'object'
-            ? obj.invoice
-            : await stripe.invoices.retrieve(obj.invoice)
+        let paymentIntentInvoice = null
+        let paymentIntentCheckout = null
+        let paymentIntentStripe = null
+        if (event.type === 'payment_intent.succeeded') {
+          paymentIntentStripe = await getStripeClient()
+          try {
+            paymentIntentInvoice = await resolveStripePaymentIntentInvoice(paymentIntentStripe, obj)
+          } catch (error) {
+            if (error instanceof StripeInvoicePaymentBindingConflict) {
+              await recordStripeBillingAlert(pool, {
+                event,
+                object: obj,
+                alertType: error.code,
+                severity: 'critical',
+                message: error.message,
+              })
+            }
+            throw error
+          }
+          if (!paymentIntentInvoice) {
+            try {
+              paymentIntentCheckout = await inspectStripePaymentIntentCheckoutSession(
+                paymentIntentStripe,
+                obj,
+              )
+            } catch (error) {
+              if (error instanceof StripeCheckoutPaymentBindingConflict) {
+                await recordStripeBillingAlert(pool, {
+                  event,
+                  object: obj,
+                  alertType: error.code,
+                  severity: 'critical',
+                  message: error.message,
+                })
+              }
+              throw error
+            }
+          }
+          if (paymentIntentCheckout?.state === 'paid') {
+            // Checkout Session events own their idempotent store, enrollment,
+            // annual-membership, and balance fulfillment. The exact remote
+            // binding above is enough to acknowledge this companion PI event;
+            // it must never create a second generic billing payment.
+            await completeStripeWebhookEvent(pool, event, webhookClaim)
+            return res.json({ received: true, checkoutDelegated: true })
+          }
+        }
+        if (paymentIntentInvoice) {
+          const stripe = paymentIntentStripe
+          const invoice = paymentIntentInvoice
           invoiceOutcome = await recordAuthoritativeStripeInvoicePayment(pool, { invoice, stripe })
           insertedPayment = invoiceOutcome.payment
           accountId = insertedPayment?.family_billing_account_id ?? accountId
@@ -3675,7 +3826,77 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             accountId,
           })
         } else {
-          reservedAttempt = await findBillingPaymentAttemptForStripeObject(pool, obj)
+          try {
+            reservedAttempt = await findBillingPaymentAttemptForStripeObject(pool, obj)
+          } catch (error) {
+            if (
+              event.type === 'payment_intent.succeeded'
+              && error instanceof BillingPaymentAttemptMappingConflict
+              && stripePaymentIntentOwnershipIsFresh(obj, { event })
+            ) {
+              throw new StripePaymentOwnerPendingError(obj.id, {
+                reason: error.message,
+                paymentAttemptLinkPending: true,
+              })
+            }
+            throw error
+          }
+          let recordedPayment = null
+          if (event.type === 'payment_intent.succeeded' && !reservedAttempt) {
+            try {
+              recordedPayment = await findDurableRecordedStripePayment(pool, {
+                paymentIntent: obj,
+                accountId,
+              })
+            } catch (error) {
+              if (error instanceof StripeInvoicePaymentBindingConflict) {
+                await recordStripeBillingAlert(pool, {
+                  event,
+                  object: obj,
+                  alertType: error.code,
+                  severity: 'critical',
+                  message: error.message,
+                })
+              }
+              throw error
+            }
+          }
+          if (
+            event.type === 'payment_intent.succeeded'
+            && !reservedAttempt
+            && !recordedPayment
+            && (
+              paymentIntentCheckout?.state === 'pending'
+              || stripePaymentIntentOwnershipIsFresh(obj, { event })
+            )
+          ) {
+            throw new StripePaymentOwnerPendingError(obj.id, {
+              checkoutSessionId: paymentIntentCheckout?.session?.id ?? null,
+              checkoutState: paymentIntentCheckout?.state ?? null,
+            })
+          }
+          try {
+            requireDurableGenericStripePaymentOwner({
+              eventType: event.type,
+              reservedAttempt,
+              recordedPayment,
+              paymentIntent: obj,
+            })
+          } catch (error) {
+            if (
+              error instanceof StripeInvoicePaymentBindingConflict
+              || error instanceof StripeCheckoutPaymentBindingConflict
+            ) {
+              await recordStripeBillingAlert(pool, {
+                event,
+                object: obj,
+                alertType: error.code,
+                severity: 'critical',
+                message: error.message,
+              })
+            }
+            throw error
+          }
           const paymentIntentId = typeof obj.payment_intent === 'string'
             ? obj.payment_intent
             : obj.payment_intent?.id ?? (event.type === 'payment_intent.succeeded' ? obj.id : null)
@@ -3683,14 +3904,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             const settlement = await recordAndCompleteBillingPaymentAttempt(pool, {
               stripeObject: obj,
               paymentIntentId,
+              paidAt: stripeEventCreatedAt(event),
               amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
               customerId: typeof obj.customer === 'string' ? obj.customer : obj.customer?.id ?? null,
             })
             insertedPayment = settlement?.payment ?? null
             reservedAttemptConflict = settlement?.conflicted ? settlement : null
+          } else if (recordedPayment) {
+            insertedPayment = recordedPayment
+            accountId = Number(recordedPayment.family_billing_account_id)
           } else {
             insertedPayment = await recordStripePayment(pool, {
               paymentIntentId,
+              paymentIntent: event.type === 'payment_intent.succeeded' ? obj : null,
+              paidAt: stripeEventCreatedAt(event),
               amountCents: obj.amount_total ?? obj.amount_received ?? obj.amount ?? 0,
               accountId,
               customerId: typeof obj.customer === 'string' ? obj.customer : obj.customer?.id ?? null,
@@ -3758,6 +3985,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               account: acct.rows[0],
               payment: insertedPayment,
               billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+              idempotencyKey: stripePaymentReceiptIdempotencyKey(insertedPayment),
             }).catch(() => {})
           }
         }
@@ -3804,7 +4032,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             })
           }
           await recordBillingActivityBestEffort(pool, {
-            eventKey: `stripe-invoice-payment:${payment.id}`,
+            eventKey: `stripe-payment-received:${payment.id}`,
             accountId: payment.family_billing_account_id,
             paymentId: payment.id,
             eventType: householdInvoice ? 'monthly_invoice_payment_received' : 'recurring_payment_received',
@@ -3821,6 +4049,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               account: acct.rows[0],
               payment,
               billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+              idempotencyKey: stripePaymentReceiptIdempotencyKey(payment),
             }).catch(() => {})
           }
         }
@@ -3837,8 +4066,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         event.type === 'refund.updated' ||
         event.type === 'refund.failed'
       ) {
-        let refund = await syncStripeRefund(pool, event.data?.object ?? {})
-        if (refund?.external_status === 'succeeded') {
+        const stripe = await getStripeClient()
+        let refund = await syncStripeRefund(pool, event.data?.object ?? {}, { stripeClient: stripe, event })
+        if (stripeRefundReadyForLedgerFinalization(refund)) {
           refund = await finalizeRefundLedgerTreatment(pool, refund, { actorType: 'stripe' })
           if (!refund.ledger_treatment) {
             await recordBillingActivityBestEffort(pool, {
@@ -4005,24 +4235,30 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           err = completionError
         }
       }
+      const paymentOwnerPending = err?.code === 'stripe_payment_owner_pending'
       await failStripeWebhookEvent(pool, event, err, webhookClaim ?? {})
       const deliveryTimestamp = String(signature ?? '').match(/(?:^|,)t=(\d+)/)?.[1] ?? Date.now()
-      await recordStripeBillingAlert(pool, {
-        event: event ?? { id: `webhook-delivery:${deliveryTimestamp}` },
-        object: event?.data?.object ?? { id: event?.id ?? null },
-        alertType: 'webhook_failure',
-        severity: 'critical',
-        message: `Stripe webhook delivery failed: ${String(err?.message ?? err).slice(0, 300)}`,
-      }).catch(() => {})
+      if (!paymentOwnerPending) {
+        await recordStripeBillingAlert(pool, {
+          event: event ?? { id: `webhook-delivery:${deliveryTimestamp}` },
+          object: event?.data?.object ?? { id: event?.id ?? null },
+          alertType: 'webhook_failure',
+          severity: 'critical',
+          message: `Stripe webhook delivery failed: ${String(err?.message ?? err).slice(0, 300)}`,
+        }).catch(() => {})
+      }
       const signatureFailure = String(err?.message ?? '').includes('signature')
       if (signatureFailure) {
         logWebhookVerificationFailure(err, { rawBody, signature })
+      } else if (paymentOwnerPending) {
+        console.warn('[stripe] webhook payment ownership pending:', err.message)
       } else {
         console.error('[stripe] webhook:', err)
       }
       res.status(webhookClaim?.claimed && !signatureFailure ? 500 : 400).json({
         success: false,
         message: err.message,
+        ...(paymentOwnerPending ? { deferred: true } : {}),
       })
     }
   })

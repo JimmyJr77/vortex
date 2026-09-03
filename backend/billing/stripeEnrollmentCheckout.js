@@ -4,8 +4,18 @@
  */
 
 import crypto from 'crypto'
-import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, ensureStripeCustomer, recordEnrollmentStripePayment } from './stripeBilling.js'
-import { allocateHouseholdPayments } from './paymentAllocation.js'
+import {
+  getStripeClient,
+  stripeEnabled,
+  ensureStripeBillingSchema,
+  ensureStripeCustomer,
+  applyAndSettlePaidCheckoutFulfillment,
+  recordEnrollmentStripePayment,
+  recordPaidCheckoutFulfillmentQuarantine,
+} from './stripeBilling.js'
+import {
+  allocateHouseholdPaymentsLocked,
+} from './paymentAllocation.js'
 import {
   feeLookupKey,
   passLookupKey,
@@ -36,6 +46,7 @@ import {
   legacyPerClassStripeCollectionAllowed,
 } from './billingFeatureFlags.js'
 import {
+  FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE,
   checkoutSessionHasForbiddenSubscriptionCollector,
   rejectForbiddenSubscriptionCheckoutCompletion,
 } from './checkoutSessionCollectionPolicy.js'
@@ -45,6 +56,12 @@ import {
   normalizeCheckoutRequestKey,
   stripeCheckoutIdempotencyKey,
 } from './checkoutIdempotency.js'
+import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import {
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from './paidCheckoutCollectionGuard.js'
+import { findActivePurchaseCheckoutOwner } from './purchaseCheckoutAdmission.js'
 
 export { formatPerClassStripeProductName } from './stripeProductNaming.js'
 
@@ -210,6 +227,8 @@ function parsePendingPayload(payload) {
   return typeof payload === 'string' ? JSON.parse(payload) : payload
 }
 
+const PAID_ENROLLMENT_QUARANTINE_PREFIX = '[paid-checkout-refund-required]'
+
 async function ensurePendingEnrollmentSchema() {
   // Compatibility hook. Startup billing readiness owns this schema contract.
 }
@@ -220,6 +239,97 @@ export function computeEnrollmentDueNowCents(preview) {
   const passes = preview.passPurchaseTotalCents ?? 0
   const carriedForward = preview.carriedForward?.totalCents ?? 0
   return Math.max(0, fees + firstMonth + passes + (carriedForward > 0 ? carriedForward : 0))
+}
+
+export function computeEnrollmentCheckoutPurchaseCents(preview) {
+  const fees = Math.round((preview?.additionalFeesOneTime ?? 0) * 100)
+  const firstMonth = Math.round(Number(preview?.firstMonth?.totalCents) || 0)
+  const passes = Math.round(Number(preview?.passPurchaseTotalCents) || 0)
+  return Math.max(0, fees + firstMonth + passes)
+}
+
+export function computeEnrollmentCheckoutCarriedBalanceCents(preview) {
+  return Math.max(
+    0,
+    computeEnrollmentDueNowCents(preview) - computeEnrollmentCheckoutPurchaseCents(preview),
+  )
+}
+
+/**
+ * Find a pre-existing collector whose reserved balance can overlap the
+ * carried-forward slice of a new enrollment Checkout. The caller holds the
+ * household collection advisory lock, so an empty result remains valid until
+ * the pending enrollment reservation is durably inserted.
+ */
+export async function findEnrollmentCheckoutCreationConflict(db, accountId) {
+  return db.query(
+    `SELECT owner_kind, owner_id, owner_status
+       FROM (
+         SELECT 'payment_attempt'::text AS owner_kind,
+                attempt.id AS owner_id,
+                attempt.status AS owner_status
+           FROM billing_payment_attempt attempt
+          WHERE attempt.family_billing_account_id = $1
+            AND (
+              attempt.status IN ('pending', 'processing', 'reconciliation_required')
+              OR (attempt.status = 'reserved' AND attempt.expires_at > now())
+            )
+         UNION ALL
+         SELECT 'monthly_invoice'::text AS owner_kind,
+                invoice.id AS owner_id,
+                invoice.status AS owner_status
+           FROM billing_monthly_invoice invoice
+          WHERE invoice.family_billing_account_id = $1
+            AND invoice.status IN ('draft', 'open', 'failed', 'payment_method_required')
+         UNION ALL
+         SELECT 'legacy_stripe_collector'::text AS owner_kind,
+                subscription.id AS owner_id,
+                subscription.status AS owner_status
+           FROM billing_subscription subscription
+          WHERE subscription.family_billing_account_id = $1
+            AND (
+              NULLIF(BTRIM(subscription.stripe_subscription_id), '') IS NOT NULL
+              OR NULLIF(BTRIM(subscription.stripe_subscription_item_id), '') IS NOT NULL
+              OR NULLIF(BTRIM(subscription.stripe_subscription_schedule_id), '') IS NOT NULL
+            )
+         UNION ALL
+         SELECT 'paid_checkout_reconciliation'::text AS owner_kind,
+                payment.id AS owner_id,
+                payment.external_status AS owner_status
+           FROM billing_payment payment
+          WHERE payment.family_billing_account_id = $1
+            AND payment.external_status = 'reconciliation_required'
+            AND (
+              position('[paid-checkout-fulfillment-pending:' in COALESCE(payment.note, '')) > 0
+              OR position('[paid-checkout-refund-required:' in COALESCE(payment.note, '')) > 0
+            )
+         UNION ALL
+         SELECT 'stripe_refund_reconciliation'::text AS owner_kind,
+                refund.id AS owner_id,
+                refund.external_status AS owner_status
+           FROM billing_refund refund
+          WHERE refund.family_billing_account_id = $1
+            AND refund.external_status = 'reconciliation_required'
+       ) owner
+      ORDER BY owner_kind, owner_id
+      LIMIT 1`,
+    [Number(accountId)],
+  ).then((result) => result.rows[0] ?? null)
+}
+
+function enrollmentCheckoutCollectionConflict(owner, message = null) {
+  const error = new Error(
+    message
+      ?? 'This household already has a payment collection in progress. Complete or reconcile it before opening an enrollment Checkout that includes account balance.',
+  )
+  error.code = 'ENROLLMENT_CHECKOUT_COLLECTION_CONFLICT'
+  error.statusCode = 409
+  if (owner) {
+    error.ownerKind = owner.owner_kind ?? null
+    error.ownerId = Number(owner.owner_id) || null
+    error.ownerStatus = owner.owner_status ?? null
+  }
+  return error
 }
 
 export function enrollmentHasRecurringMembership(preview) {
@@ -382,7 +492,7 @@ export function resolveEnrollmentCheckoutMode(preview) {
   return 'payment'
 }
 
-async function buildCheckoutLineItems(pool, preview) {
+export async function buildCheckoutLineItems(pool, preview) {
   const lineItems = []
 
   for (const pass of preview.passPurchases ?? []) {
@@ -425,6 +535,18 @@ async function buildCheckoutLineItems(pool, preview) {
         currency: 'usd',
         unit_amount: tuition.amountCents,
         product_data: { name: tuition.name.slice(0, 200) },
+      },
+    })
+  }
+
+  const carriedBalanceCents = computeEnrollmentCheckoutCarriedBalanceCents(preview)
+  if (carriedBalanceCents > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        unit_amount: carriedBalanceCents,
+        product_data: { name: 'Vortex Athletics account balance' },
       },
     })
   }
@@ -499,52 +621,211 @@ export async function preserveEnrollmentCheckoutPaymentMethod(
     defaultPaymentMethodId: suppliedDefaultPaymentMethodId = null,
   } = {},
 ) {
-  const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
-  let customerId = suppliedCustomerId
-  let defaultPaymentMethod = suppliedDefaultPaymentMethodId
-  if (sessionId) {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
-    })
-    customerId = session.customer
-    defaultPaymentMethod =
-      session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
-  } else if (!customerId && familyBillingAccountId != null) {
-    const accountRes = await pool.query(
-      `SELECT stripe_customer_id FROM family_billing_account WHERE id = $1`,
-      [familyBillingAccountId],
-    )
-    customerId = accountRes.rows[0]?.stripe_customer_id ?? null
-    if (customerId) {
-      const customer = await stripe.customers.retrieve(customerId, {
-        expand: ['invoice_settings.default_payment_method'],
-      })
-      if (!customer.deleted) {
-        defaultPaymentMethod = customer.invoice_settings?.default_payment_method ?? null
-      }
-    }
+  const objectId = (value) => {
+    const id = typeof value === 'string' ? value : value?.id
+    return String(id ?? '').trim() || null
   }
-  if (!customerId) return { customerId: null, defaultPaymentMethodId: null, saved: false }
+  const bindingConflict = (message, details = {}) => {
+    const error = new Error(message)
+    error.code = 'STRIPE_ENROLLMENT_PAYMENT_METHOD_BINDING_CONFLICT'
+    error.statusCode = 409
+    error.familyBillingAccountId = Number(familyBillingAccountId) || null
+    Object.assign(error, details)
+    return error
+  }
+  const loadCanonicalAccount = async (db, accountId) => db.query(
+    `/* stripe-enrollment-payment-method:canonical-account */
+     SELECT account.id,
+            account.stripe_customer_id,
+            account.is_active,
+            (
+              SELECT COUNT(*)::integer
+                FROM family_billing_account customer_owner
+               WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+            ) AS stripe_customer_owner_count
+       FROM family_billing_account account
+      WHERE account.id = $1
+      LIMIT 1`,
+    [accountId],
+  ).then((result) => result.rows[0] ?? null)
 
-  if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
-    defaultPaymentMethod = defaultPaymentMethod.id
-  }
-  let saved = false
-  if (defaultPaymentMethod) {
-    try {
-      await stripe.customers.update(customerId, {
-        invoice_settings: { default_payment_method: defaultPaymentMethod },
-      })
-      saved = true
-    } catch (err) {
-      console.warn('[stripe] set default payment method:', err.message)
+  const sessionId = objectId(stripeSession)
+  const suppliedCustomer = objectId(suppliedCustomerId)
+  const suppliedPaymentMethod = objectId(suppliedDefaultPaymentMethodId)
+  // Administrative enrollment without Checkout has no new method to save.
+  // Avoid Stripe or account-lock work for this intentionally empty operation.
+  if (!sessionId && !suppliedPaymentMethod) {
+    return {
+      customerId: suppliedCustomer,
+      defaultPaymentMethodId: null,
+      saved: false,
     }
   }
-  return {
-    customerId: String(customerId),
-    defaultPaymentMethodId: defaultPaymentMethod ? String(defaultPaymentMethod) : null,
-    saved,
+
+  const accountId = Number(familyBillingAccountId)
+  if (!Number.isSafeInteger(accountId) || accountId <= 0) {
+    throw bindingConflict('A canonical billing account is required to preserve a Checkout payment method.')
   }
+  if (!stripe?.customers?.retrieve || !stripe?.customers?.update || !stripe?.paymentMethods?.retrieve) {
+    throw bindingConflict('Stripe customer and payment-method verification is unavailable.')
+  }
+
+  return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+    const initialAccount = await loadCanonicalAccount(db, accountId)
+    const canonicalCustomerId = objectId(initialAccount?.stripe_customer_id)
+    if (
+      !initialAccount
+      || initialAccount.is_active !== true
+      || !canonicalCustomerId
+      || Number(initialAccount.stripe_customer_owner_count) !== 1
+    ) {
+      throw bindingConflict(
+        'The active billing account does not have one unambiguous canonical Stripe customer.',
+        {
+          canonicalCustomerId,
+          customerOwnerCount: Number(initialAccount?.stripe_customer_owner_count) || 0,
+        },
+      )
+    }
+    if (suppliedCustomer && suppliedCustomer !== canonicalCustomerId) {
+      throw bindingConflict('The supplied Stripe customer does not match the canonical billing account.', {
+        canonicalCustomerId,
+        observedCustomerId: suppliedCustomer,
+      })
+    }
+
+    let paymentMethodId = suppliedPaymentMethod
+    if (sessionId) {
+      if (!stripe?.checkout?.sessions?.retrieve) {
+        throw bindingConflict('Stripe Checkout Session verification is unavailable.')
+      }
+      const session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
+      })
+      const observedSessionId = objectId(session)
+      const sessionCustomerId = objectId(session?.customer)
+      const checkoutType = String(session?.metadata?.checkoutType ?? '')
+      if (
+        observedSessionId !== sessionId
+        || !['enrollment', 'annual_membership'].includes(checkoutType)
+        || String(session?.metadata?.familyBillingAccountId ?? '') !== String(accountId)
+        || sessionCustomerId !== canonicalCustomerId
+      ) {
+        throw bindingConflict('The Checkout Session does not belong to the canonical billing account.', {
+          sessionId,
+          observedSessionId,
+          canonicalCustomerId,
+          observedCustomerId: sessionCustomerId,
+        })
+      }
+
+      let intent
+      if (session.mode === 'payment') {
+        intent = session.payment_intent
+        if (typeof intent === 'string') {
+          if (!stripe?.paymentIntents?.retrieve) {
+            throw bindingConflict('Stripe PaymentIntent verification is unavailable.')
+          }
+          intent = await stripe.paymentIntents.retrieve(intent, { expand: ['payment_method'] })
+        }
+        if (
+          session.status !== 'complete'
+          || session.payment_status !== 'paid'
+          || intent?.status !== 'succeeded'
+          || objectId(intent?.customer) !== canonicalCustomerId
+        ) {
+          throw bindingConflict('The Checkout payment is not a succeeded payment for the canonical customer.', {
+            sessionId,
+          })
+        }
+      } else if (session.mode === 'setup') {
+        intent = session.setup_intent
+        if (typeof intent === 'string') {
+          if (!stripe?.setupIntents?.retrieve) {
+            throw bindingConflict('Stripe SetupIntent verification is unavailable.')
+          }
+          intent = await stripe.setupIntents.retrieve(intent, { expand: ['payment_method'] })
+        }
+        if (
+          session.status !== 'complete'
+          || intent?.status !== 'succeeded'
+          || objectId(intent?.customer) !== canonicalCustomerId
+        ) {
+          throw bindingConflict('The Checkout setup is not a succeeded setup for the canonical customer.', {
+            sessionId,
+          })
+        }
+      } else {
+        throw bindingConflict('Only completed payment or setup Checkout Sessions can save a payment method.', {
+          sessionId,
+        })
+      }
+
+      const sessionPaymentMethodId = objectId(intent?.payment_method)
+      if (!sessionPaymentMethodId || (
+        suppliedPaymentMethod && suppliedPaymentMethod !== sessionPaymentMethodId
+      )) {
+        throw bindingConflict('The Checkout payment method does not match the requested payment method.', {
+          sessionId,
+          observedPaymentMethodId: sessionPaymentMethodId,
+        })
+      }
+      paymentMethodId = sessionPaymentMethodId
+    }
+
+    const customer = await stripe.customers.retrieve(canonicalCustomerId)
+    const remoteCustomerId = objectId(customer)
+    const remoteOwner = String(customer?.metadata?.familyBillingAccountId ?? '').trim()
+    if (
+      !customer
+      || customer.deleted === true
+      || remoteCustomerId !== canonicalCustomerId
+      || (remoteOwner && remoteOwner !== String(accountId))
+    ) {
+      throw bindingConflict('The canonical Stripe customer could not be verified for this billing account.', {
+        canonicalCustomerId,
+        observedCustomerId: remoteCustomerId,
+      })
+    }
+
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId)
+    if (
+      objectId(paymentMethod) !== paymentMethodId
+      || objectId(paymentMethod?.customer) !== canonicalCustomerId
+      || !['card', 'link'].includes(String(paymentMethod?.type ?? ''))
+    ) {
+      throw bindingConflict('The payment method is not an eligible method owned by the canonical Stripe customer.', {
+        canonicalCustomerId,
+        paymentMethodId,
+        observedCustomerId: objectId(paymentMethod?.customer),
+        paymentMethodType: paymentMethod?.type ?? null,
+      })
+    }
+
+    // Stripe verification above performs network I/O but holds no database
+    // transaction. Re-read immediately before the remote mutation so even a
+    // non-cooperating local remap fails closed while our advisory lock is held.
+    const currentAccount = await loadCanonicalAccount(db, accountId)
+    if (
+      currentAccount?.is_active !== true
+      || objectId(currentAccount?.stripe_customer_id) !== canonicalCustomerId
+      || Number(currentAccount?.stripe_customer_owner_count) !== 1
+    ) {
+      throw bindingConflict('The canonical Stripe customer changed during payment-method verification.', {
+        canonicalCustomerId,
+        observedCustomerId: objectId(currentAccount?.stripe_customer_id),
+      })
+    }
+
+    await stripe.customers.update(canonicalCustomerId, {
+      invoice_settings: { default_payment_method: paymentMethodId },
+    })
+    return {
+      customerId: canonicalCustomerId,
+      defaultPaymentMethodId: paymentMethodId,
+      saved: true,
+    }
+  })
 }
 
 /**
@@ -724,6 +1005,427 @@ function previewFingerprint(preview) {
     .slice(0, 16)
 }
 
+/**
+ * Price, reserve, create, and durably bind one enrollment Checkout while the
+ * account-wide collection lock is held. The pending row is inserted before
+ * the remote create, so a lost Stripe response remains a fail-closed balance
+ * reservation that can only be resumed with the same request key.
+ */
+export async function createAndBindEnrollmentCheckoutSession(
+  pool,
+  stripe,
+  {
+    account,
+    enrolledMemberId,
+    payerMemberId,
+    batchPayload,
+    successUrl,
+    cancelUrl,
+    requestKey,
+    requestFingerprint,
+    previewRequest,
+    loadPreview = null,
+  },
+) {
+  const accountId = Number(account?.id)
+  const athleteId = Number(enrolledMemberId)
+  const payerId = Number(payerMemberId)
+  if (
+    !Number.isSafeInteger(accountId) || accountId <= 0
+    || !Number.isSafeInteger(athleteId) || athleteId <= 0
+    || !Number.isSafeInteger(payerId) || payerId <= 0
+    || !requestKey
+    || !requestFingerprint
+  ) {
+    throw enrollmentCheckoutAuthorizationError('Enrollment Checkout ownership is incomplete.')
+  }
+
+  return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+    const loadDurableRequest = () => db.query(
+      `SELECT *
+         FROM stripe_pending_enrollment
+        WHERE family_billing_account_id = $1
+          AND request_key = $2
+        LIMIT 1`,
+      [accountId, requestKey],
+    ).then((result) => result.rows[0] ?? null)
+
+    let durable = await loadDurableRequest()
+    if (
+      durable
+      && (
+        String(durable.request_fingerprint ?? '') !== requestFingerprint
+        || Number(durable.member_id) !== athleteId
+      )
+    ) {
+      throw checkoutIdempotencyConflict()
+    }
+    if (durable?.stripe_checkout_session_id) {
+      const replay = await stripe.checkout.sessions.retrieve(
+        String(durable.stripe_checkout_session_id),
+      )
+      return {
+        session: replay,
+        pending: durable,
+        pendingEnrollmentId: Number(durable.id),
+        preview: parsePendingPayload(durable.preview_snapshot),
+        replayed: true,
+      }
+    }
+    if (durable?.status === 'completed') {
+      return {
+        alreadyCompleted: true,
+        skipCheckout: true,
+        pendingEnrollmentId: Number(durable.id),
+        preview: parsePendingPayload(durable.preview_snapshot),
+        replayed: true,
+      }
+    }
+    if (durable && ['failed', 'expired'].includes(String(durable.status ?? ''))) {
+      throw checkoutIdempotencyConflict(
+        'This enrollment checkout request can no longer be resumed. Start it again with a new Idempotency-Key.',
+      )
+    }
+
+    const freshPreview = durable
+      ? null
+      : loadPreview
+        ? await loadPreview(db)
+        : await buildSignupOrderPreview(db, previewRequest)
+    let preview = durable
+      ? parsePendingPayload(durable.preview_snapshot)
+      : freshPreview
+    const dueNowCents = computeEnrollmentDueNowCents(preview)
+    const purchaseCents = computeEnrollmentCheckoutPurchaseCents(preview)
+    const mode = resolveEnrollmentCheckoutMode(preview)
+
+    if (durable) {
+      if (
+        !preview
+        || Number(durable.due_now_cents) !== dueNowCents
+        || String(durable.checkout_mode ?? '') !== mode
+      ) {
+        throw checkoutIdempotencyConflict(
+          'The durable enrollment pricing snapshot is inconsistent. Keep this request reserved for review and do not start another payment.',
+        )
+      }
+    }
+
+    if (!enrollmentNeedsStripeCheckout(preview)) {
+      return { skipCheckout: true, preview }
+    }
+
+    const hasRecurring = enrollmentHasRecurringMembership(preview)
+    const storedLineItems = durable && Array.isArray(preview?.stripeCheckoutLineItems)
+      ? preview.stripeCheckoutLineItems
+      : null
+    const lineItems = mode === 'setup'
+      ? []
+      : storedLineItems ?? await buildCheckoutLineItems(db, preview)
+    if (mode === 'payment' && lineItems.length === 0) {
+      if (durable) {
+        throw checkoutIdempotencyConflict(
+          'The durable enrollment Checkout has no immutable payment lines. Keep it reserved for review.',
+        )
+      }
+      return { skipCheckout: true, preview }
+    }
+    if (!durable) {
+      // Stripe treats an idempotency-key retry with different parameters as a
+      // conflict. Preserve resolved catalog Price IDs and ad-hoc price_data in
+      // the authoritative snapshot before the first remote create so a lost
+      // response can be replayed byte-for-byte even if catalog mappings move.
+      preview = { ...preview, stripeCheckoutLineItems: lineItems }
+    }
+
+    // Customer verification itself uses this same re-entrant session lock.
+    // It runs before the pending insert so a known pre-Checkout failure cannot
+    // strand a balance reservation with no possible remote payment surface.
+    const customerId = await ensureStripeCustomer(db, stripe, account)
+
+    let transactionOpen = false
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      const lockedAccount = await db.query(
+        `SELECT account.id,
+                account.family_id,
+                account.payer_member_id,
+                account.stripe_customer_id,
+                account.is_active,
+                (
+                  SELECT COUNT(*)::integer
+                    FROM family_billing_account customer_owner
+                   WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+                ) AS stripe_customer_owner_count
+           FROM family_billing_account account
+          WHERE account.id = $1
+          LIMIT 1
+          FOR UPDATE`,
+        [accountId],
+      ).then((result) => result.rows[0] ?? null)
+      if (
+        !lockedAccount
+        || lockedAccount.is_active !== true
+        || Number(lockedAccount.payer_member_id) !== payerId
+        || (
+          account.family_id != null
+          && Number(lockedAccount.family_id) !== Number(account.family_id)
+        )
+        || String(lockedAccount.stripe_customer_id ?? '') !== String(customerId)
+        || Number(lockedAccount.stripe_customer_owner_count) !== 1
+      ) {
+        throw enrollmentCheckoutAuthorizationError(
+          'The active payer or canonical Stripe customer changed before Checkout creation.',
+        )
+      }
+      await assertEnrollmentCheckoutMemberScope(db, {
+        familyBillingAccountId: accountId,
+        memberId: athleteId,
+        payerMemberId: payerId,
+      })
+
+      durable = await db.query(
+        `SELECT *
+           FROM stripe_pending_enrollment
+          WHERE family_billing_account_id = $1
+            AND request_key = $2
+          LIMIT 1
+          FOR UPDATE`,
+        [accountId, requestKey],
+      ).then((result) => result.rows[0] ?? null)
+      if (
+        durable
+        && (
+          String(durable.request_fingerprint ?? '') !== requestFingerprint
+          || Number(durable.member_id) !== athleteId
+          || Number(durable.due_now_cents) !== dueNowCents
+          || String(durable.checkout_mode ?? '') !== mode
+        )
+      ) {
+        throw checkoutIdempotencyConflict()
+      }
+      if (durable?.stripe_checkout_session_id) {
+        throw checkoutIdempotencyConflict(
+          'Enrollment checkout session binding changed during creation. Retry the same request.',
+        )
+      }
+      if (durable && String(durable.status ?? '') !== 'pending') {
+        throw checkoutIdempotencyConflict(
+          'This enrollment checkout request can no longer open a new payment session.',
+        )
+      }
+
+      const activePurchaseCheckout = await findActivePurchaseCheckoutOwner(db, accountId, {
+        excludePendingEnrollmentId: durable?.id ?? null,
+      })
+      if (activePurchaseCheckout) {
+        throw enrollmentCheckoutCollectionConflict(
+          activePurchaseCheckout,
+          'This household already has a payable enrollment or annual-membership Checkout. Resume or reconcile it before opening another purchase Checkout.',
+        )
+      }
+
+      const completedCheckoutGap = await findCompletedPaidCheckoutFulfillmentGap(db, accountId)
+      if (completedCheckoutGap) {
+        throw enrollmentCheckoutCollectionConflict(
+          completedCheckoutGap,
+          'This household has a completed paid Checkout without exact local fulfillment. Reconcile it before opening another purchase Checkout.',
+        )
+      }
+
+      if (dueNowCents > purchaseCents) {
+        const activeOwner = await findEnrollmentCheckoutCreationConflict(db, accountId)
+        if (activeOwner) throw enrollmentCheckoutCollectionConflict(activeOwner)
+
+        const activeEnrollmentCheckout = await findActiveEnrollmentCheckoutBalanceCollector(
+          db,
+          accountId,
+          { excludePendingEnrollmentId: durable?.id ?? null },
+        )
+        if (activeEnrollmentCheckout) {
+          throw enrollmentCheckoutCollectionConflict(activeEnrollmentCheckout)
+        }
+      }
+
+      if (!durable) {
+        durable = await db.query(
+          `INSERT INTO stripe_pending_enrollment (
+             family_billing_account_id, member_id, payload, preview_snapshot,
+             due_now_cents, checkout_mode, status, request_key, request_fingerprint
+           ) VALUES ($1,$2,$3,$4,$5,$6,'pending',$7,$8)
+           ON CONFLICT (family_billing_account_id, request_key)
+             WHERE request_key IS NOT NULL
+           DO NOTHING
+           RETURNING *`,
+          [
+            accountId,
+            athleteId,
+            JSON.stringify(batchPayload),
+            JSON.stringify(preview),
+            dueNowCents,
+            mode,
+            requestKey,
+            requestFingerprint,
+          ],
+        ).then((result) => result.rows[0] ?? null)
+        if (!durable) throw checkoutIdempotencyConflict()
+      }
+      await db.query('COMMIT')
+      transactionOpen = false
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+
+    const pendingId = Number(durable.id)
+    const sessionParams = {
+      mode,
+      customer: customerId,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        checkoutType: 'enrollment',
+        pendingEnrollmentId: String(pendingId),
+        familyBillingAccountId: String(accountId),
+        memberId: String(athleteId),
+        payerMemberId: String(payerId),
+        previewHash: previewFingerprint(preview),
+        hasRecurring: hasRecurring ? 'true' : 'false',
+        perClassSubscriptions: 'false',
+        householdCollection: hasRecurring ? 'true' : 'false',
+      },
+    }
+    if (mode === 'setup') {
+      sessionParams.currency = 'usd'
+    } else {
+      sessionParams.line_items = lineItems
+      sessionParams.payment_intent_data = { setup_future_usage: 'off_session' }
+    }
+    if (hasRecurring && shouldShowEnrollmentCheckoutSubmitMessage(preview)) {
+      sessionParams.custom_text = {
+        submit: { message: formatEnrollmentCheckoutSubmitMessage() },
+      }
+    }
+
+    // Once this call starts, any error is ambiguous: Stripe may have created
+    // the payable Session even if the response was lost. Keep the pending row
+    // active so only this deterministic idempotency key can recover it.
+    const session = await stripe.checkout.sessions.create(sessionParams, {
+      idempotencyKey: stripeCheckoutIdempotencyKey(
+        'member-enrollment-checkout',
+        accountId,
+        requestKey,
+      ),
+    })
+    const expiresAt = Number(session?.expires_at)
+    if (!Number.isSafeInteger(expiresAt) || expiresAt <= 0) {
+      throw enrollmentCheckoutCollectionConflict(
+        null,
+        'Stripe did not return an exact Checkout expiration. The pending reservation was retained for reconciliation.',
+      )
+    }
+    if (!['open', 'complete', 'expired'].includes(String(session?.status ?? ''))) {
+      throw enrollmentCheckoutCollectionConflict(
+        null,
+        'Stripe returned an unsupported Checkout status. The pending reservation was retained for reconciliation.',
+      )
+    }
+    if (session.status === 'open' && !session.url) {
+      throw enrollmentCheckoutCollectionConflict(
+        null,
+        'Stripe did not return a payable Checkout URL. The pending reservation was retained for reconciliation.',
+      )
+    }
+
+    let linkedPending
+    transactionOpen = false
+    try {
+      await db.query('BEGIN')
+      transactionOpen = true
+      linkedPending = await db.query(
+        `SELECT pending.*,
+                account.family_id,
+                account.payer_member_id,
+                account.stripe_customer_id,
+                account.is_active,
+                (
+                  SELECT COUNT(*)::integer
+                    FROM family_billing_account customer_owner
+                   WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+                ) AS stripe_customer_owner_count
+           FROM stripe_pending_enrollment pending
+           JOIN family_billing_account account
+             ON account.id = pending.family_billing_account_id
+          WHERE pending.id = $1
+            AND pending.request_fingerprint = $2
+          LIMIT 1
+          FOR UPDATE OF pending, account`,
+        [pendingId, requestFingerprint],
+      ).then((result) => result.rows[0] ?? null)
+      if (!linkedPending) {
+        throw checkoutIdempotencyConflict('Enrollment checkout reservation changed during creation.')
+      }
+
+      const paidSession = session.status === 'complete' && session.payment_status === 'paid'
+      if (paidSession) {
+        assertPaidEnrollmentCheckoutSettlementBinding(
+          { ...linkedPending, stripe_checkout_session_id: session.id },
+          session,
+        )
+      } else {
+        if (
+          linkedPending.is_active !== true
+          || Number(linkedPending.payer_member_id) !== payerId
+          || String(linkedPending.stripe_customer_id ?? '') !== String(customerId)
+          || Number(linkedPending.stripe_customer_owner_count) !== 1
+        ) {
+          throw enrollmentCheckoutAuthorizationError(
+            'The active payer or canonical Stripe customer changed before Checkout binding.',
+          )
+        }
+        assertEnrollmentCheckoutSessionBinding(linkedPending, session)
+      }
+
+      const linked = await db.query(
+        `UPDATE stripe_pending_enrollment
+            SET stripe_checkout_session_id = $2,
+                stripe_checkout_session_url = CASE WHEN $6 = 'open' THEN $3 ELSE NULL END,
+                expires_at = to_timestamp($5::double precision),
+                status = CASE WHEN $6 = 'expired' THEN 'expired' ELSE status END,
+                error_message = CASE
+                  WHEN $6 = 'expired' THEN 'Stripe Checkout Session expired.'
+                  ELSE NULL
+                END,
+                updated_at = now()
+          WHERE id = $1
+            AND request_fingerprint = $4
+            AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
+            AND status IN ('pending', 'processing', 'failed', 'expired')
+          RETURNING *`,
+        [pendingId, session.id, session.url ?? null, requestFingerprint, expiresAt, session.status],
+      ).then((result) => result.rows[0] ?? null)
+      if (!linked) {
+        throw checkoutIdempotencyConflict('Enrollment checkout session binding changed during creation.')
+      }
+      linkedPending = { ...linkedPending, ...linked }
+      await db.query('COMMIT')
+      transactionOpen = false
+    } catch (error) {
+      if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+
+    return {
+      session,
+      pending: linkedPending,
+      pendingEnrollmentId: pendingId,
+      preview,
+      replayed: false,
+    }
+  })
+}
+
 export async function createEnrollmentCheckoutSession(
   pool,
   { account, memberId, batchPayload, successUrl, cancelUrl, idempotencyKey },
@@ -786,7 +1488,10 @@ export async function createEnrollmentCheckoutSession(
   ) {
     throw checkoutIdempotencyConflict()
   }
-  if (existingRequest?.status === 'completed') {
+  if (
+    existingRequest?.status === 'completed'
+    && !existingRequest?.stripe_checkout_session_id
+  ) {
     return {
       alreadyCompleted: true,
       skipCheckout: true,
@@ -794,7 +1499,10 @@ export async function createEnrollmentCheckoutSession(
       preview: existingRequest.preview_snapshot ?? null,
     }
   }
-  if (['failed', 'expired'].includes(String(existingRequest?.status ?? ''))) {
+  if (
+    !existingRequest?.stripe_checkout_session_id
+    && ['failed', 'expired'].includes(String(existingRequest?.status ?? ''))
+  ) {
     throw checkoutIdempotencyConflict(
       'This enrollment checkout request can no longer be resumed. Start it again with a new Idempotency-Key.',
     )
@@ -803,6 +1511,38 @@ export async function createEnrollmentCheckoutSession(
     const replay = await stripe.checkout.sessions.retrieve(
       existingRequest.stripe_checkout_session_id,
     )
+    if (
+      replay?.status === 'complete'
+      && (replay?.payment_status === 'paid' || replay?.mode === 'setup')
+    ) {
+      const commitResult = await commitPendingEnrollment(pool, {
+        pendingEnrollmentId: Number(existingRequest.id),
+        stripeSession: replay,
+        expectedFamilyId: account.family_id,
+        expectedPayerMemberId: memberId,
+      })
+      const terminalStatus = String(commitResult?.status ?? '')
+      if (!['completed', 'already_completed', 'quarantined'].includes(terminalStatus)) {
+        throw checkoutIdempotencyConflict(
+          `The completed enrollment Checkout could not be finalized (${terminalStatus || 'unknown'}). Do not start another payment; contact support.`,
+        )
+      }
+      return {
+        ...commitResult,
+        skipCheckout: true,
+        alreadyCompleted: ['completed', 'already_completed'].includes(terminalStatus),
+        requiresReview: terminalStatus === 'quarantined',
+        pendingEnrollmentId: Number(existingRequest.id),
+        preview: existingRequest.preview_snapshot ?? null,
+        replayed: true,
+      }
+    }
+    await authorizePendingEnrollmentCheckout(pool, {
+      pendingEnrollmentId: Number(existingRequest.id),
+      stripeSession: replay,
+      expectedFamilyId: account.family_id,
+      expectedPayerMemberId: memberId,
+    })
     if (checkoutSessionHasForbiddenSubscriptionCollector(replay)) {
       await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
         session: replay,
@@ -811,16 +1551,87 @@ export async function createEnrollmentCheckoutSession(
         pendingEnrollmentId: existingRequest.id,
       })
     }
+    if (replay?.status === 'expired' && replay?.payment_status !== 'paid') {
+      const replayExpiresAt = Number(replay.expires_at)
+      await withBillingAccountCollectionLock(pool, account.id, async (db) => {
+        await db.query(
+          `UPDATE stripe_pending_enrollment
+                  SET status = 'expired',
+                  stripe_checkout_session_url = NULL,
+                  expires_at = COALESCE(to_timestamp($3::double precision), expires_at),
+                  error_message = 'Stripe Checkout Session expired.',
+                  updated_at = now()
+            WHERE id = $1
+              AND stripe_checkout_session_id = $2
+              AND status IN ('pending', 'processing', 'failed', 'expired')
+              AND COALESCE(error_message, '') NOT LIKE $4`,
+          [
+            Number(existingRequest.id),
+            String(replay.id),
+            Number.isSafeInteger(replayExpiresAt) && replayExpiresAt > 0
+              ? replayExpiresAt
+              : null,
+            `${PAID_ENROLLMENT_QUARANTINE_PREFIX}%`,
+          ],
+        )
+      })
+      throw checkoutIdempotencyConflict(
+        'This enrollment Checkout expired. Start it again with a new Idempotency-Key.',
+      )
+    }
+    if (replay?.status === 'open') {
+      const replayExpiresAt = Number(replay.expires_at)
+      if (!replay?.url || !Number.isSafeInteger(replayExpiresAt) || replayExpiresAt <= 0) {
+        throw checkoutIdempotencyConflict(
+          'Stripe did not return a complete payable Checkout state. Keep this request reserved for reconciliation.',
+        )
+      }
+      const refreshed = await withBillingAccountCollectionLock(pool, account.id, async (db) => db.query(
+        `UPDATE stripe_pending_enrollment
+            SET status = CASE WHEN status = 'expired' THEN 'pending' ELSE status END,
+                stripe_checkout_session_url = $3,
+                expires_at = to_timestamp($4::double precision),
+                error_message = CASE WHEN status = 'expired' THEN NULL ELSE error_message END,
+                updated_at = now()
+          WHERE id = $1
+            AND stripe_checkout_session_id = $2
+            AND status IN ('pending', 'processing', 'failed', 'expired')
+            AND COALESCE(error_message, '') NOT LIKE $5
+          RETURNING status, error_message`,
+        [
+          Number(existingRequest.id),
+          String(replay.id),
+          String(replay.url),
+          replayExpiresAt,
+          `${PAID_ENROLLMENT_QUARANTINE_PREFIX}%`,
+        ],
+      ).then((result) => result.rows[0] ?? null))
+      if (refreshed) existingRequest = { ...existingRequest, ...refreshed }
+    }
+    if (existingRequest.status === 'completed') {
+      throw checkoutIdempotencyConflict(
+        'The completed enrollment request does not match a completed Stripe Checkout. Reconcile it before starting another payment.',
+      )
+    }
+    if (['failed', 'expired'].includes(String(existingRequest.status ?? ''))) {
+      throw checkoutIdempotencyConflict(
+        'This enrollment checkout request can no longer be resumed. Start it again with a new Idempotency-Key.',
+      )
+    }
+    if (replay?.status !== 'open' || !replay?.url) {
+      throw checkoutIdempotencyConflict(
+        'This enrollment Checkout is no longer payable. Do not start another payment until its status is reconciled.',
+      )
+    }
     return {
-      url: replay.url ?? existingRequest.stripe_checkout_session_url ?? null,
+      url: replay.url,
       pendingEnrollmentId: Number(existingRequest.id),
       preview: existingRequest.preview_snapshot ?? null,
       replayed: true,
     }
   }
 
-  let preview = existingRequest?.preview_snapshot ?? null
-  if (!preview) preview = await buildSignupOrderPreview(pool, {
+  const previewRequest = {
     memberId: enrolledMemberId,
     newSignups: [
       ...slotSignups.map((s) => ({
@@ -840,122 +1651,76 @@ export async function createEnrollmentCheckoutSession(
       })),
     ],
     promoCodes: batchPayload.promoCodes ?? [],
+  }
+  const creation = await createAndBindEnrollmentCheckoutSession(pool, stripe, {
+    account,
+    enrolledMemberId,
+    payerMemberId: memberId,
+    batchPayload,
+    successUrl,
+    cancelUrl,
+    requestKey,
+    requestFingerprint,
+    previewRequest,
   })
+  if (creation.skipCheckout) return creation
 
-  if (!enrollmentNeedsStripeCheckout(preview)) {
-    return { skipCheckout: true, preview }
-  }
-
-  const dueNowCents = computeEnrollmentDueNowCents(preview)
-  const hasRecurring = enrollmentHasRecurringMembership(preview)
-  const mode = resolveEnrollmentCheckoutMode(preview)
-  const lineItems = mode === 'setup' ? [] : await buildCheckoutLineItems(pool, preview)
-
-  if (mode === 'payment' && lineItems.length === 0) {
-    return { skipCheckout: true, preview }
-  }
-
-  const pending = existingRequest ? { rows: [existingRequest] } : await pool.query(
-    `INSERT INTO stripe_pending_enrollment (
-       family_billing_account_id, member_id, payload, preview_snapshot,
-       due_now_cents, checkout_mode, status, request_key, request_fingerprint
-     ) VALUES ($1,$2,$3,$4,$5,$6,'pending',$7,$8)
-     ON CONFLICT (family_billing_account_id, request_key)
-       WHERE request_key IS NOT NULL
-     DO NOTHING
-     RETURNING *`,
-    [
-      account.id,
-      enrolledMemberId,
-      JSON.stringify(batchPayload),
-      JSON.stringify(preview),
-      dueNowCents,
-      mode,
-      requestKey,
-      requestFingerprint,
-    ],
-  )
-  if (!pending.rows[0]) {
-    existingRequest = await pool.query(
-      `SELECT *
-         FROM stripe_pending_enrollment
-        WHERE family_billing_account_id = $1 AND request_key = $2
-        LIMIT 1`,
-      [account.id, requestKey],
-    ).then((result) => result.rows[0] ?? null)
-    if (
-      !existingRequest ||
-      String(existingRequest.request_fingerprint ?? '') !== requestFingerprint ||
-      Number(existingRequest.member_id) !== Number(enrolledMemberId)
-    ) throw checkoutIdempotencyConflict()
-  } else {
-    existingRequest = pending.rows[0]
-  }
-  const pendingId = existingRequest.id
-
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-
-  const sessionParams = {
-    mode,
-    customer: customerId,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    metadata: {
-      checkoutType: 'enrollment',
-      pendingEnrollmentId: String(pendingId),
-      familyBillingAccountId: String(account.id),
-      memberId: String(enrolledMemberId),
-      payerMemberId: String(memberId),
-      previewHash: previewFingerprint(preview),
-      hasRecurring: hasRecurring ? 'true' : 'false',
-      perClassSubscriptions: 'false',
-      householdCollection: hasRecurring ? 'true' : 'false',
-    },
-  }
-
-  if (mode === 'setup') {
-    // Recurring enrollments with $0 due now still collect a reusable payment
-    // method. The active collection phase is applied after the local commit.
-    sessionParams.currency = 'usd'
-  } else {
-    sessionParams.line_items = lineItems
-    sessionParams.payment_intent_data = {
-      setup_future_usage: 'off_session',
+  const { session, pendingEnrollmentId, preview } = creation
+  const isPaid = session?.status === 'complete' && session?.payment_status === 'paid'
+  const isCompletedSetup = session?.status === 'complete' && session?.mode === 'setup'
+  if (isPaid || isCompletedSetup) {
+    const commitResult = await commitPendingEnrollment(pool, {
+      pendingEnrollmentId,
+      stripeSession: session,
+      expectedFamilyId: account.family_id,
+      expectedPayerMemberId: memberId,
+    })
+    const terminalStatus = String(commitResult?.status ?? '')
+    if (!['completed', 'already_completed', 'quarantined'].includes(terminalStatus)) {
+      throw checkoutIdempotencyConflict(
+        `The completed enrollment Checkout could not be finalized (${terminalStatus || 'unknown'}). Do not start another payment; contact support.`,
+      )
+    }
+    return {
+      ...commitResult,
+      skipCheckout: true,
+      alreadyCompleted: ['completed', 'already_completed'].includes(terminalStatus),
+      requiresReview: terminalStatus === 'quarantined',
+      pendingEnrollmentId,
+      preview,
+      replayed: creation.replayed,
     }
   }
-
-  if (hasRecurring && shouldShowEnrollmentCheckoutSubmitMessage(preview)) {
-    sessionParams.custom_text = {
-      submit: {
-        message: formatEnrollmentCheckoutSubmitMessage(),
-      },
-    }
-  }
-
-  const session = await stripe.checkout.sessions.create(sessionParams, {
-    idempotencyKey: stripeCheckoutIdempotencyKey(
-      'member-enrollment-checkout',
-      account.id,
-      requestKey,
-    ),
+  await authorizePendingEnrollmentCheckout(pool, {
+    pendingEnrollmentId,
+    stripeSession: session,
+    expectedFamilyId: account.family_id,
+    expectedPayerMemberId: memberId,
   })
-
-  const linked = await pool.query(
-    `UPDATE stripe_pending_enrollment
-     SET stripe_checkout_session_id = $2,
-         stripe_checkout_session_url = $3,
-         updated_at = now()
-     WHERE id = $1
-       AND request_fingerprint = $4
-       AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
-     RETURNING id`,
-    [pendingId, session.id, session.url ?? null, requestFingerprint],
-  )
-  if (!linked.rows[0]) {
-    throw checkoutIdempotencyConflict('Enrollment checkout session binding changed during creation.')
+  if (checkoutSessionHasForbiddenSubscriptionCollector(session)) {
+    await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+      session,
+      checkoutKind: 'enrollment',
+      accountId: account.id,
+      pendingEnrollmentId,
+    })
   }
-
-  return { url: session.url, pendingEnrollmentId: pendingId, preview }
+  if (session?.status === 'expired') {
+    throw checkoutIdempotencyConflict(
+      'This enrollment Checkout expired. Start it again with a new Idempotency-Key.',
+    )
+  }
+  if (session?.status !== 'open' || !session?.url) {
+    throw checkoutIdempotencyConflict(
+      'This enrollment Checkout is no longer payable. Do not start another payment until its status is reconciled.',
+    )
+  }
+  return {
+    url: session.url,
+    pendingEnrollmentId,
+    preview,
+    replayed: creation.replayed,
+  }
 }
 
 async function findLatestFamilyEnrollmentReturn(pool, familyId) {
@@ -1015,7 +1780,7 @@ export async function confirmEnrollmentCheckoutSession(
   if (!pendingId) throw new Error('Enrollment reference missing from checkout session.')
 
   const pendingRes = await pool.query(
-    `SELECT pe.*, fba.family_id, fba.payer_member_id
+    `SELECT pe.*, fba.family_id, fba.payer_member_id, fba.stripe_customer_id
      FROM stripe_pending_enrollment pe
      JOIN family_billing_account fba ON fba.id = pe.family_billing_account_id
      WHERE pe.id = $1`,
@@ -1037,14 +1802,19 @@ export async function confirmEnrollmentCheckoutSession(
     throw new Error('Checkout session does not match this enrollment.')
   }
 
-  await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
-    session,
-    checkoutKind: 'enrollment',
-    pendingEnrollmentId: pendingId,
-    accountId: pending.family_billing_account_id,
-  })
+  const paidForbiddenCollector = checkoutSessionHasForbiddenSubscriptionCollector(session)
+    && session?.status === 'complete'
+    && session?.payment_status === 'paid'
+  if (!paidForbiddenCollector) {
+    await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+      session,
+      checkoutKind: 'enrollment',
+      pendingEnrollmentId: pendingId,
+      accountId: pending.family_billing_account_id,
+    })
+  }
 
-  if (!enrollmentCheckoutSessionCanFinalize(session, pending)) {
+  if (!paidForbiddenCollector && !enrollmentCheckoutSessionCanFinalize(session, pending)) {
     throw new Error('Payment is not complete yet. If you were charged, please wait a moment and refresh.')
   }
 
@@ -1069,19 +1839,12 @@ export async function confirmEnrollmentCheckoutSession(
     return commitResult
   }
 
-  const payment = await recordEnrollmentStripePayment(pool, stripe, {
-    session,
-    accountId: Number(pending.family_billing_account_id),
-  })
-  await allocateHouseholdPayments(pool, {
-    accountId: Number(pending.family_billing_account_id),
-    actorType: 'stripe',
-  })
-  void emitStripePurchaseEvent(pool, {
-    payment,
-    session,
-    paymentType: 'initial_enrollment',
-  })
+  const payment = session.payment_status === 'paid' ? commitResult.payment : null
+  if (session.payment_status === 'paid' && !payment) {
+    throw new Error(
+      'Enrollment payment was collected but its exact ledger settlement is incomplete. Do not pay again.',
+    )
+  }
 
   // Fire-once flag for the browser-side vortex_purchase dataLayer push (GTM
   // Google Ads conversion): only the first confirm after payment returns
@@ -1123,6 +1886,11 @@ export function enrollmentCheckoutSessionCanFinalize(session, pending) {
   const remoteMode = String(session?.mode ?? '')
   const durableMode = String(pending?.checkout_mode ?? '')
   if (!remoteMode || remoteMode !== durableMode) return false
+  try {
+    assertEnrollmentCheckoutSessionBinding(pending, session)
+  } catch {
+    return false
+  }
   if (durableMode === 'setup') {
     return session?.status === 'complete'
   }
@@ -1173,6 +1941,18 @@ export function assertEnrollmentCheckoutSessionBinding(pending, stripeSession) {
   const accountId = Number(pending.family_billing_account_id)
   const memberId = Number(pending.member_id)
   const payerMemberId = Number(pending.payer_member_id)
+  const expectedAmountCents = Number(pending.due_now_cents)
+  const checkoutMode = String(pending.checkout_mode ?? '')
+  const expectedCustomerId = String(pending.stripe_customer_id ?? '').trim()
+  const observedCustomerId = typeof stripeSession.customer === 'string'
+    ? stripeSession.customer
+    : stripeSession.customer?.id ?? null
+  const observedAmountCents = stripeSession.amount_total == null && checkoutMode === 'setup'
+    ? 0
+    : Number(stripeSession.amount_total)
+  // Historical subscription-mode sessions are rejected by the dedicated
+  // legacy-collector guard immediately after authorization.
+  const settlementMustMatch = checkoutMode !== 'subscription'
   if (
     metadata.checkoutType !== 'enrollment' ||
     Number(metadata.pendingEnrollmentId) !== pendingId ||
@@ -1181,12 +1961,246 @@ export function assertEnrollmentCheckoutSessionBinding(pending, stripeSession) {
     !Number.isSafeInteger(payerMemberId) ||
     payerMemberId <= 0 ||
     Number(metadata.payerMemberId) !== payerMemberId ||
+    !expectedCustomerId ||
+    String(observedCustomerId ?? '') !== expectedCustomerId ||
+    (
+      settlementMustMatch
+      && (
+        !['payment', 'setup'].includes(checkoutMode) ||
+        String(stripeSession.mode ?? '') !== checkoutMode ||
+        !Number.isSafeInteger(expectedAmountCents) ||
+        expectedAmountCents < 0 ||
+        !Number.isSafeInteger(observedAmountCents) ||
+        observedAmountCents !== expectedAmountCents ||
+        String(stripeSession.currency ?? '').toLowerCase() !== 'usd'
+      )
+    ) ||
     !stripeSession.id ||
     (pending.stripe_checkout_session_id &&
       String(pending.stripe_checkout_session_id) !== String(stripeSession.id))
   ) {
     throw enrollmentCheckoutAuthorizationError('Checkout session does not match this enrollment.')
   }
+}
+
+/**
+ * Bind already-collected cash to the durable pending row without consulting
+ * mutable account, payer, customer-link, or household-member state. Those
+ * current-state checks still run separately before any signup is created.
+ */
+export function assertPaidEnrollmentCheckoutSettlementBinding(pending, stripeSession) {
+  const metadata = stripeSession?.metadata ?? {}
+  const pendingId = Number(pending?.id)
+  const accountId = Number(pending?.family_billing_account_id)
+  const memberId = Number(pending?.member_id)
+  const expectedAmountCents = Number(pending?.due_now_cents)
+  const expectedMode = String(pending?.checkout_mode ?? '')
+  const observedCustomerId = typeof stripeSession?.customer === 'string'
+    ? stripeSession.customer
+    : stripeSession?.customer?.id ?? null
+  const payerMemberId = Number(metadata.payerMemberId)
+  const problems = []
+
+  if (!Number.isSafeInteger(pendingId) || pendingId <= 0) problems.push('pending_enrollment_missing')
+  if (!Number.isSafeInteger(accountId) || accountId <= 0) problems.push('billing_account_missing')
+  if (!Number.isSafeInteger(memberId) || memberId <= 0) problems.push('member_missing')
+  if (!stripeSession?.id) problems.push('checkout_session_missing')
+  if (
+    !pending?.stripe_checkout_session_id
+    || String(pending.stripe_checkout_session_id) !== String(stripeSession?.id ?? '')
+  ) problems.push('checkout_session_mismatch')
+  if (metadata.checkoutType !== 'enrollment') problems.push('checkout_type_mismatch')
+  if (Number(metadata.pendingEnrollmentId) !== pendingId) problems.push('pending_enrollment_mismatch')
+  if (Number(metadata.familyBillingAccountId) !== accountId) problems.push('billing_account_mismatch')
+  if (Number(metadata.memberId) !== memberId) problems.push('member_mismatch')
+  if (!Number.isSafeInteger(payerMemberId) || payerMemberId <= 0) problems.push('payer_missing')
+  if (
+    !['payment', 'subscription'].includes(expectedMode)
+    || stripeSession?.mode !== expectedMode
+  ) {
+    problems.push('checkout_mode_mismatch')
+  }
+  if (stripeSession?.status !== 'complete' || stripeSession?.payment_status !== 'paid') {
+    problems.push('checkout_not_paid')
+  }
+  if (String(stripeSession?.currency ?? '').toLowerCase() !== 'usd') {
+    problems.push('checkout_currency_mismatch')
+  }
+  if (
+    !Number.isSafeInteger(expectedAmountCents)
+    || expectedAmountCents <= 0
+    || !Number.isSafeInteger(Number(stripeSession?.amount_total))
+    || Number(stripeSession.amount_total) !== expectedAmountCents
+  ) problems.push('checkout_amount_mismatch')
+  if (!observedCustomerId) problems.push('stripe_customer_missing')
+
+  if (problems.length > 0) {
+    const error = enrollmentCheckoutAuthorizationError(
+      'Paid Checkout does not exactly match its durable pending enrollment.',
+    )
+    error.code = 'ENROLLMENT_CHECKOUT_SETTLEMENT_CONFLICT'
+    error.details = {
+      problems,
+      pendingEnrollmentId: Number.isSafeInteger(pendingId) ? pendingId : null,
+      familyBillingAccountId: Number.isSafeInteger(accountId) ? accountId : null,
+      stripeCheckoutSessionId: stripeSession?.id ?? null,
+    }
+    throw error
+  }
+
+  return { pendingId, accountId, memberId, payerMemberId, expectedAmountCents }
+}
+
+async function loadPendingEnrollmentSettlementOwner(pool, pendingEnrollmentId) {
+  const normalizedPendingId = Number(pendingEnrollmentId)
+  if (!Number.isSafeInteger(normalizedPendingId) || normalizedPendingId <= 0) return null
+  return pool.query(
+    `SELECT id, family_billing_account_id, member_id, due_now_cents,
+            checkout_mode, stripe_checkout_session_id, status, error_message,
+            payload, preview_snapshot, created_at, updated_at
+       FROM stripe_pending_enrollment
+      WHERE id = $1
+      LIMIT 1`,
+    [normalizedPendingId],
+  ).then((result) => result.rows[0] ?? null)
+}
+
+function paidEnrollmentAlreadyQuarantined(pending) {
+  return String(pending?.status ?? '') === 'failed'
+    && String(pending?.error_message ?? '').startsWith(PAID_ENROLLMENT_QUARANTINE_PREFIX)
+}
+
+async function quarantinePaidEnrollmentAuthorizationDrift(pool, {
+  pending,
+  stripeSession,
+  payment,
+  error,
+}) {
+  const reason = `${PAID_ENROLLMENT_QUARANTINE_PREFIX} ${String(
+    error?.message ?? 'Current enrollment authorization changed after payment.',
+  )}`.slice(0, 500)
+  return withBillingAccountCollectionLock(
+    pool,
+    Number(pending.family_billing_account_id),
+    async (db) => {
+      let transactionOpen = false
+      try {
+        await db.query('BEGIN')
+        transactionOpen = true
+        const quarantined = await db.query(
+          `UPDATE stripe_pending_enrollment
+              SET status = 'failed',
+                  error_message = $2,
+                  updated_at = now()
+            WHERE id = $1
+              AND (
+                status IN ('pending', 'expired')
+                OR (
+                  status = 'failed'
+                  AND COALESCE(error_message, '') NOT LIKE $3
+                )
+                OR (
+                  status = 'processing'
+                  AND updated_at < now() - interval '2 minutes'
+                )
+              )
+            RETURNING status, error_message`,
+          [Number(pending.id), reason, `${PAID_ENROLLMENT_QUARANTINE_PREFIX}%`],
+        ).then((result) => result.rows[0] ?? null)
+        const owner = quarantined ?? await db.query(
+          `SELECT status, error_message
+             FROM stripe_pending_enrollment
+            WHERE id = $1
+            LIMIT 1
+            FOR UPDATE`,
+          [Number(pending.id)],
+        ).then((result) => result.rows[0] ?? null)
+        if (String(owner?.status ?? '') === 'completed') {
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'completed' }
+        }
+        if (
+          !quarantined
+          && !(
+            String(owner?.status ?? '') === 'failed'
+            && String(owner?.error_message ?? '').startsWith(PAID_ENROLLMENT_QUARANTINE_PREFIX)
+          )
+        ) {
+          await db.query('COMMIT')
+          transactionOpen = false
+          return { status: 'in_progress' }
+        }
+        const quarantine = await recordPaidCheckoutFulfillmentQuarantine(db, {
+          checkoutKind: 'enrollment',
+          ownerId: Number(pending.id),
+          accountId: Number(pending.family_billing_account_id),
+          session: stripeSession,
+          payment,
+          reason,
+        })
+        await db.query('COMMIT')
+        transactionOpen = false
+        return { status: 'quarantined', reason, payment: quarantine.payment }
+      } catch (error) {
+        if (transactionOpen) await db.query('ROLLBACK').catch(() => {})
+        throw error
+      }
+    },
+  )
+}
+
+async function settleCompletedEnrollmentCheckout(pool, {
+  pending,
+  stripeSession,
+  payment,
+}) {
+  const preview = typeof pending.preview_snapshot === 'string'
+    ? JSON.parse(pending.preview_snapshot)
+    : pending.preview_snapshot
+  const payload = parsePendingPayload(pending.payload)
+  const signupIds = await findExistingSignupIdsForEnrollmentPayload(
+    pool,
+    payload,
+    Number(pending.member_id),
+  )
+  if (signupIds.length > 0 && preview) {
+    await ensureEnrollmentLedgerRows(pool, {
+      memberId: Number(pending.member_id),
+      signupIds,
+      preview,
+      stripeCheckoutSessionId: stripeSession.id,
+      purchasedAt: stripeSession.created
+        ? new Date(stripeSession.created * 1000)
+        : new Date(pending.created_at ?? Date.now()),
+    })
+  }
+  const settledPayment = await withBillingAccountCollectionLock(
+    pool,
+    Number(pending.family_billing_account_id),
+    async (db) => {
+      const exact = await applyAndSettlePaidCheckoutFulfillment(db, {
+        session: stripeSession,
+        accountId: Number(pending.family_billing_account_id),
+        payment,
+        targetAmountCents: computeEnrollmentCheckoutPurchaseCents(preview),
+        applicationNamespace: `enrollment-checkout:${Number(pending.id)}`,
+        allocationReason: 'enrollment_checkout_exact',
+      })
+      await allocateHouseholdPaymentsLocked(db, {
+        accountId: Number(pending.family_billing_account_id),
+        actorType: 'stripe',
+        idempotencyNamespace: `enrollment-checkout-remainder:${Number(pending.id)}`,
+      })
+      return exact
+    },
+  )
+  void emitStripePurchaseEvent(pool, {
+    payment: settledPayment,
+    session: stripeSession,
+    paymentType: 'initial_enrollment',
+  })
+  return settledPayment
 }
 
 /**
@@ -1207,10 +2221,13 @@ export async function authorizePendingEnrollmentCheckout(pool, {
     `SELECT pending.id,
             pending.family_billing_account_id,
             pending.member_id,
+            pending.due_now_cents,
+            pending.checkout_mode,
             pending.stripe_checkout_session_id,
             pending.status,
             account.family_id,
-            account.payer_member_id
+            account.payer_member_id,
+            account.stripe_customer_id
        FROM stripe_pending_enrollment pending
        JOIN family_billing_account account
          ON account.id = pending.family_billing_account_id
@@ -1251,6 +2268,39 @@ export async function authorizePendingEnrollmentCheckout(pool, {
 }
 
 /**
+ * Freeze every mutable row/table that determines whether a paid pending
+ * enrollment still belongs to this household.  The family_member table lock
+ * is deliberate: locking only today's membership rows would not stop a
+ * concurrent INSERT from creating membership history and invalidating the
+ * legacy member.family_id fallback.  Callers must already be in a transaction
+ * and keep it open through signup, exact payment application, and owner
+ * completion.
+ */
+async function lockPaidEnrollmentAuthorizationScope(db, pendingEnrollmentId) {
+  await db.query('LOCK TABLE family_member IN SHARE MODE')
+  const locked = await db.query(
+    `SELECT pending.id
+       FROM stripe_pending_enrollment pending
+       JOIN family_billing_account account
+         ON account.id = pending.family_billing_account_id
+       JOIN member enrolled_member
+         ON enrolled_member.id = pending.member_id
+       JOIN member payer_member
+         ON payer_member.id = account.payer_member_id
+      WHERE pending.id = $1
+        AND account.is_active = TRUE
+        AND enrolled_member.is_active = TRUE
+        AND payer_member.is_active = TRUE
+      FOR UPDATE OF pending
+      FOR SHARE OF account, enrolled_member, payer_member`,
+    [Number(pendingEnrollmentId)],
+  )
+  if (locked.rows.length !== 1) {
+    throw enrollmentCheckoutAuthorizationError('Enrollment checkout authorization is no longer active.')
+  }
+}
+
+/**
  * Claim → signup (no row lock) → ledger repair → completed → Stripe I/O.
  * Concurrent webhook + confirm: one worker claims; the other waits for completed.
  */
@@ -1260,35 +2310,242 @@ export async function commitPendingEnrollment(pool, {
   expectedFamilyId = null,
   expectedPayerMemberId = null,
 }) {
-  const authorizedPending = await authorizePendingEnrollmentCheckout(pool, {
-    pendingEnrollmentId,
-    stripeSession,
-    expectedFamilyId,
-    expectedPayerMemberId,
-  })
-  await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
-    session: stripeSession,
-    checkoutKind: 'enrollment',
-    pendingEnrollmentId,
-    accountId: authorizedPending.family_billing_account_id,
-  })
+  let preFulfillmentPayment = null
+  let settlementPending = null
+  if (stripeSession?.payment_status === 'paid') {
+    settlementPending = await loadPendingEnrollmentSettlementOwner(
+      pool,
+      pendingEnrollmentId,
+    )
+    if (!settlementPending) {
+      const error = enrollmentCheckoutAuthorizationError(
+        'Paid Checkout has no durable pending enrollment owner.',
+      )
+      error.code = 'ENROLLMENT_CHECKOUT_SETTLEMENT_CONFLICT'
+      throw error
+    }
+    const settlement = assertPaidEnrollmentCheckoutSettlementBinding(
+      settlementPending,
+      stripeSession,
+    )
+    const stripe = await getStripeClient()
+    preFulfillmentPayment = await recordEnrollmentStripePayment(pool, stripe, {
+      session: stripeSession,
+      accountId: settlement.accountId,
+      fulfillmentPending: true,
+    })
+
+    // Replays must not reopen a payment that was deliberately quarantined after
+    // current authorization drifted. Completed rows are checked after the
+    // forbidden-collector guard so a stale live subscription remains visible.
+    if (paidEnrollmentAlreadyQuarantined(settlementPending)) {
+      const quarantine = await quarantinePaidEnrollmentAuthorizationDrift(pool, {
+        pending: settlementPending,
+        stripeSession,
+        payment: preFulfillmentPayment,
+        error: new Error(
+          settlementPending.error_message ?? 'Paid enrollment Checkout requires refund review.',
+        ),
+      })
+      preFulfillmentPayment = quarantine.payment
+      return {
+        status: 'quarantined',
+        reason: 'paid_checkout_refund_required',
+        payment: preFulfillmentPayment,
+      }
+    }
+  }
+
+  let authorizedPending
+  try {
+    await rejectForbiddenSubscriptionCheckoutCompletion(pool, {
+      session: stripeSession,
+      checkoutKind: 'enrollment',
+      // Paid sessions first record cash and use the CAS quarantine below. Letting
+      // this policy helper overwrite a concurrent `processing` claim could allow
+      // the claimant to finish signup after the owner had been marked failed.
+      pendingEnrollmentId: preFulfillmentPayment ? null : pendingEnrollmentId,
+      accountId: settlementPending?.family_billing_account_id
+        ?? stripeSession?.metadata?.familyBillingAccountId,
+    })
+    if (settlementPending?.status === 'completed') {
+      preFulfillmentPayment = await settleCompletedEnrollmentCheckout(pool, {
+        pending: settlementPending,
+        stripeSession,
+        payment: preFulfillmentPayment,
+      })
+      return { status: 'already_completed', payment: preFulfillmentPayment }
+    }
+    authorizedPending = await authorizePendingEnrollmentCheckout(pool, {
+      pendingEnrollmentId,
+      stripeSession,
+      expectedFamilyId,
+      expectedPayerMemberId,
+    })
+  } catch (error) {
+    if (
+      preFulfillmentPayment
+      && [
+        'ENROLLMENT_CHECKOUT_FORBIDDEN',
+        FORBIDDEN_SUBSCRIPTION_CHECKOUT_CODE,
+      ].includes(error?.code)
+    ) {
+      const quarantine = await quarantinePaidEnrollmentAuthorizationDrift(pool, {
+        pending: settlementPending,
+        stripeSession,
+        payment: preFulfillmentPayment,
+        error,
+      })
+      if (quarantine.status === 'completed') {
+        preFulfillmentPayment = await settleCompletedEnrollmentCheckout(pool, {
+          pending: settlementPending,
+          stripeSession,
+          payment: preFulfillmentPayment,
+        })
+        return { status: 'already_completed', payment: preFulfillmentPayment }
+      }
+      if (quarantine.status === 'in_progress') {
+        return { status: 'in_progress', payment: preFulfillmentPayment }
+      }
+      return {
+        status: 'quarantined',
+        reason: 'current_authorization_changed_after_payment',
+        payment: quarantine.payment,
+      }
+    }
+    throw error
+  }
   await ensureBillingRecurringSchema(pool)
   await ensurePendingEnrollmentSchema(pool)
 
   for (let attempt = 0; attempt < 16; attempt++) {
-    const outcome = await tryCommitPendingEnrollmentOnce(pool, {
-      pendingEnrollmentId,
-      stripeSession,
-      authorizedPending,
-    })
-    if (outcome.status !== 'in_progress') return outcome
+    const outcome = preFulfillmentPayment
+      ? await withBillingAccountCollectionLock(
+          pool,
+          Number(settlementPending.family_billing_account_id),
+          async (settlementDb) => {
+            let transactionOpen = false
+            try {
+              await settlementDb.query('BEGIN')
+              transactionOpen = true
+              await lockPaidEnrollmentAuthorizationScope(settlementDb, pendingEnrollmentId)
+              // The first authorization read happens before this transaction.
+              // Re-read after locking the pending owner, account, payer, athlete,
+              // and membership relation so even non-advisory-lock mutators
+              // cannot change authority before exact settlement is committed.
+              const lockedAuthorizedPending = await authorizePendingEnrollmentCheckout(
+                settlementDb,
+                {
+                  pendingEnrollmentId,
+                  stripeSession,
+                  expectedFamilyId,
+                  expectedPayerMemberId,
+                },
+              )
+              const committed = await tryCommitPendingEnrollmentOnce(pool, {
+                pendingEnrollmentId,
+                stripeSession,
+                authorizedPending: lockedAuthorizedPending,
+                settlementDb,
+                preFulfillmentPayment,
+              })
+              await settlementDb.query('COMMIT')
+              transactionOpen = false
+              return committed
+            } catch (error) {
+              if (transactionOpen) {
+                await settlementDb.query('ROLLBACK').catch(() => {})
+                transactionOpen = false
+              }
+              if (error?.code === 'ENROLLMENT_CHECKOUT_FORBIDDEN') {
+                return { status: 'authorization_drift', error }
+              }
+              // Signup/ledger work commits on its own connection.  Preserve a
+              // durable retry owner after rolling back every payment/application
+              // mutation from this transaction.
+              await settlementDb.query(
+                `UPDATE stripe_pending_enrollment
+                    SET status = 'failed', error_message = $2, updated_at = now()
+                  WHERE id = $1
+                    AND status IN ('pending', 'processing', 'failed')`,
+                [pendingEnrollmentId, String(error?.message ?? error).slice(0, 500)],
+              )
+              throw error
+            }
+          },
+        )
+      : await tryCommitPendingEnrollmentOnce(pool, {
+          pendingEnrollmentId,
+          stripeSession,
+          authorizedPending,
+        })
+    if (outcome.status === 'authorization_drift') {
+      const quarantine = await quarantinePaidEnrollmentAuthorizationDrift(pool, {
+        pending: settlementPending,
+        stripeSession,
+        payment: preFulfillmentPayment,
+        error: outcome.error,
+      })
+      if (quarantine.status === 'completed') {
+        const payment = await settleCompletedEnrollmentCheckout(pool, {
+          pending: settlementPending,
+          stripeSession,
+          payment: preFulfillmentPayment,
+        })
+        return { status: 'already_completed', payment }
+      }
+      if (quarantine.status === 'in_progress') {
+        return { status: 'in_progress', payment: preFulfillmentPayment }
+      }
+      return {
+        status: 'quarantined',
+        reason: 'current_authorization_changed_after_payment',
+        payment: quarantine.payment,
+      }
+    }
+    if (outcome.payment) preFulfillmentPayment = outcome.payment
+    if (outcome.status !== 'in_progress') {
+      if (
+        preFulfillmentPayment
+        && ['completed', 'already_completed'].includes(outcome.status)
+        && !outcome.payment
+      ) {
+        preFulfillmentPayment = await settleCompletedEnrollmentCheckout(pool, {
+          pending: settlementPending,
+          stripeSession,
+          payment: preFulfillmentPayment,
+        })
+      }
+      if (outcome.postCommit) {
+        await runEnrollmentPostCommitSideEffects(pool, outcome.postCommit)
+      }
+      if (outcome.payment) {
+        void emitStripePurchaseEvent(pool, {
+          payment: outcome.payment,
+          session: stripeSession,
+          paymentType: 'initial_enrollment',
+        })
+      }
+      return preFulfillmentPayment ? { ...outcome, payment: preFulfillmentPayment } : outcome
+    }
     await sleep(400 + attempt * 150)
   }
 
   const final = await pool.query(`SELECT status FROM stripe_pending_enrollment WHERE id = $1`, [
     pendingEnrollmentId,
   ])
-  if (final.rows[0]?.status === 'completed') return { status: 'already_completed' }
+  if (final.rows[0]?.status === 'completed') {
+    if (preFulfillmentPayment) {
+      preFulfillmentPayment = await settleCompletedEnrollmentCheckout(pool, {
+        pending: settlementPending,
+        stripeSession,
+        payment: preFulfillmentPayment,
+      })
+    }
+    return preFulfillmentPayment
+      ? { status: 'already_completed', payment: preFulfillmentPayment }
+      : { status: 'already_completed' }
+  }
   return { status: 'in_progress' }
 }
 
@@ -1296,24 +2553,31 @@ async function tryCommitPendingEnrollmentOnce(pool, {
   pendingEnrollmentId,
   stripeSession,
   authorizedPending,
+  settlementDb = null,
+  preFulfillmentPayment = null,
 }) {
+  const stateDb = settlementDb ?? pool
   // Claim quickly — never hold FOR UPDATE across signup / Stripe network I/O.
-  const claim = await pool.query(
+  const claim = await stateDb.query(
     `
       UPDATE stripe_pending_enrollment
       SET status = 'processing', error_message = NULL, updated_at = now()
       WHERE id = $1
         AND (
-          status IN ('pending', 'failed')
+          status = 'pending'
+          OR (
+            status = 'failed'
+            AND COALESCE(error_message, '') NOT LIKE $2
+          )
           OR (status = 'processing' AND updated_at < now() - interval '2 minutes')
         )
       RETURNING *
     `,
-    [pendingEnrollmentId],
+    [pendingEnrollmentId, `${PAID_ENROLLMENT_QUARANTINE_PREFIX}%`],
   )
   const pending = claim.rows[0]
   if (!pending) {
-    const existing = await pool.query(`SELECT status FROM stripe_pending_enrollment WHERE id = $1`, [
+    const existing = await stateDb.query(`SELECT status FROM stripe_pending_enrollment WHERE id = $1`, [
       pendingEnrollmentId,
     ])
     const status = existing.rows[0]?.status
@@ -1357,7 +2621,15 @@ async function tryCommitPendingEnrollmentOnce(pool, {
     const signupBatchPayload = stripSignupBatchPayload(refreshed)
 
     try {
-      result = await executeSignupBatch(pool, signupBatchPayload)
+      result = await executeSignupBatch(pool, signupBatchPayload, stripeSession?.id
+        ? {
+            stripeCheckoutSessionId: stripeSession.id,
+            preview: previewSnapshot,
+            purchasedAt: stripeSession.created
+              ? new Date(stripeSession.created * 1000)
+              : new Date(pending.created_at ?? Date.now()),
+          }
+        : null)
       signupIds = (result?.data?.signups ?? [])
         .map((row) => Number(row.id ?? row.signupId))
         .filter(Boolean)
@@ -1377,10 +2649,45 @@ async function tryCommitPendingEnrollmentOnce(pool, {
         memberId: enrolledMemberId,
         signupIds,
         preview: previewSnapshot,
+        stripeCheckoutSessionId: stripeSession?.id ?? null,
+        purchasedAt: stripeSession?.created
+          ? new Date(stripeSession.created * 1000)
+          : new Date(pending.created_at ?? Date.now()),
+      })
+    }
+    if (stripeSession?.id && (result?.data?.purchasedPasses ?? []).length > 0) {
+      await ensureEnrollmentPassLedgerRows(pool, {
+        memberId: enrolledMemberId,
+        purchasedPasses: result.data.purchasedPasses,
+        stripeCheckoutSessionId: stripeSession.id,
       })
     }
 
-    await pool.query(
+    if (preFulfillmentPayment) {
+      if (!settlementDb) throw new Error('Paid enrollment settlement lock is missing.')
+      preFulfillmentPayment = await applyAndSettlePaidCheckoutFulfillment(settlementDb, {
+        session: stripeSession,
+        accountId: Number(familyBillingAccountId),
+        payment: preFulfillmentPayment,
+        targetAmountCents: computeEnrollmentCheckoutPurchaseCents(previewSnapshot),
+        applicationNamespace: `enrollment-checkout:${Number(pendingEnrollmentId)}`,
+        allocationReason: 'enrollment_checkout_exact',
+        manageTransaction: false,
+      })
+      // Any explicit carried-forward portion is the only remaining cash and may
+      // now flow through normal oldest/annual-first household allocation. The
+      // session-level account lock is still held, so invoice creation cannot
+      // interleave before these applications are durable.
+      await allocateHouseholdPaymentsLocked(settlementDb, {
+        accountId: Number(familyBillingAccountId),
+        actorType: 'stripe',
+        idempotencyNamespace: `enrollment-checkout-remainder:${Number(pendingEnrollmentId)}`,
+        excludePendingEnrollmentId: Number(pendingEnrollmentId),
+        manageTransaction: false,
+      })
+    }
+
+    await stateDb.query(
       `UPDATE stripe_pending_enrollment
        SET status = 'completed', error_message = NULL, updated_at = now()
        WHERE id = $1`,
@@ -1388,16 +2695,48 @@ async function tryCommitPendingEnrollmentOnce(pool, {
     )
 
   } catch (err) {
-    await pool.query(
-      `UPDATE stripe_pending_enrollment
-       SET status = 'failed', error_message = $2, updated_at = now()
-       WHERE id = $1 AND status IN ('processing', 'failed', 'pending')`,
-      [pendingEnrollmentId, String(err.message ?? err).slice(0, 500)],
-    )
+    // A paid path is wrapped by the caller's authorization/settlement
+    // transaction. Let that caller roll back every partial application before
+    // it records the durable retry state in a fresh transaction.
+    if (!settlementDb) {
+      await stateDb.query(
+        `UPDATE stripe_pending_enrollment
+         SET status = 'failed', error_message = $2, updated_at = now()
+         WHERE id = $1 AND status IN ('processing', 'failed', 'pending')`,
+        [pendingEnrollmentId, String(err.message ?? err).slice(0, 500)],
+      )
+    }
     throw err
   }
 
-  // Stripe network I/O after the pending row is completed (no DB locks held).
+  return {
+    status: 'completed',
+    result,
+    ...(preFulfillmentPayment ? { payment: preFulfillmentPayment } : {}),
+    postCommit: {
+      signupIds,
+      previewSnapshot,
+      previewHasRecurring,
+      stripeSession,
+      familyBillingAccountId,
+      memberId: Number(pending.member_id),
+      purchasedAt: stripeSession?.created
+        ? new Date(stripeSession.created * 1000)
+        : new Date(pending.created_at ?? Date.now()),
+    },
+  }
+}
+
+async function runEnrollmentPostCommitSideEffects(pool, {
+  signupIds,
+  previewSnapshot,
+  previewHasRecurring,
+  stripeSession,
+  familyBillingAccountId,
+  memberId,
+  purchasedAt,
+}) {
+  // Stripe network I/O occurs only after the account collection lock is released.
   if (signupIds.length > 0 && previewSnapshot && previewHasRecurring && stripeSession) {
     try {
       const stripe = await getStripeClient()
@@ -1414,49 +2753,30 @@ async function tryCommitPendingEnrollmentOnce(pool, {
     }
   }
 
-  if (previewSnapshot && stripeSession && familyBillingAccountId != null && pending.member_id != null) {
+  if (previewSnapshot && stripeSession && familyBillingAccountId != null && memberId != null) {
     try {
       const stripe = await getStripeClient()
       await createEnrollmentAnnualMembershipSubscriptions(pool, stripe, {
         preview: previewSnapshot,
         stripeSession,
         familyBillingAccountId,
-        memberId: Number(pending.member_id),
-        purchasedAt: new Date(pending.updated_at ?? pending.created_at ?? Date.now()),
+        memberId: Number(memberId),
+        purchasedAt,
       })
     } catch (err) {
       console.error('[billing] preserve annual membership renewal schedule after enrollment commit:', err)
     }
   }
-
-  if (stripeSession?.id && familyBillingAccountId != null) {
-    try {
-      const stripe = await getStripeClient()
-      if (stripe) {
-        const payment = await recordEnrollmentStripePayment(pool, stripe, {
-          session: stripeSession,
-          accountId: Number(familyBillingAccountId),
-        })
-        await allocateHouseholdPayments(pool, {
-          accountId: Number(familyBillingAccountId),
-          actorType: 'stripe',
-        })
-        void emitStripePurchaseEvent(pool, {
-          payment,
-          session: stripeSession,
-          paymentType: 'initial_enrollment',
-        })
-      }
-    } catch (err) {
-      console.error('[stripe] enrollment payment record after commit:', err)
-    }
-  }
-
-  return { status: 'completed', result }
 }
 
 /** Re-run ledger bridge when signup batch charge persistence was skipped/failed. */
-export async function ensureEnrollmentLedgerRows(pool, { memberId, signupIds, preview }) {
+export async function ensureEnrollmentLedgerRows(pool, {
+  memberId,
+  signupIds,
+  preview,
+  stripeCheckoutSessionId = null,
+  purchasedAt = null,
+}) {
   if (!memberId || !signupIds?.length || !preview) return { repaired: false }
 
   const missing = await pool.query(
@@ -1469,9 +2789,9 @@ export async function ensureEnrollmentLedgerRows(pool, { memberId, signupIds, pr
        AND bs.source_id = ss.id::text
        AND bs.status = 'active'
       WHERE ss.id = ANY($1::bigint[])
-        AND bs.id IS NULL
+        AND ($2::text IS NOT NULL OR bs.id IS NULL)
     `,
-    [signupIds],
+    [signupIds, stripeCheckoutSessionId],
   )
   if (missing.rows.length === 0) return { repaired: false }
 
@@ -1487,8 +2807,54 @@ export async function ensureEnrollmentLedgerRows(pool, { memberId, signupIds, pr
       slotLabel: '',
     })),
     preview,
+    stripeCheckoutSessionId,
+    purchasedAt,
   })
   return { repaired: true, count: missing.rows.length }
+}
+
+/** Re-run exact pass-charge persistence when the post-signup bridge failed transiently. */
+export async function ensureEnrollmentPassLedgerRows(pool, {
+  memberId,
+  purchasedPasses,
+  stripeCheckoutSessionId,
+}) {
+  if (!memberId || !stripeCheckoutSessionId || !Array.isArray(purchasedPasses)) {
+    return { repaired: false }
+  }
+  const { persistMultiClassPassPurchaseCharge } = await import(
+    '../scheduling/persistMultiClassPassCharges.js'
+  )
+  let repaired = 0
+  for (const purchased of purchasedPasses) {
+    const passId = Number(purchased?.passId)
+    const programsId = Number(purchased?.programsId)
+    const priceCents = Number(purchased?.packageDef?.priceCents)
+    if (
+      !Number.isSafeInteger(passId)
+      || passId <= 0
+      || !Number.isSafeInteger(programsId)
+      || programsId <= 0
+      || !Number.isSafeInteger(priceCents)
+      || priceCents < 0
+    ) {
+      throw new Error('Paid enrollment pass fulfillment is missing its exact durable purchase identity.')
+    }
+    const chargeId = await persistMultiClassPassPurchaseCharge(pool, {
+      memberId: Number(memberId),
+      passId,
+      programsId,
+      packageLabel: purchased.packageDef?.label ?? null,
+      priceCents,
+      programDisplayName: purchased.programDisplayName ?? null,
+      stripeCheckoutSessionId,
+    })
+    if (!chargeId) {
+      throw new Error(`Paid enrollment pass ${passId} could not be bound to its Checkout Session.`)
+    }
+    repaired += 1
+  }
+  return { repaired: repaired > 0, count: repaired }
 }
 
 export { getCatalogSyncStatus } from './stripeCatalogSync.js'

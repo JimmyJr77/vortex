@@ -7,6 +7,7 @@ import {
   buildHouseholdInvoiceApplicationPlan,
   createHouseholdMonthlyInvoice,
   createLocalHouseholdInvoice,
+  assertHouseholdPaymentBoundary,
   listHouseholdMonthlyInvoices,
   recordAndApplyHouseholdMonthlyInvoicePayment,
   stripeInvoiceIsPaid,
@@ -99,6 +100,10 @@ test('local household invoice persists canonical negative charge credits and the
       state.queries.push(text)
       if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) return { rows: [] }
       if (text === 'ROLLBACK') { state.rolledBack = true; return { rows: [] } }
+      if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
+      if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) return { rows: [] }
+      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
+      if (text.includes('FROM stripe_pending_enrollment pending') && text.includes('annual_membership_checkout_request')) return { rows: [] }
       if (text.includes('SELECT * FROM billing_monthly_invoice') && text.includes('billing_month = $2::date')) return { rows: [] }
       if (text.includes('SELECT charge.id, charge.member_id, charge.description') && text.includes('remaining_cents')) {
         return { rows: [
@@ -156,11 +161,158 @@ test('local household invoice persists canonical negative charge credits and the
   const creditSelection = state.queries.find((sql) => sql.includes('AS available_cents'))
   assert.match(chargeSelection, /billing_charge_credit_application/)
   assert.match(chargeSelection, /target_invoice_line_id/)
+  assert.match(chargeSelection, /offset_charge\.source_type = 'refund_offset'/)
+  assert.match(chargeSelection, /credit_source\.source_type = 'refund_offset'/)
   assert.match(creditSelection, /billing_charge_credit_application/)
   assert.match(creditSelection, /credit_invoice_line_id/)
+  assert.match(creditSelection, /charge\.source_type <> 'refund_offset'/)
   assert.match(creditSelection, /prior\.status IN \('draft', 'open', 'failed', 'payment_method_required'\)/)
   assert.doesNotMatch(creditSelection, /prior\.status IN \([^)]*'paid'/)
   assert.doesNotMatch(creditSelection, /prior\.status IN \([^)]*'void'/)
+})
+
+test('local household invoice blocks collection while paid Checkout cash is unresolved', async (t) => {
+  for (const marker of [
+    '[paid-checkout-fulfillment-pending:cs_pending]',
+    '[paid-checkout-refund-required:cs_refund]',
+  ]) {
+    await t.test(marker, async () => {
+      const calls = []
+      const client = {
+        async query(sql) {
+          const text = String(sql)
+          calls.push(text)
+          if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+            return { rows: [] }
+          }
+          if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
+          if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
+            return { rows: [{ id: 301, note: marker }] }
+          }
+          throw new Error(`Invoice collection continued past unresolved paid Checkout: ${text}`)
+        },
+      }
+
+      const result = await createLocalHouseholdInvoice(client, {
+        accountId: 8,
+        billingMonth: '2026-09-01',
+      })
+      assert.equal(result.blocked, 'paid_checkout_fulfillment_pending')
+      assert.equal(result.invoice, null)
+      assert.equal(calls.some((text) => (
+        text.includes('FROM billing_charge charge')
+        && text.includes('refund_offset.offset_cents')
+      )), false)
+      assert.equal(calls.at(-1), 'COMMIT')
+    })
+  }
+})
+
+test('local household invoice blocks collection while a Stripe refund awaits ledger reconciliation', async () => {
+  const calls = []
+  const client = {
+    async query(sql) {
+      const text = String(sql)
+      calls.push(text)
+      if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+        return { rows: [] }
+      }
+      if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
+      if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
+        return { rows: [] }
+      }
+      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
+        return { rows: [{ id: 401 }] }
+      }
+      throw new Error(`Invoice collection continued past unresolved Stripe refund: ${text}`)
+    },
+  }
+
+  const result = await createLocalHouseholdInvoice(client, {
+    accountId: 8,
+    billingMonth: '2026-09-01',
+  })
+
+  assert.equal(result.blocked, 'stripe_refund_reconciliation_required')
+  assert.equal(result.invoice, null)
+  assert.equal(calls.some((text) => text.includes('FROM billing_charge charge')), false)
+  assert.equal(calls.at(-1), 'COMMIT')
+})
+
+test('local household invoice blocks a completed Checkout owner with no exact payment', async (t) => {
+  for (const owner of [
+    { owner_kind: 'enrollment', owner_id: 71 },
+    { owner_kind: 'annual_membership', owner_id: 72 },
+  ]) {
+    await t.test(owner.owner_kind, async () => {
+      const calls = []
+      const client = {
+        async query(sql) {
+          const text = String(sql)
+          calls.push(text)
+          if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+            return { rows: [] }
+          }
+          if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
+          if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
+            return { rows: [] }
+          }
+          if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
+          if (text.includes('FROM stripe_pending_enrollment pending') && text.includes('annual_membership_checkout_request')) {
+            return { rows: [owner] }
+          }
+          throw new Error(`Invoice collection continued past unresolved Checkout owner: ${text}`)
+        },
+      }
+
+      const result = await createLocalHouseholdInvoice(client, {
+        accountId: 8,
+        billingMonth: '2026-09-01',
+      })
+      assert.equal(result.blocked, 'paid_checkout_owner_payment_gap')
+      assert.equal(result.blockedOwnerKind, owner.owner_kind)
+      assert.equal(result.blockedOwnerId, owner.owner_id)
+      assert.equal(result.invoice, null)
+      assert.equal(calls.some((text) => (
+        text.includes('FROM billing_charge charge')
+        && text.includes('refund_offset.offset_cents')
+      )), false)
+      const ownerGuard = calls.find((text) => text.includes('WITH completed_owner AS'))
+      assert.match(ownerGuard, /purchase_target_cents/)
+      assert.match(ownerGuard, /tagged_charge\.stripe_checkout_session_id = owner\.stripe_checkout_session_id/)
+      assert.match(ownerGuard, /application\.billing_payment_id = payment\.id/)
+      assert.match(ownerGuard, /application_kind = 'reversal'/)
+      assert.equal(calls.at(-1), 'COMMIT')
+    })
+  }
+})
+
+test('local household invoice blocks an active enrollment Checkout carrying account balance', async () => {
+  const calls = []
+  const client = {
+    async query(sql) {
+      const text = String(sql)
+      calls.push(text)
+      if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+        return { rows: [] }
+      }
+      if (text.includes('WITH active_enrollment_checkout AS')) {
+        return { rows: [{ owner_kind: 'enrollment', owner_id: 73 }] }
+      }
+      throw new Error(`Invoice collection continued past active enrollment Checkout: ${text}`)
+    },
+  }
+
+  const result = await createLocalHouseholdInvoice(client, {
+    accountId: 8,
+    billingMonth: '2026-09-01',
+  })
+
+  assert.equal(result.blocked, 'active_enrollment_checkout_balance_collector')
+  assert.equal(result.blockedOwnerId, 73)
+  assert.equal(result.invoice, null)
+  assert.equal(calls.some((text) => text.includes('FROM billing_charge charge')), false)
+  assert.equal(calls.at(-1), 'COMMIT')
 })
 
 function invoiceSettlementPool({
@@ -292,18 +444,51 @@ function invoiceSettlementPool({
   }
 }
 
+function paymentAuthority(overrides = {}) {
+  return {
+    id: 91,
+    billing_migration_run_id: 81,
+    family_billing_account_id: 8,
+    state: 'verified',
+    payer_validation_status: 'verified',
+    parity_status: 'matched',
+    target_collection_mode: 'household_monthly',
+    cutover_month: '2026-09-01',
+    parity_snapshot: {},
+    verified_at: new Date('2026-08-31T12:00:00.000Z'),
+    run_mode: 'apply',
+    run_status: 'completed',
+    migration_key: 'canonical-household-billing-v1',
+    code_version: 'test-release',
+    manifest_checksum: 'a'.repeat(64),
+    run_target_month: '2026-09-01',
+    run_configuration: { accountIds: [8] },
+    snapshot_hash: 'b'.repeat(64),
+    accepted_snapshot_hash: 'b'.repeat(64),
+    accepted_baseline_version: 1,
+    account_is_active: true,
+    account_household_enabled: true,
+    account_stripe_customer_id: 'cus_8',
+    account_facility_timezone: 'America/New_York',
+    ...overrides,
+  }
+}
+
 function resumePool({
   status = 'draft',
   stripeInvoiceId = 'in_42',
   stripePaymentIntentId = null,
   paymentAttemptedAt = null,
+  secondStripeInvoiceItemId = 'ii_102',
+  billingMonth = '2026-09-01',
 } = {}) {
   const invoice = {
     id: 42,
     family_billing_account_id: 8,
-    billing_month: '2026-09-01',
+    billing_month: billingMonth,
     status,
     subtotal_cents: 25000,
+    credit_cents: 0,
     total_cents: 25000,
     stripe_invoice_id: stripeInvoiceId,
     stripe_payment_intent_id: stripePaymentIntentId,
@@ -315,6 +500,7 @@ function resumePool({
       billing_monthly_invoice_id: 42,
       billing_charge_id: 501,
       member_id: 11,
+      line_type: 'charge',
       description: 'Tornadoes Monday',
       amount_cents: 12000,
       stripe_invoice_item_id: 'ii_101',
@@ -324,12 +510,14 @@ function resumePool({
       billing_monthly_invoice_id: 42,
       billing_charge_id: 502,
       member_id: 11,
+      line_type: 'charge',
       description: 'Tornadoes Wednesday',
       amount_cents: 13000,
-      stripe_invoice_item_id: null,
+      stripe_invoice_item_id: secondStripeInvoiceItemId,
     },
   ]
   const calls = []
+  const paymentApplications = []
   const pool = {
     invoice,
     lines,
@@ -344,9 +532,42 @@ function resumePool({
             family_id: 6,
             billing_email: 'payer@example.com',
             stripe_customer_id: 'cus_8',
+            stripe_customer_owner_count: 1,
             is_active: true,
           }],
         }
+      }
+      if (text.includes('household-paid:account')) {
+        return {
+          rows: [{
+            id: 8,
+            stripe_customer_id: 'cus_8',
+            stripe_customer_owner_count: 1,
+            is_active: true,
+          }],
+        }
+      }
+      if (text.includes('stripe-webhook:customer-owner')) {
+        return { rows: [{ id: 8 }] }
+      }
+      if (text.includes('billing_account_migration migration')) {
+        return { rows: [paymentAuthority()] }
+      }
+      if (text.includes('household-payment:invoice-structure')) {
+        return { rows: [{ ...invoice }] }
+      }
+      if (text.includes('household-payment:invoice-lines')) {
+        return { rows: lines.map((line) => ({ ...line })) }
+      }
+      if (text.includes('SELECT * FROM billing_monthly_invoice WHERE stripe_invoice_id')) {
+        return String(params[0]) === String(invoice.stripe_invoice_id)
+          ? { rows: [{ ...invoice }] }
+          : { rows: [] }
+      }
+      if (text.includes('SELECT * FROM billing_monthly_invoice WHERE id = $1 FOR UPDATE')) {
+        return Number(params[0]) === Number(invoice.id)
+          ? { rows: [{ ...invoice }] }
+          : { rows: [] }
       }
       if (
         text.includes('SELECT * FROM billing_monthly_invoice')
@@ -354,14 +575,49 @@ function resumePool({
       ) {
         return { rows: [{ ...invoice }] }
       }
-      if (text.includes('SELECT * FROM billing_monthly_invoice_line') && text.includes('ORDER BY id')) {
+      if (text.includes('FROM billing_monthly_invoice_line') && text.includes('ORDER BY id')) {
         return { rows: lines.map((line) => ({ ...line })) }
+      }
+      if (text.includes('FROM billing_payment_application') && text.includes('WHERE billing_payment_id = $1')) {
+        return { rows: paymentApplications.map((application) => ({ ...application })) }
+      }
+      if (text.includes('FROM billing_charge_credit_application application')) return { rows: [] }
+      if (text.includes('INSERT INTO billing_payment_application')) {
+        const key = params[3]
+        if (!paymentApplications.some((application) => application.idempotency_key === key)) {
+          paymentApplications.push({
+            id: 900 + paymentApplications.length,
+            billing_payment_id: params[0],
+            billing_charge_id: params[1],
+            amount_cents: params[2],
+            application_kind: 'application',
+            idempotency_key: key,
+            reverses_application_id: null,
+          })
+        }
+        return { rows: [] }
       }
       if (text.includes('UPDATE billing_monthly_invoice_line') && text.includes('stripe_invoice_item_id = $2')) {
         const line = lines.find((item) => item.id === Number(params[0]))
         if (!line || (line.stripe_invoice_item_id && line.stripe_invoice_item_id !== params[1])) return { rows: [] }
         line.stripe_invoice_item_id = params[1]
         return { rows: [{ ...line }] }
+      }
+      if (/INSERT INTO billing_payment\s*\(/.test(text)) {
+        return {
+          rows: [{
+            id: 801,
+            family_billing_account_id: 8,
+            amount_cents: Number(params[1]),
+            paid_at: params[2],
+            method: params[3],
+            external_processor: 'stripe',
+            external_status: 'settled',
+            stripe_customer_id: params[5],
+            stripe_payment_intent_id: params[6],
+            stripe_invoice_id: params[4],
+          }],
+        }
       }
       if (text.includes('UPDATE billing_monthly_invoice') && text.includes('RETURNING *')) {
         if (Number(params[0]) !== invoice.id) return { rows: [] }
@@ -388,16 +644,49 @@ function stripeFixture({
   paymentIntentStatus = 'requires_payment_method',
   collectionMethod = 'charge_automatically',
   hasPaymentMethod = true,
+  defaultPaymentMethod = undefined,
+  paidAt = 1_800_000_000,
 } = {}) {
   const calls = []
   const payRequests = []
+  const invoiceCreateRequests = []
+  let remoteExists = discoverOnly
+  const configuredPaymentMethod = defaultPaymentMethod === undefined
+    ? {
+        id: 'pm_8',
+        type: 'card',
+        customer: 'cus_8',
+        card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2030 },
+      }
+    : defaultPaymentMethod
   const remote = {
     id: 'in_42',
     customer: 'cus_8',
     status: remoteStatus,
+    paid: remoteStatus === 'paid',
     collection_method: collectionMethod,
+    auto_advance: false,
+    currency: 'usd',
+    subtotal: 25000,
+    total: 25000,
+    amount_due: 25000,
+    amount_paid: remoteStatus === 'paid' ? 25000 : 0,
+    amount_remaining: remoteStatus === 'paid' ? 0 : 25000,
+    amount_overpaid: 0,
+    starting_balance: 0,
+    pre_payment_credit_notes_amount: 0,
+    post_payment_credit_notes_amount: 0,
+    total_discount_amounts: [],
+    total_taxes: [],
+    total_pretax_credit_amounts: [],
+    discounts: [],
+    default_tax_rates: [],
+    shipping_cost: null,
+    automatic_tax: { enabled: false },
+    status_transitions: { paid_at: paidAt },
     hosted_invoice_url: 'https://stripe.test/in_42',
     metadata: {
+      householdMonthlyInvoice: 'true',
       monthlyInvoiceId: '42',
       familyBillingAccountId: '8',
       billingMonth: '2026-09',
@@ -407,39 +696,121 @@ function stripeFixture({
     {
       id: 'ii_101',
       amount: 12000,
-      metadata: { monthlyInvoiceId: '42', monthlyInvoiceLineId: '101' },
+      currency: 'usd',
+      customer: 'cus_8',
+      invoice: 'in_42',
+      metadata: {
+        monthlyInvoiceId: '42',
+        monthlyInvoiceLineId: '101',
+        billingChargeId: '501',
+        lineType: 'charge',
+      },
     },
     {
       id: 'ii_102',
       amount: 13000,
-      metadata: { monthlyInvoiceId: '42', monthlyInvoiceLineId: '102' },
+      currency: 'usd',
+      customer: 'cus_8',
+      invoice: 'in_42',
+      metadata: {
+        monthlyInvoiceId: '42',
+        monthlyInvoiceLineId: '102',
+        billingChargeId: '502',
+        lineType: 'charge',
+      },
     },
   ]
+  const invoiceLines = items.map((item) => ({
+    id: item.id.replace(/^ii_/, 'il_'),
+    amount: item.amount,
+    subtotal: item.amount,
+    currency: item.currency,
+    invoice: item.invoice,
+    metadata: { ...item.metadata },
+    parent: {
+      type: 'invoice_item_details',
+      invoice_item_details: { invoice_item: item.id },
+      subscription_item_details: null,
+    },
+    discount_amounts: [],
+    taxes: [],
+    pretax_credit_amounts: [],
+  }))
+  const invoicePayments = [{
+    id: 'inpay_42',
+    invoice: 'in_42',
+    is_default: true,
+    status: 'open',
+    amount_requested: 25000,
+    amount_paid: null,
+    currency: 'usd',
+    payment: { type: 'payment_intent', payment_intent: 'pi_42' },
+  }]
   const stripe = {
     calls,
     payRequests,
+    invoiceCreateRequests,
     customers: {
       async retrieve() {
         calls.push('customers.retrieve')
         return {
           id: 'cus_8',
           deleted: false,
-          invoice_settings: { default_payment_method: hasPaymentMethod ? { id: 'pm_8' } : null },
+          invoice_settings: {
+            default_payment_method: hasPaymentMethod ? structuredClone(configuredPaymentMethod) : null,
+          },
         }
       },
     },
-    paymentMethods: { async list() { calls.push('paymentMethods.list'); return { data: [] } } },
+    paymentMethods: {
+      async list() {
+        calls.push('paymentMethods.list')
+        return { data: [], has_more: false }
+      },
+    },
     paymentIntents: {
       async retrieve(id) {
         calls.push('paymentIntents.retrieve')
-        return { id, status: paymentIntentStatus }
+        return {
+          id,
+          status: remote.status === 'paid'
+            ? 'succeeded'
+            : (id === 'pi_42' ? 'requires_payment_method' : paymentIntentStatus),
+          customer: 'cus_8',
+          currency: 'usd',
+          amount: 25000,
+          amount_received: remote.status === 'paid' ? 25000 : 0,
+        }
       },
     },
+    invoicePayments: {
+      async list() {
+        calls.push('invoicePayments.list')
+        return {
+          data: invoicePayments.map((payment) => remote.status === 'paid'
+            ? { ...payment, status: 'paid', amount_paid: 25000 }
+            : { ...payment }),
+          has_more: false,
+        }
+      },
+    },
+    subscriptions: {
+      async list() { calls.push('subscriptions.list'); return { data: [], has_more: false } },
+    },
+    subscriptionSchedules: {
+      async list() { calls.push('subscriptionSchedules.list'); return { data: [], has_more: false } },
+    },
     invoices: {
-      async retrieve() { calls.push('invoices.retrieve'); return { ...remote } },
+      async retrieve() { calls.push('invoices.retrieve'); remoteExists = true; return { ...remote } },
       async search() { calls.push('invoices.search'); return { data: discoverOnly ? [{ ...remote }] : [], has_more: false } },
-      async list() { calls.push('invoices.list'); return { data: discoverOnly ? [{ ...remote }] : [], has_more: false } },
-      async create() { calls.push('invoices.create'); return { ...remote, status: 'draft' } },
+      async list() { calls.push('invoices.list'); return { data: remoteExists ? [{ ...remote }] : [], has_more: false } },
+      async listLineItems() { calls.push('invoices.listLineItems'); return { data: invoiceLines.map((line) => structuredClone(line)), has_more: false } },
+      async create(params) {
+        calls.push('invoices.create')
+        invoiceCreateRequests.push(structuredClone(params))
+        remoteExists = true
+        return { ...remote, status: 'draft' }
+      },
       async finalizeInvoice() { calls.push('invoices.finalize'); remote.status = 'open'; return { ...remote } },
       async pay(invoiceId, params, options) {
         calls.push('invoices.pay')
@@ -448,6 +819,7 @@ function stripeFixture({
           remote.status = 'paid'
           remote.paid = true
           remote.amount_paid = 25000
+          remote.amount_remaining = 0
           throw payErrorAfterRemotePaid
         }
         if (payError) throw payError
@@ -462,12 +834,294 @@ function stripeFixture({
   return stripe
 }
 
+function paymentBoundaryInput(stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })) {
+  return {
+    account: {
+      id: 8,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+    },
+    invoice: {
+      id: 42,
+      billing_month: '2026-09-01',
+    },
+    stripe,
+    stripeInvoiceId: 'in_42',
+    stripeCustomerId: 'cus_8',
+    billingMonth: '2026-09-01',
+    facilityTimeZone: 'America/New_York',
+    now: new Date('2026-09-01T04:00:00.000Z'),
+  }
+}
+
+test('household payment boundary accepts only a fully verified durable migration', async () => {
+  const pool = resumePool({ status: 'open' })
+  const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+  const result = await assertHouseholdPaymentBoundary(pool, paymentBoundaryInput(stripe))
+
+  assert.equal(result.migration.state, 'verified')
+  assert.equal(result.subscriptions.snapshot.liveSubscriptionCount, 0)
+  assert.equal(result.schedules.snapshot.liveScheduleCount, 0)
+  assert.equal(result.collectors.snapshot.collectorCount, 1)
+  assert.equal(stripe.calls.includes('invoices.list'), true)
+  assert.equal(pool.calls.some(({ sql }) => sql.includes('billing_account_migration migration')), true)
+  const authority = pool.calls.find(({ sql }) => sql.includes('billing_account_migration migration'))
+  assert.match(authority.sql, /invoice\.status = 'open'/)
+  assert.match(authority.sql, /migration\.state = 'verified'/)
+  assert.match(authority.sql, /migration\.lease_expires_at > now\(\)/)
+  assert.match(authority.sql, /account\.stripe_customer_id = \$5/)
+  assert.match(authority.sql, /customer_owner\.id <> account\.id/)
+  assert.doesNotMatch(authority.sql, /customer_owner\.is_active/)
+  assert.match(authority.sql, /run\.facility_timezone = facility\.timezone/)
+  assert.match(authority.sql, /accepted_account_snapshot ->> 'payerMemberId'/)
+  assert.match(authority.sql, /accepted_account_snapshot ->> 'stripeCustomerId' = account\.stripe_customer_id/)
+  assert.match(authority.sql, /boundary\.effective_month <=\s+date_trunc\('month', now\(\) AT TIME ZONE facility\.timezone\)::date/)
+  assert.match(authority.sql, /invoice\.billing_month <=\s+date_trunc\('month', now\(\) AT TIME ZONE facility\.timezone\)::date/)
+  assert.deepEqual(authority.params.slice(0, 7), [
+    8,
+    42,
+    '2026-09-01',
+    'in_42',
+    'cus_8',
+    'America/New_York',
+    false,
+  ])
+  assert.equal(authority.params[10], true)
+})
+
+test('a household invoice cannot be finalized or exposed before publication authority is exact', async () => {
+  const pool = resumePool()
+  const originalQuery = pool.query.bind(pool)
+  pool.query = async (sql, params = []) => {
+    if (String(sql).includes('billing_account_migration migration') && params[10] === false) {
+      return { rows: [] }
+    }
+    return originalQuery(sql, params)
+  }
+  const stripe = stripeFixture({ hasPaymentMethod: false })
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    /publication was blocked because verified canonical migration authority is missing, changed, or not yet effective/,
+  )
+
+  assert.equal(stripe.calls.includes('invoices.finalize'), false)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+  assert.equal(pool.invoice.status, 'draft')
+  assert.equal(pool.invoice.hosted_invoice_url, null)
+})
+
+test('household payment boundary blocks direct callers without verified migration evidence', async () => {
+  const pool = resumePool({ status: 'open' })
+  const originalQuery = pool.query.bind(pool)
+  pool.query = async (sql, params = []) => {
+    if (String(sql).includes('billing_account_migration migration')) return { rows: [] }
+    return originalQuery(sql, params)
+  }
+  const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(pool, paymentBoundaryInput(stripe)),
+    /verified canonical migration authority is missing or expired/,
+  )
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
+test('paid settlement records exact historical cash and alerts when current account authority drifted', async () => {
+  const scenarios = [
+    {
+      name: 'shared customer',
+      account: { id: 8, stripe_customer_id: 'cus_8', stripe_customer_owner_count: 2, is_active: true },
+    },
+    {
+      name: 'inactive account',
+      account: { id: 8, stripe_customer_id: 'cus_8', stripe_customer_owner_count: 1, is_active: false },
+    },
+    {
+      name: 'remapped customer',
+      account: { id: 8, stripe_customer_id: 'cus_replacement', stripe_customer_owner_count: 1, is_active: true },
+    },
+    { name: 'missing account', account: null },
+  ]
+
+  for (const scenario of scenarios) {
+    const pool = resumePool({ status: 'open' })
+    const originalQuery = pool.query.bind(pool)
+    pool.query = async (sql, params = []) => {
+      if (String(sql).includes('household-paid:account')) {
+        return { rows: scenario.account ? [{ ...scenario.account }] : [] }
+      }
+      return originalQuery(sql, params)
+    }
+
+    const result = await recordAndApplyHouseholdMonthlyInvoicePayment(pool, {
+      invoice: {
+        id: 'in_42',
+        status: 'paid',
+        customer: 'cus_stale_event',
+        amount_paid: 1,
+        status_transitions: { paid_at: 1 },
+      },
+      stripe: stripeFixture({ remoteStatus: 'paid' }),
+    })
+
+    assert.equal(result?.conflicted, false, scenario.name)
+    assert.equal(result?.payment?.family_billing_account_id, 8, scenario.name)
+    assert.equal(result?.payment?.stripe_customer_id, 'cus_8', scenario.name)
+    assert.equal(result?.payment?.paid_at?.toISOString(), '2027-01-15T08:00:00.000Z', scenario.name)
+    assert.equal(pool.invoice.status, 'paid', scenario.name)
+    assert.equal(pool.invoice.paid_at?.toISOString(), '2027-01-15T08:00:00.000Z', scenario.name)
+    assert.equal(
+      pool.calls.some(({ sql }) => sql.includes('INSERT INTO stripe_billing_alert')),
+      true,
+      scenario.name,
+    )
+    assert.equal(
+      pool.calls.some(({ sql }) => sql.includes('stripe-webhook:customer-owner')),
+      false,
+      scenario.name,
+    )
+  }
+})
+
+test('household payment boundary blocks any live Stripe subscription before checking authority', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ discoverOnly: true })
+  stripe.subscriptions.list = async () => ({
+    data: [{
+      id: 'sub_legacy',
+      status: 'active',
+      customer: 'cus_8',
+      metadata: { perClassSubscription: 'true', familyBillingAccountId: '8' },
+      items: { data: [] },
+    }],
+    has_more: false,
+  })
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(pool, paymentBoundaryInput(stripe)),
+    /another recurring or target-month collector/,
+  )
+  assert.equal(pool.calls.some(({ sql }) => sql.includes('billing_account_migration migration')), false)
+})
+
+test('household payment boundary samples schedules before subscriptions so a release cannot escape both inventories', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ discoverOnly: true })
+  let scheduleSampled = false
+  stripe.subscriptionSchedules.list = async () => {
+    stripe.calls.push('subscriptionSchedules.list')
+    scheduleSampled = true
+    return {
+      data: [{ id: 'sub_sched_released', status: 'released', customer: 'cus_8' }],
+      has_more: false,
+    }
+  }
+  stripe.subscriptions.list = async () => {
+    stripe.calls.push('subscriptions.list')
+    return {
+      data: scheduleSampled ? [{
+        id: 'sub_released_during_boundary',
+        status: 'active',
+        customer: 'cus_8',
+        metadata: { perClassSubscription: 'true', familyBillingAccountId: '8' },
+        items: { data: [] },
+      }] : [],
+      has_more: false,
+    }
+  }
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(pool, paymentBoundaryInput(stripe)),
+    /another recurring or target-month collector/,
+  )
+  assert.ok(
+    stripe.calls.indexOf('subscriptionSchedules.list') < stripe.calls.indexOf('subscriptions.list'),
+  )
+  assert.equal(pool.calls.some(({ sql }) => sql.includes('billing_account_migration migration')), false)
+})
+
+test('migration saga authority is exact, leased, and limited to its effective first collection month', async () => {
+  const pool = resumePool({ status: 'open' })
+  const originalQuery = pool.query.bind(pool)
+  pool.query = async (sql, params = []) => {
+    if (String(sql).includes('billing_account_migration migration')) {
+      const exactSaga = params[6] === true
+        && Number(params[7]) === 91
+        && Number(params[8]) === 81
+        && params[9] === 'migration-worker-1'
+      return { rows: exactSaga ? [paymentAuthority({
+        state: 'household_active',
+        verified_at: null,
+        run_status: 'running',
+        lease_owner: 'migration-worker-1',
+        lease_expires_at: new Date('2026-09-01T05:00:00.000Z'),
+      })] : [] }
+    }
+    return originalQuery(sql, params)
+  }
+  const input = paymentBoundaryInput(stripeFixture({ discoverOnly: true, remoteStatus: 'open' }))
+  input.migrationAuthorization = {
+    migrationId: 91,
+    runId: 81,
+    leaseOwner: 'migration-worker-1',
+    effectiveCollectionMonth: '2026-09-01',
+  }
+
+  const result = await assertHouseholdPaymentBoundary(pool, input)
+  assert.equal(result.migration.state, 'household_active')
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(pool, {
+      ...input,
+      migrationAuthorization: { ...input.migrationAuthorization, leaseOwner: 'different-worker' },
+    }),
+    /verified canonical migration authority is missing or expired/,
+  )
+})
+
 test('household invoices use the facility month rather than the UTC month', () => {
   assert.equal(billingMonthStart(new Date('2026-10-01T00:00:00.000Z'), 'America/New_York'), '2026-09-01')
   assert.equal(billingMonthStart(new Date('2026-10-01T04:00:00.000Z'), 'America/New_York'), '2026-10-01')
   assert.equal(billingMonthStart(new Date('2026-09-30T11:00:00.000Z'), 'Pacific/Kiritimati'), '2026-10-01')
   assert.equal(billingMonthStart('2026-10-01', 'America/New_York'), '2026-10-01')
   assert.throws(() => billingMonthStart(new Date(), null), /valid facility timezone/)
+})
+
+test('Stripe invoice metadata normalizes PostgreSQL Date billing months', async () => {
+  const pool = resumePool({
+    stripeInvoiceId: null,
+    billingMonth: new Date('2026-09-01T00:00:00.000Z'),
+  })
+  const stripe = stripeFixture()
+
+  await createHouseholdMonthlyInvoice(pool, {
+    account: {
+      id: 8,
+      family_id: 6,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true,
+    },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  })
+
+  assert.equal(stripe.invoiceCreateRequests.length, 1)
+  assert.equal(stripe.invoiceCreateRequests[0].metadata.billingMonth, '2026-09')
+  assert.match(stripe.invoiceCreateRequests[0].description, /2026-09$/)
 })
 
 test('household payment preparation precedes BEGIN and a crash barrier rolls back its local insert', async () => {
@@ -977,8 +1631,8 @@ test('bulk household activation reports migration-managed accounts without enabl
   assert.equal(updated, false)
 })
 
-test('an unknown Stripe payment outcome resumes with the same durable idempotency key', async () => {
-  const pool = resumePool()
+test('an unknown Stripe payment outcome blocks method drift under the prior idempotency key', async () => {
+  const pool = resumePool({ secondStripeInvoiceItemId: null })
   const stripe = stripeFixture({ payError: new Error('request outcome unknown') })
   const options = {
     account: {
@@ -1001,13 +1655,61 @@ test('an unknown Stripe payment outcome resumes with the same durable idempotenc
   assert.equal(stripe.calls.filter((call) => call === 'invoiceItems.create').length, 0)
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
   assert.equal(pool.invoice.status, 'failed')
+  assert.equal(pool.invoice.hosted_invoice_url, null)
   assert.ok(pool.invoice.payment_attempted_at instanceof Date)
 
-  const second = await createHouseholdMonthlyInvoice(pool, options)
-  assert.equal(second.resumed, true)
-  assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 2)
+  stripe.customers.retrieve = async () => ({
+    id: 'cus_8',
+    deleted: false,
+    invoice_settings: {
+      default_payment_method: {
+        id: 'pm_changed_after_unknown_outcome',
+        type: 'card',
+        customer: 'cus_8',
+        card: { brand: 'visa', last4: '1881', exp_month: 12, exp_year: 2030 },
+      },
+    },
+  })
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, options),
+    /unknown Stripe payment outcome; manual reconciliation is required before retry/,
+  )
+  assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
   assert.match(stripe.payRequests[0].options.idempotencyKey, /^household-monthly-invoice:42:pay:\d+$/)
-  assert.equal(stripe.payRequests[1].options.idempotencyKey, stripe.payRequests[0].options.idempotencyKey)
+  assert.equal(stripe.payRequests.length, 1)
+})
+
+test('an open reserved attempt with no durable PaymentIntent is treated as an unknown outcome', async () => {
+  const attemptedAt = new Date('2026-09-01T12:00:00.000Z')
+  const pool = resumePool({ status: 'open', paymentAttemptedAt: attemptedAt })
+  const stripe = stripeFixture({
+    remoteStatus: 'open',
+    defaultPaymentMethod: {
+      id: 'pm_changed_after_worker_crash',
+      type: 'card',
+      customer: 'cus_8',
+      card: { brand: 'visa', last4: '1881', exp_month: 12, exp_year: 2030 },
+    },
+  })
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    /unknown Stripe payment outcome; manual reconciliation is required before retry/,
+  )
+
+  assert.equal(pool.invoice.payment_attempted_at, attemptedAt)
+  assert.equal(stripe.payRequests.length, 0)
 })
 
 test('a finalized payment-method-required invoice is paid after a card is added', async () => {
@@ -1036,6 +1738,468 @@ test('a finalized payment-method-required invoice is paid after a card is added'
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
   assert.equal(stripe.payRequests[0].params.payment_method, 'pm_8')
   assert.equal(pool.invoice.status, 'failed')
+})
+
+test('a customer-owned Link PaymentMethod is used for an off-session household invoice', async () => {
+  const pool = resumePool({ status: 'payment_method_required' })
+  const stripe = stripeFixture({
+    remoteStatus: 'open',
+    collectionMethod: 'send_invoice',
+    defaultPaymentMethod: {
+      id: 'pm_link',
+      type: 'link',
+      customer: 'cus_8',
+      link: { email: null },
+    },
+    payError: new Error('declined after the resumed Link payment attempt'),
+  })
+
+  const result = await createHouseholdMonthlyInvoice(pool, {
+    account: {
+      id: 8,
+      family_id: 6,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true,
+    },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  })
+
+  assert.equal(result.resumed, true)
+  assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
+  assert.equal(stripe.payRequests[0].params.payment_method, 'pm_link')
+})
+
+test('the final payment boundary blocks amount or currency drift before Stripe collection', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ remoteStatus: 'draft' })
+  const retrieve = stripe.invoices.retrieve.bind(stripe.invoices)
+  stripe.invoices.retrieve = async (...args) => ({
+    ...(await retrieve(...args)),
+    amount_due: 24999,
+    currency: 'eur',
+  })
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_invoice_publication_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_amount_mismatch')
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_currency_mismatch')
+    ),
+  )
+
+  assert.equal(stripe.calls.includes('invoices.finalize'), true)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
+test('a finalized invoice is verified before a no-method hosted payment link is exposed', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ hasPaymentMethod: false })
+  const retrieve = stripe.invoices.retrieve.bind(stripe.invoices)
+  stripe.invoices.retrieve = async (...args) => {
+    const invoice = await retrieve(...args)
+    return invoice.status === 'open' ? { ...invoice, currency: 'eur' } : invoice
+  }
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_invoice_publication_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_currency_mismatch')
+    ),
+  )
+
+  assert.equal(pool.invoice.hosted_invoice_url, null)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
+test('the final boundary uses authoritative invoice lines and current adjustment fields', async () => {
+  const adjustmentPool = resumePool({ status: 'open' })
+  const adjustmentStripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+  const retrieve = adjustmentStripe.invoices.retrieve.bind(adjustmentStripe.invoices)
+  adjustmentStripe.invoices.retrieve = async (...args) => ({
+    ...(await retrieve(...args)),
+    total_taxes: [{ amount: 0, tax_behavior: 'inclusive', type: 'tax_rate_details' }],
+    total_pretax_credit_amounts: [{ amount: 0, type: 'credit_balance_transaction' }],
+  })
+  const listAdjustedLines = adjustmentStripe.invoices.listLineItems.bind(adjustmentStripe.invoices)
+  adjustmentStripe.invoices.listLineItems = async (...args) => {
+    const page = await listAdjustedLines(...args)
+    page.data[0].taxes = [{ amount: 0, tax_behavior: 'inclusive', type: 'tax_rate_details' }]
+    page.data[0].pretax_credit_amounts = [{ amount: 0, type: 'credit_balance_transaction' }]
+    return page
+  }
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(adjustmentPool, paymentBoundaryInput(adjustmentStripe)),
+    (error) => (
+      error?.code === 'household_payment_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_unexpected_adjustment')
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_line_mismatch')
+    ),
+  )
+
+  const parentPool = resumePool({ status: 'open' })
+  const parentStripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+  const listLines = parentStripe.invoices.listLineItems.bind(parentStripe.invoices)
+  parentStripe.invoices.listLineItems = async (...args) => {
+    const page = await listLines(...args)
+    page.data[0].parent = {
+      type: 'subscription_item_details',
+      invoice_item_details: null,
+      subscription_item_details: { subscription: 'sub_unexpected' },
+    }
+    return page
+  }
+
+  await assert.rejects(
+    assertHouseholdPaymentBoundary(parentPool, paymentBoundaryInput(parentStripe)),
+    (error) => (
+      error?.code === 'household_payment_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_line_parent_mismatch')
+    ),
+  )
+  assert.equal(parentStripe.calls.includes('invoiceItems.list'), false)
+  assert.equal(parentStripe.calls.includes('invoices.listLineItems'), true)
+})
+
+test('the final boundary fully paginates the authoritative invoice line list', async () => {
+  const pool = resumePool({ status: 'open' })
+  const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+  const completePage = await stripe.invoices.listLineItems()
+  stripe.calls.length = 0
+  stripe.invoices.listLineItems = async (_invoiceId, params = {}) => {
+    stripe.calls.push('invoices.listLineItems')
+    if (!params.starting_after) {
+      return { data: [completePage.data[0]], has_more: true }
+    }
+    return { data: [completePage.data[1]], has_more: false }
+  }
+
+  const result = await assertHouseholdPaymentBoundary(pool, paymentBoundaryInput(stripe))
+
+  assert.equal(result.payableInvoice.verified, true)
+  // Collector inventory and the final structure proof each consume both pages.
+  assert.equal(stripe.calls.filter((call) => call === 'invoices.listLineItems').length, 4)
+})
+
+test('the final boundary fully paginates Invoice Payments and blocks an extra collector', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ remoteStatus: 'draft' })
+  const safePage = await stripe.invoicePayments.list()
+  stripe.calls.length = 0
+  stripe.invoicePayments.list = async (params = {}) => {
+    stripe.calls.push('invoicePayments.list')
+    if (!params.starting_after) {
+      return { data: safePage.data, has_more: true }
+    }
+    return {
+      data: [{
+        id: 'inpay_external',
+        invoice: 'in_42',
+        is_default: false,
+        status: 'open',
+        amount_requested: 25000,
+        amount_paid: null,
+        currency: 'usd',
+        payment: { type: 'payment_intent', payment_intent: 'pi_external' },
+      }],
+      has_more: false,
+    }
+  }
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_invoice_publication_invoice_mismatch'
+      && error.details.issues.some((issue) => (
+        issue.code === 'remote_invoice_payment_count_mismatch' && issue.count === 2
+      ))
+    ),
+  )
+
+  assert.equal(stripe.calls.filter((call) => call === 'invoicePayments.list').length, 2)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+  assert.equal(pool.invoice.hosted_invoice_url, null)
+})
+
+test('a last-moment Invoice Payment inventory race blocks collection', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ remoteStatus: 'draft' })
+  const listInvoicePayments = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+  let inventoryReads = 0
+  stripe.invoicePayments.list = async (...args) => {
+    inventoryReads += 1
+    const page = await listInvoicePayments(...args)
+    if (inventoryReads === 3) {
+      page.data.push({
+        id: 'inpay_racing_collector',
+        invoice: 'in_42',
+        is_default: false,
+        status: 'open',
+        amount_requested: 25000,
+        amount_paid: null,
+        currency: 'usd',
+        payment: { type: 'payment_intent', payment_intent: 'pi_racing_collector' },
+      })
+    }
+    return page
+  }
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_payment_binding_mismatch'
+      && error.details.issues.some((issue) => (
+        issue.code === 'remote_invoice_payment_count_mismatch' && issue.count === 2
+      ))
+    ),
+  )
+
+  assert.equal(inventoryReads, 3)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+  assert.equal(pool.invoice.hosted_invoice_url, null)
+})
+
+test('paid settlement rejects a paid binding plus any extra open binding', async () => {
+  const pool = resumePool({ status: 'failed' })
+  const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'paid' })
+  const listInvoicePayments = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+  stripe.invoicePayments.list = async (...args) => {
+    const page = await listInvoicePayments(...args)
+    page.data.push({
+      id: 'inpay_extra_open',
+      invoice: 'in_42',
+      is_default: false,
+      status: 'open',
+      amount_requested: 25000,
+      amount_paid: null,
+      currency: 'usd',
+      payment: { type: 'payment_intent', payment_intent: 'pi_extra_open' },
+    })
+    return page
+  }
+
+  await assert.rejects(
+    recordAndApplyHouseholdMonthlyInvoicePayment(pool, {
+      invoice: {
+        id: 'in_42',
+        status: 'paid',
+        paid: true,
+        amount_paid: 25000,
+        currency: 'usd',
+        customer: 'cus_8',
+      },
+      stripe,
+    }),
+    (error) => (
+      error?.code === 'household_paid_invoice_mismatch'
+      && error.details.issues.some((issue) => (
+        issue.code === 'remote_invoice_payment_count_mismatch' && issue.count === 2
+      ))
+    ),
+  )
+
+  assert.equal(pool.calls.some(({ sql }) => /INSERT INTO billing_payment\s*\(/.test(sql)), false)
+})
+
+test('a remote default Invoice Payment must match the durable retry PaymentIntent', async () => {
+  const pool = resumePool({
+    status: 'open',
+    stripePaymentIntentId: 'pi_expected_retry',
+    paymentAttemptedAt: new Date('2026-09-01T12:00:00.000Z'),
+  })
+  const stripe = stripeFixture({ remoteStatus: 'open' })
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_invoice_publication_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_default_payment_mismatch')
+    ),
+  )
+
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
+test('a non-paid automatic attempt never exposes a competing hosted payment page', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture()
+  stripe.invoices.pay = async () => {
+    stripe.calls.push('invoices.pay')
+    return {
+      id: 'in_42',
+      customer: 'cus_8',
+      status: 'open',
+      paid: false,
+      payment_intent: 'pi_processing_after_pay',
+      hosted_invoice_url: 'https://stripe.test/in_42',
+    }
+  }
+
+  const result = await createHouseholdMonthlyInvoice(pool, {
+    account: {
+      id: 8,
+      family_id: 6,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true,
+    },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  })
+
+  assert.equal(result.invoice.status, 'failed')
+  assert.equal(result.invoice.stripe_payment_intent_id, 'pi_processing_after_pay')
+  assert.equal(result.invoice.hosted_invoice_url, null)
+})
+
+test('the irreversible payment boundary reselects and uses only the current default method', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ payError: new Error('declined after fresh-method selection') })
+  let customerReads = 0
+  stripe.customers.retrieve = async () => {
+    stripe.calls.push('customers.retrieve')
+    customerReads += 1
+    const paymentMethodId = customerReads < 3 ? 'pm_old' : 'pm_current'
+    return {
+      id: 'cus_8',
+      deleted: false,
+      invoice_settings: {
+        default_payment_method: {
+          id: paymentMethodId,
+          type: 'card',
+          customer: 'cus_8',
+          card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2030 },
+        },
+      },
+    }
+  }
+
+  await createHouseholdMonthlyInvoice(pool, {
+    account: {
+      id: 8,
+      family_id: 6,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true,
+    },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  })
+
+  assert.equal(customerReads, 3)
+  assert.equal(stripe.payRequests.length, 1)
+  assert.equal(stripe.payRequests[0].params.payment_method, 'pm_current')
+})
+
+test('household invoice payment selection fails closed for expired, foreign, and unsupported defaults', async () => {
+  const invalidMethods = [
+    {
+      id: 'pm_expired',
+      type: 'card',
+      customer: 'cus_8',
+      card: { brand: 'visa', last4: '4242', exp_month: 8, exp_year: 2026 },
+    },
+    {
+      id: 'pm_foreign',
+      type: 'card',
+      customer: 'cus_other',
+      card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2030 },
+    },
+    {
+      id: 'pm_bank',
+      type: 'us_bank_account',
+      customer: 'cus_8',
+      us_bank_account: { last4: '6789' },
+    },
+  ]
+
+  for (const defaultPaymentMethod of invalidMethods) {
+    const pool = resumePool({ status: 'payment_method_required' })
+    const stripe = stripeFixture({
+      remoteStatus: 'open',
+      collectionMethod: 'send_invoice',
+      defaultPaymentMethod,
+    })
+    const result = await createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    })
+
+    assert.equal(result.invoice.status, 'payment_method_required')
+    assert.equal(result.invoice.hosted_invoice_url, 'https://stripe.test/in_42')
+    assert.equal(result.invoice.payment_attempted_at, null)
+    assert.equal(stripe.calls.includes('invoices.pay'), false)
+  }
 })
 
 test('an interrupted response after Stripe payment is reconciled without a second collection', async () => {
@@ -1116,6 +2280,62 @@ test('a pre-payment failure resumes an already-open remote invoice without refin
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
 })
 
+test('a one-time final payment gate failure leaves no attempt marker and safely reaches pay on retry', async () => {
+  for (const failureMode of ['authority', 'binding']) {
+    const pool = resumePool()
+    const stripe = stripeFixture()
+    const originalQuery = pool.query.bind(pool)
+    const originalInvoicePaymentList = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+    let paymentAuthorityPassed = false
+    let failureInjected = false
+    pool.query = async (sql, params = []) => {
+      if (String(sql).includes('billing_account_migration migration') && params[10] === true) {
+        if (failureMode === 'authority' && !failureInjected) {
+          failureInjected = true
+          return { rows: [] }
+        }
+        paymentAuthorityPassed = true
+      }
+      return originalQuery(sql, params)
+    }
+    stripe.invoicePayments.list = async (...args) => {
+      if (failureMode === 'binding' && paymentAuthorityPassed && !failureInjected) {
+        failureInjected = true
+        return { data: [], has_more: false }
+      }
+      return originalInvoicePaymentList(...args)
+    }
+    const options = {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }
+
+    await assert.rejects(
+      createHouseholdMonthlyInvoice(pool, options),
+      (error) => error?.code === (
+        failureMode === 'authority'
+          ? 'household_payment_canonical_authority_missing'
+          : 'household_payment_binding_mismatch'
+      ),
+    )
+    assert.equal(failureInjected, true)
+    assert.equal(pool.invoice.payment_attempted_at, null)
+    assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 0)
+
+    await createHouseholdMonthlyInvoice(pool, options)
+    assert.ok(pool.invoice.payment_attempted_at instanceof Date)
+    assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
+  }
+})
+
 test('a confirmed failed payment advances to a new attempt generation on retry', async () => {
   const pool = resumePool({ status: 'open' })
   const stripe = stripeFixture({ remoteStatus: 'open' })
@@ -1153,6 +2373,12 @@ test('a nonterminal payment intent stops retry before another collection attempt
     paymentAttemptedAt: attemptedAt,
   })
   const stripe = stripeFixture({ remoteStatus: 'open', paymentIntentStatus: 'processing' })
+  const listInvoicePayments = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+  stripe.invoicePayments.list = async (...args) => {
+    const page = await listInvoicePayments(...args)
+    page.data[0].payment.payment_intent = 'pi_processing'
+    return page
+  }
 
   await assert.rejects(
     createHouseholdMonthlyInvoice(pool, {
@@ -1167,8 +2393,62 @@ test('a nonterminal payment intent stops retry before another collection attempt
       environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
       stripeClient: stripe,
     }),
-    /processing; household invoice retry stopped to prevent duplicate collection/,
+    (error) => (
+      error?.code === 'household_invoice_publication_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_default_payment_intent_mismatch')
+    ),
   )
+  assert.equal(pool.invoice.payment_attempted_at, attemptedAt)
+  assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 0)
+})
+
+test('a canceled prior PaymentIntent cannot advance a retry generation', async () => {
+  const attemptedAt = new Date('2026-09-01T12:00:00.000Z')
+  const pool = resumePool({
+    status: 'failed',
+    stripePaymentIntentId: 'pi_canceled',
+    paymentAttemptedAt: attemptedAt,
+  })
+  const stripe = stripeFixture({ remoteStatus: 'open' })
+  const listInvoicePayments = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+  stripe.invoicePayments.list = async (...args) => {
+    const page = await listInvoicePayments(...args)
+    page.data[0].payment.payment_intent = 'pi_canceled'
+    return page
+  }
+  let intentReads = 0
+  stripe.paymentIntents.retrieve = async (id) => {
+    intentReads += 1
+    return {
+      id,
+      status: intentReads === 1 ? 'requires_payment_method' : 'canceled',
+      customer: 'cus_8',
+      currency: 'usd',
+      amount: 25000,
+      amount_received: 0,
+    }
+  }
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    (error) => (
+      error?.code === 'household_payment_invoice_mismatch'
+      && error.details.issues.some((issue) => issue.code === 'remote_invoice_default_payment_intent_mismatch')
+    ),
+  )
+
+  assert.equal(intentReads, 2)
   assert.equal(pool.invoice.payment_attempted_at, attemptedAt)
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 0)
 })
@@ -1376,6 +2656,7 @@ test('roll-forward reallocates a manual payment before rebuilding the next month
         return {
           id,
           status: 'open',
+          customer: 'cus_8',
           metadata: {
             monthlyInvoiceId: String(priorInvoice.id),
             familyBillingAccountId: String(priorInvoice.family_billing_account_id),
@@ -1386,6 +2667,35 @@ test('roll-forward reallocates a manual payment before rebuilding the next month
       async voidInvoice(id) {
         events.push(`stripe-void:${id}:${sessionLocked}`)
         return { id, status: 'void' }
+      },
+    },
+    invoicePayments: {
+      async list() {
+        return {
+          data: [{
+            id: 'inpay_august',
+            invoice: 'in_august',
+            is_default: true,
+            status: 'open',
+            amount_requested: 10000,
+            amount_paid: null,
+            currency: 'usd',
+            payment: { type: 'payment_intent', payment_intent: 'pi_august' },
+          }],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve(id) {
+        return {
+          id,
+          status: 'requires_payment_method',
+          customer: 'cus_8',
+          currency: 'usd',
+          amount: 10000,
+          amount_received: 0,
+        }
       },
     },
   }
@@ -1413,6 +2723,101 @@ test('roll-forward reallocates a manual payment before rebuilding the next month
   assert.ok(events.indexOf('stripe-void:in_august:true') < events.indexOf('payment-applied:10000:true'))
   assert.ok(events.indexOf('payment-applied:10000:true') < events.indexOf('replacement-read:0:true'))
   assert.equal(sessionLocked, false)
+})
+
+test('roll-forward cannot void an open invoice with a processing Invoice Payment', async () => {
+  const priorInvoice = {
+    id: 51,
+    family_billing_account_id: 8,
+    billing_month: '2026-08-01',
+    status: 'open',
+    subtotal_cents: 10000,
+    credit_cents: 0,
+    total_cents: 10000,
+    stripe_invoice_id: 'in_open_august',
+  }
+  const pool = {
+    async connect() {
+      return { query: (sql, params) => pool.query(sql, params), release() {} }
+    },
+    async query(sql) {
+      const text = String(sql)
+      if (text.includes('pg_advisory_lock') || text.includes('pg_advisory_unlock')) return { rows: [] }
+      if (text === 'BEGIN' || text === 'COMMIT' || text === 'ROLLBACK') return { rows: [] }
+      if (text.includes('SELECT id, amount_cents, paid_at') && text.includes('FROM billing_payment')) return { rows: [] }
+      if (text.includes('billing_month < $2::date') && text.includes('FROM billing_monthly_invoice')) {
+        return { rows: [{ ...priorInvoice }] }
+      }
+      return { rows: [] }
+    },
+  }
+  let voidCalls = 0
+  const stripe = {
+    invoices: {
+      async retrieve(id) {
+        return {
+          id,
+          status: 'open',
+          customer: 'cus_8',
+          metadata: {
+            monthlyInvoiceId: '51',
+            familyBillingAccountId: '8',
+            billingMonth: '2026-08',
+          },
+        }
+      },
+      async voidInvoice() {
+        voidCalls += 1
+        return { id: 'in_open_august', status: 'void' }
+      },
+    },
+    invoicePayments: {
+      async list() {
+        return {
+          data: [{
+            id: 'inpay_processing',
+            invoice: 'in_open_august',
+            is_default: true,
+            status: 'open',
+            amount_requested: 10000,
+            amount_paid: null,
+            currency: 'usd',
+            payment: { type: 'payment_intent', payment_intent: 'pi_processing' },
+          }],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve(id) {
+        return {
+          id,
+          status: 'processing',
+          customer: 'cus_8',
+          currency: 'usd',
+          amount: 10000,
+          amount_received: 0,
+        }
+      },
+    },
+  }
+
+  await assert.rejects(
+    createHouseholdMonthlyInvoice(pool, {
+      account: {
+        id: 8,
+        family_id: 6,
+        stripe_customer_id: 'cus_8',
+        facility_timezone: 'America/New_York',
+        household_monthly_billing_enabled: true,
+      },
+      billingMonth: '2026-09-01',
+      environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+      stripeClient: stripe,
+    }),
+    /unsafe Invoice Payment inventory.*remote_invoice_default_payment_intent_mismatch/,
+  )
+  assert.equal(voidCalls, 0)
 })
 
 test('roll-forward deletes a crashed draft Stripe invoice instead of trying to void it', async () => {

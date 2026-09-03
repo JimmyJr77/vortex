@@ -123,8 +123,7 @@ async function loadAccountFoundation(db, accountId) {
             (SELECT COUNT(*)::int
                FROM family_billing_account owner
               WHERE account.stripe_customer_id IS NOT NULL
-                AND owner.stripe_customer_id = account.stripe_customer_id
-                AND owner.is_active = TRUE) AS stripe_customer_active_account_count,
+                AND owner.stripe_customer_id = account.stripe_customer_id) AS stripe_customer_account_count,
             family_facilities.facility_ids,
             COALESCE(cardinality(family_facilities.facility_ids), 0)::int AS family_facility_count,
             COALESCE(family_facilities.active_member_count, 0)::int AS family_active_member_count,
@@ -509,14 +508,19 @@ export function payerExceptions(account, { runFacilityId = null } = {}) {
       { details: { source: configuredBillingEmail ? 'billing_account' : 'payer' } },
     ))
   }
-  if (account.stripe_customer_id && Number(account.stripe_customer_active_account_count ?? 0) > 1) {
+  const stripeCustomerAccountCount = Number(
+    account.stripe_customer_account_count
+      ?? account.stripe_customer_active_account_count
+      ?? 0,
+  )
+  if (account.stripe_customer_id && stripeCustomerAccountCount !== 1) {
     issues.push(exception(
       'stripe_customer_shared_between_accounts',
-      'The Stripe customer is linked to more than one active family billing account.',
+      'The Stripe customer must be linked to exactly one local family billing account, including inactive accounts.',
       {
         details: {
           stripeCustomerId: account.stripe_customer_id,
-          activeAccountCount: Number(account.stripe_customer_active_account_count ?? 0),
+          accountCount: stripeCustomerAccountCount,
         },
       },
     ))
@@ -1495,6 +1499,21 @@ export async function auditCanonicalBillingAccount(db, {
           details: inventoryIssue,
         }))
       }
+      for (const subscription of customerSubscriptionInventory.snapshot.subscriptions ?? []) {
+        if (subscription.classification !== 'annual_membership') continue
+        issues.push(exception(
+          'stripe_customer_annual_collector_active',
+          `Annual Stripe subscription ${subscription.id} must be retired before household collection can be enabled.`,
+          {
+            sourceId: subscription.id,
+            details: {
+              stripeSubscriptionId: subscription.id,
+              status: subscription.status,
+              localSubscriptionId: subscription.localSubscriptionId,
+            },
+          },
+        ))
+      }
     } catch (error) {
       issues.push(exception(
         error.code ?? 'stripe_customer_subscription_inventory_failed',
@@ -1513,7 +1532,10 @@ export async function auditCanonicalBillingAccount(db, {
       issues.push(exception('stripe_unavailable', 'Stripe is required to audit legacy collection subscriptions.'))
     } else {
       try {
-        customerReadiness = await retrieveStripeCustomerReadiness(stripe, account.stripe_customer_id)
+        customerReadiness = await retrieveStripeCustomerReadiness(stripe, account.stripe_customer_id, {
+          billingMonth: targetMonth,
+          expectedAccountId: account.id,
+        })
         if (!customerReadiness.ready) {
           issues.push(exception(customerReadiness.reason, 'A reusable Stripe payment method is required before household cutover.'))
         }
@@ -1663,7 +1685,11 @@ export async function auditCanonicalBillingAccount(db, {
     facilityTimezone: timezone,
     payerMemberId: account.payer_member_id == null ? null : Number(account.payer_member_id),
     stripeCustomerId: account.stripe_customer_id ?? null,
-    stripeCustomerActiveAccountCount: Number(account.stripe_customer_active_account_count ?? 0),
+    stripeCustomerAccountCount: Number(
+      account.stripe_customer_account_count
+        ?? account.stripe_customer_active_account_count
+        ?? 0,
+    ),
     billingContactEmailValid: !issues.some((item) => item.code.startsWith('billing_contact_')),
     billingPhonePresent: Boolean(String(account.billing_phone ?? '').trim()),
     householdMonthlyBillingEnabled: account.household_monthly_billing_enabled === true,

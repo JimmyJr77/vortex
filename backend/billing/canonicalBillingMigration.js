@@ -42,6 +42,7 @@ import {
   BillingMigrationSafetyError,
   clearStripeSubscriptionCutover,
   inspectStripeCustomerBillingMonthCollectors,
+  inspectStripeCustomerSubscriptionInventory,
   inspectStripeCustomerSubscriptionScheduleInventory,
   inspectStripeHouseholdInvoice,
   listTargetMonthLegacyInvoices,
@@ -116,14 +117,21 @@ function requireHouseholdOnlyClassSubscriptionCreation(environment, operation) {
 
 function legacyStripeSnapshotIsComplete(snapshot, subscriptions) {
   const customerId = snapshot?.customer?.customerId
-  const inventoryIds = new Set(
-    (snapshot?.customerSubscriptionInventory?.subscriptions ?? [])
-      .map((subscription) => String(subscription?.id ?? ''))
-      .filter(Boolean),
+  const expectedIds = new Set(
+    subscriptions.map((subscription) => String(subscription?.id ?? '')).filter(Boolean),
   )
+  const inventory = snapshot?.customerSubscriptionInventory?.subscriptions ?? []
+  const inventoryIds = new Set(inventory
+    .map((subscription) => String(subscription?.id ?? ''))
+    .filter(Boolean))
   return Boolean(customerId)
     && snapshot?.customer?.hasDefaultPaymentMethod === true
     && subscriptions.length > 0
+    && inventory.length === expectedIds.size
+    && inventory.every((subscription) => (
+      subscription?.classification !== 'annual_membership'
+      && expectedIds.has(String(subscription?.id ?? ''))
+    ))
     && subscriptions.every((subscription) => (
       Boolean(subscription?.id)
       && String(subscription.customerId ?? '') === String(customerId)
@@ -153,6 +161,10 @@ export function canonicalAuditCutoverGateFailures(audit) {
     failures.push('parity_not_matched')
   }
   if (audit?.payerValidationStatus !== 'verified') failures.push('payer_not_verified')
+  if ((audit?.initialStripeSnapshot?.customerSubscriptionInventory?.subscriptions ?? [])
+    .some((subscription) => subscription?.classification === 'annual_membership')) {
+    failures.push('active_annual_stripe_collector_present')
+  }
   if (!legacyStripeCutoverEvidenceIsComplete(audit)) failures.push('stripe_evidence_not_verified')
   return failures
 }
@@ -166,10 +178,12 @@ export function storedMigrationPassesCanonicalCutoverGates(migration) {
     migration?.parity_status !== 'matched'
     || migration?.payer_validation_status !== 'verified'
   ) return false
-  if (migration?.source_collection_mode !== 'legacy_per_class') return true
   const snapshot = parseJson(
     migration?.accepted_stripe_snapshot ?? migration?.initial_stripe_snapshot,
   )
+  if ((snapshot?.customerSubscriptionInventory?.subscriptions ?? [])
+    .some((subscription) => subscription?.classification === 'annual_membership')) return false
+  if (migration?.source_collection_mode !== 'legacy_per_class') return true
   return legacyStripeSnapshotIsComplete(snapshot, snapshot?.subscriptions ?? [])
 }
 
@@ -1024,6 +1038,17 @@ async function requireRunAndScope(db, runId, accountIds, {
   return { run: validatedRun, accountIds: ids }
 }
 
+function assertForwardAdoptionRunAuthorization(run) {
+  if (run?.configuration?.forwardAdoption !== true) {
+    throw new BillingMigrationSafetyError(
+      'forward_adoption_run_not_authorized',
+      `Billing migration run ${run?.id ?? '(unknown)'} was not created by the explicit forward-adoption audit bootstrap.`,
+      { runId: run?.id == null ? null : Number(run.id) },
+    )
+  }
+  return run
+}
+
 async function recordOperationFailure(db, {
   runId,
   accountId,
@@ -1084,6 +1109,7 @@ export async function auditCanonicalBillingMigration(db, {
   requestedByUserId = null,
   requestedByType = 'system',
   cohort = 'manual',
+  forwardAdoption = false,
   environment = process.env,
 } = {}) {
   const explicitIds = normalizeOptionalIds(accountIds)
@@ -1110,6 +1136,7 @@ export async function auditCanonicalBillingMigration(db, {
       manifestChecksum,
     })
     if (!run) throw new Error(`Billing migration run ${runId} was not found.`)
+    if (forwardAdoption === true) assertForwardAdoptionRunAuthorization(run)
   }
   const audits = []
   for (const accountId of ids) {
@@ -1144,7 +1171,12 @@ export async function auditCanonicalBillingMigration(db, {
         targetMonth,
         facilityTimezone: timezones[0],
         cohort,
-        configuration: { accountIds: ids, targetMonth, cohort },
+        configuration: {
+          accountIds: ids,
+          targetMonth,
+          cohort,
+          forwardAdoption: forwardAdoption === true,
+        },
       })
     }
     if (!run) throw new Error(`Billing migration run ${runId} was not found.`)
@@ -3013,6 +3045,82 @@ export function assertRecurringSummaryMatchesAcceptedPricing(migration, summary)
   }
 }
 
+/**
+ * Re-read and prove the exact paid Stripe identity immediately before the
+ * canonical ledger write. Current Stripe API versions expose the durable
+ * Invoice -> PaymentIntent relationship through Invoice Payments, so the
+ * legacy invoice.payment_intent field is intentionally not consulted here.
+ */
+export async function preparePaidLegacyInvoiceSettlementEntry(db, stripe, entry, {
+  accountId,
+} = {}) {
+  if (typeof stripe?.invoices?.retrieve !== 'function') {
+    throw new BillingMigrationSafetyError(
+      'stripe_invoice_retrieval_unavailable',
+      'Stripe invoice retrieval is required for paid legacy invoice settlement.',
+      { stripeInvoiceId: entry?.stripeInvoiceId ?? null },
+      { forwardOnly: true },
+    )
+  }
+  const remoteInvoice = await stripe.invoices.retrieve(String(entry.stripeInvoiceId))
+  if (
+    remoteInvoice.status !== 'paid' ||
+    Number(remoteInvoice.amount_paid ?? 0) !== Number(entry.amountCents) ||
+    Number(remoteInvoice.amount_remaining ?? 0) !== 0 ||
+    Number(remoteInvoice.amount_overpaid ?? 0) !== 0 ||
+    Number(remoteInvoice.starting_balance ?? 0) !== 0 ||
+    Number(remoteInvoice.ending_balance ?? 0) !== 0 ||
+    Number(remoteInvoice.pre_payment_credit_notes_amount ?? 0) !== 0 ||
+    Number(remoteInvoice.post_payment_credit_notes_amount ?? 0) !== 0 ||
+    remoteInvoice.collection_method !== 'charge_automatically'
+  ) {
+    throw new BillingMigrationSafetyError(
+      'paid_legacy_invoice_settlement_drift',
+      'A paid legacy invoice changed before canonical settlement could be recorded.',
+      { stripeInvoiceId: entry.stripeInvoiceId, status: remoteInvoice.status ?? null },
+      { forwardOnly: true },
+    )
+  }
+  const prepared = await preparePaidStripeInvoiceRecord(db, remoteInvoice, {
+    stripe,
+    // This forward-only settlement path already proved the invoice against
+    // the immutable migration item and remote snapshot above. It must not
+    // be reclassified as an ordinary legacy collector after local links
+    // have intentionally been detached.
+    canonicalMigrationSettlement: {
+      accountId,
+      subscriptionId: entry.stripeSubscriptionId,
+      customerId: entry.stripeCustomerId,
+    },
+  })
+  if (
+    !prepared ||
+    prepared.annualBinding ||
+    Number(prepared.accountId) !== Number(accountId) ||
+    String(prepared.invoiceId) !== String(entry.stripeInvoiceId) ||
+    String(prepared.subscriptionId ?? '') !== String(entry.stripeSubscriptionId) ||
+    String(prepared.customerId ?? '') !== String(entry.stripeCustomerId) ||
+    String(prepared.paymentIntentId ?? '') !== String(entry.stripePaymentIntentId) ||
+    Number(prepared.amountCents) !== Number(entry.amountCents)
+  ) {
+    throw new BillingMigrationSafetyError(
+      'paid_legacy_invoice_payment_binding_conflict',
+      'The Stripe payment identity does not match the frozen legacy class invoice.',
+      { accountId, entry, prepared: prepared ? {
+        accountId: prepared.accountId,
+        invoiceId: prepared.invoiceId,
+        subscriptionId: prepared.subscriptionId,
+        customerId: prepared.customerId,
+        paymentIntentId: prepared.paymentIntentId,
+        amountCents: prepared.amountCents,
+        annualBinding: Boolean(prepared.annualBinding),
+      } : null },
+      { forwardOnly: true },
+    )
+  }
+  return { entry, prepared }
+}
+
 async function settlePaidTargetMonthLegacyInvoices(db, stripe, migration, {
   accountId,
   targetMonth,
@@ -3037,76 +3145,12 @@ async function settlePaidTargetMonthLegacyInvoices(db, stripe, migration, {
     const plan = buildPaidLegacyInvoiceSettlementPlan({ migration, items, invoices, targetMonth, boundary })
     const preparedInvoices = []
     for (const entry of plan) {
-      if (typeof stripe?.invoices?.retrieve !== 'function') {
-        throw new BillingMigrationSafetyError(
-          'stripe_invoice_retrieval_unavailable',
-          'Stripe invoice retrieval is required for paid legacy invoice settlement.',
-          { stripeInvoiceId: entry.stripeInvoiceId },
-          { forwardOnly: true },
-        )
-      }
-      const remoteInvoice = await stripe.invoices.retrieve(String(entry.stripeInvoiceId), {
-        expand: ['payment_intent'],
-      })
-      if (
-        remoteInvoice.status !== 'paid' ||
-        Number(remoteInvoice.amount_paid ?? 0) !== Number(entry.amountCents) ||
-        Number(remoteInvoice.amount_remaining ?? 0) !== 0 ||
-        Number(remoteInvoice.amount_overpaid ?? 0) !== 0 ||
-        Number(remoteInvoice.starting_balance ?? 0) !== 0 ||
-        Number(remoteInvoice.ending_balance ?? 0) !== 0 ||
-        Number(remoteInvoice.pre_payment_credit_notes_amount ?? 0) !== 0 ||
-        Number(remoteInvoice.post_payment_credit_notes_amount ?? 0) !== 0 ||
-        remoteInvoice.collection_method !== 'charge_automatically' ||
-        String(remoteInvoice.payment_intent?.id ?? remoteInvoice.payment_intent ?? '') !== String(entry.stripePaymentIntentId) ||
-        remoteInvoice.payment_intent?.status !== 'succeeded' ||
-        Number(remoteInvoice.payment_intent?.amount_received ?? 0) !== Number(entry.amountCents)
-      ) {
-        throw new BillingMigrationSafetyError(
-          'paid_legacy_invoice_settlement_drift',
-          'A paid legacy invoice changed before canonical settlement could be recorded.',
-          { stripeInvoiceId: entry.stripeInvoiceId, status: remoteInvoice.status ?? null },
-          { forwardOnly: true },
-        )
-      }
-      const prepared = await preparePaidStripeInvoiceRecord(lockedDb, remoteInvoice, {
+      preparedInvoices.push(await preparePaidLegacyInvoiceSettlementEntry(
+        lockedDb,
         stripe,
-        // This forward-only settlement path already proved the invoice against
-        // the immutable migration item and remote snapshot above. It must not
-        // be reclassified as an ordinary legacy collector after local links
-        // have intentionally been detached.
-        canonicalMigrationSettlement: {
-          accountId,
-          subscriptionId: entry.stripeSubscriptionId,
-          customerId: entry.stripeCustomerId,
-        },
-      })
-      if (
-        !prepared ||
-        prepared.annualBinding ||
-        Number(prepared.accountId) !== Number(accountId) ||
-        String(prepared.invoiceId) !== String(entry.stripeInvoiceId) ||
-        String(prepared.subscriptionId ?? '') !== String(entry.stripeSubscriptionId) ||
-        String(prepared.customerId ?? '') !== String(entry.stripeCustomerId) ||
-        String(prepared.paymentIntentId ?? '') !== String(entry.stripePaymentIntentId) ||
-        Number(prepared.amountCents) !== Number(entry.amountCents)
-      ) {
-        throw new BillingMigrationSafetyError(
-          'paid_legacy_invoice_payment_binding_conflict',
-          'The Stripe payment identity does not match the frozen legacy class invoice.',
-          { accountId, entry, prepared: prepared ? {
-            accountId: prepared.accountId,
-            invoiceId: prepared.invoiceId,
-            subscriptionId: prepared.subscriptionId,
-            customerId: prepared.customerId,
-            paymentIntentId: prepared.paymentIntentId,
-            amountCents: prepared.amountCents,
-            annualBinding: Boolean(prepared.annualBinding),
-          } : null },
-          { forwardOnly: true },
-        )
-      }
-      preparedInvoices.push({ entry, prepared })
+        entry,
+        { accountId },
+      ))
     }
 
     const dryRun = await reconcileCanonicalRecurringChargesForMonth(lockedDb, {
@@ -3496,6 +3540,50 @@ export async function retireRemoteCollection(db, stripe, migration, {
   return { migration: current, wouldRetire: 0, retired }
 }
 
+export async function assertUniqueLocalStripeCustomerOwner(db, {
+  accountId,
+  stripeCustomerId,
+} = {}) {
+  const normalizedAccountId = Number(accountId)
+  const normalizedCustomerId = String(stripeCustomerId ?? '').trim()
+  if (!Number.isSafeInteger(normalizedAccountId) || normalizedAccountId <= 0 || !normalizedCustomerId) {
+    throw new BillingMigrationSafetyError(
+      'stripe_customer_owner_missing',
+      'A canonical billing account and Stripe customer are required before changing household collection.',
+      { accountId: Number.isSafeInteger(normalizedAccountId) ? normalizedAccountId : null },
+      { forwardOnly: true },
+    )
+  }
+  const owners = await db.query(
+    `/* canonical-migration:stripe-customer-owner */
+     SELECT id, is_active
+       FROM family_billing_account
+      WHERE stripe_customer_id = $1
+      ORDER BY id
+      LIMIT 3`,
+    [normalizedCustomerId],
+  ).then((result) => result.rows ?? [])
+  if (
+    owners.length !== 1
+    || Number(owners[0]?.id) !== normalizedAccountId
+    || owners[0]?.is_active !== true
+  ) {
+    throw new BillingMigrationSafetyError(
+      owners.length > 1
+        ? 'stripe_customer_shared_between_accounts'
+        : 'stripe_customer_owner_missing',
+      'The Stripe customer must have exactly one active local billing-account owner; inactive links remain ownership conflicts until explicitly reconciled.',
+      {
+        accountId: normalizedAccountId,
+        stripeCustomerId: normalizedCustomerId,
+        ownerAccountIds: owners.map((owner) => Number(owner.id)),
+      },
+      { forwardOnly: true },
+    )
+  }
+  return { accountId: normalizedAccountId, stripeCustomerId: normalizedCustomerId }
+}
+
 export async function inspectCustomerCollectorsBeforeHouseholdActivation(db, stripe, {
   account,
   billingMonth,
@@ -3517,6 +3605,61 @@ export async function inspectCustomerCollectorsBeforeHouseholdActivation(db, str
       { forwardOnly: true },
     )
   }
+  await assertUniqueLocalStripeCustomerOwner(db, {
+    accountId: account.id,
+    stripeCustomerId: account.stripe_customer_id,
+  })
+  // Read schedules before subscriptions so a schedule that releases while the
+  // inventory is being taken becomes visible in the subsequent subscription
+  // scan. The surrounding collection lock prevents application-owned creation
+  // paths from racing this final activation boundary.
+  const scheduleInventory = await inspectStripeCustomerSubscriptionScheduleInventory(stripe, {
+    stripeCustomerId: account.stripe_customer_id,
+    accountId: Number(account.id),
+  })
+  if (
+    !scheduleInventory.verified ||
+    Number(scheduleInventory.snapshot?.liveScheduleCount ?? -1) !== 0
+  ) {
+    throw new BillingMigrationSafetyError(
+      'stripe_customer_live_subscription_schedule_present',
+      'Stripe still has a subscription schedule that could compete with household collection.',
+      {
+        billingMonth,
+        issues: scheduleInventory.issues,
+        inventory: scheduleInventory.snapshot,
+      },
+      { forwardOnly: true },
+    )
+  }
+  const localSubscriptions = await db.query(
+    `SELECT id, status, source_type, pricing_option_key, stripe_subscription_id
+       FROM billing_subscription
+      WHERE family_billing_account_id = $1
+        AND status IN ('active', 'paused')
+      ORDER BY id`,
+    [Number(account.id)],
+  ).then((result) => result.rows)
+  const subscriptionInventory = await inspectStripeCustomerSubscriptionInventory(stripe, {
+    stripeCustomerId: account.stripe_customer_id,
+    accountId: Number(account.id),
+    localSubscriptions,
+  })
+  if (
+    !subscriptionInventory.verified ||
+    Number(subscriptionInventory.snapshot?.liveSubscriptionCount ?? -1) !== 0
+  ) {
+    throw new BillingMigrationSafetyError(
+      'stripe_customer_live_subscription_present',
+      'Stripe still has a live subscription that could compete with household collection.',
+      {
+        billingMonth,
+        issues: subscriptionInventory.issues,
+        inventory: subscriptionInventory.snapshot,
+      },
+      { forwardOnly: true },
+    )
+  }
   const inventory = await inspectStripeCustomerBillingMonthCollectors(stripe, {
     stripeCustomerId: account.stripe_customer_id,
     billingMonth,
@@ -3532,7 +3675,7 @@ export async function inspectCustomerCollectorsBeforeHouseholdActivation(db, str
       { forwardOnly: true },
     )
   }
-  return inventory
+  return { billingMonthCollectors: inventory, subscriptionInventory, scheduleInventory }
 }
 
 async function activateHouseholdCollection(db, stripe, migration, {
@@ -3541,14 +3684,31 @@ async function activateHouseholdCollection(db, stripe, migration, {
   targetMonth,
   leaseOwner,
   apply,
+  collectionLockHeld = false,
   environment = process.env,
 } = {}) {
+  if (apply && !collectionLockHeld) {
+    return withBillingAccountCollectionLock(db, accountId, (lockedDb) => (
+      activateHouseholdCollection(lockedDb, stripe, migration, {
+        runId,
+        accountId,
+        targetMonth,
+        leaseOwner,
+        apply,
+        collectionLockHeld: true,
+        environment,
+      })
+    ))
+  }
   const account = await db.query(
     `SELECT * FROM family_billing_account WHERE id = $1 LIMIT 1`,
     [Number(accountId)],
   ).then((result) => result.rows[0] ?? null)
   if (!account) throw new Error(`Billing account ${accountId} was not found.`)
-  const readiness = await retrieveStripeCustomerReadiness(stripe, account.stripe_customer_id)
+  const readiness = await retrieveStripeCustomerReadiness(stripe, account.stripe_customer_id, {
+    billingMonth: targetMonth,
+    expectedAccountId: account.id,
+  })
   if (!readiness.ready) {
     throw new BillingMigrationSafetyError(readiness.reason, 'Stripe customer no longer has a reusable payment method.', readiness.snapshot, { forwardOnly: true })
   }
@@ -3568,8 +3728,6 @@ async function activateHouseholdCollection(db, stripe, migration, {
          FROM billing_subscription subscription
         WHERE subscription.family_billing_account_id = $1
           AND subscription.status IN ('active', 'paused')
-          AND subscription.source_type <> 'annual_membership'
-          AND COALESCE(subscription.pricing_option_key, '') <> 'annual_membership'
           AND (
             subscription.stripe_subscription_id IS NOT NULL
             OR subscription.stripe_subscription_item_id IS NOT NULL
@@ -3579,6 +3737,10 @@ async function activateHouseholdCollection(db, stripe, migration, {
       [Number(accountId)],
     )
     if (legacy.rows[0]) throw new Error(`Local Stripe collection remains attached to billing subscription ${legacy.rows[0].id}.`)
+    await assertUniqueLocalStripeCustomerOwner(client, {
+      accountId,
+      stripeCustomerId: account.stripe_customer_id,
+    })
     await client.query(
       `UPDATE family_billing_account
           SET household_monthly_billing_enabled = TRUE, updated_at = now()
@@ -3672,6 +3834,12 @@ export async function ensureHouseholdCollectionInvoice(db, migration, {
       billingMonth: targetMonth,
       facilityTimeZone,
       environment,
+      migrationAuthorization: {
+        migrationId: Number(migration.id),
+        runId: Number(migration.billing_migration_run_id),
+        leaseOwner: migration.lease_owner,
+        effectiveCollectionMonth: targetMonth,
+      },
     })
     return {
       migration,
@@ -3969,6 +4137,22 @@ async function inspectForwardAdoptionAccount(db, stripe, {
   targetMonth,
   now,
 } = {}) {
+  const accountIdentity = await db.query(
+    `SELECT id, stripe_customer_id
+       FROM family_billing_account
+      WHERE id = $1
+      LIMIT 1`,
+    [Number(accountId)],
+  ).then((result) => result.rows[0] ?? null)
+  if (!accountIdentity) throw new Error(`Billing account ${accountId} was not found during forward adoption.`)
+  // Schedule first, subscription inventory second. If a schedule releases
+  // during this read, the audit's subsequent customer subscription scan sees
+  // the new collector. The caller holds the account collection lock, which
+  // prevents application-owned schedule/subscription creation from racing it.
+  const scheduleInventory = await inspectStripeCustomerSubscriptionScheduleInventory(stripe, {
+    stripeCustomerId: accountIdentity.stripe_customer_id ?? null,
+    accountId,
+  })
   const audit = await auditCanonicalBillingAccount(db, {
     accountId,
     targetMonth,
@@ -3976,15 +4160,26 @@ async function inspectForwardAdoptionAccount(db, stripe, {
     now,
     runFacilityId: run.facility_id,
   })
+  if (
+    String(audit.accountSnapshot?.stripeCustomerId ?? '')
+    !== String(accountIdentity.stripe_customer_id ?? '')
+  ) {
+    throw new BillingMigrationSafetyError(
+      'forward_adoption_stripe_customer_changed',
+      'The billing account Stripe customer changed during forward-adoption inventory.',
+      {
+        accountId: Number(accountId),
+        scheduleInventoryCustomerId: accountIdentity.stripe_customer_id ?? null,
+        auditCustomerId: audit.accountSnapshot?.stripeCustomerId ?? null,
+      },
+    )
+  }
   const localCollectors = await inspectActiveLocalRecurringCollectors(db, accountId)
   const paymentMethodReadiness = await retrieveStripeCustomerReadiness(
     stripe,
     audit.accountSnapshot?.stripeCustomerId ?? null,
+    { billingMonth: targetMonth, expectedAccountId: accountId },
   )
-  const scheduleInventory = await inspectStripeCustomerSubscriptionScheduleInventory(stripe, {
-    stripeCustomerId: audit.accountSnapshot?.stripeCustomerId ?? null,
-    accountId,
-  })
   const activationEvidence = audit.accountSnapshot?.householdMonthlyBillingEnabled === true
     ? await loadCanonicalHouseholdActivationEvidence(db, { accountId, targetMonth })
     : explicitForwardAdoptionEvidence(accountId, targetMonth)
@@ -4073,7 +4268,7 @@ async function activateForwardAdoptedAccount(db, {
     }
     const account = await client.query(
       `SELECT id, family_id, payer_member_id, stripe_customer_id,
-              household_monthly_billing_enabled
+              household_monthly_billing_enabled, is_active
          FROM family_billing_account
         WHERE id = $1
         LIMIT 1
@@ -4081,6 +4276,10 @@ async function activateForwardAdoptedAccount(db, {
       [Number(accountId)],
     ).then((result) => result.rows[0] ?? null)
     if (!account) throw new Error(`Billing account ${accountId} was not found during forward adoption.`)
+    await assertUniqueLocalStripeCustomerOwner(client, {
+      accountId,
+      stripeCustomerId: account.stripe_customer_id,
+    })
     const frozen = inspection.audit.accountSnapshot
     if (
       Number(account.family_id) !== Number(frozen.familyId)
@@ -4234,6 +4433,7 @@ export async function adoptCanonicalHouseholdBillingMigration(db, {
     requireHouseholdOnlyClassSubscriptionCreation(environment, 'Canonical billing forward adoption')
   }
   const { run, accountIds: ids } = await requireRunAndScope(db, runId, accountIds)
+  assertForwardAdoptionRunAuthorization(run)
   const owner = workerName(leaseOwner)
   const accounts = []
   let cohortStop = null

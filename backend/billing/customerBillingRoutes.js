@@ -977,7 +977,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
     ...requirePermission(pool, jwtSecret, 'billing.manage'),
     async (req, res) => {
       try {
-        const requestKey = idempotencyKey(req, 'refund')
+        const requestKey = requiredIdempotencyKey(req, 'refund')
         const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
         const data = await createCustomerBillingRefund(pool, {

@@ -1,5 +1,9 @@
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import {
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from './paidCheckoutCollectionGuard.js'
 
 const SETTLED_PAYMENT_STATUSES = new Set(['settled', 'succeeded'])
 
@@ -63,7 +67,7 @@ export function buildMembershipFirstAllocationPlan({ payments = [], charges = []
   }
   const refundedByPayment = new Map()
   for (const refund of refunds) {
-    if (!['succeeded', 'pending'].includes(String(refund.status || 'succeeded').toLowerCase())) continue
+    if (!['succeeded', 'pending', 'reconciliation_required'].includes(String(refund.status || 'succeeded').toLowerCase())) continue
     refundedByPayment.set(Number(refund.paymentId), (refundedByPayment.get(Number(refund.paymentId)) || 0) + cents(refund.amountCents))
   }
 
@@ -136,12 +140,19 @@ async function activatePaidMemberships(db, accountId) {
               MAX(adjustment.created_at) FILTER (WHERE adjustment.amount_cents < 0) AS satisfied_at
        FROM billing_charge adjustment
        WHERE adjustment.related_charge_id = c.id
-         AND adjustment.source_type = 'charge_adjustment'
+         AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
      ) adjustments ON TRUE
      LEFT JOIN additional_fee_redemption existing ON existing.billing_charge_id = c.id
      WHERE c.family_billing_account_id = $1
        AND c.member_id IS NOT NULL
        AND c.amount_cents > 0
+       AND NOT EXISTS (
+         SELECT 1
+           FROM billing_charge refund_offset
+          WHERE refund_offset.related_charge_id = c.id
+            AND refund_offset.source_type = 'refund_offset'
+            AND refund_offset.amount_cents < 0
+       )
        AND COALESCE(totals.applied_cents, 0) >= GREATEST(0, c.amount_cents + adjustments.adjustment_cents)`,
     [accountId],
   )
@@ -320,7 +331,7 @@ async function restoreMissingAnnualMembershipPromoCredits(db, accountId) {
   return restored
 }
 
-async function refreshChargeStatuses(db, accountId) {
+export async function refreshChargeStatuses(db, accountId) {
   await db.query(
     `UPDATE billing_charge charge
      SET collection_status = CASE
@@ -345,13 +356,13 @@ async function refreshChargeStatuses(db, accountId) {
           WHERE target_line.billing_charge_id = charge.id
             AND NOT (
               credit_source.related_charge_id = charge.id
-              AND credit_source.source_type = 'charge_adjustment'
+              AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
             )
        ), 0) >= GREATEST(0, charge.amount_cents + COALESCE((
          SELECT SUM(adjustment.amount_cents)
          FROM billing_charge adjustment
          WHERE adjustment.related_charge_id = charge.id
-           AND adjustment.source_type = 'charge_adjustment'
+           AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
        ), 0)) THEN 'paid'
        WHEN COALESCE((
          SELECT SUM(CASE
@@ -374,7 +385,7 @@ async function refreshChargeStatuses(db, accountId) {
           WHERE target_line.billing_charge_id = charge.id
             AND NOT (
               credit_source.related_charge_id = charge.id
-              AND credit_source.source_type = 'charge_adjustment'
+              AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
             )
        ), 0) > 0 THEN 'partially_paid'
        WHEN charge.collection_status IN ('checkout_pending', 'processing', 'failed') THEN charge.collection_status
@@ -398,7 +409,7 @@ async function refreshChargeStatuses(db, accountId) {
              SELECT SUM(adjustment.amount_cents)
              FROM billing_charge adjustment
              WHERE adjustment.related_charge_id = charge.id
-               AND adjustment.source_type = 'charge_adjustment'
+               AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
            ), 0)) > COALESCE((
              SELECT SUM(CASE
                WHEN application.application_kind = 'reversal' THEN -application.amount_cents
@@ -420,7 +431,7 @@ async function refreshChargeStatuses(db, accountId) {
               WHERE target_line.billing_charge_id = charge.id
                 AND NOT (
                   credit_source.related_charge_id = charge.id
-                  AND credit_source.source_type = 'charge_adjustment'
+                  AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
                 )
            ), 0)
        )`,
@@ -572,13 +583,47 @@ export async function allocateHouseholdPaymentsLocked(client, {
   accountId,
   actorType = 'system',
   idempotencyNamespace = 'allocation',
+  excludePendingEnrollmentId = null,
+  manageTransaction = true,
 }) {
   const activityActorType = ['admin', 'member', 'system', 'stripe'].includes(actorType)
     ? actorType
     : 'system'
   try {
-    await client.query('BEGIN')
-    await client.query('SELECT pg_advisory_xact_lock($1)', [Number(accountId)])
+    if (manageTransaction) {
+      await client.query('BEGIN')
+      await client.query('SELECT pg_advisory_xact_lock($1)', [Number(accountId)])
+    }
+    const activeEnrollmentCheckout = await findActiveEnrollmentCheckoutBalanceCollector(
+      client,
+      accountId,
+      { excludePendingEnrollmentId },
+    )
+    if (activeEnrollmentCheckout) {
+      if (manageTransaction) await client.query('COMMIT')
+      return {
+        applications: [],
+        activatedMemberships: [],
+        advancedSubscriptions: [],
+        restoredMembershipPromoCredits: [],
+        blocked: 'active_enrollment_checkout_balance_collector',
+        blockedOwnerKind: activeEnrollmentCheckout.owner_kind,
+        blockedOwnerId: Number(activeEnrollmentCheckout.owner_id),
+      }
+    }
+    const paidCheckoutGap = await findCompletedPaidCheckoutFulfillmentGap(client, accountId)
+    if (paidCheckoutGap) {
+      if (manageTransaction) await client.query('COMMIT')
+      return {
+        applications: [],
+        activatedMemberships: [],
+        advancedSubscriptions: [],
+        restoredMembershipPromoCredits: [],
+        blocked: 'paid_checkout_owner_payment_gap',
+        blockedOwnerKind: paidCheckoutGap.owner_kind,
+        blockedOwnerId: Number(paidCheckoutGap.owner_id),
+      }
+    }
     const restoredMembershipPromoCredits = await restoreMissingAnnualMembershipPromoCredits(client, accountId)
     const [paymentsResult, chargesResult, applicationsResult, refundsResult] = await Promise.all([
       client.query(
@@ -607,7 +652,7 @@ export async function allocateHouseholdPaymentsLocked(client, {
            SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents
            FROM billing_charge adjustment
            WHERE adjustment.related_charge_id = c.id
-             AND adjustment.source_type = 'charge_adjustment'
+             AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
          ) adjustments ON TRUE
          LEFT JOIN LATERAL (
            SELECT COALESCE(SUM(application.amount_cents), 0)::int AS applied_cents
@@ -621,7 +666,7 @@ export async function allocateHouseholdPaymentsLocked(client, {
             WHERE target_line.billing_charge_id = c.id
               AND NOT (
                 credit_source.related_charge_id = c.id
-                AND credit_source.source_type = 'charge_adjustment'
+                AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
               )
          ) credit_applications ON TRUE
          WHERE c.family_billing_account_id = $1
@@ -653,6 +698,28 @@ export async function allocateHouseholdPaymentsLocked(client, {
                   reservation.billing_charge_id = c.id
                   OR attempt.target_charge_id = c.id
                   OR attempt.target_charge_id = c.related_charge_id
+                )
+           )
+           -- A paid enrollment/annual Checkout owns every charge stamped with
+           -- its Session until exact fulfillment either settles or is resolved
+           -- as refund-required. Manual cash/check allocation must not consume
+           -- those charges during a crash-recovery window.
+           AND NOT EXISTS (
+             SELECT 1
+               FROM billing_payment checkout_payment
+              WHERE c.stripe_checkout_session_id IS NOT NULL
+                AND checkout_payment.family_billing_account_id = $1
+                AND checkout_payment.stripe_checkout_session_id = c.stripe_checkout_session_id
+                AND checkout_payment.external_status = 'reconciliation_required'
+                AND (
+                  position(
+                    '[paid-checkout-fulfillment-pending:' || c.stripe_checkout_session_id || ']'
+                    in COALESCE(checkout_payment.note, '')
+                  ) > 0
+                  OR position(
+                    '[paid-checkout-refund-required:' || c.stripe_checkout_session_id || ']'
+                    in COALESCE(checkout_payment.note, '')
+                  ) > 0
                 )
            )
          ORDER BY c.created_at, c.id`,
@@ -720,10 +787,10 @@ export async function allocateHouseholdPaymentsLocked(client, {
       activityActorType,
     )
     const activatedMemberships = await activatePaidMemberships(client, accountId)
-    await client.query('COMMIT')
+    if (manageTransaction) await client.query('COMMIT')
     return { applications: inserted, activatedMemberships, advancedSubscriptions, restoredMembershipPromoCredits }
   } catch (error) {
-    await client.query('ROLLBACK').catch(() => {})
+    if (manageTransaction) await client.query('ROLLBACK').catch(() => {})
     throw error
   }
 }

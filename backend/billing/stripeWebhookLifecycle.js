@@ -7,11 +7,17 @@ import {
 } from './customerBillingPayments.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import { recordStripeBillingAlert } from './stripeOperations.js'
 import {
   BILLING_MIGRATION_STATES,
   sanitizeBillingMigrationSnapshot,
 } from './canonicalBillingMigrationState.js'
 import { classifyLegacyStripeSubscriptionOwnership } from './stripeSubscriptionOwnership.js'
+import {
+  resolveStripeInvoicePaymentIntentId,
+  StripeInvoicePaymentBindingConflict,
+  verifyStripeInvoicePaymentIntent,
+} from './stripeInvoicePaymentBinding.js'
 
 const MIGRATION_WEBHOOK_GUARD_STATES = Object.freeze([
   BILLING_MIGRATION_STATES.ARMED,
@@ -314,16 +320,26 @@ async function guardCanonicalCutoverLifecycle(pool, subscription, eventType, gua
 }
 
 async function resolveAccountId(pool, object) {
-  const metadataId = Number(object?.metadata?.familyBillingAccountId)
-  if (Number.isFinite(metadataId) && metadataId > 0) return metadataId
-
+  const rawMetadataId = object?.metadata?.familyBillingAccountId
+  const metadataProvided = rawMetadataId != null && String(rawMetadataId).trim() !== ''
+  const metadataId = Number(rawMetadataId)
+  const validMetadataId = Number.isSafeInteger(metadataId) && metadataId > 0
+  if (metadataProvided && !validMetadataId) return null
   const customerId = objectId(object?.customer)
-  if (!customerId) return null
+  if (!customerId) return validMetadataId ? metadataId : null
   const result = await pool.query(
-    `SELECT id FROM family_billing_account WHERE stripe_customer_id = $1 LIMIT 1`,
+    `/* stripe-webhook:customer-owner */
+     SELECT id FROM family_billing_account
+      WHERE stripe_customer_id = $1
+      ORDER BY id
+      LIMIT 3`,
     [customerId],
   )
-  return result.rows[0]?.id ? Number(result.rows[0].id) : null
+  if (result.rows.length !== 1) return null
+  const customerOwnerId = Number(result.rows[0]?.id)
+  if (!Number.isSafeInteger(customerOwnerId) || customerOwnerId <= 0) return null
+  if (validMetadataId && metadataId !== customerOwnerId) return null
+  return customerOwnerId
 }
 
 export class StripeInvoiceQuarantineError extends Error {
@@ -390,27 +406,44 @@ function metadataClaimsAnnualMembership(layers) {
   ))
 }
 
-async function loadAnnualInvoiceBinding(pool, invoice, { stripeClient, subscriptionId }) {
+async function loadAnnualInvoiceBinding(pool, invoice, {
+  stripeClient,
+  subscriptionId,
+  subscriptionOwnership = null,
+}) {
   if (!subscriptionId) return null
+  const provenBillingSubscriptionId = subscriptionOwnership?.paidSettlementVerified
+    ? positiveMetadataId(subscriptionOwnership.billingSubscriptionId)
+    : null
   const annualRows = await pool.query(
     `SELECT id, family_billing_account_id, member_id, source_type, source_id,
-            description, stripe_subscription_id, pricing_option_key
+            description, stripe_subscription_id, pricing_option_key, next_bill_date
        FROM billing_subscription
-      WHERE stripe_subscription_id = $1
+      WHERE (
+          ($2::bigint IS NOT NULL AND id = $2)
+          OR ($2::bigint IS NULL AND stripe_subscription_id = $1)
+        )
         AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
       ORDER BY id
       LIMIT 3`,
-    [subscriptionId],
+    [subscriptionId, provenBillingSubscriptionId],
   ).then((result) => result.rows)
 
-  let remoteSubscription = null
+  let remoteSubscription = subscriptionOwnership?.paidSettlementVerified
+    ? subscriptionOwnership.subscription ?? null
+    : null
   if (annualRows.length > 0 && typeof stripeClient?.subscriptions?.retrieve === 'function') {
-    remoteSubscription = await stripeClient.subscriptions.retrieve(subscriptionId)
+    remoteSubscription ??= await stripeClient.subscriptions.retrieve(subscriptionId)
   }
   const metadataLayers = annualMetadataLayers(invoice, remoteSubscription)
   const claimsAnnual = metadataClaimsAnnualMembership(metadataLayers)
+  const ownershipClaimsAnnual = subscriptionOwnership?.paidSettlementVerified === true
+    && (
+      subscriptionOwnership.sourceType === 'annual_membership'
+      || subscriptionOwnership.pricingOptionKey === 'annual_membership'
+    )
   if (annualRows.length === 0) {
-    if (claimsAnnual) {
+    if (claimsAnnual || ownershipClaimsAnnual) {
       quarantineInvoice(
         'annual_invoice_subscription_missing',
         'Annual membership invoice has no matching local annual subscription.',
@@ -452,26 +485,54 @@ async function loadAnnualInvoiceBinding(pool, invoice, { stripeClient, subscript
       { stripeSubscriptionId: subscriptionId },
     )
   }
-  const customerOwners = await pool.query(
-    `SELECT id
-       FROM family_billing_account
-      WHERE stripe_customer_id = $1
-      ORDER BY id
-      LIMIT 3`,
-    [customerId],
-  ).then((result) => result.rows)
-  if (customerOwners.length !== 1) {
-    quarantineInvoice(
-      customerOwners.length === 0
-        ? 'annual_invoice_customer_owner_missing'
-        : 'annual_invoice_customer_owner_ambiguous',
-      customerOwners.length === 0
-        ? 'Annual membership invoice customer has no local billing-account owner.'
-        : 'Annual membership invoice customer has multiple local billing-account owners.',
-      { customerId, ownerCount: customerOwners.length },
-    )
+  let customerAccountId = null
+  if (subscriptionOwnership?.paidSettlementVerified) {
+    customerAccountId = positiveMetadataId(subscriptionOwnership.accountId)
+    if (
+      !customerAccountId
+      || String(subscriptionOwnership.stripeCustomerId ?? '') !== String(customerId)
+      || (
+        subscriptionOwnership.billingSubscriptionId != null
+        && Number(subscriptionOwnership.billingSubscriptionId) !== Number(annualSubscription.id)
+      )
+      || (
+        subscriptionOwnership.memberId != null
+        && Number(subscriptionOwnership.memberId) !== Number(annualSubscription.member_id)
+      )
+    ) {
+      quarantineInvoice(
+        'annual_invoice_paid_ownership_conflict',
+        'Annual membership invoice does not match its freshly verified paid subscription ownership.',
+        {
+          customerId,
+          ownershipAccountId: subscriptionOwnership.accountId ?? null,
+          ownershipBillingSubscriptionId: subscriptionOwnership.billingSubscriptionId ?? null,
+          billingSubscriptionId: Number(annualSubscription.id),
+        },
+      )
+    }
+  } else {
+    const customerOwners = await pool.query(
+      `SELECT id
+         FROM family_billing_account
+        WHERE stripe_customer_id = $1
+        ORDER BY id
+        LIMIT 3`,
+      [customerId],
+    ).then((result) => result.rows)
+    if (customerOwners.length !== 1) {
+      quarantineInvoice(
+        customerOwners.length === 0
+          ? 'annual_invoice_customer_owner_missing'
+          : 'annual_invoice_customer_owner_ambiguous',
+        customerOwners.length === 0
+          ? 'Annual membership invoice customer has no local billing-account owner.'
+          : 'Annual membership invoice customer has multiple local billing-account owners.',
+        { customerId, ownerCount: customerOwners.length },
+      )
+    }
+    customerAccountId = positiveMetadataId(customerOwners[0].id)
   }
-  const customerAccountId = positiveMetadataId(customerOwners[0].id)
   if (
     metadataAccountId !== customerAccountId
     || metadataAccountId !== localAccountId
@@ -555,10 +616,33 @@ export async function preparePaidStripeInvoiceRecord(pool, invoice, {
   stripe = null,
   expectedLegacySubscriptionOwnership = null,
   canonicalMigrationSettlement = null,
+  historicalSettlementBinding = null,
 } = {}) {
-  if (!invoice?.id || invoice.paid === false || invoice.status === 'void') return null
+  // Current Stripe API versions may omit the legacy `paid` boolean, or return
+  // a stale false value while the terminal status is already `paid`. Accept
+  // either affirmative signal, but never infer settlement from amount alone.
+  if (!invoice?.id || (invoice.status !== 'paid' && invoice.paid !== true)) return null
   await ensureBillingStripeLinksSchema(pool)
-  const paymentIntentId = invoicePaymentIntentId(invoice)
+  const stripeClient = stripe || (await getStripeClient())
+  let paymentIntentId
+  let paymentIntent = null
+  try {
+    paymentIntentId = await resolveStripeInvoicePaymentIntentId(stripeClient, invoice)
+    if (paymentIntentId && stripeClient) {
+      paymentIntent = await verifyStripeInvoicePaymentIntent(
+        stripeClient,
+        invoice,
+        paymentIntentId,
+      )
+    }
+  } catch (error) {
+    if (!(error instanceof StripeInvoicePaymentBindingConflict)) throw error
+    quarantineInvoice(
+      error.code,
+      error.message,
+      error.details,
+    )
+  }
   const subscriptionId = invoiceSubscriptionId(invoice)
   const amountCents = Math.round(Number(invoice.amount_paid ?? invoice.amount_due) || 0)
   if (amountCents <= 0) return null
@@ -582,13 +666,41 @@ export async function preparePaidStripeInvoiceRecord(pool, invoice, {
     })
   }
 
-  const stripeClient = stripe || (await getStripeClient())
   const annualBinding = await loadAnnualInvoiceBinding(pool, invoice, {
     stripeClient,
     subscriptionId,
+    subscriptionOwnership,
   })
+  let historicalAccountId = null
+  if (historicalSettlementBinding) {
+    const expectedAccountId = Number(historicalSettlementBinding.accountId)
+    const expectedCustomerId = String(historicalSettlementBinding.customerId ?? '')
+    const expectedInvoiceId = String(historicalSettlementBinding.invoiceId ?? '')
+    const expectedMonthlyInvoiceId = String(historicalSettlementBinding.monthlyInvoiceId ?? '')
+    const observedCustomerId = String(objectId(invoice?.customer) ?? '')
+    if (
+      historicalSettlementBinding.kind !== 'household_monthly'
+      || subscriptionId
+      || !Number.isSafeInteger(expectedAccountId)
+      || expectedAccountId <= 0
+      || !expectedCustomerId
+      || expectedInvoiceId !== String(invoice.id)
+      || observedCustomerId !== expectedCustomerId
+      || String(invoice?.metadata?.householdMonthlyInvoice ?? '') !== 'true'
+      || String(invoice?.metadata?.monthlyInvoiceId ?? '') !== expectedMonthlyInvoiceId
+      || String(invoice?.metadata?.familyBillingAccountId ?? '') !== String(expectedAccountId)
+    ) {
+      quarantineInvoice(
+        'historical_household_invoice_binding_conflict',
+        'The paid household invoice does not match its verified historical settlement identity.',
+        { historicalSettlementBinding, invoiceId: invoice?.id ?? null, customerId: observedCustomerId },
+      )
+    }
+    historicalAccountId = expectedAccountId
+  }
   const accountId = subscriptionOwnership?.accountId
     ?? annualBinding?.accountId
+    ?? historicalAccountId
     ?? await resolveAccountId(pool, invoice)
   if (!accountId) return null
   if (annualBinding && Number(annualBinding.accountId) !== Number(accountId)) {
@@ -600,6 +712,7 @@ export async function preparePaidStripeInvoiceRecord(pool, invoice, {
   }
   const method = await resolveStripePaymentMethodLabel(stripeClient, {
     paymentIntentId,
+    paymentIntent,
     invoice,
   })
   return {
@@ -618,6 +731,31 @@ export async function preparePaidStripeInvoiceRecord(pool, invoice, {
   }
 }
 
+function annualRefundRequiredMarker(invoiceId) {
+  return `[annual-invoice-refund-required:${String(invoiceId)}]`
+}
+
+function annualFulfillmentPendingMarker(invoiceId) {
+  return `[annual-invoice-fulfillment-pending:${String(invoiceId)}]`
+}
+
+function isAnnualRefundRequiredPayment(payment, prepared) {
+  return Boolean(
+    prepared?.annualBinding
+    && payment?.external_status === 'reconciliation_required'
+    && String(payment?.note ?? '').includes(annualRefundRequiredMarker(prepared.invoiceId)),
+  )
+}
+
+function isAnnualFulfillmentPendingPayment(payment, prepared) {
+  return Boolean(
+    prepared?.annualBinding
+    && payment?.external_status === 'reconciliation_required'
+    && String(payment?.note ?? '').includes(annualFulfillmentPendingMarker(prepared.invoiceId))
+    && !String(payment?.note ?? '').includes(annualRefundRequiredMarker(prepared.invoiceId)),
+  )
+}
+
 /** Pure local upsert; safe inside the household settlement transaction. */
 export async function upsertPaidStripeInvoicePayment(pool, prepared) {
   if (!prepared?.invoiceId || !prepared?.accountId) return null
@@ -628,7 +766,7 @@ export async function upsertPaidStripeInvoicePayment(pool, prepared) {
          external_processor, external_reference, external_status,
          stripe_customer_id, stripe_payment_intent_id, stripe_invoice_id,
          stripe_subscription_id)
-      VALUES ($1, $2, $3, $4, 'Stripe subscription renewal',
+      VALUES ($1, $2, $3, $4, 'Stripe invoice payment',
               'stripe', $5, 'settled', $6, $7, $5, $8)
       ON CONFLICT DO NOTHING
       RETURNING *
@@ -645,102 +783,270 @@ export async function upsertPaidStripeInvoicePayment(pool, prepared) {
     ],
   )
   let payment = result.rows[0] ?? await pool.query(
-    `SELECT * FROM billing_payment WHERE stripe_invoice_id = $1 LIMIT 1`,
+    `SELECT * FROM billing_payment WHERE stripe_invoice_id = $1 LIMIT 1 FOR UPDATE`,
     [prepared.invoiceId],
   ).then((lookup) => lookup.rows[0] ?? null)
-  // Older reconciliation code could insert an invoice-backed PaymentIntent as
-  // a generic payment before the invoice webhook arrived. Repair that row only
-  // when its immutable account and amount exactly match this paid invoice.
-  if (!payment && prepared.paymentIntentId) {
-    const priorIntentPayment = await pool.query(
-      `SELECT * FROM billing_payment WHERE stripe_payment_intent_id = $1 LIMIT 1`,
+  const priorIntentPayment = prepared.paymentIntentId
+    ? result.rows[0] ?? await pool.query(
+      `SELECT * FROM billing_payment WHERE stripe_payment_intent_id = $1 LIMIT 1 FOR UPDATE`,
       [prepared.paymentIntentId],
     ).then((lookup) => lookup.rows[0] ?? null)
-    if (priorIntentPayment) {
-      if (
-        Number(priorIntentPayment.family_billing_account_id) !== Number(prepared.accountId)
-        || Number(priorIntentPayment.amount_cents) !== Number(prepared.amountCents)
-      ) {
-        throw new Error('Existing Stripe PaymentIntent payment does not match its paid invoice account or amount.')
-      }
-      if (
-        (priorIntentPayment.stripe_invoice_id && priorIntentPayment.stripe_invoice_id !== prepared.invoiceId)
-        || (
-          priorIntentPayment.stripe_subscription_id
-          && priorIntentPayment.stripe_subscription_id !== prepared.subscriptionId
-        )
-      ) {
-        throw new Error('Existing Stripe PaymentIntent payment is linked to a different invoice or subscription.')
-      }
-      payment = await pool.query(
-        `UPDATE billing_payment
-            SET stripe_invoice_id = COALESCE(stripe_invoice_id, $2),
-                stripe_subscription_id = COALESCE(stripe_subscription_id, $3),
-                stripe_customer_id = COALESCE(stripe_customer_id, $4),
-                external_reference = COALESCE(external_reference, $2),
-                external_status = 'settled',
-                note = COALESCE(note, 'Stripe subscription renewal')
-          WHERE id = $1
-            AND (stripe_invoice_id IS NULL OR stripe_invoice_id = $2)
-            AND (stripe_subscription_id IS NULL OR stripe_subscription_id IS NOT DISTINCT FROM $3)
-          RETURNING *`,
-        [priorIntentPayment.id, prepared.invoiceId, prepared.subscriptionId, prepared.customerId],
-      ).then((updated) => updated.rows[0] ?? null)
-      if (!payment) throw new Error('Existing Stripe PaymentIntent payment changed before invoice ownership could be restored.')
+    : null
+
+  const validateReusableStripeSettlement = (existing) => {
+    if (!existing) return
+    if (
+      String(existing.external_processor ?? '') !== 'stripe'
+      || (
+        !['settled', 'succeeded'].includes(String(existing.external_status ?? ''))
+        && !isAnnualRefundRequiredPayment(existing, prepared)
+        && !isAnnualFulfillmentPendingPayment(existing, prepared)
+      )
+    ) {
+      quarantineInvoice(
+        'paid_invoice_payment_state_conflict',
+        'Existing invoice payment is not a settled Stripe payment and cannot be reused or applied.',
+        {
+          billingPaymentId: Number(existing.id),
+          stripeInvoiceId: prepared.invoiceId,
+          externalProcessor: existing.external_processor ?? null,
+          externalStatus: existing.external_status ?? null,
+        },
+      )
     }
   }
-  if (payment) {
+
+  // A previously quarantined, canceled, or refunded payment cannot become
+  // collectible again merely because Stripe still reports the invoice paid.
+  // Lock and validate both possible local identities before any backfill or
+  // downstream charge application can occur.
+  validateReusableStripeSettlement(payment)
+  validateReusableStripeSettlement(priorIntentPayment)
+
+  const validateExistingInvoicePayment = (existing) => {
+    if (!existing) return
     const mismatch = (
-      Number(payment.family_billing_account_id) !== Number(prepared.accountId)
-      || Number(payment.amount_cents) !== Number(prepared.amountCents)
-      || (payment.stripe_invoice_id && payment.stripe_invoice_id !== prepared.invoiceId)
+      Number(existing.family_billing_account_id) !== Number(prepared.accountId)
+      || Number(existing.amount_cents) !== Number(prepared.amountCents)
+      || existing.stripe_invoice_id !== prepared.invoiceId
       || (
-        payment.stripe_payment_intent_id
-        && prepared.paymentIntentId
-        && payment.stripe_payment_intent_id !== prepared.paymentIntentId
+        existing.stripe_customer_id
+        && existing.stripe_customer_id !== prepared.customerId
       )
       || (
-        payment.stripe_subscription_id
-        && prepared.subscriptionId
-        && payment.stripe_subscription_id !== prepared.subscriptionId
+        existing.stripe_payment_intent_id
+        && existing.stripe_payment_intent_id !== prepared.paymentIntentId
+      )
+      || (
+        existing.stripe_subscription_id
+        && existing.stripe_subscription_id !== prepared.subscriptionId
       )
     )
     if (mismatch) {
       quarantineInvoice(
         'paid_invoice_payment_binding_conflict',
-        'Existing Stripe payment does not match its paid invoice identity, account, or amount.',
-        { billingPaymentId: Number(payment.id), stripeInvoiceId: prepared.invoiceId },
+        'Existing Stripe payment does not match its paid invoice identity, account, customer, or amount.',
+        { billingPaymentId: Number(existing.id), stripeInvoiceId: prepared.invoiceId },
       )
     }
   }
+
+  // One remote invoice payment must never be represented by separate
+  // invoice-keyed and PaymentIntent-keyed ledger rows. This was possible when
+  // Stripe stopped exposing PaymentIntent.invoice directly. Keep the conflict
+  // visible for an explicit reviewed repair instead of silently treating the
+  // second row as household credit.
+  if (payment && priorIntentPayment && Number(payment.id) !== Number(priorIntentPayment.id)) {
+    quarantineInvoice(
+      'paid_invoice_split_payment_conflict',
+      'The same Stripe invoice payment is represented by separate invoice and PaymentIntent ledger rows.',
+      {
+        stripeInvoiceId: prepared.invoiceId,
+        stripePaymentIntentId: prepared.paymentIntentId,
+        invoicePaymentId: Number(payment.id),
+        intentPaymentId: Number(priorIntentPayment.id),
+      },
+    )
+  }
+
+  // Validate immutable identity before any backfill UPDATE. A mismatched row
+  // must remain byte-for-byte unchanged for explicit reconciliation.
+  validateExistingInvoicePayment(payment)
+
+  // Backfill the newly discoverable PaymentIntent onto an existing
+  // invoice-keyed row only when no competing row owns that identifier. An
+  // annual payment may already be durably fulfillment-pending from phase one;
+  // preserve that nonallocatable state while completing its immutable binding.
+  if (payment && prepared.paymentIntentId && !payment.stripe_payment_intent_id) {
+    const annualPendingMarker = prepared.annualBinding
+      ? annualFulfillmentPendingMarker(prepared.invoiceId)
+      : null
+    const annualRefundMarker = prepared.annualBinding
+      ? annualRefundRequiredMarker(prepared.invoiceId)
+      : null
+    payment = await pool.query(
+      `UPDATE billing_payment
+          SET stripe_payment_intent_id = $2,
+              stripe_customer_id = COALESCE(stripe_customer_id, $3),
+              stripe_subscription_id = COALESCE(stripe_subscription_id, $4)
+        WHERE id = $1
+          AND stripe_payment_intent_id IS NULL
+          AND family_billing_account_id = $5
+          AND amount_cents = $6
+          AND stripe_invoice_id = $7
+          AND (stripe_customer_id IS NULL OR stripe_customer_id IS NOT DISTINCT FROM $3)
+          AND (stripe_subscription_id IS NULL OR stripe_subscription_id IS NOT DISTINCT FROM $4)
+          AND external_processor = 'stripe'
+          AND (
+            external_status IN ('settled', 'succeeded')
+            OR (
+              $8::text IS NOT NULL
+              AND external_status = 'reconciliation_required'
+              AND position($8 in COALESCE(note, '')) > 0
+              AND position($9 in COALESCE(note, '')) = 0
+            )
+          )
+        RETURNING *`,
+      [
+        payment.id,
+        prepared.paymentIntentId,
+        prepared.customerId,
+        prepared.subscriptionId,
+        prepared.accountId,
+        prepared.amountCents,
+        prepared.invoiceId,
+        annualPendingMarker,
+        annualRefundMarker,
+      ],
+    ).then((updated) => updated.rows[0] ?? null)
+    if (!payment) {
+      quarantineInvoice(
+        'paid_invoice_payment_binding_changed',
+        'Existing Stripe invoice payment changed before its PaymentIntent binding could be restored.',
+        { stripeInvoiceId: prepared.invoiceId, stripePaymentIntentId: prepared.paymentIntentId },
+      )
+    }
+  }
+  // Older reconciliation code could insert an invoice-backed PaymentIntent as
+  // a generic payment before the invoice webhook arrived. Repair that row only
+  // when its immutable account and amount exactly match this paid invoice.
+  if (!payment && priorIntentPayment) {
+    if (
+      Number(priorIntentPayment.family_billing_account_id) !== Number(prepared.accountId)
+      || Number(priorIntentPayment.amount_cents) !== Number(prepared.amountCents)
+      || (
+        priorIntentPayment.stripe_customer_id
+        && priorIntentPayment.stripe_customer_id !== prepared.customerId
+      )
+    ) {
+      throw new Error('Existing Stripe PaymentIntent payment does not match its paid invoice account or amount.')
+    }
+    if (
+      (priorIntentPayment.stripe_invoice_id && priorIntentPayment.stripe_invoice_id !== prepared.invoiceId)
+      || (
+        priorIntentPayment.stripe_subscription_id
+        && priorIntentPayment.stripe_subscription_id !== prepared.subscriptionId
+      )
+    ) {
+      throw new Error('Existing Stripe PaymentIntent payment is linked to a different invoice or subscription.')
+    }
+    payment = await pool.query(
+      `UPDATE billing_payment
+          SET stripe_invoice_id = COALESCE(stripe_invoice_id, $2),
+              stripe_subscription_id = COALESCE(stripe_subscription_id, $3),
+              stripe_customer_id = COALESCE(stripe_customer_id, $4),
+              external_reference = COALESCE(external_reference, $2),
+              external_status = 'settled',
+              note = COALESCE(note, 'Stripe invoice payment')
+        WHERE id = $1
+          AND family_billing_account_id = $5
+          AND amount_cents = $6
+          AND stripe_payment_intent_id = $7
+          AND (stripe_customer_id IS NULL OR stripe_customer_id IS NOT DISTINCT FROM $4)
+          AND (stripe_invoice_id IS NULL OR stripe_invoice_id = $2)
+          AND (stripe_subscription_id IS NULL OR stripe_subscription_id IS NOT DISTINCT FROM $3)
+          AND external_processor = 'stripe'
+          AND external_status IN ('settled', 'succeeded')
+        RETURNING *`,
+      [
+        priorIntentPayment.id,
+        prepared.invoiceId,
+        prepared.subscriptionId,
+        prepared.customerId,
+        prepared.accountId,
+        prepared.amountCents,
+        prepared.paymentIntentId,
+      ],
+    ).then((updated) => updated.rows[0] ?? null)
+    if (!payment) throw new Error('Existing Stripe PaymentIntent payment changed before invoice ownership could be restored.')
+  }
+  validateExistingInvoicePayment(payment)
   if (payment) payment.newly_inserted = Boolean(result.rows[0])
   return payment
 }
 
-function annualRenewalDate(paidAt) {
-  return new Date(Date.UTC(
-    paidAt.getUTCFullYear() + 1,
-    paidAt.getUTCMonth(),
-    paidAt.getUTCDate(),
-  )).toISOString().slice(0, 10)
+function stripeTimestampDateOnly(value) {
+  const seconds = Number(value)
+  if (!Number.isSafeInteger(seconds) || seconds <= 0) return null
+  const date = new Date(seconds * 1000)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10)
+}
+
+function annualInvoiceRenewalPeriodKey(prepared) {
+  const invoiceLines = prepared.invoice?.lines
+  if (invoiceLines?.has_more === true) {
+    quarantineInvoice(
+      'annual_invoice_period_incomplete',
+      'Annual membership invoice has an incomplete line inventory, so its renewal period cannot be proven.',
+      { stripeInvoiceId: prepared.invoiceId },
+    )
+  }
+  const linePeriodKeys = [...new Set(
+    (invoiceLines?.data ?? [])
+      .map((line) => stripeTimestampDateOnly(line?.period?.end))
+      .filter(Boolean),
+  )]
+  if (linePeriodKeys.length > 1) {
+    quarantineInvoice(
+      'annual_invoice_period_ambiguous',
+      'Annual membership invoice lines disagree on the renewal period.',
+      { stripeInvoiceId: prepared.invoiceId, renewalPeriodKeys: linePeriodKeys },
+    )
+  }
+  if (linePeriodKeys.length === 1) return linePeriodKeys[0]
+
+  const invoicePeriodKey = stripeTimestampDateOnly(prepared.invoice?.period_end)
+  if (invoicePeriodKey) return invoicePeriodKey
+
+  quarantineInvoice(
+    'annual_invoice_period_missing',
+    'Annual membership invoice has no immutable Stripe invoice renewal period.',
+    { stripeInvoiceId: prepared.invoiceId },
+  )
 }
 
 async function assertAnnualBindingStillCurrent(db, prepared) {
   const binding = prepared.annualBinding
+  const detachedClaim = prepared.subscriptionOwnership?.paidSettlementVerified === true
+    && prepared.subscriptionOwnership.ownershipSource === 'immutable_claim'
   const result = await db.query(
     `SELECT id
        FROM billing_subscription
       WHERE id = $1
-        AND stripe_subscription_id = $2
         AND family_billing_account_id = $3
         AND member_id = $4
         AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
+        AND (
+          stripe_subscription_id = $2
+          OR ($5::boolean = TRUE AND stripe_subscription_id IS NULL)
+        )
       FOR SHARE`,
     [
       Number(binding.annualSubscription.id),
       prepared.subscriptionId,
       prepared.accountId,
       binding.memberId,
+      detachedClaim,
     ],
   )
   if (result.rows.length !== 1) {
@@ -754,7 +1060,8 @@ async function assertAnnualBindingStillCurrent(db, prepared) {
 
 async function reconstructAnnualInvoiceCharge(db, prepared) {
   const binding = prepared.annualBinding
-  const sourceId = `${binding.feeId}:${binding.memberId}:${annualRenewalDate(prepared.paidAt)}`
+  const renewalPeriodKey = annualInvoiceRenewalPeriodKey(prepared)
+  const sourceId = `${binding.feeId}:${binding.memberId}:${renewalPeriodKey}`
   const metadata = {
     stripeInvoiceId: prepared.invoiceId,
     stripeSubscriptionId: prepared.subscriptionId,
@@ -1004,12 +1311,172 @@ async function exactApplyReconstructedAnnualCharge(db, prepared, payment, charge
   )
 }
 
+async function markAnnualPaymentFulfillmentPending(db, prepared, payment) {
+  const pendingMarker = annualFulfillmentPendingMarker(prepared.invoiceId)
+  const refundMarker = annualRefundRequiredMarker(prepared.invoiceId)
+  const updated = await db.query(
+    `UPDATE billing_payment
+        SET external_status = 'reconciliation_required',
+            note = CASE
+              WHEN position($8 in COALESCE(note, '')) > 0 THEN note
+              WHEN COALESCE(note, '') = '' THEN $8
+              ELSE note || chr(10) || $8
+            END
+      WHERE id = $1
+        AND family_billing_account_id = $2
+        AND amount_cents = $3
+        AND stripe_invoice_id = $4
+        AND stripe_subscription_id = $5
+        AND (stripe_customer_id IS NULL OR stripe_customer_id = $6)
+        AND (
+          $7::text IS NULL
+          OR stripe_payment_intent_id IS NULL
+          OR stripe_payment_intent_id = $7
+        )
+        AND external_processor = 'stripe'
+        AND (
+          external_status IN ('settled', 'succeeded')
+          OR (
+            external_status = 'reconciliation_required'
+            AND position($8 in COALESCE(note, '')) > 0
+            AND position($9 in COALESCE(note, '')) = 0
+          )
+        )
+      RETURNING *`,
+    [
+      payment.id,
+      prepared.accountId,
+      prepared.amountCents,
+      prepared.invoiceId,
+      prepared.subscriptionId,
+      prepared.customerId,
+      prepared.paymentIntentId,
+      pendingMarker,
+      refundMarker,
+    ],
+  ).then((result) => result.rows[0] ?? null)
+  if (!updated) {
+    throw new Error(`Annual invoice payment ${payment.id} changed before fulfillment could be reserved.`)
+  }
+  updated.newly_inserted = payment.newly_inserted === true
+  updated.fulfillment_pending = true
+  return updated
+}
+
+async function settleAnnualPaymentAfterFulfillment(db, prepared, payment) {
+  const pendingMarker = annualFulfillmentPendingMarker(prepared.invoiceId)
+  const refundMarker = annualRefundRequiredMarker(prepared.invoiceId)
+  const updated = await db.query(
+    `UPDATE billing_payment
+        SET external_status = 'settled',
+            note = NULLIF(BTRIM(REPLACE(COALESCE(note, ''), $8, '')), '')
+      WHERE id = $1
+        AND family_billing_account_id = $2
+        AND amount_cents = $3
+        AND stripe_invoice_id = $4
+        AND stripe_subscription_id = $5
+        AND (stripe_customer_id IS NULL OR stripe_customer_id = $6)
+        AND (
+          $7::text IS NULL
+          OR stripe_payment_intent_id IS NULL
+          OR stripe_payment_intent_id = $7
+        )
+        AND external_processor = 'stripe'
+        AND external_status = 'reconciliation_required'
+        AND position($8 in COALESCE(note, '')) > 0
+        AND position($9 in COALESCE(note, '')) = 0
+      RETURNING *`,
+    [
+      payment.id,
+      prepared.accountId,
+      prepared.amountCents,
+      prepared.invoiceId,
+      prepared.subscriptionId,
+      prepared.customerId,
+      prepared.paymentIntentId,
+      pendingMarker,
+      refundMarker,
+    ],
+  ).then((result) => result.rows[0] ?? null)
+  if (!updated) {
+    throw new Error(`Annual invoice payment ${payment.id} changed before fulfillment could be settled.`)
+  }
+  updated.newly_inserted = payment.newly_inserted === true
+  updated.fulfillment_pending = false
+  return updated
+}
+
+async function markAnnualPaymentRefundRequired(db, prepared, payment, error) {
+  const marker = annualRefundRequiredMarker(prepared.invoiceId)
+  const reason = String(error?.message ?? error).slice(0, 500)
+  const note = `${marker} ${reason}`.slice(0, 1000)
+  const updated = await db.query(
+    `UPDATE billing_payment
+        SET external_status = 'reconciliation_required',
+            note = CASE
+              WHEN position($8 in COALESCE(note, '')) > 0 THEN note
+              WHEN COALESCE(note, '') = '' THEN $9
+              ELSE note || chr(10) || $9
+            END
+      WHERE id = $1
+        AND family_billing_account_id = $2
+        AND amount_cents = $3
+        AND stripe_invoice_id = $4
+        AND stripe_subscription_id = $5
+        AND (stripe_customer_id IS NULL OR stripe_customer_id = $6)
+        AND (
+          $7::text IS NULL
+          OR stripe_payment_intent_id IS NULL
+          OR stripe_payment_intent_id = $7
+        )
+        AND external_processor = 'stripe'
+        AND external_status IN ('settled', 'succeeded', 'reconciliation_required')
+      RETURNING *`,
+    [
+      payment.id,
+      prepared.accountId,
+      prepared.amountCents,
+      prepared.invoiceId,
+      prepared.subscriptionId,
+      prepared.customerId,
+      prepared.paymentIntentId,
+      marker,
+      note,
+    ],
+  ).then((result) => result.rows[0] ?? null)
+  if (!updated) {
+    throw new Error(`Annual invoice payment ${payment.id} changed before it could be quarantined for refund review.`)
+  }
+  updated.newly_inserted = payment.newly_inserted === true
+  updated.refund_required = true
+  updated.fulfillment_pending = false
+  updated.reconciliation_reason = reason
+  updated.reconciliation_code = error?.reasonCode ?? 'annual_invoice_entitlement_conflict'
+  return updated
+}
+
+async function alertAnnualPaymentRefundRequired(pool, prepared, payment) {
+  await recordStripeBillingAlert(pool, {
+    event: { id: `annual-invoice-refund-required:${prepared.invoiceId}` },
+    object: {
+      id: prepared.invoiceId,
+      status: 'paid',
+      amount_due: prepared.amountCents,
+      currency: prepared.invoice?.currency ?? 'usd',
+      metadata: { familyBillingAccountId: String(prepared.accountId) },
+    },
+    alertType: 'annual_invoice_refund_required',
+    severity: 'critical',
+    message: `Stripe collected annual invoice ${prepared.invoiceId}, but its entitlement could not be applied safely. Payment ${payment.id} is quarantined and requires refund or reviewed reconciliation (${payment.reconciliation_code}).`,
+  }).catch(() => {})
+}
+
 async function recordAnnualPaidStripeInvoice(pool, prepared) {
-  return withBillingAccountCollectionLock(pool, prepared.accountId, async (db) => {
+  const outcome = await withBillingAccountCollectionLock(pool, prepared.accountId, async (db) => {
+    let payment
     try {
       await db.query('BEGIN')
-      await assertAnnualBindingStillCurrent(db, prepared)
-      const payment = await upsertPaidStripeInvoicePayment(db, prepared)
+      payment = await upsertPaidStripeInvoicePayment(db, prepared)
       if (!payment) {
         quarantineInvoice(
           'annual_invoice_payment_missing',
@@ -1017,6 +1484,24 @@ async function recordAnnualPaidStripeInvoice(pool, prepared) {
           { stripeInvoiceId: prepared.invoiceId },
         )
       }
+      if (!isAnnualRefundRequiredPayment(payment, prepared)) {
+        payment = await markAnnualPaymentFulfillmentPending(db, prepared, payment)
+      }
+      await db.query('COMMIT')
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+
+    if (isAnnualRefundRequiredPayment(payment, prepared)) {
+      payment.refund_required = true
+      payment.reconciliation_code = 'annual_invoice_entitlement_conflict'
+      return { payment, refundRequired: true }
+    }
+
+    try {
+      await db.query('BEGIN')
+      await assertAnnualBindingStillCurrent(db, prepared)
       const charge = await reconstructAnnualInvoiceCharge(db, prepared)
       await exactApplyReconstructedAnnualCharge(db, prepared, payment, charge)
       await recordAnnualMembershipRenewalPromoRedemption(db, {
@@ -1025,8 +1510,36 @@ async function recordAnnualPaidStripeInvoice(pool, prepared) {
         paidAmountCents: prepared.amountCents,
         paidAt: prepared.paidAt,
       })
+      payment = await settleAnnualPaymentAfterFulfillment(db, prepared, payment)
       await db.query('COMMIT')
       payment.annual_charge_id = Number(charge.id)
+      return { payment, refundRequired: false }
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => {})
+      if (!(error instanceof StripeInvoiceQuarantineError)) throw error
+      try {
+        await db.query('BEGIN')
+        const quarantined = await markAnnualPaymentRefundRequired(db, prepared, payment, error)
+        await db.query('COMMIT')
+        return { payment: quarantined, refundRequired: true }
+      } catch (quarantineError) {
+        await db.query('ROLLBACK').catch(() => {})
+        throw quarantineError
+      }
+    }
+  })
+  if (outcome.refundRequired) {
+    await alertAnnualPaymentRefundRequired(pool, prepared, outcome.payment)
+  }
+  return outcome.payment
+}
+
+async function recordOrdinaryPaidStripeInvoice(pool, prepared) {
+  return withBillingAccountCollectionLock(pool, prepared.accountId, async (db) => {
+    try {
+      await db.query('BEGIN')
+      const payment = await upsertPaidStripeInvoicePayment(db, prepared)
+      await db.query('COMMIT')
       return payment
     } catch (error) {
       await db.query('ROLLBACK').catch(() => {})
@@ -1047,8 +1560,9 @@ export async function recordPaidStripeInvoice(pool, invoice, {
     canonicalMigrationSettlement,
   })
   if (!prepared) return null
-  if (!prepared.annualBinding) return upsertPaidStripeInvoicePayment(pool, prepared)
+  if (!prepared.annualBinding) return recordOrdinaryPaidStripeInvoice(pool, prepared)
   const payment = await recordAnnualPaidStripeInvoice(pool, prepared)
+  if (payment.refund_required) return payment
   // The next annual price can involve Stripe network calls, so validate it only
   // after the local payment/charge/allocation transaction has committed.
   await validateAnnualMembershipRenewalDiscount(pool, {

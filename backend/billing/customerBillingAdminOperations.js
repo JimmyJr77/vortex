@@ -5,6 +5,10 @@ import { notifyPaymentReceipt, notifyRefundReceipt } from '../email/memberNotifi
 import { beginBillingAdminAction, finishBillingAdminAction } from './billingAdminActions.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
+import {
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from './paidCheckoutCollectionGuard.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { withHouseholdMonthlyInvoiceAccountLock } from './householdMonthlyInvoice.js'
@@ -645,6 +649,35 @@ export async function recordAdminExternalPayment(pool, {
                    ON line.billing_monthly_invoice_id = invoice.id
                 WHERE invoice.family_billing_account_id = $1
                   AND invoice.status IN ('draft', 'open', 'failed', 'payment_method_required')
+               UNION ALL
+               SELECT 'legacy_stripe_collector'::text AS owner_kind,
+                      subscription.id AS owner_id,
+                      subscription.status AS owner_status
+                FROM billing_subscription subscription
+               WHERE subscription.family_billing_account_id = $1
+                  AND (
+                    NULLIF(BTRIM(subscription.stripe_subscription_id), '') IS NOT NULL
+                    OR NULLIF(BTRIM(subscription.stripe_subscription_item_id), '') IS NOT NULL
+                    OR NULLIF(BTRIM(subscription.stripe_subscription_schedule_id), '') IS NOT NULL
+                  )
+               UNION ALL
+               SELECT 'paid_checkout_reconciliation'::text AS owner_kind,
+                      payment.id AS owner_id,
+                      payment.external_status AS owner_status
+                 FROM billing_payment payment
+                WHERE payment.family_billing_account_id = $1
+                  AND payment.external_status = 'reconciliation_required'
+                  AND (
+                    position('[paid-checkout-fulfillment-pending:' in COALESCE(payment.note, '')) > 0
+                    OR position('[paid-checkout-refund-required:' in COALESCE(payment.note, '')) > 0
+                  )
+               UNION ALL
+               SELECT 'stripe_refund_reconciliation'::text AS owner_kind,
+                      refund.id AS owner_id,
+                      refund.external_status AS owner_status
+                 FROM billing_refund refund
+                WHERE refund.family_billing_account_id = $1
+                  AND refund.external_status = 'reconciliation_required'
              ) owner
             ORDER BY owner_kind, owner_id
             LIMIT 1`,
@@ -653,9 +686,36 @@ export async function recordAdminExternalPayment(pool, {
         if (activeOwner) {
           const label = activeOwner.owner_kind === 'monthly_invoice'
             ? 'household monthly invoice'
-            : 'remote payment attempt'
+            : activeOwner.owner_kind === 'legacy_stripe_collector'
+              ? 'legacy Stripe collector'
+              : activeOwner.owner_kind === 'paid_checkout_reconciliation'
+                ? 'paid Stripe Checkout awaiting fulfillment reconciliation'
+                : activeOwner.owner_kind === 'stripe_refund_reconciliation'
+                  ? 'Stripe refund awaiting ledger reconciliation'
+                  : 'remote payment attempt'
+          const ownership = activeOwner.owner_kind === 'legacy_stripe_collector'
+            ? `a linked ${label}`
+            : `an active ${label}`
           throw new Error(
-            `This account has an active ${label} (${activeOwner.owner_status}). Resolve or cancel that collector before recording a manual payment.`,
+            `This account has ${ownership} (${activeOwner.owner_status}). Resolve or cancel and detach that collector before recording a manual payment.`,
+          )
+        }
+        const activeEnrollmentCheckout = await findActiveEnrollmentCheckoutBalanceCollector(
+          client,
+          account.id,
+        )
+        if (activeEnrollmentCheckout) {
+          throw new Error(
+            'This account has an active enrollment Checkout already collecting part of its balance. Expire or complete that Checkout before recording a manual payment.',
+          )
+        }
+        const completedCheckoutGap = await findCompletedPaidCheckoutFulfillmentGap(
+          client,
+          account.id,
+        )
+        if (completedCheckoutGap) {
+          throw new Error(
+            `This account has a completed paid ${completedCheckoutGap.owner_kind} Checkout without exact local fulfillment. Reconcile that Checkout before recording a manual payment.`,
           )
         }
         payment = (

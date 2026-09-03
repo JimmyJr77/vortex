@@ -130,13 +130,6 @@ export async function recordDelivery({
 }) {
   if (!_pool) return { id: null, skipped: true }
   try {
-    if (idempotencyKey) {
-      const existing = await _pool.query(
-        `SELECT id FROM email_delivery WHERE idempotency_key = $1`,
-        [idempotencyKey],
-      )
-      if (existing.rows[0]) return { id: existing.rows[0].id, duplicate: true }
-    }
     const res = await _pool.query(
       `INSERT INTO email_delivery (
          facility_id, member_id, invitation_id, category, stream, template_version,
@@ -146,6 +139,7 @@ export async function recordDelivery({
          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, $12, $13, $14,
          CASE WHEN $11 = 'accepted' THEN now() ELSE NULL END
        )
+       ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
        RETURNING id`,
       [
         facilityId, memberId, invitationId, category, stream, templateVersion,
@@ -153,6 +147,13 @@ export async function recordDelivery({
         truncate(smtpCode, 32), truncate(providerReason, 240), idempotencyKey,
       ],
     )
+    if (idempotencyKey && !res.rows[0]) {
+      const existing = await _pool.query(
+        `SELECT id FROM email_delivery WHERE idempotency_key = $1`,
+        [idempotencyKey],
+      )
+      return { id: existing.rows[0]?.id ?? null, duplicate: true }
+    }
     return { id: res.rows[0]?.id ?? null }
   } catch (err) {
     console.warn('[emailDeliveryStore] recordDelivery failed:', err?.message || err)

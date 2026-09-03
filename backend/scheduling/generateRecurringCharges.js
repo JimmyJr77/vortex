@@ -53,12 +53,8 @@ async function loadRecurringBillingAccounts(db, accountId = null) {
     `SELECT account.*, family.facility_id,
             facility.timezone AS facility_timezone,
             migration.state AS migration_state,
-            EXISTS (
-              SELECT 1
-                FROM billing_account_migration verified_migration
-               WHERE verified_migration.family_billing_account_id = account.id
-                 AND verified_migration.state = 'verified'
-            ) AS has_verified_migration
+            verified_migration.id IS NOT NULL AS has_verified_migration,
+            verified_migration.effective_month AS verified_collection_month
        FROM family_billing_account account
        JOIN family ON family.id = account.family_id
        JOIN facility ON facility.id = family.facility_id
@@ -69,6 +65,23 @@ async function loadRecurringBillingAccounts(db, accountId = null) {
           ORDER BY candidate.id DESC
           LIMIT 1
        ) migration ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT candidate.id,
+                CASE
+                  WHEN NULLIF(candidate.parity_snapshot ->> 'collectionDeferredToMonth', '') IS NULL
+                    THEN candidate.cutover_month
+                  WHEN candidate.parity_snapshot ->> 'collectionDeferredToMonth'
+                       ~ '^[0-9]{4}-(0[1-9]|1[0-2])-01$'
+                    THEN (candidate.parity_snapshot ->> 'collectionDeferredToMonth')::date
+                  ELSE NULL::date
+                END AS effective_month
+           FROM billing_account_migration candidate
+          WHERE candidate.family_billing_account_id = account.id
+            AND candidate.state = 'verified'
+            AND candidate.verified_at IS NOT NULL
+          ORDER BY candidate.id DESC
+          LIMIT 1
+       ) verified_migration ON TRUE
       WHERE account.is_active = TRUE
         AND ($1::bigint IS NULL OR account.id = $1)
       ORDER BY account.id`,
@@ -92,6 +105,10 @@ async function loadDueRecurringSubscriptions(db, { accountId, asOfDate }) {
 }
 
 function monthStart(value) {
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null
+    return `${value.toISOString().slice(0, 7)}-01`
+  }
   const match = String(value ?? '').match(/^(\d{4})-(\d{2})/)
   return match ? `${match[1]}-${match[2]}-01` : null
 }
@@ -105,7 +122,7 @@ export function billingMonthEnd(value) {
   return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10)
 }
 
-export function recurringCollectionMode(account) {
+export function recurringCollectionMode(account, { billingMonth = null } = {}) {
   const state = account?.migration_state == null ? null : String(account.migration_state)
   const householdEnabled = account?.household_monthly_billing_enabled === true
   const hasVerifiedMigration = account?.has_verified_migration === true || state === 'verified'
@@ -113,7 +130,25 @@ export function recurringCollectionMode(account) {
   // rows must never move the recurring worker back to a migration-managed or
   // legacy collector while the durable household account remains enabled.
   if (hasVerifiedMigration) {
-    if (householdEnabled) return 'canonical_household'
+    if (householdEnabled) {
+      if (billingMonth != null) {
+        const currentMonth = monthStart(billingMonth)
+        const effectiveMonth = monthStart(account?.verified_collection_month)
+        if (!currentMonth || !effectiveMonth) {
+          const error = new Error(
+            `Billing account ${account?.id ?? 'unknown'} has no valid verified collection boundary.`,
+          )
+          error.code = 'recurring_collection_boundary_invalid'
+          error.details = {
+            billingMonth,
+            verifiedCollectionMonth: account?.verified_collection_month ?? null,
+          }
+          throw error
+        }
+        if (currentMonth < effectiveMonth) return 'canonical_household_deferred'
+      }
+      return 'canonical_household'
+    }
   } else if (state == null || state === 'rolled_back') {
     if (!householdEnabled) return 'legacy'
   } else if (MIGRATION_HOUSEHOLD_OWNED_STATES.has(state)) {
@@ -150,7 +185,7 @@ export async function processRecurringBillingAccount(db, account, {
 } = {}) {
   const fresh = (await loadRecurringBillingAccounts(db, account.id))[0] ?? null
   if (!fresh) return { skipped: 'inactive', accountId: Number(account.id) }
-  const collectionMode = recurringCollectionMode(fresh)
+  const collectionMode = recurringCollectionMode(fresh, { billingMonth: clock.billingMonth })
   if (collectionMode === 'migration_managed') {
     return {
       skipped: 'migration_managed',
@@ -158,6 +193,8 @@ export async function processRecurringBillingAccount(db, account, {
       migrationState: fresh.migration_state,
     }
   }
+  const canonicalLedgerOwned = collectionMode === 'canonical_household'
+    || collectionMode === 'canonical_household_deferred'
 
   const completedEnrollmentIds = await completionProcessor(db, {
     strict: true,
@@ -224,7 +261,7 @@ export async function processRecurringBillingAccount(db, account, {
     const billingMonth = monthStart(due[0].next_bill_date)
     if (!billingMonth) throw new Error(`Subscription ${due[0].id} has an invalid next bill date.`)
     const dueThisPeriod = due.filter((row) => monthStart(row.next_bill_date) === billingMonth)
-    const postRecurringCharges = collectionMode === 'canonical_household'
+    const postRecurringCharges = canonicalLedgerOwned
       ? recurringChargeReconciler
       : legacyChargePoster
     const reconciled = await postRecurringCharges(db, {
@@ -271,7 +308,7 @@ export async function processRecurringBillingAccount(db, account, {
     throw error
   }
 
-  if (collectionMode === 'canonical_household' && !reconciledMonths.has(clock.billingMonth)) {
+  if (canonicalLedgerOwned && !reconciledMonths.has(clock.billingMonth)) {
     const current = await recurringChargeReconciler(db, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,

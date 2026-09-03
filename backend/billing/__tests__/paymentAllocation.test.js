@@ -5,10 +5,16 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   annualMembershipPaidThroughDate,
+  allocateHouseholdPaymentsLocked,
   buildMembershipFirstAllocationPlan,
   endRefundedAnnualMembership,
   reverseRefundedApplicationsLocked,
 } from '../paymentAllocation.js'
+import {
+  completedPaidCheckoutFulfillmentIsExact,
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from '../paidCheckoutCollectionGuard.js'
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
 
@@ -108,6 +114,39 @@ test('refunded money is not reallocated after its application is reversed', () =
     refunds: [{ paymentId: 1, amountCents: 8500, status: 'succeeded' }],
   })
   assert.deepEqual(plan, [])
+})
+
+test('refund money awaiting ledger reconciliation is not available for allocation', () => {
+  const plan = buildMembershipFirstAllocationPlan({
+    payments: [settled(1, 8500, '2026-01-02')],
+    charges: [charge(10, 8500, '2026-01-01', true)],
+    refunds: [{ paymentId: 1, amountCents: 8500, status: 'reconciliation_required' }],
+  })
+  assert.deepEqual(plan, [])
+})
+
+test('a reverse-charge refund offset prevents unrelated cash from repaying the refunded annual fee', () => {
+  const plan = buildMembershipFirstAllocationPlan({
+    payments: [
+      settled(1, 10000, '2026-01-02'),
+      settled(2, 5000, '2026-01-03'),
+    ],
+    // The database candidate query reduces charge 10 from 10000 to its exact
+    // 6000 effective amount after the linked -4000 refund_offset.
+    charges: [
+      charge(10, 6000, '2026-01-01', true),
+      charge(11, 5000, '2026-01-02'),
+    ],
+    applications: [
+      { paymentId: 1, chargeId: 10, amountCents: 10000, applicationKind: 'application' },
+      { paymentId: 1, chargeId: 10, amountCents: 4000, applicationKind: 'reversal' },
+    ],
+    refunds: [{ paymentId: 1, amountCents: 4000, status: 'succeeded' }],
+  })
+
+  assert.deepEqual(plan.map(({ paymentId, chargeId, amountCents }) => ({ paymentId, chargeId, amountCents })), [
+    { paymentId: 2, chargeId: 11, amountCents: 5000 },
+  ])
 })
 
 test('refund reversal retry resumes after its persisted slice without over-reversing', async () => {
@@ -493,6 +532,258 @@ test('paid-state allocation queries only count settled or succeeded payment appl
   )
   assert.match(advanceSource, /JOIN billing_payment payment ON payment\.id = application\.billing_payment_id/)
   assert.match(advanceSource, /payment\.external_status IN \('settled', 'succeeded'\)/)
+})
+
+test('refund offsets reduce only their exact charge and cannot reactivate a refunded annual membership', () => {
+  const source = fs.readFileSync(path.join(testDirectory, '../paymentAllocation.js'), 'utf8')
+  const activateSource = source.slice(
+    source.indexOf('async function activatePaidMemberships'),
+    source.indexOf('async function restoreMissingAnnualMembershipPromoCredits'),
+  )
+  const refreshSource = source.slice(
+    source.indexOf('export async function refreshChargeStatuses'),
+    source.indexOf('async function advancePaidThroughEnrollmentSubscriptions'),
+  )
+  const allocatorSource = source.slice(
+    source.indexOf('export async function allocateHouseholdPaymentsLocked'),
+    source.indexOf('export async function allocateHouseholdPayments('),
+  )
+
+  assert.match(activateSource, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(activateSource, /NOT EXISTS \([\s\S]*refund_offset\.source_type = 'refund_offset'/)
+  assert.equal(
+    [...refreshSource.matchAll(/source_type IN \('charge_adjustment', 'refund_offset'\)/g)].length,
+    5,
+  )
+  assert.match(allocatorSource, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(allocatorSource, /credit_source\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+})
+
+test('general allocation excludes charges owned by an unresolved paid Checkout Session', () => {
+  const source = fs.readFileSync(path.join(testDirectory, '../paymentAllocation.js'), 'utf8')
+  const allocatorSource = source.slice(
+    source.indexOf('export async function allocateHouseholdPaymentsLocked'),
+    source.indexOf('export async function allocateHouseholdPayments('),
+  )
+
+  assert.match(allocatorSource, /checkout_payment\.stripe_checkout_session_id = c\.stripe_checkout_session_id/)
+  assert.match(allocatorSource, /checkout_payment\.external_status = 'reconciliation_required'/)
+  assert.match(allocatorSource, /\[paid-checkout-fulfillment-pending:/)
+  assert.match(allocatorSource, /\[paid-checkout-refund-required:/)
+})
+
+test('general allocation stops for a completed Checkout owner without exact fulfillment proof', async () => {
+  const queries = []
+  const db = {
+    async query(sql) {
+      const text = String(sql)
+      queries.push(text)
+      if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+        return { rows: [] }
+      }
+      if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
+      if (text.includes('WITH completed_owner AS')) {
+        return { rows: [{ owner_kind: 'enrollment', owner_id: 71 }] }
+      }
+      throw new Error(`General allocation continued past unsafe paid Checkout: ${text}`)
+    },
+  }
+
+  const result = await allocateHouseholdPaymentsLocked(db, { accountId: 8 })
+
+  assert.equal(result.blocked, 'paid_checkout_owner_payment_gap')
+  assert.equal(result.blockedOwnerKind, 'enrollment')
+  assert.equal(result.blockedOwnerId, 71)
+  assert.equal(queries.at(-1), 'COMMIT')
+  assert.equal(queries.some((text) => text.includes('INSERT INTO billing_payment_application')), false)
+})
+
+test('general allocation stops for an active enrollment Checkout carrying account balance', async () => {
+  const queries = []
+  const db = {
+    async query(sql) {
+      const text = String(sql)
+      queries.push(text)
+      if (text === 'BEGIN' || text === 'COMMIT' || text.includes('pg_advisory_xact_lock')) {
+        return { rows: [] }
+      }
+      if (text.includes('WITH active_enrollment_checkout AS')) {
+        return { rows: [{ owner_kind: 'enrollment', owner_id: 72 }] }
+      }
+      throw new Error(`General allocation continued past active enrollment Checkout: ${text}`)
+    },
+  }
+
+  const result = await allocateHouseholdPaymentsLocked(db, { accountId: 8 })
+
+  assert.equal(result.blocked, 'active_enrollment_checkout_balance_collector')
+  assert.equal(result.blockedOwnerKind, 'enrollment')
+  assert.equal(result.blockedOwnerId, 72)
+  assert.equal(queries.at(-1), 'COMMIT')
+  assert.equal(queries.some((text) => text.includes('INSERT INTO billing_payment_application')), false)
+})
+
+test('caller-owned allocation transaction never commits or rolls back its authorization lock', async () => {
+  const queries = []
+  const db = {
+    async query(sql) {
+      const text = String(sql)
+      queries.push(text)
+      if (text.includes('WITH active_enrollment_checkout AS')) {
+        return { rows: [{ owner_kind: 'enrollment', owner_id: 72 }] }
+      }
+      throw new Error(`Caller-owned allocation unexpectedly continued: ${text}`)
+    },
+  }
+
+  const result = await allocateHouseholdPaymentsLocked(db, {
+    accountId: 8,
+    manageTransaction: false,
+  })
+
+  assert.equal(result.blocked, 'active_enrollment_checkout_balance_collector')
+  assert.equal(queries.length, 1)
+  assert.equal(queries.some((text) => /^(BEGIN|COMMIT|ROLLBACK)$/.test(text)), false)
+  assert.equal(queries.some((text) => text.includes('pg_advisory_xact_lock')), false)
+})
+
+test('active enrollment Checkout guard uses durable status evidence and supports excluding its own reservation', async () => {
+  let captured = null
+  const db = {
+    async query(sql, params) {
+      captured = { sql: String(sql), params }
+      return { rows: [{ owner_kind: 'enrollment', owner_id: 72, carried_balance_cents: 2500 }] }
+    },
+  }
+
+  const blocker = await findActiveEnrollmentCheckoutBalanceCollector(db, 8, {
+    excludePendingEnrollmentId: 71,
+  })
+
+  assert.equal(blocker.owner_id, 72)
+  assert.deepEqual(captured.params, [8, 71])
+  assert.match(captured.sql, /pending\.status IN \('pending', 'processing', 'failed'\)/)
+  assert.match(captured.sql, /pending\.checkout_mode IN \('payment', 'subscription'\)/)
+  assert.match(captured.sql, /pending\.id <> \$2/)
+  assert.match(captured.sql, /due_now_cents > purchase_target_cents/)
+  assert.doesNotMatch(captured.sql, /expires_at\s*>\s*now\(\)/)
+  assert.doesNotMatch(captured.sql, /stripe_checkout_session_id IS NOT NULL/)
+})
+
+test('completed Checkout proof uses only columns present on durable owner tables', async () => {
+  let captured = null
+  const db = {
+    async query(sql, params) {
+      captured = { sql: String(sql), params }
+      return { rows: [] }
+    },
+  }
+
+  assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db, 8), null)
+  assert.deepEqual(captured.params, [8])
+  assert.doesNotMatch(captured.sql, /pending\.stripe_customer_id/)
+  assert.match(captured.sql, /payment\.stripe_checkout_session_id = owner\.stripe_checkout_session_id/)
+  assert.match(captured.sql, /payment\.family_billing_account_id = owner\.family_billing_account_id/)
+  assert.match(captured.sql, /payment\.amount_cents = owner\.expected_payment_cents/)
+  assert.match(captured.sql, /refund\.external_status = 'succeeded'/)
+  assert.match(captured.sql, /refund\.ledger_treatment = 'reverse_charge'/)
+  assert.match(captured.sql, /refund\.stripe_refund_id IS NOT NULL/)
+  assert.match(captured.sql, /refund_offset\.id = refund\.offset_credit_charge_id/)
+  assert.match(captured.sql, /refund_offset\.amount_cents = -refund\.amount_cents/)
+  assert.match(captured.sql, /reversal\.idempotency_key =[\s\S]*'refund:' \|\| refund\.id::text/)
+  assert.match(captured.sql, /COALESCE\(refunded_purchase\.refunded_cents, 0\)::int AS refunded_purchase_cents/)
+  assert.match(captured.sql, /COALESCE\(tagged_unfunded\.total_cents, 0\)::int AS tagged_unfunded_cents/)
+  assert.match(captured.sql, /charge\.amount_cents[\s\S]*- COALESCE\(exact_application\.applied_cents, 0\)[\s\S]*- COALESCE\(exact_refund\.refunded_cents, 0\)/)
+  assert.doesNotMatch(captured.sql, /refund\.external_status IN \([^)]*reconciliation_required/)
+})
+
+test('completed Checkout proof accepts only exact finalized full or partial purchase refunds', () => {
+  const base = {
+    payment_id: 51,
+    expected_payment_cents: 8500,
+    purchase_target_cents: 8500,
+    tagged_charge_cents: 8500,
+    tagged_unfunded_cents: 0,
+    has_active_invoice_reservation: false,
+    has_active_payment_attempt: false,
+    has_escaped_session_credit: false,
+  }
+
+  assert.equal(completedPaidCheckoutFulfillmentIsExact({
+    ...base,
+    tagged_application_cents: 0,
+    all_application_cents: 0,
+    refunded_purchase_cents: 8500,
+  }), true)
+  assert.equal(completedPaidCheckoutFulfillmentIsExact({
+    ...base,
+    tagged_application_cents: 6000,
+    all_application_cents: 6000,
+    refunded_purchase_cents: 2500,
+  }), true)
+
+  // A pending/reconciliation-required refund is deliberately absent from the
+  // exact-refund CTE, so the same reversed application remains a blocker.
+  assert.equal(completedPaidCheckoutFulfillmentIsExact({
+    ...base,
+    tagged_application_cents: 6000,
+    all_application_cents: 6000,
+    refunded_purchase_cents: 0,
+  }), false)
+  assert.equal(completedPaidCheckoutFulfillmentIsExact({
+    ...base,
+    tagged_application_cents: 6000,
+    all_application_cents: 6000,
+    refunded_purchase_cents: 2500,
+    has_active_payment_attempt: true,
+  }), false)
+})
+
+test('completed Checkout gap helper releases exact fully and partially refunded owners', async () => {
+  const base = {
+    owner_kind: 'annual_membership',
+    owner_id: 71,
+    payment_id: 51,
+    expected_payment_cents: 8500,
+    purchase_target_cents: 8500,
+    tagged_charge_cents: 8500,
+    tagged_unfunded_cents: 0,
+    has_active_invoice_reservation: false,
+    has_active_payment_attempt: false,
+    has_escaped_session_credit: false,
+  }
+  for (const proof of [
+    { ...base, tagged_application_cents: 0, all_application_cents: 0, refunded_purchase_cents: 8500 },
+    { ...base, tagged_application_cents: 6000, all_application_cents: 6000, refunded_purchase_cents: 2500 },
+  ]) {
+    const db = { async query() { return { rows: [proof] } } }
+    assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db, 8), null)
+  }
+
+  const unresolved = {
+    ...base,
+    tagged_application_cents: 6000,
+    all_application_cents: 6000,
+    refunded_purchase_cents: 0,
+  }
+  const db = { async query() { return { rows: [unresolved] } } }
+  assert.equal(
+    (await findCompletedPaidCheckoutFulfillmentGap(db, 8))?.owner_id,
+    71,
+  )
+
+  const skewedAcrossCharges = {
+    ...base,
+    tagged_application_cents: 8500,
+    all_application_cents: 8500,
+    refunded_purchase_cents: 0,
+    tagged_unfunded_cents: 4250,
+  }
+  const skewedDb = { async query() { return { rows: [skewedAcrossCharges] } } }
+  assert.equal(
+    (await findCompletedPaidCheckoutFulfillmentGap(skewedDb, 8))?.owner_id,
+    71,
+  )
 })
 
 test('annual membership replay cannot move paid-through backward', () => {

@@ -118,6 +118,8 @@ services:
         value: "true"
       - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
         value: disabled
+      - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
+        value: household_only
       - key: BILLING_ALERT_EMAIL
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO
@@ -152,6 +154,12 @@ services:
         value: "true"
       - key: STRIPE_SECRET_KEY
         sync: false
+      - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
+        value: disabled
+      - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
+        value: household_only
+      - key: STRIPE_RECONCILIATION_LOOKBACK_HOURS
+        value: "168"
       - key: BILLING_ALERT_EMAIL
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO

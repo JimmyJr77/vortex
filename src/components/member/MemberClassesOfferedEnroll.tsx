@@ -702,6 +702,21 @@ export default function MemberClassesOfferedEnroll({
           window.location.href = checkout.url
           return
         }
+        if (checkout.requiresReview || checkout.status === 'quarantined') {
+          throw new Error(
+            'Your payment was received, but enrollment needs staff review. Do not submit another payment.',
+          )
+        }
+        if (checkout.alreadyCompleted || ['completed', 'already_completed'].includes(String(checkout.status))) {
+          setDoneCount(cart.length)
+          setCart([])
+          setPreview(null)
+          setPromoCodes([])
+          setEnrollmentStartDate('')
+          setView('done')
+          onEnrolled()
+          return
+        }
         if (!checkout.skipCheckout) {
           throw new Error('Unable to start payment checkout.')
         }

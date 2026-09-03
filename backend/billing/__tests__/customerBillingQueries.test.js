@@ -8,12 +8,49 @@ import {
   firstRecurringPricingLineBySignup,
   upcomingRecurringPricingMonth,
   listCustomerBillingActivity,
+  loadCustomerBillingAnnualMemberships,
   listCustomerBillingTransactions,
   listMemberCustomerBillingTransactions,
   loadCustomerBillingAccount,
   recurringPricingForPeriod,
   searchCustomerBilling,
 } from '../customerBillingQueries.js'
+
+test('refund offsets reduce effective due amounts in annual and transaction displays', async () => {
+  const annualQueries = []
+  await loadCustomerBillingAnnualMemberships({
+    async query(sql) {
+      annualQueries.push(String(sql))
+      return { rows: [] }
+    },
+  }, {
+    accountId: 19,
+    members: [{ id: 73, name: 'Alexis Barnett' }],
+  })
+
+  const annualChargeQuery = annualQueries.find((sql) => sql.includes('remaining_amount_cents'))
+  assert.match(annualChargeQuery, /linked\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(annualChargeQuery, /BOOL_OR\(linked\.source_type = 'refund_offset' AND linked\.amount_cents < 0\)/)
+  assert.match(annualChargeQuery, /THEN 'refunded'/)
+
+  let householdTransactionQuery = ''
+  await listCustomerBillingTransactions({
+    async query(sql) {
+      householdTransactionQuery = String(sql)
+      return { rows: [] }
+    },
+  }, { accountId: 19 })
+  assert.match(householdTransactionQuery, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+
+  const memberQueries = []
+  await listMemberCustomerBillingTransactions({
+    async query(sql) {
+      memberQueries.push(String(sql))
+      return memberQueries.length === 1 ? { rows: [{ balance_cents: 0 }] } : { rows: [] }
+    },
+  }, { accountId: 19 })
+  assert.match(memberQueries[1], /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+})
 
 test('customer account lookup excludes inactive accounts and returns its facility scope', async () => {
   let captured
@@ -316,6 +353,36 @@ test('annual membership rows expose an outstanding athlete-specific fee for Bill
   assert.equal(row.active, false)
   assert.equal(row.outstandingChargeId, 123)
   assert.equal(row.outstandingAmountCents, 8500)
+})
+
+test('a refund offset cannot present a reversed annual fee as an active membership', () => {
+  const [row] = buildCustomerBillingAnnualMemberships({
+    members: [{ id: 74, name: 'Zechariah Sherrill' }],
+    charges: [{
+      id: 123,
+      member_id: 74,
+      source_type: 'additional_fee',
+      source_id: '1:74:2027-08-30',
+      created_at: '2026-08-30T12:00:00.000Z',
+      collection_status: 'refunded',
+      paid_at: null,
+      has_refund_offset: true,
+      remaining_amount_cents: 0,
+    }],
+    redemptions: [{
+      fee_id: 1,
+      member_id: 74,
+      created_at: '2026-08-30T12:00:00.000Z',
+      satisfied_at: '2026-08-30T12:00:00.000Z',
+      period_key: '2027-08-30',
+      ended_at: '2026-09-03T12:00:00.000Z',
+    }],
+    asOf: new Date('2026-09-03T13:00:00.000Z'),
+  })
+
+  assert.equal(row.active, false)
+  assert.equal(row.outstandingChargeId, null)
+  assert.equal(row.outstandingAmountCents, 0)
 })
 
 test('internal migration instructions are not exposed as Stripe errors', () => {

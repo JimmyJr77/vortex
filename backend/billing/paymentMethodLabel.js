@@ -84,7 +84,13 @@ export function formatPaymentMethodLabelFromChargeDetails(details) {
  */
 export async function resolveStripePaymentMethodLabel(
   stripe,
-  { paymentIntentId = null, checkoutSessionId = null, invoice = null, paymentMethodId = null } = {},
+  {
+    paymentIntentId = null,
+    paymentIntent = null,
+    checkoutSessionId = null,
+    invoice = null,
+    paymentMethodId = null,
+  } = {},
 ) {
   if (!stripe) return 'Card'
 
@@ -98,8 +104,8 @@ export async function resolveStripePaymentMethodLabel(
           : await stripe.paymentMethods.retrieve(paymentMethodId)
     }
 
-    if (!pm && paymentIntentId) {
-      const pi = await stripe.paymentIntents.retrieve(paymentIntentId, {
+    if (!pm && (paymentIntent || paymentIntentId)) {
+      const pi = paymentIntent ?? await stripe.paymentIntents.retrieve(paymentIntentId, {
         expand: ['payment_method', 'latest_charge'],
       })
       const fromCharge = formatPaymentMethodLabelFromChargeDetails(

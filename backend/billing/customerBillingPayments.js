@@ -6,7 +6,11 @@ import {
   getStripeClient,
   stripeEnabled,
 } from './stripeBilling.js'
-import { createBillingRefund } from './stripeOperations.js'
+import {
+  createBillingRefund,
+  REFUND_LEDGER_FINALIZATION_PREFIX,
+  stripeRefundReadyForLedgerFinalization,
+} from './stripeOperations.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { ensureCustomerBillingAccount } from './customerBillingQueries.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
@@ -26,6 +30,7 @@ import {
   HOUSEHOLD_INVOICE_RESERVING_STATUSES,
   loadCanonicalCollectibleBalanceCents,
 } from './canonicalBillingAccount.js'
+import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
 import {
@@ -1010,7 +1015,7 @@ export async function checkoutAmountForBillingCharge(pool, { account, charge, re
            SELECT SUM(adjustment.amount_cents)
            FROM billing_charge adjustment
            WHERE adjustment.related_charge_id = charge.id
-             AND adjustment.source_type = 'charge_adjustment'
+             AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
          ), 0)
          - COALESCE((
            SELECT SUM(application.amount_cents)
@@ -1024,7 +1029,7 @@ export async function checkoutAmountForBillingCharge(pool, { account, charge, re
             WHERE target_line.billing_charge_id = charge.id
               AND NOT (
                 credit_source.related_charge_id = charge.id
-                AND credit_source.source_type = 'charge_adjustment'
+                AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
               )
          ), 0)
          - COALESCE((
@@ -1380,19 +1385,25 @@ export async function createCustomerBillingChargePaymentRequest(pool, options) {
   })
 }
 
-async function resolveDefaultPaymentMethod(stripe, customerId) {
+export async function resolveDefaultPaymentMethod(stripe, customerId, {
+  billingMonth = new Date(),
+} = {}) {
   const customer = await stripe.customers.retrieve(customerId, {
     expand: ['invoice_settings.default_payment_method'],
   })
   if (!customer || customer.deleted) throw new Error('Stripe customer is unavailable.')
-  let paymentMethod = customer.invoice_settings?.default_payment_method ?? null
-  if (typeof paymentMethod === 'object') paymentMethod = paymentMethod.id
-  if (!paymentMethod) {
-    const methods = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
-    paymentMethod = methods.data?.[0]?.id ?? null
+  const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
+    expectedCustomerId: customerId,
+    billingMonth,
+  })
+  if (!selection.readiness.ready || !selection.readiness.paymentMethodId) {
+    const reason = selection.readiness.reason ?? 'payment_method_required'
+    const error = new Error(`No eligible default Stripe payment method is available for this household (${reason}).`)
+    error.code = 'STRIPE_PAYMENT_METHOD_NOT_READY'
+    error.paymentMethodReadinessReason = reason
+    throw error
   }
-  if (!paymentMethod) throw new Error('No reusable saved card is available for this household.')
-  return paymentMethod
+  return selection.readiness.paymentMethodId
 }
 
 function validateAuthorization(authorization, amountCents) {
@@ -1476,7 +1487,7 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     let paymentMethodId
     try {
       customerId = await ensureStripeCustomer(db, stripe, account)
-      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
+      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId, { billingMonth: auth.date })
     } catch (error) {
       await releaseBillingPaymentAttempt(db, {
         attemptId: reservation.id,
@@ -1646,7 +1657,7 @@ export async function collectCustomChargeWithSavedCard(pool, {
     let paymentMethodId
     try {
       customerId = await ensureStripeCustomer(db, stripe, account)
-      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId)
+      paymentMethodId = await resolveDefaultPaymentMethod(stripe, customerId, { billingMonth: auth.date })
     } catch (error) {
       await releaseBillingPaymentAttempt(db, {
         attemptId: reservation.id,
@@ -1767,7 +1778,7 @@ export async function collectCustomChargeWithSavedCard(pool, {
                    SELECT SUM(adjustment.amount_cents)
                    FROM billing_charge adjustment
                    WHERE adjustment.related_charge_id = charge.id
-                     AND adjustment.source_type = 'charge_adjustment'
+                     AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
                  ), 0)) THEN 'paid'
                ELSE $2
              END,
@@ -1914,7 +1925,7 @@ export async function previewCustomerBillingRefund(pool, {
   }
   const refunded = await pool.query(
     `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
-     FROM billing_refund WHERE payment_id = $1 AND external_status IN ('pending', 'succeeded')`,
+     FROM billing_refund WHERE payment_id = $1 AND external_status IN ('pending', 'succeeded', 'reconciliation_required')`,
     [payment.id],
   )
   const remainingRefundableCents = Number(payment.amount_cents) - Number(refunded.rows[0]?.cents ?? 0)
@@ -1937,7 +1948,7 @@ export async function previewCustomerBillingRefund(pool, {
       `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
        FROM billing_refund
        WHERE related_charge_id = $1 AND ledger_treatment = 'reverse_charge'
-         AND external_status IN ('pending', 'succeeded')`,
+         AND external_status IN ('pending', 'succeeded', 'reconciliation_required')`,
       [relatedCharge.id],
     )
     if (Number(prior.rows[0]?.cents ?? 0) + amount > Math.max(0, Number(relatedCharge.amount_cents))) {
@@ -1967,6 +1978,7 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
   actorUserId = null,
   actorType = 'system',
   collectionLockHeld = false,
+  stripeClient = undefined,
 } = {}) {
   const candidate = typeof refundOrId === 'object'
     ? refundOrId
@@ -1984,7 +1996,7 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
     try {
       await db.query('BEGIN')
       transactionOpen = true
-      const refund = await db.query(
+      let refund = await db.query(
         `SELECT *
            FROM billing_refund
           WHERE id = $1 AND family_billing_account_id = $2
@@ -1992,10 +2004,26 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
         [Number(candidate.id), accountId],
       ).then((result) => result.rows[0] ?? null)
       if (!refund) throw new Error('Refund was not found for this household account.')
-      if (refund.external_status !== 'succeeded' || !refund.ledger_treatment) {
+      if (!stripeRefundReadyForLedgerFinalization(refund)) {
         await db.query('COMMIT')
         transactionOpen = false
         return refund
+      }
+
+      if (refund.external_status === 'reconciliation_required') {
+        refund = await db.query(
+          `UPDATE billing_refund
+              SET external_status = 'succeeded', error_message = NULL, updated_at = now()
+            WHERE id = $1
+              AND family_billing_account_id = $2
+              AND external_status = 'reconciliation_required'
+              AND stripe_refund_id = $3
+            RETURNING *`,
+          [refund.id, accountId, refund.stripe_refund_id],
+        ).then((result) => result.rows[0] ?? null)
+        if (!refund) {
+          throw new Error('Refund ledger-finalization ownership changed before it could be committed.')
+        }
       }
 
       let offsetCredit = null
@@ -2108,7 +2136,29 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
         actorUserId,
         actorType,
       })
-      finalized = { ...refund, offset_credit_charge_id: offsetCredit?.id ?? refund.offset_credit_charge_id }
+      const remoteSubscriptions = membershipEnd.subscriptions.filter((row) => row.stripe_subscription_id)
+      if (remoteSubscriptions.length > 0) {
+        const subscriptionIds = remoteSubscriptions.map((row) => String(row.stripe_subscription_id))
+        const cancellationMarker = `${REFUND_LEDGER_FINALIZATION_PREFIX}${refund.stripe_refund_id}] Stripe returned the money and the approved ledger treatment committed; linked legacy Stripe subscriptions (${subscriptionIds.join(', ')}) must be canceled before household collection resumes.`
+        finalized = await db.query(
+          `UPDATE billing_refund
+              SET external_status = 'reconciliation_required',
+                  error_message = $3,
+                  updated_at = now()
+            WHERE id = $1
+              AND family_billing_account_id = $2
+              AND stripe_refund_id = $4
+              AND external_status = 'succeeded'
+            RETURNING *`,
+          [refund.id, accountId, cancellationMarker, refund.stripe_refund_id],
+        ).then((result) => result.rows[0] ?? null)
+        if (!finalized) {
+          throw new Error('Refund ownership changed before legacy Stripe subscription cancellation could be reserved.')
+        }
+        finalized.offset_credit_charge_id = offsetCredit?.id ?? refund.offset_credit_charge_id
+      } else {
+        finalized = { ...refund, offset_credit_charge_id: offsetCredit?.id ?? refund.offset_credit_charge_id }
+      }
       await db.query('COMMIT')
       transactionOpen = false
     } catch (error) {
@@ -2116,20 +2166,118 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
       throw error
     }
 
-    // Re-run allocation on the already-locked session, but in its own short
-    // transaction. This avoids nested BEGIN/COMMIT and lock reacquisition.
-    await allocateHouseholdPaymentsLocked(db, { accountId, actorType })
-
     const remoteSubscriptions = membershipEnd.subscriptions.filter((row) => row.stripe_subscription_id)
     if (remoteSubscriptions.length > 0) {
-      const stripe = await getStripeClient()
-      if (!stripe) {
-        const error = new Error('Stripe is unavailable; refunded annual membership cancellation remains pending.')
-        error.code = 'REFUND_MEMBERSHIP_STRIPE_CANCELLATION_PENDING'
+      try {
+        const stripe = stripeClient === undefined ? await getStripeClient() : stripeClient
+        if (!stripe) {
+          const error = new Error('Stripe is unavailable; refunded annual membership cancellation remains pending.')
+          error.code = 'REFUND_MEMBERSHIP_STRIPE_CANCELLATION_PENDING'
+          throw error
+        }
+        await cancelRefundedAnnualMembershipSubscriptions(stripe, remoteSubscriptions)
+
+        let completionTransactionOpen = false
+        try {
+          await db.query('BEGIN')
+          completionTransactionOpen = true
+          const lockedRefund = await db.query(
+            `SELECT *
+               FROM billing_refund
+              WHERE id = $1 AND family_billing_account_id = $2
+              FOR UPDATE`,
+            [finalized.id, accountId],
+          ).then((result) => result.rows[0] ?? null)
+          if (!lockedRefund || String(lockedRefund.stripe_refund_id ?? '') !== String(finalized.stripe_refund_id ?? '')) {
+            throw new Error('Refund ownership changed while legacy Stripe subscriptions were being canceled.')
+          }
+          if (lockedRefund.external_status === 'succeeded') {
+            finalized = lockedRefund
+          } else {
+            const expectedPrefix = `${REFUND_LEDGER_FINALIZATION_PREFIX}${lockedRefund.stripe_refund_id}]`
+            if (
+              lockedRefund.external_status !== 'reconciliation_required'
+              || !String(lockedRefund.error_message ?? '').startsWith(expectedPrefix)
+            ) {
+              throw new Error('Refund reconciliation state changed while legacy Stripe subscriptions were being canceled.')
+            }
+            finalized = await db.query(
+              `UPDATE billing_refund
+                  SET external_status = 'succeeded', error_message = NULL, updated_at = now()
+                WHERE id = $1
+                  AND family_billing_account_id = $2
+                  AND stripe_refund_id = $3
+                  AND external_status = 'reconciliation_required'
+                  AND position($4 in COALESCE(error_message, '')) = 1
+                RETURNING *`,
+              [lockedRefund.id, accountId, lockedRefund.stripe_refund_id, expectedPrefix],
+            ).then((result) => result.rows[0] ?? null)
+            if (!finalized) {
+              throw new Error('Refund reconciliation state changed before subscription cancellation could be finalized.')
+            }
+          }
+          await db.query('COMMIT')
+          completionTransactionOpen = false
+        } catch (error) {
+          if (completionTransactionOpen) await db.query('ROLLBACK').catch(() => {})
+          throw error
+        }
+        await db.query(
+          `UPDATE stripe_billing_alert
+              SET action_status = CASE WHEN action_status = 'suspended' THEN action_status ELSE 'resolved' END,
+                  resolved_at = CASE WHEN action_status = 'suspended' THEN resolved_at ELSE COALESCE(resolved_at, now()) END,
+                  resolution_note = CASE
+                    WHEN action_status = 'suspended' THEN resolution_note
+                    ELSE COALESCE(resolution_note, 'Automatically resolved after linked legacy Stripe subscriptions were canceled.')
+                  END,
+                  updated_at = now()
+            WHERE stripe_event_id = $1`,
+          [`refund-subscription-cancellation:${finalized.id}`],
+        ).catch(() => {})
+      } catch (error) {
+        await db.query(
+          `INSERT INTO stripe_billing_alert (
+             stripe_event_id, family_billing_account_id, alert_type, severity,
+             stripe_object_id, message, details
+           ) VALUES ($1, $2, 'stripe_refund_reconciliation_failed', 'critical', $3, $4, $5::jsonb)
+           ON CONFLICT (stripe_event_id) DO UPDATE
+             SET family_billing_account_id = EXCLUDED.family_billing_account_id,
+                 alert_type = EXCLUDED.alert_type,
+                 severity = 'critical',
+                 stripe_object_id = EXCLUDED.stripe_object_id,
+                 message = EXCLUDED.message,
+                 details = EXCLUDED.details,
+                 action_status = CASE
+                   WHEN stripe_billing_alert.action_status = 'suspended' THEN stripe_billing_alert.action_status
+                   ELSE 'open'
+                 END,
+                 resolved_at = CASE
+                   WHEN stripe_billing_alert.action_status = 'suspended' THEN stripe_billing_alert.resolved_at
+                   ELSE NULL
+                 END,
+                 updated_at = now()`,
+          [
+            `refund-subscription-cancellation:${finalized.id}`,
+            accountId,
+            finalized.stripe_refund_id,
+            `Refund #${finalized.id} returned money but linked legacy Stripe subscription cancellation is still pending.`,
+            JSON.stringify({
+              refundId: Number(finalized.id),
+              stripeRefundId: finalized.stripe_refund_id,
+              stripeSubscriptionIds: remoteSubscriptions.map((row) => row.stripe_subscription_id),
+              reason: String(error?.message ?? error),
+            }),
+          ],
+        ).catch(() => {})
+        if (!error.code) error.code = 'REFUND_MEMBERSHIP_STRIPE_CANCELLATION_PENDING'
         throw error
       }
-      await cancelRefundedAnnualMembershipSubscriptions(stripe, remoteSubscriptions)
     }
+    // Re-run allocation on the already-locked session, but in its own short
+    // transaction. For annual refunds, wait until every linked legacy Stripe
+    // subscription is confirmed canceled so no collector can observe an
+    // unblocked refund while the old remote renewal is still live.
+    await allocateHouseholdPaymentsLocked(db, { accountId, actorType })
     return finalized
   }
   return collectionLockHeld
@@ -2169,6 +2317,7 @@ export async function createCustomerBillingRefund(pool, {
   const refundReason = String(reason ?? '').trim()
   if (!refundReason) throw new Error('A refund reason is required.')
   const requestKey = String(idempotencyKey ?? '').trim() || null
+  if (!requestKey) throw new Error('A stable refund idempotency key is required.')
   return withBillingAccountCollectionLock(pool, account.id, async (db) => {
     if (requestKey) {
       const existing = await db.query(

@@ -72,7 +72,7 @@ export async function listBillingAnomalies(pool, { facilityId }) {
      charge_adjustment AS (
        SELECT related_charge_id AS charge_id, SUM(amount_cents)::bigint AS adjustment_cents
        FROM billing_charge
-       WHERE source_type = 'charge_adjustment'
+       WHERE source_type IN ('charge_adjustment', 'refund_offset')
          AND related_charge_id IS NOT NULL
        GROUP BY related_charge_id
      ),
@@ -91,7 +91,13 @@ export async function listBillingAnomalies(pool, { facilityId }) {
        FROM billing_charge_credit_application application
        JOIN billing_monthly_invoice invoice ON invoice.id = application.billing_monthly_invoice_id
        JOIN billing_monthly_invoice_line target_line ON target_line.id = application.target_invoice_line_id
+       JOIN billing_monthly_invoice_line credit_line ON credit_line.id = application.credit_invoice_line_id
+       JOIN billing_charge credit_source ON credit_source.id = credit_line.billing_charge_id
        WHERE invoice.status = 'paid'
+         AND NOT (
+           credit_source.related_charge_id = target_line.billing_charge_id
+           AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
+         )
        GROUP BY target_line.billing_charge_id
      ),
      collectible_charge AS (
@@ -113,7 +119,7 @@ export async function listBillingAnomalies(pool, { facilityId }) {
        LEFT JOIN charge_adjustment ON charge_adjustment.charge_id = charge.id
        LEFT JOIN payment_application ON payment_application.charge_id = charge.id
        LEFT JOIN credit_application ON credit_application.charge_id = charge.id
-       WHERE charge.source_type <> 'charge_adjustment'
+       WHERE charge.source_type NOT IN ('charge_adjustment', 'refund_offset')
          AND charge.amount_cents > 0
      ),
      unpaid AS (
@@ -167,6 +173,48 @@ export async function listBillingAnomalies(pool, { facilityId }) {
        WHERE payment.external_status IN ('settled', 'succeeded')
        GROUP BY account.billing_account_id, payment.amount_cents, COALESCE(NULLIF(payment.method, ''), 'unknown'), (payment.paid_at AT TIME ZONE 'America/New_York')::date
        HAVING COUNT(*) > 1
+     ),
+     adjacent_day_stripe_split_payment AS (
+       SELECT
+         account.billing_account_id,
+         invoice_payment.id AS invoice_payment_id,
+         intent_payment.id AS intent_payment_id,
+         invoice_payment.stripe_invoice_id,
+         intent_payment.stripe_payment_intent_id,
+         invoice_payment.amount_cents,
+         COALESCE(NULLIF(invoice_payment.method, ''), 'unknown') AS invoice_method,
+         COALESCE(NULLIF(intent_payment.method, ''), 'unknown') AS intent_method,
+         GREATEST(invoice_payment.paid_at, intent_payment.paid_at) AS occurred_at
+       FROM scoped_account account
+       JOIN billing_payment invoice_payment
+         ON invoice_payment.family_billing_account_id = account.billing_account_id
+       JOIN billing_payment intent_payment
+         ON intent_payment.family_billing_account_id = account.billing_account_id
+        AND intent_payment.id <> invoice_payment.id
+        AND intent_payment.amount_cents = invoice_payment.amount_cents
+        AND intent_payment.stripe_customer_id = invoice_payment.stripe_customer_id
+       WHERE invoice_payment.external_processor = 'stripe'
+         AND intent_payment.external_processor = 'stripe'
+         AND invoice_payment.external_status IN ('settled', 'succeeded')
+         AND intent_payment.external_status IN ('settled', 'succeeded')
+         AND invoice_payment.stripe_customer_id IS NOT NULL
+         -- This is deliberately a candidate signal, not identity proof. The
+         -- repair path must still verify Stripe's Invoice Payment binding.
+         AND invoice_payment.stripe_invoice_id IS NOT NULL
+         AND invoice_payment.stripe_payment_intent_id IS NULL
+         AND intent_payment.stripe_invoice_id IS NULL
+         AND intent_payment.stripe_payment_intent_id IS NOT NULL
+         AND ABS(
+           (invoice_payment.paid_at AT TIME ZONE 'America/New_York')::date
+           - (intent_payment.paid_at AT TIME ZONE 'America/New_York')::date
+         ) <= 1
+         AND ABS(EXTRACT(EPOCH FROM (invoice_payment.paid_at - intent_payment.paid_at))) <= 172800
+         AND (
+           (invoice_payment.paid_at AT TIME ZONE 'America/New_York')::date
+             <> (intent_payment.paid_at AT TIME ZONE 'America/New_York')::date
+           OR COALESCE(NULLIF(invoice_payment.method, ''), 'unknown')
+             <> COALESCE(NULLIF(intent_payment.method, ''), 'unknown')
+         )
      ),
      excessive_discount AS (
        SELECT
@@ -235,6 +283,26 @@ export async function listBillingAnomalies(pool, { facilityId }) {
        CONCAT(same_day_payment.item_count, ' ', same_day_payment.method, ' payments of the same amount posted on ', same_day_payment.payment_date, '.')
      FROM same_day_payment
      JOIN scoped_account account ON account.billing_account_id = same_day_payment.billing_account_id
+     UNION ALL
+     SELECT
+       CONCAT(
+         'duplicate-stripe-split:', adjacent.billing_account_id, ':',
+         adjacent.invoice_payment_id, ':', adjacent.intent_payment_id
+       ),
+       'duplicate_payment'::text,
+       'medium'::text,
+       account.family_id, account.billing_account_id, account.family_name, account.payer_name,
+       adjacent.amount_cents, 2::int, adjacent.occurred_at,
+       'Potential split Stripe payment representation'::text,
+       CONCAT(
+         'Payments #', adjacent.invoice_payment_id, ' (', adjacent.invoice_method,
+         ', invoice ', adjacent.stripe_invoice_id, ') and #', adjacent.intent_payment_id,
+         ' (', adjacent.intent_method, ', PaymentIntent ', adjacent.stripe_payment_intent_id,
+         ') have the same Stripe customer and amount on the same or adjacent day. ',
+         'Review Stripe Invoice Payment evidence before treating them as one payment.'
+       )
+     FROM adjacent_day_stripe_split_payment adjacent
+     JOIN scoped_account account ON account.billing_account_id = adjacent.billing_account_id
      UNION ALL
      SELECT
        CONCAT('discount:', excessive_discount.charge_id),

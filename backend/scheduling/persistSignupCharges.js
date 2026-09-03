@@ -34,6 +34,29 @@ import { loadOrCreateUnassignedBillingAccount } from '../billing/billingAccountP
 // Compatibility export for older callers; provisioning no longer selects a payer.
 const ensureBillingAccount = loadOrCreateUnassignedBillingAccount
 
+function requireCheckoutChargeBinding(result, {
+  stripeCheckoutSessionId,
+  accountId,
+  memberId,
+  amountCents,
+  label,
+}) {
+  const row = result?.rows?.[0] ?? null
+  if (!stripeCheckoutSessionId) return row
+  if (
+    !row
+    || Number(row.family_billing_account_id) !== Number(accountId)
+    || Number(row.member_id) !== Number(memberId)
+    || Number(row.amount_cents) !== Number(amountCents)
+    || String(row.stripe_checkout_session_id ?? '') !== String(stripeCheckoutSessionId)
+  ) {
+    const error = new Error(`${label} conflicts with its paid Checkout Session.`)
+    error.code = 'PAID_CHECKOUT_CHARGE_BINDING_CONFLICT'
+    throw error
+  }
+  return row
+}
+
 /**
  * Resolve the per-line gross / discount / net (cents) and billing type for a slot.
  * @returns {{ grossCents:number, discountCents:number, netCents:number, billingType:'recurring'|'one_time', selectedPricingOptionKey:string|null } | null}
@@ -206,7 +229,13 @@ async function persistRecurringOrderPromoAssignment(pool, preview, signups) {
  * @param {Array<{signupId:number, formId:number, slotGroupId:number, timeSlotId:number, formTitle:string, slotLabel:string}>} args.signups
  * @param {object|null} args.preview full order preview built at batch time
  */
-export async function persistSignupCharges(pool, { memberId, signups = [], preview = null }) {
+export async function persistSignupCharges(pool, {
+  memberId,
+  signups = [],
+  preview = null,
+  stripeCheckoutSessionId = null,
+  purchasedAt = null,
+}) {
   if (!memberId || signups.length === 0) return { charges: 0, subscriptions: 0 }
 
   await ensureBillingChargeSchema(pool)
@@ -326,11 +355,20 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           (family_billing_account_id, member_id, source_type, source_id, description,
            amount_cents, gross_amount_cents, discount_amount_cents,
            charge_type, billing_interval, subscription_id,
-           service_period_start, service_period_end)
-        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+           service_period_start, service_period_end, stripe_checkout_session_id)
+        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-        DO NOTHING
-        RETURNING id
+        DO UPDATE SET stripe_checkout_session_id = COALESCE(
+          billing_charge.stripe_checkout_session_id,
+          EXCLUDED.stripe_checkout_session_id
+        )
+        WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+          AND (
+            billing_charge.stripe_checkout_session_id IS NULL
+            OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+          )
+        RETURNING id, family_billing_account_id, member_id, amount_cents,
+                  stripe_checkout_session_id
       `,
       [
         account.id,
@@ -345,8 +383,16 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         subscriptionId,
         servicePeriodStart,
         servicePeriodEnd,
+        stripeCheckoutSessionId,
       ],
     )
+    requireCheckoutChargeBinding(result, {
+      stripeCheckoutSessionId,
+      accountId: account.id,
+      memberId,
+      amountCents: chargeNet,
+      label: `Enrollment charge ${signup.signupId}`,
+    })
     if (result.rows.length > 0) {
       charges += 1
       if (
@@ -387,27 +433,55 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   const firstSignupId = sortedSignupIds[0] ?? null
   if (orderDiscountCents > 0 && firstSignupId != null) {
     try {
-      await pool.query(
+      const orderCredit = await pool.query(
         `
           INSERT INTO billing_charge
             (family_billing_account_id, member_id, source_type, source_id, description,
              amount_cents, gross_amount_cents, discount_amount_cents,
-             charge_type, billing_interval)
-          VALUES ($1, $2, 'order_discount', $3, 'Order discount', $4, $5, 0, 'credit', 'one_time')
+             charge_type, billing_interval, stripe_checkout_session_id)
+          VALUES ($1, $2, 'order_discount', $3, 'Order discount', $4, $5, 0, 'credit', 'one_time', $6)
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-          DO NOTHING
+          DO UPDATE SET stripe_checkout_session_id = COALESCE(
+            billing_charge.stripe_checkout_session_id,
+            EXCLUDED.stripe_checkout_session_id
+          )
+          WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+            AND (
+              billing_charge.stripe_checkout_session_id IS NULL
+              OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+            )
+          RETURNING id, family_billing_account_id, member_id, amount_cents,
+                    stripe_checkout_session_id
         `,
-        [account.id, memberId, String(firstSignupId), -orderDiscountCents, -orderDiscountCents],
+        [
+          account.id,
+          memberId,
+          String(firstSignupId),
+          -orderDiscountCents,
+          -orderDiscountCents,
+          stripeCheckoutSessionId,
+        ],
       )
+      requireCheckoutChargeBinding(orderCredit, {
+        stripeCheckoutSessionId,
+        accountId: account.id,
+        memberId,
+        amountCents: -orderDiscountCents,
+        label: `Enrollment order credit ${firstSignupId}`,
+      })
     } catch (err) {
+      if (err?.code === 'PAID_CHECKOUT_CHARGE_BINDING_CONFLICT') throw err
       console.warn('[scheduling] persistSignupCharges order discount:', err.message)
     }
   }
 
   const feeItems = preview?.additionalFees?.enabled ? preview.additionalFees.items || [] : []
-  const purchasedAt = new Date()
-  const renewsOn = membershipRenewsOnFromPurchase(purchasedAt)
-  const renewsOnKey = toUtcDateString(renewsOn) || toUtcDateString(purchasedAt)
+  const parsedPurchasedAt = purchasedAt instanceof Date ? purchasedAt : new Date(purchasedAt ?? Date.now())
+  const effectivePurchasedAt = Number.isFinite(parsedPurchasedAt.getTime())
+    ? parsedPurchasedAt
+    : new Date()
+  const renewsOn = membershipRenewsOnFromPurchase(effectivePurchasedAt)
+  const renewsOnKey = toUtcDateString(renewsOn) || toUtcDateString(effectivePurchasedAt)
   for (const fee of feeItems) {
     const feeAmount = Math.round(Number(fee.amountCents) || 0)
     const feeGross = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
@@ -430,12 +504,21 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           INSERT INTO billing_charge
             (family_billing_account_id, member_id, source_type, source_id, description,
              amount_cents, gross_amount_cents, discount_amount_cents,
-             charge_type, billing_interval, metadata)
+             charge_type, billing_interval, metadata, stripe_checkout_session_id)
           VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time',
-            jsonb_strip_nulls(jsonb_build_object('discountCode', NULLIF($8, ''))))
+            jsonb_strip_nulls(jsonb_build_object('discountCode', NULLIF($8, ''))), $9)
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-          DO NOTHING
-          RETURNING id
+          DO UPDATE SET stripe_checkout_session_id = COALESCE(
+            billing_charge.stripe_checkout_session_id,
+            EXCLUDED.stripe_checkout_session_id
+          )
+          WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+            AND (
+              billing_charge.stripe_checkout_session_id IS NULL
+              OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+            )
+          RETURNING id, family_billing_account_id, member_id, amount_cents,
+                    stripe_checkout_session_id
         `,
         [
           account.id,
@@ -446,8 +529,16 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           feeGross,
           feeDiscount,
           fee.promoRuleId != null && feeDiscount > 0 ? fee.promoCode ?? null : null,
+          stripeCheckoutSessionId,
         ],
       )
+      requireCheckoutChargeBinding(feeCharge, {
+        stripeCheckoutSessionId,
+        accountId: account.id,
+        memberId,
+        amountCents: feeAmount,
+        label: `Enrollment additional fee ${sourceId}`,
+      })
       if (feeCharge.rows.length > 0) {
         charges += 1
         feeChargeId = Number(feeCharge.rows[0].id)
@@ -458,6 +549,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
         ).then((result) => Number(result.rows[0]?.id) || null)
       }
     } catch (err) {
+      if (err?.code === 'PAID_CHECKOUT_CHARGE_BINDING_CONFLICT') throw err
       console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
     }
 
@@ -488,7 +580,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
            (fee_id, member_id, signup_id, period_key, amount_cents, billing_charge_id, satisfied_at, created_at)
          VALUES ($1, $2, $3, $4, 0, $5, $6, $6)
          ON CONFLICT (fee_id, member_id, period_key) DO NOTHING`,
-        [fee.feeId, memberId, firstSignupId, renewsOnKey, feeChargeId, purchasedAt],
+        [fee.feeId, memberId, firstSignupId, renewsOnKey, feeChargeId, effectivePurchasedAt],
       )
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges waived fee redemption:', err.message)

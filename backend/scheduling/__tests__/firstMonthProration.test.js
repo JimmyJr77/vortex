@@ -548,13 +548,14 @@ test('persistSignupCharges posts the annual fee but waits for full payment befor
     memberId: 4,
     signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3, formTitle: 'Vortex Team', slotLabel: '' }],
     preview,
+    purchasedAt: new Date('2026-12-31T23:59:59.000Z'),
   })
 
   assert.equal(result.charges, 1)
   assert.equal(pool.calls.feeRedemptions.length, 0)
   const feeCharge = pool.calls.charges.find((params) => params[3] === 'Annual Fee')
   assert.ok(feeCharge)
-  assert.match(String(feeCharge[2]), /^3:4:\d{4}-\d{2}-\d{2}$/)
+  assert.equal(feeCharge[2], '3:4:2027-12-31')
   assert.equal(feeCharge[4], 8500)
 })
 

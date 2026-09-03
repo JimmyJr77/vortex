@@ -4,7 +4,11 @@ import {
   recordPaidStripeInvoice,
   StripeInvoiceQuarantineError,
 } from './stripeWebhookLifecycle.js'
-import { classifyLegacyStripeSubscriptionOwnership } from './stripeSubscriptionOwnership.js'
+import {
+  classifyLegacyStripeSubscriptionOwnership,
+  resolvePaidLegacyStripeSubscriptionOwnership,
+} from './stripeSubscriptionOwnership.js'
+import { recordStripeBillingAlert } from './stripeOperations.js'
 
 function objectId(value) {
   return typeof value === 'string' ? value : value?.id ?? null
@@ -127,18 +131,51 @@ export async function recordAuthoritativeStripeInvoicePayment(pool, {
     }
     return { classification, payment: settlement.payment ?? null, householdSettlement: settlement }
   }
-  if (classification.kind === 'subscription') {
+  const subscriptionId = invoiceSubscriptionId(invoice)
+  const markers = householdInvoiceMarkers(invoice)
+  const paidLegacyCandidate = Boolean(
+    subscriptionId
+    && !classification.localInvoice
+    && !markers.marked,
+  )
+  if (classification.kind === 'subscription' || paidLegacyCandidate) {
+    const paidOwnership = await resolvePaidLegacyStripeSubscriptionOwnership(pool, {
+      stripe,
+      invoice,
+    })
+    if (!paidOwnership.paidSettlementVerified) {
+      return {
+        classification: {
+          ...classification,
+          kind: 'conflict',
+          code: paidOwnership.code,
+          reason: paidOwnership.reason,
+          subscriptionId,
+          subscriptionOwnership: paidOwnership,
+        },
+        payment: null,
+        householdSettlement: null,
+      }
+    }
+    const paidClassification = {
+      kind: 'subscription',
+      code: null,
+      reason: null,
+      localInvoice: null,
+      subscriptionId,
+      subscriptionOwnership: paidOwnership,
+    }
     let payment = null
     try {
-      payment = await recordPaidStripeInvoice(pool, invoice, {
+      payment = await recordPaidStripeInvoice(pool, paidOwnership.invoice, {
         stripe,
-        expectedLegacySubscriptionOwnership: classification.subscriptionOwnership,
+        expectedLegacySubscriptionOwnership: paidOwnership,
       })
     } catch (error) {
       if (!(error instanceof StripeInvoiceQuarantineError)) throw error
       return {
         classification: {
-          ...classification,
+          ...paidClassification,
           kind: 'conflict',
           code: error.reasonCode,
           reason: error.message,
@@ -150,16 +187,35 @@ export async function recordAuthoritativeStripeInvoicePayment(pool, {
     if (!payment) {
       return {
         classification: {
-          ...classification,
+          ...paidClassification,
           kind: 'conflict',
           code: 'subscription_invoice_unmapped',
-          reason: `Stripe subscription invoice ${objectId(invoice)} could not be mapped to a canonical billing account.`,
+          reason: `Stripe subscription invoice ${objectId(paidOwnership.invoice)} could not be mapped to a canonical billing account.`,
         },
         payment: null,
         householdSettlement: null,
       }
     }
-    return { classification, payment, householdSettlement: null }
+    if (paidOwnership.driftReasons.length > 0) {
+      const verifiedInvoice = paidOwnership.invoice
+      await recordStripeBillingAlert(pool, {
+        event: { id: `paid-legacy-subscription-drift:${verifiedInvoice.id}` },
+        // Ownership comes from the exact current subscription link and/or the
+        // immutable migration claim, not a mutable Customer or an existing
+        // PaymentIntent row. Keep the alert resolver on that same identity.
+        object: {
+          id: verifiedInvoice.id,
+          status: verifiedInvoice.status,
+          amount_due: verifiedInvoice.amount_due,
+          currency: verifiedInvoice.currency,
+          metadata: { familyBillingAccountId: String(paidOwnership.accountId) },
+        },
+        alertType: 'paid_legacy_subscription_current_authority_drift',
+        severity: 'critical',
+        message: `Stripe collected legacy subscription ${paidOwnership.subscription.id} after its current collection authority drifted (${paidOwnership.driftReasons.join(', ')}). The exact payment was preserved and future legacy collection requires review.`,
+      }).catch(() => {})
+    }
+    return { classification: paidClassification, payment, householdSettlement: null }
   }
   return { classification, payment: null, householdSettlement: null }
 }

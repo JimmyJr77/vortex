@@ -18,6 +18,7 @@ import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminCustomerBilling from './AdminCustomerBilling'
 import AdminBillingOverview from './AdminBillingOverview'
+import BillingAnomaliesPanel from './admin/BillingAnomaliesPanel'
 import AdminStore from './admin/AdminStore'
 import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import CancellationReviewPanel from './billing/CancellationReviewPanel'
@@ -84,7 +85,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -118,6 +119,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; m
   { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
   { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
   { id: 'customerBilling', label: 'Account Billing & Enrollments', permission: 'billing.view' },
+  { id: 'billingAnomalies', label: 'Billing Anomalies', permission: 'billing.view' },
   { id: 'store', label: 'Store', permission: 'billing.view' },
   { id: 'billing', label: 'Billing', permission: 'billing.view' },
   { id: 'stripePayments', label: 'Stripe Payments', permission: 'billing.view', masterAdminOnly: true },
@@ -153,7 +155,7 @@ const GROUPS: GroupDef[] = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'customerBilling', 'access'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'customerBilling', 'billingAnomalies', 'access'] },
   { id: 'store', label: 'Store', icon: ShoppingBag, sections: ['store'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
@@ -422,6 +424,11 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             }}
           />
         )
+      case 'billingAnomalies':
+        return <BillingAnomaliesPanel onOpenAccount={(familyId) => {
+          setBillingAccountTarget({ familyId, memberId: null })
+          goToSection('customerBilling')
+        }} />
       case 'store':
         return <AdminStore />
       case 'waivers':

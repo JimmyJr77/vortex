@@ -613,6 +613,17 @@ export default function WaiversMembershipsPage() {
         setBusy(false)
         return
       }
+      if (session?.requiresReview || session?.status === 'quarantined') {
+        throw new Error(
+          'Your payment was received, but membership activation needs staff review. Do not submit another payment.',
+        )
+      }
+      if (session?.alreadyCompleted || ['completed', 'already_active'].includes(String(session?.status))) {
+        setThankYouKind('membership-paid')
+        setPhase('thank-you')
+        setBusy(false)
+        return
+      }
       if (!session?.url) throw new Error('Checkout did not return a payment link.')
       window.location.href = session.url
     } catch (err) {

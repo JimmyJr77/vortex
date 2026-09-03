@@ -6,7 +6,9 @@ import {
   billingMigrationReleaseVersion,
   computeBillingDeployManifestChecksum,
   migrationHasFailure,
+  resolveCanonicalDatabaseUrl,
   requireTargetMonth,
+  runCanonicalBillingMigrationCli,
 } from '../../scripts/lib/canonical-billing-migration-cli.mjs'
 
 function withArgv(args, callback) {
@@ -111,4 +113,55 @@ test('CLI treats a stopped cohort as a failed apply report', () => {
     cohortStopped: false,
     accounts: [{ accountId: 4, state: 'household_active' }],
   }), false)
+})
+
+test('forward-adoption audit bootstrap accepts only the explicit reviewed manual exception', () => {
+  const reviewedManual = {
+    cohortStopped: false,
+    accounts: [{
+      accountId: 4,
+      state: 'blocked',
+      eligible: false,
+      sourceCollectionMode: 'manual',
+      payerValidationStatus: 'verified',
+      parityStatus: 'matched',
+      exceptions: [{ code: 'manual_collection_requires_review', severity: 'blocking' }],
+    }],
+  }
+  assert.equal(migrationHasFailure(reviewedManual), true)
+  assert.equal(migrationHasFailure(reviewedManual, {
+    allowReviewedManualForwardAdoption: true,
+  }), false)
+  assert.equal(migrationHasFailure({
+    ...reviewedManual,
+    accounts: [{
+      ...reviewedManual.accounts[0],
+      exceptions: [
+        ...reviewedManual.accounts[0].exceptions,
+        { code: 'payer_missing', severity: 'blocking' },
+      ],
+    }],
+  }, { allowReviewedManualForwardAdoption: true }), true)
+})
+
+test('forward-adoption bootstrap cannot retrofit authorization onto an existing run', async () => {
+  await withArgv([
+    '--forward-adoption',
+    '--cohort=forward-adoption-manual',
+    '--run=9',
+  ], () => assert.rejects(
+    runCanonicalBillingMigrationCli('audit'),
+    /creates its immutable audit run; omit --run/,
+  ))
+})
+
+test('canonical migration CLI rejects ambiguous database aliases', () => {
+  assert.equal(
+    resolveCanonicalDatabaseUrl({ DATABASE_URL: 'postgres://u:p@db.example/vortex' }),
+    'postgres://u:p@db.example/vortex',
+  )
+  assert.throws(() => resolveCanonicalDatabaseUrl({
+    DATABASE_URL: 'postgres://u:p@one.example/vortex',
+    EXTERNAL_DB_URL: 'postgres://u:p@two.example/vortex',
+  }), /disagree/)
 })

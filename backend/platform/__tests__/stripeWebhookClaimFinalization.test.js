@@ -9,6 +9,7 @@ import {
 } from '../registerRoutes.js'
 import { annualMembershipCheckoutSessionIsPaid } from '../../billing/annualMembershipCheckout.js'
 import { getStripeClient } from '../../billing/stripeBilling.js'
+import { checkoutFingerprint } from '../../billing/checkoutIdempotency.js'
 import {
   confirmEnrollmentCheckoutSession,
   enrollmentCheckoutSessionCanFinalize,
@@ -91,7 +92,7 @@ async function withRetrievedStripeSession(session, callback) {
   }
 }
 
-function webhookClaimPool({ onFulfillmentQuery }) {
+function webhookClaimPool({ onFulfillmentQuery, allowProcessed = false }) {
   const calls = []
   let claimState = 'unclaimed'
   let claimToken = null
@@ -119,7 +120,12 @@ function webhookClaimPool({ onFulfillmentQuery }) {
         return { rows: [{ event_id: params[0] }] }
       }
       if (text.includes("SET status = 'processed'")) {
-        throw new Error('A nonterminal checkout commit must not complete its webhook claim.')
+        if (!allowProcessed) {
+          throw new Error('A nonterminal checkout commit must not complete its webhook claim.')
+        }
+        assert.equal(params[1], claimToken)
+        claimState = 'processed'
+        return { rows: [{ event_id: params[0] }] }
       }
       if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
       return onFulfillmentQuery(text, params)
@@ -167,52 +173,89 @@ test('checkout commit status guard accepts only locally terminal fulfillment', (
 })
 
 test('browser enrollment confirmation requires paid Checkout or a mode-matched completed setup', () => {
+  const paymentPending = {
+    id: 44,
+    family_billing_account_id: 8,
+    member_id: 62,
+    payer_member_id: 13,
+    stripe_checkout_session_id: 'cs_payment',
+    stripe_customer_id: 'cus_family',
+    checkout_mode: 'payment',
+    due_now_cents: 5100,
+  }
+  const paymentSession = {
+    id: 'cs_payment',
+    mode: 'payment',
+    status: 'complete',
+    amount_total: 5100,
+    currency: 'usd',
+    customer: 'cus_family',
+    metadata: {
+      checkoutType: 'enrollment',
+      pendingEnrollmentId: '44',
+      familyBillingAccountId: '8',
+      memberId: '62',
+      payerMemberId: '13',
+    },
+  }
+  const setupPending = {
+    ...paymentPending,
+    stripe_checkout_session_id: 'cs_setup',
+    checkout_mode: 'setup',
+    due_now_cents: 0,
+  }
+  const setupSession = {
+    ...paymentSession,
+    id: 'cs_setup',
+    mode: 'setup',
+    amount_total: null,
+  }
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'payment', status: 'complete', payment_status: 'unpaid' },
-      { checkout_mode: 'payment' },
+      { ...paymentSession, payment_status: 'unpaid' },
+      paymentPending,
     ),
     false,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'payment', status: 'complete', payment_status: 'paid' },
-      { checkout_mode: 'payment' },
+      { ...paymentSession, payment_status: 'paid' },
+      paymentPending,
     ),
     true,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'setup', status: 'complete', payment_status: 'no_payment_required' },
-      { checkout_mode: 'setup' },
+      { ...setupSession, status: 'complete', payment_status: 'no_payment_required' },
+      setupPending,
     ),
     true,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'setup', status: 'complete', payment_status: 'no_payment_required' },
-      { checkout_mode: 'payment' },
+      { ...setupSession, status: 'complete', payment_status: 'no_payment_required' },
+      paymentPending,
     ),
     false,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'setup', status: 'open', payment_status: 'no_payment_required' },
-      { checkout_mode: 'setup' },
+      { ...setupSession, status: 'open', payment_status: 'no_payment_required' },
+      setupPending,
     ),
     false,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
       { mode: 'subscription', status: 'complete', payment_status: 'paid', subscription: 'sub_stale' },
-      { checkout_mode: 'subscription' },
+      { ...paymentPending, checkout_mode: 'subscription' },
     ),
     false,
   )
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
-      { mode: 'payment', status: 'complete', payment_status: 'paid', subscription: 'sub_stale' },
-      { checkout_mode: 'payment' },
+      { ...paymentSession, payment_status: 'paid', subscription: 'sub_stale' },
+      paymentPending,
     ),
     false,
   )
@@ -435,37 +478,180 @@ test('a completed setup enrollment commits locally and fails its durable claim o
   })
 })
 
-test('an async annual membership success fails rather than acknowledges a nonterminal local commit', { concurrency: false }, async () => {
+test('an async annual membership payment is quarantined durably before webhook acknowledgement', { concurrency: false }, async () => {
   await withStripeTestEnvironment(async () => {
+    const snapshot = {
+      version: 1,
+      currency: 'usd',
+      members: [{
+        memberId: 74,
+        feeId: 22,
+        feeName: 'Annual Membership',
+        triggerType: 'once_per_year',
+        applyBasis: 'per_year',
+        grossCents: 8500,
+        discountCents: 0,
+        netCents: 8500,
+        promo: null,
+      }],
+      expectedAmountCents: 8500,
+    }
+    const pricingHash = checkoutFingerprint(snapshot)
+    const request = {
+      id: 72,
+      family_billing_account_id: 44,
+      payer_member_id: 75,
+      pricing_snapshot: snapshot,
+      pricing_snapshot_hash: pricingHash,
+      currency: 'usd',
+      expected_amount_cents: 8500,
+      stripe_checkout_session_id: 'cs_annual_commit_incomplete',
+      status: 'pending',
+    }
     const pool = webhookClaimPool({
-      onFulfillmentQuery(text) {
+      allowProcessed: true,
+      onFulfillmentQuery(text, params) {
+        if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(text.trim())) return { rows: [] }
+        if (/pg_advisory_lock/.test(text)) return { rows: [{}] }
+        if (/pg_advisory_unlock/.test(text)) return { rows: [{ pg_advisory_unlock: true }] }
+        if (text.includes('FROM annual_membership_checkout_request WHERE id')) {
+          return { rows: [request] }
+        }
+        if (text.includes('INSERT INTO billing_payment')) {
+          return {
+            rows: [{
+              id: 901,
+              family_billing_account_id: params[0],
+              amount_cents: params[1],
+              external_processor: 'stripe',
+              external_status: params[10],
+              stripe_customer_id: params[4],
+              stripe_payment_intent_id: params[5],
+              stripe_checkout_session_id: params[6],
+              stripe_invoice_id: params[7],
+              newly_inserted: true,
+              note: params[11],
+            }],
+          }
+        }
         if (text.includes('FROM family_billing_account account')) return { rows: [] }
+        if (text.includes('UPDATE annual_membership_checkout_request')) {
+          request.status = 'quarantined'
+          return { rows: [{ status: 'quarantined' }] }
+        }
+        if (text.includes('UPDATE billing_payment')) {
+          return { rows: [{
+            id: 901,
+            family_billing_account_id: 44,
+            amount_cents: 8500,
+            external_processor: 'stripe',
+            external_status: 'reconciliation_required',
+            stripe_customer_id: 'cus_historical_44',
+            stripe_payment_intent_id: 'pi_annual_commit_incomplete',
+            stripe_checkout_session_id: 'cs_annual_commit_incomplete',
+            stripe_invoice_id: null,
+            note: params[8],
+          }] }
+        }
+        if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
         throw new Error(`Unexpected annual membership webhook query: ${text}`)
       },
     })
+    const session = {
+      id: 'cs_annual_commit_incomplete',
+      mode: 'payment',
+      status: 'complete',
+      payment_status: 'paid',
+      amount_total: 8500,
+      currency: 'usd',
+      customer: 'cus_historical_44',
+      payment_intent: 'pi_annual_commit_incomplete',
+      metadata: {
+        checkoutType: 'annual_membership',
+        annualMembershipCheckoutRequestId: '72',
+        pricingSnapshotHash: pricingHash,
+        amountCents: '8500',
+        familyBillingAccountId: '44',
+        payerMemberId: '75',
+        memberId: '74',
+        memberIds: '74',
+        feeId: '22',
+      },
+    }
+    const stripe = await getStripeClient()
+    const originalCheckoutRetrieve = stripe.checkout.sessions.retrieve
+    const originalPaymentIntentRetrieve = stripe.paymentIntents.retrieve
+    stripe.checkout.sessions.retrieve = async () => session
+    stripe.paymentIntents.retrieve = async () => ({
+      id: 'pi_annual_commit_incomplete',
+      latest_charge: null,
+      payment_method: { id: 'pm_annual', type: 'card', card: { brand: 'visa', last4: '4242' } },
+    })
+    try {
     const response = await postWebhook(pool, {
       id: 'evt_annual_commit_incomplete',
       type: 'checkout.session.async_payment_succeeded',
       data: {
+        object: session,
+      },
+    })
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(response.body, {
+      received: true,
+      quarantined: true,
+      paymentRecorded: true,
+    })
+    assert.equal(pool.claimState, 'processed')
+    assert.equal(pool.calls.filter(({ text }) => text.includes("SET status = 'failed'")).length, 0)
+    assert.equal(pool.calls.filter(({ text }) => text.includes("SET status = 'processed'")).length, 1)
+    assert.equal(pool.calls.filter(({ text }) => text.includes('INSERT INTO billing_payment')).length, 1)
+    // The payment is born non-allocatable, then its exact row is marked refund-required.
+    assert.equal(pool.calls.filter(({ text }) => text.includes("external_status = 'reconciliation_required'")).length, 2)
+    assert.equal(pool.calls.filter(({ text }) => text.includes("'paid_checkout_fulfillment_quarantined', 'critical'")).length, 1)
+    } finally {
+      stripe.checkout.sessions.retrieve = originalCheckoutRetrieve
+      stripe.paymentIntents.retrieve = originalPaymentIntentRetrieve
+    }
+  })
+})
+
+test('an unowned paid generic Checkout is never written or acknowledged', { concurrency: false }, async () => {
+  await withStripeTestEnvironment(async () => {
+    const pool = webhookClaimPool({
+      onFulfillmentQuery(text) {
+        if (text.includes('FROM billing_payment_attempt attempt')) return { rows: [] }
+        if (text.includes('FROM billing_payment WHERE stripe_payment_intent_id')) return { rows: [] }
+        if (text.includes('FROM billing_payment p')) return { rows: [] }
+        throw new Error(`Unexpected unowned Checkout webhook query: ${text}`)
+      },
+    })
+    const response = await postWebhook(pool, {
+      id: 'evt_unowned_paid_checkout',
+      type: 'checkout.session.completed',
+      data: {
         object: {
-          id: 'cs_annual_commit_incomplete',
+          id: 'cs_unowned_paid_checkout',
+          object: 'checkout.session',
+          mode: 'payment',
           status: 'complete',
           payment_status: 'paid',
+          payment_intent: 'pi_unowned_paid_checkout',
+          amount_total: 25_500,
+          currency: 'usd',
+          customer: 'cus_unowned_paid_checkout',
           metadata: {
-            checkoutType: 'annual_membership',
+            checkoutType: 'outstanding_balance',
             familyBillingAccountId: '44',
-            payerMemberId: '75',
-            memberId: '74',
-            feeId: '22',
           },
         },
       },
     })
 
     assert.equal(response.status, 500)
-    assert.match(response.body.message, /annual membership checkout fulfillment is not complete \(error: account_inactive\)/i)
+    assert.match(response.body.message, /no durable payment-attempt owner/i)
     assert.equal(pool.claimState, 'failed')
-    assert.equal(pool.calls.filter(({ text }) => text.includes("SET status = 'failed'")).length, 1)
+    assert.equal(pool.calls.some(({ text }) => text.includes('INSERT INTO billing_payment')), false)
     assert.equal(pool.calls.some(({ text }) => text.includes("SET status = 'processed'")), false)
   })
 })

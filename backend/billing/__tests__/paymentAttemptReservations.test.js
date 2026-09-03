@@ -18,7 +18,14 @@ import {
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
 
-function reservationPool({ collectibleBalanceCents = 12_000, monthlyInvoiceStatus = null } = {}) {
+function reservationPool({
+  collectibleBalanceCents = 12_000,
+  monthlyInvoiceStatus = null,
+  unresolvedPaidCheckout = false,
+  unresolvedRefund = false,
+  activeEnrollmentCheckout = false,
+  completedCheckoutGap = null,
+} = {}) {
   const state = {
     attempts: [],
     lines: [],
@@ -50,6 +57,18 @@ function reservationPool({ collectibleBalanceCents = 12_000, monthlyInvoiceStatu
           && attempt.request_key === params[2]
         ))
         return { rows: row ? [row] : [] }
+      }
+      if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
+        return { rows: unresolvedPaidCheckout ? [{ id: 81 }] : [] }
+      }
+      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
+        return { rows: unresolvedRefund ? [{ id: 91 }] : [] }
+      }
+      if (text.includes('WITH active_enrollment_checkout AS')) {
+        return { rows: activeEnrollmentCheckout ? [{ owner_kind: 'enrollment', owner_id: 92 }] : [] }
+      }
+      if (text.includes('WITH completed_owner AS')) {
+        return { rows: completedCheckoutGap ? [completedCheckoutGap] : [] }
       }
       if (text.includes('WITH application_totals AS') && text.includes('FOR UPDATE OF charge')) {
         state.candidateSql = text
@@ -133,6 +152,66 @@ test('a payment idempotency key reserves exact charge slices only once', async (
   assert.equal(pool.state.lines.length, 2)
   assert.match(pool.state.candidateSql, /JOIN billing_payment payment ON payment\.id = application\.billing_payment_id/)
   assert.match(pool.state.candidateSql, /payment\.external_status IN \('settled', 'succeeded'\)/)
+})
+
+test('a new payment attempt is blocked while an external Stripe refund awaits reconciliation', async () => {
+  const pool = reservationPool({ unresolvedRefund: true })
+  await assert.rejects(
+    reserveBillingPaymentAttempt(pool, {
+      accountId: 7,
+      attemptType: 'member_balance_checkout',
+      requestKey: 'blocked-by-refund',
+      amountCents: 1000,
+      expiresAt: new Date(Date.now() + 60_000),
+    }),
+    /refund awaiting ledger reconciliation/i,
+  )
+  assert.equal(pool.state.attempts.length, 0)
+})
+
+test('a new payment attempt is blocked while paid Checkout fulfillment is unresolved', async () => {
+  const pool = reservationPool({ unresolvedPaidCheckout: true })
+  await assert.rejects(
+    reserveBillingPaymentAttempt(pool, {
+      accountId: 7,
+      attemptType: 'member_balance_checkout',
+      requestKey: 'blocked-by-paid-checkout',
+      amountCents: 1000,
+      expiresAt: new Date(Date.now() + 60_000),
+    }),
+    /paid Stripe Checkout awaiting fulfillment reconciliation/i,
+  )
+  assert.equal(pool.state.attempts.length, 0)
+})
+
+test('a new payment attempt is blocked by an active enrollment Checkout carrying account balance', async () => {
+  const pool = reservationPool({ activeEnrollmentCheckout: true })
+  await assert.rejects(
+    reserveBillingPaymentAttempt(pool, {
+      accountId: 4,
+      attemptType: 'member_balance_checkout',
+      requestKey: 'blocked-by-active-enrollment-checkout',
+      amountCents: 5_000,
+    }),
+    /active enrollment Checkout already collecting part of its account balance/i,
+  )
+  assert.equal(pool.state.attempts.length, 0)
+})
+
+test('a new payment attempt is blocked by a completed paid Checkout fulfillment gap', async () => {
+  const pool = reservationPool({
+    completedCheckoutGap: { owner_kind: 'annual_membership', owner_id: 93 },
+  })
+  await assert.rejects(
+    reserveBillingPaymentAttempt(pool, {
+      accountId: 4,
+      attemptType: 'member_balance_checkout',
+      requestKey: 'blocked-by-completed-checkout-gap',
+      amountCents: 5_000,
+    }),
+    /completed paid annual_membership Checkout without exact local fulfillment/i,
+  )
+  assert.equal(pool.state.attempts.length, 0)
 })
 
 test('a reversed charge from paid invoice history is reservable but live invoice owners remain excluded', async (t) => {
@@ -542,12 +621,20 @@ test('an outer collection lock can atomically settle through the same PoolClient
 
 test('a crash barrier between payment insert and exact mapping rolls back both', async () => {
   const pool = atomicSettlementPool()
+  const stripeObject = {
+    id: 'pi_31',
+    object: 'payment_intent',
+    status: 'succeeded',
+    created: 1_800_000_000,
+    metadata: { billingPaymentAttemptId: '31' },
+  }
   await assert.rejects(
     recordAndCompleteBillingPaymentAttempt(pool, {
-      stripeObject: { id: 'pi_31', object: 'payment_intent', metadata: { billingPaymentAttemptId: '31' } },
+      stripeObject,
       paymentIntentId: 'pi_31',
       amountCents: 5000,
       preparePaymentFunction: async (details) => {
+        assert.equal(details.paymentIntent, stripeObject)
         pool.state.events.push('prepare')
         return details
       },
@@ -1116,6 +1203,13 @@ test('reservation availability and completion status ignore unsettled payment ap
     assert.match(scopedSource, /JOIN billing_payment payment ON payment\.id = application\.billing_payment_id/)
     assert.match(scopedSource, /payment\.external_status IN \('settled', 'succeeded'\)/)
   }
+  assert.match(candidateSource, /linked_offset_totals/)
+  assert.match(candidateSource, /linked\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(candidateSource, /credit_source\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.equal(
+    [...candidateSource.matchAll(/COALESCE\(linked_offset\.offset_cents, 0\)/g)].length,
+    2,
+  )
 })
 
 test('saved-card failure cannot overwrite a paid charge after terminal-release allocation', () => {

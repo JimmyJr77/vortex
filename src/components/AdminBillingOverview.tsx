@@ -16,6 +16,8 @@ export interface BillingOverviewFamily {
   futureCreditsCents: number
   accountBalanceCents: number
   autopay: boolean
+  autopayStatus: 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict'
+  autopayEffectiveMonth: string | null
   cardOnFile: { last4: string | null; brand: string | null }
 }
 
@@ -37,7 +39,50 @@ function billPaid(value: { billedCents: number; paidCents: number } | undefined)
 }
 
 function cardLabel(card: BillingOverviewFamily['cardOnFile']) {
-  return card.last4 ? card.last4 : 'Link'
+  if (card.last4) {
+    const brand = card.brand
+      ? `${card.brand.charAt(0).toUpperCase()}${card.brand.slice(1)}`
+      : 'Card'
+    return `${brand} •••• ${card.last4}`
+  }
+  if (card.brand === 'link') return 'Link'
+  return 'None'
+}
+
+function autopayPresentation(family: BillingOverviewFamily) {
+  const effective = billingMonthAbbreviation(family.autopayEffectiveMonth) ?? family.autopayEffectiveMonth
+  switch (family.autopayStatus) {
+    case 'ready':
+      return {
+        label: 'Ready',
+        className: 'bg-emerald-50 text-emerald-800',
+        title: `Verified household autopay${effective ? ` beginning ${effective}` : ''}.`,
+      }
+    case 'payment_method_required':
+      return {
+        label: 'Payment method needed',
+        className: 'bg-amber-50 text-amber-800',
+        title: 'Household billing is verified, but no reusable customer-owned Card or Link payment method is available.',
+      }
+    case 'scheduled_later':
+      return {
+        label: 'Scheduled later',
+        className: 'bg-blue-50 text-blue-800',
+        title: `Household autopay is verified for ${effective ?? 'a future billing month'}.`,
+      }
+    case 'legacy_collector_conflict':
+      return {
+        label: 'Legacy conflict',
+        className: 'bg-red-50 text-red-800',
+        title: 'An active legacy Stripe collector conflicts with household autopay and must be reviewed.',
+      }
+    default:
+      return {
+        label: 'Migration needed',
+        className: 'bg-gray-100 text-gray-700',
+        title: 'Household autopay does not yet have verified canonical migration evidence.',
+      }
+  }
 }
 
 export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverviewProps) {
@@ -81,7 +126,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
         <div>
           <h2 className="font-display text-2xl font-bold text-gray-950">Billing Overview</h2>
           <p className="mt-1 text-sm text-gray-600">
-            All member families with year-to-date collections, last three months billed vs paid, balances, upcoming recurring, autopay, and card on file.
+            All member families with year-to-date collections, balances, upcoming recurring, verified household autopay readiness, and saved payment method.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -120,8 +165,8 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
               <th className="px-5 py-3">{upcomingLabel} recurring</th>
               <th className="px-5 py-3">Future credits</th>
               <th className="px-5 py-3">Account balance</th>
-              <th className="px-5 py-3">Autopay</th>
-              <th className="px-5 py-3">CC on file</th>
+              <th className="px-5 py-3">Household autopay</th>
+              <th className="px-5 py-3">Payment method</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -159,8 +204,11 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
                   {money(family.accountBalanceCents)}
                 </td>
                 <td className="px-5 py-3">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${family.autopay ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
-                    {family.autopay ? 'Yes' : 'No'}
+                  <span
+                    title={autopayPresentation(family).title}
+                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${autopayPresentation(family).className}`}
+                  >
+                    {autopayPresentation(family).label}
                   </span>
                 </td>
                 <td className="px-5 py-3 font-semibold text-gray-900">{cardLabel(family.cardOnFile)}</td>

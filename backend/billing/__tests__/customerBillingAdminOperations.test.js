@@ -319,7 +319,13 @@ test('external payment replay requires an exact immutable request payload', () =
   )
 })
 
-function manualPaymentAdmissionPool({ owner = null, collectibleBalanceCents = 10_000, allowInsert = false } = {}) {
+function manualPaymentAdmissionPool({
+  owner = null,
+  activeEnrollmentCheckout = null,
+  completedCheckoutGap = null,
+  collectibleBalanceCents = 10_000,
+  allowInsert = false,
+} = {}) {
   const statements = []
   const insertedPayment = {
     id: 81,
@@ -343,6 +349,12 @@ function manualPaymentAdmissionPool({ owner = null, collectibleBalanceCents = 10
       if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(text)) return { rows: [] }
       if (text.includes('request_key = ANY') && text.includes('FROM billing_payment')) return { rows: [] }
       if (text.includes('SELECT owner_kind, owner_id, owner_status')) return { rows: owner ? [owner] : [] }
+      if (text.includes('WITH active_enrollment_checkout AS')) {
+        return { rows: activeEnrollmentCheckout ? [activeEnrollmentCheckout] : [] }
+      }
+      if (text.includes('WITH completed_owner AS')) {
+        return { rows: completedCheckoutGap ? [completedCheckoutGap] : [] }
+      }
       if (text.includes('canonical-billing:collectible-balance')) {
         return { rows: [{ collectible_balance_cents: collectibleBalanceCents }] }
       }
@@ -409,6 +421,93 @@ test('manual payment rejects open and failed household invoice reservations', as
       assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), false)
     })
   }
+})
+
+test('manual payment rejects any locally linked legacy Stripe collector regardless of local status', async (t) => {
+  for (const status of ['active', 'paused', 'cancelled', 'expired']) {
+    await t.test(status, async () => {
+      const pool = manualPaymentAdmissionPool({
+        owner: { owner_kind: 'legacy_stripe_collector', owner_id: 51, owner_status: status },
+      })
+      await assert.rejects(
+        recordAdminExternalPayment(pool, {
+          familyId: 7,
+          facilityId: 2,
+          requestKey: `manual-payment:blocked-legacy:${status}`,
+          input: { amountCents: 10_000, method: 'check' },
+        }),
+        new RegExp(`linked legacy Stripe collector \\(${status}\\).*resolve or cancel and detach`, 'i'),
+      )
+      const ownerSelector = pool.statements.find((sql) => sql.includes('SELECT owner_kind, owner_id, owner_status'))
+      assert.doesNotMatch(ownerSelector, /subscription\.status\s+IN/)
+      assert.match(ownerSelector, /stripe_subscription_schedule_id/)
+      assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), false)
+    })
+  }
+})
+
+test('manual payment rejects unresolved paid Checkout and Stripe refund reconciliation owners', async (t) => {
+  for (const owner of [
+    {
+      owner_kind: 'paid_checkout_reconciliation',
+      owner_id: 91,
+      owner_status: 'reconciliation_required',
+    },
+    {
+      owner_kind: 'stripe_refund_reconciliation',
+      owner_id: 92,
+      owner_status: 'reconciliation_required',
+    },
+  ]) {
+    await t.test(owner.owner_kind, async () => {
+      const pool = manualPaymentAdmissionPool({ owner })
+      await assert.rejects(
+        recordAdminExternalPayment(pool, {
+          familyId: 7,
+          facilityId: 2,
+          requestKey: `manual-payment:blocked:${owner.owner_kind}`,
+          input: { amountCents: 10_000, method: 'check' },
+        }),
+        /awaiting .*reconciliation/i,
+      )
+      const ownerSelector = pool.statements.find((sql) => sql.includes('SELECT owner_kind, owner_id, owner_status'))
+      assert.match(ownerSelector, /paid-checkout-fulfillment-pending/)
+      assert.match(ownerSelector, /FROM billing_refund refund/)
+      assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), false)
+    })
+  }
+})
+
+test('manual payment rejects a completed paid Checkout without exact local fulfillment proof', async () => {
+  const pool = manualPaymentAdmissionPool({
+    completedCheckoutGap: { owner_kind: 'enrollment', owner_id: 93 },
+  })
+  await assert.rejects(
+    recordAdminExternalPayment(pool, {
+      familyId: 7,
+      facilityId: 2,
+      requestKey: 'manual-payment:blocked-completed-checkout-gap',
+      input: { amountCents: 10_000, method: 'cash' },
+    }),
+    /completed paid enrollment Checkout without exact local fulfillment/i,
+  )
+  assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), false)
+})
+
+test('manual payment rejects an active enrollment Checkout carrying account balance', async () => {
+  const pool = manualPaymentAdmissionPool({
+    activeEnrollmentCheckout: { owner_kind: 'enrollment', owner_id: 94 },
+  })
+  await assert.rejects(
+    recordAdminExternalPayment(pool, {
+      familyId: 7,
+      facilityId: 2,
+      requestKey: 'manual-payment:blocked-active-enrollment-checkout',
+      input: { amountCents: 10_000, method: 'cash' },
+    }),
+    /active enrollment Checkout already collecting part of its balance/i,
+  )
+  assert.equal(pool.statements.some((sql) => sql.includes('INSERT INTO billing_payment')), false)
 })
 
 test('manual payment permits a positive amount above the collectible balance as account credit', async () => {

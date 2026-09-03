@@ -9,12 +9,106 @@ import {
   checkoutAmountForBillingCharge,
   createOrRecoverBillingCheckoutSession,
   createCustomerBillingCustomCharge,
+  finalizeRefundLedgerTreatment,
   linkCustomerBillingPayment,
   previewCustomerBillingRefund,
+  resolveDefaultPaymentMethod,
   validateAnnualMembershipRenewalDiscount,
 } from '../customerBillingPayments.js'
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
+
+test('admin saved-method collection accepts only the explicit ready invoice default', async () => {
+  const customerId = 'cus_ready'
+  const customer = {
+    id: customerId,
+    deleted: false,
+    invoice_settings: {
+      default_payment_method: {
+        id: 'pm_ready',
+        type: 'card',
+        customer: customerId,
+        card: { brand: 'visa', last4: '4242', exp_month: 10, exp_year: 2026 },
+      },
+    },
+  }
+  const stripe = {
+    customers: {
+      async retrieve(id, params) {
+        assert.equal(id, customerId)
+        assert.deepEqual(params, { expand: ['invoice_settings.default_payment_method'] })
+        return customer
+      },
+    },
+    paymentMethods: {
+      async list() {
+        assert.fail('admin collection must not choose an arbitrary attached card')
+      },
+    },
+  }
+
+  assert.equal(await resolveDefaultPaymentMethod(stripe, customerId, {
+    billingMonth: '2026-09-01',
+  }), 'pm_ready')
+
+  customer.invoice_settings.default_payment_method = {
+    id: 'pm_link', type: 'link', customer: customerId, link: {},
+  }
+  assert.equal(await resolveDefaultPaymentMethod(stripe, customerId, {
+    billingMonth: '2026-09-01',
+  }), 'pm_link')
+})
+
+test('admin saved-method collection rejects missing, expired, and unsupported defaults without card fallback', async () => {
+  const customerId = 'cus_not_ready'
+  const customer = { id: customerId, deleted: false, invoice_settings: {} }
+  let attachedCardListingAttempted = false
+  const stripe = {
+    customers: { retrieve: async () => customer },
+    paymentMethods: {
+      async list() {
+        attachedCardListingAttempted = true
+        return { data: [{ id: 'pm_arbitrary_attached_card' }] }
+      },
+    },
+  }
+
+  await assert.rejects(
+    resolveDefaultPaymentMethod(stripe, customerId, { billingMonth: '2026-09-01' }),
+    (error) => (
+      error?.code === 'STRIPE_PAYMENT_METHOD_NOT_READY'
+      && error?.paymentMethodReadinessReason === 'payment_method_required'
+    ),
+  )
+  assert.equal(attachedCardListingAttempted, false)
+
+  customer.invoice_settings.default_payment_method = {
+    id: 'pm_expired',
+    type: 'card',
+    customer: customerId,
+    card: { exp_month: 8, exp_year: 2026 },
+  }
+  await assert.rejects(
+    resolveDefaultPaymentMethod(stripe, customerId, { billingMonth: '2026-09-01' }),
+    (error) => error?.paymentMethodReadinessReason === 'payment_method_card_expired_for_billing_month',
+  )
+
+  customer.invoice_settings.default_payment_method = {
+    id: 'pm_bank', type: 'us_bank_account', customer: customerId,
+  }
+  await assert.rejects(
+    resolveDefaultPaymentMethod(stripe, customerId, { billingMonth: '2026-09-01' }),
+    (error) => error?.paymentMethodReadinessReason === 'payment_method_type_unsupported',
+  )
+})
+
+test('both admin saved-method collectors validate expiry against the authorized collection month', () => {
+  const source = fs.readFileSync(path.join(testDirectory, '../customerBillingPayments.js'), 'utf8')
+  assert.equal(
+    [...source.matchAll(/resolveDefaultPaymentMethod\(stripe, customerId, \{ billingMonth: auth\.date \}\)/g)].length,
+    2,
+  )
+})
 
 test('charge adjustment rechecks reservations inside the account lock transaction', async () => {
   const account = { id: 7, family_id: 44, family_name: 'Rivera' }
@@ -91,7 +185,7 @@ test('charge adjustment rechecks reservations inside the account lock transactio
   ])
 })
 
-test('refund finalization commits local state before allocation and Stripe cancellation', () => {
+test('annual refund stays collection-blocking until linked legacy Stripe subscriptions are canceled', () => {
   const source = fs.readFileSync(path.join(testDirectory, '../customerBillingPayments.js'), 'utf8')
   const finalizeSource = source.slice(
     source.indexOf('export async function finalizeRefundLedgerTreatment'),
@@ -99,23 +193,116 @@ test('refund finalization commits local state before allocation and Stripe cance
   )
   const lockAt = finalizeSource.indexOf('withBillingAccountCollectionLock')
   const beginAt = finalizeSource.indexOf("db.query('BEGIN')")
+  const promoteAt = finalizeSource.indexOf("SET external_status = 'succeeded'")
   const offsetAt = finalizeSource.indexOf("'refund_offset'")
   const reverseAt = finalizeSource.indexOf('reverseRefundedApplicationsLocked')
+  const cancellationPendingAt = finalizeSource.indexOf("SET external_status = 'reconciliation_required'", reverseAt)
   const commitAt = finalizeSource.indexOf("db.query('COMMIT')", reverseAt)
-  const allocationAt = finalizeSource.indexOf('allocateHouseholdPaymentsLocked')
   const stripeAt = finalizeSource.indexOf('getStripeClient()')
+  const cancelAt = finalizeSource.indexOf('cancelRefundedAnnualMembershipSubscriptions', stripeAt)
+  const cancellationCompleteAt = finalizeSource.indexOf("SET external_status = 'succeeded'", cancelAt)
+  const criticalAlertAt = finalizeSource.indexOf("'stripe_refund_reconciliation_failed'", cancelAt)
+  const allocationAt = finalizeSource.indexOf('allocateHouseholdPaymentsLocked', cancelAt)
 
   assert.ok(lockAt >= 0)
   assert.ok(beginAt >= 0)
-  assert.ok(beginAt < offsetAt)
+  assert.ok(beginAt < promoteAt)
+  assert.ok(promoteAt < offsetAt)
   assert.ok(offsetAt < reverseAt)
+  assert.ok(reverseAt < cancellationPendingAt)
+  assert.ok(cancellationPendingAt < commitAt)
   assert.ok(reverseAt < commitAt)
-  assert.ok(commitAt < allocationAt)
-  assert.ok(allocationAt < stripeAt)
+  assert.ok(commitAt < stripeAt)
+  assert.ok(stripeAt < cancelAt)
+  assert.ok(cancelAt < cancellationCompleteAt)
+  assert.ok(cancellationCompleteAt < criticalAlertAt)
+  assert.ok(criticalAlertAt < allocationAt)
   assert.match(finalizeSource, /collectionLockHeld[\s\S]*finalizeUnderCollectionLock\(pool\)[\s\S]*withBillingAccountCollectionLock/)
   assert.match(finalizeSource, /FROM billing_refund[\s\S]*FOR UPDATE/)
   assert.match(finalizeSource, /REFUND_CHARGE_RESERVED/)
   assert.match(finalizeSource, /REFUND_MEMBERSHIP_STRIPE_CANCELLATION_PENDING/)
+  assert.match(finalizeSource, /REFUND_LEDGER_FINALIZATION_PREFIX/)
+  assert.match(finalizeSource, /position\(\$4 in COALESCE\(error_message, ''\)\) = 1/)
+  assert.match(finalizeSource, /stripe_event_id[\s\S]*refund-subscription-cancellation:/)
+})
+
+test('refund success promotion rolls back with ledger treatment failure and remains collection-blocking', async () => {
+  const marker = '[stripe-refund-ledger-finalization-pending:re_atomic] Stripe returned the money; approved ledger treatment must commit before household collection resumes.'
+  let committedRefund = {
+    id: 41,
+    family_billing_account_id: 7,
+    payment_id: 9,
+    amount_cents: 2000,
+    external_status: 'reconciliation_required',
+    stripe_refund_id: 're_atomic',
+    ledger_treatment: 'return_overpayment',
+    error_message: marker,
+  }
+  let transactionalRefund = null
+  const order = []
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (text.includes('pg_advisory_lock')) {
+        order.push('account-lock')
+        return { rows: [{ pg_advisory_lock: null }] }
+      }
+      if (text === 'BEGIN') {
+        order.push('begin')
+        transactionalRefund = { ...committedRefund }
+        return { rows: [] }
+      }
+      if (text.includes('FROM billing_refund') && text.includes('FOR UPDATE')) {
+        order.push('refund-lock')
+        return { rows: [{ ...transactionalRefund }] }
+      }
+      if (text.includes("SET external_status = 'succeeded'")) {
+        order.push('promote-uncommitted')
+        transactionalRefund = {
+          ...transactionalRefund,
+          external_status: 'succeeded',
+          error_message: null,
+        }
+        return { rows: [{ ...transactionalRefund }] }
+      }
+      if (text.includes('FROM billing_payment') && text.includes('FOR UPDATE')) {
+        order.push('ledger-treatment')
+        assert.equal(transactionalRefund.external_status, 'succeeded')
+        throw new Error('simulated ledger treatment failure')
+      }
+      if (text === 'ROLLBACK') {
+        order.push('rollback')
+        transactionalRefund = null
+        return { rows: [] }
+      }
+      if (text.includes('pg_advisory_unlock')) {
+        order.push('account-unlock')
+        return { rows: [{ pg_advisory_unlock: true }] }
+      }
+      if (text === 'COMMIT') {
+        committedRefund = { ...transactionalRefund }
+        return { rows: [] }
+      }
+      throw new Error(`Unexpected atomic-refund query: ${text}`)
+    },
+  }
+
+  await assert.rejects(
+    finalizeRefundLedgerTreatment(pool, committedRefund),
+    /simulated ledger treatment failure/,
+  )
+
+  assert.equal(committedRefund.external_status, 'reconciliation_required')
+  assert.equal(committedRefund.error_message, marker)
+  assert.deepEqual(order, [
+    'account-lock',
+    'begin',
+    'refund-lock',
+    'promote-uncommitted',
+    'ledger-treatment',
+    'rollback',
+    'account-unlock',
+  ])
 })
 
 test('annual refund Stripe cancellation is an idempotent post-commit replay', async () => {
@@ -178,6 +365,16 @@ test('charge Checkout treats paid invoice history as collectible after reversal 
       )
     })
   }
+})
+
+test('exact-charge Checkout subtracts a linked refund offset without double-counting its invoice credit mapping', () => {
+  const source = fs.readFileSync(path.join(testDirectory, '../customerBillingPayments.js'), 'utf8')
+  const checkoutSource = source.slice(
+    source.indexOf('export async function checkoutAmountForBillingCharge'),
+    source.indexOf('async function createBillingChargeCheckoutSession'),
+  )
+  assert.match(checkoutSource, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(checkoutSource, /credit_source\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
 })
 
 test('annual-fee and custom-charge collectors ignore unsettled payment applications', () => {

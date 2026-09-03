@@ -5,6 +5,10 @@ import {
 } from './canonicalBillingAccount.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import {
+  findActiveEnrollmentCheckoutBalanceCollector,
+  findCompletedPaidCheckoutFulfillmentGap,
+} from './paidCheckoutCollectionGuard.js'
 import { prepareStripePaymentRecord, upsertStripePayment } from './stripeBilling.js'
 
 export { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
@@ -158,10 +162,26 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
          FROM billing_charge_credit_application application
          JOIN billing_monthly_invoice_line target_line
            ON target_line.id = application.target_invoice_line_id
+         JOIN billing_monthly_invoice_line credit_line
+           ON credit_line.id = application.credit_invoice_line_id
+         JOIN billing_charge credit_source
+           ON credit_source.id = credit_line.billing_charge_id
          JOIN billing_charge scoped_charge
            ON scoped_charge.id = target_line.billing_charge_id
         WHERE scoped_charge.family_billing_account_id = $1
+          AND NOT (
+            credit_source.related_charge_id = target_line.billing_charge_id
+            AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
+          )
         GROUP BY target_line.billing_charge_id
+     ), linked_offset_totals AS (
+       SELECT linked.related_charge_id AS billing_charge_id,
+              SUM(linked.amount_cents)::bigint AS offset_cents
+         FROM billing_charge linked
+        WHERE linked.family_billing_account_id = $1
+          AND linked.source_type IN ('charge_adjustment', 'refund_offset')
+          AND linked.related_charge_id IS NOT NULL
+        GROUP BY linked.related_charge_id
      ), active_reservations AS (
        SELECT reservation.billing_charge_id,
               SUM(reservation.amount_cents)::bigint AS reserved_cents
@@ -175,6 +195,7 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
             GREATEST(
               0,
               charge.amount_cents
+                + COALESCE(linked_offset.offset_cents, 0)
                 - COALESCE(application.applied_cents, 0)
                 - COALESCE(credit_application.applied_cents, 0)
                 - COALESCE(reservation.reserved_cents, 0)
@@ -183,6 +204,8 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
        LEFT JOIN application_totals application ON application.billing_charge_id = charge.id
        LEFT JOIN credit_application_totals credit_application
          ON credit_application.billing_charge_id = charge.id
+       LEFT JOIN linked_offset_totals linked_offset
+         ON linked_offset.billing_charge_id = charge.id
        LEFT JOIN active_reservations reservation ON reservation.billing_charge_id = charge.id
       WHERE charge.family_billing_account_id = $1
         AND charge.amount_cents > 0
@@ -213,6 +236,7 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
         AND GREATEST(
               0,
               charge.amount_cents
+                + COALESCE(linked_offset.offset_cents, 0)
                 - COALESCE(application.applied_cents, 0)
                 - COALESCE(credit_application.applied_cents, 0)
                 - COALESCE(reservation.reserved_cents, 0)
@@ -260,6 +284,54 @@ export async function reserveBillingPaymentAttempt(pool, {
         }
         await db.query('COMMIT')
         return hydrateAttempt(db, existing, { replayed: true })
+      }
+
+      const unresolvedPaidCheckout = await db.query(
+        `SELECT id
+           FROM billing_payment
+          WHERE family_billing_account_id = $1
+            AND external_status = 'reconciliation_required'
+            AND (
+              position('[paid-checkout-fulfillment-pending:' in COALESCE(note, '')) > 0
+              OR position('[paid-checkout-refund-required:' in COALESCE(note, '')) > 0
+            )
+          LIMIT 1`,
+        [normalizedAccountId],
+      )
+      if (unresolvedPaidCheckout.rows[0]) {
+        throw new Error('This household has a paid Stripe Checkout awaiting fulfillment reconciliation; do not collect another payment.')
+      }
+
+      const unresolvedRefund = await db.query(
+        `SELECT id
+           FROM billing_refund
+          WHERE family_billing_account_id = $1
+            AND external_status = 'reconciliation_required'
+          LIMIT 1`,
+        [normalizedAccountId],
+      )
+      if (unresolvedRefund.rows[0]) {
+        throw new Error('This household has a Stripe refund awaiting ledger reconciliation; do not collect another payment.')
+      }
+
+      const activeEnrollmentCheckout = await findActiveEnrollmentCheckoutBalanceCollector(
+        db,
+        normalizedAccountId,
+      )
+      if (activeEnrollmentCheckout) {
+        throw new Error(
+          'This household has an active enrollment Checkout already collecting part of its account balance; do not open another payment.',
+        )
+      }
+
+      const completedCheckoutGap = await findCompletedPaidCheckoutFulfillmentGap(
+        db,
+        normalizedAccountId,
+      )
+      if (completedCheckoutGap) {
+        throw new Error(
+          `This household has a completed paid ${completedCheckoutGap.owner_kind} Checkout without exact local fulfillment; do not collect another payment.`,
+        )
       }
 
       const candidates = await loadReservationCandidates(db, {
@@ -746,6 +818,7 @@ export async function completeBillingPaymentAttempt(pool, {
 export async function recordAndCompleteBillingPaymentAttempt(pool, {
   stripeObject,
   paymentIntentId,
+  paidAt = null,
   amountCents,
   customerId = null,
   preparePaymentFunction = prepareStripePaymentRecord,
@@ -756,6 +829,8 @@ export async function recordAndCompleteBillingPaymentAttempt(pool, {
   if (!located) return null
   const preparedPayment = await preparePaymentFunction({
     paymentIntentId,
+    paymentIntent: String(stripeObject?.id ?? '').startsWith('pi_') ? stripeObject : null,
+    paidAt,
     amountCents,
     accountId: located.family_billing_account_id,
     customerId,

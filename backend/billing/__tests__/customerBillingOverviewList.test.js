@@ -1,8 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  familyAutopayStatus,
   familyAutopayScheduled,
   lastThreeBillingMonths,
+  paymentMethodReadyForBillingMonth,
   yearToDateBounds,
 } from '../customerBillingOverviewList.js'
 
@@ -24,6 +26,9 @@ test('autopay is scheduled when household monthly billing has a card on file', (
     householdMonthlyBillingEnabled: true,
     cardOnFile: true,
     hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: '2026-10-01',
+    billingMonth: '2026-10-01',
   }), true)
 })
 
@@ -32,13 +37,95 @@ test('autopay is not scheduled when household monthly billing still needs a card
     householdMonthlyBillingEnabled: true,
     cardOnFile: false,
     hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: '2026-10-01',
+    billingMonth: '2026-10-01',
   }), false)
 })
 
-test('legacy Stripe subscriptions still count as scheduled autopay', () => {
+test('legacy Stripe subscriptions are a household-autopay conflict, never a ready state', () => {
   assert.equal(familyAutopayScheduled({
     householdMonthlyBillingEnabled: false,
     cardOnFile: false,
     hasLegacyStripeSubscription: true,
-  }), true)
+    hasVerifiedHouseholdMigration: false,
+    effectiveCollectionMonth: null,
+    billingMonth: '2026-10-01',
+  }), false)
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: true,
+    cardOnFile: true,
+    hasLegacyStripeSubscription: true,
+    hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: '2026-10-01',
+    billingMonth: '2026-10-01',
+  }), 'legacy_collector_conflict')
+})
+
+test('a card and household flag without verified migration evidence are not autopay', () => {
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: true,
+    cardOnFile: true,
+    hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: false,
+    effectiveCollectionMonth: null,
+    billingMonth: '2026-10-01',
+  }), 'migration_required')
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: true,
+    cardOnFile: true,
+    hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: '2026-11-01',
+    billingMonth: '2026-10-01',
+  }), 'scheduled_later')
+})
+
+test('database Date values preserve a verified household collection month', () => {
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: true,
+    cardOnFile: true,
+    hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: new Date('2026-10-01T00:00:00.000Z'),
+    billingMonth: '2026-10-01',
+  }), 'ready')
+})
+
+test('autopay payment-method readiness covers the month and customer that will be collected', () => {
+  const summary = (expMonth, expYear) => ({
+    available: true,
+    customerId: 'cus_1',
+    paymentMethod: {
+      id: 'pm_1',
+      type: 'card',
+      customerId: 'cus_1',
+      last4: '4242',
+      expMonth,
+      expYear,
+    },
+  })
+  assert.equal(paymentMethodReadyForBillingMonth(summary(10, 2026), '2026-10-01'), true)
+  assert.equal(paymentMethodReadyForBillingMonth(summary(9, 2026), '2026-10-01'), false)
+  assert.equal(paymentMethodReadyForBillingMonth(summary(null, null), '2026-10-01'), false)
+  assert.equal(paymentMethodReadyForBillingMonth({
+    available: true,
+    customerId: 'cus_1',
+    paymentMethod: { id: 'pm_link', type: 'link', customerId: 'cus_1' },
+  }, '2026-10-01'), true)
+  assert.equal(paymentMethodReadyForBillingMonth({
+    available: true,
+    customerId: 'cus_1',
+    paymentMethod: { id: 'pm_foreign', type: 'link', customerId: 'cus_other' },
+  }, '2026-10-01'), false)
+  assert.equal(paymentMethodReadyForBillingMonth({
+    available: true,
+    customerId: 'cus_1',
+    paymentMethod: { id: 'pm_bank', type: 'us_bank_account', customerId: 'cus_1' },
+  }, '2026-10-01'), false)
+  assert.equal(paymentMethodReadyForBillingMonth({
+    available: false,
+    customerId: 'cus_1',
+    paymentMethod: { id: 'pm_link', type: 'link', customerId: 'cus_1' },
+  }, '2026-10-01'), false)
 })

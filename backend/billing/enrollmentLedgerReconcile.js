@@ -3,7 +3,11 @@
  * or Stripe payments after a completed pending enrollment.
  */
 
-import { getStripeClient, recordEnrollmentStripePayment } from './stripeBilling.js'
+import { getStripeClient } from './stripeBilling.js'
+import {
+  commitPendingEnrollment,
+  findExistingSignupIdsForEnrollmentPayload,
+} from './stripeEnrollmentCheckout.js'
 import { persistSignupCharges } from '../scheduling/persistSignupCharges.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
@@ -24,42 +28,12 @@ function parsePreview(snapshot) {
 }
 
 async function loadSignupsForPending(pool, pending) {
-  const subsRes = await pool.query(
-    `
-      SELECT bs.source_id
-      FROM billing_subscription bs
-      WHERE bs.family_billing_account_id = $1
-        AND bs.member_id = $2
-        AND bs.source_type = 'scheduling_signup'
-        AND bs.status = 'active'
-    `,
-    [pending.family_billing_account_id, pending.member_id],
+  const signupIds = await findExistingSignupIdsForEnrollmentPayload(
+    pool,
+    pending.payload,
+    Number(pending.member_id),
   )
-  const signupIds = subsRes.rows.map((r) => Number(r.source_id)).filter(Number.isFinite)
-  if (signupIds.length === 0) {
-    const windowRes = await pool.query(
-      `
-        SELECT ss.id, ss.form_id, ss.slot_group_id, ss.time_slot_id,
-               sf.title AS form_title, ss.created_at
-        FROM scheduling_signup ss
-        JOIN scheduling_form sf ON sf.id = ss.form_id
-        WHERE ss.member_id = $1
-          AND ss.created_at >= $2::timestamptz - interval '1 day'
-          AND ss.created_at <= $2::timestamptz + interval '1 day'
-        ORDER BY ss.id
-      `,
-      [pending.member_id, pending.updated_at ?? pending.created_at],
-    )
-    return windowRes.rows.map((row) => ({
-      signupId: Number(row.id),
-      formId: Number(row.form_id),
-      slotGroupId: Number(row.slot_group_id),
-      timeSlotId: row.time_slot_id != null ? Number(row.time_slot_id) : null,
-      formTitle: row.form_title ?? 'Class enrollment',
-      slotLabel: '',
-      createdAt: row.created_at,
-    }))
-  }
+  if (signupIds.length === 0) return []
 
   const signupRes = await pool.query(
     `
@@ -87,7 +61,9 @@ async function loadSignupsForPending(pool, pending) {
 async function findSubscriptionChargeGaps(pool, accountId) {
   const res = await pool.query(
     `
-      SELECT bs.*, ss.id AS signup_id, ss.member_id, ss.created_at AS signup_created_at
+      SELECT bs.*, ss.id AS signup_id, ss.member_id,
+             ss.form_id, ss.slot_group_id, ss.time_slot_id,
+             ss.created_at AS signup_created_at
       FROM billing_subscription bs
       JOIN scheduling_signup ss ON ss.id = bs.source_id::bigint
       WHERE bs.family_billing_account_id = $1
@@ -103,6 +79,26 @@ async function findSubscriptionChargeGaps(pool, accountId) {
     [accountId],
   )
   return res.rows
+}
+
+function pendingPayloadContainsGap(pending, gap) {
+  let payload = pending?.payload ?? null
+  if (typeof payload === 'string') {
+    try {
+      payload = JSON.parse(payload)
+    } catch {
+      return false
+    }
+  }
+  return (payload?.signups ?? []).some((entry) => (
+    Number(entry?.formId) === Number(gap.form_id)
+    && Number(entry?.slotGroupId) === Number(gap.slot_group_id)
+    && (
+      entry?.timeSlotId == null
+        ? gap.time_slot_id == null
+        : Number(entry.timeSlotId) === Number(gap.time_slot_id)
+    )
+  ))
 }
 
 function firstMonthAmountForSlot(preview, slotKey) {
@@ -131,8 +127,17 @@ async function insertSignupChargeFromSubscription(pool, accountId, subRow, { che
         stripe_checkout_session_id, created_at
       ) VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, 'recurring', 'month', $8, $9, $10)
       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-      DO NOTHING
-      RETURNING id
+      DO UPDATE SET stripe_checkout_session_id = COALESCE(
+        billing_charge.stripe_checkout_session_id,
+        EXCLUDED.stripe_checkout_session_id
+      )
+      WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+        AND (
+          billing_charge.stripe_checkout_session_id IS NULL
+          OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+        )
+      RETURNING id, family_billing_account_id, member_id, amount_cents,
+                stripe_checkout_session_id
     `,
     [
       accountId,
@@ -147,7 +152,19 @@ async function insertSignupChargeFromSubscription(pool, accountId, subRow, { che
       subRow.signup_created_at ?? new Date(),
     ],
   )
-  return result.rows.length > 0
+  const row = result.rows[0] ?? null
+  if (!row && checkoutSessionId) {
+    throw new Error(`Enrollment charge ${subRow.signup_id ?? subRow.source_id} is bound to another Checkout Session.`)
+  }
+  if (row && (
+    Number(row.family_billing_account_id) !== Number(accountId)
+    || Number(row.member_id) !== Number(subRow.member_id)
+    || Number(row.amount_cents) !== amountCents
+    || String(row.stripe_checkout_session_id ?? '') !== String(checkoutSessionId ?? '')
+  )) {
+    throw new Error(`Enrollment charge ${subRow.signup_id ?? subRow.source_id} does not match its paid Checkout.`)
+  }
+  return Boolean(row)
 }
 
 async function insertMissingAdditionalFees(pool, accountId, pending, preview, signups, checkoutSessionId) {
@@ -178,8 +195,17 @@ async function insertMissingAdditionalFees(pool, accountId, pending, preview, si
            charge_type, billing_interval, stripe_checkout_session_id, created_at)
         VALUES ($1, $2, 'additional_fee', $3, $4, $5, $5, 0, 'one_time', 'one_time', $6, $7)
         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-        DO NOTHING
-        RETURNING id
+        DO UPDATE SET stripe_checkout_session_id = COALESCE(
+          billing_charge.stripe_checkout_session_id,
+          EXCLUDED.stripe_checkout_session_id
+        )
+        WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+          AND (
+            billing_charge.stripe_checkout_session_id IS NULL
+            OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+          )
+        RETURNING id, family_billing_account_id, member_id, amount_cents,
+                  stripe_checkout_session_id
       `,
       [
         accountId,
@@ -191,36 +217,36 @@ async function insertMissingAdditionalFees(pool, accountId, pending, preview, si
         pending.updated_at ?? pending.created_at ?? new Date(),
       ],
     )
-    if (result.rows.length > 0) inserted = true
+    const row = result.rows[0] ?? null
+    if (!row && checkoutSessionId) {
+      throw new Error(`Additional fee charge ${sourceId} is bound to another Checkout Session.`)
+    }
+    if (row && (
+      Number(row.family_billing_account_id) !== Number(accountId)
+      || Number(row.member_id) !== memberId
+      || Number(row.amount_cents) !== feeAmount
+      || String(row.stripe_checkout_session_id ?? '') !== String(checkoutSessionId ?? '')
+    )) {
+      throw new Error(`Additional fee charge ${sourceId} does not match its paid Checkout.`)
+    }
+    if (row) inserted = true
   }
 
   return inserted
-}
-
-async function linkCheckoutSessionToEnrollmentCharges(pool, accountId, { checkoutSessionId, memberId, anchorAt }) {
-  if (!checkoutSessionId) return
-  await pool.query(
-    `
-      UPDATE billing_charge
-      SET stripe_checkout_session_id = $2
-      WHERE family_billing_account_id = $1
-        AND member_id = $3
-        AND stripe_checkout_session_id IS NULL
-        AND created_at >= $4::timestamptz - interval '2 days'
-        AND created_at <= $4::timestamptz + interval '2 days'
-    `,
-    [accountId, checkoutSessionId, memberId, anchorAt],
-  )
 }
 
 async function findPendingEnrollmentsMissingPayment(pool, accountId) {
   try {
     const res = await pool.query(
       `
-        SELECT pe.*
+        SELECT pe.*, account.stripe_customer_id, account.payer_member_id
         FROM stripe_pending_enrollment pe
+        JOIN family_billing_account account
+          ON account.id = pe.family_billing_account_id
+         AND account.is_active = TRUE
         WHERE pe.family_billing_account_id = $1
           AND pe.status = 'completed'
+          AND pe.due_now_cents > 0
           AND pe.stripe_checkout_session_id IS NOT NULL
           AND NOT EXISTS (
             SELECT 1 FROM billing_payment p
@@ -249,7 +275,9 @@ async function accountNeedsLedgerRepair(pool, accountId) {
  * @param {{ id:number, family_id:number }} account
  * @returns {Promise<{ repaired: boolean }>}
  */
-export async function reconcileEnrollmentLedger(pool, account) {
+export async function reconcileEnrollmentLedger(pool, account, {
+  stripeClient = undefined,
+} = {}) {
   if (!account?.id) return { repaired: false }
 
   await ensureReconcileSchema(pool)
@@ -258,10 +286,10 @@ export async function reconcileEnrollmentLedger(pool, account) {
   if (!needsRepair) return { repaired: false }
 
   let repaired = false
-  const stripe = await getStripeClient()
+  const stripe = stripeClient === undefined ? await getStripeClient() : stripeClient
 
   const subscriptionGaps = await findSubscriptionChargeGaps(pool, account.id)
-  const pendingByMember = new Map()
+  let completedPendingRows = []
 
   try {
     const pendingRows = await pool.query(
@@ -274,17 +302,28 @@ export async function reconcileEnrollmentLedger(pool, account) {
       `,
       [account.id],
     )
-    for (const row of pendingRows.rows) {
-      pendingByMember.set(Number(row.member_id), row)
-    }
+    completedPendingRows = pendingRows.rows
   } catch (err) {
     if (err?.code !== '42P01') throw err
   }
 
   for (const gap of subscriptionGaps) {
-    const pending = pendingByMember.get(Number(gap.member_id)) ?? null
-    const preview = pending ? parsePreview(pending.preview_snapshot) : null
-    const signups = pending ? await loadSignupsForPending(pool, pending) : []
+    const matchingPending = completedPendingRows.filter((row) => (
+      Number(row.member_id) === Number(gap.member_id)
+      && row.stripe_checkout_session_id
+      && pendingPayloadContainsGap(row, gap)
+    ))
+    let pending = matchingPending.length === 1 ? matchingPending[0] : null
+    let preview = pending ? parsePreview(pending.preview_snapshot) : null
+    let signups = pending ? await loadSignupsForPending(pool, pending) : []
+    if (!signups.some((signup) => String(signup.signupId) === String(gap.source_id))) {
+      // A same-member or nearby signup is not proof that this paid Checkout owns
+      // the gap. Repair it as an unbound ledger row and leave cash disposition to
+      // the exact pending-enrollment recovery path.
+      pending = null
+      preview = null
+      signups = []
+    }
     const checkoutSessionId = pending?.stripe_checkout_session_id ?? null
 
     if (preview && signups.length > 0) {
@@ -293,7 +332,13 @@ export async function reconcileEnrollmentLedger(pool, account) {
          WHERE family_billing_account_id = $1 AND source_type IN ('scheduling_signup', 'additional_fee')`,
         [account.id],
       )
-      await persistSignupCharges(pool, { memberId: Number(gap.member_id), signups, preview })
+      await persistSignupCharges(pool, {
+        memberId: Number(gap.member_id),
+        signups,
+        preview,
+        stripeCheckoutSessionId: checkoutSessionId,
+        purchasedAt: pending?.created_at ?? null,
+      })
       const after = await pool.query(
         `SELECT COUNT(*)::int AS count FROM billing_charge
          WHERE family_billing_account_id = $1 AND source_type IN ('scheduling_signup', 'additional_fee')`,
@@ -313,8 +358,7 @@ export async function reconcileEnrollmentLedger(pool, account) {
       }
     }
 
-    const signup =
-      signups.find((s) => String(s.signupId) === String(gap.source_id)) ?? signups[0] ?? null
+    const signup = signups.find((s) => String(s.signupId) === String(gap.source_id)) ?? null
     const slotKey = signup
       ? `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
       : null
@@ -324,8 +368,9 @@ export async function reconcileEnrollmentLedger(pool, account) {
        WHERE family_billing_account_id = $1
          AND source_type = 'scheduling_signup'
          AND source_id = $2
+         AND ($3::text IS NULL OR stripe_checkout_session_id = $3)
        LIMIT 1`,
-      [account.id, String(gap.source_id)],
+      [account.id, String(gap.source_id), checkoutSessionId],
     )
     if (stillMissing.rows.length === 0) {
       const inserted = await insertSignupChargeFromSubscription(pool, account.id, gap, {
@@ -336,13 +381,6 @@ export async function reconcileEnrollmentLedger(pool, account) {
       if (inserted) repaired = true
     }
 
-    if (checkoutSessionId && signup) {
-      await linkCheckoutSessionToEnrollmentCharges(pool, account.id, {
-        checkoutSessionId,
-        memberId: Number(gap.member_id),
-        anchorAt: signup.createdAt ?? gap.signup_created_at,
-      })
-    }
   }
 
   const missingPayments = await findPendingEnrollmentsMissingPayment(pool, account.id)
@@ -352,22 +390,16 @@ export async function reconcileEnrollmentLedger(pool, account) {
       const session = await stripe.checkout.sessions.retrieve(pending.stripe_checkout_session_id, {
         expand: ['payment_intent', 'invoice.payment_intent'],
       })
-      if (session.payment_status !== 'paid' && session.status !== 'complete') continue
-      const payment = await recordEnrollmentStripePayment(pool, stripe, {
-        session,
-        accountId: account.id,
-        paidAt: session.created ? new Date(session.created * 1000) : null,
+      if (session.payment_status !== 'paid') continue
+      const outcome = await commitPendingEnrollment(pool, {
+        pendingEnrollmentId: Number(pending.id),
+        stripeSession: session,
       })
-      if (payment) {
-        await allocateHouseholdPayments(pool, { accountId: account.id, actorType: 'reconciliation' })
+      if (
+        outcome?.payment
+        && ['completed', 'already_completed', 'quarantined'].includes(String(outcome.status))
+      ) {
         repaired = true
-        const signups = await loadSignupsForPending(pool, pending)
-        const anchorAt = signups[0]?.createdAt ?? pending.updated_at ?? pending.created_at
-        await linkCheckoutSessionToEnrollmentCharges(pool, account.id, {
-          checkoutSessionId: pending.stripe_checkout_session_id,
-          memberId: Number(pending.member_id),
-          anchorAt,
-        })
       }
     } catch (err) {
       console.warn('[billing] reconcileEnrollmentLedger payment:', err.message)

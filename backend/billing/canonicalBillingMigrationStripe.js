@@ -4,6 +4,11 @@ import {
   sanitizeBillingMigrationSnapshot,
   zonedDateStartUnix,
 } from './canonicalBillingMigrationState.js'
+import {
+  resolveStripeInvoicePaymentIntentId,
+  verifyStripeInvoicePaymentIntent,
+} from './stripeInvoicePaymentBinding.js'
+import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
 
 export class BillingMigrationSafetyError extends Error {
   constructor(code, message, details = {}, { forwardOnly = false } = {}) {
@@ -189,7 +194,10 @@ export async function retrieveStripeSubscriptionSnapshot(stripe, subscriptionId)
   }
 }
 
-export async function retrieveStripeCustomerReadiness(stripe, customerId) {
+export async function retrieveStripeCustomerReadiness(stripe, customerId, {
+  billingMonth,
+  expectedAccountId = null,
+} = {}) {
   if (!stripe) throw new BillingMigrationSafetyError('stripe_unavailable', 'Stripe is required for collection migration.')
   if (!customerId) {
     return { ready: false, reason: 'stripe_customer_missing', snapshot: { customerId: null, deleted: false, hasDefaultPaymentMethod: false } }
@@ -201,19 +209,41 @@ export async function retrieveStripeCustomerReadiness(stripe, customerId) {
     if (customer.deleted) {
       return { ready: false, reason: 'stripe_customer_deleted', snapshot: { customerId, deleted: true, hasDefaultPaymentMethod: false } }
     }
-    let methodId = objectId(customer.invoice_settings?.default_payment_method)
-    if (!methodId && stripe.paymentMethods?.list) {
-      const methods = await stripe.paymentMethods.list({ customer: String(customerId), type: 'card', limit: 1 })
-      methodId = methods.data?.[0]?.id ?? null
+    const metadataOwner = String(customer.metadata?.familyBillingAccountId ?? '').trim()
+    if (
+      expectedAccountId != null
+      && metadataOwner
+      && String(expectedAccountId) !== metadataOwner
+    ) {
+      return {
+        ready: false,
+        reason: 'stripe_customer_metadata_owner_conflict',
+        snapshot: {
+          customerId: customer.id,
+          deleted: false,
+          hasDefaultPaymentMethod: false,
+          metadataFamilyBillingAccountId: metadataOwner,
+        },
+      }
     }
+    const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
+      expectedCustomerId: String(customerId),
+      billingMonth,
+    })
+    const methodId = objectId(selection.paymentMethod)
     return {
-      ready: Boolean(methodId),
-      reason: methodId ? null : 'payment_method_required',
+      ready: selection.readiness.ready,
+      reason: selection.readiness.reason,
       snapshot: {
         customerId: customer.id,
         deleted: false,
-        hasDefaultPaymentMethod: Boolean(methodId),
-        // Keep only the opaque ID. Never snapshot card, bank, or billing details.
+        hasDefaultPaymentMethod: selection.readiness.ready,
+        billingMonth: selection.readiness.billingMonth ?? null,
+        paymentMethodType: selection.readiness.paymentMethodType ?? null,
+        paymentMethodSource: selection.source,
+        metadataFamilyBillingAccountId: metadataOwner || null,
+        // Keep only the opaque ID and non-sensitive classification metadata.
+        // Never snapshot card, bank, Link-account, or billing details.
         defaultPaymentMethodId: methodId,
       },
     }
@@ -232,6 +262,16 @@ const LIVE_STRIPE_SUBSCRIPTION_STATUSES = new Set([
   'past_due',
   'unpaid',
   'incomplete',
+])
+const SAFE_TERMINAL_STRIPE_SUBSCRIPTION_STATUSES = new Set([
+  'canceled',
+  'incomplete_expired',
+])
+const LIVE_STRIPE_SUBSCRIPTION_SCHEDULE_STATUSES = new Set(['not_started', 'active'])
+const SAFE_TERMINAL_STRIPE_SUBSCRIPTION_SCHEDULE_STATUSES = new Set([
+  'canceled',
+  'completed',
+  'released',
 ])
 
 function localSubscriptionInventoryRow(row) {
@@ -310,12 +350,14 @@ export async function inspectStripeCustomerSubscriptionInventory(stripe, {
       customer: String(stripeCustomerId),
       status: 'all',
       limit: 100,
-      expand: ['data.items.data.price.product'],
     },
     { collectionName: `customer ${stripeCustomerId} subscriptions` },
   )
+  // Only statuses Stripe documents as terminal are safe to omit. Any new or
+  // missing status remains in the blocking inventory until its collection
+  // semantics are reviewed explicitly.
   const liveRows = remoteRows.filter((row) => (
-    LIVE_STRIPE_SUBSCRIPTION_STATUSES.has(String(row?.status ?? ''))
+    !SAFE_TERMINAL_STRIPE_SUBSCRIPTION_STATUSES.has(String(row?.status ?? ''))
   ))
   const issues = []
   const subscriptions = []
@@ -323,6 +365,7 @@ export async function inspectStripeCustomerSubscriptionInventory(stripe, {
 
   for (const remote of liveRows) {
     const remoteId = String(remote?.id ?? '')
+    const remoteStatus = String(remote?.status ?? '')
     const metadata = remote?.metadata ?? {}
     const metadataLocalId = metadataInteger(metadata, 'billingSubscriptionId')
     const metadataAccountId = metadataInteger(metadata, 'familyBillingAccountId')
@@ -373,6 +416,15 @@ export async function inspectStripeCustomerSubscriptionInventory(stripe, {
       },
     }
     subscriptions.push(inventoryRow)
+
+    if (!LIVE_STRIPE_SUBSCRIPTION_STATUSES.has(remoteStatus)) {
+      issues.push(subscriptionInventoryIssue(
+        'stripe_customer_subscription_status_unrecognized',
+        `Stripe subscription ${remoteId || '(missing id)'} has unrecognized nonterminal status ${remoteStatus || '(missing)'}.`,
+        { stripeSubscriptionId: remoteId || null, status: remoteStatus || null },
+      ))
+      continue
+    }
 
     if (String(objectId(remote.customer) ?? '') !== String(stripeCustomerId)) {
       issues.push(subscriptionInventoryIssue(
@@ -478,8 +530,10 @@ export async function inspectStripeCustomerSubscriptionScheduleInventory(stripe,
     { customer: String(stripeCustomerId), limit: 100 },
     { collectionName: `customer ${stripeCustomerId} subscription schedules` },
   )
+  // As with subscriptions, invert the test: only reviewed terminal states are
+  // safe. A future Stripe status must block rather than silently disappear.
   const schedules = rows
-    .filter((row) => ['not_started', 'active'].includes(String(row?.status ?? '')))
+    .filter((row) => !SAFE_TERMINAL_STRIPE_SUBSCRIPTION_SCHEDULE_STATUSES.has(String(row?.status ?? '')))
     .map((row) => ({
       id: String(row.id),
       status: row.status ?? null,
@@ -489,11 +543,18 @@ export async function inspectStripeCustomerSubscriptionScheduleInventory(stripe,
       endBehavior: row.end_behavior ?? null,
     }))
     .sort((left, right) => left.id.localeCompare(right.id))
-  const issues = schedules.map((schedule) => subscriptionInventoryIssue(
-    'stripe_customer_subscription_schedule_active',
-    `Stripe subscription schedule ${schedule.id} is still ${schedule.status}.`,
-    { accountId, stripeCustomerId, ...schedule },
-  ))
+  const issues = schedules.map((schedule) => {
+    const recognizedLive = LIVE_STRIPE_SUBSCRIPTION_SCHEDULE_STATUSES.has(String(schedule.status ?? ''))
+    return subscriptionInventoryIssue(
+      recognizedLive
+        ? 'stripe_customer_subscription_schedule_active'
+        : 'stripe_customer_subscription_schedule_status_unrecognized',
+      recognizedLive
+        ? `Stripe subscription schedule ${schedule.id} is still ${schedule.status}.`
+        : `Stripe subscription schedule ${schedule.id} has unrecognized nonterminal status ${schedule.status || '(missing)'}.`,
+      { accountId, stripeCustomerId, ...schedule },
+    )
+  })
   return {
     verified: issues.length === 0,
     issues,
@@ -829,6 +890,28 @@ export async function listTargetMonthLegacyInvoices(stripe, {
       nextBoundaryUnix,
     ))
     if (!invoicePeriodMatches && matchingLines.length === 0) continue
+    let paymentIntentId = objectId(invoice.payment_intent)
+    let paymentIntent = typeof invoice.payment_intent === 'object'
+      ? invoice.payment_intent
+      : null
+    if (invoice.status === 'paid' || invoice.paid === true) {
+      try {
+        paymentIntentId = await resolveStripeInvoicePaymentIntentId(stripe, invoice)
+        paymentIntent = paymentIntentId
+          ? await verifyStripeInvoicePaymentIntent(stripe, invoice, paymentIntentId)
+          : null
+      } catch (error) {
+        throw new BillingMigrationSafetyError(
+          'paid_legacy_invoice_payment_binding_invalid',
+          `Paid legacy invoice ${invoice.id ?? '(missing id)'} has no exact Stripe Invoice Payment binding.`,
+          {
+            stripeInvoiceId: invoice.id ?? null,
+            reason: error?.message ?? String(error),
+          },
+          { forwardOnly: true },
+        )
+      }
+    }
     matches.push(sanitizeBillingMigrationSnapshot({
       id: invoice.id,
       status: invoice.status,
@@ -865,12 +948,12 @@ export async function listTargetMonthLegacyInvoices(stripe, {
       collectionMethod: invoice.collection_method ?? null,
       currency: String(invoice.currency ?? '').toLowerCase() || null,
       customerId: objectId(invoice.customer),
-      paymentIntentId: objectId(invoice.payment_intent),
-      paymentIntentStatus: typeof invoice.payment_intent === 'object'
-        ? invoice.payment_intent.status ?? null
+      paymentIntentId,
+      paymentIntentStatus: paymentIntent
+        ? paymentIntent.status ?? null
         : null,
-      paymentIntentAmountReceived: typeof invoice.payment_intent === 'object'
-        ? Number(invoice.payment_intent.amount_received ?? 0)
+      paymentIntentAmountReceived: paymentIntent
+        ? Number(paymentIntent.amount_received ?? 0)
         : 0,
     }))
   }
@@ -1108,9 +1191,7 @@ export async function inspectStripeHouseholdInvoice(stripe, {
 
   let remote
   try {
-    remote = await stripe.invoices.retrieve(String(stripeInvoiceId), {
-      expand: ['payment_intent'],
-    })
+    remote = await stripe.invoices.retrieve(String(stripeInvoiceId))
   } catch (error) {
     if (!stripeMissing(error)) throw error
     issues.push(householdInvoiceIssue(
@@ -1179,6 +1260,8 @@ export async function inspectStripeHouseholdInvoice(stripe, {
   }
   const remotePaid = Number(remote.amount_paid ?? 0)
   const remoteRemaining = Number(remote.amount_remaining ?? 0)
+  let paymentIntentId = null
+  let paymentIntent = null
   if (remote.status === 'paid') {
     if (remotePaid !== localTotal || remoteRemaining !== 0 || invoice.status !== 'paid') {
       issues.push(householdInvoiceIssue(
@@ -1193,6 +1276,29 @@ export async function inspectStripeHouseholdInvoice(stripe, {
           expectedTotalCents: localTotal,
         },
       ))
+    }
+    // Zero-dollar paid invoices legitimately have no payment identity. Every
+    // positive paid invoice must have one exact whole-invoice binding, proven
+    // in both directions before post-cutover verification can pass.
+    if (remotePaid > 0) {
+      try {
+        paymentIntentId = await resolveStripeInvoicePaymentIntentId(stripe, remote)
+        paymentIntent = paymentIntentId
+          ? await verifyStripeInvoicePaymentIntent(stripe, remote, paymentIntentId)
+          : null
+        if (!paymentIntentId || !paymentIntent) {
+          throw new Error(`Paid Stripe invoice ${remote.id} has no provable PaymentIntent.`)
+        }
+      } catch (error) {
+        issues.push(householdInvoiceIssue(
+          'remote_household_invoice_payment_binding_invalid',
+          `Paid Stripe invoice ${remote.id} has no exact whole-invoice payment binding.`,
+          {
+            stripeInvoiceId: remote.id,
+            reason: error?.message ?? String(error),
+          },
+        ))
+      }
     }
   } else {
     if (invoice.status === 'paid') {
@@ -1283,6 +1389,11 @@ export async function inspectStripeHouseholdInvoice(stripe, {
       amountDueCents: Number(remote.amount_due ?? 0),
       amountPaidCents: remotePaid,
       amountRemainingCents: remoteRemaining,
+      paymentIntentId,
+      paymentIntentStatus: paymentIntent?.status ?? null,
+      paymentIntentAmountReceivedCents: paymentIntent == null
+        ? null
+        : Number(paymentIntent.amount_received ?? 0),
       metadata: {
         householdMonthlyInvoice: metadata.householdMonthlyInvoice ?? null,
         monthlyInvoiceId: metadata.monthlyInvoiceId ?? null,

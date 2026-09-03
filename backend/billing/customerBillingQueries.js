@@ -17,6 +17,7 @@ import {
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -55,6 +56,7 @@ function isAnnualMembershipCharge(charge) {
 function paidAnnualMembershipCharge(charge) {
   return (
     isAnnualMembershipCharge(charge) &&
+    charge.has_refund_offset !== true &&
     (Boolean(charge.paid_at) || ['paid', 'settled', 'succeeded'].includes(String(charge.collection_status ?? '').toLowerCase()))
   )
 }
@@ -224,12 +226,14 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
     pool.query(
       `SELECT c.id, c.member_id, c.source_type, c.source_id, c.created_at,
               c.amount_cents, c.gross_amount_cents, c.discount_amount_cents,
+              COALESCE(adjustment.has_refund_offset, FALSE) AS has_refund_offset,
               CASE
+                WHEN COALESCE(adjustment.has_refund_offset, FALSE) THEN 'refunded'
                 WHEN COALESCE(app.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(adjustment.adjustment_cents, 0)) THEN 'paid'
                 WHEN COALESCE(app.applied_cents, 0) > 0 THEN 'partially_paid'
                 ELSE c.collection_status
               END AS collection_status,
-              app.paid_at,
+              CASE WHEN COALESCE(adjustment.has_refund_offset, FALSE) THEN NULL ELSE app.paid_at END AS paid_at,
               GREATEST(0, c.amount_cents + COALESCE(adjustment.adjustment_cents, 0) - COALESCE(app.applied_cents, 0))::int AS remaining_amount_cents
        FROM billing_charge c
        LEFT JOIN LATERAL (
@@ -242,10 +246,11 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
            AND payment.external_status IN ('settled', 'succeeded')
        ) app ON TRUE
        LEFT JOIN LATERAL (
-         SELECT COALESCE(SUM(linked.amount_cents), 0)::int AS adjustment_cents
+         SELECT COALESCE(SUM(linked.amount_cents), 0)::int AS adjustment_cents,
+                BOOL_OR(linked.source_type = 'refund_offset' AND linked.amount_cents < 0) AS has_refund_offset
          FROM billing_charge linked
          WHERE linked.related_charge_id = c.id
-           AND linked.source_type = 'charge_adjustment'
+           AND linked.source_type IN ('charge_adjustment', 'refund_offset')
        ) adjustment ON TRUE
        WHERE c.family_billing_account_id = $1
          AND c.member_id = ANY($2::bigint[])
@@ -266,7 +271,12 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
 
 export async function loadCustomerBillingAccount(pool, familyId, facilityId = null) {
   const result = await pool.query(
-    `SELECT account.*, family.family_name, family.facility_id AS family_facility_id
+    `SELECT account.*, family.family_name, family.facility_id AS family_facility_id,
+            (
+              SELECT COUNT(*)::integer
+                FROM family_billing_account customer_owner
+               WHERE customer_owner.stripe_customer_id = account.stripe_customer_id
+            ) AS stripe_customer_owner_count
        FROM family
        JOIN family_billing_account account ON account.family_id = family.id
       WHERE family.id = $1
@@ -358,9 +368,24 @@ async function loadFamilyMembers(pool, familyId) {
   }))
 }
 
-export async function loadDefaultPaymentMethodSummary(account) {
-  if (!account?.stripe_customer_id || !stripeEnabled()) {
-    return { available: false, stripeEnabled: stripeEnabled(), paymentMethod: null }
+export async function loadDefaultPaymentMethodSummary(account, {
+  billingMonth = upcomingRecurringPricingMonth(),
+} = {}) {
+  const enabled = stripeEnabled()
+  if (!account?.stripe_customer_id) {
+    return { available: false, stripeEnabled: enabled, paymentMethod: null }
+  }
+  if (Number(account.stripe_customer_owner_count) !== 1) {
+    return {
+      available: false,
+      stripeEnabled: enabled,
+      paymentMethod: null,
+      reconciliationRequired: true,
+      error: 'The Stripe customer does not have one unique local billing-account owner.',
+    }
+  }
+  if (!enabled) {
+    return { available: false, stripeEnabled: false, paymentMethod: null }
   }
   try {
     const stripe = await getStripeClient()
@@ -369,19 +394,22 @@ export async function loadDefaultPaymentMethodSummary(account) {
       expand: ['invoice_settings.default_payment_method'],
     })
     if (!customer || customer.deleted) return { available: false, stripeEnabled: true, paymentMethod: null }
-    let paymentMethod = customer.invoice_settings?.default_payment_method ?? null
-    if (typeof paymentMethod === 'string') paymentMethod = await stripe.paymentMethods.retrieve(paymentMethod)
-    if (!paymentMethod) {
-      const methods = await stripe.paymentMethods.list({ customer: customer.id, type: 'card', limit: 1 })
-      paymentMethod = methods.data?.[0] ?? null
-    }
+    const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
+      expectedCustomerId: account.stripe_customer_id,
+      billingMonth,
+    })
+    const paymentMethod = selection.paymentMethod
     const card = paymentMethod?.card
     return {
-      available: Boolean(paymentMethod?.id),
+      available: selection.readiness.ready,
       stripeEnabled: true,
+      customerId: customer.id,
+      readiness: selection.readiness,
       paymentMethod: paymentMethod?.id
         ? {
             id: paymentMethod.id,
+            type: paymentMethod.type ?? null,
+            customerId: selection.readiness.customerId ?? null,
             brand: card?.brand ?? paymentMethod.type ?? 'card',
             last4: card?.last4 ?? null,
             expMonth: card?.exp_month ?? null,
@@ -627,7 +655,7 @@ export async function buildCustomerBillingOverview(pool, {
         accountId: account.id,
         members,
       }),
-      loadDefaultPaymentMethodSummary(account),
+      loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth }),
       listHouseholdMonthlyInvoices(pool, account.id, {
         limit: memberRead ? 1 : 6,
         includeLines: !memberRead,
@@ -1056,7 +1084,7 @@ export async function listCustomerBillingTransactions(pool, {
                 MAX(NULLIF(adjustment.metadata->>'discountCode', '')) AS discount_code
          FROM billing_charge adjustment
          WHERE adjustment.related_charge_id = c.id
-           AND adjustment.source_type = 'charge_adjustment'
+           AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
        ) charge_adjustments ON TRUE
        WHERE c.family_billing_account_id = $1
          -- Keep erroneous system-generated correction rows available to the
@@ -1452,7 +1480,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
        FROM billing_charge adjustment
        WHERE page.entry_kind = 'charge'
          AND adjustment.related_charge_id = page.ref_id
-         AND adjustment.source_type = 'charge_adjustment'
+         AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
      ) charge_adjustments ON TRUE
      LEFT JOIN LATERAL (
        SELECT ARRAY_AGG(

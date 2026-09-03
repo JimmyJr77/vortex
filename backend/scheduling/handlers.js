@@ -2671,6 +2671,11 @@ export function createSchedulingHandlers(pool) {
 
     async createSignupBatch(req, res) {
       try {
+        const stripeCheckoutSessionId = String(
+          req.billingCheckout?.stripeCheckoutSessionId ?? '',
+        ).trim() || null
+        const billingCheckoutPreview = req.billingCheckout?.preview ?? null
+        const billingCheckoutPurchasedAt = req.billingCheckout?.purchasedAt ?? null
         const { error, value } = batchSignupSchema.validate(req.body, {
           abortEarly: false,
           // Stripe pending enrollment payloads may include analytics attribution;
@@ -2858,38 +2863,44 @@ export function createSchedulingHandlers(pool) {
           let freePassBreakdown = null
           let orderPreviewSnapshot = null
           try {
-            const preview = await buildSignupOrderPreview(pool, {
-              memberId,
-              newSignups: [
-                ...resolvedEntries.map((resolved) => ({
-                  formId: resolved.entry.formId,
-                  slotGroupId: resolved.entry.slotGroupId,
-                  timeSlotId: resolved.firstOccurrence.id,
-                  formTitle: resolved.detail.title,
-                  selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
-                  useMultiClassPass: resolved.entry.useMultiClassPass,
-                  enrollmentStartDate: resolved.entry.enrollmentStartDate,
-                  lineType: 'slot',
-                })),
-                ...passSignups.map((p) => ({
-                  lineType: 'multi_class_pass',
-                  programsId: p.programsId,
-                  packageId: p.packageId,
-                })),
-              ],
-              promoCodes: value.promoCodes || [],
-              memberContext: {
-                city: null,
-                school: responses.current_school != null ? String(responses.current_school).trim() : null,
-                graduationYear:
-                  responses.graduation_year != null && responses.graduation_year !== ''
-                    ? Number(responses.graduation_year)
-                    : null,
-              },
-            })
-            discountBreakdown = preview.discounts
-            freePassBreakdown = preview.freePasses
-            orderPreviewSnapshot = preview
+            if (billingCheckoutPreview) {
+              discountBreakdown = billingCheckoutPreview.discounts ?? null
+              freePassBreakdown = billingCheckoutPreview.freePasses ?? null
+              orderPreviewSnapshot = billingCheckoutPreview
+            } else {
+              const preview = await buildSignupOrderPreview(pool, {
+                memberId,
+                newSignups: [
+                  ...resolvedEntries.map((resolved) => ({
+                    formId: resolved.entry.formId,
+                    slotGroupId: resolved.entry.slotGroupId,
+                    timeSlotId: resolved.firstOccurrence.id,
+                    formTitle: resolved.detail.title,
+                    selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
+                    useMultiClassPass: resolved.entry.useMultiClassPass,
+                    enrollmentStartDate: resolved.entry.enrollmentStartDate,
+                    lineType: 'slot',
+                  })),
+                  ...passSignups.map((p) => ({
+                    lineType: 'multi_class_pass',
+                    programsId: p.programsId,
+                    packageId: p.packageId,
+                  })),
+                ],
+                promoCodes: value.promoCodes || [],
+                memberContext: {
+                  city: null,
+                  school: responses.current_school != null ? String(responses.current_school).trim() : null,
+                  graduationYear:
+                    responses.graduation_year != null && responses.graduation_year !== ''
+                      ? Number(responses.graduation_year)
+                      : null,
+                },
+              })
+              discountBreakdown = preview.discounts
+              freePassBreakdown = preview.freePasses
+              orderPreviewSnapshot = preview
+            }
           } catch (previewErr) {
             console.warn('[scheduling] discount preview at batch submit:', previewErr.message)
           }
@@ -3044,6 +3055,8 @@ export function createSchedulingHandlers(pool) {
                   slotLabel: result.slotLabel,
                 })),
               preview: orderPreviewSnapshot,
+              stripeCheckoutSessionId,
+              purchasedAt: billingCheckoutPurchasedAt,
             })
 
             const { resolveProgramsSchema } = await import('../programs/schema.js')
@@ -3060,6 +3073,7 @@ export function createSchedulingHandlers(pool) {
                 packageLabel: purchased.packageDef.label,
                 priceCents: purchased.packageDef.priceCents,
                 programDisplayName: progRes.rows[0]?.display_name ?? null,
+                stripeCheckoutSessionId,
               })
             }
           } catch (chargeErr) {
@@ -5285,7 +5299,7 @@ export function createSchedulingHandlers(pool) {
 }
 
 /** Programmatic signup batch (Stripe webhook enrollment commit). */
-export async function executeSignupBatch(pool, body) {
+export async function executeSignupBatch(pool, body, billingCheckout = null) {
   const handlers = createSchedulingHandlers(pool)
   return new Promise((resolve, reject) => {
     let statusCode = 200
@@ -5305,6 +5319,6 @@ export async function executeSignupBatch(pool, body) {
         }
       },
     }
-    handlers.createSignupBatch({ body }, res).catch(reject)
+    handlers.createSignupBatch({ body, billingCheckout }, res).catch(reject)
   })
 }

@@ -36,7 +36,7 @@ try {
     }
     console.error('[stripe:reconcile] enrollment auto-pay repair:', error)
   }
-  const result = await runStripeReconciliation(pool, { lookbackHours: Number(process.env.STRIPE_RECONCILIATION_LOOKBACK_HOURS || 48) })
+  const result = await runStripeReconciliation(pool, { lookbackHours: Number(process.env.STRIPE_RECONCILIATION_LOOKBACK_HOURS || 168) })
   console.log(JSON.stringify({ ...result, enrollmentAutoPayRepair }))
 } catch (error) {
   console.error('[stripe:reconcile] Fatal:', error)

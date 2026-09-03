@@ -10,6 +10,7 @@ export async function persistMultiClassPassPurchaseCharge(pool, {
   packageLabel,
   priceCents,
   programDisplayName,
+  stripeCheckoutSessionId = null,
 }) {
   if (!memberId || passId == null || priceCents == null) return null
 
@@ -38,17 +39,44 @@ export async function persistMultiClassPassPurchaseCharge(pool, {
     `
       INSERT INTO billing_charge (
         family_billing_account_id, member_id, source_type, source_id,
-        description, amount_cents, service_period_start, service_period_end
+        description, amount_cents, service_period_start, service_period_end,
+        stripe_checkout_session_id
       )
-      VALUES ($1, $2, 'multi_class_pass_purchase', $3, $4, $5, CURRENT_DATE, NULL)
+      VALUES ($1, $2, 'multi_class_pass_purchase', $3, $4, $5, CURRENT_DATE, NULL, $6)
       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
-      DO NOTHING
-      RETURNING id
+      DO UPDATE SET stripe_checkout_session_id = COALESCE(
+        billing_charge.stripe_checkout_session_id,
+        EXCLUDED.stripe_checkout_session_id
+      )
+      WHERE EXCLUDED.stripe_checkout_session_id IS NOT NULL
+        AND (
+          billing_charge.stripe_checkout_session_id IS NULL
+          OR billing_charge.stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id
+        )
+      RETURNING id, family_billing_account_id, member_id, amount_cents,
+                stripe_checkout_session_id
     `,
-    [account.id, memberId, String(passId), description, Math.max(0, Math.round(priceCents))],
+    [
+      account.id,
+      memberId,
+      String(passId),
+      description,
+      Math.max(0, Math.round(priceCents)),
+      stripeCheckoutSessionId,
+    ],
   )
 
-  const chargeId = result.rows[0]?.id != null ? Number(result.rows[0].id) : null
+  const charge = result.rows[0] ?? null
+  if (stripeCheckoutSessionId && (
+    !charge
+    || Number(charge.family_billing_account_id) !== Number(account.id)
+    || Number(charge.member_id) !== Number(memberId)
+    || Number(charge.amount_cents) !== Math.max(0, Math.round(priceCents))
+    || String(charge.stripe_checkout_session_id ?? '') !== String(stripeCheckoutSessionId)
+  )) {
+    throw new Error(`Multi-class pass ${passId} conflicts with its paid Checkout Session.`)
+  }
+  const chargeId = charge?.id != null ? Number(charge.id) : null
   if (chargeId != null) {
     await pool.query(
       `UPDATE member_multi_class_pass SET billing_charge_id = $1 WHERE id = $2 AND billing_charge_id IS NULL`,

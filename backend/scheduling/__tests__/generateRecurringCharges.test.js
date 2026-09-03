@@ -50,6 +50,7 @@ const ACCOUNT = {
   facility_timezone: 'America/New_York',
   household_monthly_billing_enabled: true,
   migration_state: 'verified',
+  verified_collection_month: '2026-09-01',
 }
 
 function recurringAccountFixture({
@@ -194,6 +195,47 @@ test('collector mode is fail-closed for staged rollout state combinations', () =
   }
 })
 
+test('verified household collection stays dormant until its effective billing month', async () => {
+  const future = { ...ACCOUNT, verified_collection_month: '2026-10-01' }
+  assert.equal(
+    recurringCollectionMode(future, { billingMonth: '2026-09-01' }),
+    'canonical_household_deferred',
+  )
+  assert.equal(
+    recurringCollectionMode(future, { billingMonth: '2026-10-01' }),
+    'canonical_household',
+  )
+  assert.throws(
+    () => recurringCollectionMode(
+      { ...ACCOUNT, verified_collection_month: null },
+      { billingMonth: '2026-09-01' },
+    ),
+    (error) => error.code === 'recurring_collection_boundary_invalid',
+  )
+
+  const fixture = recurringAccountFixture({ account: future })
+  let processorCalls = 0
+  let canonicalCalls = 0
+  let invoiceCalls = 0
+  const result = await processRecurringBillingAccount(fixture.db, future, {
+    asOfTimestamp: new Date('2026-09-03T06:10:00.000Z'),
+    clock: recurringBillingClock('2026-09-03T06:10:00.000Z', future.facility_timezone),
+    ...safeProcessors({
+      completionProcessor: async () => { processorCalls += 1; return [] },
+      recurringChargeReconciler: async () => {
+        canonicalCalls += 1
+        fixture.state.due = []
+        return { verified: true, postedChargeIds: [] }
+      },
+      invoiceFactory: async () => { invoiceCalls += 1; return { created: true } },
+    }),
+  })
+  assert.equal(result.collectionMode, 'canonical_household_deferred')
+  assert.equal(processorCalls, 1)
+  assert.equal(canonicalCalls, 1)
+  assert.equal(invoiceCalls, 0)
+})
+
 test('pre-pilot and rolled-back accounts stay on the hardened legacy poster', async (t) => {
   for (const migrationState of [null, 'rolled_back']) {
     await t.test(String(migrationState), async () => {
@@ -269,6 +311,7 @@ test('verified household recurring charges reconcile canonically under the invoi
       invoiceFactory: async (receivedDb, options) => {
         assert.equal(receivedDb, fixture.db)
         assert.equal(options.billingMonth, '2026-09-01')
+        assert.equal(options.migrationAuthorization, undefined)
         events.push('household-invoice')
         return { created: true }
       },
@@ -452,7 +495,9 @@ test('recurring account inventory preserves terminal verified collection evidenc
       return {}
     },
   })
-  assert.match(accountSql, /EXISTS[\s\S]+state = 'verified'/)
+  assert.match(accountSql, /verified_migration\.id IS NOT NULL AS has_verified_migration/)
+  assert.match(accountSql, /candidate\.state = 'verified'[\s\S]+candidate\.verified_at IS NOT NULL/)
+  assert.match(accountSql, /verified_migration\.effective_month AS verified_collection_month/)
   assert.equal(observedMode, 'canonical_household')
 })
 

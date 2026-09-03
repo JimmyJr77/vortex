@@ -20,6 +20,290 @@ function integer(value, fallback = null) {
   return Number.isSafeInteger(parsed) ? parsed : fallback
 }
 
+function stripeObjectId(value) {
+  return typeof value === 'string' ? value : value?.id ?? null
+}
+
+export class StoreStripeCheckoutBindingConflict extends Error {
+  constructor(message, details = {}) {
+    super(message)
+    this.name = 'StoreStripeCheckoutBindingConflict'
+    this.code = 'store_stripe_checkout_binding_conflict'
+    this.details = details
+  }
+}
+
+/**
+ * Bind guest Checkout (where both Stripe customer IDs may legitimately be
+ * null) to the immutable local store order before marking it paid.
+ */
+export function assertStoreStripeCheckoutBinding(order, session) {
+  const orderId = integer(session?.metadata?.storeOrderId, null)
+  const sessionId = stripeObjectId(session)
+  const paymentIntentId = stripeObjectId(session?.payment_intent)
+  const amountTotal = session?.amount_total
+  const orderTotal = order?.total_cents
+  const storedSessionId = order?.stripe_checkout_session_id ?? null
+  const problems = []
+
+  if (!Number.isSafeInteger(orderId) || orderId <= 0 || Number(order?.id) !== orderId) {
+    problems.push('store_order_mismatch')
+  }
+  if (!sessionId || !storedSessionId || String(storedSessionId) !== String(sessionId)) {
+    problems.push('checkout_session_mismatch')
+  }
+  if (!paymentIntentId) problems.push('payment_intent_missing')
+  if (session?.metadata?.checkoutType !== 'store') problems.push('checkout_type_mismatch')
+  if (session?.mode !== 'payment') problems.push('checkout_mode_mismatch')
+  if (session?.status !== 'complete' || session?.payment_status !== 'paid') {
+    problems.push('checkout_not_paid')
+  }
+  if (String(session?.currency ?? '').trim().toLowerCase() !== 'usd') {
+    problems.push('checkout_currency_mismatch')
+  }
+  if (
+    !Number.isSafeInteger(amountTotal)
+    || amountTotal <= 0
+    || !Number.isSafeInteger(Number(orderTotal))
+    || Number(orderTotal) !== amountTotal
+  ) {
+    problems.push('checkout_amount_mismatch')
+  }
+  if (order?.payment_method !== 'card') problems.push('store_payment_method_mismatch')
+  if (!['awaiting_payment', 'placed', 'fulfilled'].includes(String(order?.status ?? ''))) {
+    problems.push('store_order_status_mismatch')
+  }
+  if (order?.status === 'awaiting_payment' && order?.payment_status !== 'pending') {
+    problems.push('store_payment_status_mismatch')
+  }
+  if (
+    ['placed', 'fulfilled'].includes(String(order?.status ?? ''))
+    && order?.payment_status !== 'paid'
+  ) {
+    problems.push('store_payment_status_mismatch')
+  }
+  if (
+    order?.external_reference
+    && String(order.external_reference) !== String(paymentIntentId ?? sessionId ?? '')
+  ) {
+    problems.push('store_external_reference_mismatch')
+  }
+
+  if (problems.length > 0) {
+    throw new StoreStripeCheckoutBindingConflict(
+      `Stripe Checkout Session ${sessionId ?? '(missing)'} does not exactly match store order ${orderId ?? '(missing)'}.`,
+      {
+        storeOrderId: orderId,
+        storedOrderId: order?.id ?? null,
+        stripeCheckoutSessionId: sessionId,
+        storedStripeCheckoutSessionId: storedSessionId,
+        stripePaymentIntentId: paymentIntentId,
+        checkoutAmountTotal: amountTotal ?? null,
+        storeOrderTotalCents: orderTotal ?? null,
+        checkoutCurrency: session?.currency ?? null,
+        problems,
+      },
+    )
+  }
+
+  return { orderId, sessionId, paymentIntentId, amountTotal }
+}
+
+function storeCheckoutConflict(message, details = {}) {
+  const error = new StoreStripeCheckoutBindingConflict(message, details)
+  error.statusCode = 409
+  return error
+}
+
+function storeOrderValue(order, databaseName, serializedName) {
+  return order?.[databaseName] ?? order?.[serializedName] ?? null
+}
+
+/**
+ * Prove that the exact Checkout Session bound to a pending card order is
+ * either safely expirable/already expired or has already collected payment.
+ */
+export function assertStoreStripeCheckoutCancellationBinding(order, session) {
+  const orderId = integer(session?.metadata?.storeOrderId, null)
+  const storedOrderId = integer(order?.id, null)
+  const sessionId = stripeObjectId(session)
+  const storedSessionId = storeOrderValue(
+    order,
+    'stripe_checkout_session_id',
+    'stripeCheckoutSessionId',
+  )
+  const paymentIntentId = stripeObjectId(session?.payment_intent)
+  const amountTotal = session?.amount_total
+  const orderTotal = storeOrderValue(order, 'total_cents', 'totalCents')
+  const orderStatus = storeOrderValue(order, 'status', 'status')
+  const paymentStatus = storeOrderValue(order, 'payment_status', 'paymentStatus')
+  const paymentMethod = storeOrderValue(order, 'payment_method', 'paymentMethod')
+  const externalReference = storeOrderValue(order, 'external_reference', 'externalReference')
+  const problems = []
+
+  if (!Number.isSafeInteger(orderId) || orderId <= 0 || storedOrderId !== orderId) {
+    problems.push('store_order_mismatch')
+  }
+  if (!sessionId || !storedSessionId || String(storedSessionId) !== String(sessionId)) {
+    problems.push('checkout_session_mismatch')
+  }
+  if (session?.metadata?.checkoutType !== 'store') problems.push('checkout_type_mismatch')
+  if (session?.mode !== 'payment') problems.push('checkout_mode_mismatch')
+  if (String(session?.currency ?? '').trim().toLowerCase() !== 'usd') {
+    problems.push('checkout_currency_mismatch')
+  }
+  if (
+    !Number.isSafeInteger(amountTotal)
+    || amountTotal <= 0
+    || !Number.isSafeInteger(Number(orderTotal))
+    || Number(orderTotal) !== amountTotal
+  ) {
+    problems.push('checkout_amount_mismatch')
+  }
+  if (paymentMethod !== 'card') problems.push('store_payment_method_mismatch')
+  if (orderStatus !== 'awaiting_payment') problems.push('store_order_status_mismatch')
+  if (paymentStatus !== 'pending') problems.push('store_payment_status_mismatch')
+
+  let disposition = null
+  if (session?.status === 'complete' && session?.payment_status === 'paid') {
+    disposition = 'paid'
+    if (!paymentIntentId) problems.push('payment_intent_missing')
+    if (externalReference && String(externalReference) !== String(paymentIntentId ?? '')) {
+      problems.push('store_external_reference_mismatch')
+    }
+  } else if (session?.status === 'open' && session?.payment_status === 'unpaid') {
+    disposition = 'open'
+    if (externalReference) problems.push('store_external_reference_mismatch')
+  } else if (session?.status === 'expired' && session?.payment_status === 'unpaid') {
+    disposition = 'expired'
+    if (externalReference) problems.push('store_external_reference_mismatch')
+  } else {
+    problems.push('checkout_state_unsafe_for_cancellation')
+  }
+
+  if (problems.length > 0) {
+    throw storeCheckoutConflict(
+      `Stripe Checkout Session ${sessionId ?? '(missing)'} cannot safely release store order ${orderId ?? '(missing)'}.`,
+      {
+        storeOrderId: orderId,
+        storedOrderId,
+        stripeCheckoutSessionId: sessionId,
+        storedStripeCheckoutSessionId: storedSessionId,
+        stripePaymentIntentId: paymentIntentId,
+        checkoutStatus: session?.status ?? null,
+        checkoutPaymentStatus: session?.payment_status ?? null,
+        checkoutAmountTotal: amountTotal ?? null,
+        storeOrderTotalCents: orderTotal == null ? null : Number(orderTotal),
+        problems,
+      },
+    )
+  }
+
+  return { orderId, sessionId, paymentIntentId, amountTotal, disposition }
+}
+
+function assertCreatedStoreStripeCheckoutIdentity(order, session) {
+  const orderId = integer(session?.metadata?.storeOrderId, null)
+  const storedOrderId = integer(order?.id, null)
+  const sessionId = stripeObjectId(session)
+  const paymentIntentId = stripeObjectId(session?.payment_intent)
+  const amountTotal = session?.amount_total
+  const orderTotal = storeOrderValue(order, 'total_cents', 'totalCents')
+  const problems = []
+
+  if (!Number.isSafeInteger(orderId) || orderId <= 0 || storedOrderId !== orderId) {
+    problems.push('store_order_mismatch')
+  }
+  if (!sessionId) problems.push('checkout_session_missing')
+  if (session?.metadata?.checkoutType !== 'store') problems.push('checkout_type_mismatch')
+  if (session?.mode !== 'payment') problems.push('checkout_mode_mismatch')
+  if (String(session?.currency ?? '').trim().toLowerCase() !== 'usd') {
+    problems.push('checkout_currency_mismatch')
+  }
+  if (
+    !Number.isSafeInteger(amountTotal)
+    || amountTotal <= 0
+    || !Number.isSafeInteger(Number(orderTotal))
+    || Number(orderTotal) !== amountTotal
+  ) {
+    problems.push('checkout_amount_mismatch')
+  }
+
+  let disposition = null
+  if (session?.status === 'complete' && session?.payment_status === 'paid') {
+    disposition = 'paid'
+    if (!paymentIntentId) problems.push('payment_intent_missing')
+  } else if (session?.status === 'open' && session?.payment_status === 'unpaid') {
+    disposition = 'open'
+  } else if (session?.status === 'expired' && session?.payment_status === 'unpaid') {
+    disposition = 'expired'
+  } else {
+    problems.push('checkout_state_unsafe')
+  }
+
+  if (problems.length > 0) {
+    throw storeCheckoutConflict(
+      `Stripe Checkout Session ${sessionId ?? '(missing)'} does not exactly match the new store payment request.`,
+      {
+        storeOrderId: orderId,
+        storedOrderId,
+        stripeCheckoutSessionId: sessionId,
+        stripePaymentIntentId: paymentIntentId,
+        checkoutStatus: session?.status ?? null,
+        checkoutPaymentStatus: session?.payment_status ?? null,
+        checkoutAmountTotal: amountTotal ?? null,
+        storeOrderTotalCents: orderTotal == null ? null : Number(orderTotal),
+        problems,
+      },
+    )
+  }
+
+  return { orderId, sessionId, paymentIntentId, amountTotal, disposition }
+}
+
+async function retrieveExactStoreStripeCheckout(stripe, sessionId) {
+  if (!stripe?.checkout?.sessions?.retrieve) {
+    throw storeCheckoutConflict(
+      'Stripe Checkout retrieval is unavailable, so this store order cannot be changed safely.',
+      { stripeCheckoutSessionId: sessionId },
+    )
+  }
+  const session = await stripe.checkout.sessions.retrieve(String(sessionId), {
+    expand: ['payment_intent'],
+  })
+  if (stripeObjectId(session) !== String(sessionId)) {
+    throw storeCheckoutConflict(
+      'Stripe returned a different Checkout Session than the one requested.',
+      {
+        stripeCheckoutSessionId: stripeObjectId(session),
+        expectedStripeCheckoutSessionId: String(sessionId),
+      },
+    )
+  }
+  return session
+}
+
+async function expireExactStoreStripeCheckout(stripe, sessionId) {
+  if (!stripe?.checkout?.sessions?.expire) {
+    throw storeCheckoutConflict(
+      'Stripe Checkout expiration is unavailable, so inventory remains reserved.',
+      { stripeCheckoutSessionId: sessionId },
+    )
+  }
+  const expired = await stripe.checkout.sessions.expire(String(sessionId))
+  if (stripeObjectId(expired) !== String(sessionId) || expired?.status !== 'expired') {
+    throw storeCheckoutConflict(
+      'Stripe did not confirm expiration of the exact Checkout Session, so inventory remains reserved.',
+      {
+        stripeCheckoutSessionId: stripeObjectId(expired),
+        expectedStripeCheckoutSessionId: String(sessionId),
+        checkoutStatus: expired?.status ?? null,
+      },
+    )
+  }
+  return expired
+}
+
 function moneyCents(value) {
   const parsed = integer(value, null)
   return parsed != null && parsed >= 0 ? parsed : null
@@ -446,7 +730,9 @@ async function sendStoreOrderReceipt(pool, {
   }
 }
 
-async function sendReceiptIfNeeded(pool, orderId) {
+export async function sendReceiptIfNeeded(pool, orderId, {
+  sendReceiptEmail = sendStoreOrderReceiptEmail,
+} = {}) {
   let order
   const client = await pool.connect()
   try {
@@ -454,8 +740,15 @@ async function sendReceiptIfNeeded(pool, orderId) {
   } finally {
     client.release()
   }
-  if (!order || !order.purchaserEmail || !['placed', 'fulfilled'].includes(order.status)) return { sent: false }
-  const result = await sendStoreOrderReceiptEmail({
+  if (
+    !order
+    || order.receiptSentAt
+    || !order.purchaserEmail
+    || !['placed', 'fulfilled'].includes(order.status)
+  ) {
+    return { sent: false, replayed: Boolean(order?.receiptSentAt) }
+  }
+  const result = await sendReceiptEmail({
     to: order.purchaserEmail,
     purchaserName: order.purchaserName,
     orderNumber: order.orderNumber,
@@ -684,18 +977,68 @@ async function createStoreOrder(pool, {
   }
 }
 
-async function createCardCheckout(pool, order) {
-  if (order.stripeCheckoutUrl) return order.stripeCheckoutUrl
-  if (!stripeEnabled()) {
+export async function createCardCheckout(pool, order, { stripe: suppliedStripe = null } = {}) {
+  if (!suppliedStripe && !stripeEnabled()) {
     const error = new Error('Online card payments are not enabled yet. Please choose monthly account billing or ask the front desk.')
     error.statusCode = 503
     throw error
   }
-  const stripe = await getStripeClient()
+  const stripe = suppliedStripe ?? await getStripeClient()
   if (!stripe) {
     const error = new Error('Online card payments are not available right now.')
     error.statusCode = 503
     throw error
+  }
+  if (order.stripeCheckoutUrl) {
+    const current = await pool.query(
+      `SELECT * FROM store_order WHERE id = $1 LIMIT 1`,
+      [order.id],
+    )
+    const row = current.rows[0]
+    const sessionId = row?.stripe_checkout_session_id
+    if (!row || !sessionId) {
+      throw storeCheckoutConflict(
+        'The saved store Checkout URL has no exact local Session binding and cannot be reused.',
+        { storeOrderId: Number(order.id), stripeCheckoutSessionId: sessionId ?? null },
+      )
+    }
+    const remote = await retrieveExactStoreStripeCheckout(stripe, sessionId)
+    if (remote?.status === 'complete' && remote?.payment_status === 'paid') {
+      assertStoreStripeCheckoutBinding(row, remote)
+      await completeStoreStripeCheckout(pool, remote)
+      throw storeCheckoutConflict(
+        'This store payment is already complete; its Checkout URL was not reopened.',
+        {
+          storeOrderId: Number(order.id),
+          stripeCheckoutSessionId: String(sessionId),
+          checkoutDisposition: 'paid',
+        },
+      )
+    }
+    const remoteState = assertStoreStripeCheckoutCancellationBinding(row, remote)
+    if (remoteState.disposition === 'open') {
+      if (!remote?.url) {
+        throw storeCheckoutConflict(
+          'Stripe did not return a reusable URL for the exact open store Checkout Session.',
+          { storeOrderId: Number(order.id), stripeCheckoutSessionId: String(sessionId) },
+        )
+      }
+      return remote.url
+    }
+    await cancelStoreOrder(pool, {
+      orderId: Number(row.id),
+      facilityId: Number(row.facility_id),
+      actorUserId: null,
+      stripe,
+    })
+    throw storeCheckoutConflict(
+      'This store Checkout Session expired, so its reserved order was released and no payment URL was returned.',
+      {
+        storeOrderId: Number(order.id),
+        stripeCheckoutSessionId: String(sessionId),
+        checkoutDisposition: 'expired',
+      },
+    )
   }
   // Stripe Checkout line items must add up to the immutable store total. For
   // an order-level code we send one summarized line (rather than rounding a
@@ -731,19 +1074,127 @@ async function createCardCheckout(pool, order) {
   }, {
     idempotencyKey: stripeCheckoutIdempotencyKey('store', order.id, order.orderNumber),
   })
-  if (!session?.url) throw new Error('Stripe did not return a checkout URL.')
-  await pool.query(
+  const created = assertCreatedStoreStripeCheckoutIdentity(order, session)
+  if (created.disposition === 'open' && !session?.url) {
+    throw storeCheckoutConflict(
+      'Stripe did not return a URL for the new open store Checkout Session.',
+      { storeOrderId: Number(order.id), stripeCheckoutSessionId: created.sessionId },
+    )
+  }
+  const linked = await pool.query(
     `UPDATE store_order
         SET stripe_checkout_session_id = $2, stripe_checkout_session_url = $3, updated_at = now()
-      WHERE id = $1`,
-    [order.id, session.id ?? null, session.url],
+      WHERE id = $1
+        AND status = 'awaiting_payment'
+        AND payment_status = 'pending'
+        AND payment_method = 'card'
+        AND (stripe_checkout_session_id IS NULL OR stripe_checkout_session_id = $2)
+      RETURNING id, facility_id`,
+    [order.id, created.sessionId, session?.url ?? null],
   )
+  if (!linked.rows[0]) {
+    // Cancellation may commit while Stripe is creating the Session. Never
+    // expose that now-unbound payment surface: re-read the exact Session and
+    // expire it, or recover an already-paid race through the durable binding.
+    let remote = await retrieveExactStoreStripeCheckout(stripe, created.sessionId)
+    let remoteState = assertCreatedStoreStripeCheckoutIdentity(order, remote)
+    if (remoteState.disposition === 'open') {
+      try {
+        remote = await expireExactStoreStripeCheckout(stripe, created.sessionId)
+      } catch (error) {
+        if (error instanceof StoreStripeCheckoutBindingConflict) throw error
+        remote = await retrieveExactStoreStripeCheckout(stripe, created.sessionId)
+      }
+      remoteState = assertCreatedStoreStripeCheckoutIdentity(order, remote)
+    }
+    if (remoteState.disposition === 'paid') {
+      // A concurrent creator may have durably bound and exposed the same
+      // idempotent Session before this compare-and-set lost the race.
+      await completeStoreStripeCheckout(pool, remote)
+    } else if (remoteState.disposition !== 'expired') {
+      throw storeCheckoutConflict(
+        'The unbound Stripe Checkout Session could not be retired safely.',
+        { storeOrderId: Number(order.id), stripeCheckoutSessionId: created.sessionId },
+      )
+    }
+    throw storeCheckoutConflict(
+      remoteState.disposition === 'paid'
+        ? 'This store payment completed while the order was changing and was recovered; the Checkout URL was not reopened.'
+        : 'This store order is no longer awaiting card payment; its Checkout Session was expired.',
+      {
+        storeOrderId: Number(order.id),
+        stripeCheckoutSessionId: created.sessionId,
+        checkoutDisposition: remoteState.disposition,
+      },
+    )
+  }
+  if (created.disposition === 'expired') {
+    await cancelStoreOrder(pool, {
+      orderId: Number(order.id),
+      facilityId: Number(linked.rows[0].facility_id),
+      actorUserId: null,
+      stripe,
+    })
+    throw storeCheckoutConflict(
+      'Stripe returned an expired Checkout Session, so its reserved order was released and no payment URL was returned.',
+      {
+        storeOrderId: Number(order.id),
+        stripeCheckoutSessionId: created.sessionId,
+        checkoutDisposition: 'expired',
+      },
+    )
+  }
+  if (created.disposition === 'paid') {
+    await completeStoreStripeCheckout(pool, session)
+    throw storeCheckoutConflict(
+      'This store payment is already complete; its Checkout URL was not reopened.',
+      {
+        storeOrderId: Number(order.id),
+        stripeCheckoutSessionId: created.sessionId,
+        checkoutDisposition: 'paid',
+      },
+    )
+  }
   return session.url
+}
+
+async function settleStoreStripeCheckoutLocked(client, row, session, { actorUserId = null } = {}) {
+  const binding = assertStoreStripeCheckoutBinding(row, session)
+  if (row.status !== 'awaiting_payment') return false
+  await client.query(
+    `UPDATE store_order
+        SET status = 'placed', payment_status = 'paid',
+            external_reference = COALESCE($2, external_reference),
+            stripe_checkout_session_url = NULL,
+            updated_at = now()
+      WHERE id = $1`,
+    [binding.orderId, binding.paymentIntentId],
+  )
+  await consumeDiscount(client, row.discount_code_id)
+  await recordStoreAudit(client, {
+    facilityId: Number(row.facility_id),
+    actorUserId,
+    action: 'sale_card_payment_completed',
+    entityType: 'sale',
+    entityId: binding.orderId,
+    details: {
+      orderNumber: row.order_number,
+      totalCents: Number(row.total_cents),
+      paymentMethod: 'card',
+      stripePaymentIntent: binding.paymentIntentId,
+    },
+  })
+  return true
 }
 
 export async function completeStoreStripeCheckout(pool, session) {
   const orderId = integer(session?.metadata?.storeOrderId, null)
-  if (orderId == null) return { handled: false }
+  if (orderId == null || orderId <= 0) {
+    throw new StoreStripeCheckoutBindingConflict(
+      'Stripe store Checkout is missing its durable order identifier.',
+      { storeOrderId: orderId, stripeCheckoutSessionId: stripeObjectId(session) },
+    )
+  }
   const client = await pool.connect()
   let order
   let paymentCompleted = false
@@ -751,36 +1202,8 @@ export async function completeStoreStripeCheckout(pool, session) {
     await client.query('BEGIN')
     const current = await client.query(`SELECT * FROM store_order WHERE id = $1 FOR UPDATE`, [orderId])
     const row = current.rows[0]
-    if (!row || row.payment_method !== 'card') {
-      await client.query('COMMIT')
-      return { handled: false }
-    }
-    if (!['placed', 'fulfilled'].includes(row.status)) {
-      await client.query(
-        `UPDATE store_order
-            SET status = 'placed', payment_status = 'paid',
-                external_reference = COALESCE($2, external_reference), updated_at = now()
-          WHERE id = $1`,
-        [orderId, session.payment_intent ?? session.id ?? null],
-      )
-      await consumeDiscount(client, row.discount_code_id)
-      paymentCompleted = true
-    }
+    paymentCompleted = await settleStoreStripeCheckoutLocked(client, row, session)
     order = await getOrder(client, orderId)
-    if (paymentCompleted) {
-      await recordStoreAudit(client, {
-        facilityId: Number(row.facility_id),
-        action: 'sale_card_payment_completed',
-        entityType: 'sale',
-        entityId: orderId,
-        details: {
-          orderNumber: row.order_number,
-          totalCents: Number(row.total_cents),
-          paymentMethod: 'card',
-          stripePaymentIntent: session.payment_intent ?? null,
-        },
-      })
-    }
     await client.query('COMMIT')
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
@@ -791,26 +1214,38 @@ export async function completeStoreStripeCheckout(pool, session) {
   await sendReceiptIfNeeded(pool, orderId).catch((error) => {
     console.warn('[store] receipt email failed:', error?.message || error)
   })
-  return { handled: true, order }
+  return { handled: true, paymentCompleted, order }
 }
 
-async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
+export async function cancelStoreOrder(pool, {
+  orderId,
+  facilityId,
+  actorUserId,
+  stripe: suppliedStripe = null,
+  sendReceipt: suppliedSendReceipt = sendReceiptIfNeeded,
+}) {
   const client = await pool.connect()
+  let clientReleased = false
+  let transactionOpen = false
+  let order = null
+  let recoveredPaidCheckout = false
   try {
     await client.query('BEGIN')
+    transactionOpen = true
     const current = await client.query(
       `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
       [orderId, facilityId],
     )
-    const row = current.rows[0]
+    let row = current.rows[0]
     if (!row) {
       const error = new Error('Store order not found.')
       error.statusCode = 404
       throw error
     }
     if (row.status === 'cancelled') {
-      const order = await getOrder(client, orderId)
+      order = await getOrder(client, orderId)
       await client.query('COMMIT')
+      transactionOpen = false
       return order
     }
     if (row.payment_status === 'paid' || row.payment_status === 'external') {
@@ -818,6 +1253,71 @@ async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
       error.statusCode = 409
       throw error
     }
+
+    if (row.payment_method === 'card' && row.stripe_checkout_session_id) {
+      const stripe = suppliedStripe ?? await getStripeClient()
+      if (!stripe) {
+        throw storeCheckoutConflict(
+          'Stripe is unavailable, so the payment link cannot be retired and inventory remains reserved.',
+          { storeOrderId: Number(orderId), stripeCheckoutSessionId: row.stripe_checkout_session_id },
+        )
+      }
+      const sessionId = String(row.stripe_checkout_session_id)
+      let remote = await retrieveExactStoreStripeCheckout(stripe, sessionId)
+      let remoteState = assertStoreStripeCheckoutCancellationBinding(row, remote)
+      if (remoteState.disposition === 'open') {
+        try {
+          remote = await expireExactStoreStripeCheckout(stripe, sessionId)
+        } catch (error) {
+          // Payment can win after retrieval but before expiration. Re-read the
+          // exact Session so paid cash is finalized rather than restocked.
+          if (error instanceof StoreStripeCheckoutBindingConflict) throw error
+          remote = await retrieveExactStoreStripeCheckout(stripe, sessionId)
+        }
+        remoteState = assertStoreStripeCheckoutCancellationBinding(row, remote)
+      }
+
+      // Re-read the order after Stripe returns while the same row lock is held.
+      // No inventory mutation is allowed if local identity or state drifted.
+      row = await client.query(
+        `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
+        [orderId, facilityId],
+      ).then((result) => result.rows[0] ?? null)
+      remoteState = assertStoreStripeCheckoutCancellationBinding(row, remote)
+      if (remoteState.disposition === 'paid') {
+        recoveredPaidCheckout = await settleStoreStripeCheckoutLocked(client, row, remote, {
+          actorUserId,
+        })
+        order = await getOrder(client, orderId)
+        await client.query('COMMIT')
+        transactionOpen = false
+      } else if (remoteState.disposition !== 'expired') {
+        throw storeCheckoutConflict(
+          'Stripe did not confirm that the payment link is expired, so inventory remains reserved.',
+          { storeOrderId: Number(orderId), stripeCheckoutSessionId: sessionId },
+        )
+      }
+    }
+
+    if (recoveredPaidCheckout) {
+      client.release()
+      clientReleased = true
+      await suppliedSendReceipt(pool, orderId).catch((error) => {
+        console.warn('[store] receipt email failed:', error?.message || error)
+      })
+      const error = new Error(
+        'The card payment completed while cancellation was requested. The order remains placed and was not cancelled.',
+      )
+      error.statusCode = 409
+      error.code = 'store_card_payment_completed'
+      error.details = {
+        storeOrderId: Number(orderId),
+        orderStatus: order?.status ?? 'placed',
+        paymentStatus: order?.paymentStatus ?? 'paid',
+      }
+      throw error
+    }
+
     const items = await client.query(`SELECT * FROM store_order_item WHERE order_id = $1`, [orderId])
     for (const item of items.rows) {
       if (item.product_id == null) continue
@@ -875,10 +1375,17 @@ async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
       }
     }
     await client.query(
-      `UPDATE store_order SET status = 'cancelled', updated_at = now() WHERE id = $1`,
+      `UPDATE store_order
+          SET status = 'cancelled',
+              stripe_checkout_session_url = CASE
+                WHEN payment_method = 'card' THEN NULL
+                ELSE stripe_checkout_session_url
+              END,
+              updated_at = now()
+        WHERE id = $1`,
       [orderId],
     )
-    const order = await getOrder(client, orderId)
+    order = await getOrder(client, orderId)
     await recordStoreAudit(client, {
       facilityId,
       actorUserId,
@@ -888,12 +1395,13 @@ async function cancelStoreOrder(pool, { orderId, facilityId, actorUserId }) {
       details: { orderNumber: row.order_number, paymentStatus: row.payment_status, totalCents: Number(row.total_cents) },
     })
     await client.query('COMMIT')
+    transactionOpen = false
     return order
   } catch (error) {
-    await client.query('ROLLBACK').catch(() => {})
+    if (transactionOpen) await client.query('ROLLBACK').catch(() => {})
     throw error
   } finally {
-    client.release()
+    if (!clientReleased) client.release()
   }
 }
 
