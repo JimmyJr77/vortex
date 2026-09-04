@@ -1741,6 +1741,55 @@ test('forward-adoption verification preserves no-card accounts without weakening
   )))
 })
 
+test('forward adoption defers recurring-charge reconciliation until its future billing boundary', async () => {
+  let recurringChargeInspectionCount = 0
+  const db = {
+    async query(sql) {
+      const text = String(sql)
+      if (/SELECT \* FROM family_billing_account/.test(text)) {
+        return {
+          rows: [{
+            id: 9,
+            stripe_customer_id: null,
+            household_monthly_billing_enabled: false,
+          }],
+        }
+      }
+      if (/SELECT id, status, next_bill_date/.test(text)) return { rows: [] }
+      if (/SELECT invoice\.\*/.test(text)) return { rows: [] }
+      if (text.includes('canonical-billing:collectible-balance')) {
+        return { rows: [{ collectible_balance_cents: 0 }] }
+      }
+      if (/SELECT \* FROM billing_account_migration_item/.test(text)) return { rows: [] }
+      throw new Error(`Unexpected query: ${text}`)
+    },
+  }
+
+  const verification = await verifyCanonicalBillingAccount(db, {
+    migration: {
+      id: 45,
+      family_billing_account_id: 9,
+      cutover_month: '2026-10-01',
+      parity_snapshot: { timezone: 'America/New_York' },
+    },
+    stripe: {},
+    now: new Date('2026-09-03T12:00:00.000Z'),
+    inspectCollectorInventory: false,
+    requireHouseholdCollectionActive: false,
+    allowPaymentMethodRequired: true,
+    allowFutureRecurringChargeDeferral: true,
+    paymentMethodReadiness: { ready: false, reason: 'stripe_customer_missing' },
+    recurringChargeInspector: async () => {
+      recurringChargeInspectionCount += 1
+      throw new Error('Recurring reconciliation must not run before the target month.')
+    },
+  })
+
+  assert.equal(verification.verified, true)
+  assert.equal(recurringChargeInspectionCount, 0)
+  assert.equal(verification.snapshot.recurringChargeParity.deferredUntil, '2026-10-01')
+})
+
 test('family-link repair normalizes only active direct-family evidence and never changes payer', async () => {
   const calls = []
   const db = {

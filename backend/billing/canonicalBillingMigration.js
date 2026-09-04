@@ -4197,6 +4197,7 @@ async function inspectForwardAdoptionAccount(db, stripe, {
     inspectCollectorInventory: false,
     requireHouseholdCollectionActive: false,
     allowPaymentMethodRequired: true,
+    allowFutureRecurringChargeDeferral: true,
     paymentMethodReadiness,
   })
   const gateFailures = canonicalHouseholdForwardAdoptionGateFailures({
@@ -4906,6 +4907,7 @@ export async function verifyCanonicalBillingAccount(db, {
   inspectCollectorInventory = true,
   requireHouseholdCollectionActive = true,
   allowPaymentMethodRequired = false,
+  allowFutureRecurringChargeDeferral = false,
   paymentMethodReadiness = null,
   recurringChargeInspector = reconcileCanonicalRecurringChargesForMonth,
 } = {}) {
@@ -5008,27 +5010,39 @@ export async function verifyCanonicalBillingAccount(db, {
   ])
   const issues = []
   let recurringChargeParity = null
-  try {
-    recurringChargeParity = await recurringChargeInspector(db, {
-      accountId,
-      billingMonth: targetMonth,
-      facilityTimeZone: timezone,
-      now,
-      apply: false,
-    })
-    issues.push(...(recurringChargeParity.issues ?? []))
-  } catch (error) {
-    const parityIssues = error instanceof BillingMigrationSafetyError
-      ? error.details?.issues ?? []
-      : []
-    if (parityIssues.length > 0) {
-      issues.push(...parityIssues)
-    } else {
-      issues.push({
-        code: error.code ?? 'target_month_recurring_charge_parity_failed',
-        message: error.message,
-        details: error.details ?? {},
+  if (allowFutureRecurringChargeDeferral && !boundary.boundaryReached) {
+    // Forward adoption can be verified before the target billing month. The
+    // immutable audit already freezes target-month parity; recurring charges
+    // are still reconciled and posted by the boundary-time worker.
+    recurringChargeParity = {
+      verified: true,
+      issues: [],
+      deferredUntil: targetMonth,
+      reason: 'target_month_not_reached',
+    }
+  } else {
+    try {
+      recurringChargeParity = await recurringChargeInspector(db, {
+        accountId,
+        billingMonth: targetMonth,
+        facilityTimeZone: timezone,
+        now,
+        apply: false,
       })
+      issues.push(...(recurringChargeParity.issues ?? []))
+    } catch (error) {
+      const parityIssues = error instanceof BillingMigrationSafetyError
+        ? error.details?.issues ?? []
+        : []
+      if (parityIssues.length > 0) {
+        issues.push(...parityIssues)
+      } else {
+        issues.push({
+          code: error.code ?? 'target_month_recurring_charge_parity_failed',
+          message: error.message,
+          details: error.details ?? {},
+        })
+      }
     }
   }
   if (!account || (
