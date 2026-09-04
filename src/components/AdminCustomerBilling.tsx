@@ -742,9 +742,18 @@ function EnrollmentSection({
                   const currentAdjustment = activeAdjustments.find(
                     (adjustment) => adjustment.kind === 'fixed_final_price',
                   ) ?? null
-                  const failedAdjustment = liveAdjustments.find((item) => item.status === 'sync_failed') ?? null
-                  const retryAdjustment = retryableAdjustmentForEnrollment(enrollment)
-                  const syncError = failedAdjustment?.stripeSyncError || enrollment.priceSyncError
+                  const householdCollection = ['household_monthly', 'household_payment_method_required'].includes(
+                    enrollment.collectionMode ?? '',
+                  )
+                  const failedAdjustment = householdCollection
+                    ? null
+                    : liveAdjustments.find((item) => item.status === 'sync_failed') ?? null
+                  const retryAdjustment = householdCollection
+                    ? null
+                    : retryableAdjustmentForEnrollment(enrollment)
+                  const syncError = householdCollection
+                    ? null
+                    : failedAdjustment?.stripeSyncError || enrollment.priceSyncError
                   const scheduledAdjustments = liveAdjustments.filter(
                     (item) =>
                       !activeAdjustmentIds.has(item.id) &&
@@ -1257,6 +1266,7 @@ export default function AdminCustomerBilling({
     [overview, selectedMemberId],
   )
   const retryableSyncAdjustments = useMemo(() => {
+    if (overview?.account.householdMonthlyBillingEnabled) return []
     const seen = new Set<number>()
     return (overview?.enrollments ?? []).flatMap((enrollment) => {
       const adjustment = retryableAdjustmentForEnrollment(enrollment)
@@ -1518,11 +1528,11 @@ export default function AdminCustomerBilling({
               <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={money(overview.summary.monthlyRecurringCents)} detail={overview.summary.monthlyRecurringDiscountCents < 0 ? `${money(Math.abs(overview.summary.monthlyRecurringDiscountCents))} surcharge` : `${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
               <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${calendarDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
-              <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
+              <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : overview.summary.stripeSync.status === 'warning' ? 'Ready for card' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
               {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} />)}
             </div>
             <MonthlyInvoiceSummary invoices={overview.monthlyInvoices} billingMonth={overview.summary.monthlyRecurringPeriod} />
-            {overview.summary.stripeSync.status !== 'healthy' ? (
+            {overview.summary.stripeSync.status === 'failed' ? (
               <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />

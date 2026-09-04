@@ -3250,24 +3250,33 @@ export function createSchedulingHandlers(pool) {
         const schema = await resolveProgramsSchema(pool)
         const result = await pool.query(
           `SELECT sf.*,
+             p.display_name AS class_display_name,
+             COALESCE(
+               NULLIF(TRIM(pr.display_name), ''),
+               NULLIF(TRIM(pr.name), '')
+             ) AS program_display_name,
              CASE
                WHEN p.id IS NOT NULL THEN p.${schema.programFkColumn}
                ELSE sf.programs_id
              END AS resolved_programs_id
            FROM scheduling_form sf
            LEFT JOIN program p ON p.id = sf.program_id
+           LEFT JOIN ${schema.programsTable} pr
+             ON pr.id = COALESCE(p.${schema.programFkColumn}, sf.programs_id)
            WHERE sf.deleted_at IS NULL
            ORDER BY sf.created_at DESC`,
         )
         res.json({
           success: true,
-          data: result.rows.map((row) =>
-            mapFormRow({
+          data: result.rows.map((row) => ({
+            ...mapFormRow({
               ...row,
               programs_id:
                 row.resolved_programs_id != null ? Number(row.resolved_programs_id) : null,
             }),
-          ),
+            programDisplayName: row.program_display_name ?? null,
+            classDisplayName: row.class_display_name ?? null,
+          })),
         })
       } catch (err) {
         console.error('[scheduling] listAdminForms:', err)

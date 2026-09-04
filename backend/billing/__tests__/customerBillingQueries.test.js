@@ -98,14 +98,43 @@ test('a usable household payment method resolves stale enrollment autopay alerts
   })
 
   assert.equal(queries.length, 3)
-  assert.deepEqual(queries[0].params, [19, true])
-  assert.match(queries[0].sql, /'enrollment_autopay_setup_required'/)
-  assert.match(queries[0].sql, /'monthly_invoice_payment_method_required'/)
+  assert.deepEqual(queries[0].params, [
+    19,
+    ['enrollment_autopay_setup_required', 'monthly_invoice_payment_method_required'],
+    true,
+    false,
+  ])
+  assert.match(queries[0].sql, /alert_type = ANY\(\$2::text\[\]\)/)
   assert.deepEqual(queries[1].params, [19])
   assert.match(queries[1].sql, /alert\.alert_type = 'webhook_failure'/)
   assert.deepEqual(queries[2].params, [19])
   assert.match(queries[2].sql, /membership_autorenewal_setup_required/)
   assert.match(queries[2].sql, /Annual Fee is paid, but automatic yearly renewal is not connected to Stripe/)
+})
+
+test('household billing resolves stale per-enrollment alerts before a card is saved', async () => {
+  const queries = []
+  await resolveAddressedBillingAlerts({
+    async query(sql, params) {
+      queries.push({ sql: String(sql), params })
+      return { rows: [] }
+    },
+  }, {
+    accountId: 10910,
+    paymentMethodAvailable: false,
+    householdCardRequired: true,
+    householdMonthlyBillingEnabled: true,
+  })
+
+  assert.equal(queries.length, 3)
+  assert.deepEqual(queries[0].params, [
+    10910,
+    ['enrollment_autopay_setup_required'],
+    false,
+    true,
+  ])
+  assert.match(queries[0].sql, /household billing now owns automatic collection readiness/)
+  assert.match(queries[0].sql, /alert_type = ANY\(\$2::text\[\]\)/)
 })
 
 test('reconciled payment facts close only the matching stale webhook alert', async () => {

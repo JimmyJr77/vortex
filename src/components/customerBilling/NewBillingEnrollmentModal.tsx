@@ -59,6 +59,10 @@ function programLabel(form: SchedulingFormSummary): string {
   return form.programDisplayName || 'Other programs'
 }
 
+function programKey(value: string | null | undefined): string {
+  return String(value ?? '').trim().toLocaleLowerCase()
+}
+
 function formatDate(value: string | null | undefined): string {
   if (!value) return 'Dates to be announced'
   const [year, month, day] = value.slice(0, 10).split('-').map(Number)
@@ -186,6 +190,21 @@ export default function NewBillingEnrollmentModal({
     () => [...new Set(forms.map(programLabel))].sort((left, right) => left.localeCompare(right)),
     [forms],
   )
+  const currentProgram = useMemo(() => {
+    if (!isSwap) return null
+    const sourceProgramKey = programKey(swapEnrollment?.program_name)
+    if (!sourceProgramKey) return null
+    return programs.find((program) => programKey(program) === sourceProgramKey) ?? null
+  }, [isSwap, programs, swapEnrollment?.program_name])
+  const otherPrograms = useMemo(
+    () => programs.filter((program) => program !== currentProgram),
+    [currentProgram, programs],
+  )
+
+  useEffect(() => {
+    if (isSwap) setProgramFilter(currentProgram ?? 'all')
+  }, [currentProgram, isSwap])
+
   const visibleForms = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     return forms.filter((form) => {
@@ -336,7 +355,7 @@ export default function NewBillingEnrollmentModal({
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">{isSwap ? 'Replacement class' : 'Class'}</dt><dd className="mt-1 font-semibold text-gray-950">{classLabel(selectedForm)}</dd><dd className="text-sm text-gray-600">{programLabel(selectedForm)}</dd></div>
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Schedule</dt><dd className="mt-1 font-semibold text-gray-950">{selectedSchedule.label}</dd><dd className="text-sm text-gray-600">{selectedSchedule.availability}</dd></div>
               </dl>
-              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Unused source-class credit</span><strong className="mt-1 block text-lg">{money(swapPreview.unusedSourceCreditCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused class{swapPreview.sourceRemainingClasses === 1 ? '' : 'es'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement first-period cost</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled class{swapPreview.replacementRemainingClasses === 1 ? '' : 'es'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">{swapPreview.settlementKind === 'one_time_charge' ? `${money(swapPreview.settlementAmountCents)} will be added as a one-time prorated account charge. The saved card will not be charged automatically.` : swapPreview.settlementKind === 'account_credit' ? `${money(swapPreview.settlementAmountCents)} will be recorded as an account credit. It can offset a future bill; use the existing refund action only if funds must return to the card.` : 'The unused credit and replacement cost offset exactly; no one-time balance entry is needed.'}</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
+              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Unused source-class credit</span><strong className="mt-1 block text-lg">{money(swapPreview.unusedSourceCreditCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement first-period cost</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">{swapPreview.settlementKind === 'one_time_charge' ? `${money(swapPreview.settlementAmountCents)} will be added as a one-time prorated account charge. The saved card will not be charged automatically.` : swapPreview.settlementKind === 'account_credit' ? `${money(swapPreview.settlementAmountCents)} will be recorded as an account credit. It can offset a future bill; use the existing refund action only if funds must return to the card.` : 'The unused credit and replacement cost offset exactly; no one-time balance entry is needed.'}</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
             </div>
           ) : (
             <div className="space-y-6">
@@ -348,10 +367,10 @@ export default function NewBillingEnrollmentModal({
 
               <section aria-labelledby="class-selection-title">
                 <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 id="class-selection-title" className="font-bold text-gray-950">Find a class</h3><p className="mt-1 text-sm text-gray-500">Search and filter active class offerings before selecting a schedule.</p></div><span className="text-sm text-gray-500">{visibleForms.length} classes</span></div>
-                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px_220px]">
+                <div className={`mt-4 grid gap-3 ${isSwap ? 'md:grid-cols-[1fr_220px]' : 'md:grid-cols-[1fr_220px_220px]'}`}>
                   <label className="relative"><span className="sr-only">Search classes</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 pl-9 pr-3 text-sm" /></label>
-                  <label><span className="sr-only">Filter by program</span><select aria-label="Filter by program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programs.map((program) => <option key={program} value={program}>{program}</option>)}</select></label>
-                  <label><span className="sr-only">Filter by class dates</span><select aria-label="Filter by class dates" value={dateFilter} onChange={(event) => setDateFilter(event.target.value as 'all' | 'enrollable')} className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="enrollable">Current &amp; upcoming</option><option value="all">All active classes</option></select></label>
+                  <label><span className="sr-only">Filter by program</span><select aria-label="Filter by program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm">{isSwap && currentProgram ? <><optgroup label="Current program"><option value={currentProgram}>{currentProgram}</option></optgroup><optgroup label="Other programs">{otherPrograms.map((program) => <option key={program} value={program}>{program}</option>)}</optgroup></> : <><option value="all">All programs</option>{programs.map((program) => <option key={program} value={program}>{program}</option>)}</>}</select></label>
+                  {!isSwap ? <label><span className="sr-only">Filter by class dates</span><select aria-label="Filter by class dates" value={dateFilter} onChange={(event) => setDateFilter(event.target.value as 'all' | 'enrollable')} className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="enrollable">Current &amp; upcoming</option><option value="all">All active classes</option></select></label> : null}
                 </div>
 
                 <div className="mt-4 max-h-64 divide-y divide-gray-100 overflow-y-auto rounded-xl border border-gray-200 bg-white">

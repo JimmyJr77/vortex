@@ -182,7 +182,7 @@ async function loadPostedSourceAmount(db, context, periodKey) {
   }
 }
 
-function priceTargetFromPreview(orderPreview, request) {
+export function priceCustomerBillingClassSwapTargetFromOrderPreview(orderPreview, request) {
   const slotKey = targetSlotKey(request)
   const item = (orderPreview.newSignups ?? []).find((line) => line.slotKey === slotKey)
   if (!item) throw new Error('The replacement class could not be priced.')
@@ -191,12 +191,19 @@ function priceTargetFromPreview(orderPreview, request) {
   }
   const discountLine = (orderPreview.discounts?.lines ?? []).find((line) => line.key === slotKey)
   const grossCents = cents(discountLine?.baseCents ?? Math.round(Number(item.incrementalMonthly ?? 0) * 100))
-  const discountCents = Math.min(
+  const directDiscountCents = Math.min(
     grossCents,
     (discountLine?.applied ?? []).reduce((sum, entry) => sum + cents(entry.amountCents), 0),
   )
-  const netCents = Math.max(0, grossCents - discountCents)
   const firstMonth = (orderPreview.firstMonth?.items ?? []).find((line) => line.slotKey === slotKey) ?? null
+  // First-month pricing already allocates household-tier discounts to the
+  // replacement line.  A direct discount line alone omits those account-wide
+  // allocations, which made a one-for-one move display and persist a higher
+  // monthly price than the quoted first-period amount.
+  const netCents = firstMonth?.monthlyNetCents != null
+    ? Math.min(grossCents, cents(firstMonth.monthlyNetCents))
+    : Math.max(0, grossCents - directDiscountCents)
+  const discountCents = Math.max(0, grossCents - netCents)
   const firstChargeCents = firstMonth
     ? cents(firstMonth.proratedCents) + cents(firstMonth.prepaidFirstMonthCents)
     : 0
@@ -241,7 +248,7 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     memberContext: { familyId: Number(context.family_id) },
     excludeSignupIds: [Number(context.signup_id)],
   })
-  const replacement = priceTargetFromPreview(orderPreview, request)
+  const replacement = priceCustomerBillingClassSwapTargetFromOrderPreview(orderPreview, request)
   const periodKey = request.effectiveDate.slice(0, 7)
   const [sourcePricing, posted, calendarRowsByGroup, financialSnapshot] = await Promise.all([
     resolveFamilyEnrollmentPricing(db, {

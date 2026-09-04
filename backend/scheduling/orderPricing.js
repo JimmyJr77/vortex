@@ -704,6 +704,7 @@ export async function buildFamilyExistingEnrollmentPreviewLines(pool, {
   promoCodes = [],
   pricingDate = Date.now(),
   ensureSchema = true,
+  excludeSignupIds = [],
 } = {}) {
   const normalizedFamilyId = Number(familyId)
   if (!Number.isFinite(normalizedFamilyId)) return []
@@ -719,6 +720,7 @@ export async function buildFamilyExistingEnrollmentPreviewLines(pool, {
       expandHouseholdExisting: false,
       pricingDate,
       ensureSchema,
+      excludeSignupIds,
     })
     const computedBySignup = new Map(
       (preview?.discounts?.accountLines ?? [])
@@ -1241,6 +1243,7 @@ export async function buildSignupOrderPreview(
         promoCodes,
         pricingDate,
         ensureSchema,
+        excludeSignupIds,
       })
       if (familyLines.length > 0) previewExistingLines = familyLines
     } catch (error) {
@@ -1260,6 +1263,7 @@ export async function buildSignupOrderPreview(
     promoCodes,
     memberContext: { ...memberContext, familyId },
     previewExistingLines,
+    excludeSignupIds,
     pricingDate,
   })
 
@@ -1717,6 +1721,7 @@ export async function computeDiscountLayer(
     memberContext = null,
     previewExistingLines = [],
     replaceDbLines = false,
+    excludeSignupIds = [],
     pricingDate = Date.now(),
     ruleSnapshots = [],
   },
@@ -1882,7 +1887,7 @@ export async function computeDiscountLayer(
           pool,
           { familyId, memberId },
           lines,
-          { minPerClassCents, previewExistingLines, replaceDbLines },
+          { minPerClassCents, previewExistingLines, replaceDbLines, excludeSignupIds },
         )
         const attachStats = (line) => {
           line.accountPaidClassCount = accountStats.paidClassCount

@@ -552,25 +552,44 @@ export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
   householdCardRequired,
+  householdMonthlyBillingEnabled = false,
 }) {
   try {
+    // A household account intentionally retains a local schedule per
+    // enrollment. Once household collection is enabled, an old per-enrollment
+    // setup alert is no longer actionable — the single account-level card
+    // status is the authoritative readiness signal.
+    const resolvedAlertTypes = []
+    if (
+      householdMonthlyBillingEnabled === true ||
+      paymentMethodAvailable === true ||
+      householdCardRequired !== true
+    ) {
+      resolvedAlertTypes.push('enrollment_autopay_setup_required')
+    }
     if (paymentMethodAvailable === true || householdCardRequired !== true) {
+      resolvedAlertTypes.push('monthly_invoice_payment_method_required')
+    }
+    if (resolvedAlertTypes.length > 0) {
       await pool.query(
         `UPDATE stripe_billing_alert
             SET resolved_at = now(),
                 action_status = 'resolved',
                 resolution_note = CASE
-                  WHEN $2::boolean THEN 'Automatically resolved after a reusable payment method was saved.'
+                  WHEN $3::boolean THEN 'Automatically resolved after a reusable payment method was saved.'
+                  WHEN $4::boolean THEN 'Automatically resolved because household billing now owns automatic collection readiness.'
                   ELSE 'Automatically resolved because the account no longer needs an automatic collection payment method.'
                 END,
                 updated_at = now()
           WHERE family_billing_account_id = $1
-            AND alert_type IN (
-              'monthly_invoice_payment_method_required',
-              'enrollment_autopay_setup_required'
-            )
+            AND alert_type = ANY($2::text[])
             AND resolved_at IS NULL`,
-        [accountId, paymentMethodAvailable === true],
+        [
+          accountId,
+          resolvedAlertTypes,
+          paymentMethodAvailable === true,
+          householdMonthlyBillingEnabled === true,
+        ],
       )
     }
     // A duplicate-invoice repair can finish after the original webhook
@@ -805,6 +824,7 @@ export async function buildCustomerBillingOverview(pool, {
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
   const nextBillDate = billingMonthDueDate(pricingMonth)
+  const householdMonthlyBillingEnabled = account.household_monthly_billing_enabled === true
   const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId,
@@ -915,11 +935,18 @@ export async function buildCustomerBillingOverview(pool, {
         activePriceAdjustments: activeAdjustments,
         priceAdjustments: rowAdjustments,
         nextBillDate: effectiveEnrollmentNextBillDate(subscription),
-        priceSyncStatus: subscription?.price_sync_status ?? 'not_required',
-        priceSyncError: customerFacingPriceSyncError(subscription?.price_sync_error),
+        // The household invoice, not a per-class Stripe price, is the payment
+        // authority in this collection mode. Historic per-class sync states
+        // must not imply that Stripe has a different recurring amount.
+        priceSyncStatus: householdMonthlyBillingEnabled
+          ? 'not_required'
+          : subscription?.price_sync_status ?? 'not_required',
+        priceSyncError: householdMonthlyBillingEnabled
+          ? null
+          : customerFacingPriceSyncError(subscription?.price_sync_error),
         collectionMode: isDropIn || row.billing_type === 'one_time'
           ? 'not_applicable'
-          : account.household_monthly_billing_enabled === true
+          : householdMonthlyBillingEnabled
             ? (paymentMethod.available ? 'household_monthly' : 'household_payment_method_required')
             : subscription?.stripe_subscription_id
               ? 'legacy_stripe_subscription'
@@ -979,8 +1006,12 @@ export async function buildCustomerBillingOverview(pool, {
       sourceId: row.source_id,
       stripeSubscriptionId: row.stripe_subscription_id ?? null,
       stripeSubscriptionScheduleId: row.stripe_subscription_schedule_id ?? null,
-      priceSyncStatus: row.price_sync_status ?? 'not_required',
-      priceSyncError: customerFacingPriceSyncError(row.price_sync_error),
+      priceSyncStatus: householdMonthlyBillingEnabled
+        ? 'not_required'
+        : row.price_sync_status ?? 'not_required',
+      priceSyncError: householdMonthlyBillingEnabled
+        ? null
+        : customerFacingPriceSyncError(row.price_sync_error),
       activePriceAdjustment: activeAdjustment,
       activePriceAdjustments: activeAdjustments,
       scheduledPriceAdjustments: rowAdjustments.filter((adjustment) => adjustment.status !== 'revoked'),
@@ -988,22 +1019,26 @@ export async function buildCustomerBillingOverview(pool, {
     }
   })
 
-  const syncFailures = subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
+  const syncFailures = householdMonthlyBillingEnabled
+    ? []
+    : subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
   await resolveAddressedBillingAlerts(pool, {
     accountId: account.id,
     paymentMethodAvailable: paymentMethod.available,
     householdCardRequired,
+    householdMonthlyBillingEnabled,
   })
+  const resolveEnrollmentAutopayAlerts =
+    householdMonthlyBillingEnabled || paymentMethod.available || !householdCardRequired
+  const resolveMonthlyInvoicePaymentMethodAlerts = paymentMethod.available || !householdCardRequired
   const resolvedAlertIds = new Set(
     alertsResult.rows
       .filter((row) => (
         isRetiredAnnualMembershipStripeSetupAlert(row) ||
-        ((paymentMethod.available || !householdCardRequired) && (
-          row.alert_type === 'monthly_invoice_payment_method_required'
-          || row.alert_type === 'enrollment_autopay_setup_required'
-        ))
+        (resolveEnrollmentAutopayAlerts && row.alert_type === 'enrollment_autopay_setup_required') ||
+        (resolveMonthlyInvoicePaymentMethodAlerts && row.alert_type === 'monthly_invoice_payment_method_required')
       ))
       .map((row) => Number(row.id)),
   )

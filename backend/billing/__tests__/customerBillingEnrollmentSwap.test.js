@@ -3,8 +3,10 @@ import assert from 'node:assert/strict'
 import {
   classSwapSettlement,
   normalizeCustomerBillingClassSwapInput,
+  priceCustomerBillingClassSwapTargetFromOrderPreview,
   validateCustomerBillingClassSwapEffectiveDate,
 } from '../customerBillingEnrollmentSwap.js'
+import { computeAccountDiscountStats } from '../../scheduling/systemDiscounts.js'
 
 test('a class move accepts a valid backdated date, target schedule, and audit reason', () => {
   const now = new Date('2026-09-02T15:00:00.000Z')
@@ -76,4 +78,67 @@ test('a higher or lower priced replacement becomes an immutable one-time charge 
       settlementAmountCents: 1_875,
     },
   )
+})
+
+test('a class move uses the household-discounted monthly target from its preview', () => {
+  const target = priceCustomerBillingClassSwapTargetFromOrderPreview(
+    {
+      newSignups: [{ slotKey: '3:4:5', billingType: 'recurring', incrementalMonthly: 150 }],
+      discounts: {
+        lines: [{ key: '3:4:5', baseCents: 15_000, applied: [] }],
+      },
+      firstMonth: {
+        items: [{
+          slotKey: '3:4:5',
+          monthlyNetCents: 12_750,
+          proratedCents: 12_750,
+          prepaidFirstMonthCents: 0,
+        }],
+      },
+    },
+    { targetFormId: 3, targetSlotGroupId: 4, targetTimeSlotId: 5 },
+  )
+
+  assert.equal(target.grossCents, 15_000)
+  assert.equal(target.discountCents, 2_250)
+  assert.equal(target.netCents, 12_750)
+  assert.equal(target.firstChargeCents, 12_750)
+})
+
+test('a class move excludes its source enrollment from household discount counts', async () => {
+  const pool = {
+    async query() {
+      return {
+        rows: [
+          {
+            id: 41,
+            member_id: 501,
+            form_id: 601,
+            programs_id: 701,
+            family_id: 801,
+            pricing_breakdown: { line: { listCents: 15_000, finalCents: 15_000 } },
+          },
+          {
+            id: 42,
+            member_id: 501,
+            form_id: 602,
+            programs_id: 701,
+            family_id: 801,
+            pricing_breakdown: { line: { listCents: 15_000, finalCents: 15_000 } },
+          },
+        ],
+      }
+    },
+  }
+
+  const stats = await computeAccountDiscountStats(
+    pool,
+    { familyId: 801 },
+    [],
+    { excludeSignupIds: [42] },
+  )
+
+  assert.equal(stats.paidClassCount, 1)
+  assert.equal(stats.accountMonthlyCents, 15_000)
+  assert.deepEqual(stats.dbLines.map((line) => line.signupId), [41])
 })

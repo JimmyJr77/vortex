@@ -458,6 +458,17 @@ export async function computeAccountDiscountStats(
   } else {
     dbLines = await loadMemberDbPaidLines(pool, memberId)
   }
+  // A class move prices its replacement against the household after the source
+  // enrollment leaves.  The source can still be a confirmed database row while
+  // the move is being previewed, so remove it before merging live preview lines.
+  // Without this, a one-for-one move temporarily looks like an extra class and
+  // can receive the wrong household tier.
+  const excludedSignupIds = new Set(
+    (options.excludeSignupIds ?? []).map(Number).filter(Number.isFinite),
+  )
+  if (excludedSignupIds.size > 0) {
+    dbLines = dbLines.filter((line) => !excludedSignupIds.has(Number(line.signupId)))
+  }
   dbLines = mergePreviewExistingLines(dbLines, options.previewExistingLines)
 
   const cartFiltered = cartLines.filter((line) => {
