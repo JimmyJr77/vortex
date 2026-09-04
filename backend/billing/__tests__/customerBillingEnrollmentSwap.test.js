@@ -3,9 +3,10 @@ import assert from 'node:assert/strict'
 import {
   classSwapSettlement,
   normalizeCustomerBillingClassSwapInput,
+  validateCustomerBillingClassSwapEffectiveDate,
 } from '../customerBillingEnrollmentSwap.js'
 
-test('a class move requires a future-or-today date, target schedule, and audit reason', () => {
+test('a class move accepts a valid backdated date, target schedule, and audit reason', () => {
   const now = new Date('2026-09-02T15:00:00.000Z')
   assert.deepEqual(
     normalizeCustomerBillingClassSwapInput({
@@ -24,9 +25,16 @@ test('a class move requires a future-or-today date, target schedule, and audit r
       today: '2026-09-02',
     },
   )
+  assert.equal(
+    normalizeCustomerBillingClassSwapInput({ targetFormId: 90, targetSlotGroupId: 91, effectiveDate: '2026-09-01', reason: 'Correct original move date.' }, now).effectiveDate,
+    '2026-09-01',
+  )
+  assert.doesNotThrow(
+    () => validateCustomerBillingClassSwapEffectiveDate({ effectiveDate: '2026-09-01' }, '2026-08-15'),
+  )
   assert.throws(
-    () => normalizeCustomerBillingClassSwapInput({ targetFormId: 90, targetSlotGroupId: 91, effectiveDate: '2026-09-01', reason: 'Late' }, now),
-    /past/i,
+    () => validateCustomerBillingClassSwapEffectiveDate({ effectiveDate: '2026-08-14' }, '2026-08-15'),
+    /before the original enrollment started/i,
   )
   assert.throws(
     () => normalizeCustomerBillingClassSwapInput({ targetFormId: 90, targetSlotGroupId: 91, effectiveDate: '2026-09-02' }, now),

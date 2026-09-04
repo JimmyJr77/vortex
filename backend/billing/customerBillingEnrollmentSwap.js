@@ -9,6 +9,7 @@ import { loadCalendarRowsForSlotGroups } from '../scheduling/freePassEngine.js'
 import { pauseCreditForLine, recordPrepaidFirstMonthCredit, syncFamilyEnrollmentDiscounts } from '../scheduling/pauseEnrollmentBilling.js'
 import { monthBounds, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
+import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 
 function dateOnly(value) {
   const match = String(value ?? '').match(/^\d{4}-\d{2}-\d{2}/)
@@ -53,9 +54,21 @@ export function normalizeCustomerBillingClassSwapInput(input = {}, now = new Dat
   if (rawTimeSlotId != null && (!Number.isInteger(rawTimeSlotId) || rawTimeSlotId <= 0)) {
     throw new Error('Choose a valid replacement class schedule.')
   }
-  if (!effectiveDate || effectiveDate < today) throw new Error('A class move cannot take effect in the past.')
+  if (!effectiveDate) throw new Error('Choose an effective date for the class move.')
   if (!reason) throw new Error('An administrative reason is required for a class move.')
   return { targetFormId, targetSlotGroupId, targetTimeSlotId: rawTimeSlotId, effectiveDate, reason, today }
+}
+
+/**
+ * Staff corrections may be backdated, but never before the enrollment they
+ * replace. The move still creates a distinct replacement signup, preserving
+ * the original enrollment record and its audit history.
+ */
+export function validateCustomerBillingClassSwapEffectiveDate(request, sourceEnrollmentStartDate) {
+  const sourceStartDate = dateOnly(sourceEnrollmentStartDate)
+  if (sourceStartDate && request.effectiveDate < sourceStartDate) {
+    throw new Error('A class move cannot take effect before the original enrollment started.')
+  }
 }
 
 export function classSwapSettlement({ targetProratedCents = 0, unusedSourceCreditCents = 0 } = {}) {
@@ -112,8 +125,7 @@ async function loadSwapTarget(db, request, { forUpdate = false } = {}) {
   const result = await db.query(
     `SELECT form.id AS form_id, form.title AS class_name,
             slot_group.id AS slot_group_id, slot_group.max_participants,
-            slot_group.display_label AS group_display_label,
-            time_slot.id AS time_slot_id, time_slot.display_label AS time_slot_display_label,
+            time_slot.id AS time_slot_id, time_slot.week_letter,
             time_slot.schedule_mode, time_slot.day_of_week, time_slot.specific_date,
             time_slot.start_time, time_slot.end_time,
             (
@@ -146,7 +158,10 @@ async function loadSwapTarget(db, request, { forUpdate = false } = {}) {
   if (Number.isFinite(capacity) && capacity > 0 && Number(target.confirmed_count) >= capacity) {
     throw new Error('The replacement class is full. Choose a schedule with an available spot before moving this athlete.')
   }
-  return target
+  return {
+    ...target,
+    time_slot_display_label: buildSlotDisplayLabel(target) || null,
+  }
 }
 
 async function loadPostedSourceAmount(db, context, periodKey) {
@@ -205,6 +220,7 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     loadSwapSourceContext(db, { signupId, facilityId, forUpdate }),
     loadSwapTarget(db, request, { forUpdate }),
   ])
+  validateCustomerBillingClassSwapEffectiveDate(request, context.enrollment_start_date)
   if (
     Number(context.slot_group_id) === Number(target.slot_group_id) &&
     Number(context.time_slot_id ?? 0) === Number(target.time_slot_id ?? 0)
@@ -338,6 +354,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
     })
     const request = normalizeCustomerBillingClassSwapInput(input)
     const context = await loadSwapSourceContext(client, { signupId, facilityId, forUpdate: true })
+    validateCustomerBillingClassSwapEffectiveDate(request, context.enrollment_start_date)
     const target = await loadSwapTarget(client, request, { forUpdate: true })
     priorStripeSubscriptionId = context.stripe_subscription_id ?? null
     const effectiveImmediately = request.effectiveDate <= request.today
