@@ -5210,6 +5210,11 @@ function cents(value) {
   return Math.round(Number(value) || 0)
 }
 
+export function maySupersedePreActivationBillingMigrationAudit(run) {
+  return run?.configuration?.forwardAdoption === true
+    || run?.cohort === 'fully-waived-entitlement-repair'
+}
+
 export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
   runId,
   accountIds,
@@ -5222,9 +5227,12 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
   // an evidence constraint stops it. Permit explicitly scoped cleanup of that
   // prefix; every row still has to be untouched and pre-activation below.
   const { run, accountIds: ids } = await requireRunAndScope(db, runId, accountIds)
-  if (run.configuration?.forwardAdoption !== true) {
-    throw new Error('Only an explicit forward-adoption audit run may be superseded.')
+  if (!maySupersedePreActivationBillingMigrationAudit(run)) {
+    throw new Error(
+      'Only an explicit forward-adoption or fully-waived-entitlement audit run may be superseded.',
+    )
   }
+  const supersedingWaivedEntitlementRepair = run.cohort === 'fully-waived-entitlement-repair'
   const owner = workerName(leaseOwner)
   const accounts = []
   for (const accountId of ids) {
@@ -5276,14 +5284,26 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
         }
         locked = await transitionBillingAccountMigration(lockedDb, locked, S.ROLLED_BACK, {
           leaseOwner: owner,
-          lastError: 'Superseded before activation because the immutable release contract changed.',
+          lastError: supersedingWaivedEntitlementRepair
+            ? 'Superseded after deterministic entitlement repair because the immutable release contract changed.'
+            : 'Superseded before activation because the immutable release contract changed.',
         })
         await recordBillingActivityBestEffort(lockedDb, {
-          eventKey: `canonical-billing-migration-shadow-audit-superseded:${locked.id}`,
+          eventKey: supersedingWaivedEntitlementRepair
+            ? `canonical-billing-migration-repair-audit-superseded:${locked.id}`
+            : `canonical-billing-migration-shadow-audit-superseded:${locked.id}`,
           accountId,
-          eventType: 'canonical_billing_migration_shadow_audit_superseded',
-          summary: 'Shadow-only canonical billing audit was superseded before activation.',
-          details: { billingMigrationRunId: Number(runId), accountMigrationId: Number(locked.id) },
+          eventType: supersedingWaivedEntitlementRepair
+            ? 'canonical_billing_migration_repair_audit_superseded'
+            : 'canonical_billing_migration_shadow_audit_superseded',
+          summary: supersedingWaivedEntitlementRepair
+            ? 'Pre-activation membership-entitlement repair evidence was superseded after a release contract change; completed ledger repairs were retained.'
+            : 'Shadow-only canonical billing audit was superseded before activation.',
+          details: {
+            billingMigrationRunId: Number(runId),
+            accountMigrationId: Number(locked.id),
+            retainedDeterministicEntitlementRepair: supersedingWaivedEntitlementRepair,
+          },
           actorType: 'system',
         })
         return locked

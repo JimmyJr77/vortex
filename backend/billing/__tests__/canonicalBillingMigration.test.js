@@ -28,6 +28,7 @@ import {
   clearRemoteCollectionForRollback,
   inspectCustomerCollectorsBeforeHouseholdActivation,
   inspectRemoteCutoverReversibility,
+  maySupersedePreActivationBillingMigrationAudit,
   prepareCanonicalBillingMigration,
   preparePaidLegacyInvoiceSettlementEntry,
   recoverBoundaryRetirementBeforeDetachment,
@@ -44,6 +45,21 @@ import {
 } from '../canonicalBillingMigration.js'
 import { billingMigrationSnapshotHash } from '../canonicalBillingMigrationState.js'
 import { withBillingAccountCollectionLock } from '../billingAccountCollectionLock.js'
+
+test('only explicit pre-activation audit cohorts can be superseded', () => {
+  assert.equal(maySupersedePreActivationBillingMigrationAudit({
+    configuration: { forwardAdoption: true },
+    cohort: 'forward-adoption-september',
+  }), true)
+  assert.equal(maySupersedePreActivationBillingMigrationAudit({
+    configuration: {},
+    cohort: 'fully-waived-entitlement-repair',
+  }), true)
+  assert.equal(maySupersedePreActivationBillingMigrationAudit({
+    configuration: {},
+    cohort: 'manual',
+  }), false)
+})
 
 test('paid legacy invoices require exact frozen item, period, price, currency, and amount coverage', () => {
   const boundaryUnix = Date.parse('2026-09-01T00:00:00.000Z') / 1000
