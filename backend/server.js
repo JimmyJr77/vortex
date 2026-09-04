@@ -75,6 +75,7 @@ import { ensureCoachingNeedsEngineSchema } from './platform/ensureCoachingNeedsE
 import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
 import { startMessageThreadAutoArchiveScheduler } from './platform/messageThreadAutoArchiveService.js'
+import { startPaymentFactAuditScheduler } from './billing/paymentFactAuditScheduler.js'
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
@@ -12238,6 +12239,7 @@ const startServer = async () => {
         registerEmailPool(pool)
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
+        startPaymentFactAuditScheduler(pool)
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)

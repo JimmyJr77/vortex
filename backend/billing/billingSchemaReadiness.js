@@ -29,6 +29,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '798_checkout_fulfillment_idempotency.sql',
   '799_billing_payment_stripe_invoice_link.sql',
   '809_billing_migration_item_upsert_evidence.sql',
+  '810_billing_payment_fact_audit_jobs.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -81,6 +82,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '798_checkout_fulfillment_idempotency.sql',
   '799_billing_payment_stripe_invoice_link.sql',
   '809_billing_migration_item_upsert_evidence.sql',
+  '810_billing_payment_fact_audit_jobs.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
@@ -134,6 +136,8 @@ export const DEPLOY_BILLING_RELATIONS = Object.freeze([
   'idx_annual_membership_promo_reservation_active',
   'uq_stripe_pending_enrollment_request',
   'uq_discount_redemption_annual_checkout_member_rule',
+  'billing_payment_fact_audit_job',
+  'idx_billing_payment_fact_audit_job_due',
 ])
 
 export const REQUIRED_BILLING_RELATIONS = Object.freeze([
