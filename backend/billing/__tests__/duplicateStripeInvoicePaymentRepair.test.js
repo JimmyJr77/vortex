@@ -386,6 +386,9 @@ test('Barnett-shaped allocation gets one exact reversal and reopens the charge',
     amountCents: application.amount_cents,
     reverses: application.reverses_application_id,
   })), [{ paymentId: 2, chargeId: 31, amountCents: 7125, reverses: 49 }])
+  const reversalInsert = fixture.state.writes.find((write) => write.text.includes('INSERT INTO billing_payment_application'))
+  assert.match(reversalInsert.text, /\$1::bigint, \$2::bigint, \$3::integer, 'reversal'/)
+  assert.match(reversalInsert.text, /\$4::bigint, \$5::text, 'duplicate_stripe_invoice_payment_repair'/)
   assert.equal(fixture.state.chargeStatus, 'unpaid')
 })
 

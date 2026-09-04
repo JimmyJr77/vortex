@@ -396,7 +396,10 @@ async function insertExactApplicationReversal(db, {
     `INSERT INTO billing_payment_application (
        billing_payment_id, billing_charge_id, amount_cents, application_kind,
        reverses_application_id, idempotency_key, allocation_reason
-     ) VALUES ($1, $2, $3, 'reversal', $4, $5, 'duplicate_stripe_invoice_payment_repair')
+     ) VALUES (
+       $1::bigint, $2::bigint, $3::integer, 'reversal',
+       $4::bigint, $5::text, 'duplicate_stripe_invoice_payment_repair'
+     )
      ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
      RETURNING *`,
     [
