@@ -763,6 +763,9 @@ function EnrollmentSection({
                         <div className="mt-1 text-xs text-gray-500">
                           {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}
                         </div>
+                        <div className="mt-1 text-xs font-medium text-gray-700">
+                          {enrollment.memberName || 'Family member'}
+                        </div>
                       </td>
                       <td className="min-w-[320px] px-4 py-3 text-gray-600">
                         <div><span className="font-semibold text-gray-700">Active Class Dates:</span> {enrollment.offering_dates || 'Evergreen'}</div>

@@ -251,10 +251,9 @@ function EnrollmentTable({
               <td className="min-w-[230px] px-4 py-3">
                 <div className="font-semibold text-gray-950">{enrollment.class_name || 'Class'}{enrollment.classCatalogId != null ? ` #${enrollment.classCatalogId}` : ''}</div>
                 <div className="mt-1 text-xs text-gray-500">
-                  {[enrollment.memberName, enrollment.sport_name || '—', enrollment.program_name || '—']
-                    .filter(Boolean)
-                    .join(' · ')}
+                  {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}
                 </div>
+                <div className="mt-1 text-xs font-medium text-gray-700">{enrollment.memberName || 'Family member'}</div>
               </td>
               <td className="min-w-[310px] px-4 py-3 text-gray-600">
                 <div><span className="font-semibold text-gray-700">Active Class Dates:</span> {enrollment.offering_dates || 'Evergreen'}</div>
