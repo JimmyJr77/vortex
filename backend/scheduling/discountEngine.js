@@ -134,6 +134,9 @@ function matchesEligibilityRule(rule, line) {
 
   let actual = null
   switch (rule.field) {
+    case 'family_id':
+      actual = line.familyId != null ? Number(line.familyId) : null
+      break
     case 'school':
       actual = normalizeText(line.memberSchool)
       break

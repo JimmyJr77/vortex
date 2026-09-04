@@ -96,6 +96,21 @@ test('promo without limits applies to every line', () => {
   assert.equal(result.totalDiscountCents, 2000)
 })
 
+test('automatic free-access rule can be safely restricted to one household', () => {
+  const rule = promoRule({
+    type: 'free_classes',
+    amountValue: 10000,
+    config: {
+      benefit_type: 'class_offering',
+      eligibility_rules: [{ field: 'family_id', operator: 'in', value: [9] }],
+    },
+  })
+  const matching = computeOrderDiscounts({ lines: [line('matching', 5, 9)], rules: [rule], caps: {} })
+  const nonMatching = computeOrderDiscounts({ lines: [line('other', 6, 10)], rules: [rule], caps: {} })
+  assert.equal(matching.lines[0].finalCents, 0)
+  assert.equal(nonMatching.lines[0].finalCents, 10000)
+})
+
 test('membership-fee promos are excluded from class tuition lines', () => {
   const rule = promoRule({
     amountValue: 10000,
