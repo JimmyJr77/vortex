@@ -18,12 +18,14 @@ test('active family members can view household billing while payer capabilities 
     canViewHousehold: true,
     canManagePayments: true,
     canManagePaymentMethod: true,
+    canManageAnnualMembershipAutoRenewal: true,
   })
   assert.deepEqual(buildMemberCustomerBillingAccess(account, 75, true), {
     viewerMemberId: 75,
     canViewHousehold: true,
     canManagePayments: false,
     canManagePaymentMethod: false,
+    canManageAnnualMembershipAutoRenewal: false,
   })
 })
 
@@ -33,18 +35,21 @@ test('inactive or unrelated viewers receive no household billing capabilities', 
     canViewHousehold: false,
     canManagePayments: false,
     canManagePaymentMethod: false,
+    canManageAnnualMembershipAutoRenewal: false,
   })
   assert.deepEqual(buildMemberCustomerBillingAccess(null, 74, true), {
     viewerMemberId: 74,
     canViewHousehold: false,
     canManagePayments: false,
     canManagePaymentMethod: false,
+    canManageAnnualMembershipAutoRenewal: false,
   })
   assert.deepEqual(buildMemberCustomerBillingAccess({ payer_member_id: '74', is_active: false }, 74, true), {
     viewerMemberId: 74,
     canViewHousehold: false,
     canManagePayments: false,
     canManagePaymentMethod: false,
+    canManageAnnualMembershipAutoRenewal: false,
   })
 })
 

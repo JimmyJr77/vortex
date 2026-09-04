@@ -41,6 +41,10 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
     },
   }, { accountId: 19 })
   assert.match(householdTransactionQuery, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(householdTransactionQuery, /LEFT JOIN enrollment_price_adjustment direct_price_adjustment/)
+  assert.match(householdTransactionQuery, /direct_price_adjustment\.promo_code/)
+  assert.match(householdTransactionQuery, /direct_price_adjustment\.kind = 'fixed_final_price'/)
+  assert.match(householdTransactionQuery, /adjustment_price_adjustment\.promo_code/)
 
   const memberQueries = []
   await listMemberCustomerBillingTransactions({
@@ -433,7 +437,21 @@ test('monthly recurring display uses the breakpoint effective for the next bill'
   assert.equal(breakpoint.netCents, 21375)
 })
 
-test('monthly recurring fee always uses the next calendar month', () => {
+test('monthly recurring fee stays on the current month through the fourth, then advances on the fifth', () => {
+  assert.equal(
+    upcomingRecurringPricingMonth(new Date('2026-09-04T23:30:00.000Z'), 'America/New_York'),
+    '2026-09',
+  )
+  assert.equal(
+    upcomingRecurringPricingMonth(new Date('2026-09-05T04:30:00.000Z'), 'America/New_York'),
+    '2026-10',
+  )
+  // The same instant is still September 4 in Pacific time. Facility-local
+  // cutoffs must not advance this account until its own fifth day begins.
+  assert.equal(
+    upcomingRecurringPricingMonth(new Date('2026-09-05T04:30:00.000Z'), 'America/Los_Angeles'),
+    '2026-09',
+  )
   assert.equal(
     upcomingRecurringPricingMonth(new Date('2026-08-31T23:30:00.000Z')),
     '2026-09',

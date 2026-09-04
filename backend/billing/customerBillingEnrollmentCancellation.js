@@ -4,6 +4,7 @@ import { loadCalendarRowsForSlotGroups } from '../scheduling/freePassEngine.js'
 import { pauseCreditForLine, syncFamilyEnrollmentDiscounts } from '../scheduling/pauseEnrollmentBilling.js'
 import { monthBounds, firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { cancelStripeSubscriptionNow, scheduleStripeSubscriptionEnd } from './stripeSubscriptionSync.js'
+import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
 
 function dateOnly(value) {
   const match = String(value ?? '').match(/^\d{4}-\d{2}-\d{2}/)
@@ -275,9 +276,12 @@ export async function cancelCustomerBillingEnrollment(pool, {
   // their Stripe synchronization remains best-effort and never rolls back this
   // locally committed, audited cancellation.
   if (familyId) {
-    void syncFamilyEnrollmentDiscounts(pool, familyId)
+    await syncFamilyEnrollmentDiscounts(pool, familyId)
       .catch((error) => console.warn('[customer-billing] cancellation family pricing sync:', error?.message ?? error))
   }
+  await reconcileUpcomingProvisionalChargesForAccount(pool, {
+    accountId: context.family_billing_account_id,
+  }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after cancellation:', error?.message ?? error))
   return {
     ...preview,
     immediate,

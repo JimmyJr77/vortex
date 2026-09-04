@@ -228,6 +228,43 @@ test('cutover posts exact target-month enrollment charges atomically and is idem
   assert.equal(pricingCalls, 4)
 })
 
+test('a confirmed manual surcharge remains an exact canonical recurring bill', async () => {
+  const surcharge = {
+    signupId: 101,
+    subscriptionId: 41,
+    memberId: 7,
+    grossCents: 15_000,
+    discountCents: -2_000,
+    netCents: 17_000,
+    priceAdjustmentId: 990,
+  }
+  const fixture = recurringPostingFixture({
+    subscriptions: [activeSubscription({
+      discount_amount_cents: -2_000,
+      net_monthly_cents: 17_000,
+      next_bill_date: '2026-10-01',
+    })],
+    charges: [exactTargetCharge({
+      amount_cents: 17_000,
+      discount_amount_cents: -2_000,
+      price_adjustment_id: 990,
+    })],
+  })
+
+  const result = await reconcileCanonicalRecurringChargesForMonth(fixture.db, {
+    accountId: 9,
+    billingMonth: TARGET_MONTH,
+    facilityTimeZone: TIMEZONE,
+    now: AFTER_BOUNDARY,
+    apply: false,
+    pricingResolver: async () => pricing([surcharge]),
+  })
+
+  assert.equal(result.verified, true)
+  assert.equal(result.expectedDiscountCents, -2_000)
+  assert.equal(result.expectedNetCents, 17_000)
+})
+
 test('canonical posting requests strict pricing and rolls back pricing-engine failure', async () => {
   const fixture = recurringPostingFixture()
   await assert.rejects(

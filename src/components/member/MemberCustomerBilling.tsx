@@ -20,6 +20,8 @@ export interface MemberBillingTransaction {
   occurredAt: string
   status: string
   runningBalanceCents: number
+  classCatalogId?: number | null
+  classSchedule?: string | null
 }
 
 export interface MemberCustomerBillingData {
@@ -29,6 +31,7 @@ export interface MemberCustomerBillingData {
     canViewHousehold: boolean
     canManagePayments: boolean
     canManagePaymentMethod: boolean
+    canManageAnnualMembershipAutoRenewal: boolean
   }
   overview: CustomerBillingOverview | null
   transactions: MemberBillingTransaction[]
@@ -40,8 +43,10 @@ interface Props {
   loading: boolean
   payNowLoading: boolean
   portalLoading: boolean
+  annualMembershipRenewalLoading: boolean
   onPayNow: () => void
   onManagePayment: () => void
+  onSetAnnualMembershipAutoRenewal: (subscriptionId: number, enabled: boolean) => void
   onRefresh: () => void
   onEnroll: () => void
   onLoadMoreTransactions: () => void
@@ -144,10 +149,16 @@ function AnnualMembershipCard({
   membership,
   formatMoney,
   onEnroll,
+  canManageAutoRenewal,
+  saving,
+  onSetAutoRenewal,
 }: {
   membership: CustomerBillingAnnualMembership
   formatMoney: (cents: number) => string
   onEnroll?: () => void
+  canManageAutoRenewal: boolean
+  saving: boolean
+  onSetAutoRenewal: (subscriptionId: number, enabled: boolean) => void
 }) {
   return (
     <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
@@ -158,6 +169,7 @@ function AnnualMembershipCard({
         <span className="font-semibold">{membership.active ? 'Valid' : `Not purchased · ${formatMoney(membership.outstandingAmountCents)}`}</span>
         {!membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
       </div>
+      {membership.active ? <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/20 pt-3 text-xs"><span className="text-gray-200">Auto-renew {membership.autoRenewal ? 'on' : 'off'}</span>{canManageAutoRenewal && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership.billingSubscriptionId!, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10 disabled:opacity-50">{saving ? 'Saving…' : membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</div> : null}
     </div>
   )
 }
@@ -186,7 +198,7 @@ function EnrollmentTable({
           {enrollments.map((enrollment) => (
             <tr key={`${enrollment.source}-${enrollment.id}`} className="border-t border-gray-100 align-top">
               <td className="min-w-[230px] px-4 py-3">
-                <div className="font-semibold text-gray-950">{enrollment.class_name || 'Class'}</div>
+                <div className="font-semibold text-gray-950">{enrollment.class_name || 'Class'}{enrollment.classCatalogId != null ? ` #${enrollment.classCatalogId}` : ''}</div>
                 <div className="mt-1 text-xs text-gray-500">
                   {[enrollment.memberName, enrollment.sport_name || '—', enrollment.program_name || '—']
                     .filter(Boolean)
@@ -273,8 +285,10 @@ export default function MemberCustomerBilling({
   loading,
   payNowLoading,
   portalLoading,
+  annualMembershipRenewalLoading,
   onPayNow,
   onManagePayment,
+  onSetAnnualMembershipAutoRenewal,
   onRefresh,
   onEnroll,
   onLoadMoreTransactions,
@@ -338,10 +352,10 @@ export default function MemberCustomerBilling({
 
         <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label="Outstanding balance" value={formatMoney(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges" />
-          <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={formatMoney(overview.summary.monthlyRecurringCents)} detail={`${formatMoney(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
+          <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={formatMoney(overview.summary.monthlyRecurringCents)} detail={overview.summary.monthlyRecurringDiscountCents < 0 ? `${formatMoney(Math.abs(overview.summary.monthlyRecurringDiscountCents))} surcharge` : `${formatMoney(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
           <MetricCard label="Future credits" value={formatMoney(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
           <MetricCard label="Account balance" value={formatMoney(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${formatDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
-          {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={canManageBilling ? onEnroll : undefined} />)}
+          {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={canManageBilling ? onEnroll : undefined} canManageAutoRenewal={data?.access.canManageAnnualMembershipAutoRenewal === true} saving={annualMembershipRenewalLoading} onSetAutoRenewal={onSetAnnualMembershipAutoRenewal} />)}
         </div>
 
         {overview.monthlyInvoices.length > 0 ? (
@@ -364,7 +378,7 @@ export default function MemberCustomerBilling({
           {canManageBilling ? <button type="button" onClick={onEnroll} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"><Plus className="h-4 w-4" /> New Enrollment</button> : null}
         </div>
         <div className="border-t border-gray-200"><EnrollmentTable enrollments={visibleEnrollments} formatMoney={formatMoney} /></div>
-        {visibleWaitlists.length > 0 ? <details className="border-t border-gray-200"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 marker:hidden"><span>Waitlists · non-billable</span><span className="flex items-center gap-2">{visibleWaitlists.length}<ChevronDown className="h-4 w-4" /></span></summary><div className="grid gap-2 border-t border-gray-100 p-4 sm:grid-cols-2 xl:grid-cols-3">{visibleWaitlists.map((row) => <div key={row.id} className="rounded-lg border border-gray-200 p-3 text-sm"><strong>{row.memberName}</strong><div className="text-gray-600">{row.class_name}</div><div className="mt-1 text-xs text-gray-500">{row.schedule} · Enrollment #{row.id}</div></div>)}</div></details> : null}
+        {visibleWaitlists.length > 0 ? <details className="border-t border-gray-200"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 marker:hidden"><span>Waitlists · non-billable</span><span className="flex items-center gap-2">{visibleWaitlists.length}<ChevronDown className="h-4 w-4" /></span></summary><div className="grid gap-2 border-t border-gray-100 p-4 sm:grid-cols-2 xl:grid-cols-3">{visibleWaitlists.map((row) => <div key={row.id} className="rounded-lg border border-gray-200 p-3 text-sm"><strong>{row.memberName}</strong><div className="text-gray-600">{row.class_name}{row.classCatalogId != null ? ` #${row.classCatalogId}` : ''}</div><div className="mt-1 text-xs text-gray-500">{row.schedule}</div></div>)}</div></details> : null}
       </section>
 
       {visibleBundlePasses.length > 0 ? (
@@ -397,7 +411,7 @@ export default function MemberCustomerBilling({
       ) : null}
 
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>
+        <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Account History</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>
         <TransactionTable transactions={visibleTransactions} formatMoney={formatMoney} loading={transactionsLoading} loadingMore={transactionsLoadingMore} hasMore={data?.nextTransactionCursor != null} onLoadMore={onLoadMoreTransactions} />
       </section>
     </div>

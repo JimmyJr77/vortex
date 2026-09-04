@@ -62,6 +62,28 @@ test('legacy Stripe subscriptions are a household-autopay conflict, never a read
   }), 'legacy_collector_conflict')
 })
 
+test('households without billable recurring tuition do not need an autopay migration', () => {
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: false,
+    cardOnFile: false,
+    hasLegacyStripeSubscription: false,
+    hasVerifiedHouseholdMigration: false,
+    effectiveCollectionMonth: null,
+    billingMonth: '2026-10-01',
+    requiresHouseholdAutopay: false,
+  }), 'not_applicable')
+
+  assert.equal(familyAutopayStatus({
+    householdMonthlyBillingEnabled: false,
+    cardOnFile: false,
+    hasLegacyStripeSubscription: true,
+    hasVerifiedHouseholdMigration: false,
+    effectiveCollectionMonth: null,
+    billingMonth: '2026-10-01',
+    requiresHouseholdAutopay: false,
+  }), 'legacy_collector_conflict')
+})
+
 test('a card and household flag without verified migration evidence are not autopay', () => {
   assert.equal(familyAutopayStatus({
     householdMonthlyBillingEnabled: true,

@@ -41,33 +41,6 @@ interface AccessState {
   permissions: string[]
 }
 
-interface BillingMigrationStatus {
-  accountId: number
-  migrationId?: number
-  state: string
-  parityStatus: string
-  parity: Record<string, unknown>
-  targetMonth: string | null
-  attempts: number
-  lastError: string | null
-  updatedAt: string | null
-  run: null | {
-    id: number
-    key: string
-    mode: string
-    status: string
-    codeVersion: string | null
-  }
-  exceptions: Array<{
-    id: number
-    type: string
-    severity: string
-    status: string
-    message: string
-    detectedAt: string
-  }>
-}
-
 interface ContactDraft {
   payerMemberId: number | null
   billingEmail: string
@@ -197,46 +170,6 @@ function MetricCard({ label, value, detail, tone = 'default' }: { label: string;
       <div className={`mt-1 text-2xl font-bold ${valueClass}`}>{value}</div>
       {detail ? <div className="mt-1 text-xs text-gray-500">{detail}</div> : null}
     </div>
-  )
-}
-
-function MigrationStatusCard({ status }: { status: BillingMigrationStatus }) {
-  const openExceptions = status.exceptions.filter((exception) => !['resolved', 'waived'].includes(exception.status))
-  const verified = status.state === 'verified' && status.parityStatus === 'matched'
-  return (
-    <section className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${openExceptions.length > 0 || status.lastError ? 'border-amber-300' : 'border-gray-200'}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3 p-5">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-bold text-gray-950">Canonical billing migration</h2>
-            <Badge value={status.state} />
-            <Badge value={status.parityStatus} label={`Parity: ${status.parityStatus.replaceAll('_', ' ')}`} />
-          </div>
-          <p className="mt-1 text-sm text-gray-500">Read-only rollout status. Migration controls remain restricted to the deployment CLI.</p>
-        </div>
-        <div className="text-right text-xs text-gray-500">
-          <div>{status.targetMonth ? `Target: ${billingMonthLabel(status.targetMonth)}` : 'No cutover month assigned'}</div>
-          {status.updatedAt ? <div className="mt-1">Updated {localDate(status.updatedAt, true)}</div> : null}
-        </div>
-      </div>
-      <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-3">
-        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Run</div><div className="mt-1 text-sm font-bold text-gray-900">{status.run ? `#${status.run.id} · ${status.run.mode}` : 'Not assigned'}</div>{status.run ? <div className="mt-1 text-xs text-gray-500">{status.run.status} · {status.run.key}</div> : null}</div>
-        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Verification</div><div className={`mt-1 text-sm font-bold ${verified ? 'text-emerald-700' : 'text-gray-900'}`}>{verified ? 'Canonical account verified' : status.parityStatus.replaceAll('_', ' ')}</div><div className="mt-1 text-xs text-gray-500">{status.attempts} worker attempt{status.attempts === 1 ? '' : 's'}</div></div>
-        <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Exceptions</div><div className={`mt-1 text-sm font-bold ${openExceptions.length > 0 ? 'text-amber-800' : 'text-emerald-700'}`}>{openExceptions.length > 0 ? `${openExceptions.length} unresolved` : 'None unresolved'}</div></div>
-      </div>
-      {status.lastError ? <div className="border-t border-red-200 bg-red-50 px-5 py-3 text-sm text-red-800"><strong>Last migration error:</strong> {status.lastError}</div> : null}
-      {openExceptions.length > 0 ? (
-        <div className="space-y-2 border-t border-amber-200 bg-amber-50 p-5">
-          {openExceptions.slice(0, 5).map((exception) => (
-            <div key={exception.id} className="flex items-start justify-between gap-3 text-sm text-amber-950">
-              <div><span className="font-bold capitalize">{exception.severity}</span> · {exception.message}<div className="mt-0.5 text-xs text-amber-700">{exception.type.replaceAll('_', ' ')}</div></div>
-              <span className="shrink-0 text-xs text-amber-700">{localDate(exception.detectedAt)}</span>
-            </div>
-          ))}
-          {openExceptions.length > 5 ? <div className="text-xs font-semibold text-amber-800">+ {openExceptions.length - 5} more unresolved exceptions</div> : null}
-        </div>
-      ) : null}
-    </section>
   )
 }
 
@@ -643,7 +576,7 @@ function MembershipMetricCard({
       <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">Annual membership</div>
       <div className="mt-1 truncate text-xl font-bold">{membership.memberName}</div>
       <div className="mt-1 text-sm text-gray-200">Good through {calendarDate(membership.renewalDate)}</div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs"><span className="font-semibold">{membership.active ? 'Valid' : 'Not valid'} · Auto-renewal {membership.autoRenewal ? 'Yes' : 'No'}</span><span className="flex gap-2">{canManage && !membership.active ? <button type="button" disabled={saving || hasOutstandingBill} onClick={() => onBillNow(membership)} title={hasOutstandingBill ? `An annual membership bill of ${money(membership.outstandingAmountCents)} is already outstanding.` : `Add this athlete's annual membership fee to the ledger.`} className="rounded border border-white/30 px-2 py-1 font-semibold disabled:cursor-not-allowed disabled:bg-black/20 disabled:opacity-45">Bill now</button> : null}{canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold disabled:opacity-40">{membership.autoRenewal ? 'Cancel' : 'Resume'}</button> : null}</span></div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs"><span className="font-semibold">{membership.active ? 'Valid' : 'Not valid'} · Auto-renewal {membership.autoRenewal ? 'Yes' : 'No'}</span><span className="flex gap-2">{canManage && !membership.active ? <button type="button" disabled={saving || hasOutstandingBill} onClick={() => onBillNow(membership)} title={hasOutstandingBill ? `An annual membership bill of ${money(membership.outstandingAmountCents)} is already outstanding.` : `Add this athlete's annual membership fee to the ledger.`} className="rounded border border-white/30 px-2 py-1 font-semibold disabled:cursor-not-allowed disabled:bg-black/20 disabled:opacity-45">Bill now</button> : null}{canManage && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold disabled:opacity-40">{membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</span></div>
     </div>
   )
 }
@@ -807,7 +740,7 @@ function EnrollmentSection({
                       <td className="min-w-[250px] px-4 py-3">
                         <div className="font-semibold text-gray-950">
                           {enrollment.class_name || 'Class'}
-                          <span className="ml-1 text-xs font-normal text-gray-500">#{enrollment.id}</span>
+                          {enrollment.classCatalogId != null ? <span className="ml-1 text-xs font-normal text-gray-500">#{enrollment.classCatalogId}</span> : null}
                         </div>
                         <div className="mt-1 text-xs text-gray-500">
                           {enrollment.sport_name || '—'} · {enrollment.program_name || '—'}
@@ -943,6 +876,11 @@ function TransactionsPanel({
               const discountBenefit = row.entryType === 'one_time' && typeof row.details.discountBenefit === 'string'
                 ? row.details.discountBenefit.trim()
                 : ''
+              const discountAnnotations = Array.isArray(row.discountAnnotations)
+                ? row.discountAnnotations
+                : Array.isArray(row.details.discountAnnotations)
+                  ? row.details.discountAnnotations as Array<{ label?: string; code?: string; amountCents?: number }>
+                  : []
               const billingMonths = row.billingMonths ?? []
               const billingPeriod = billingMonths.length > 1
                 ? 'Multiple billing months'
@@ -958,7 +896,7 @@ function TransactionsPanel({
                     <td className="max-w-[300px] px-4 py-3"><strong className="block truncate text-gray-900">{row.description}</strong>{billingPeriod ? <span className="text-xs text-gray-500">{billingPeriod}</span> : null}</td>
                     <td className="px-4 py-3 capitalize text-gray-600">{row.entryType.replaceAll('_', ' ')}</td>
                     <td className="px-4 py-3"><Badge value={row.status} /></td>
-                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
+                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountAnnotations.length > 0 ? <div className="space-y-1">{discountAnnotations.map((annotation, index) => { const amount = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'discount'}-${index}`}>{annotation.code ?? annotation.label ?? 'Discount'} · {amount < 0 ? '−' : '+'}{money(Math.abs(amount))}</div> })}</div> : discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
                     <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canModifyBill ? <button type="button" onClick={() => onSendPaymentRequest(row)} disabled={!canSendPaymentRequest} className="rounded bg-gray-950 p-1.5 text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500" aria-label={canSendPaymentRequest ? `Send payment request for ${row.description}` : `Payment request unavailable because ${row.description} is paid`} title={canSendPaymentRequest ? 'Send payment request' : 'Paid in full'}><Mail className="h-3.5 w-3.5" /></button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded bg-gray-950 p-1.5 text-white" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
@@ -1018,7 +956,7 @@ export default function AdminCustomerBilling({
   const [directFamilyId, setDirectFamilyId] = useState<number | null>(null)
   const [searching, setSearching] = useState(false)
   const [overview, setOverview] = useState<CustomerBillingOverview | null>(null)
-  const [migrationStatus, setMigrationStatus] = useState<BillingMigrationStatus | null>(null)
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<number>>(() => new Set())
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [transactions, setTransactions] = useState<BillingTransaction[]>([])
   const [transactionCursor, setTransactionCursor] = useState<string | null>(null)
@@ -1152,25 +1090,17 @@ export default function AdminCustomerBilling({
 
   const loadFamily = useCallback(async (familyId: number, memberId: number | null) => {
     setLoading(true)
-    setMigrationStatus(null)
+    setDismissedAlertIds(new Set())
     setError(null)
     setSuccess(null)
     setLastActionUrl(null)
     try {
       const overviewParams = memberId == null ? '' : `?memberId=${memberId}`
-      const [overviewResponse, migrationResponse] = await Promise.all([
-        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`),
-        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/migration-status`),
-      ])
-      const [overviewBody, migrationBody] = await Promise.all([
-        jsonBody(overviewResponse),
-        jsonBody(migrationResponse),
-      ])
+      const overviewResponse = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`)
+      const overviewBody = await jsonBody(overviewResponse)
       if (!overviewResponse.ok) throw new Error(overviewBody.message || 'Billing account failed to load.')
-      if (!migrationResponse.ok) throw new Error(migrationBody.message || 'Billing migration status failed to load.')
       const nextOverview = overviewBody.data as CustomerBillingOverview
       setOverview(nextOverview)
-      setMigrationStatus(migrationBody.data as BillingMigrationStatus)
       setSelectedMemberId(memberId)
       setContactDraft({
         payerMemberId: nextOverview.account.payerMemberId,
@@ -1564,7 +1494,7 @@ export default function AdminCustomerBilling({
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
               <MetricCard label="Outstanding balance" value={money(overview.summary.outstandingBalanceCents)} tone={overview.summary.outstandingBalanceCents > 0 ? 'warning' : 'default'} detail="Unpaid charges" />
-              <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={money(overview.summary.monthlyRecurringCents)} detail={`${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
+              <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={money(overview.summary.monthlyRecurringCents)} detail={overview.summary.monthlyRecurringDiscountCents < 0 ? `${money(Math.abs(overview.summary.monthlyRecurringDiscountCents))} surcharge` : `${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
               <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${calendarDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
@@ -1604,17 +1534,15 @@ export default function AdminCustomerBilling({
               </details>
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-2 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-2 text-sm text-gray-500">No reusable default card found.</p>}</div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
             </div>
-            {overview.alerts.length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.length})</div><div className="space-y-1">{overview.alerts.map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="shrink-0 text-xs">{localDate(alert.createdAt)}</span></div>)}</div></div> : null}
+            {overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length})</div><div className="space-y-1">{overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="ml-auto shrink-0 text-xs">{localDate(alert.createdAt)}</span><button type="button" onClick={() => setDismissedAlertIds((current) => new Set([...current, alert.id]))} className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">Dismiss</button></div>)}</div></div> : null}
           </section>
-
-          {migrationStatus ? <MigrationStatusCard status={migrationStatus} /> : null}
 
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} onNewEnrollment={() => setNewEnrollmentOpen(true)} />
 
           <ClassBundlesSection passes={visibleBundlePasses} usage={visibleBundleUsage} canManage={canManage} onAdjust={setPassToAdjust} />
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Complete account audit</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Account History</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
             {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onSendPaymentRequest={(row) => void sendBillPaymentRequest(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 

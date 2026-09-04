@@ -16,7 +16,7 @@ export interface BillingOverviewFamily {
   futureCreditsCents: number
   accountBalanceCents: number
   autopay: boolean
-  autopayStatus: 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict'
+  autopayStatus: 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict' | 'not_applicable'
   autopayEffectiveMonth: string | null
   cardOnFile: { last4: string | null; brand: string | null }
 }
@@ -75,6 +75,12 @@ function autopayPresentation(family: BillingOverviewFamily) {
         label: 'Legacy conflict',
         className: 'bg-red-50 text-red-800',
         title: 'An active legacy Stripe collector conflicts with household autopay and must be reviewed.',
+      }
+    case 'not_applicable':
+      return {
+        label: 'No recurring classes',
+        className: 'bg-gray-100 text-gray-600',
+        title: 'No current billable recurring enrollment requires household autopay.',
       }
     default:
       return {

@@ -1,5 +1,6 @@
 import { recordBillingActivity } from './billingActivity.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
 
 function dateOnly(value) {
   const match = String(value ?? '').match(/^\d{4}-\d{2}-\d{2}/)
@@ -240,6 +241,9 @@ export async function reassignCustomerBillingEnrollmentMember(pool, {
       actorUserId,
     })
     await client.query('COMMIT')
+    await reconcileUpcomingProvisionalChargesForAccount(pool, {
+      accountId: Number(source.account_id),
+    }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after member reassignment:', error?.message ?? error))
     return { ...result, replayed: false }
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})

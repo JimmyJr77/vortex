@@ -1407,6 +1407,7 @@ export default function MemberDashboard({
 
   const [payNowLoading, setPayNowLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
+  const [annualMembershipRenewalLoading, setAnnualMembershipRenewalLoading] = useState(false)
   const handlePayNow = async () => {
     if (!token) return
     const checkoutFingerprint = [
@@ -1462,6 +1463,25 @@ export default function MemberDashboard({
       alert('Failed to open payment settings.')
     } finally {
       setPortalLoading(false)
+    }
+  }
+
+  const handleAnnualMembershipAutoRenewal = async (subscriptionId: number, enabled: boolean) => {
+    if (!token) return
+    setAnnualMembershipRenewalLoading(true)
+    try {
+      const res = await fetch(`${apiUrl}/api/members/billing/annual-memberships/${subscriptionId}/auto-renewal`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Annual membership auto-renewal could not be changed.')
+      await fetchBillingStatements(true)
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Annual membership auto-renewal could not be changed.')
+    } finally {
+      setAnnualMembershipRenewalLoading(false)
     }
   }
 
@@ -2868,8 +2888,10 @@ export default function MemberDashboard({
                   loading={billingLoading || !portalConfigLoaded}
                   payNowLoading={payNowLoading}
                   portalLoading={portalLoading}
+                  annualMembershipRenewalLoading={annualMembershipRenewalLoading}
                   onPayNow={handlePayNow}
                   onManagePayment={handleManagePayment}
+                  onSetAnnualMembershipAutoRenewal={handleAnnualMembershipAutoRenewal}
                   onRefresh={() => void fetchBillingStatements(true)}
                   onEnroll={() => setActiveTab('classes')}
                   onLoadMoreTransactions={() => void fetchCustomerTransactions(true)}

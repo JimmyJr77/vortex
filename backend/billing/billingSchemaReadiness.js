@@ -30,6 +30,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '799_billing_payment_stripe_invoice_link.sql',
   '809_billing_migration_item_upsert_evidence.sql',
   '810_billing_payment_fact_audit_jobs.sql',
+  '811_billing_monthly_invoice_automatic_attempts.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -83,6 +84,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '799_billing_payment_stripe_invoice_link.sql',
   '809_billing_migration_item_upsert_evidence.sql',
   '810_billing_payment_fact_audit_jobs.sql',
+  '811_billing_monthly_invoice_automatic_attempts.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
@@ -138,6 +140,7 @@ export const DEPLOY_BILLING_RELATIONS = Object.freeze([
   'uq_discount_redemption_annual_checkout_member_rule',
   'billing_payment_fact_audit_job',
   'idx_billing_payment_fact_audit_job_due',
+  'idx_billing_monthly_invoice_automatic_attempt',
 ])
 
 export const REQUIRED_BILLING_RELATIONS = Object.freeze([
@@ -204,6 +207,8 @@ export const DEPLOY_BILLING_COLUMNS = Object.freeze([
   { tableName: 'billing_payment_attempt', columnName: 'amount_cents' },
   { tableName: 'billing_payment_attempt', columnName: 'expires_at' },
   { tableName: 'billing_payment_attempt_charge', columnName: 'amount_cents' },
+  { tableName: 'billing_monthly_invoice', columnName: 'automatic_attempt_count' },
+  { tableName: 'billing_monthly_invoice', columnName: 'last_automatic_attempt_at' },
   { tableName: 'billing_migration_subscription_claim', columnName: 'claim_kind' },
   { tableName: 'billing_migration_subscription_claim', columnName: 'claim_value' },
   { tableName: 'billing_migration_subscription_claim', columnName: 'family_billing_account_id' },

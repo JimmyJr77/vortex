@@ -23,13 +23,13 @@ function monthKey(value) {
   return match ? match[1] : null
 }
 
-export function lastThreeBillingMonths(asOf = new Date()) {
-  const current = billingMonthInTimeZone(asOf) ?? String(asOf.toISOString()).slice(0, 7)
+export function lastThreeBillingMonths(asOf = new Date(), timeZone = 'America/New_York') {
+  const current = billingMonthInTimeZone(asOf, timeZone) ?? String(asOf.toISOString()).slice(0, 7)
   return [3, 2, 1].map((offset) => String(addBillingMonths(current, -offset)).slice(0, 7))
 }
 
-export function yearToDateBounds(asOf = new Date()) {
-  const current = billingMonthInTimeZone(asOf) ?? String(asOf.toISOString()).slice(0, 7)
+export function yearToDateBounds(asOf = new Date(), timeZone = 'America/New_York') {
+  const current = billingMonthInTimeZone(asOf, timeZone) ?? String(asOf.toISOString()).slice(0, 7)
   const year = current.slice(0, 4)
   return { year, start: `${year}-01-01`, throughMonth: current }
 }
@@ -41,8 +41,10 @@ export function familyAutopayStatus({
   hasVerifiedHouseholdMigration,
   effectiveCollectionMonth,
   billingMonth,
+  requiresHouseholdAutopay = true,
 }) {
   if (hasLegacyStripeSubscription) return 'legacy_collector_conflict'
+  if (!requiresHouseholdAutopay) return 'not_applicable'
   if (!householdMonthlyBillingEnabled || !hasVerifiedHouseholdMigration) return 'migration_required'
   const effective = monthKey(effectiveCollectionMonth)
   const target = monthKey(billingMonth)
@@ -108,12 +110,6 @@ function monthBillPaid(invoiceRow, chargeCents, paymentCents) {
 export async function listCustomerBillingOverviews(pool, { facilityId, asOf = new Date() } = {}) {
   const normalizedFacilityId = Number(facilityId)
   if (!Number.isFinite(normalizedFacilityId)) throw new Error('A facility is required.')
-
-  const pricingMonth = upcomingRecurringPricingMonth(asOf)
-  const months = lastThreeBillingMonths(asOf)
-  const { year, start: yearStart } = yearToDateBounds(asOf)
-  const monthStart = `${months[0]}-01`
-  const currentMonthStart = `${pricingMonth}-01`
 
   const families = await pool.query(
     `SELECT
@@ -203,6 +199,17 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     [normalizedFacilityId],
   )
 
+  // A facility endpoint contains families from one facility. Resolve every
+  // cutoff and reporting boundary from that facility's configured timezone so
+  // the overview agrees with the account page and the billing worker around
+  // UTC day boundaries.
+  const facilityTimeZone = String(families.rows[0]?.facility_timezone || 'America/New_York')
+  const pricingMonth = upcomingRecurringPricingMonth(asOf, facilityTimeZone)
+  const months = lastThreeBillingMonths(asOf, facilityTimeZone)
+  const { year, start: yearStart } = yearToDateBounds(asOf, facilityTimeZone)
+  const monthStart = `${months[0]}-01`
+  const currentMonthStart = `${pricingMonth}-01`
+
   const accountIds = families.rows
     .map((row) => Number(row.billing_account_id))
     .filter((id) => Number.isFinite(id))
@@ -283,7 +290,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     ),
     pool.query(
       `SELECT payment.family_billing_account_id,
-              to_char(payment.paid_at AT TIME ZONE 'America/New_York', 'YYYY-MM') AS billing_month,
+              to_char(payment.paid_at AT TIME ZONE $4::text, 'YYYY-MM') AS billing_month,
               SUM(payment.amount_cents)::bigint AS paid_cents
          FROM billing_payment payment
         WHERE payment.family_billing_account_id = ANY($1::bigint[])
@@ -291,7 +298,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND payment.paid_at >= $2::date
           AND payment.paid_at < $3::date
         GROUP BY 1, 2`,
-      [accountIds, monthStart, currentMonthStart],
+      [accountIds, monthStart, currentMonthStart, facilityTimeZone],
     ),
     pool.query(
       `WITH application_totals AS (
@@ -512,6 +519,10 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         hasVerifiedHouseholdMigration: row.has_verified_household_migration === true,
         effectiveCollectionMonth,
         billingMonth: billingMonthInTimeZone(asOf, row.facility_timezone),
+        // This column reflects payment collection for current recurring
+        // tuition. Historical balances and inactive households do not need a
+        // household-autopay migration merely to appear in the overview.
+        requiresHouseholdAutopay: (recurringByFamily.get(Number(row.family_id)) ?? 0) > 0,
       })
       return serializeFamilyRow(row, {
         yearToDatePaidCents: cents(totals.year_to_date_paid_cents),

@@ -1356,6 +1356,21 @@ function paymentIntentFromError(error) {
   )
 }
 
+function automaticAttemptAllowed(invoice, {
+  policy = null,
+  now = new Date(),
+  facilityTimeZone,
+} = {}) {
+  if (!policy || policy === 'manual') return true
+  const attempts = Number(invoice?.automatic_attempt_count ?? 0)
+  if (policy === 'initial') return attempts === 0
+  if (policy === 'retry_on_fifth') {
+    const date = facilityDate(now, facilityTimeZone)
+    return Number(date.slice(8, 10)) === 5 && attempts === 1 && invoice?.status === 'failed'
+  }
+  return false
+}
+
 async function priorPaymentAttemptCanAdvance(stripe, invoice) {
   const priorAttempt = paymentAttemptDate(invoice.payment_attempted_at)
   if (
@@ -1381,11 +1396,24 @@ async function priorPaymentAttemptCanAdvance(stripe, invoice) {
   )
 }
 
-async function reservePaymentAttempt(pool, invoice, stripe) {
+async function reservePaymentAttempt(pool, invoice, stripe, {
+  automaticAttemptPolicy = null,
+  now = new Date(),
+  facilityTimeZone,
+} = {}) {
+  if (!automaticAttemptAllowed(invoice, {
+    policy: automaticAttemptPolicy,
+    now,
+    facilityTimeZone,
+  })) {
+    const error = new Error('This household invoice is not eligible for another automatic collection attempt.')
+    error.code = 'household_automatic_attempt_not_eligible'
+    throw error
+  }
   const priorAttempt = paymentAttemptDate(invoice.payment_attempted_at)
   const priorFailureConfirmed = await priorPaymentAttemptCanAdvance(stripe, invoice)
   const attemptedAt = !priorAttempt || priorFailureConfirmed
-    ? nextPaymentAttemptDate(priorAttempt)
+    ? new Date(Math.max(new Date(now).getTime(), paymentAttemptDate(priorAttempt)?.getTime() ?? 0) + 1)
     : priorAttempt
   const values = {
     status: 'open',
@@ -1399,7 +1427,31 @@ async function reservePaymentAttempt(pool, invoice, stripe) {
   // selected method could change Stripe request parameters after an unknown
   // outcome.
   if (priorFailureConfirmed) values.stripe_payment_intent_id = null
-  const saved = await markInvoice(pool, invoice.id, values)
+  let saved
+  if (automaticAttemptPolicy && automaticAttemptPolicy !== 'manual') {
+    const expectedAttemptCount = automaticAttemptPolicy === 'initial' ? 0 : 1
+    const entries = Object.entries(values)
+    const columns = entries.map(([key], index) => `${key} = $${index + 3}`).join(', ')
+    const result = await pool.query(
+      `UPDATE billing_monthly_invoice
+          SET automatic_attempt_count = automatic_attempt_count + 1,
+              last_automatic_attempt_at = $2::timestamptz,
+              ${columns},
+              updated_at = now()
+        WHERE id = $1
+          AND automatic_attempt_count = $${entries.length + 3}
+        RETURNING *`,
+      [invoice.id, attemptedAt, ...entries.map(([, value]) => value), expectedAttemptCount],
+    )
+    saved = result.rows[0] ?? null
+    if (!saved) {
+      const error = new Error('This household invoice was changed before its automatic collection attempt could be reserved.')
+      error.code = 'household_automatic_attempt_race'
+      throw error
+    }
+  } else {
+    saved = await markInvoice(pool, invoice.id, values)
+  }
   return {
     invoice: saved ?? { ...invoice, ...values },
     idempotencyKey: `household-monthly-invoice:${invoice.id}:pay:${attemptedAt.getTime()}`,
@@ -1633,6 +1685,8 @@ async function pushInvoiceToStripe(pool, {
   billingMonth,
   facilityTimeZone,
   migrationAuthorization,
+  automaticAttemptPolicy = null,
+  now = new Date(),
 }) {
   const customerId = await ensureStripeCustomer(pool, stripe, account)
   const paymentMethodId = await defaultPaymentMethod(stripe, customerId, billingMonth)
@@ -1747,7 +1801,14 @@ async function pushInvoiceToStripe(pool, {
   // This durable timestamp defines the idempotency generation and therefore
   // belongs directly beside the first possible Stripe pay dispatch. Any gate
   // failure above leaves no false "unknown outcome" marker behind.
-  const paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe)
+  // Preserve the pre-publication status for retry eligibility: the local row is
+  // deliberately moved to open before the boundary checks, but a fifth-day
+  // retry is authorized only when its prior state was a confirmed failure.
+  const paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe, {
+    automaticAttemptPolicy,
+    now,
+    facilityTimeZone,
+  })
   try {
     const paid = await stripe.invoices.pay(
       remote.id,
@@ -1802,6 +1863,8 @@ export async function createHouseholdMonthlyInvoice(pool, {
   environment = process.env,
   stripeClient = undefined,
   migrationAuthorization = null,
+  automaticAttemptPolicy = null,
+  now = new Date(),
 }) {
   await ensureHouseholdMonthlyInvoiceSchema(pool)
   if (!billingHouseholdInvoiceEnabled(environment)) {
@@ -1874,6 +1937,8 @@ export async function createHouseholdMonthlyInvoice(pool, {
       billingMonth: month,
       facilityTimeZone,
       migrationAuthorization,
+      automaticAttemptPolicy,
+      now,
     })
     return { invoice, lines: local.lines, created: local.created, resumed: !local.created }
   })
@@ -2551,6 +2616,8 @@ export async function listHouseholdMonthlyInvoices(pool, accountId, { limit = 6,
     subtotalCents: Number(row.subtotal_cents), creditCents: Number(row.credit_cents), totalCents: Number(row.total_cents),
     stripeInvoiceId: row.stripe_invoice_id ?? null, hostedInvoiceUrl: row.hosted_invoice_url ?? null,
     paymentAttemptedAt: row.payment_attempted_at ?? null, paidAt: row.paid_at ?? null,
+    automaticAttemptCount: Number(row.automatic_attempt_count ?? 0),
+    lastAutomaticAttemptAt: row.last_automatic_attempt_at ?? null,
     failureMessage: row.failure_message ?? null, lineCount: Number(row.line_count),
     postPaymentCreditCents: Math.max(0, suppressedNetByInvoice.get(Number(row.id)) ?? 0),
     lines: linesByInvoice.get(Number(row.id)) ?? [],

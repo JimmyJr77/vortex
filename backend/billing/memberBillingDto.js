@@ -24,6 +24,7 @@ function memberDiscountComponent(component = {}) {
 function memberEnrollment(enrollment = {}) {
   return {
     id: Number(enrollment.id),
+    classCatalogId: numberOrNull(enrollment.classCatalogId ?? enrollment.class_catalog_id),
     source: enrollment.source ?? 'signup',
     memberId: Number(enrollment.memberId),
     memberName: enrollment.memberName ?? null,
@@ -56,10 +57,12 @@ function memberAnnualMembership(membership = {}) {
   return {
     memberId: Number(membership.memberId),
     memberName: membership.memberName ?? null,
+    billingSubscriptionId: numberOrNull(membership.billingSubscriptionId),
     active: membership.active === true,
     membershipDate: membership.membershipDate ?? null,
     renewalDate: membership.renewalDate ?? null,
     autoRenewal: membership.autoRenewal === true,
+    canManageAutoRenewal: membership.canManageAutoRenewal === true,
     outstandingAmountCents: Number(membership.outstandingAmountCents ?? 0),
   }
 }
@@ -101,6 +104,8 @@ function memberMonthlyInvoice(invoice = {}) {
     creditCents: Number(invoice.creditCents ?? 0),
     totalCents: Number(invoice.totalCents ?? 0),
     postPaymentCreditCents: Number(invoice.postPaymentCreditCents ?? 0),
+    automaticAttemptCount: Number(invoice.automaticAttemptCount ?? 0),
+    lastAutomaticAttemptAt: invoice.lastAutomaticAttemptAt ?? null,
     paidAt: invoice.paidAt ?? null,
     lineCount: Number(invoice.lineCount ?? 0),
   }

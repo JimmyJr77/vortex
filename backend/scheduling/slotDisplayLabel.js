@@ -242,9 +242,10 @@ function mapTaxonomyRow(row) {
   const programName = row.program_name?.trim() || null
   const sportName = row.sport_name?.trim() || null
   const programId = row.program_id != null ? Number(row.program_id) : null
+  const classCatalogId = row.class_catalog_id != null ? Number(row.class_catalog_id) : null
   const classContextLine =
     buildEnrollmentContextLine({ sportName, programName, className }) || className
-  return { className, programName, sportName, programId, classContextLine }
+  return { className, programName, sportName, programId, classCatalogId, classContextLine }
 }
 
 /**
@@ -270,6 +271,7 @@ export async function loadEnrollmentTaxonomyByFormIds(
     SELECT DISTINCT ON (sf.id)
       sf.id AS form_id,
       sf.title AS form_title,
+      COALESCE(linked_class.id, title_class.id) AS class_catalog_id,
       COALESCE(linked_class.display_name, linked_class.name, title_class.display_name, title_class.name, sf.title) AS class_name,
       COALESCE(sf.programs_id, linked_class.${programFkColumn}, title_class.${programFkColumn}) AS program_id,
       COALESCE(pr.display_name, pr.name) AS program_name,
@@ -324,6 +326,7 @@ export async function loadEnrollmentTaxonomyByClassIds(
     `
     SELECT
       class_p.id AS class_id,
+      class_p.id AS class_catalog_id,
       COALESCE(class_p.display_name, class_p.name, 'Class') AS class_name,
       class_p.${programFkColumn} AS program_id,
       COALESCE(pr.display_name, pr.name) AS program_name,
@@ -360,6 +363,8 @@ export function applyEnrollmentTaxonomy(row, taxonomy) {
     program_name: taxonomy.programName,
     sport_name: taxonomy.sportName,
     program_id: taxonomy.programId ?? row.program_id ?? null,
+    class_catalog_id: taxonomy.classCatalogId ?? row.class_catalog_id ?? null,
+    classCatalogId: taxonomy.classCatalogId ?? row.classCatalogId ?? row.class_catalog_id ?? null,
     class_context_line: taxonomy.classContextLine,
   }
 }

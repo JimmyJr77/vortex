@@ -40,9 +40,8 @@ import {
   previewCustomerBillingRefund,
   SavedCardCollectionError,
 } from './customerBillingPayments.js'
-import { getStripeClient } from './stripeBilling.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
-import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import { setAnnualMembershipAutoRenewal } from './annualMembershipAutoRenewal.js'
 import {
   adjustAdminMultiClassPass,
   loadAdminCustomerBillingMigrationStatus,
@@ -52,7 +51,6 @@ import {
   updateAdminCustomerBillingAccount,
 } from './customerBillingAdminOperations.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
-import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
 
 function facilityId(req) {
   return requireAdminFacilityScope({
@@ -363,73 +361,12 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
         }
         const subscriptionId = Number(req.params.subscriptionId)
-        const updated = await withBillingAccountCollectionLock(pool, account.id, async (db) => {
-          const existing = (
-            await db.query(
-              `SELECT * FROM billing_subscription
-               WHERE id = $1
-                 AND family_billing_account_id = $2
-                 AND (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
-               LIMIT 1`,
-              [subscriptionId, account.id],
-            )
-          ).rows[0]
-          if (!existing) {
-            const error = new Error('Individual annual membership was not found.')
-            error.statusCode = 404
-            throw error
-          }
-          if (existing.status === 'cancelled') {
-            throw new Error('A cancelled membership subscription cannot be resumed.')
-          }
-
-          let remoteMutation = null
-          if (existing.stripe_subscription_id) {
-            remoteMutation = await guardLegacyRemoteSubscriptionMutation(db, {
-              accountId: account.id,
-              stripeSubscriptionId: existing.stripe_subscription_id,
-              operation: enabled
-                ? 'annual-membership-auto-renew-enable'
-                : 'annual-membership-auto-renew-disable',
-            })
-            if (remoteMutation.allowed) {
-              const stripe = await getStripeClient()
-              if (!stripe) throw new Error('Stripe is unavailable.')
-              await stripe.subscriptions.update(existing.stripe_subscription_id, {
-                cancel_at_period_end: !enabled,
-              })
-            }
-          }
-          const saved = (
-            await db.query(
-              `UPDATE billing_subscription
-               SET auto_renewal = $2, updated_at = now()
-               WHERE id = $1
-               RETURNING *`,
-              [subscriptionId, enabled],
-            )
-          ).rows[0]
-          await recordBillingActivityBestEffort(db, {
-            eventKey: `annual-membership-auto-renewal:${subscriptionId}:${enabled}:${new Date(saved.updated_at).getTime()}`,
-            accountId: account.id,
-            memberId: saved.member_id == null ? null : Number(saved.member_id),
-            eventType: 'annual_membership_auto_renewal_changed',
-            summary: `Annual membership auto-renewal was ${enabled ? 'enabled' : 'cancelled'} for one member.`,
-            beforeValue: { autoRenewal: existing.auto_renewal !== false },
-            afterValue: { autoRenewal: enabled },
-            details: {
-              billingSubscriptionId: subscriptionId,
-              paidThroughDate: saved.next_bill_date,
-              collectionMode: remoteMutation?.allowed
-                ? 'legacy_stripe_subscription'
-                : 'household_ledger',
-              remoteCollectorQuarantined: remoteMutation?.quarantined === true,
-            },
-            stripeObjectId: saved.stripe_subscription_id,
-            actorUserId: actorId(req),
-            actorType: 'admin',
-          })
-          return saved
+        const updated = await setAnnualMembershipAutoRenewal(pool, {
+          account,
+          subscriptionId,
+          enabled,
+          actorUserId: actorId(req),
+          actorType: 'admin',
         })
         res.json({
           success: true,

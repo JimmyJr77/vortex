@@ -81,6 +81,7 @@ import {
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import { loadCustomerBillingBundles } from '../billing/customerBillingBundles.js'
 import { buildMemberBillingOverviewDto } from '../billing/memberBillingDto.js'
+import { setAnnualMembershipAutoRenewal } from '../billing/annualMembershipAutoRenewal.js'
 import {
   notifyPaymentReceipt,
   notifyPaymentFailed,
@@ -172,6 +173,7 @@ export function buildMemberCustomerBillingAccess(account, memberId, canViewHouse
     canViewHousehold: canView,
     canManagePayments: isPayer,
     canManagePaymentMethod: isPayer,
+    canManageAnnualMembershipAutoRenewal: isPayer,
   }
 }
 
@@ -3203,6 +3205,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         occurredAt: row.occurredAt,
         status: row.status,
         runningBalanceCents: row.runningBalanceCents,
+        classCatalogId: row.classCatalogId ?? null,
+        classSchedule: row.classSchedule ?? null,
       }))
       res.json({
         success: true,
@@ -3310,6 +3314,50 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.post('/api/members/billing/payment-method-session', ...memberBillingAuthMiddleware(pool, jwtSecret), createMemberPaymentMethodSession)
   app.post('/api/members/billing/customer-portal', ...memberBillingAuthMiddleware(pool, jwtSecret), legacyBillingEndpoint, createMemberPaymentMethodSession)
+
+  app.patch('/api/members/billing/annual-memberships/:subscriptionId/auto-renewal', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const enabled = req.body?.enabled
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ success: false, message: 'enabled must be true or false.' })
+      }
+      const ctx = req.platformAuth
+      const memberId = linkedPlatformMemberId(ctx)
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, {
+        memberId,
+        facilityId: ctx.user.facility_id ?? null,
+      })
+      if (!familyId) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+      const account = await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+      if (!account) return res.status(404).json({ success: false, message: 'Family billing account not found.' })
+      const access = buildMemberCustomerBillingAccess(account, memberId, true)
+      if (!access.canManageAnnualMembershipAutoRenewal) {
+        return res.status(403).json({ success: false, message: 'Only the family payer can manage annual membership auto-renewal.' })
+      }
+      const updated = await setAnnualMembershipAutoRenewal(pool, {
+        account,
+        subscriptionId: Number(req.params.subscriptionId),
+        enabled,
+        actorUserId: ctx.user?.id ?? null,
+        actorType: 'member',
+      })
+      return res.json({
+        success: true,
+        data: {
+          billingSubscriptionId: Number(updated.id),
+          memberId: updated.member_id == null ? null : Number(updated.member_id),
+          autoRenewal: updated.auto_renewal !== false,
+          renewalDate: updated.next_bill_date ?? null,
+        },
+      })
+    } catch (error) {
+      console.error('[members] annual membership auto-renewal:', error)
+      return res.status(Number(error?.statusCode) || 400).json({
+        success: false,
+        message: error?.message ?? 'Annual membership auto-renewal could not be changed.',
+      })
+    }
+  })
 
   app.get('/api/members/billing/annual-membership', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const ctx = req.platformAuth

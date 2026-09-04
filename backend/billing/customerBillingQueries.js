@@ -1,6 +1,7 @@
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
+import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
 import {
   addBillingMonths,
   adjustmentCoversPeriod,
@@ -272,6 +273,7 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
 export async function loadCustomerBillingAccount(pool, familyId, facilityId = null) {
   const result = await pool.query(
     `SELECT account.*, family.family_name, family.facility_id AS family_facility_id,
+            facility.timezone AS facility_timezone,
             (
               SELECT COUNT(*)::integer
                 FROM family_billing_account customer_owner
@@ -279,6 +281,7 @@ export async function loadCustomerBillingAccount(pool, familyId, facilityId = nu
             ) AS stripe_customer_owner_count
        FROM family
        JOIN family_billing_account account ON account.family_id = family.id
+       LEFT JOIN facility ON facility.id = family.facility_id
       WHERE family.id = $1
         AND account.is_active = TRUE
         AND ($2::bigint IS NULL OR family.facility_id = $2)`,
@@ -369,7 +372,7 @@ async function loadFamilyMembers(pool, familyId) {
 }
 
 export async function loadDefaultPaymentMethodSummary(account, {
-  billingMonth = upcomingRecurringPricingMonth(),
+  billingMonth = upcomingRecurringPricingMonth(new Date(), account?.facility_timezone),
 } = {}) {
   const enabled = stripeEnabled()
   if (!account?.stripe_customer_id) {
@@ -498,13 +501,47 @@ export function earliestActiveNextBillDate(subscriptions = []) {
 }
 
 /**
- * The recurring-fee card always represents the next calendar billing month.
+ * The recurring-fee card preserves the current month through the facility's
+ * fourth day.  On the fifth it advances to the next calendar month, matching
+ * the date on which that upcoming bill is posted to the household ledger.
  * Do not infer this from next_bill_date: a scheduled cancellation clears that
  * value even though the current-month enrollment remains visible.
  */
-export function upcomingRecurringPricingMonth(asOf = new Date()) {
-  const currentMonth = billingMonthInTimeZone(asOf) ?? billingMonthKey(asOf)
-  return billingMonthKey(addBillingMonths(currentMonth, 1))
+export function upcomingRecurringPricingMonth(asOf = new Date(), timeZone = 'America/New_York') {
+  const currentMonth = billingMonthInTimeZone(asOf, timeZone) ?? billingMonthKey(asOf)
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    day: '2-digit',
+  }).formatToParts(asOf instanceof Date ? asOf : new Date(asOf))
+  const day = Number(parts.find((part) => part.type === 'day')?.value)
+  return day >= 5 ? billingMonthKey(addBillingMonths(currentMonth, 1)) : billingMonthKey(currentMonth)
+}
+
+async function resolveAddressedBillingAlerts(pool, {
+  accountId,
+  paymentMethodAvailable,
+  householdCardRequired,
+}) {
+  if (paymentMethodAvailable !== true && householdCardRequired === true) return
+  try {
+    await pool.query(
+      `UPDATE stripe_billing_alert
+          SET resolved_at = now(),
+              action_status = 'resolved',
+              resolution_note = CASE
+                WHEN $2::boolean THEN 'Automatically resolved after a reusable payment method was saved.'
+                ELSE 'Automatically resolved because the account no longer needs an automatic collection payment method.'
+              END,
+              updated_at = now()
+        WHERE family_billing_account_id = $1
+          AND alert_type = 'monthly_invoice_payment_method_required'
+          AND resolved_at IS NULL`,
+      [accountId, paymentMethodAvailable === true],
+    )
+  } catch (error) {
+    // Alert reconciliation is never allowed to make the account page fail.
+    if (error?.code !== '42P01' && error?.code !== '42703') throw error
+  }
 }
 
 /**
@@ -549,7 +586,7 @@ export async function buildCustomerBillingOverview(pool, {
   // Keep the ledger-card classification on the same upcoming month displayed
   // by the recurring-fee card. A charge posted for the current (or past)
   // month is already due and must remain in Outstanding balance.
-  const pricingMonth = upcomingRecurringPricingMonth()
+  const pricingMonth = upcomingRecurringPricingMonth(new Date(), account.facility_timezone)
 
   const rawSubscriptionsPromise = pool.query(
     `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
@@ -678,7 +715,7 @@ export async function buildCustomerBillingOverview(pool, {
     list.push(adjustment)
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
-  const nextBillDate = earliestActiveNextBillDate(rawSubscriptions.rows)
+  const nextBillDate = pricingMonth
   const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId,
@@ -865,6 +902,22 @@ export async function buildCustomerBillingOverview(pool, {
   const syncFailures = subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
+  await resolveAddressedBillingAlerts(pool, {
+    accountId: account.id,
+    paymentMethodAvailable: paymentMethod.available,
+    householdCardRequired,
+  })
+  const resolvedAlertIds = new Set(
+    paymentMethod.available || !householdCardRequired
+      ? alertsResult.rows
+        .filter((row) => row.alert_type === 'monthly_invoice_payment_method_required')
+        .map((row) => Number(row.id))
+      : [],
+  )
+  const monthlyRecurringCents = Number(displayPricing.netCents) || 0
+  const futureCreditsCents = Number(view.futureCreditsCents) || 0
+  const displayedBalanceCents =
+    Number(view.outstandingBalanceCents || 0) + monthlyRecurringCents - futureCreditsCents
 
   const overview = {
     revision: view.revision,
@@ -875,17 +928,19 @@ export async function buildCustomerBillingOverview(pool, {
       chargesCents: view.chargesCents,
       paymentsCents: view.paymentsCents,
       refundsCents: view.refundsCents,
-      balanceCents: view.balanceCents,
+      // This is intentionally a presentation equation. Collection code uses
+      // collectibleBalanceCents from the immutable ledger snapshot instead.
+      balanceCents: displayedBalanceCents,
       collectibleBalanceCents: view.collectibleBalanceCents,
       outstandingBalanceCents: view.outstandingBalanceCents,
       // The enrollment resolver evaluates the selected billing period's
       // lifecycle rules, including cancellations effective on its first day.
       // The older account snapshot is current-state data and would retain a
       // class until its cancellation date passes.
-      monthlyRecurringCents: Number(displayPricing.netCents) || 0,
+      monthlyRecurringCents,
       monthlyRecurringDiscountCents: Number(displayPricing.discountCents) || 0,
       monthlyRecurringPeriod: pricingMonth,
-      futureCreditsCents: view.futureCreditsCents,
+      futureCreditsCents,
       paidThisMonthCents: view.paidThisMonthCents,
       monthlyTotals: {
         grossCents: Number(displayPricing.grossCents) || 0,
@@ -908,14 +963,16 @@ export async function buildCustomerBillingOverview(pool, {
               : { status: 'healthy', message: 'Local recurring prices are synchronized.' },
     },
     paymentMethod,
-    alerts: memberRead ? [] : alertsResult.rows.map((row) => ({
+    alerts: memberRead ? [] : alertsResult.rows
+      .filter((row) => !resolvedAlertIds.has(Number(row.id)))
+      .map((row) => ({
       id: Number(row.id),
       type: row.alert_type,
       severity: row.severity,
       message: row.message,
       stripeObjectId: row.stripe_object_id ?? null,
-      createdAt: row.created_at,
-    })),
+        createdAt: row.created_at,
+      })),
     enrollments,
     waitlists,
     annualMemberships,
@@ -941,6 +998,49 @@ function encodeCursor(row) {
     sortOrder: Number(row.sort_order),
     refId: Number(row.ref_id),
   })).toString('base64url')
+}
+
+async function loadTransactionClassDisplay(pool, chargeIds = []) {
+  const ids = [...new Set(chargeIds.map(Number).filter(Number.isFinite))]
+  const displayByChargeId = new Map()
+  if (ids.length === 0) return displayByChargeId
+  const result = await pool.query(
+    `SELECT c.id AS charge_id,
+            COALESCE(class_p.display_name, class_p.name, title_class.display_name, title_class.name, form.title) AS class_name,
+            COALESCE(class_p.id, title_class.id) AS class_catalog_id,
+            signup.slot_group_id, signup.time_slot_id,
+            slot.week_letter, slot.schedule_mode, slot.specific_date,
+            slot.day_of_week, slot.start_time, slot.end_time
+       FROM billing_charge c
+       JOIN billing_subscription subscription ON subscription.id = c.subscription_id
+       JOIN scheduling_signup signup
+         ON subscription.source_type = 'scheduling_signup'
+        AND subscription.source_id = signup.id::text
+       JOIN scheduling_form form ON form.id = signup.form_id
+       LEFT JOIN program class_p ON class_p.id = form.program_id
+       LEFT JOIN program title_class
+         ON form.program_id IS NULL
+        AND TRIM(LOWER(title_class.display_name)) = TRIM(LOWER(form.title))
+       LEFT JOIN scheduling_time_slot slot ON slot.id = signup.time_slot_id
+      WHERE c.id = ANY($1::bigint[])`,
+    [ids],
+  )
+  const groupIds = result.rows
+    .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
+    .map((row) => Number(row.slot_group_id))
+  const { labels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
+  for (const row of result.rows) {
+    const className = String(row.class_name ?? '').trim()
+    if (!className) continue
+    const schedule = slotLabelForSignupRow(row, labels, rowsByGroupId)
+    const catalogId = row.class_catalog_id == null ? null : Number(row.class_catalog_id)
+    displayByChargeId.set(Number(row.charge_id), {
+      classCatalogId: Number.isFinite(catalogId) ? catalogId : null,
+      classSchedule: schedule === '—' ? null : schedule,
+      description: `${className}${Number.isFinite(catalogId) ? ` #${catalogId}` : ''}${schedule && schedule !== '—' ? ` · ${schedule}` : ''}`,
+    })
+  }
+  return displayByChargeId
 }
 
 function decodeCursor(value) {
@@ -1004,8 +1104,8 @@ export async function listCustomerBillingTransactions(pool, {
          c.id::bigint AS ref_id,
          c.member_id::bigint AS member_id,
          c.description::text AS description,
-         c.amount_cents::int AS amount_cents,
-         c.amount_cents::int AS balance_amount_cents,
+         (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS amount_cents,
+         (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          CASE
            WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)) AND c.amount_cents > 0 THEN 'paid'
@@ -1015,16 +1115,30 @@ export async function listCustomerBillingTransactions(pool, {
          3::int AS sort_order,
          jsonb_strip_nulls(jsonb_build_object(
            'grossAmountCents', c.gross_amount_cents,
+           'originalAmountCents', c.amount_cents,
+           'effectiveAmountCents', c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0),
            'discountAmountCents', c.discount_amount_cents,
-           'discountCode', CASE
-             WHEN c.charge_type = 'one_time' THEN COALESCE(
-               NULLIF(c.metadata->>'discountCode', ''),
-               NULLIF(c.metadata->>'promoCode', ''),
-               NULLIF(charge_adjustments.discount_code, ''),
-               one_time_discount.discount_code
-             )
-             ELSE NULL
-           END,
+           'discountCode', COALESCE(
+             NULLIF(c.metadata->>'discountCode', ''),
+             NULLIF(c.metadata->>'promoCode', ''),
+             NULLIF(direct_price_adjustment.promo_code, ''),
+             NULLIF(charge_adjustments.discount_code, ''),
+             one_time_discount.discount_code
+           ),
+           'discountAnnotations',
+             (CASE WHEN c.discount_amount_cents <> 0 THEN jsonb_build_array(jsonb_strip_nulls(jsonb_build_object(
+               'kind', CASE
+                 WHEN direct_price_adjustment.kind = 'fixed_final_price' THEN 'manual'
+                 WHEN COALESCE(NULLIF(c.metadata->>'discountCode', ''), NULLIF(c.metadata->>'promoCode', ''), NULLIF(direct_price_adjustment.promo_code, ''), NULLIF(charge_adjustments.discount_code, ''), one_time_discount.discount_code) IS NULL THEN 'automatic'
+                 ELSE 'coupon'
+               END,
+               'label', CASE
+                 WHEN direct_price_adjustment.kind = 'fixed_final_price' THEN 'Manual'
+                 ELSE COALESCE(NULLIF(c.metadata->>'discountCode', ''), NULLIF(c.metadata->>'promoCode', ''), NULLIF(direct_price_adjustment.promo_code, ''), NULLIF(charge_adjustments.discount_code, ''), one_time_discount.discount_code, 'Automatic discount')
+               END,
+               'code', CASE WHEN direct_price_adjustment.kind = 'fixed_final_price' THEN NULL ELSE COALESCE(NULLIF(c.metadata->>'discountCode', ''), NULLIF(c.metadata->>'promoCode', ''), NULLIF(direct_price_adjustment.promo_code, ''), NULLIF(charge_adjustments.discount_code, ''), one_time_discount.discount_code) END,
+               'amountCents', -c.discount_amount_cents
+             ))) ELSE '[]'::jsonb END) || COALESCE(charge_adjustments.annotations, '[]'::jsonb),
            'servicePeriodStart', c.service_period_start,
            'servicePeriodEnd', c.service_period_end,
            'sourceType', c.source_type,
@@ -1041,6 +1155,8 @@ export async function listCustomerBillingTransactions(pool, {
            'metadata', c.metadata
          )) AS details
        FROM billing_charge c
+       LEFT JOIN enrollment_price_adjustment direct_price_adjustment
+         ON direct_price_adjustment.id = c.price_adjustment_id
        LEFT JOIN LATERAL (
          SELECT COALESCE(
            NULLIF(rule.config->>'code', ''),
@@ -1073,7 +1189,16 @@ export async function listCustomerBillingTransactions(pool, {
                   SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
            FROM billing_payment_application application
            JOIN billing_payment payment ON payment.id = application.billing_payment_id
-           WHERE application.billing_charge_id = c.id
+           WHERE (application.billing_charge_id = c.id OR application.billing_charge_id IN (
+             SELECT linked.id
+             FROM billing_charge linked
+             WHERE (linked.related_charge_id = c.id AND linked.source_type IN ('charge_adjustment', 'refund_offset'))
+                OR (
+                  linked.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+                  AND linked.subscription_id = c.subscription_id
+                  AND linked.service_period_start = c.service_period_start
+                )
+           ))
              AND payment.external_status IN ('settled', 'succeeded')
            GROUP BY application.billing_payment_id, payment.paid_at, payment.method
            HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
@@ -1081,16 +1206,49 @@ export async function listCustomerBillingTransactions(pool, {
        ) charge_applications ON TRUE
        LEFT JOIN LATERAL (
          SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents,
-                MAX(NULLIF(adjustment.metadata->>'discountCode', '')) AS discount_code
+                MAX(COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, ''))) AS discount_code,
+                COALESCE(jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+                  'kind', CASE WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NULL THEN 'manual' ELSE 'coupon' END,
+                  'label', CASE
+                    WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NOT NULL THEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, ''))
+                    WHEN adjustment.source_type = 'refund_offset' THEN 'Refund adjustment'
+                    WHEN adjustment.source_type = 'price_adjustment_reversal' THEN 'Manual adjustment reversal'
+                    ELSE 'Manual adjustment'
+                  END,
+                  'code', COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')),
+                  'amountCents', adjustment.amount_cents,
+                  'chargeId', adjustment.id
+                )) ORDER BY adjustment.created_at, adjustment.id), '[]'::jsonb) AS annotations
          FROM billing_charge adjustment
-         WHERE adjustment.related_charge_id = c.id
-           AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
+         LEFT JOIN enrollment_price_adjustment adjustment_price_adjustment
+           ON adjustment_price_adjustment.id = adjustment.price_adjustment_id
+         WHERE (adjustment.related_charge_id = c.id AND adjustment.source_type IN ('charge_adjustment', 'refund_offset'))
+            OR (
+              adjustment.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+              AND adjustment.subscription_id = c.subscription_id
+              AND adjustment.service_period_start = c.service_period_start
+            )
        ) charge_adjustments ON TRUE
        WHERE c.family_billing_account_id = $1
          -- Keep erroneous system-generated correction rows available to the
          -- immutable internal ledger/activity trail, without surfacing them
          -- as customer-facing transaction lines.
          AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
+         AND NOT (
+           c.related_charge_id IS NOT NULL
+           AND c.source_type IN ('charge_adjustment', 'refund_offset')
+         )
+         AND NOT (
+           c.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+           AND EXISTS (
+             SELECT 1
+             FROM billing_charge base_charge
+             WHERE base_charge.family_billing_account_id = c.family_billing_account_id
+               AND base_charge.subscription_id = c.subscription_id
+               AND base_charge.service_period_start = c.service_period_start
+               AND base_charge.charge_type = 'recurring'
+           )
+         )
        UNION ALL
        -- A free/fully discounted drop-in does not have a ledger charge. Surface
        -- its immutable registration as a zero-net audit entry, but never create
@@ -1172,6 +1330,7 @@ export async function listCustomerBillingTransactions(pool, {
            COALESCE(SUM(effective.amount_cents), 0)::int AS applied_cents,
            jsonb_agg(jsonb_build_object(
              'chargeId', effective.charge_id,
+             'subscriptionId', effective.subscription_id,
              'description', effective.description,
              'memberId', effective.member_id,
              'memberName', effective.member_name,
@@ -1181,7 +1340,7 @@ export async function listCustomerBillingTransactions(pool, {
            ) ORDER BY effective.charge_id) AS items
          FROM (
            SELECT application.billing_charge_id AS charge_id,
-                  charge.description, charge.member_id,
+                  charge.description, charge.member_id, charge.subscription_id,
                   COALESCE(charge.service_period_start, charge.created_at::date) AS billing_month,
                   trim(concat_ws(' ', applied_member.first_name, applied_member.last_name)) AS member_name,
                   MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
@@ -1190,7 +1349,7 @@ export async function listCustomerBillingTransactions(pool, {
            JOIN billing_charge charge ON charge.id = application.billing_charge_id
            LEFT JOIN member applied_member ON applied_member.id = charge.member_id
            WHERE application.billing_payment_id = p.id
-           GROUP BY application.billing_charge_id, charge.description, charge.member_id,
+           GROUP BY application.billing_charge_id, charge.description, charge.member_id, charge.subscription_id,
                     charge.service_period_start, charge.created_at,
                     applied_member.first_name, applied_member.last_name
            HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
@@ -1262,10 +1421,31 @@ export async function listCustomerBillingTransactions(pool, {
   )
   const hasMore = result.rows.length > pageSize
   const rows = result.rows.slice(0, pageSize)
+  const classDisplayByChargeId = await loadTransactionClassDisplay(pool, rows.flatMap((row) => {
+    const details = row.details ?? {}
+    const applications = details.applications ?? details.paymentApplications ?? []
+    return [
+      ...(row.entry_kind === 'charge' && Number.isFinite(Number(details.subscriptionId)) ? [Number(row.ref_id)] : []),
+      ...(Array.isArray(applications)
+        ? applications
+          .filter((application) => Number.isFinite(Number(application?.subscriptionId)))
+          .map((application) => Number(application?.chargeId))
+        : []),
+    ]
+  }))
   return {
     rows: rows.map((row) => {
       const rawDetails = row.details ?? {}
-      const applications = rawDetails.applications ?? rawDetails.paymentApplications ?? []
+      const rawApplications = rawDetails.applications ?? rawDetails.paymentApplications ?? []
+      const applications = Array.isArray(rawApplications)
+        ? rawApplications.map((application) => {
+            const display = classDisplayByChargeId.get(Number(application?.chargeId))
+            return display ? { ...application, description: display.description, ...display } : application
+          })
+        : []
+      const chargeDisplay = row.entry_kind === 'charge'
+        ? classDisplayByChargeId.get(Number(row.ref_id))
+        : null
       const billingMonths = row.entry_kind === 'charge' && row.entry_type === 'recurring'
         ? [billingMonthKey(rawDetails.servicePeriodStart ?? row.occurred_at)]
         : row.entry_kind === 'payment'
@@ -1285,16 +1465,27 @@ export async function listCustomerBillingTransactions(pool, {
         refId: Number(row.ref_id),
         memberId: row.member_id == null ? null : Number(row.member_id),
         memberName: row.member_name ?? null,
-        description: row.description,
+        description: chargeDisplay?.description ?? row.description,
         billingMonths,
         amountCents: Number(row.amount_cents),
+        originalAmountCents: Number(rawDetails.originalAmountCents ?? row.amount_cents),
+        effectiveAmountCents: Number(rawDetails.effectiveAmountCents ?? row.amount_cents),
+        classCatalogId: chargeDisplay?.classCatalogId ?? null,
+        classSchedule: chargeDisplay?.classSchedule ?? null,
+        discountAnnotations: Array.isArray(rawDetails.discountAnnotations) ? rawDetails.discountAnnotations : [],
         occurredAt: row.occurred_at,
         status: row.status,
         runningBalanceCents: Number(row.running_balance_cents),
         appliedAmountCents: Number(rawDetails.appliedAmountCents ?? 0),
         remainingAmountCents: Number(rawDetails.remainingAmountCents ?? 0),
         applications,
-        details: { referenceNumber: Number(row.ref_id), ...rawDetails },
+        details: {
+          referenceNumber: Number(row.ref_id),
+          ...rawDetails,
+          ...(chargeDisplay ?? {}),
+          applications,
+          paymentApplications: rawDetails.paymentApplications == null ? undefined : applications,
+        },
       }
     }),
     nextCursor: hasMore && rows.length > 0 ? encodeCursor(rows.at(-1)) : null,
@@ -1363,16 +1554,42 @@ export async function listMemberCustomerBillingTransactions(pool, {
          c.charge_type::text AS entry_type,
          c.id::bigint AS ref_id,
          c.member_id::bigint AS member_id,
+         c.subscription_id::bigint AS class_subscription_id,
          c.description::text AS description,
-         c.amount_cents::int AS amount_cents,
-         c.amount_cents::int AS balance_amount_cents,
+         (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS amount_cents,
+         (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          COALESCE(c.service_period_start, c.created_at::date)::date AS billing_month,
          COALESCE(c.collection_status, 'none')::text AS entry_status,
          3::int AS sort_order
        FROM billing_charge c
+       LEFT JOIN LATERAL (
+         SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents
+         FROM billing_charge adjustment
+         WHERE (adjustment.related_charge_id = c.id AND adjustment.source_type IN ('charge_adjustment', 'refund_offset'))
+            OR (
+              adjustment.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+              AND adjustment.subscription_id = c.subscription_id
+              AND adjustment.service_period_start = c.service_period_start
+            )
+       ) charge_adjustments ON TRUE
        WHERE c.family_billing_account_id = $1
          AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
+         AND NOT (
+           c.related_charge_id IS NOT NULL
+           AND c.source_type IN ('charge_adjustment', 'refund_offset')
+         )
+         AND NOT (
+           c.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+           AND EXISTS (
+             SELECT 1
+             FROM billing_charge base_charge
+             WHERE base_charge.family_billing_account_id = c.family_billing_account_id
+               AND base_charge.subscription_id = c.subscription_id
+               AND base_charge.service_period_start = c.service_period_start
+               AND base_charge.charge_type = 'recurring'
+           )
+         )
 
        UNION ALL
 
@@ -1381,6 +1598,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          'one_time'::text AS entry_type,
          d.id::bigint AS ref_id,
          d.member_id::bigint AS member_id,
+         NULL::bigint AS class_subscription_id,
          CONCAT(COALESCE(NULLIF(TRIM(class_p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Drop-in'), ' · Drop-in')::text AS description,
          d.amount_cents::int AS amount_cents,
          0::int AS balance_amount_cents,
@@ -1408,6 +1626,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          'payment'::text AS entry_type,
          p.id::bigint AS ref_id,
          NULL::bigint AS member_id,
+         NULL::bigint AS class_subscription_id,
          COALESCE(NULLIF(p.method, ''), 'Payment')::text AS description,
          -p.amount_cents::int AS amount_cents,
          CASE WHEN p.external_status IN ('settled', 'succeeded') THEN -p.amount_cents ELSE 0 END::int AS balance_amount_cents,
@@ -1425,6 +1644,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          'refund'::text AS entry_type,
          r.id::bigint AS ref_id,
          NULL::bigint AS member_id,
+         NULL::bigint AS class_subscription_id,
          COALESCE(NULLIF(r.reason, ''), 'Refund')::text AS description,
          r.amount_cents::int AS amount_cents,
          CASE WHEN COALESCE(r.external_status, 'succeeded') = 'succeeded' THEN r.amount_cents ELSE 0 END::int AS balance_amount_cents,
@@ -1457,7 +1677,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
               WHEN page.entry_kind <> 'charge' THEN page.entry_status
               WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(
                 0,
-                page.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)
+                page.amount_cents
               ) AND page.amount_cents > 0 THEN 'paid'
               WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
               ELSE page.entry_status
@@ -1472,16 +1692,22 @@ export async function listMemberCustomerBillingTransactions(pool, {
        FROM billing_payment_application application
        JOIN billing_payment settled_payment ON settled_payment.id = application.billing_payment_id
        WHERE page.entry_kind = 'charge'
-         AND application.billing_charge_id = page.ref_id
+         AND (application.billing_charge_id = page.ref_id OR application.billing_charge_id IN (
+           SELECT linked.id
+           FROM billing_charge linked
+           WHERE (linked.related_charge_id = page.ref_id AND linked.source_type IN ('charge_adjustment', 'refund_offset'))
+              OR (
+                linked.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+                AND linked.subscription_id = (
+                  SELECT base_charge.subscription_id FROM billing_charge base_charge WHERE base_charge.id = page.ref_id
+                )
+                AND linked.service_period_start = (
+                  SELECT base_charge.service_period_start FROM billing_charge base_charge WHERE base_charge.id = page.ref_id
+                )
+              )
+         ))
          AND settled_payment.external_status IN ('settled', 'succeeded')
      ) charge_applications ON TRUE
-     LEFT JOIN LATERAL (
-       SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents
-       FROM billing_charge adjustment
-       WHERE page.entry_kind = 'charge'
-         AND adjustment.related_charge_id = page.ref_id
-         AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
-     ) charge_adjustments ON TRUE
      LEFT JOIN LATERAL (
        SELECT ARRAY_AGG(
          DISTINCT COALESCE(charge.service_period_start, charge.created_at::date)
@@ -1505,13 +1731,24 @@ export async function listMemberCustomerBillingTransactions(pool, {
   )
 
   const hasMore = result.rows.length > pageSize
-  const rows = result.rows.slice(0, pageSize).map((row) => ({
+  const pageRows = result.rows.slice(0, pageSize)
+  const classDisplayByChargeId = await loadTransactionClassDisplay(
+    pool,
+    pageRows
+      .filter((row) => row.entry_kind === 'charge' && Number.isFinite(Number(row.class_subscription_id)))
+      .map((row) => Number(row.ref_id)),
+  )
+  const rows = pageRows.map((row) => {
+    const chargeDisplay = row.entry_kind === 'charge'
+      ? classDisplayByChargeId.get(Number(row.ref_id))
+      : null
+    return {
     entryKind: row.entry_kind,
     entryType: row.entry_type,
     refId: Number(row.ref_id),
     memberId: row.member_id == null ? null : Number(row.member_id),
     memberName: row.member_name ?? null,
-    description: row.description,
+    description: chargeDisplay?.description ?? row.description,
     billingMonths: row.entry_kind === 'charge' && row.entry_type === 'recurring'
       ? [billingMonthKey(row.billing_month ?? row.occurred_at)]
       : row.entry_kind === 'payment'
@@ -1525,7 +1762,10 @@ export async function listMemberCustomerBillingTransactions(pool, {
     runningBalanceCents: Number(row.running_balance_cents),
     balanceAmountCents: Number(row.balance_amount_cents),
     sortOrder: Number(row.sort_order),
-  }))
+    classCatalogId: chargeDisplay?.classCatalogId ?? null,
+    classSchedule: chargeDisplay?.classSchedule ?? null,
+  }
+  })
 
   return {
     rows,

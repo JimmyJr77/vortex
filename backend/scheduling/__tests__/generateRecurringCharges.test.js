@@ -24,6 +24,8 @@ test('recurring billing month boundaries follow each facility civil date', () =>
       asOfMidnight: new Date('2026-08-31T00:00:00.000Z'),
       billingMonth: '2026-08-01',
       isMonthBoundary: false,
+      dayOfMonth: 31,
+      isNextMonthPostingDay: true,
     },
   )
   assert.deepEqual(
@@ -33,6 +35,8 @@ test('recurring billing month boundaries follow each facility civil date', () =>
       asOfMidnight: new Date('2026-09-01T00:00:00.000Z'),
       billingMonth: '2026-09-01',
       isMonthBoundary: true,
+      dayOfMonth: 1,
+      isNextMonthPostingDay: false,
     },
   )
 })
@@ -56,8 +60,13 @@ const ACCOUNT = {
 function recurringAccountFixture({
   account = ACCOUNT,
   due = [{ id: 41, next_bill_date: '2026-09-01' }],
+  invoice = null,
 } = {}) {
-  const state = { account: account ? { ...account } : null, due: due.map((row) => ({ ...row })) }
+  const state = {
+    account: account ? { ...account } : null,
+    due: due.map((row) => ({ ...row })),
+    invoice: invoice ? { ...invoice } : null,
+  }
   const calls = []
   const db = {
     release() {},
@@ -69,6 +78,9 @@ function recurringAccountFixture({
       }
       if (/SELECT subscription\.id, subscription\.next_bill_date/.test(text)) {
         return { rows: state.due.map((row) => ({ ...row })) }
+      }
+      if (/FROM billing_monthly_invoice/.test(text) && /automatic_attempt_count/.test(text)) {
+        return { rows: state.invoice ? [{ ...state.invoice }] : [] }
       }
       throw new Error(`Unexpected query: ${text}`)
     },
@@ -320,6 +332,96 @@ test('verified household recurring charges reconcile canonically under the invoi
   assert.deepEqual(events, ['canonical-charges', 'household-invoice'])
   assert.equal(result.chargesPosted, 1)
   assert.equal(result.householdInvoicesCreated, 1)
+})
+
+test('the fifth posts the following month without creating another current-month Stripe attempt', async () => {
+  const fixture = recurringAccountFixture({
+    due: [],
+    invoice: {
+      id: 801,
+      status: 'paid',
+      automatic_attempt_count: 1,
+      stripe_payment_intent_id: 'pi_current_month',
+    },
+  })
+  const reconciledMonths = []
+  let invoiceCalls = 0
+
+  await processRecurringBillingAccount(fixture.db, ACCOUNT, {
+    asOfTimestamp: new Date('2026-09-05T16:00:00.000Z'),
+    clock: recurringBillingClock('2026-09-05T16:00:00.000Z', ACCOUNT.facility_timezone),
+    ...safeProcessors({
+      recurringChargeReconciler: async (_db, options) => {
+        reconciledMonths.push({
+          billingMonth: options.billingMonth,
+          allowEarlyPosting: options.allowEarlyPosting === true,
+        })
+        return { verified: true, postedChargeIds: [] }
+      },
+      invoiceFactory: async () => {
+        invoiceCalls += 1
+        return { created: false }
+      },
+    }),
+  })
+
+  assert.deepEqual(reconciledMonths, [
+    { billingMonth: '2026-09-01', allowEarlyPosting: false },
+    { billingMonth: '2026-10-01', allowEarlyPosting: true },
+  ])
+  assert.equal(invoiceCalls, 0)
+})
+
+test('a missed first-day collection runs once when no current-month invoice exists', async () => {
+  const fixture = recurringAccountFixture({ due: [] })
+  const attempts = []
+
+  await processRecurringBillingAccount(fixture.db, ACCOUNT, {
+    asOfTimestamp: new Date('2026-09-03T16:00:00.000Z'),
+    clock: recurringBillingClock('2026-09-03T16:00:00.000Z', ACCOUNT.facility_timezone),
+    ...safeProcessors({
+      recurringChargeReconciler: async () => ({ verified: true, postedChargeIds: [] }),
+      invoiceFactory: async (_db, options) => {
+        attempts.push(options.automaticAttemptPolicy)
+        return { created: true }
+      },
+    }),
+  })
+
+  assert.deepEqual(attempts, ['initial'])
+})
+
+test('a confirmed failed household payment is retried only on the fifth and only once', async () => {
+  const cases = [
+    { day: '2026-09-04', attempts: 1, expected: [] },
+    { day: '2026-09-05', attempts: 1, expected: ['retry_on_fifth'] },
+    { day: '2026-09-06', attempts: 2, expected: [] },
+  ]
+
+  for (const item of cases) {
+    const fixture = recurringAccountFixture({
+      due: [],
+      invoice: {
+        id: 802,
+        status: 'failed',
+        automatic_attempt_count: item.attempts,
+        stripe_payment_intent_id: 'pi_confirmed_failure',
+      },
+    })
+    const automaticPolicies = []
+    await processRecurringBillingAccount(fixture.db, ACCOUNT, {
+      asOfTimestamp: new Date(`${item.day}T16:00:00.000Z`),
+      clock: recurringBillingClock(`${item.day}T16:00:00.000Z`, ACCOUNT.facility_timezone),
+      ...safeProcessors({
+        recurringChargeReconciler: async () => ({ verified: true, postedChargeIds: [] }),
+        invoiceFactory: async (_db, options) => {
+          automaticPolicies.push(options.automaticAttemptPolicy)
+          return { created: false }
+        },
+      }),
+    })
+    assert.deepEqual(automaticPolicies, item.expected, item.day)
+  }
 })
 
 test('due annual membership charges are posted before the household invoice and included in totals', async () => {

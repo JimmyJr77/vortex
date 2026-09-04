@@ -17,6 +17,7 @@ import { promoTargetsMembershipFee } from '../scheduling/discountEngine.js'
 import { resolveProgramsSchema } from '../programs/schema.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
 
 function parseJson(value, fallback = {}) {
   if (value == null) return fallback
@@ -850,6 +851,9 @@ export async function createEnrollmentPriceAdjustment(pool, {
       return { adjustment: mapPriceAdjustment(failed), preview, retroactiveEntries: [] }
     }
   }
+  await reconcileUpcomingProvisionalChargesForAccount(pool, {
+    accountId: context.family_billing_account_id,
+  }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after price change:', error?.message ?? error))
   return { adjustment: mapPriceAdjustment(adjustment), preview, retroactiveEntries }
 }
 
@@ -1160,5 +1164,8 @@ export async function revokeEnrollmentPriceAdjustment(pool, {
     accountId: adjustment.family_billing_account_id,
     actorType: 'system',
   }).catch((error) => console.warn('[customer-billing] adjustment reversal allocation:', error?.message ?? error))
+  await reconcileUpcomingProvisionalChargesForAccount(pool, {
+    accountId: adjustment.family_billing_account_id,
+  }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after adjustment reversal:', error?.message ?? error))
   return { adjustment: mapPriceAdjustment(revoked), corrections }
 }

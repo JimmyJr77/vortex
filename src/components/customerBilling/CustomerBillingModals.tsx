@@ -697,6 +697,11 @@ export function ModifyChargeModal({
   const finalAmountCents = Math.round(Number(amount) * 100)
   const differenceCents = finalAmountCents - charge.amountCents
   const usingManualPrice = adjustmentKind === 'manual_price'
+  const existingAnnotations = Array.isArray(charge.discountAnnotations)
+    ? charge.discountAnnotations
+    : Array.isArray(charge.details.discountAnnotations)
+      ? charge.details.discountAnnotations as Array<{ label?: string; code?: string; amountCents?: number }>
+      : []
 
   const submit = async () => {
     setWorking(true)
@@ -732,6 +737,7 @@ export function ModifyChargeModal({
     <ModalShell title="Modify bill" subtitle={`${charge.description} · original bill ${money(charge.amountCents)}`} onClose={onClose}>
       <div className="space-y-4">
         <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">Current-term changes preserve the original bill and post a linked credit or debit. Renewal changes do not affect today’s account balance.</p>
+        {existingAnnotations.length > 0 ? <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800"><strong className="block">Existing discounts and adjustments</strong><div className="mt-2 space-y-1 text-xs">{existingAnnotations.map((annotation, index) => { const amountCents = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'adjustment'}-${index}`}>{annotation.code ?? annotation.label ?? 'Adjustment'} · {amountCents < 0 ? '−' : '+'}{money(Math.abs(amountCents))}</div> })}</div></div> : null}
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-800">Change</legend>
           <div className="grid gap-2 sm:grid-cols-2">

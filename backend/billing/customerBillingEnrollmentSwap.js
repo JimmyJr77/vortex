@@ -8,6 +8,7 @@ import { cancelStripeSubscriptionNow, scheduleStripeSubscriptionEnd } from './st
 import { loadCalendarRowsForSlotGroups } from '../scheduling/freePassEngine.js'
 import { pauseCreditForLine, recordPrepaidFirstMonthCredit, syncFamilyEnrollmentDiscounts } from '../scheduling/pauseEnrollmentBilling.js'
 import { monthBounds, todayDateOnly } from '../scheduling/firstMonthProration.js'
+import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
 
 function dateOnly(value) {
   const match = String(value ?? '').match(/^\d{4}-\d{2}-\d{2}/)
@@ -548,6 +549,9 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
   } catch (error) {
     console.warn('[customer-billing] class swap family pricing sync:', error?.message ?? error)
   }
+  await reconcileUpcomingProvisionalChargesForAccount(pool, {
+    accountId: committed.accountId,
+  }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after class swap:', error?.message ?? error))
 
   const balance = await loadCanonicalFinancialSnapshot(pool, { accountId: committed.accountId }).catch(() => null)
   return {

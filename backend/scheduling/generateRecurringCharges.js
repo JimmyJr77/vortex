@@ -40,6 +40,8 @@ export function recurringBillingClock(asOf, timeZone) {
     asOfMidnight: parseDbDate(asOfDate),
     billingMonth: `${asOfDate.slice(0, 7)}-01`,
     isMonthBoundary: asOfDate.endsWith('-01'),
+    dayOfMonth: Number(asOfDate.slice(8, 10)),
+    isNextMonthPostingDay: Number(asOfDate.slice(8, 10)) >= 5,
   }
 }
 
@@ -102,6 +104,21 @@ async function loadDueRecurringSubscriptions(db, { accountId, asOfDate }) {
       ORDER BY subscription.next_bill_date, subscription.id`,
     [Number(accountId), asOfDate],
   ).then((result) => result.rows)
+}
+
+async function loadMonthlyInvoiceState(db, { accountId, billingMonth }) {
+  return db.query(
+    `SELECT id, status, automatic_attempt_count, payment_attempted_at,
+            stripe_payment_intent_id
+       FROM billing_monthly_invoice
+      WHERE family_billing_account_id = $1
+        AND billing_month = $2::date
+      LIMIT 1`,
+    [Number(accountId), billingMonth],
+  ).then((result) => result.rows[0] ?? null).catch((error) => {
+    if (error?.code === '42P01' || error?.code === '42703') return null
+    throw error
+  })
 }
 
 function monthStart(value) {
@@ -325,25 +342,63 @@ export async function processRecurringBillingAccount(db, account, {
     chargesPosted += current.postedChargeIds?.length ?? 0
   }
 
-  let householdInvoicesCreated = 0
-  if (collectionMode === 'canonical_household') {
-    // Always retry the idempotent current-month invoice. This recovers a prior
-    // post-charge Stripe failure even when the schedule has already advanced.
-    // The factory re-enters the same session lock without holding a DB transaction.
-    const result = await invoiceFactory(db, {
-      account: fresh,
-      billingMonth: clock.billingMonth,
+  // The fifth is a billing-preparation cutoff, not a collection event. Post the
+  // following month's deterministic enrollment charges now so account cards and
+  // Account History are accurate, but leave Stripe untouched until the first.
+  if (canonicalLedgerOwned && clock.isNextMonthPostingDay) {
+    const nextMonth = monthStart(new Date(`${clock.billingMonth}T12:00:00.000Z`))
+    const nextBillingMonth = new Date(`${nextMonth}T12:00:00.000Z`)
+    nextBillingMonth.setUTCMonth(nextBillingMonth.getUTCMonth() + 1)
+    const next = await recurringChargeReconciler(db, {
+      accountId: Number(fresh.id),
+      billingMonth: `${nextBillingMonth.getUTCFullYear()}-${String(nextBillingMonth.getUTCMonth() + 1).padStart(2, '0')}-01`,
       facilityTimeZone: fresh.facility_timezone,
+      now: asOfTimestamp,
+      apply: true,
+      allowEarlyPosting: true,
     })
-    if (['feature_disabled', 'not_enabled', 'stripe_unavailable'].includes(result?.skipped)) {
-      const error = new Error(
-        `Household invoice collection is unavailable for billing account ${fresh.id}: ${result.skipped}.`,
-      )
-      error.code = 'household_invoice_collection_unavailable'
-      error.details = { accountId: Number(fresh.id), skipped: result.skipped }
+    if (next.verified !== true) {
+      const error = new Error(`Upcoming recurring charge parity failed for account ${fresh.id}.`)
+      error.code = 'upcoming_recurring_charge_parity_failed'
+      error.details = next
       throw error
     }
-    if (result.created) householdInvoicesCreated += 1
+    chargesPosted += next.postedChargeIds?.length ?? 0
+  }
+
+  let householdInvoicesCreated = 0
+  if (collectionMode === 'canonical_household') {
+    const existingInvoice = await loadMonthlyInvoiceState(db, {
+      accountId: Number(fresh.id),
+      billingMonth: clock.billingMonth,
+    })
+    // A first-of-month collection may catch up once if the worker was down and
+    // no current-month invoice exists. A confirmed failure is retried exactly
+    // once on the facility's fifth day. Existing payment-method-required or
+    // unknown/processing invoices are deliberately not retried by the worker.
+    const shouldAttemptInitial = clock.isMonthBoundary || !existingInvoice
+    const shouldAttemptRetry = clock.dayOfMonth === 5
+      && existingInvoice?.status === 'failed'
+      && Number(existingInvoice.automatic_attempt_count ?? 0) === 1
+      && Boolean(existingInvoice.stripe_payment_intent_id)
+    if (shouldAttemptInitial || shouldAttemptRetry) {
+      const result = await invoiceFactory(db, {
+        account: fresh,
+        billingMonth: clock.billingMonth,
+        facilityTimeZone: fresh.facility_timezone,
+        automaticAttemptPolicy: shouldAttemptRetry ? 'retry_on_fifth' : 'initial',
+        now: asOfTimestamp,
+      })
+      if (['feature_disabled', 'not_enabled', 'stripe_unavailable'].includes(result?.skipped)) {
+        const error = new Error(
+          `Household invoice collection is unavailable for billing account ${fresh.id}: ${result.skipped}.`,
+        )
+        error.code = 'household_invoice_collection_unavailable'
+        error.details = { accountId: Number(fresh.id), skipped: result.skipped }
+        throw error
+      }
+      if (result.created) householdInvoicesCreated += 1
+    }
   } else if (periodsAdvanced > 0 || pauseCreditsPosted > 0) {
     await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
   }

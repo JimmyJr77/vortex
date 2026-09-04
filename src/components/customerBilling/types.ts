@@ -53,6 +53,7 @@ export interface PriceAdjustment {
 
 export interface CustomerBillingEnrollment {
   id: number
+  classCatalogId: number | null
   source: string
   memberId: number
   memberName: string
@@ -223,6 +224,8 @@ export interface CustomerBillingOverview {
     stripeInvoiceId: string | null
     hostedInvoiceUrl: string | null
     paymentAttemptedAt: string | null
+    automaticAttemptCount: number
+    lastAutomaticAttemptAt: string | null
     paidAt: string | null
     failureMessage: string | null
     lineCount: number
@@ -243,6 +246,11 @@ export interface BillingTransaction {
   description: string
   billingMonths: string[]
   amountCents: number
+  originalAmountCents?: number
+  effectiveAmountCents?: number
+  classCatalogId?: number | null
+  classSchedule?: string | null
+  discountAnnotations?: Array<{ kind: 'automatic' | 'coupon' | 'manual'; label: string; amountCents: number; code?: string | null }>
   occurredAt: string
   status: string
   runningBalanceCents: number

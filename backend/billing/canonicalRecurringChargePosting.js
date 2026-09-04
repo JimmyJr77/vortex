@@ -10,6 +10,7 @@ import {
   sanitizeBillingMigrationSnapshot,
 } from './canonicalBillingMigrationState.js'
 import { BillingMigrationSafetyError } from './canonicalBillingMigrationStripe.js'
+import { recordBillingActivityBestEffort } from './billingActivity.js'
 
 function cents(value) {
   return Math.round(Number(value) || 0)
@@ -24,6 +25,154 @@ function targetPeriod(billingMonth) {
   const end = new Date(`${next}T00:00:00.000Z`)
   end.setUTCDate(end.getUTCDate() - 1)
   return { start, end: end.toISOString().slice(0, 10), periodKey: start.slice(0, 7), next }
+}
+
+function earlyPostingWindow(now, facilityTimeZone, period) {
+  const today = facilityDate(now, facilityTimeZone)
+  const day = Number(today.slice(8, 10))
+  const currentMonth = `${today.slice(0, 7)}-01`
+  return day >= 5 && nextBillingMonth(currentMonth) === period.start
+}
+
+function provisionalChargeValues(line) {
+  return {
+    memberId: Number(line.memberId),
+    description: line.description,
+    amountCents: cents(line.netCents),
+    grossAmountCents: cents(line.grossCents),
+    discountAmountCents: cents(line.discountCents),
+    priceAdjustmentId: line.priceAdjustmentId == null ? null : Number(line.priceAdjustmentId),
+  }
+}
+
+async function chargeIsMutableBeforeCollection(db, chargeId) {
+  const result = await db.query(
+    `SELECT NOT EXISTS (
+       SELECT 1
+       FROM billing_monthly_invoice_line line
+       WHERE line.billing_charge_id = $1
+     )
+     AND NOT EXISTS (
+       SELECT 1
+       FROM billing_payment_application application
+       JOIN billing_payment payment ON payment.id = application.billing_payment_id
+       WHERE application.billing_charge_id = $1
+         AND payment.external_status IN ('settled', 'succeeded', 'processing', 'pending', 'reconciliation_required')
+     )
+     AND NOT EXISTS (
+       SELECT 1
+       FROM billing_payment_attempt attempt
+       LEFT JOIN billing_payment_attempt_charge reservation
+         ON reservation.billing_payment_attempt_id = attempt.id
+       WHERE attempt.target_charge_id = $1
+          OR reservation.billing_charge_id = $1
+     ) AS mutable`,
+    [Number(chargeId)],
+  )
+  return result.rows[0]?.mutable === true
+}
+
+async function reconcileProvisionalTargetCharges(db, {
+  accountId,
+  period,
+  expectedLines,
+  charges,
+}) {
+  const expectedBySubscription = new Map(expectedLines.map((line) => [Number(line.subscriptionId), line]))
+  const changes = []
+
+  for (const charge of charges) {
+    const expected = expectedBySubscription.get(Number(charge.subscription_id))
+    if (!(await chargeIsMutableBeforeCollection(db, charge.id))) continue
+
+    if (!expected) {
+      const before = {
+        chargeId: Number(charge.id),
+        amountCents: cents(charge.amount_cents),
+        grossAmountCents: cents(charge.gross_amount_cents),
+        discountAmountCents: cents(charge.discount_amount_cents),
+      }
+      const updated = await db.query(
+        `UPDATE billing_charge
+            SET amount_cents = 0,
+                gross_amount_cents = 0,
+                discount_amount_cents = 0,
+                collection_status = 'cancelled',
+                metadata = COALESCE(metadata, '{}'::jsonb)
+                  || '{"customerAuditVisibility":"suppressed","provisionalBillingVoided":true}'::jsonb,
+                updated_at = now()
+          WHERE id = $1
+          RETURNING id`,
+        [Number(charge.id)],
+      )
+      if (updated.rows[0]) {
+        changes.push({ kind: 'voided', chargeId: Number(charge.id), before, after: { amountCents: 0 } })
+      }
+      continue
+    }
+
+    const next = provisionalChargeValues(expected)
+    const changed =
+      Number(charge.member_id) !== next.memberId ||
+      String(charge.description ?? '') !== next.description ||
+      cents(charge.amount_cents) !== next.amountCents ||
+      cents(charge.gross_amount_cents) !== next.grossAmountCents ||
+      cents(charge.discount_amount_cents) !== next.discountAmountCents ||
+      (charge.price_adjustment_id == null ? null : Number(charge.price_adjustment_id)) !== next.priceAdjustmentId
+    if (!changed) continue
+
+    const before = {
+      chargeId: Number(charge.id),
+      memberId: charge.member_id == null ? null : Number(charge.member_id),
+      description: charge.description,
+      amountCents: cents(charge.amount_cents),
+      grossAmountCents: cents(charge.gross_amount_cents),
+      discountAmountCents: cents(charge.discount_amount_cents),
+      priceAdjustmentId: charge.price_adjustment_id == null ? null : Number(charge.price_adjustment_id),
+    }
+    const updated = await db.query(
+      `UPDATE billing_charge
+          SET member_id = $2,
+              description = $3,
+              amount_cents = $4,
+              gross_amount_cents = $5,
+              discount_amount_cents = $6,
+              price_adjustment_id = $7,
+              collection_status = 'unpaid',
+              metadata = (COALESCE(metadata, '{}'::jsonb) - 'customerAuditVisibility' - 'provisionalBillingVoided')
+                || '{"provisionalBilling":true}'::jsonb,
+              updated_at = now()
+        WHERE id = $1
+        RETURNING id`,
+      [
+        Number(charge.id),
+        next.memberId,
+        next.description,
+        next.amountCents,
+        next.grossAmountCents,
+        next.discountAmountCents,
+        next.priceAdjustmentId,
+      ],
+    )
+    if (updated.rows[0]) changes.push({ kind: 'recalculated', chargeId: Number(charge.id), before, after: next })
+  }
+
+  for (const change of changes) {
+    await recordBillingActivityBestEffort(db, {
+      eventKey: `provisional-recurring-charge:${change.kind}:${change.chargeId}:${period.periodKey}`,
+      accountId: Number(accountId),
+      chargeId: change.chargeId,
+      eventType: 'provisional_recurring_charge_recalculated',
+      summary: change.kind === 'voided'
+        ? `A pre-posted ${period.periodKey} recurring charge was removed before collection.`
+        : `A pre-posted ${period.periodKey} recurring charge was recalculated before collection.`,
+      beforeValue: change.before,
+      afterValue: change.after,
+      details: { billingMonth: period.start, mutation: change.kind },
+      actorType: 'system',
+    })
+  }
+  return changes
 }
 
 function issue(code, message, details = {}) {
@@ -121,6 +270,7 @@ async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
        FROM billing_charge charge
       WHERE charge.family_billing_account_id = $1
         AND (charge.charge_type = 'recurring' OR charge.billing_interval = 'month')
+        AND COALESCE(charge.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
         AND NOT EXISTS (
           SELECT 1
             FROM billing_subscription annual
@@ -242,9 +392,12 @@ function expectedLinesFromPricing(pricing, subscriptions, period) {
     }
     if (
       expected.grossCents < 0 ||
-      expected.discountCents < 0 ||
       expected.netCents < 0 ||
-      expected.netCents !== Math.max(0, expected.grossCents - expected.discountCents)
+      // `discountCents` is signed here. A negative value is a deliberate,
+      // confirmed manual surcharge; a positive value is a discount. Both are
+      // represented on the original recurring bill rather than by a separate
+      // customer-facing debit/credit row.
+      expected.netCents !== expected.grossCents - expected.discountCents
     ) {
       issues.push(issue(
         'target_month_canonical_pricing_invalid',
@@ -514,6 +667,7 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
   facilityTimeZone,
   now = new Date(),
   apply = false,
+  allowEarlyPosting = false,
   pricingResolver = resolveFamilyEnrollmentPricing,
 } = {}) {
   const period = targetPeriod(billingMonth)
@@ -525,11 +679,13 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       { forwardOnly: true },
     )
   }
-  if (facilityDate(now, facilityTimeZone) < period.start) {
+  const facilityToday = facilityDate(now, facilityTimeZone)
+  const provisional = facilityToday < period.start
+  if (provisional && !(allowEarlyPosting === true && earlyPostingWindow(now, facilityTimeZone, period))) {
     throw new BillingMigrationSafetyError(
       'target_month_charge_posting_before_boundary',
-      'Canonical recurring charges cannot be posted before the facility billing boundary.',
-      { accountId, billingMonth: period.start, facilityTimeZone, facilityDate: facilityDate(now, facilityTimeZone) },
+      'Canonical recurring charges can be pre-posted only on or after the facility fifth-day billing cutoff for the following month.',
+      { accountId, billingMonth: period.start, facilityTimeZone, facilityDate: facilityToday },
       { forwardOnly: true },
     )
   }
@@ -584,6 +740,16 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
     })
     const expected = expectedLinesFromPricing(pricing, subscriptions, period)
     let comparison = compareTargetCharges(expected.lines, charges, period)
+    if (apply && provisional) {
+      await reconcileProvisionalTargetCharges(client, {
+        accountId,
+        period,
+        expectedLines: expected.lines,
+        charges,
+      })
+      charges = await loadTargetCharges(client, { accountId, period, facilityTimeZone })
+      comparison = compareTargetCharges(expected.lines, charges, period)
+    }
     const issues = [
       ...expected.issues,
       ...comparison.issues,
@@ -648,15 +814,66 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
 
     const postedChargeIds = []
     for (const line of comparison.missing) {
+      const existingVoided = provisional
+        ? await client.query(
+            `SELECT id
+               FROM billing_charge
+              WHERE source_type = 'billing_subscription'
+                AND source_id = $1
+                AND amount_cents = 0
+                AND COALESCE(metadata->>'provisionalBillingVoided', 'false') = 'true'
+              FOR UPDATE`,
+            [`${line.subscriptionId}:${period.periodKey}`],
+          ).then((result) => result.rows[0] ?? null)
+        : null
+      if (existingVoided && await chargeIsMutableBeforeCollection(client, existingVoided.id)) {
+        const restored = await client.query(
+          `UPDATE billing_charge
+              SET member_id = $2,
+                  description = $3,
+                  amount_cents = $4,
+                  gross_amount_cents = $5,
+                  discount_amount_cents = $6,
+                  charge_type = 'recurring',
+                  billing_interval = 'month',
+                  subscription_id = $7,
+                  service_period_start = $8::date,
+                  service_period_end = $9::date,
+                  price_adjustment_id = $10,
+                  collection_status = 'unpaid',
+                  metadata = (COALESCE(metadata, '{}'::jsonb) - 'customerAuditVisibility' - 'provisionalBillingVoided')
+                    || '{"provisionalBilling":true}'::jsonb,
+                  updated_at = now()
+            WHERE id = $1
+            RETURNING id`,
+          [
+            Number(existingVoided.id),
+            line.memberId,
+            line.description,
+            line.netCents,
+            line.grossCents,
+            line.discountCents,
+            line.subscriptionId,
+            period.start,
+            period.end,
+            line.priceAdjustmentId,
+          ],
+        )
+        if (restored.rows[0]?.id != null) {
+          postedChargeIds.push(Number(restored.rows[0].id))
+          continue
+        }
+      }
       const inserted = await client.query(
         `INSERT INTO billing_charge (
            family_billing_account_id, member_id, source_type, source_id, description,
            amount_cents, gross_amount_cents, discount_amount_cents,
            charge_type, billing_interval, subscription_id,
-           service_period_start, service_period_end, price_adjustment_id
+           service_period_start, service_period_end, price_adjustment_id, metadata
          ) VALUES (
            $1, $2, 'billing_subscription', $3, $4,
-           $5, $6, $7, 'recurring', 'month', $8, $9::date, $10::date, $11
+           $5, $6, $7, 'recurring', 'month', $8, $9::date, $10::date, $11,
+           CASE WHEN $12::boolean THEN '{"provisionalBilling":true}'::jsonb ELSE '{}'::jsonb END
          )
          ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
          RETURNING id`,
@@ -672,6 +889,7 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
           period.start,
           period.end,
           line.priceAdjustmentId,
+          provisional,
         ],
       )
       if (inserted.rows[0]?.id != null) postedChargeIds.push(Number(inserted.rows[0].id))
@@ -745,4 +963,32 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
   } finally {
     if (ownsClient && typeof client.release === 'function') client.release()
   }
+}
+
+/**
+ * Recalculate the pre-posted upcoming household bill after a pricing or
+ * enrollment change. It is intentionally a no-op before the facility fifth
+ * day and after collection has reserved the charge; the lower-level
+ * reconciler records every permitted before/after change in Activity.
+ */
+export async function reconcileUpcomingProvisionalChargesForAccount(db, {
+  accountId,
+  now = new Date(),
+} = {}) {
+  const account = await loadAccount(db, Number(accountId))
+  if (!account || !isValidTimeZone(account.facility_timezone)) {
+    return { status: 'skipped', reason: 'billing_account_or_facility_timezone_missing' }
+  }
+  const today = facilityDate(now, account.facility_timezone)
+  if (Number(today.slice(8, 10)) < 5) return { status: 'skipped', reason: 'before_fifth_day_cutoff' }
+  const billingMonth = nextBillingMonth(`${today.slice(0, 7)}-01`)
+  const result = await reconcileCanonicalRecurringChargesForMonth(db, {
+    accountId: Number(accountId),
+    billingMonth,
+    facilityTimeZone: account.facility_timezone,
+    now,
+    apply: true,
+    allowEarlyPosting: true,
+  })
+  return { status: 'reconciled', result }
 }
