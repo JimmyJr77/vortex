@@ -5212,9 +5212,10 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
   environment = process.env,
 } = {}) {
   if (apply) requireFlag(environment, 'BILLING_COLLECTION_CUTOVER_ENABLED', 'Shadow-audit supersession')
-  const { run, accountIds: ids } = await requireRunAndScope(db, runId, accountIds, {
-    requireExactAccountScope: true,
-  })
+  // A failed audit can persist only a prefix of its configured accounts before
+  // an evidence constraint stops it. Permit explicitly scoped cleanup of that
+  // prefix; every row still has to be untouched and pre-activation below.
+  const { run, accountIds: ids } = await requireRunAndScope(db, runId, accountIds)
   if (run.configuration?.forwardAdoption !== true) {
     throw new Error('Only an explicit forward-adoption audit run may be superseded.')
   }
