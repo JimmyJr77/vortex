@@ -389,6 +389,9 @@ test('Barnett-shaped allocation gets one exact reversal and reopens the charge',
   const reversalInsert = fixture.state.writes.find((write) => write.text.includes('INSERT INTO billing_payment_application'))
   assert.match(reversalInsert.text, /\$1::bigint, \$2::bigint, \$3::integer, 'reversal'/)
   assert.match(reversalInsert.text, /\$4::bigint, \$5::text, 'duplicate_stripe_invoice_payment_repair'/)
+  const duplicateUpdate = fixture.state.writes.find((write) => write.text.includes("SET external_status = 'canceled'"))
+  assert.match(duplicateUpdate.text, /COALESCE\(external_reference, \$2::text\)/)
+  assert.match(duplicateUpdate.text, /CONCAT_WS\(' \| ', NULLIF\(note, ''\), \$3::text\)/)
   assert.equal(fixture.state.chargeStatus, 'unpaid')
 })
 

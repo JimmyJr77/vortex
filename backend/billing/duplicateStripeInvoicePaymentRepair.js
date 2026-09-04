@@ -464,8 +464,8 @@ async function applyInspectedPair(pool, stripe, initial, provenance) {
         `UPDATE billing_payment
             SET external_status = 'canceled',
                 stripe_payment_intent_id = NULL,
-                external_reference = COALESCE(external_reference, $2),
-                note = CONCAT_WS(' | ', NULLIF(note, ''), $3)
+                external_reference = COALESCE(external_reference, $2::text),
+                note = CONCAT_WS(' | ', NULLIF(note, ''), $3::text)
           WHERE id = $1
             AND stripe_payment_intent_id = $2
             AND external_status IN ('settled', 'succeeded')
@@ -481,7 +481,7 @@ async function applyInspectedPair(pool, stripe, initial, provenance) {
       const canonical = await db.query(
         `UPDATE billing_payment
             SET stripe_payment_intent_id = $2,
-                stripe_customer_id = COALESCE(stripe_customer_id, $3),
+                stripe_customer_id = COALESCE(stripe_customer_id, $3::text),
                 method = $5
           WHERE id = $1
             AND stripe_invoice_id = $4
