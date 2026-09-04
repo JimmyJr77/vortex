@@ -19,6 +19,7 @@ import {
   repairMissingCanonicalBillingAccounts,
   repairWaivedAnnualMembershipsCanonicalMigration,
   rollbackCanonicalBillingMigration,
+  supersedeShadowVerifiedBillingMigrationAudit,
   verifyCanonicalBillingMigration,
 } from '../../billing/canonicalBillingMigration.js'
 
@@ -213,6 +214,7 @@ export async function runCanonicalBillingMigrationCli(command) {
     'advance',
     'verify',
     'rollback',
+    'supersede-audit',
   ])
   if (!supported.has(command)) throw new Error(`Unsupported canonical billing migration command: ${command}.`)
   const apply = process.argv.includes('--apply')
@@ -277,7 +279,7 @@ export async function runCanonicalBillingMigrationCli(command) {
     if (Number.isNaN(now.getTime())) throw new Error('--as-of must be a valid ISO timestamp.')
     const stripe = familyProvisioning ? null : await stripeFor(command, apply)
     const provenance = apply ? await currentApplyProvenance(process.env) : null
-    if (apply && runId != null) {
+    if (apply && runId != null && command !== 'supersede-audit') {
       const run = await migrationRunForCli(db, runId)
       assertBillingMigrationRunContract(run, {
         accountIds,
@@ -347,6 +349,13 @@ export async function runCanonicalBillingMigrationCli(command) {
       report = await advanceCanonicalBillingMigration(db, { runId, accountIds, stripe, now, apply })
     } else if (command === 'verify') {
       report = await verifyCanonicalBillingMigration(db, { runId, accountIds, stripe, now, apply })
+    } else if (command === 'supersede-audit') {
+      report = await supersedeShadowVerifiedBillingMigrationAudit(db, {
+        runId,
+        accountIds,
+        now,
+        apply,
+      })
     } else {
       report = await rollbackCanonicalBillingMigration(db, { runId, accountIds, stripe, apply })
     }

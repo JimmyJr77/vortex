@@ -20,6 +20,7 @@ test('migration state machine rejects skipping irreversible collection stages an
     /cannot transition/,
   )
   assert.doesNotThrow(() => assertBillingMigrationTransition(S.DETACHED, S.ROLLBACK_PENDING))
+  assert.doesNotThrow(() => assertBillingMigrationTransition(S.SHADOW_VERIFIED, S.ROLLED_BACK))
   assert.throws(() => assertBillingMigrationTransition(S.ARMED, S.BLOCKED), /cannot transition/)
   assert.throws(() => assertBillingMigrationTransition(S.CANCELLATION_SCHEDULED, S.BLOCKED), /cannot transition/)
   assert.equal(FORWARD_ONLY_STATES.has(S.DETACHED), false)

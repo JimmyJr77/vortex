@@ -22,7 +22,9 @@ export const BILLING_MIGRATION_TRANSITIONS = Object.freeze({
   [S.DISCOVERED]: new Set([S.REPAIRING, S.BLOCKED, S.SHADOW_VERIFIED]),
   [S.REPAIRING]: new Set([S.BLOCKED, S.SHADOW_VERIFIED]),
   [S.BLOCKED]: new Set([S.REPAIRING, S.SHADOW_VERIFIED]),
-  [S.SHADOW_VERIFIED]: new Set([S.ARMED, S.BLOCKED]),
+  // A shadow-only audit may be superseded if its immutable release contract
+  // becomes stale before any collector or household action is armed.
+  [S.SHADOW_VERIFIED]: new Set([S.ARMED, S.BLOCKED, S.ROLLED_BACK]),
   // Once an account is armed, later audit failures must preserve its cutover
   // state so an operator can explicitly roll it back. Moving it back to
   // `blocked` would hide a live remote cancellation behind a pre-cutover state.

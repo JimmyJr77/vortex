@@ -5204,6 +5204,100 @@ function cents(value) {
   return Math.round(Number(value) || 0)
 }
 
+export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
+  runId,
+  accountIds,
+  apply = false,
+  leaseOwner = null,
+  environment = process.env,
+} = {}) {
+  if (apply) requireFlag(environment, 'BILLING_COLLECTION_CUTOVER_ENABLED', 'Shadow-audit supersession')
+  const { run, accountIds: ids } = await requireRunAndScope(db, runId, accountIds, {
+    requireExactAccountScope: true,
+  })
+  if (run.configuration?.forwardAdoption !== true) {
+    throw new Error('Only an explicit forward-adoption audit run may be superseded.')
+  }
+  const owner = workerName(leaseOwner)
+  const accounts = []
+  for (const accountId of ids) {
+    let migration = await getBillingAccountMigration(db, { runId, accountId })
+    if (!migration) {
+      accounts.push({ accountId, state: 'missing' })
+      continue
+    }
+    try {
+      const eligible = migration.state === S.SHADOW_VERIFIED && [
+        migration.armed_at,
+        migration.cancellation_scheduled_at,
+        migration.detached_at,
+        migration.remote_retired_at,
+        migration.household_activated_at,
+      ].every((value) => value == null)
+      if (!eligible) {
+        throw new BillingMigrationSafetyError(
+          'shadow_audit_supersession_forbidden',
+          `Account ${accountId} is not an untouched shadow-verified audit record.`,
+          { state: migration.state },
+          { preserveMigrationState: true },
+        )
+      }
+      if (!apply) {
+        accounts.push({ accountId, state: migration.state, wouldSupersede: true })
+        continue
+      }
+      migration = await withBillingAccountCollectionLock(db, accountId, async (lockedDb) => {
+        let locked = await claimBillingAccountMigration(lockedDb, {
+          runId,
+          accountId,
+          leaseOwner: owner,
+        })
+        const untouched = locked.state === S.SHADOW_VERIFIED && [
+          locked.armed_at,
+          locked.cancellation_scheduled_at,
+          locked.detached_at,
+          locked.remote_retired_at,
+          locked.household_activated_at,
+        ].every((value) => value == null)
+        if (!untouched) {
+          throw new BillingMigrationSafetyError(
+            'shadow_audit_supersession_concurrent_change',
+            `Account ${accountId} changed while its shadow audit was being superseded.`,
+            { state: locked.state },
+            { preserveMigrationState: true },
+          )
+        }
+        locked = await transitionBillingAccountMigration(lockedDb, locked, S.ROLLED_BACK, {
+          leaseOwner: owner,
+          lastError: 'Superseded before activation because the immutable release contract changed.',
+        })
+        await recordBillingActivityBestEffort(lockedDb, {
+          eventKey: `canonical-billing-migration-shadow-audit-superseded:${locked.id}`,
+          accountId,
+          eventType: 'canonical_billing_migration_shadow_audit_superseded',
+          summary: 'Shadow-only canonical billing audit was superseded before activation.',
+          details: { billingMigrationRunId: Number(runId), accountMigrationId: Number(locked.id) },
+          actorType: 'system',
+        })
+        return locked
+      })
+      accounts.push({ accountId, state: migration.state, superseded: true })
+    } catch (error) {
+      accounts.push({ accountId, state: 'error', error: error.message, code: error.code ?? null })
+      if (apply) break
+    } finally {
+      if (apply && migration?.id) {
+        await releaseBillingAccountMigrationLease(db, { migrationId: migration.id, leaseOwner: owner }).catch(() => {})
+      }
+    }
+  }
+  const completedRun = apply ? await finishRunWhenTerminal(db, runId) : null
+  return commandResult('supersede-audit', apply, accounts, {
+    runId: Number(runId),
+    runStatus: completedRun?.status ?? null,
+  })
+}
+
 async function finishRunWhenTerminal(db, runId) {
   const result = await db.query(
     `SELECT COUNT(*) FILTER (WHERE state NOT IN ('verified', 'rolled_back'))::int AS non_terminal,

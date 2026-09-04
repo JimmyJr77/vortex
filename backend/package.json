@@ -51,6 +51,7 @@
     "billing:migration:advance": "node scripts/advance-canonical-billing-migration.mjs",
     "billing:migration:verify": "node scripts/verify-canonical-billing-migration.mjs",
     "billing:migration:rollback": "node scripts/rollback-canonical-billing-migration.mjs",
+    "billing:migration:supersede-audit": "node scripts/supersede-canonical-billing-migration-audit.mjs",
     "billing:retirement:audit": "node scripts/audit-billing-legacy-retirement.mjs",
     "billing:retirement:heartbeat": "node scripts/record-billing-legacy-telemetry-heartbeat.mjs",
     "billing:retirement:verify-cycle": "node scripts/verify-billing-retirement-cycle.mjs",
