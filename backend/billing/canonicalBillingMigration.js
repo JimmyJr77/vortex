@@ -1000,6 +1000,8 @@ async function persistAudit(db, {
       effectiveEligible ? S.SHADOW_VERIFIED : S.BLOCKED,
       { leaseOwner },
     )
+  } else if (migration.state === S.BLOCKED && effectiveEligible) {
+    migration = await transitionBillingAccountMigration(db, migration, S.SHADOW_VERIFIED, { leaseOwner })
   } else if (!effectiveEligible && migration.state === S.SHADOW_VERIFIED) {
     migration = await transitionBillingAccountMigration(db, migration, S.BLOCKED, { leaseOwner })
   }
@@ -1184,21 +1186,24 @@ export async function auditCanonicalBillingMigration(db, {
   const accounts = []
   for (const audit of audits) {
     const accountId = audit.accountId
+    const persistedAudit = forwardAdoption
+      ? forwardAdoptionAudit(audit, explicitForwardAdoptionEvidence(accountId, targetMonth))
+      : audit
     let migration = null
     if (apply && audit.account) {
-      migration = await persistAudit(db, { runId: run.id, audit })
+      migration = await persistAudit(db, { runId: run.id, audit: persistedAudit })
     }
     accounts.push({
-      familyId: audit.familyId ?? null,
+      familyId: persistedAudit.familyId ?? null,
       accountId,
-      eligible: audit.eligible,
-      classification: audit.classification,
+      eligible: persistedAudit.eligible,
+      classification: persistedAudit.classification,
       state: migration?.state ?? null,
-      sourceCollectionMode: audit.sourceCollectionMode,
-      payerValidationStatus: audit.payerValidationStatus,
-      parityStatus: audit.parityStatus,
-      snapshotHash: audit.snapshotHash,
-      exceptions: audit.exceptions,
+      sourceCollectionMode: persistedAudit.sourceCollectionMode,
+      payerValidationStatus: persistedAudit.payerValidationStatus,
+      parityStatus: persistedAudit.parityStatus,
+      snapshotHash: persistedAudit.snapshotHash,
+      exceptions: persistedAudit.exceptions,
     })
   }
   const missingFamilies = familyInventory.filter((family) => family.accountId == null)
