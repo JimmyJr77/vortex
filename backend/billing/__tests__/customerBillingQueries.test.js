@@ -45,6 +45,10 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
   assert.match(householdTransactionQuery, /direct_price_adjustment\.promo_code/)
   assert.match(householdTransactionQuery, /direct_price_adjustment\.kind = 'fixed_final_price'/)
   assert.match(householdTransactionQuery, /adjustment_price_adjustment\.promo_code/)
+  assert.match(
+    householdTransactionQuery,
+    /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
+  )
 
   const memberQueries = []
   await listMemberCustomerBillingTransactions({
@@ -54,6 +58,10 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
     },
   }, { accountId: 19 })
   assert.match(memberQueries[1], /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(
+    memberQueries[1],
+    /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
+  )
 })
 
 test('customer account lookup excludes inactive accounts and returns its facility scope', async () => {

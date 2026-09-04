@@ -84,6 +84,17 @@ export function completedPaidCheckoutFulfillmentIsExact(proof) {
   if (proof.has_active_invoice_reservation === true) return false
   if (proof.has_active_payment_attempt === true) return false
   if (proof.has_escaped_session_credit === true) return false
+  if (proof.has_manual_household_allocation_reconciliation === true) {
+    const taggedHouseholdApplicationCents = Number(proof.tagged_household_application_cents)
+    return (
+      Number.isSafeInteger(taggedHouseholdApplicationCents)
+      && refundedPurchaseCents === 0
+      && taggedChargeCents > 0
+      && taggedChargeCents < purchaseTargetCents
+      && taggedHouseholdApplicationCents === taggedChargeCents
+      && allApplicationCents === expectedPaymentCents
+    )
+  }
   return (
     taggedChargeCents === purchaseTargetCents
     && taggedUnfundedCents === 0
@@ -197,6 +208,7 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
             payment.id AS payment_id,
             COALESCE(tagged_charge.total_cents, 0)::int AS tagged_charge_cents,
             COALESCE(tagged_application.total_cents, 0)::int AS tagged_application_cents,
+            COALESCE(tagged_household_application.total_cents, 0)::int AS tagged_household_application_cents,
             COALESCE(all_application.total_cents, 0)::int AS all_application_cents,
             COALESCE(refunded_purchase.refunded_cents, 0)::int AS refunded_purchase_cents,
             COALESCE(tagged_unfunded.total_cents, 0)::int AS tagged_unfunded_cents,
@@ -246,7 +258,20 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
                  AND credit.amount_cents < 0
                  AND target_charge.stripe_checkout_session_id
                        IS DISTINCT FROM owner.stripe_checkout_session_id
-            ) AS has_escaped_session_credit
+            ) AS has_escaped_session_credit,
+            EXISTS (
+              SELECT 1
+                FROM billing_account_activity activity
+               WHERE activity.event_key = 'manual-checkout-payment-reconciled:' || payment.id::text
+                 AND activity.family_billing_account_id = owner.family_billing_account_id
+                 AND activity.related_payment_id = payment.id
+                 AND activity.event_type = 'checkout_payment_reconciled'
+                 AND activity.actor_type = 'system'
+                 AND activity.stripe_object_id = owner.stripe_checkout_session_id
+                 AND activity.after_value->>'externalStatus' = 'settled'
+                 AND activity.details->>'amountCents' = owner.expected_payment_cents::text
+                 AND activity.details->>'applicationTotalCents' = owner.expected_payment_cents::text
+            ) AS has_manual_household_allocation_reconciliation
        FROM completed_owner owner
        LEFT JOIN billing_payment payment
          ON payment.family_billing_account_id = owner.family_billing_account_id
@@ -276,6 +301,21 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
             AND charged.family_billing_account_id = owner.family_billing_account_id
             AND charged.stripe_checkout_session_id = owner.stripe_checkout_session_id
        ) tagged_application ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT SUM(CASE
+                  WHEN application.application_kind = 'reversal'
+                  THEN -application.amount_cents
+                  ELSE application.amount_cents
+                END)::int AS total_cents
+           FROM billing_payment_application application
+           JOIN billing_payment settled_household_payment
+             ON settled_household_payment.id = application.billing_payment_id
+            AND settled_household_payment.family_billing_account_id = owner.family_billing_account_id
+            AND settled_household_payment.external_status IN ('settled', 'succeeded')
+           JOIN billing_charge charged ON charged.id = application.billing_charge_id
+          WHERE charged.family_billing_account_id = owner.family_billing_account_id
+            AND charged.stripe_checkout_session_id = owner.stripe_checkout_session_id
+       ) tagged_household_application ON TRUE
        LEFT JOIN LATERAL (
          SELECT SUM(CASE
                   WHEN application.application_kind = 'reversal'

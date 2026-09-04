@@ -1108,6 +1108,9 @@ export async function listCustomerBillingTransactions(pool, {
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          CASE
+           WHEN c.amount_cents = 0
+             AND COALESCE(c.gross_amount_cents, 0) > 0
+             AND COALESCE(c.discount_amount_cents, 0) = COALESCE(c.gross_amount_cents, 0) THEN 'paid'
            WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)) AND c.amount_cents > 0 THEN 'paid'
            WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
            ELSE COALESCE(c.collection_status, 'none')
@@ -1560,7 +1563,12 @@ export async function listMemberCustomerBillingTransactions(pool, {
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          COALESCE(c.service_period_start, c.created_at::date)::date AS billing_month,
-         COALESCE(c.collection_status, 'none')::text AS entry_status,
+         CASE
+           WHEN c.amount_cents = 0
+             AND COALESCE(c.gross_amount_cents, 0) > 0
+             AND COALESCE(c.discount_amount_cents, 0) = COALESCE(c.gross_amount_cents, 0) THEN 'paid'
+           ELSE COALESCE(c.collection_status, 'none')
+         END::text AS entry_status,
          3::int AS sort_order
        FROM billing_charge c
        LEFT JOIN LATERAL (

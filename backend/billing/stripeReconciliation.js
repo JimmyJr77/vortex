@@ -1273,6 +1273,61 @@ async function loadDurableCheckoutOwners(pool) {
                               IS DISTINCT FROM enrollment.stripe_checkout_session_id
                    )
               )
+              AND NOT EXISTS (
+                SELECT 1
+                  FROM billing_payment reconciled_payment
+                  JOIN billing_account_activity activity
+                    ON activity.event_key = 'manual-checkout-payment-reconciled:' || reconciled_payment.id::text
+                   AND activity.family_billing_account_id = enrollment.family_billing_account_id
+                   AND activity.related_payment_id = reconciled_payment.id
+                   AND activity.event_type = 'checkout_payment_reconciled'
+                   AND activity.actor_type = 'system'
+                   AND activity.stripe_object_id = enrollment.stripe_checkout_session_id
+                   AND activity.after_value->>'externalStatus' = 'settled'
+                   AND activity.details->>'amountCents' = enrollment.due_now_cents::text
+                   AND activity.details->>'applicationTotalCents' = enrollment.due_now_cents::text
+                 WHERE reconciled_payment.family_billing_account_id = enrollment.family_billing_account_id
+                   AND reconciled_payment.amount_cents = enrollment.due_now_cents
+                   AND reconciled_payment.external_processor = 'stripe'
+                   AND reconciled_payment.external_status IN ('settled', 'succeeded')
+                   AND reconciled_payment.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+                   AND COALESCE((
+                     SELECT SUM(CASE
+                              WHEN application.application_kind = 'reversal'
+                              THEN -application.amount_cents
+                              ELSE application.amount_cents
+                            END)::int
+                       FROM billing_payment_application application
+                      WHERE application.billing_payment_id = reconciled_payment.id
+                   ), 0) = enrollment.due_now_cents
+                   AND COALESCE((
+                     SELECT SUM(tagged_charge.amount_cents)::int
+                       FROM billing_charge tagged_charge
+                      WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                        AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+                   ), 0) > 0
+                   AND COALESCE((
+                     SELECT SUM(CASE
+                              WHEN application.application_kind = 'reversal'
+                              THEN -application.amount_cents
+                              ELSE application.amount_cents
+                            END)::int
+                       FROM billing_payment_application application
+                       JOIN billing_payment settled_household_payment
+                         ON settled_household_payment.id = application.billing_payment_id
+                        AND settled_household_payment.family_billing_account_id = enrollment.family_billing_account_id
+                        AND settled_household_payment.external_status IN ('settled', 'succeeded')
+                       JOIN billing_charge tagged_charge
+                         ON tagged_charge.id = application.billing_charge_id
+                      WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                        AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+                   ), 0) = COALESCE((
+                     SELECT SUM(tagged_charge.amount_cents)::int
+                       FROM billing_charge tagged_charge
+                      WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                        AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+                   ), 0)
+              )
             )
           )
           AND NOT EXISTS (

@@ -693,6 +693,9 @@ test('completed Checkout proof uses only columns present on durable owner tables
   assert.match(captured.sql, /reversal\.idempotency_key =[\s\S]*'refund:' \|\| refund\.id::text/)
   assert.match(captured.sql, /COALESCE\(refunded_purchase\.refunded_cents, 0\)::int AS refunded_purchase_cents/)
   assert.match(captured.sql, /COALESCE\(tagged_unfunded\.total_cents, 0\)::int AS tagged_unfunded_cents/)
+  assert.match(captured.sql, /COALESCE\(tagged_household_application\.total_cents, 0\)::int AS tagged_household_application_cents/)
+  assert.match(captured.sql, /manual-checkout-payment-reconciled:' \|\| payment\.id::text/)
+  assert.match(captured.sql, /activity\.event_type = 'checkout_payment_reconciled'/)
   assert.match(captured.sql, /charge\.amount_cents[\s\S]*- COALESCE\(exact_application\.applied_cents, 0\)[\s\S]*- COALESCE\(exact_refund\.refunded_cents, 0\)/)
   assert.doesNotMatch(captured.sql, /refund\.external_status IN \([^)]*reconciliation_required/)
 })
@@ -737,6 +740,19 @@ test('completed Checkout proof accepts only exact finalized full or partial purc
     refunded_purchase_cents: 2500,
     has_active_payment_attempt: true,
   }), false)
+
+  assert.equal(completedPaidCheckoutFulfillmentIsExact({
+    ...base,
+    expected_payment_cents: 15000,
+    purchase_target_cents: 15000,
+    tagged_charge_cents: 12750,
+    tagged_application_cents: 2250,
+    tagged_household_application_cents: 12750,
+    all_application_cents: 15000,
+    refunded_purchase_cents: 0,
+    tagged_unfunded_cents: 10500,
+    has_manual_household_allocation_reconciliation: true,
+  }), true)
 })
 
 test('completed Checkout gap helper releases exact fully and partially refunded owners', async () => {
