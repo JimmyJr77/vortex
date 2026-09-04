@@ -1790,6 +1790,61 @@ test('forward adoption defers recurring-charge reconciliation until its future b
   assert.equal(verification.snapshot.recurringChargeParity.deferredUntil, '2026-10-01')
 })
 
+test('forward adoption ignores a cancelled historical Stripe link but not active local collectors', async () => {
+  const db = {
+    async query(sql) {
+      const text = String(sql)
+      if (/SELECT \* FROM family_billing_account/.test(text)) {
+        return { rows: [{ id: 9, stripe_customer_id: null, household_monthly_billing_enabled: false }] }
+      }
+      if (/SELECT id, status, next_bill_date/.test(text)) {
+        return {
+          rows: [{
+            id: 26,
+            status: 'cancelled',
+            next_bill_date: null,
+            stripe_subscription_id: 'sub_historical',
+            stripe_subscription_item_id: null,
+            stripe_subscription_schedule_id: null,
+          }],
+        }
+      }
+      if (/SELECT invoice\.\*/.test(text)) return { rows: [] }
+      if (text.includes('canonical-billing:collectible-balance')) {
+        return { rows: [{ collectible_balance_cents: 0 }] }
+      }
+      if (/SELECT \* FROM billing_account_migration_item/.test(text)) return { rows: [] }
+      throw new Error(`Unexpected query: ${text}`)
+    },
+  }
+  const options = {
+    migration: {
+      id: 46,
+      family_billing_account_id: 9,
+      cutover_month: '2026-10-01',
+      parity_snapshot: { timezone: 'America/New_York' },
+    },
+    stripe: {},
+    now: new Date('2026-09-03T12:00:00.000Z'),
+    inspectCollectorInventory: false,
+    requireHouseholdCollectionActive: false,
+    allowPaymentMethodRequired: true,
+    allowFutureRecurringChargeDeferral: true,
+    paymentMethodReadiness: { ready: false, reason: 'stripe_customer_missing' },
+  }
+
+  const strict = await verifyCanonicalBillingAccount(db, options)
+  assert.equal(strict.verified, false)
+  assert.ok(strict.issues.some((issue) => issue.code === 'local_legacy_collection_attached'))
+
+  const forwardAdoption = await verifyCanonicalBillingAccount(db, {
+    ...options,
+    allowInactiveLocalLegacyLinks: true,
+  })
+  assert.equal(forwardAdoption.verified, true)
+  assert.deepEqual(forwardAdoption.snapshot.ignoredInactiveLocalSubscriptionIds, [26])
+})
+
 test('family-link repair normalizes only active direct-family evidence and never changes payer', async () => {
   const calls = []
   const db = {

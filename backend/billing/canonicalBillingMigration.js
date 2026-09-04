@@ -4198,6 +4198,7 @@ async function inspectForwardAdoptionAccount(db, stripe, {
     requireHouseholdCollectionActive: false,
     allowPaymentMethodRequired: true,
     allowFutureRecurringChargeDeferral: true,
+    allowInactiveLocalLegacyLinks: true,
     paymentMethodReadiness,
   })
   const gateFailures = canonicalHouseholdForwardAdoptionGateFailures({
@@ -4908,6 +4909,7 @@ export async function verifyCanonicalBillingAccount(db, {
   requireHouseholdCollectionActive = true,
   allowPaymentMethodRequired = false,
   allowFutureRecurringChargeDeferral = false,
+  allowInactiveLocalLegacyLinks = false,
   paymentMethodReadiness = null,
   recurringChargeInspector = reconcileCanonicalRecurringChargesForMonth,
 } = {}) {
@@ -5053,8 +5055,10 @@ export async function verifyCanonicalBillingAccount(db, {
   const attached = localSubscriptions.filter((row) =>
     row.stripe_subscription_id || row.stripe_subscription_item_id || row.stripe_subscription_schedule_id,
   )
-  if (attached.length) {
-    issues.push({ code: 'local_legacy_collection_attached', message: 'One or more local legacy Stripe links remain.', subscriptionIds: attached.map((row) => Number(row.id)) })
+  const activeAttached = attached.filter((row) => ['active', 'paused'].includes(String(row.status)))
+  const blockingAttached = allowInactiveLocalLegacyLinks ? activeAttached : attached
+  if (blockingAttached.length) {
+    issues.push({ code: 'local_legacy_collection_attached', message: 'One or more local legacy Stripe links remain.', subscriptionIds: blockingAttached.map((row) => Number(row.id)) })
   }
   for (const item of collectionMigrationItems(items, { remoteOnly: true })) {
     const source = parseJson(item.source_snapshot)
@@ -5173,7 +5177,10 @@ export async function verifyCanonicalBillingAccount(db, {
     snapshot: sanitizeBillingMigrationSnapshot({
       householdMonthlyBillingEnabled: account?.household_monthly_billing_enabled === true,
       localSubscriptionCount: localSubscriptions.length,
-      attachedLocalSubscriptionIds: attached.map((row) => Number(row.id)),
+      attachedLocalSubscriptionIds: blockingAttached.map((row) => Number(row.id)),
+      ignoredInactiveLocalSubscriptionIds: allowInactiveLocalLegacyLinks
+        ? attached.filter((row) => !activeAttached.includes(row)).map((row) => Number(row.id))
+        : [],
       targetInvoices: invoiceRows.map((row) => ({
         id: Number(row.id), status: row.status, subtotalCents: cents(row.subtotal_cents),
         creditCents: cents(row.credit_cents), totalCents: cents(row.total_cents),
