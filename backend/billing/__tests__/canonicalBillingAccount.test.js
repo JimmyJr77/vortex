@@ -57,6 +57,38 @@ test('canonical snapshot includes a hidden corrective credit reflected by the ne
   assert.equal(snapshot.futureCreditsCents, 6376)
 })
 
+test('returning an overpayment does not turn the refund into outstanding balance', () => {
+  const snapshot = buildCanonicalFinancialSnapshot({
+    totals: {
+      charges_cents: 25500,
+      payments_cents: 31876,
+      refunds_cents: 6376,
+    },
+    charges: [
+      {
+        id: 101,
+        amount_cents: 12750,
+        remaining_amount_cents: 0,
+        charge_type: 'recurring',
+        service_period_start: '2026-09-01',
+      },
+      {
+        id: 102,
+        amount_cents: 12750,
+        remaining_amount_cents: 0,
+        charge_type: 'recurring',
+        service_period_start: '2026-09-01',
+      },
+    ],
+    payments: [{ id: 77, amount_cents: 31876, remaining_amount_cents: 0 }],
+    recurringBillingMonth: '2026-09',
+  })
+
+  assert.equal(snapshot.balanceCents, 0)
+  assert.equal(snapshot.outstandingBalanceCents, 0)
+  assert.equal(snapshot.futureCreditsCents, 0)
+})
+
 test('a linked annual-membership coupon reduces its fee without becoming future credit', () => {
   const snapshot = buildCanonicalFinancialSnapshot({
     totals: {
@@ -160,7 +192,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     paymentsCents: 10000,
     refundsCents: 1000,
     balanceCents: 21000,
-    outstandingBalanceCents: 6000,
+    outstandingBalanceCents: 5000,
     currentRecurringSatisfiedCents: 0,
     futureCreditsCents: 3000,
     paidThisMonthCents: 2500,

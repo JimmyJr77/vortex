@@ -418,7 +418,7 @@ const REFUND_CREDIT_UNAPPLIED_FIXTURE = {
       paymentsCents: 5_000,
       refundsCents: 1_000,
       balanceCents: 4_000,
-      outstandingBalanceCents: 9_000,
+      outstandingBalanceCents: 8_000,
       recurringBillingMonth: '2026-09',
     },
     visibleTransactions: [
@@ -583,11 +583,12 @@ test('refund, linked credit, and unapplied payment fixture preserves distinct ba
     refundCents: 1_000,
     balanceCents: 4_000,
   })
-  // Outstanding remains the $8,000 adjusted charge plus the $1,000 refund.
-  // The payment's $2,000 unapplied remainder is a future credit, not a second
-  // reduction of the charge-level outstanding amount.
-  assert.deepEqual(dimensions.outstandingAmount.legacy, { outstandingAmountCents: 9_000 })
-  assert.deepEqual(dimensions.outstandingAmount.canonical, { outstandingAmountCents: 9_000 })
+  // Outstanding is the $8,000 adjusted charge. The returned $1,000 is not a
+  // new debt; only a reversed application or linked charge offset can change
+  // a charge's outstanding amount. The payment's $2,000 remainder remains a
+  // future credit rather than a second reduction of the charge-level amount.
+  assert.deepEqual(dimensions.outstandingAmount.legacy, { outstandingAmountCents: 8_000 })
+  assert.deepEqual(dimensions.outstandingAmount.canonical, { outstandingAmountCents: 8_000 })
   assert.equal(dimensions.transactionsVisibleRecordManifest.legacy.count, 4)
 })
 

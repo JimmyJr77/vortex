@@ -33,10 +33,14 @@ export function summarizeCustomerBalanceCards({
   charges = [],
   payments = [],
   subscriptions = [],
-  refundsCents = 0,
+  refundsCents: _refundsCents = 0,
   recurringBillingMonth = null,
 } = {}) {
-  let outstandingChargesCents = Math.max(0, Number(refundsCents) || 0)
+  // A refund is money returned, not a new household debt. A charge-specific
+  // refund is represented by its application reversal and/or linked offset
+  // row below; an overpayment refund has neither. Adding raw refunds here
+  // incorrectly turns a returned overpayment into "Outstanding balance".
+  let outstandingChargesCents = 0
   let ledgerCreditCents = 0
   let currentRecurringSatisfiedCents = 0
 
