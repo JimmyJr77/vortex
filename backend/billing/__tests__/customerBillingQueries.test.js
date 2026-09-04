@@ -157,6 +157,31 @@ test('monthly ledger bill includes an annual membership paid with September tuit
   })
 })
 
+test('monthly ledger bill ignores incomplete historical annual-fee rows', () => {
+  const bill = buildMonthlyLedgerBill({
+    billingMonth: '2026-09',
+    charges: [
+      {
+        id: 21,
+        charge_type: 'recurring',
+        service_period_start: '2026-09-01',
+        amount_cents: 12750,
+        applied_amount_cents: 0,
+      },
+      {
+        id: 22,
+        charge_type: 'one_time',
+        is_annual_membership: true,
+        amount_cents: 8500,
+        latest_paid_at: null,
+      },
+    ],
+  })
+
+  assert.equal(bill?.totalCents, 12750)
+  assert.equal(bill?.lineCount, 1)
+})
+
 test('refund offsets reduce effective due amounts in annual and transaction displays', async () => {
   const annualQueries = []
   await loadCustomerBillingAnnualMemberships({

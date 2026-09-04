@@ -586,13 +586,24 @@ export function customerBillingAccountStatus({
 // or before this account was moved to household invoicing. In those cases no
 // monthly-invoice row exists, but the billing card must still accurately show
 // the posted class bill and the settled money allocated to it.
+function billingMonthKeyOrNull(value) {
+  try {
+    return billingMonthKey(value)
+  } catch {
+    // Historical ledger rows can predate the date fields used by the current
+    // billing model. They are not bill lines for an arbitrary month, but one
+    // incomplete row must never prevent the account overview from loading.
+    return null
+  }
+}
+
 export function buildMonthlyLedgerBill({
   billingMonth,
   charges = [],
   members = [],
   classDisplays = new Map(),
 } = {}) {
-  const month = billingMonthKey(billingMonth)
+  const month = billingMonthKeyOrNull(billingMonth)
   if (!month) return null
 
   const memberNames = new Map(
@@ -605,10 +616,10 @@ export function buildMonthlyLedgerBill({
     .filter((charge) => (
       (
         charge?.charge_type === 'recurring' &&
-        billingMonthKey(charge.service_period_start ?? charge.created_at) === month
+        billingMonthKeyOrNull(charge.service_period_start ?? charge.created_at) === month
       ) || (
         (charge?.is_annual_membership === true || charge?.isAnnualMembership === true) &&
-        billingMonthKey(charge.latest_paid_at ?? charge.latestPaidAt) === month
+        billingMonthKeyOrNull(charge.latest_paid_at ?? charge.latestPaidAt) === month
       )
     ) &&
       Number(charge.amount_cents) > 0
