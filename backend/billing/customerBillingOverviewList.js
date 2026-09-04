@@ -289,16 +289,44 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
       [accountIds, monthStart, currentMonthStart],
     ),
     pool.query(
-      `SELECT payment.family_billing_account_id,
-              to_char(payment.paid_at AT TIME ZONE $4::text, 'YYYY-MM') AS billing_month,
-              SUM(payment.amount_cents)::bigint AS paid_cents
-         FROM billing_payment payment
-        WHERE payment.family_billing_account_id = ANY($1::bigint[])
-          AND payment.external_status IN ('settled', 'succeeded')
-          AND payment.paid_at >= $2::date
-          AND payment.paid_at < $3::date
+      `WITH payment_application_totals AS (
+         SELECT application.billing_charge_id,
+                SUM(CASE
+                  WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                  ELSE application.amount_cents
+                END)::bigint AS paid_cents
+           FROM billing_payment_application application
+           JOIN billing_payment payment ON payment.id = application.billing_payment_id
+          WHERE payment.family_billing_account_id = ANY($1::bigint[])
+            AND payment.external_status IN ('settled', 'succeeded')
+          GROUP BY application.billing_charge_id
+       ), credit_application_totals AS (
+         SELECT target_line.billing_charge_id,
+                SUM(application.amount_cents)::bigint AS credit_cents
+           FROM billing_charge_credit_application application
+           JOIN billing_monthly_invoice_line target_line
+             ON target_line.id = application.target_invoice_line_id
+           JOIN billing_monthly_invoice invoice
+             ON invoice.id = target_line.billing_monthly_invoice_id
+          WHERE invoice.family_billing_account_id = ANY($1::bigint[])
+          GROUP BY target_line.billing_charge_id
+       )
+       SELECT charge.family_billing_account_id,
+              to_char(COALESCE(charge.service_period_start, charge.created_at::date), 'YYYY-MM') AS billing_month,
+              SUM(LEAST(
+                GREATEST(charge.amount_cents, 0),
+                GREATEST(0, COALESCE(payment.paid_cents, 0) + COALESCE(credit.credit_cents, 0))
+              ))::bigint AS paid_cents
+         FROM billing_charge charge
+         LEFT JOIN payment_application_totals payment ON payment.billing_charge_id = charge.id
+         LEFT JOIN credit_application_totals credit ON credit.billing_charge_id = charge.id
+        WHERE charge.family_billing_account_id = ANY($1::bigint[])
+          AND charge.amount_cents > 0
+          AND COALESCE(charge.service_period_start, charge.created_at::date) >= $2::date
+          AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
+          AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
         GROUP BY 1, 2`,
-      [accountIds, monthStart, currentMonthStart, facilityTimeZone],
+      [accountIds, monthStart, currentMonthStart],
     ),
     pool.query(
       `WITH application_totals AS (

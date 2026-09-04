@@ -1,5 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   familyAutopayStatus,
   familyAutopayScheduled,
@@ -7,6 +10,23 @@ import {
   paymentMethodReadyForBillingMonth,
   yearToDateBounds,
 } from '../customerBillingOverviewList.js'
+
+const testDirectory = path.dirname(fileURLToPath(import.meta.url))
+const overviewSource = fs.readFileSync(
+  path.join(testDirectory, '../customerBillingOverviewList.js'),
+  'utf8',
+)
+
+test('monthly paid totals follow settled charge applications instead of payment dates', () => {
+  assert.match(overviewSource, /FROM billing_payment_application application/)
+  assert.match(overviewSource, /FROM billing_charge_credit_application application/)
+  assert.match(overviewSource, /payment\.paid_cents, 0\) \+ COALESCE\(credit\.credit_cents, 0\)/)
+  assert.match(overviewSource, /customerAuditVisibility', ''\) <> 'suppressed'/)
+  assert.doesNotMatch(
+    overviewSource,
+    /to_char\(payment\.paid_at AT TIME ZONE \$4::text, 'YYYY-MM'\) AS billing_month/,
+  )
+})
 
 test('last three billing months are the completed months before the current billing month', () => {
   assert.deepEqual(
