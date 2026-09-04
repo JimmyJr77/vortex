@@ -891,7 +891,7 @@ async function persistAudit(db, {
         sourceId: String(item.local.id),
         targetId: String(item.local.id),
         state: stripeId ? 'discovered' : 'verified',
-        idempotencyKey: `billing-cutover:${audit.accountId}:${audit.targetMonth}:subscription:${item.local.id}`,
+        idempotencyKey: `billing-cutover:run:${runId}:${audit.accountId}:${audit.targetMonth}:subscription:${item.local.id}`,
         sourceSnapshot: { local: item.local, remote: item.remote },
         targetSnapshot: {},
         billingSubscriptionId: item.local.id,
@@ -923,7 +923,7 @@ async function persistAudit(db, {
         sourceId: artifact.sourceId,
         targetId: artifact.targetId,
         state: artifact.state,
-        idempotencyKey: `billing-cutover:${audit.accountId}:${audit.targetMonth}:${artifact.itemType}:${artifact.sourceId}`,
+        idempotencyKey: `billing-cutover:run:${runId}:${audit.accountId}:${audit.targetMonth}:${artifact.itemType}:${artifact.sourceId}`,
         sourceSnapshot: artifact.sourceSnapshot,
         targetSnapshot: artifact.targetSnapshot,
         memberId: artifact.sourceSnapshot.member_id ?? null,
@@ -5227,7 +5227,7 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
       continue
     }
     try {
-      const eligible = migration.state === S.SHADOW_VERIFIED && [
+      const eligible = [S.DISCOVERED, S.SHADOW_VERIFIED].includes(migration.state) && [
         migration.armed_at,
         migration.cancellation_scheduled_at,
         migration.detached_at,
@@ -5237,7 +5237,7 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
       if (!eligible) {
         throw new BillingMigrationSafetyError(
           'shadow_audit_supersession_forbidden',
-          `Account ${accountId} is not an untouched shadow-verified audit record.`,
+          `Account ${accountId} is not an untouched pre-activation audit record.`,
           { state: migration.state },
           { preserveMigrationState: true },
         )
@@ -5252,7 +5252,7 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
           accountId,
           leaseOwner: owner,
         })
-        const untouched = locked.state === S.SHADOW_VERIFIED && [
+        const untouched = [S.DISCOVERED, S.SHADOW_VERIFIED].includes(locked.state) && [
           locked.armed_at,
           locked.cancellation_scheduled_at,
           locked.detached_at,

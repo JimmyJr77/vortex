@@ -19,7 +19,7 @@ export const BILLING_MIGRATION_STATES = Object.freeze({
 const S = BILLING_MIGRATION_STATES
 
 export const BILLING_MIGRATION_TRANSITIONS = Object.freeze({
-  [S.DISCOVERED]: new Set([S.REPAIRING, S.BLOCKED, S.SHADOW_VERIFIED]),
+  [S.DISCOVERED]: new Set([S.REPAIRING, S.BLOCKED, S.SHADOW_VERIFIED, S.ROLLED_BACK]),
   [S.REPAIRING]: new Set([S.BLOCKED, S.SHADOW_VERIFIED]),
   [S.BLOCKED]: new Set([S.REPAIRING, S.SHADOW_VERIFIED]),
   // A shadow-only audit may be superseded if its immutable release contract
