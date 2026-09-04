@@ -4494,11 +4494,10 @@ export async function adoptCanonicalHouseholdBillingMigration(db, {
           activeDedupeKeys: [],
           dedupePrefix: `account:${accountId}:operation:forward_adoption_`,
         })
-        migration = await persistAudit(lockedDb, {
-          runId,
-          audit: inspection.adoptionAudit,
-          leaseOwner: owner,
-        })
+        // This run already holds immutable, parity-matched evidence. The
+        // inspection above is the live revalidation; re-upserting the same
+        // append-only item mappings can collide with a legitimate existing
+        // mapping in this exact migration without adding safety evidence.
         if (migration.state !== S.SHADOW_VERIFIED) {
           throw new Error(`Forward adoption audit did not reach ${S.SHADOW_VERIFIED}.`)
         }
@@ -5235,7 +5234,7 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
       continue
     }
     try {
-      const eligible = [S.DISCOVERED, S.SHADOW_VERIFIED].includes(migration.state) && [
+      const eligible = [S.DISCOVERED, S.BLOCKED, S.SHADOW_VERIFIED].includes(migration.state) && [
         migration.armed_at,
         migration.cancellation_scheduled_at,
         migration.detached_at,
@@ -5260,7 +5259,7 @@ export async function supersedeShadowVerifiedBillingMigrationAudit(db, {
           accountId,
           leaseOwner: owner,
         })
-        const untouched = [S.DISCOVERED, S.SHADOW_VERIFIED].includes(locked.state) && [
+        const untouched = [S.DISCOVERED, S.BLOCKED, S.SHADOW_VERIFIED].includes(locked.state) && [
           locked.armed_at,
           locked.cancellation_scheduled_at,
           locked.detached_at,

@@ -21,7 +21,7 @@ const S = BILLING_MIGRATION_STATES
 export const BILLING_MIGRATION_TRANSITIONS = Object.freeze({
   [S.DISCOVERED]: new Set([S.REPAIRING, S.BLOCKED, S.SHADOW_VERIFIED, S.ROLLED_BACK]),
   [S.REPAIRING]: new Set([S.BLOCKED, S.SHADOW_VERIFIED]),
-  [S.BLOCKED]: new Set([S.REPAIRING, S.SHADOW_VERIFIED]),
+  [S.BLOCKED]: new Set([S.REPAIRING, S.SHADOW_VERIFIED, S.ROLLED_BACK]),
   // A shadow-only audit may be superseded if its immutable release contract
   // becomes stale before any collector or household action is armed.
   [S.SHADOW_VERIFIED]: new Set([S.ARMED, S.BLOCKED, S.ROLLED_BACK]),
