@@ -55,6 +55,41 @@ export function classTransferTag(metadata) {
   return null
 }
 
+// Lifetime-owner tuition waivers are deliberately scoped to a canonical
+// household. The same policy also gives every active member in that household
+// a permanent annual-membership display state; it must not leak to other
+// families simply because the rule is global in class scope.
+export function lifetimeOwnerWaiverAppliesToFamily(rule, familyId) {
+  const config = objectValue(rule?.config)
+  if (config.lifetime_owner_waiver !== true) return false
+  const eligibilityRules = Array.isArray(config.eligibility_rules) ? config.eligibility_rules : []
+  return eligibilityRules.some((eligibility) => {
+    const field = String(eligibility?.field ?? '').trim().toLowerCase()
+    if (!['family_id', 'familyid'].includes(field)) return false
+    const values = Array.isArray(eligibility?.value) ? eligibility.value : [eligibility?.value]
+    return values.some((value) => Number(value) === Number(familyId))
+  })
+}
+
+async function loadLifetimeOwnerWaiver(pool, { familyId, facilityId }) {
+  try {
+    const result = await pool.query(
+      `SELECT config
+         FROM discount_rule
+        WHERE facility_id = $1
+          AND active = TRUE
+          AND COALESCE(config->>'lifetime_owner_waiver', 'false') = 'true'`,
+      [Number(facilityId)],
+    )
+    return result.rows.some((rule) => lifetimeOwnerWaiverAppliesToFamily(rule, familyId))
+  } catch (error) {
+    // A billing overview remains available if an older database has not yet
+    // received discount-rule infrastructure.
+    if (error?.code === '42P01' || error?.code === '42703') return false
+    throw error
+  }
+}
+
 function annualMembershipFeeId(sourceId) {
   const feeId = Number(String(sourceId ?? '').split(':')[0])
   return Number.isFinite(feeId) ? feeId : null
@@ -885,7 +920,8 @@ export async function buildCustomerBillingOverview(pool, {
     rawSubscriptions,
     adjustmentsResult,
     alertsResult,
-    annualMemberships,
+    annualMembershipRows,
+    hasLifetimeOwnerWaiver,
     paymentMethod,
     monthlyInvoices,
   ] =
@@ -922,6 +958,10 @@ export async function buildCustomerBillingOverview(pool, {
       loadCustomerBillingAnnualMemberships(pool, {
         accountId: account.id,
         members,
+      }),
+      loadLifetimeOwnerWaiver(pool, {
+        familyId: Number(familyId),
+        facilityId: Number(account.family_facility_id),
       }),
       loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth }),
       listHouseholdMonthlyInvoices(pool, account.id, {
@@ -1170,6 +1210,10 @@ export async function buildCustomerBillingOverview(pool, {
       ))
       .map((row) => Number(row.id)),
   )
+  const annualMemberships = annualMembershipRows.map((membership) => ({
+    ...membership,
+    lifetimeMember: hasLifetimeOwnerWaiver === true,
+  }))
   const cardPresentation = customerBillingCardPresentation(view, displayPricing)
   const monthlyLedgerClassDisplays = await loadTransactionClassDisplay(
     pool,

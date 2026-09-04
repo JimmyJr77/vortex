@@ -47,6 +47,14 @@ test('member overview is an explicit allowlist without provider or administrator
       activePriceAdjustment: { createdByUserId: 44, discountRuleSnapshot: { secret: true } },
       arbitraryRawColumn: 'must not leak',
     }],
+    annualMemberships: [{
+      memberId: 11,
+      memberName: 'Jordan Rivera',
+      active: true,
+      lifetimeMember: true,
+      billingSubscriptionId: 4,
+      renewalDate: '2027-01-01',
+    }],
     monthlyInvoices: [{
       id: 5,
       billingMonth: '2026-09-01',
@@ -69,6 +77,7 @@ test('member overview is an explicit allowlist without provider or administrator
   assert.equal(dto.members[0].email, null)
   assert.equal(dto.paymentMethod.paymentMethod.last4, '4242')
   assert.equal(dto.enrollments[0].class_name, 'Tornadoes')
+  assert.equal(dto.annualMemberships[0].lifetimeMember, true)
   assert.equal(dto.monthlyInvoices[0].totalCents, 12000)
   assert.equal(dto.monthlyInvoices[0].postPaymentCreditCents, 6376)
   assert.deepEqual(dto.monthlyInvoices[0].lines, [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', lineType: 'charge', amountCents: 12000 }])

@@ -61,6 +61,7 @@ function memberAnnualMembership(membership = {}) {
     active: membership.active === true,
     membershipDate: membership.membershipDate ?? null,
     renewalDate: membership.renewalDate ?? null,
+    lifetimeMember: membership.lifetimeMember === true,
     autoRenewal: membership.autoRenewal === true,
     canManageAutoRenewal: membership.canManageAutoRenewal === true,
     outstandingAmountCents: Number(membership.outstandingAmountCents ?? 0),

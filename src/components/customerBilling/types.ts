@@ -91,6 +91,7 @@ export interface CustomerBillingAnnualMembership {
   active: boolean
   membershipDate: string | null
   renewalDate: string | null
+  lifetimeMember: boolean
   autoRenewal: boolean
   canManageAutoRenewal: boolean
   outstandingChargeId: number | null

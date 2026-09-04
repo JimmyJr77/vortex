@@ -12,6 +12,7 @@ import {
   earliestActiveNextBillDate,
   firstRecurringPricingLineBySignup,
   isRetiredAnnualMembershipStripeSetupAlert,
+  lifetimeOwnerWaiverAppliesToFamily,
   upcomingRecurringPricingMonth,
   listCustomerBillingActivity,
   loadCustomerBillingAnnualMemberships,
@@ -51,6 +52,17 @@ test('class-transfer tags distinguish the outgoing and incoming bill lines witho
   assert.equal(classTransferTag('{"classTransfer":{"direction":"in"}}'), 'X-in')
   assert.equal(classTransferTag({ classTransfer: { direction: 'replacement' } }), null)
   assert.equal(classTransferTag(null), null)
+})
+
+test('lifetime owner waivers apply only to their explicitly eligible household', () => {
+  const rule = {
+    config: {
+      lifetime_owner_waiver: true,
+      eligibility_rules: [{ field: 'family_id', operator: 'in', value: [21] }],
+    },
+  }
+  assert.equal(lifetimeOwnerWaiverAppliesToFamily(rule, 21), true)
+  assert.equal(lifetimeOwnerWaiverAppliesToFamily(rule, 22), false)
 })
 
 test('monthly ledger bill attributes an early household payment to its billed class month', () => {

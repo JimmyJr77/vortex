@@ -248,16 +248,17 @@ function AnnualMembershipCard({
   saving: boolean
   onSetAutoRenewal: (subscriptionId: number, enabled: boolean) => void
 }) {
+  const lifetimeMember = membership.lifetimeMember === true
   return (
     <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">Annual membership</div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">{lifetimeMember ? 'Lifetime member' : 'Annual membership'}</div>
       <div className="mt-1 truncate text-xl font-bold">{membership.memberName}</div>
-      <div className="mt-1 text-sm text-gray-200">{membership.active ? `Good through ${formatDate(membership.renewalDate)}` : 'Required before enrolling in classes'}</div>
+      <div className="mt-1 text-sm text-gray-200">{lifetimeMember ? 'Lifetime access' : membership.active ? `Good through ${formatDate(membership.renewalDate)}` : 'Required before enrolling in classes'}</div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span className="font-semibold">{membership.active ? 'Valid' : `Not purchased · ${formatMoney(membership.outstandingAmountCents)}`}</span>
-        {!membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
+        <span className="font-semibold">{lifetimeMember ? 'Lifetime member' : membership.active ? 'Valid' : `Not purchased · ${formatMoney(membership.outstandingAmountCents)}`}</span>
+        {!lifetimeMember && !membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
       </div>
-      {membership.active ? <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/20 pt-3 text-xs"><span className="text-gray-200">Auto-renew {membership.autoRenewal ? 'on' : 'off'}</span>{canManageAutoRenewal && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership.billingSubscriptionId!, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10 disabled:opacity-50">{saving ? 'Saving…' : membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</div> : null}
+      {membership.active && !lifetimeMember ? <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/20 pt-3 text-xs"><span className="text-gray-200">Auto-renew {membership.autoRenewal ? 'on' : 'off'}</span>{canManageAutoRenewal && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership.billingSubscriptionId!, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10 disabled:opacity-50">{saving ? 'Saving…' : membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</div> : null}
     </div>
   )
 }
