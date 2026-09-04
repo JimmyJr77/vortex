@@ -30,6 +30,31 @@ export function customerFacingPriceSyncError(value) {
   return message
 }
 
+function objectValue(value) {
+  if (!value) return {}
+  if (typeof value === 'object' && !Array.isArray(value)) return value
+  try {
+    const parsed = JSON.parse(String(value))
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+// Keep payment state separate from a class-transfer marker. A moved-out class
+// can still be paid, and the replacement can still be unpaid; the marker
+// describes the enrollment history without changing either financial status.
+export function classTransferTag(metadata) {
+  const chargeMetadata = objectValue(metadata)
+  const transfer = objectValue(chargeMetadata.classTransfer)
+  const direction = String(
+    transfer.direction ?? chargeMetadata.classTransferDirection ?? '',
+  ).trim().toLowerCase()
+  if (direction === 'out') return 'X-out'
+  if (direction === 'in') return 'X-in'
+  return null
+}
+
 function annualMembershipFeeId(sourceId) {
   const feeId = Number(String(sourceId ?? '').split(':')[0])
   return Number.isFinite(feeId) ? feeId : null
@@ -538,6 +563,24 @@ export function customerBillingCardPresentation(view = {}, displayPricing = {}) 
   }
 }
 
+// A ledger container stays available for historical records and an unpaid
+// balance, but that alone must not make a household appear active. Overall
+// account status reflects what is actually active today: a valid membership
+// or an enrolled (including scheduled) recurring class.
+export function customerBillingAccountStatus({
+  account = {},
+  enrollments = [],
+  annualMemberships = [],
+} = {}) {
+  if (account.is_active === false || account.isActive === false) return 'inactive'
+  const hasCurrentMembership = annualMemberships.some((membership) => membership?.active === true)
+  const hasCurrentOrUpcomingEnrollment = enrollments.some((enrollment) => (
+    ['active', 'scheduled', 'pending_cancellation'].includes(String(enrollment?.status ?? '')) &&
+    enrollment?.source !== 'drop_in'
+  ))
+  return hasCurrentMembership || hasCurrentOrUpcomingEnrollment ? 'active' : 'inactive'
+}
+
 // A household invoice is a Stripe collection artifact, whereas Account
 // History is the ledger of record. A class may have been paid early, manually,
 // or before this account was moved to household invoicing. In those cases no
@@ -560,10 +603,16 @@ export function buildMonthlyLedgerBill({
   )
   const lines = charges
     .filter((charge) => (
-      charge?.charge_type === 'recurring' &&
-      billingMonthKey(charge.service_period_start ?? charge.created_at) === month &&
+      (
+        charge?.charge_type === 'recurring' &&
+        billingMonthKey(charge.service_period_start ?? charge.created_at) === month
+      ) || (
+        (charge?.is_annual_membership === true || charge?.isAnnualMembership === true) &&
+        billingMonthKey(charge.latest_paid_at ?? charge.latestPaidAt) === month
+      )
+    ) &&
       Number(charge.amount_cents) > 0
-    ))
+    )
     .map((charge) => {
       const id = Number(charge.id)
       const effectiveAmountCents = Math.max(
@@ -575,11 +624,12 @@ export function buildMonthlyLedgerBill({
         Number(charge.applied_amount_cents ?? 0) + Number(charge.credit_applied_amount_cents ?? 0),
       )
       const classDisplay = classDisplays.get(id)
+      const annualMembership = charge.is_annual_membership === true || charge.isAnnualMembership === true
       return {
         id,
         memberName: memberNames.get(Number(charge.member_id)) ?? null,
-        description: classDisplay?.description ?? charge.description ?? 'Recurring class tuition',
-        lineType: 'charge',
+        description: classDisplay?.description ?? charge.description ?? (annualMembership ? 'Annual membership' : 'Recurring class tuition'),
+        lineType: annualMembership ? 'annual_membership' : 'charge',
         amountCents: effectiveAmountCents,
         paidCents: Math.min(effectiveAmountCents, appliedCents),
       }
@@ -1112,18 +1162,25 @@ export async function buildCustomerBillingOverview(pool, {
   const cardPresentation = customerBillingCardPresentation(view, displayPricing)
   const monthlyLedgerClassDisplays = await loadTransactionClassDisplay(
     pool,
-    (view.recurringCharges ?? []).map((charge) => Number(charge.id)),
+    (view.monthlyLedgerCharges ?? [])
+      .filter((charge) => charge.charge_type === 'recurring')
+      .map((charge) => Number(charge.id)),
   )
   const monthlyLedgerBill = buildMonthlyLedgerBill({
     billingMonth: pricingMonth,
-    charges: view.recurringCharges,
+    charges: view.monthlyLedgerCharges,
     members,
     classDisplays: monthlyLedgerClassDisplays,
+  })
+  const accountStatus = customerBillingAccountStatus({
+    account,
+    enrollments,
+    annualMemberships,
   })
 
   const overview = {
     revision: view.revision,
-    account: mapAccount(account),
+    account: { ...mapAccount(account), accountStatus },
     selectedMemberId: selectedMemberId == null ? null : Number(selectedMemberId),
     members,
     summary: {
@@ -1430,7 +1487,8 @@ export async function listCustomerBillingTransactions(pool, {
                 COALESCE(jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
                   'kind', CASE WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NULL THEN 'manual' ELSE 'coupon' END,
                   'label', CASE
-                    WHEN adjustment.metadata->>'adjustmentKind' = 'class_swap_proration' THEN 'Prorated class swap'
+                    WHEN c.metadata->'classTransfer'->>'direction' IN ('in', 'out') THEN 'Transfer adjustment'
+                    WHEN adjustment.metadata->>'adjustmentKind' = 'class_swap_proration' THEN 'Transfer adjustment'
                     WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NOT NULL THEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, ''))
                     WHEN adjustment.source_type = 'refund_offset' THEN 'Refund adjustment'
                     WHEN adjustment.source_type = 'price_adjustment_reversal' THEN 'Manual adjustment reversal'
@@ -1694,6 +1752,7 @@ export async function listCustomerBillingTransactions(pool, {
         effectiveAmountCents: Number(rawDetails.effectiveAmountCents ?? row.amount_cents),
         classCatalogId: chargeDisplay?.classCatalogId ?? null,
         classSchedule: chargeDisplay?.classSchedule ?? null,
+        transferTag: classTransferTag(rawDetails.metadata),
         discountAnnotations: Array.isArray(rawDetails.discountAnnotations) ? rawDetails.discountAnnotations : [],
         occurredAt: row.occurred_at,
         status: row.status,
@@ -1778,6 +1837,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          c.member_id::bigint AS member_id,
          c.subscription_id::bigint AS class_subscription_id,
          c.description::text AS description,
+         c.metadata AS metadata,
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS amount_cents,
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
@@ -1827,6 +1887,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          d.member_id::bigint AS member_id,
          NULL::bigint AS class_subscription_id,
          CONCAT(COALESCE(NULLIF(TRIM(class_p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Drop-in'), ' · Drop-in')::text AS description,
+         NULL::jsonb AS metadata,
          d.amount_cents::int AS amount_cents,
          0::int AS balance_amount_cents,
          d.class_date::timestamptz AS occurred_at,
@@ -1855,6 +1916,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          NULL::bigint AS member_id,
          NULL::bigint AS class_subscription_id,
          COALESCE(NULLIF(p.method, ''), 'Payment')::text AS description,
+         NULL::jsonb AS metadata,
          -p.amount_cents::int AS amount_cents,
          CASE WHEN p.external_status IN ('settled', 'succeeded') THEN -p.amount_cents ELSE 0 END::int AS balance_amount_cents,
          p.paid_at::timestamptz AS occurred_at,
@@ -1874,6 +1936,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          NULL::bigint AS member_id,
          NULL::bigint AS class_subscription_id,
          COALESCE(NULLIF(r.reason, ''), 'Refund')::text AS description,
+         NULL::jsonb AS metadata,
          r.amount_cents::int AS amount_cents,
          CASE WHEN COALESCE(r.external_status, 'succeeded') = 'succeeded' THEN r.amount_cents ELSE 0 END::int AS balance_amount_cents,
          r.created_at::timestamptz AS occurred_at,
@@ -1903,6 +1966,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
             TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
             CASE
               WHEN page.entry_kind <> 'charge' THEN page.entry_status
+              WHEN page.amount_cents <= 0 THEN 'paid'
               WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(
                 0,
                 page.amount_cents
@@ -1992,6 +2056,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
     sortOrder: Number(row.sort_order),
     classCatalogId: chargeDisplay?.classCatalogId ?? null,
     classSchedule: chargeDisplay?.classSchedule ?? null,
+    transferTag: classTransferTag(row.metadata),
   }
   })
 

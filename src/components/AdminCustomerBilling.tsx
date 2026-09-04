@@ -624,10 +624,10 @@ function MonthlyInvoiceSummary({
         <p className="mt-2 text-xs text-gray-600">
           {ledgerBill
             ? ledgerBill.status === 'paid'
-              ? 'Class charges and their payment are recorded in Account History. No separate Stripe invoice was required for this settled bill.'
+              ? 'Bill lines and their payment are recorded in Account History. No separate Stripe invoice was required for this settled bill.'
               : ledgerBill.status === 'partially_paid'
                 ? `${money(ledgerBill.remainingCents)} remains after payments recorded in Account History.`
-                : 'Class charges are posted in Account History and remain unpaid.'
+                : 'Bill lines are posted in Account History and remain unpaid.'
             : hasPostedBill
             ? paymentMethodRequired
               ? 'Class charges are posted in Account History. Add a reusable payment method before Stripe can issue the household invoice.'
@@ -959,7 +959,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3"><button type="button" onClick={() => setExpanded(isExpanded ? null : key)} className="rounded p-1 text-gray-500 hover:bg-gray-100" aria-label={`${isExpanded ? 'Collapse' : 'Expand'} transaction ${row.refId}`}>{isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</button></td>
                     <td className="whitespace-nowrap px-4 py-3 text-gray-600">{localDate(row.occurredAt)}</td>
                     <td className="px-4 py-3 text-gray-600">{row.memberName || 'Household'}</td>
-                    <td className="max-w-[300px] px-4 py-3"><strong className="block truncate text-gray-900">{row.description}</strong>{billingPeriod ? <span className="text-xs text-gray-500">{billingPeriod}</span> : null}</td>
+                    <td className="max-w-[300px] px-4 py-3"><div className="flex items-center gap-1.5"><strong className="min-w-0 truncate text-gray-900">{row.description}</strong>{row.transferTag ? <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${row.transferTag === 'X-out' ? 'bg-rose-50 text-rose-700' : 'bg-sky-50 text-sky-700'}`}>({row.transferTag})</span> : null}</div>{billingPeriod ? <span className="text-xs text-gray-500">{billingPeriod}</span> : null}</td>
                     <td className="px-4 py-3 capitalize text-gray-600">{row.entryType.replaceAll('_', ' ')}</td>
                     <td className="px-4 py-3"><Badge value={row.status} /></td>
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountAnnotations.length > 0 ? <div className="space-y-1">{discountAnnotations.map((annotation, index) => { const amount = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'discount'}-${index}`}>{annotation.code ?? annotation.label ?? 'Discount'} · {amount < 0 ? '−' : '+'}{money(Math.abs(amount))}</div> })}</div> : discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
@@ -1550,7 +1550,7 @@ export default function AdminCustomerBilling({
         <>
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
-              <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h2><Badge value={overview.account.isActive ? 'active' : 'inactive'} /></div><p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId} · Billing account #{overview.account.id}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => chooseMember(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>{overview.members.map((member) => <button key={member.id} type="button" onClick={() => chooseMember(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}</div></div>
+              <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h2><Badge value={overview.account.accountStatus} /></div><p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId} · Billing account #{overview.account.id}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => chooseMember(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>{overview.members.map((member) => <button key={member.id} type="button" onClick={() => chooseMember(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}</div></div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button>
                 <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || overview.summary.collectibleBalanceCents <= 0 || !overview.paymentMethod.available} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={!overview.paymentMethod.available ? 'A saved card is required.' : 'Choose an amount and payment method.'}><CreditCard className="h-4 w-4" /> Process Payment</button>

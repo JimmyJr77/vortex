@@ -367,6 +367,13 @@ export async function processRecurringBillingAccount(db, account, {
   }
 
   let householdInvoicesCreated = 0
+  // Reconcile every settled household payment after all current-period ledger
+  // rows (including annual membership renewals) exist. Open invoice lines and
+  // in-flight attempts are excluded by the allocator, so this cannot bypass
+  // a Stripe collection reservation; it only applies already-collected money
+  // to an otherwise-unallocated charge.
+  await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
+
   if (collectionMode === 'canonical_household') {
     const existingInvoice = await loadMonthlyInvoiceState(db, {
       accountId: Number(fresh.id),
@@ -399,10 +406,7 @@ export async function processRecurringBillingAccount(db, account, {
       }
       if (result.created) householdInvoicesCreated += 1
     }
-  } else if (periodsAdvanced > 0 || pauseCreditsPosted > 0) {
-    await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
   }
-
   return {
     accountId: Number(fresh.id),
     subscriptionsProcessed:

@@ -168,6 +168,7 @@ export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments
       billingZip: account.billingZip ?? null,
       householdMonthlyBillingEnabled: account.householdMonthlyBillingEnabled === true,
       isActive: account.isActive !== false,
+      accountStatus: account.accountStatus === 'active' ? 'active' : 'inactive',
     },
     selectedMemberId: numberOrNull(overview.selectedMemberId),
     members: Array.isArray(overview.members)

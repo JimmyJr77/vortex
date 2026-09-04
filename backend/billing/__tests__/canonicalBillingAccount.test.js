@@ -57,6 +57,38 @@ test('canonical snapshot includes a hidden corrective credit reflected by the ne
   assert.equal(snapshot.futureCreditsCents, 6376)
 })
 
+test('a linked annual-membership coupon reduces its fee without becoming future credit', () => {
+  const snapshot = buildCanonicalFinancialSnapshot({
+    totals: {
+      charges_cents: 0,
+      payments_cents: 0,
+      refunds_cents: 0,
+    },
+    charges: [
+      {
+        id: 91,
+        amount_cents: 8500,
+        remaining_amount_cents: 8500,
+        charge_type: 'one_time',
+        source_type: 'additional_fee',
+        gross_amount_cents: 8500,
+        discount_amount_cents: 0,
+      },
+      {
+        id: 92,
+        amount_cents: -8500,
+        related_charge_id: 91,
+        charge_type: 'credit',
+        source_type: 'charge_adjustment',
+      },
+    ],
+  })
+
+  assert.equal(snapshot.balanceCents, 0)
+  assert.equal(snapshot.outstandingBalanceCents, 0)
+  assert.equal(snapshot.futureCreditsCents, 0)
+})
+
 test('a posted prior-month tuition charge stays outstanding while the recurring card previews next month', () => {
   const snapshot = buildCanonicalFinancialSnapshot({
     totals: { charges_cents: 34000, payments_cents: 0, refunds_cents: 0 },
@@ -140,6 +172,10 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     },
     revision: 'revision-1',
     recurringBillingMonth: '2026-10',
+    monthlyLedgerCharges: [
+      { id: 1, amount_cents: 15000, remaining_amount_cents: 5000, charge_type: 'one_time' },
+      { id: 2, amount_cents: -2000, remaining_amount_cents: 0, charge_type: 'credit' },
+    ],
     recurringCharges: [],
     collectibleBalanceCents: 7000,
   })
@@ -152,6 +188,8 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
   assert.match(chargesSql, /settled_payment\.external_status IN \('settled', 'succeeded'\)/)
   assert.match(chargesSql, /credit_source_application_totals/)
   assert.match(chargesSql, /linked_adjustment_totals/)
+  assert.match(chargesSql, /latest_paid_at/)
+  assert.match(chargesSql, /is_annual_membership/)
   assert.match(paymentsSql, /payment\.external_status IN \('settled', 'succeeded'\)/)
 })
 

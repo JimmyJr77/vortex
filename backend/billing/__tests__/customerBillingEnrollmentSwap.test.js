@@ -4,6 +4,7 @@ import {
   classSwapSettlement,
   classSwapPaymentTransferCents,
   classSwapTargetChargeValues,
+  classSwapTransferMetadata,
   normalizeCustomerBillingClassSwapInput,
   priceCustomerBillingClassSwapTargetFromOrderPreview,
   validateCustomerBillingClassSwapEffectiveDate,
@@ -56,6 +57,29 @@ test('a same-price move has no net balance change when its unused source credit 
       settlementKind: 'no_change',
       settlementAmountCents: 0,
     },
+  )
+})
+
+test('a class move records distinct incoming and outgoing ledger markers', () => {
+  const common = {
+    sourceSignupId: 102,
+    replacementSignupId: 111,
+    sourceChargeId: 39,
+    replacementChargeId: 100,
+    effectiveDate: '2026-09-01',
+    reason: 'Move to the available Tuesday class.',
+  }
+  assert.deepEqual(classSwapTransferMetadata({ ...common, direction: 'out' }), {
+    direction: 'out',
+    ...common,
+  })
+  assert.deepEqual(classSwapTransferMetadata({ ...common, direction: 'in' }), {
+    direction: 'in',
+    ...common,
+  })
+  assert.throws(
+    () => classSwapTransferMetadata({ ...common, direction: 'replace' }),
+    /incoming or outgoing/i,
   )
 })
 
@@ -122,7 +146,7 @@ test('a partial-month replacement keeps its class price and records proration in
       swapProrationCents: 3_187,
       discountAnnotations: [
         { kind: 'automatic', label: 'Automatic discount', amountCents: -2_250 },
-        { kind: 'manual', label: 'Prorated class swap', amountCents: -3_187 },
+        { kind: 'manual', label: 'Transfer adjustment', amountCents: -3_187 },
       ],
     },
   )

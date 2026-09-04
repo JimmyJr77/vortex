@@ -170,6 +170,7 @@ export interface CustomerBillingOverview {
     stripeCustomerId: string | null
     householdMonthlyBillingEnabled: boolean
     isActive: boolean
+    accountStatus: 'active' | 'inactive'
   }
   selectedMemberId: number | null
   members: CustomerBillingMember[]
@@ -259,6 +260,7 @@ export interface BillingTransaction {
   effectiveAmountCents?: number
   classCatalogId?: number | null
   classSchedule?: string | null
+  transferTag?: 'X-in' | 'X-out' | null
   discountAnnotations?: Array<{ kind: 'automatic' | 'coupon' | 'manual'; label: string; amountCents: number; code?: string | null }>
   occurredAt: string
   status: string

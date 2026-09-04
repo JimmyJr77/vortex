@@ -448,10 +448,13 @@ test('due annual membership charges are posted before the household invoice and 
         events.push('household-invoice')
         return { created: true }
       },
+      paymentAllocator: async () => {
+        events.push('payment-allocation')
+      },
     }),
   })
 
-  assert.deepEqual(events, ['annual-renewal', 'canonical-charges', 'household-invoice'])
+  assert.deepEqual(events, ['annual-renewal', 'canonical-charges', 'payment-allocation', 'household-invoice'])
   assert.equal(result.subscriptionsProcessed, 1)
   assert.equal(result.chargesPosted, 1)
   assert.equal(result.periodsAdvanced, 1)
@@ -460,7 +463,7 @@ test('due annual membership charges are posted before the household invoice and 
   assert.equal(result.householdInvoicesCreated, 1)
 })
 
-test('a ledger annual renewal alone triggers legacy payment allocation', async () => {
+test('a ledger annual renewal triggers one allocation replay in legacy collection', async () => {
   const account = {
     ...ACCOUNT,
     migration_state: null,

@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
+  classTransferTag,
+  customerBillingAccountStatus,
   buildMonthlyLedgerBill,
   billingMonthDueDate,
   customerBillingCardPresentation,
@@ -20,6 +22,36 @@ import {
   recurringPricingForPeriod,
   searchCustomerBilling,
 } from '../customerBillingQueries.js'
+
+test('overall account status is inactive without a valid membership or enrolled course', () => {
+  assert.equal(customerBillingAccountStatus({
+    account: { is_active: true },
+    annualMemberships: [{ active: false }],
+    enrollments: [],
+  }), 'inactive')
+  assert.equal(customerBillingAccountStatus({
+    account: { is_active: true },
+    annualMemberships: [{ active: true }],
+    enrollments: [],
+  }), 'active')
+  assert.equal(customerBillingAccountStatus({
+    account: { is_active: true },
+    annualMemberships: [],
+    enrollments: [{ status: 'scheduled', source: 'signup' }],
+  }), 'active')
+  assert.equal(customerBillingAccountStatus({
+    account: { is_active: false },
+    annualMemberships: [{ active: true }],
+    enrollments: [{ status: 'active', source: 'signup' }],
+  }), 'inactive')
+})
+
+test('class-transfer tags distinguish the outgoing and incoming bill lines without changing payment status', () => {
+  assert.equal(classTransferTag({ classTransfer: { direction: 'out' } }), 'X-out')
+  assert.equal(classTransferTag('{"classTransfer":{"direction":"in"}}'), 'X-in')
+  assert.equal(classTransferTag({ classTransfer: { direction: 'replacement' } }), null)
+  assert.equal(classTransferTag(null), null)
+})
 
 test('monthly ledger bill attributes an early household payment to its billed class month', () => {
   const bill = buildMonthlyLedgerBill({
@@ -65,6 +97,66 @@ test('monthly ledger bill attributes an early household payment to its billed cl
   })
 })
 
+test('monthly ledger bill includes an annual membership paid with September tuition', () => {
+  const bill = buildMonthlyLedgerBill({
+    billingMonth: '2026-09',
+    members: [
+      { id: 1, name: 'Aurora Udechukwu' },
+      { id: 2, name: 'Soleil Udechukwu' },
+      { id: 3, name: 'Orion Udechukwu' },
+      { id: 4, name: 'Nova Udechukwu' },
+    ],
+    classDisplays: new Map([
+      [11, { description: 'Twisters (Preschool) #49 · Wednesday · 17:30–18:30' }],
+      [12, { description: 'Twisters (Preschool) #49 · Wednesday · 17:30–18:30' }],
+      [13, { description: 'Tornadoes #3 · Wednesday · 17:30–19:00' }],
+      [14, { description: 'Tornadoes #3 · Wednesday · 17:30–19:00' }],
+    ]),
+    charges: [
+      { id: 11, charge_type: 'recurring', member_id: 1, service_period_start: '2026-09-01', amount_cents: 8000, applied_amount_cents: 8000 },
+      { id: 12, charge_type: 'recurring', member_id: 2, service_period_start: '2026-09-01', amount_cents: 8000, applied_amount_cents: 8000 },
+      { id: 13, charge_type: 'recurring', member_id: 3, service_period_start: '2026-09-01', amount_cents: 12000, applied_amount_cents: 12000 },
+      { id: 14, charge_type: 'recurring', member_id: 4, service_period_start: '2026-09-01', amount_cents: 12000, applied_amount_cents: 12000 },
+      {
+        id: 15,
+        charge_type: 'one_time',
+        source_type: 'additional_fee',
+        is_annual_membership: true,
+        member_id: 2,
+        description: 'Annual Fee',
+        latest_paid_at: '2026-09-02T13:00:00.000Z',
+        amount_cents: 8500,
+        applied_amount_cents: 8500,
+      },
+      {
+        id: 16,
+        charge_type: 'one_time',
+        source_type: 'additional_fee',
+        is_annual_membership: true,
+        member_id: 1,
+        description: 'Annual Fee',
+        latest_paid_at: '2026-09-02T13:00:00.000Z',
+        amount_cents: 8500,
+        linked_adjustment_cents: -8500,
+        applied_amount_cents: 0,
+      },
+    ],
+  })
+
+  assert.equal(bill.totalCents, 48500)
+  assert.equal(bill.paidCents, 48500)
+  assert.equal(bill.remainingCents, 0)
+  assert.equal(bill.status, 'paid')
+  assert.equal(bill.lineCount, 5)
+  assert.deepEqual(bill.lines.at(-1), {
+    id: 15,
+    memberName: 'Soleil Udechukwu',
+    description: 'Annual Fee',
+    lineType: 'annual_membership',
+    amountCents: 8500,
+  })
+})
+
 test('refund offsets reduce effective due amounts in annual and transaction displays', async () => {
   const annualQueries = []
   await loadCustomerBillingAnnualMemberships({
@@ -90,6 +182,8 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
     },
   }, { accountId: 19 })
   assert.match(householdTransactionQuery, /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(householdTransactionQuery, /c\.metadata->'classTransfer'->>'direction' IN \('in', 'out'\) THEN 'Transfer adjustment'/)
+  assert.match(householdTransactionQuery, /adjustment\.metadata->>'adjustmentKind' = 'class_swap_proration' THEN 'Transfer adjustment'/)
   assert.match(householdTransactionQuery, /LEFT JOIN enrollment_price_adjustment direct_price_adjustment/)
   assert.match(householdTransactionQuery, /direct_price_adjustment\.promo_code/)
   assert.match(householdTransactionQuery, /direct_price_adjustment\.kind = 'fixed_final_price'/)
@@ -108,6 +202,7 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
     },
   }, { accountId: 19 })
   assert.match(memberQueries[1], /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
+  assert.match(memberQueries[1], /WHEN page\.amount_cents <= 0 THEN 'paid'/)
   assert.match(
     memberQueries[1],
     /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
@@ -699,6 +794,7 @@ test('member-filtered transactions retain household payments and member-owned ch
               grossAmountCents: 10000,
               discountAmountCents: 1500,
               discountCode: 'MMBR01X26',
+              metadata: { classTransfer: { direction: 'out' } },
             },
           },
         ],
@@ -723,6 +819,7 @@ test('member-filtered transactions retain household payments and member-owned ch
   assert.deepEqual(page.rows[0].billingMonths, ['2026-09'])
   assert.equal(page.rows[0].details.referenceNumber, 85)
   assert.equal(page.rows[1].details.discountCode, 'MMBR01X26')
+  assert.equal(page.rows[1].transferTag, 'X-out')
   assert.match(queryText, /one_time_discount/)
   assert.match(queryText, /drop_in_registration/)
   assert.match(queryText, /charged_drop_in\.source_type = 'drop_in'/)

@@ -113,7 +113,7 @@ export function classSwapTargetChargeValues({
   if (swapProrationCents !== 0) {
     discountAnnotations.push({
       kind: 'manual',
-      label: 'Prorated class swap',
+      label: 'Transfer adjustment',
       amountCents: -swapProrationCents,
     })
   }
@@ -137,6 +137,68 @@ export function classSwapPaymentTransferCents({
     Math.max(0, cents(sourceAppliedCents) - cents(sourceRetainedCents)),
     Math.max(0, cents(replacementChargeCents) - cents(replacementAppliedCents)),
   )
+}
+
+function positiveIntegerOrNull(value) {
+  const normalized = Number(value)
+  return Number.isInteger(normalized) && normalized > 0 ? normalized : null
+}
+
+export function classSwapTransferMetadata({
+  direction,
+  sourceSignupId,
+  replacementSignupId,
+  sourceChargeId = null,
+  replacementChargeId = null,
+  effectiveDate,
+  reason,
+} = {}) {
+  if (!['in', 'out'].includes(direction)) throw new Error('A class transfer must be marked as incoming or outgoing.')
+  return {
+    direction,
+    sourceSignupId: positiveIntegerOrNull(sourceSignupId),
+    replacementSignupId: positiveIntegerOrNull(replacementSignupId),
+    sourceChargeId: positiveIntegerOrNull(sourceChargeId),
+    replacementChargeId: positiveIntegerOrNull(replacementChargeId),
+    effectiveDate: dateOnly(effectiveDate),
+    reason: String(reason ?? '').trim() || null,
+  }
+}
+
+async function annotateClassSwapCharges(client, {
+  accountId,
+  sourceSignupId,
+  replacementSignupId,
+  sourceChargeId,
+  replacementChargeId,
+  effectiveDate,
+  reason,
+}) {
+  const annotations = [
+    [sourceChargeId, 'out'],
+    [replacementChargeId, 'in'],
+  ].filter(([chargeId]) => positiveIntegerOrNull(chargeId) != null)
+
+  for (const [chargeId, direction] of annotations) {
+    const transfer = classSwapTransferMetadata({
+      direction,
+      sourceSignupId,
+      replacementSignupId,
+      sourceChargeId,
+      replacementChargeId,
+      effectiveDate,
+      reason,
+    })
+    const updated = await client.query(
+      `UPDATE billing_charge
+          SET metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object('classTransfer', $3::jsonb)
+        WHERE id = $1
+          AND family_billing_account_id = $2
+        RETURNING id`,
+      [Number(chargeId), Number(accountId), JSON.stringify(transfer)],
+    )
+    if (!updated.rows[0]) throw new Error(`Class transfer marker could not be saved for charge #${chargeId}.`)
+  }
 }
 
 export async function reallocateSettledClassSwapPayments(client, {
@@ -677,7 +739,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
           context.family_billing_account_id,
           context.member_id,
           `${context.signup_id}:${insertedSignup.id}:${request.effectiveDate}`,
-          `Prorated class swap adjustment — ${context.class_name} (${request.effectiveDate.slice(0, 7)})`,
+          `Transfer adjustment — ${context.class_name} (${request.effectiveDate.slice(0, 7)})`,
           -preview.unusedSourceCreditCents,
           context.billing_subscription_id,
           preview.sourceRelatedChargeId,
@@ -688,7 +750,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
             replacementSignupId: Number(insertedSignup.id),
             effectiveDate: request.effectiveDate,
             adjustmentKind: 'class_swap_proration',
-            adjustmentLabel: 'Prorated class swap',
+            adjustmentLabel: 'Transfer adjustment',
             customerAuditVisibility: 'suppressed',
             sourceRemainingClasses: preview.sourceRemainingClasses,
             sourceCreditRatio: preview.sourceCreditRatio,
@@ -705,6 +767,15 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       replacementChargeId,
       sourceRetainedCents: Math.max(0, preview.sourcePostedAmountCents - preview.unusedSourceCreditCents),
       requestKey,
+    })
+    await annotateClassSwapCharges(client, {
+      accountId: Number(context.family_billing_account_id),
+      sourceSignupId: Number(context.signup_id),
+      replacementSignupId: Number(insertedSignup.id),
+      sourceChargeId: preview.sourceRelatedChargeId,
+      replacementChargeId,
+      effectiveDate: request.effectiveDate,
+      reason: request.reason,
     })
 
     committed = {
@@ -883,10 +954,10 @@ export async function repairLegacyClassSwapLedger(pool, {
         [
           repair.adjustmentChargeId,
           `class-swap-proration:${repair.adjustmentChargeId}`,
-          `Prorated class swap adjustment — ${String(adjustment.description ?? '').replace(/^Prorated class move credit\s*[—-]?\s*/i, '')}`.trim(),
+          `Transfer adjustment — ${String(adjustment.description ?? '').replace(/^Prorated class move credit\s*[—-]?\s*/i, '')}`.trim(),
           JSON.stringify({
             adjustmentKind: 'class_swap_proration',
-            adjustmentLabel: 'Prorated class swap',
+            adjustmentLabel: 'Transfer adjustment',
             customerAuditVisibility: 'suppressed',
             repairedFromSourceType: 'enrollment_class_swap_credit',
           }),

@@ -255,7 +255,10 @@ export async function loadCanonicalFinancialSnapshot(pool, {
                 SUM(CASE
                   WHEN application.application_kind = 'reversal' THEN -application.amount_cents
                   ELSE application.amount_cents
-                END)::bigint AS applied_cents
+                END)::bigint AS applied_cents,
+                MAX(settled_payment.paid_at) FILTER (
+                  WHERE application.application_kind = 'application'
+                ) AS latest_paid_at
            FROM billing_payment_application application
            JOIN billing_charge scoped_charge ON scoped_charge.id = application.billing_charge_id
            JOIN billing_payment settled_payment ON settled_payment.id = application.billing_payment_id
@@ -297,6 +300,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
        ), candidate AS (
          SELECT charge.*,
                 COALESCE(application.applied_cents, 0)::bigint AS applied_amount_cents,
+                application.latest_paid_at,
                 COALESCE(credit_application.applied_cents, 0)::bigint AS credit_applied_amount_cents,
                 COALESCE(credit_source_application.allocated_cents, 0)::bigint
                   AS credit_allocated_amount_cents,
@@ -304,10 +308,26 @@ export async function loadCanonicalFinancialSnapshot(pool, {
                   AS linked_adjustment_cents,
                 GREATEST(
                   0,
-                  charge.amount_cents + COALESCE(linked_adjustment.adjustment_cents, 0)
+                  -- Keep the ledger remainder before linked corrections here.
+                  -- summarizeCustomerBalanceCards consumes the correction row
+                  -- and offsets this parent exactly once. Folding it in at
+                  -- this level makes a coupon credit look like unapplied
+                  -- household money.
+                  charge.amount_cents
                     - COALESCE(application.applied_cents, 0)
                     - COALESCE(credit_application.applied_cents, 0)
-                )::bigint AS remaining_amount_cents
+                )::bigint AS remaining_amount_cents,
+                EXISTS (
+                  SELECT 1
+                    FROM additional_fee fee
+                   WHERE charge.source_type = 'additional_fee'
+                     AND split_part(charge.source_id, ':', 1) ~ '^[0-9]+$'
+                     AND fee.id = split_part(charge.source_id, ':', 1)::bigint
+                     AND (
+                       fee.trigger_type = 'once_per_year'
+                       OR fee.apply_basis = 'per_year'
+                     )
+                ) AS is_annual_membership
            FROM billing_charge charge
            LEFT JOIN application_totals application ON application.billing_charge_id = charge.id
            LEFT JOIN credit_application_totals credit_application
@@ -325,6 +345,15 @@ export async function loadCanonicalFinancialSnapshot(pool, {
            OR (
              candidate.charge_type = 'recurring'
              AND to_char(COALESCE(candidate.service_period_start, candidate.created_at::date), 'YYYY-MM') = $2
+           )
+           -- A paid annual membership belongs on the month-level household
+           -- bill that actually collected it, even though it is a one-time
+           -- charge rather than recurring tuition. This preserves the exact
+           -- household total without inventing a Stripe invoice.
+           OR (
+             candidate.is_annual_membership
+             AND candidate.applied_amount_cents > 0
+             AND to_char(candidate.latest_paid_at AT TIME ZONE 'UTC', 'YYYY-MM') = $2
            )
            OR EXISTS (
              SELECT 1
@@ -387,6 +416,10 @@ export async function loadCanonicalFinancialSnapshot(pool, {
       subscriptions,
       recurringBillingMonth: effectiveRecurringBillingMonth,
     }),
+    // The monthly ledger bill can include paid annual memberships alongside
+    // recurring class tuition. Keeping the full relevant charge set here
+    // lets the presentation layer distinguish them without another read.
+    monthlyLedgerCharges: chargeResult.rows,
     recurringCharges: chargeResult.rows.filter((charge) => charge.charge_type === 'recurring'),
     collectibleBalanceCents,
   }

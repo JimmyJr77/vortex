@@ -22,6 +22,7 @@ export interface MemberBillingTransaction {
   runningBalanceCents: number
   classCatalogId?: number | null
   classSchedule?: string | null
+  transferTag?: 'X-in' | 'X-out' | null
 }
 
 export interface MemberCustomerBillingData {
@@ -174,10 +175,10 @@ function MonthlyHouseholdInvoiceSection({
         <p className="mt-2 text-xs text-gray-600">
           {ledgerBill
             ? ledgerBill.status === 'paid'
-              ? 'Class charges and their payment are recorded in Account History. No separate Stripe invoice was required for this settled bill.'
+              ? 'Bill lines and their payment are recorded in Account History. No separate Stripe invoice was required for this settled bill.'
               : ledgerBill.status === 'partially_paid'
                 ? `${formatMoney(ledgerBill.remainingCents)} remains after payments recorded in Account History.`
-                : 'Class charges are posted in Account History and remain unpaid.'
+                : 'Bill lines are posted in Account History and remain unpaid.'
             : hasPostedBill
             ? paymentMethodRequired
               ? 'Class charges are posted in Account History. Add a reusable payment method before Stripe can issue the household invoice.'
@@ -350,7 +351,7 @@ function TransactionTable({
             <tr key={`${transaction.entryKind}-${transaction.refId}`} className="border-t border-gray-100">
               <td className="whitespace-nowrap px-4 py-3 text-gray-600">{formatDate(transaction.occurredAt)}</td>
               <td className="px-4 py-3 text-gray-600">{transaction.memberName || 'Household'}</td>
-              <td className="max-w-[320px] px-4 py-3"><strong className="block truncate text-gray-900">{transaction.description}</strong>{transaction.billingMonths.length > 0 ? <span className="text-xs text-gray-500">{transaction.billingMonths.map(monthLabel).join(', ')}</span> : null}</td>
+              <td className="max-w-[320px] px-4 py-3"><div className="flex items-center gap-1.5"><strong className="min-w-0 truncate text-gray-900">{transaction.description}</strong>{transaction.transferTag ? <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${transaction.transferTag === 'X-out' ? 'bg-rose-50 text-rose-700' : 'bg-sky-50 text-sky-700'}`}>({transaction.transferTag})</span> : null}</div>{transaction.billingMonths.length > 0 ? <span className="text-xs text-gray-500">{transaction.billingMonths.map(monthLabel).join(', ')}</span> : null}</td>
               <td className="px-4 py-3 capitalize text-gray-600">{transaction.entryType.replaceAll('_', ' ')}</td>
               <td className="px-4 py-3"><StatusBadge value={transaction.status} /></td>
               <td className={`px-4 py-3 text-right font-semibold ${transaction.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{formatMoney(transaction.amountCents)}</td>
@@ -422,7 +423,7 @@ export default function MemberCustomerBilling({
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h1><StatusBadge value={overview.account.isActive ? 'active' : 'inactive'} /></div>
+            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h1><StatusBadge value={overview.account.accountStatus} /></div>
             <p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button type="button" onClick={() => setSelectedMemberId(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>

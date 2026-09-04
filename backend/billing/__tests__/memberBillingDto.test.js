@@ -13,6 +13,7 @@ test('member overview is an explicit allowlist without provider or administrator
       payerMemberId: 11,
       stripeCustomerId: 'cus_secret',
       isActive: true,
+      accountStatus: 'active',
     },
     members: [{ id: 11, name: 'Jordan Rivera', email: 'private@example.com', phone: '555-0100' }],
     summary: {
@@ -64,6 +65,7 @@ test('member overview is an explicit allowlist without provider or administrator
   })
 
   assert.equal(dto.account.familyName, 'Rivera')
+  assert.equal(dto.account.accountStatus, 'active')
   assert.equal(dto.members[0].email, null)
   assert.equal(dto.paymentMethod.paymentMethod.last4, '4242')
   assert.equal(dto.enrollments[0].class_name, 'Tornadoes')
