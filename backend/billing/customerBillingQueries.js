@@ -517,6 +517,15 @@ export function upcomingRecurringPricingMonth(asOf = new Date(), timeZone = 'Ame
   return day >= 5 ? billingMonthKey(addBillingMonths(currentMonth, 1)) : billingMonthKey(currentMonth)
 }
 
+// UI due dates must be full calendar dates. Sending a bare YYYY-MM string
+// makes JavaScript parse it as UTC midnight, which renders as the preceding
+// calendar day for facilities west of UTC.
+export function billingMonthDueDate(month) {
+  if (month == null || String(month).trim() === '') return null
+  const key = billingMonthKey(month)
+  return key ? `${key}-01` : null
+}
+
 export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
@@ -750,7 +759,7 @@ export async function buildCustomerBillingOverview(pool, {
     list.push(adjustment)
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
-  const nextBillDate = pricingMonth
+  const nextBillDate = billingMonthDueDate(pricingMonth)
   const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {
     familyId,

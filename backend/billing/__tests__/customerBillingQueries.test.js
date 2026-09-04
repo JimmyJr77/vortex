@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
+  billingMonthDueDate,
   customerFacingPriceSyncError,
   effectiveEnrollmentNextBillDate,
   earliestActiveNextBillDate,
@@ -456,6 +457,12 @@ test('next billing date accepts PostgreSQL DATE values returned as Date objects'
   ])
 
   assert.equal(nextBillDate, '2026-09-01')
+})
+
+test('billing-month due dates are serialized as full calendar dates', () => {
+  assert.equal(billingMonthDueDate('2026-09'), '2026-09-01')
+  assert.equal(billingMonthDueDate(new Date('2026-10-01T00:00:00.000Z')), '2026-10-01')
+  assert.equal(billingMonthDueDate(null), null)
 })
 
 test('paid enrollment service months advance independently while unpaid classes stay due', () => {
