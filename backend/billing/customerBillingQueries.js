@@ -517,7 +517,7 @@ export function upcomingRecurringPricingMonth(asOf = new Date(), timeZone = 'Ame
   return day >= 5 ? billingMonthKey(addBillingMonths(currentMonth, 1)) : billingMonthKey(currentMonth)
 }
 
-async function resolveAddressedBillingAlerts(pool, {
+export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
   householdCardRequired,
@@ -534,7 +534,10 @@ async function resolveAddressedBillingAlerts(pool, {
               END,
               updated_at = now()
         WHERE family_billing_account_id = $1
-          AND alert_type = 'monthly_invoice_payment_method_required'
+          AND alert_type IN (
+            'monthly_invoice_payment_method_required',
+            'enrollment_autopay_setup_required'
+          )
           AND resolved_at IS NULL`,
       [accountId, paymentMethodAvailable === true],
     )
@@ -910,7 +913,10 @@ export async function buildCustomerBillingOverview(pool, {
   const resolvedAlertIds = new Set(
     paymentMethod.available || !householdCardRequired
       ? alertsResult.rows
-        .filter((row) => row.alert_type === 'monthly_invoice_payment_method_required')
+        .filter((row) => (
+          row.alert_type === 'monthly_invoice_payment_method_required'
+          || row.alert_type === 'enrollment_autopay_setup_required'
+        ))
         .map((row) => Number(row.id))
       : [],
   )

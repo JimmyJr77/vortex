@@ -153,7 +153,28 @@ export async function completeStripeWebhookEvent(pool, event, { claimToken = nul
       RETURNING event_id`,
     [event.id, claimToken],
   )
-  if (completed.rows[0]) return { completed: true }
+  if (completed.rows[0]) {
+    // A later successful delivery makes an earlier delivery-failure alert for
+    // this exact Stripe event stale. The durable event status is authoritative
+    // here, so resolve only that alert and leave all other reconciliation
+    // alerts untouched.
+    await pool.query(
+      `UPDATE stripe_billing_alert
+          SET action_status = 'resolved',
+              resolved_at = now(),
+              resolution_note = 'Automatically resolved after Stripe redelivered and the webhook completed successfully.',
+              updated_at = now()
+        WHERE stripe_event_id = $1
+          AND alert_type = 'webhook_failure'
+          AND resolved_at IS NULL`,
+      [event.id],
+    ).catch((error) => {
+      // Webhook completion must remain available while rolling out to an
+      // environment that has not yet created the alert table.
+      if (error?.code !== '42P01' && error?.code !== '42703') throw error
+    })
+    return { completed: true }
+  }
   const existing = await pool.query(
     `SELECT status FROM stripe_webhook_event WHERE event_id = $1`,
     [event.id],

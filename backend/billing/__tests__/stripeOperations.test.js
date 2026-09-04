@@ -639,6 +639,7 @@ test('webhook terminal transitions clear lease credentials for the current owner
       const text = String(sql)
       calls.push({ text, params })
       if (text.includes("SET status = 'processed'")) return { rows: [{ event_id: params[0] }] }
+      if (text.includes('UPDATE stripe_billing_alert')) return { rows: [] }
       if (text.includes("SET status = 'failed'")) return { rows: [{ event_id: params[0] }] }
       throw new Error(`Unexpected terminal webhook query: ${text}`)
     },
@@ -657,11 +658,15 @@ test('webhook terminal transitions clear lease credentials for the current owner
     ),
     { failed: true },
   )
-  for (const call of calls) {
+  for (const call of calls.filter(({ text }) => text.includes('UPDATE stripe_webhook_event'))) {
     assert.match(call.text, /claim_token = NULL/)
     assert.match(call.text, /lease_expires_at = NULL/)
     assert.match(call.text, /claim_token = \$2/)
   }
+  const resolvedAlert = calls.find(({ text }) => text.includes('UPDATE stripe_billing_alert'))
+  assert.ok(resolvedAlert)
+  assert.equal(resolvedAlert.params[0], 'evt_complete')
+  assert.match(resolvedAlert.text, /alert_type = 'webhook_failure'/)
 })
 
 test('manual refund rejects an amount above the remaining payment balance', async () => {

@@ -12,6 +12,7 @@ import {
   listCustomerBillingTransactions,
   listMemberCustomerBillingTransactions,
   loadCustomerBillingAccount,
+  resolveAddressedBillingAlerts,
   recurringPricingForPeriod,
   searchCustomerBilling,
 } from '../customerBillingQueries.js'
@@ -77,6 +78,24 @@ test('customer account lookup excludes inactive accounts and returns its facilit
   assert.deepEqual(captured.params, [42, 9])
   assert.match(captured.sql, /account\.is_active = TRUE/)
   assert.match(captured.sql, /family\.facility_id AS family_facility_id/)
+})
+
+test('a usable household payment method resolves stale enrollment autopay alerts', async () => {
+  let captured = null
+  await resolveAddressedBillingAlerts({
+    async query(sql, params) {
+      captured = { sql: String(sql), params }
+      return { rows: [] }
+    },
+  }, {
+    accountId: 19,
+    paymentMethodAvailable: true,
+    householdCardRequired: true,
+  })
+
+  assert.deepEqual(captured.params, [19, true])
+  assert.match(captured.sql, /'enrollment_autopay_setup_required'/)
+  assert.match(captured.sql, /'monthly_invoice_payment_method_required'/)
 })
 
 test('customer search treats active family-member links as authoritative', async () => {
