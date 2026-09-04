@@ -28,9 +28,10 @@ export async function recordBillingActivity(db, {
        event_type, summary, before_value, after_value, details,
        stripe_object_id, actor_user_id, actor_type, occurred_at
      ) VALUES (
-       $1, $2, $3, $4, $5, $6, $7, $8, $9,
+       $1::text, $2::bigint, $3::bigint, $4::bigint,
+       $5::bigint, $6::bigint, $7::bigint, $8::text, $9::text,
        $10::jsonb, $11::jsonb, COALESCE($12::jsonb, '{}'::jsonb),
-       $13, $14, $15, COALESCE($16::timestamptz, now())
+       $13::text, $14::bigint, $15::text, COALESCE($16::timestamptz, now())
      )
      ON CONFLICT (event_key) WHERE event_key IS NOT NULL DO NOTHING
      RETURNING *`,
