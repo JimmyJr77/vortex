@@ -538,6 +538,16 @@ export function customerBillingCardPresentation(view = {}, displayPricing = {}) 
   }
 }
 
+export function isRetiredAnnualMembershipStripeSetupAlert(alert = {}) {
+  const type = String(alert.alert_type ?? alert.type ?? '').trim()
+  const message = String(alert.message ?? '').trim()
+  return (
+    type === 'membership_autorenewal_setup_required' ||
+    type === 'annual_membership_autorenewal_setup_required' ||
+    /^Annual Fee is paid, but automatic yearly renewal is not connected to Stripe\.?$/i.test(message)
+  )
+}
+
 export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
@@ -591,6 +601,26 @@ export async function resolveAddressedBillingAlerts(pool, {
                AND payment.external_status IN ('settled', 'succeeded')
                AND allocation.applied_cents = NULLIF(substring(alert.message FROM 'received ([0-9]+)'), '')::bigint
                AND payment.amount_cents = NULLIF(substring(alert.message FROM 'received ([0-9]+)'), '')::bigint
+          )`,
+      [accountId],
+    )
+    // Annual memberships now renew through the local household ledger. This
+    // historic warning only described a retired Stripe-subscription path and
+    // must not keep resurfacing for a paid membership.
+    await pool.query(
+      `UPDATE stripe_billing_alert alert
+          SET resolved_at = now(),
+              action_status = 'resolved',
+              resolution_note = 'Automatically resolved: annual memberships renew through the household billing ledger, not a standalone Stripe subscription.',
+              updated_at = now()
+        WHERE alert.family_billing_account_id = $1
+          AND alert.resolved_at IS NULL
+          AND (
+            alert.alert_type IN (
+              'membership_autorenewal_setup_required',
+              'annual_membership_autorenewal_setup_required'
+            )
+            OR alert.message ~* '^Annual Fee is paid, but automatic yearly renewal is not connected to Stripe\\.?$'
           )`,
       [accountId],
     )
@@ -964,14 +994,15 @@ export async function buildCustomerBillingOverview(pool, {
     householdCardRequired,
   })
   const resolvedAlertIds = new Set(
-    paymentMethod.available || !householdCardRequired
-      ? alertsResult.rows
-        .filter((row) => (
+    alertsResult.rows
+      .filter((row) => (
+        isRetiredAnnualMembershipStripeSetupAlert(row) ||
+        ((paymentMethod.available || !householdCardRequired) && (
           row.alert_type === 'monthly_invoice_payment_method_required'
           || row.alert_type === 'enrollment_autopay_setup_required'
         ))
-        .map((row) => Number(row.id))
-      : [],
+      ))
+      .map((row) => Number(row.id)),
   )
   const cardPresentation = customerBillingCardPresentation(view, displayPricing)
 
