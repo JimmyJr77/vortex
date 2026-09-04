@@ -111,6 +111,22 @@ test('automatic free-access rule can be safely restricted to one household', () 
   assert.equal(nonMatching.lines[0].finalCents, 10000)
 })
 
+test('lifetime household waiver applies through cost-level selections only to its household', () => {
+  const rule = promoRule({
+    type: 'free_classes',
+    amountValue: 10000,
+    config: {
+      benefit_type: 'class_offering',
+      lifetime_owner_waiver: true,
+      eligibility_rules: [{ field: 'family_id', operator: 'in', value: [9] }],
+    },
+  })
+  const selectedCostLine = { ...line('matching', 5, 9), costUsesSelections: true, costDiscountRuleIds: new Set() }
+  const otherFamilyLine = { ...line('other', 6, 10), costUsesSelections: true, costDiscountRuleIds: new Set() }
+  assert.equal(computeOrderDiscounts({ lines: [selectedCostLine], rules: [rule], caps: {} }).lines[0].finalCents, 0)
+  assert.equal(computeOrderDiscounts({ lines: [otherFamilyLine], rules: [rule], caps: {} }).lines[0].finalCents, 10000)
+})
+
 test('membership-fee promos are excluded from class tuition lines', () => {
   const rule = promoRule({
     amountValue: 10000,

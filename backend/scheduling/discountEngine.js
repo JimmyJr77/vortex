@@ -244,7 +244,11 @@ function scopeMatchesLine(rule, line) {
 
 /** Shared targeting/allowlist eligibility, including account-level system rules. */
 function ruleTargetsLine(rule, line) {
-  if (line.costUsesSelections) {
+  // A facility-approved lifetime owner waiver is explicitly bound to a
+  // canonical household by its eligibility rule. It must remain effective for
+  // every class, including offerings that otherwise opt into cost selections.
+  const lifetimeOwnerWaiver = rule.config?.lifetime_owner_waiver === true
+  if (line.costUsesSelections && !lifetimeOwnerWaiver) {
     if (!line.costDiscountRuleIds?.has(Number(rule.id))) return false
   } else if (!scopeMatchesLine(rule, line)) {
     return false
