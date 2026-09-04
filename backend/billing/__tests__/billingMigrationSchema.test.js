@@ -45,6 +45,10 @@ const paymentSettlementMigration = fs.readFileSync(
   path.join(testDirectory, '../../migrations/797_billing_payment_settlement_and_pass_idempotency.sql'),
   'utf8',
 )
+const migrationItemUpsertEvidenceMigration = fs.readFileSync(
+  path.join(testDirectory, '../../migrations/809_billing_migration_item_upsert_evidence.sql'),
+  'utf8',
+)
 
 test('canonical billing migration state owns the required durable records', () => {
   for (const table of [
@@ -145,6 +149,14 @@ test('durable migration safety freezes provenance and item mappings', () => {
   assert.match(durableSafetyMigration, /canonical billing migration items are append-only/)
   assert.match(durableSafetyMigration, /target evidence cannot be removed/)
   assert.match(durableSafetyMigration, /idx_billing_migration_item_remote_lookup/)
+})
+
+test('migration item evidence permits only its exact natural-key upsert', () => {
+  assert.match(migrationItemUpsertEvidenceMigration, /CREATE OR REPLACE FUNCTION enforce_billing_migration_item_evidence/)
+  assert.match(migrationItemUpsertEvidenceMigration, /other_item\.billing_account_migration_id = NEW\.billing_account_migration_id/)
+  assert.match(migrationItemUpsertEvidenceMigration, /other_item\.item_type = NEW\.item_type/)
+  assert.match(migrationItemUpsertEvidenceMigration, /other_item\.source_id = NEW\.source_id/)
+  assert.match(migrationItemUpsertEvidenceMigration, /canonical billing subscription mapping already belongs to active migration item/)
 })
 
 test('payment attempt reservations are durable, exact, and immutable', () => {

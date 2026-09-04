@@ -28,6 +28,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '797_billing_payment_settlement_and_pass_idempotency.sql',
   '798_checkout_fulfillment_idempotency.sql',
   '799_billing_payment_stripe_invoice_link.sql',
+  '809_billing_migration_item_upsert_evidence.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -79,6 +80,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '797_billing_payment_settlement_and_pass_idempotency.sql',
   '798_checkout_fulfillment_idempotency.sql',
   '799_billing_payment_stripe_invoice_link.sql',
+  '809_billing_migration_item_upsert_evidence.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
