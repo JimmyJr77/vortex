@@ -5,6 +5,7 @@ import {
   classSwapPaymentTransferCents,
   classSwapTargetChargeValues,
   classSwapTransferMetadata,
+  legacyClassSwapAdjustmentCents,
   normalizeCustomerBillingClassSwapInput,
   priceCustomerBillingClassSwapTargetFromOrderPreview,
   validateCustomerBillingClassSwapEffectiveDate,
@@ -171,6 +172,11 @@ test('a class move reassigns only the source payment that no longer belongs to d
     }),
     6_375,
   )
+})
+
+test('legacy class-swap credits retain their negative ledger magnitude during repair', () => {
+  assert.equal(legacyClassSwapAdjustmentCents(-12_750), 12_750)
+  assert.equal(legacyClassSwapAdjustmentCents(0), 0)
 })
 
 test('a class move excludes its source enrollment from household discount counts', async () => {

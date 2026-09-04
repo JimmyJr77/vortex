@@ -36,6 +36,13 @@ function cents(value) {
   return Math.max(0, Math.round(Number(value) || 0))
 }
 
+// Legacy standalone class-swap credits store their correction as a negative
+// ledger amount. The repair needs its magnitude to determine how much of the
+// settled source payment belongs on the replacement class.
+export function legacyClassSwapAdjustmentCents(value) {
+  return Math.max(0, Math.round(Math.abs(Number(value) || 0)))
+}
+
 function targetSlotKey({ targetFormId, targetSlotGroupId, targetTimeSlotId }) {
   return `${targetFormId}:${targetSlotGroupId}:${targetTimeSlotId ?? 'none'}`
 }
@@ -914,7 +921,7 @@ export async function repairLegacyClassSwapLedger(pool, {
     sourceAmountCents: cents(row.source_amount_cents),
     replacementChargeId: Number(row.replacement_charge_id),
     replacementAmountCents: cents(row.replacement_amount_cents),
-    adjustmentAmountCents: cents(row.adjustment_amount_cents),
+    adjustmentAmountCents: legacyClassSwapAdjustmentCents(row.adjustment_amount_cents),
     servicePeriodStart: dateOnly(row.service_period_start),
     servicePeriodEnd: dateOnly(row.service_period_end),
   }))
@@ -947,8 +954,7 @@ export async function repairLegacyClassSwapLedger(pool, {
                 charge_type = 'adjustment',
                 billing_interval = 'one_time',
                 collection_status = 'none',
-                metadata = COALESCE(metadata, '{}'::jsonb) || $4::jsonb,
-                updated_at = now()
+                metadata = COALESCE(metadata, '{}'::jsonb) || $4::jsonb
           WHERE id = $1
           RETURNING id`,
         [
