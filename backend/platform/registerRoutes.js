@@ -3147,7 +3147,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           access,
           revision: overview?.revision ?? null,
           overview: overview
-            ? buildMemberBillingOverviewDto({ ...overview, ...bundles, alerts: [] })
+            ? buildMemberBillingOverviewDto({ ...overview, ...bundles, alerts: [] }, {
+                canManagePayments: access.canManagePayments,
+              })
             : null,
           transactions: [],
           nextTransactionCursor: null,

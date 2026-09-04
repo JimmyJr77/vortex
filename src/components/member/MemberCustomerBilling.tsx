@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, CreditCard, Plus, RefreshCw, WalletCards } from 'lucide-react'
+import { ChevronDown, CreditCard, ExternalLink, Plus, RefreshCw, WalletCards } from 'lucide-react'
 import type {
   BillingDiscountComponent,
   CustomerBillingAnnualMembership,
@@ -117,6 +117,57 @@ function MetricCard({
       <p className="text-xs font-bold uppercase tracking-wide text-gray-500">{label}</p>
       <p className={`mt-2 text-2xl font-black ${color}`}>{value}</p>
       <p className="mt-1 text-xs text-gray-500">{detail}</p>
+    </div>
+  )
+}
+
+function monthlyInvoiceStatusLabel(status: string) {
+  if (status === 'paid') return 'Paid'
+  if (status === 'payment_method_required') return 'Payment method needed'
+  if (status === 'failed') return 'Payment failed'
+  return 'Payment pending'
+}
+
+function MonthlyHouseholdInvoiceSection({
+  invoices,
+  billingMonth,
+  formatMoney,
+}: {
+  invoices: CustomerBillingOverview['monthlyInvoices']
+  billingMonth: string | null | undefined
+  formatMoney: (cents: number) => string
+}) {
+  const invoice = billingMonth
+    ? invoices.find((item) => item.billingMonth?.slice(0, 7) === billingMonth.slice(0, 7)) ?? null
+    : invoices[0] ?? null
+  const billingMonthDate = billingMonth ? `${billingMonth.slice(0, 7)}-01` : null
+  if (!invoice) {
+    return (
+      <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <strong className="text-gray-950">Monthly household invoice · {formatDate(billingMonthDate)}</strong>
+          <span className="text-gray-500">Not issued</span>
+        </div>
+        <p className="mt-2 text-xs text-gray-600">No household invoice has been issued for this billing month yet.</p>
+      </div>
+    )
+  }
+  return (
+    <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <strong className="text-gray-950">Monthly household invoice · {formatDate(invoice.billingMonth)}</strong>
+          <span className="ml-2 text-gray-500">{invoice.lineCount} items · {monthlyInvoiceStatusLabel(invoice.status)}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <strong className="text-gray-950">{formatMoney(invoice.totalCents)}</strong>
+            {invoice.postPaymentCreditCents > 0 ? <div className="text-xs font-medium text-emerald-700">{formatMoney(invoice.postPaymentCreditCents)} moved to account credit</div> : null}
+          </div>
+          {invoice.hostedInvoiceUrl ? <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700">Open payment link <ExternalLink className="h-3.5 w-3.5" /></a> : null}
+        </div>
+      </div>
+      {invoice.lines.length > 0 ? <div className="mt-3 grid gap-1 text-xs text-gray-600 sm:grid-cols-2">{invoice.lines.map((line) => <div key={line.id} className="flex items-center justify-between gap-3"><span className="truncate">{line.memberName ? `${line.memberName} · ` : ''}{line.description}</span><span className="font-semibold text-gray-800">{formatMoney(line.amountCents)}</span></div>)}</div> : null}
     </div>
   )
 }
@@ -358,14 +409,11 @@ export default function MemberCustomerBilling({
           {visibleMemberships.map((membership) => <AnnualMembershipCard key={membership.memberId} membership={membership} formatMoney={formatMoney} onEnroll={canManageBilling ? onEnroll : undefined} canManageAutoRenewal={data?.access.canManageAnnualMembershipAutoRenewal === true} saving={annualMembershipRenewalLoading} onSetAutoRenewal={onSetAnnualMembershipAutoRenewal} />)}
         </div>
 
-        {overview.monthlyInvoices.length > 0 ? (
-          <div className="border-t border-gray-200 px-5 py-4 text-sm">
-            <strong className="text-gray-950">Monthly household invoice · {formatDate(overview.monthlyInvoices[0].billingMonth)}</strong>
-            <span className="ml-2 text-gray-500">{overview.monthlyInvoices[0].lineCount} items · {overview.monthlyInvoices[0].status.replaceAll('_', ' ')}</span>
-            <strong className="ml-3 text-gray-950">{formatMoney(overview.monthlyInvoices[0].totalCents)}</strong>
-            {overview.monthlyInvoices[0].postPaymentCreditCents > 0 ? <span className="ml-2 text-emerald-700">{formatMoney(overview.monthlyInvoices[0].postPaymentCreditCents)} moved to account credit</span> : null}
-          </div>
-        ) : null}
+        <MonthlyHouseholdInvoiceSection
+          invoices={overview.monthlyInvoices}
+          billingMonth={overview.summary.monthlyRecurringPeriod}
+          formatMoney={formatMoney}
+        />
 
         <div className="border-t border-gray-200 p-5">
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start gap-3"><WalletCards className="mt-0.5 h-4 w-4 text-gray-700" /><div><div className="text-sm font-bold text-gray-900">Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-1 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-1 text-sm text-gray-500">No reusable default card found.</p>}</div></div></div>

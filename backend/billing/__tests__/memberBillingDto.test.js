@@ -44,6 +44,7 @@ test('member overview is an explicit allowlist without provider or administrator
       failureMessage: 'provider detail',
       lineCount: 1,
       postPaymentCreditCents: 6376,
+      lines: [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', lineType: 'charge', amountCents: 12000 }],
     }],
     adjustments: [{ createdByUserId: 44 }],
     subscriptions: [{ stripeSubscriptionId: 'sub_secret' }],
@@ -56,6 +57,8 @@ test('member overview is an explicit allowlist without provider or administrator
   assert.equal(dto.enrollments[0].class_name, 'Tornadoes')
   assert.equal(dto.monthlyInvoices[0].totalCents, 12000)
   assert.equal(dto.monthlyInvoices[0].postPaymentCreditCents, 6376)
+  assert.deepEqual(dto.monthlyInvoices[0].lines, [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', lineType: 'charge', amountCents: 12000 }])
+  assert.equal(dto.monthlyInvoices[0].hostedInvoiceUrl, null)
   assert.deepEqual(dto.alerts, [])
   assert.deepEqual(dto.adjustments, [])
   assert.deepEqual(dto.subscriptions, [])
@@ -75,4 +78,17 @@ test('member overview is an explicit allowlist without provider or administrator
   ]) {
     assert.equal(serialized.includes(forbidden), false, `member DTO leaked ${forbidden}`)
   }
+})
+
+test('member billing gives the family payer the household invoice payment link', () => {
+  const dto = buildMemberBillingOverviewDto({
+    account: { id: 8, familyId: 7, isActive: true },
+    monthlyInvoices: [{
+      id: 5,
+      billingMonth: '2026-09-01',
+      hostedInvoiceUrl: 'https://invoice.stripe.test/i/payer-only',
+    }],
+  }, { canManagePayments: true })
+
+  assert.equal(dto.monthlyInvoices[0].hostedInvoiceUrl, 'https://invoice.stripe.test/i/payer-only')
 })

@@ -780,8 +780,11 @@ export async function buildCustomerBillingOverview(pool, {
       }),
       loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth }),
       listHouseholdMonthlyInvoices(pool, account.id, {
+        // Both Billing surfaces present the current household invoice. Line
+        // descriptions and amounts are customer-facing ledger facts, while
+        // the member DTO below continues to withhold processor identifiers.
         limit: memberRead ? 1 : 6,
-        includeLines: !memberRead,
+        includeLines: true,
       }).catch((error) => {
         if (error?.code === '42P01') return []
         throw error

@@ -581,9 +581,27 @@ function MembershipMetricCard({
   )
 }
 
-function MonthlyInvoiceSummary({ invoices }: { invoices: CustomerBillingOverview['monthlyInvoices'] }) {
-  const invoice = invoices[0]
-  if (!invoice) return null
+function MonthlyInvoiceSummary({
+  invoices,
+  billingMonth,
+}: {
+  invoices: CustomerBillingOverview['monthlyInvoices']
+  billingMonth: string | null | undefined
+}) {
+  const invoice = billingMonth
+    ? invoices.find((item) => item.billingMonth?.slice(0, 7) === billingMonth.slice(0, 7)) ?? null
+    : invoices[0] ?? null
+  if (!invoice) {
+    return (
+      <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <strong className="text-gray-950">Monthly household invoice · {billingMonthLabel(billingMonth)}</strong>
+          <span className="text-gray-500">Not issued</span>
+        </div>
+        <p className="mt-2 text-xs text-gray-600">No household invoice has been issued for this billing month yet.</p>
+      </div>
+    )
+  }
   const label = invoice.status === 'paid'
     ? 'Paid'
     : invoice.status === 'payment_method_required'
@@ -1500,7 +1518,7 @@ export default function AdminCustomerBilling({
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
               {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} />)}
             </div>
-            <MonthlyInvoiceSummary invoices={overview.monthlyInvoices} />
+            <MonthlyInvoiceSummary invoices={overview.monthlyInvoices} billingMonth={overview.summary.monthlyRecurringPeriod} />
             {overview.summary.stripeSync.status !== 'healthy' ? (
               <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-3">

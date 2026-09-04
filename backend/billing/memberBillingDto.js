@@ -95,7 +95,7 @@ function memberBundleUsage(usage = {}) {
   }
 }
 
-function memberMonthlyInvoice(invoice = {}) {
+function memberMonthlyInvoice(invoice = {}, { includeHostedInvoiceUrl = false } = {}) {
   return {
     id: Number(invoice.id),
     billingMonth: invoice.billingMonth ?? null,
@@ -108,6 +108,18 @@ function memberMonthlyInvoice(invoice = {}) {
     lastAutomaticAttemptAt: invoice.lastAutomaticAttemptAt ?? null,
     paidAt: invoice.paidAt ?? null,
     lineCount: Number(invoice.lineCount ?? 0),
+    hostedInvoiceUrl: includeHostedInvoiceUrl && typeof invoice.hostedInvoiceUrl === 'string'
+      ? invoice.hostedInvoiceUrl
+      : null,
+    lines: Array.isArray(invoice.lines)
+      ? invoice.lines.map((line) => ({
+          id: Number(line.id),
+          memberName: line.memberName ?? null,
+          description: line.description ?? '',
+          lineType: line.lineType ?? 'charge',
+          amountCents: Number(line.amountCents ?? 0),
+        }))
+      : [],
   }
 }
 
@@ -116,7 +128,7 @@ function memberMonthlyInvoice(invoice = {}) {
  * provider identifiers, adjustment audit snapshots, sync diagnostics, and
  * actor ids that must never drift into the member portal response.
  */
-export function buildMemberBillingOverviewDto(overview = {}) {
+export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments = false } = {}) {
   const account = overview.account ?? {}
   const paymentMethod = overview.paymentMethod?.paymentMethod ?? null
   const summary = overview.summary ?? {}
@@ -193,7 +205,9 @@ export function buildMemberBillingOverviewDto(overview = {}) {
       ? overview.annualMemberships.map(memberAnnualMembership)
       : [],
     monthlyInvoices: Array.isArray(overview.monthlyInvoices)
-      ? overview.monthlyInvoices.map(memberMonthlyInvoice)
+      ? overview.monthlyInvoices.map((invoice) => memberMonthlyInvoice(invoice, {
+          includeHostedInvoiceUrl: canManagePayments === true,
+        }))
       : [],
     bundlePasses: Array.isArray(overview.bundlePasses)
       ? overview.bundlePasses.map(memberBundlePass)
