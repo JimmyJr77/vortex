@@ -924,7 +924,9 @@ export async function buildCustomerBillingOverview(pool, {
         ...row,
         status: isDropIn ? 'drop_in' : customerEnrollmentStatus(row),
         memberId: group.member.id,
-        memberName: group.member.name,
+        memberName: group.member.name
+          || [group.member.firstName, group.member.lastName].filter(Boolean).join(' ').trim()
+          || null,
         classCostCents: grossCents,
         automaticDiscountCents: Number(resolved.automaticDiscountCents ?? Math.max(0, grossCents - automaticNetCents)),
         automaticDiscountComponents,
@@ -1265,7 +1267,10 @@ export async function listCustomerBillingTransactions(pool, {
              one_time_discount.discount_code
            ),
            'discountAnnotations',
-             (CASE WHEN c.discount_amount_cents <> 0 THEN jsonb_build_array(jsonb_strip_nulls(jsonb_build_object(
+             (CASE
+               WHEN jsonb_typeof(c.metadata->'discountAnnotations') = 'array'
+                 THEN c.metadata->'discountAnnotations'
+               WHEN c.discount_amount_cents <> 0 THEN jsonb_build_array(jsonb_strip_nulls(jsonb_build_object(
                'kind', CASE
                  WHEN direct_price_adjustment.kind = 'fixed_final_price' THEN 'manual'
                  WHEN COALESCE(NULLIF(c.metadata->>'discountCode', ''), NULLIF(c.metadata->>'promoCode', ''), NULLIF(direct_price_adjustment.promo_code, ''), NULLIF(charge_adjustments.discount_code, ''), one_time_discount.discount_code) IS NULL THEN 'automatic'
@@ -1349,6 +1354,7 @@ export async function listCustomerBillingTransactions(pool, {
                 COALESCE(jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
                   'kind', CASE WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NULL THEN 'manual' ELSE 'coupon' END,
                   'label', CASE
+                    WHEN adjustment.metadata->>'adjustmentKind' = 'class_swap_proration' THEN 'Prorated class swap'
                     WHEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')) IS NOT NULL THEN COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, ''))
                     WHEN adjustment.source_type = 'refund_offset' THEN 'Refund adjustment'
                     WHEN adjustment.source_type = 'price_adjustment_reversal' THEN 'Manual adjustment reversal'

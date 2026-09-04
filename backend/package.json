@@ -42,6 +42,7 @@
     "billing:repair-recurring-periods": "node scripts/repair-recurring-charge-service-periods.mjs",
     "billing:repair-initial-proration": "node scripts/repair-initial-enrollment-proration.mjs",
     "billing:repair-late-start-enrollments": "node scripts/repair-late-start-enrollment-billing.mjs",
+    "billing:repair-class-swaps": "node scripts/repair-class-swap-history.mjs",
     "billing:repair-duplicate-invoice-payments": "node scripts/repair-duplicate-stripe-invoice-payments.mjs",
     "billing:migration:audit": "node scripts/audit-canonical-billing-migration.mjs",
     "billing:migration:repair": "node scripts/repair-canonical-billing-migration.mjs",

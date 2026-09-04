@@ -1156,7 +1156,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
               GREATEST(
                 0,
                 charge.amount_cents
-                  + COALESCE(refund_offset.offset_cents, 0)
+                  + COALESCE(linked_adjustment.adjustment_cents, 0)
                   - COALESCE(application.applied_cents, 0)
                   - COALESCE(credit_application.applied_cents, 0)
               )::int AS remaining_cents
@@ -1169,12 +1169,12 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
             WHERE item.billing_charge_id = charge.id
               AND settled_payment.external_status IN ('settled', 'succeeded')
          ) application ON TRUE
-         LEFT JOIN LATERAL (
-           SELECT COALESCE(SUM(offset_charge.amount_cents), 0)::int AS offset_cents
-             FROM billing_charge offset_charge
-            WHERE offset_charge.related_charge_id = charge.id
-              AND offset_charge.source_type = 'refund_offset'
-         ) refund_offset ON TRUE
+       LEFT JOIN LATERAL (
+           SELECT COALESCE(SUM(adjustment_charge.amount_cents), 0)::int AS adjustment_cents
+             FROM billing_charge adjustment_charge
+            WHERE adjustment_charge.related_charge_id = charge.id
+              AND adjustment_charge.source_type IN ('refund_offset', 'charge_adjustment')
+         ) linked_adjustment ON TRUE
          LEFT JOIN LATERAL (
            SELECT SUM(credit.amount_cents)::int AS applied_cents
              FROM billing_charge_credit_application credit
@@ -1195,7 +1195,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
           AND GREATEST(
                 0,
                 charge.amount_cents
-                  + COALESCE(refund_offset.offset_cents, 0)
+                  + COALESCE(linked_adjustment.adjustment_cents, 0)
                   - COALESCE(application.applied_cents, 0)
                   - COALESCE(credit_application.applied_cents, 0)
               ) > 0
@@ -1258,7 +1258,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
          ) consumed ON TRUE
         WHERE charge.family_billing_account_id = $1
           AND charge.amount_cents < 0
-          AND charge.source_type <> 'refund_offset'
+          AND charge.source_type NOT IN ('refund_offset', 'charge_adjustment')
           AND GREATEST(
                 0,
                 ABS(charge.amount_cents) - COALESCE(consumed.consumed_cents, 0)

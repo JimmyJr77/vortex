@@ -26,6 +26,7 @@ interface ClassSwapPreview {
   replacementMonthlyCents: number
   sourceRemainingClasses: number
   unusedSourceCreditCents: number
+  sourceFirstPeriodCents: number
   replacementFirstMonthCents: number
   replacementRemainingClasses: number | null
   settlementKind: 'one_time_charge' | 'account_credit' | 'no_change'
@@ -261,14 +262,7 @@ export default function NewBillingEnrollmentModal({
         )
         const body = await response.json().catch(() => ({}))
         if (!response.ok) throw new Error(body.message || 'The class move could not be applied.')
-        const delta = Number(body.data?.ledgerDeltaCents ?? swapPreview?.ledgerDeltaCents ?? 0)
-        onCreated(
-          delta > 0
-            ? `Class move completed. ${money(delta)} was added to the account balance as a one-time prorated charge.`
-            : delta < 0
-              ? `Class move completed. ${money(Math.abs(delta))} was added to the account as a prorated credit.`
-              : 'Class move completed with no net prorated balance change.',
-        )
+        onCreated('Class move completed. The current-month class bills and any existing payment were reconciled in place.')
         return
       }
       await adminCreateSignup({
@@ -333,7 +327,7 @@ export default function NewBillingEnrollmentModal({
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-vortex-red">Account Billing &amp; Enrollments</p>
             <h2 id="new-billing-enrollment-title" className="mt-1 text-xl font-black text-gray-950">{isSwap ? 'Move to another class' : 'Add family enrollment'}</h2>
-            <p className="mt-1 text-sm text-gray-500">{isSwap ? 'Choose a replacement class and schedule, then review any prorated balance change before applying the move.' : 'Select a family member, class, schedule, and effective enrollment date.'}</p>
+            <p className="mt-1 text-sm text-gray-500">{isSwap ? 'Choose a replacement class and schedule. The original and replacement class bills will be prorated in place from the move date.' : 'Select a family member, class, schedule, and effective enrollment date.'}</p>
           </div>
           <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50" aria-label="Close new enrollment">
             <X className="h-5 w-5" />
@@ -355,7 +349,7 @@ export default function NewBillingEnrollmentModal({
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">{isSwap ? 'Replacement class' : 'Class'}</dt><dd className="mt-1 font-semibold text-gray-950">{classLabel(selectedForm)}</dd><dd className="text-sm text-gray-600">{programLabel(selectedForm)}</dd></div>
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Schedule</dt><dd className="mt-1 font-semibold text-gray-950">{selectedSchedule.label}</dd><dd className="text-sm text-gray-600">{selectedSchedule.availability}</dd></div>
               </dl>
-              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Unused source-class credit</span><strong className="mt-1 block text-lg">{money(swapPreview.unusedSourceCreditCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'}</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement first-period cost</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">{swapPreview.settlementKind === 'one_time_charge' ? `${money(swapPreview.settlementAmountCents)} will be added as a one-time prorated account charge. The saved card will not be charged automatically.` : swapPreview.settlementKind === 'account_credit' ? `${money(swapPreview.settlementAmountCents)} will be recorded as an account credit. It can offset a future bill; use the existing refund action only if funds must return to the card.` : 'The unused credit and replacement cost offset exactly; no one-time balance entry is needed.'}</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
+              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Original class through move date</span><strong className="mt-1 block text-lg">{money(swapPreview.sourceFirstPeriodCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'} will be removed from its bill</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement class for the remaining month</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">The original and replacement class lines will be prorated in place. Any settled payment is reassigned to the replacement class where applicable; no separate class-swap credit line is created.</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
             </div>
           ) : (
             <div className="space-y-6">

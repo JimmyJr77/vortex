@@ -129,7 +129,7 @@ test('customer enrollment projection is strictly read-only', async () => {
 
   const result = await buildAdminMemberEnrollments(pool, 11, { readOnly: true })
   assert.deepEqual(result, {
-    member: { id: 11, firstName: 'Read', lastName: 'Only' },
+    member: { id: 11, firstName: 'Read', lastName: 'Only', name: 'Read Only' },
     rows: [],
   })
   assert.ok(statements.length > 0)

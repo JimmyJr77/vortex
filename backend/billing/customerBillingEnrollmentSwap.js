@@ -84,6 +84,180 @@ export function classSwapSettlement({ targetProratedCents = 0, unusedSourceCredi
   }
 }
 
+/**
+ * A class move changes service delivered in the active month, not the amount
+ * that was paid.  Keep the regular class price as the gross amount and express
+ * the unused portion as a durable, customer-facing proration annotation.
+ */
+export function classSwapTargetChargeValues({
+  grossCents = 0,
+  automaticDiscountCents = 0,
+  firstPeriodCents = 0,
+} = {}) {
+  const grossAmountCents = cents(grossCents)
+  const amountCents = cents(firstPeriodCents)
+  const totalAdjustmentCents = grossAmountCents - amountCents
+  const automaticCents = Math.min(
+    Math.max(0, totalAdjustmentCents),
+    cents(automaticDiscountCents),
+  )
+  const swapProrationCents = totalAdjustmentCents - automaticCents
+  const discountAnnotations = []
+  if (automaticCents > 0) {
+    discountAnnotations.push({
+      kind: 'automatic',
+      label: 'Automatic discount',
+      amountCents: -automaticCents,
+    })
+  }
+  if (swapProrationCents !== 0) {
+    discountAnnotations.push({
+      kind: 'manual',
+      label: 'Prorated class swap',
+      amountCents: -swapProrationCents,
+    })
+  }
+  return {
+    amountCents,
+    grossAmountCents,
+    discountAmountCents: totalAdjustmentCents,
+    automaticDiscountCents: automaticCents,
+    swapProrationCents,
+    discountAnnotations,
+  }
+}
+
+export function classSwapPaymentTransferCents({
+  sourceAppliedCents = 0,
+  sourceRetainedCents = 0,
+  replacementChargeCents = 0,
+  replacementAppliedCents = 0,
+} = {}) {
+  return Math.min(
+    Math.max(0, cents(sourceAppliedCents) - cents(sourceRetainedCents)),
+    Math.max(0, cents(replacementChargeCents) - cents(replacementAppliedCents)),
+  )
+}
+
+export async function reallocateSettledClassSwapPayments(client, {
+  accountId,
+  sourceChargeId,
+  replacementChargeId,
+  sourceRetainedCents,
+  requestKey,
+}) {
+  if (!sourceChargeId || !replacementChargeId) return { transferredCents: 0, applications: [] }
+
+  const [sourceApplications, targetApplications, reversalTotals] = await Promise.all([
+    client.query(
+      `SELECT application.id, application.billing_payment_id, application.amount_cents,
+              payment.paid_at
+         FROM billing_payment_application application
+         JOIN billing_payment payment ON payment.id = application.billing_payment_id
+        WHERE application.billing_charge_id = $1
+          AND application.application_kind = 'application'
+          AND payment.family_billing_account_id = $2
+          AND payment.external_status IN ('settled', 'succeeded')
+        ORDER BY payment.paid_at, application.id
+        FOR UPDATE OF application, payment`,
+      [Number(sourceChargeId), Number(accountId)],
+    ),
+    client.query(
+      `SELECT COALESCE(SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END), 0)::int AS applied_cents
+         FROM billing_payment_application
+        WHERE billing_charge_id = $1`,
+      [Number(replacementChargeId)],
+    ),
+    client.query(
+      `SELECT reverses_application_id, amount_cents
+         FROM billing_payment_application
+        WHERE application_kind = 'reversal'
+          AND reverses_application_id IN (
+            SELECT id
+              FROM billing_payment_application
+             WHERE billing_charge_id = $1
+               AND application_kind = 'application'
+          )
+        FOR UPDATE`,
+      [Number(sourceChargeId)],
+    ),
+  ])
+
+  const replacementCharge = await client.query(
+    `SELECT amount_cents
+       FROM billing_charge
+      WHERE id = $1 AND family_billing_account_id = $2
+      FOR UPDATE`,
+    [Number(replacementChargeId), Number(accountId)],
+  ).then((result) => result.rows[0] ?? null)
+  if (!replacementCharge) throw new Error('The replacement class charge could not be locked for payment reassignment.')
+
+  const reversedByApplicationId = new Map()
+  for (const reversal of reversalTotals.rows) {
+    const applicationId = Number(reversal.reverses_application_id)
+    reversedByApplicationId.set(
+      applicationId,
+      (reversedByApplicationId.get(applicationId) ?? 0) + cents(reversal.amount_cents),
+    )
+  }
+  const sourceAppliedCents = sourceApplications.rows.reduce((sum, application) => (
+    sum + Math.max(0, cents(application.amount_cents) - (reversedByApplicationId.get(Number(application.id)) ?? 0))
+  ), 0)
+  const targetAppliedCents = cents(targetApplications.rows[0]?.applied_cents)
+  let remainingCents = classSwapPaymentTransferCents({
+    sourceAppliedCents,
+    sourceRetainedCents,
+    replacementChargeCents: replacementCharge.amount_cents,
+    replacementAppliedCents: targetAppliedCents,
+  })
+  const applications = []
+
+  for (const sourceApplication of sourceApplications.rows) {
+    if (remainingCents <= 0) break
+    const sourceApplicationId = Number(sourceApplication.id)
+    const availableCents = Math.max(
+      0,
+      cents(sourceApplication.amount_cents) - (reversedByApplicationId.get(sourceApplicationId) ?? 0),
+    )
+    const amountCents = Math.min(availableCents, remainingCents)
+    if (amountCents <= 0) continue
+    const reversalKey = `class-swap-reallocation:${requestKey}:reverse:${sourceApplicationId}`
+    const applicationKey = `class-swap-reallocation:${requestKey}:apply:${sourceApplicationId}:${replacementChargeId}`
+    const reversal = await client.query(
+      `INSERT INTO billing_payment_application (
+         billing_payment_id, billing_charge_id, amount_cents, application_kind,
+         reverses_application_id, idempotency_key, allocation_reason
+       ) VALUES ($1, $2, $3, 'reversal', $4, $5, 'class_swap_reallocation')
+       ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
+       RETURNING id`,
+      [sourceApplication.billing_payment_id, Number(sourceChargeId), amountCents, sourceApplicationId, reversalKey],
+    )
+    const applied = await client.query(
+      `INSERT INTO billing_payment_application (
+         billing_payment_id, billing_charge_id, amount_cents, application_kind,
+         idempotency_key, allocation_reason
+       ) VALUES ($1, $2, $3, 'application', $4, 'class_swap_reallocation')
+       ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
+       RETURNING id`,
+      [sourceApplication.billing_payment_id, Number(replacementChargeId), amountCents, applicationKey],
+    )
+    if (reversal.rows[0] || applied.rows[0]) {
+      applications.push({
+        paymentId: Number(sourceApplication.billing_payment_id),
+        amountCents,
+        reversalApplicationId: reversal.rows[0]?.id == null ? null : Number(reversal.rows[0].id),
+        replacementApplicationId: applied.rows[0]?.id == null ? null : Number(applied.rows[0].id),
+      })
+    }
+    remainingCents -= amountCents
+  }
+
+  return {
+    transferredCents: applications.reduce((sum, application) => sum + application.amountCents, 0),
+    applications,
+  }
+}
+
 async function loadSwapSourceContext(db, { signupId, facilityId = null, forUpdate = false }) {
   const result = await db.query(
     `SELECT signup.id AS signup_id, signup.member_id, signup.status AS signup_status,
@@ -293,6 +467,7 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     sourceRemainingClasses: Number(sourceCredit.remainingClasses ?? 0),
     sourceCreditRatio: Number(sourceCredit.ratio ?? 0),
     unusedSourceCreditCents,
+    sourceFirstPeriodCents: Math.max(0, posted.amountCents - unusedSourceCreditCents),
     replacementFirstMonthCents: replacement.firstChargeCents,
     replacementFirstMonthRatio: Number(replacement.firstMonth?.ratio ?? 0),
     replacementRemainingClasses: replacement.firstMonth?.remainingClasses ?? null,
@@ -316,16 +491,19 @@ function replayedSwap(activity) {
     settlementKind: after.settlementKind ?? details.settlementKind ?? 'no_change',
     settlementAmountCents: cents(after.settlementAmountCents ?? details.settlementAmountCents),
     ledgerDeltaCents: Number(after.ledgerDeltaCents ?? details.ledgerDeltaCents ?? 0),
+    sourceAdjustmentChargeId: after.sourceAdjustmentChargeId ?? details.sourceAdjustmentChargeId ?? null,
     sourceCreditChargeId: after.sourceCreditChargeId ?? details.sourceCreditChargeId ?? null,
     replacementChargeId: after.replacementChargeId ?? details.replacementChargeId ?? null,
+    reallocatedPaymentCents: cents(after.reallocatedPaymentCents ?? details.reallocatedPaymentCents),
   }
 }
 
 /**
  * Atomically replace one confirmed recurring enrollment with another. The
  * original signup remains in history, the replacement gets its own signup and
- * subscription, and the current-period difference is represented by immutable
- * charge and credit rows instead of rewriting a paid bill.
+ * subscription, and the current-period difference is represented by a linked
+ * internal adjustment. Customer-facing history remains one clear bill line per
+ * class rather than introducing a separate class-swap credit.
  */
 export async function moveCustomerBillingEnrollmentClass(pool, {
   signupId,
@@ -361,6 +539,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
     })
     const request = normalizeCustomerBillingClassSwapInput(input)
     const context = await loadSwapSourceContext(client, { signupId, facilityId, forUpdate: true })
+    await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [Number(context.family_billing_account_id)])
     validateCustomerBillingClassSwapEffectiveDate(request, context.enrollment_start_date)
     const target = await loadSwapTarget(client, request, { forUpdate: true })
     priorStripeSubscriptionId = context.stripe_subscription_id ?? null
@@ -422,10 +601,11 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
 
     let replacementChargeId = null
     if (preview.replacementFirstMonthCents > 0) {
-      const ratio = Math.max(0, Math.min(1, Number(preview.replacementFirstMonthRatio) || 0))
-      const chargeGrossCents = ratio > 0
-        ? Math.round(preview.replacementStandardMonthlyCents * ratio)
-        : preview.replacementFirstMonthCents
+      const chargeValues = classSwapTargetChargeValues({
+        grossCents: preview.replacementStandardMonthlyCents,
+        automaticDiscountCents: preview.replacementDiscountCents,
+        firstPeriodCents: preview.replacementFirstMonthCents,
+      })
       const insertedCharge = await client.query(
         `INSERT INTO billing_charge (
            family_billing_account_id, member_id, source_type, source_id, description,
@@ -444,9 +624,9 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
           context.member_id,
           String(insertedSignup.id),
           `Class move — ${target.class_name}`,
-          preview.replacementFirstMonthCents,
-          chargeGrossCents,
-          Math.max(0, chargeGrossCents - preview.replacementFirstMonthCents),
+          chargeValues.amountCents,
+          chargeValues.grossAmountCents,
+          chargeValues.discountAmountCents,
           replacementSubscription.id,
           preview.replacementFirstServicePeriodStart,
           preview.replacementFirstServicePeriodEnd,
@@ -456,6 +636,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
             effectiveDate: request.effectiveDate,
             replacementMonthlyCents: preview.replacementMonthlyCents,
             replacementFirstMonthRatio: preview.replacementFirstMonthRatio,
+            discountAnnotations: chargeValues.discountAnnotations,
             reason: request.reason,
           }),
         ],
@@ -477,9 +658,9 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       })
     }
 
-    let sourceCreditChargeId = null
+    let sourceAdjustmentChargeId = null
     if (preview.unusedSourceCreditCents > 0) {
-      const credit = await client.query(
+      const adjustment = await client.query(
         `INSERT INTO billing_charge (
            family_billing_account_id, member_id, source_type, source_id, description,
            amount_cents, gross_amount_cents, discount_amount_cents,
@@ -487,8 +668,8 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
            service_period_start, service_period_end, collection_status,
            created_by_user_id, metadata
          ) VALUES (
-           $1, $2, 'enrollment_class_swap_credit', $3, $4,
-           $5, $5, 0, 'credit', 'one_time', $6, $7,
+           $1, $2, 'charge_adjustment', $3, $4,
+           $5, 0, 0, 'adjustment', 'one_time', $6, $7,
            $8::date, $9::date, 'none', $10, $11::jsonb
          ) ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
          DO NOTHING RETURNING id`,
@@ -496,7 +677,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
           context.family_billing_account_id,
           context.member_id,
           `${context.signup_id}:${insertedSignup.id}:${request.effectiveDate}`,
-          `Prorated class move credit — ${context.class_name} (${request.effectiveDate.slice(0, 7)})`,
+          `Prorated class swap adjustment — ${context.class_name} (${request.effectiveDate.slice(0, 7)})`,
           -preview.unusedSourceCreditCents,
           context.billing_subscription_id,
           preview.sourceRelatedChargeId,
@@ -506,14 +687,25 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
           JSON.stringify({
             replacementSignupId: Number(insertedSignup.id),
             effectiveDate: request.effectiveDate,
+            adjustmentKind: 'class_swap_proration',
+            adjustmentLabel: 'Prorated class swap',
+            customerAuditVisibility: 'suppressed',
             sourceRemainingClasses: preview.sourceRemainingClasses,
             sourceCreditRatio: preview.sourceCreditRatio,
             reason: request.reason,
           }),
         ],
       )
-      sourceCreditChargeId = credit.rows[0]?.id == null ? null : Number(credit.rows[0].id)
+      sourceAdjustmentChargeId = adjustment.rows[0]?.id == null ? null : Number(adjustment.rows[0].id)
     }
+
+    const paymentReallocation = await reallocateSettledClassSwapPayments(client, {
+      accountId: Number(context.family_billing_account_id),
+      sourceChargeId: preview.sourceRelatedChargeId,
+      replacementChargeId,
+      sourceRetainedCents: Math.max(0, preview.sourcePostedAmountCents - preview.unusedSourceCreditCents),
+      requestKey,
+    })
 
     committed = {
       accountId: Number(context.family_billing_account_id),
@@ -523,15 +715,19 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       settlementKind: preview.settlementKind,
       settlementAmountCents: preview.settlementAmountCents,
       ledgerDeltaCents: preview.ledgerDeltaCents,
-      sourceCreditChargeId,
+      sourceAdjustmentChargeId,
+      // Kept for callers that recorded the prior response contract. The
+      // linked row is now an internal adjustment, never a standalone credit.
+      sourceCreditChargeId: sourceAdjustmentChargeId,
       replacementChargeId,
+      reallocatedPaymentCents: paymentReallocation.transferredCents,
     }
     await recordBillingActivity(client, {
       eventKey: `customer-billing-class-swap:${requestKey}`,
       accountId: Number(context.family_billing_account_id),
       memberId: Number(context.member_id),
       signupId: Number(context.signup_id),
-      chargeId: sourceCreditChargeId ?? replacementChargeId,
+      chargeId: sourceAdjustmentChargeId ?? replacementChargeId,
       eventType: 'enrollment_class_swapped',
       summary: `${context.class_name} was replaced with ${target.class_name}.`,
       beforeValue: {
@@ -540,7 +736,13 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
         subscriptionId: Number(context.billing_subscription_id),
       },
       afterValue: committed,
-      details: { ...preview, targetFormId: Number(target.form_id), targetSlotGroupId: Number(target.slot_group_id), targetTimeSlotId: Number(target.time_slot_id) },
+      details: {
+        ...preview,
+        targetFormId: Number(target.form_id),
+        targetSlotGroupId: Number(target.slot_group_id),
+        targetTimeSlotId: Number(target.time_slot_id),
+        paymentReallocation,
+      },
       actorUserId,
     })
     await client.query('COMMIT')
@@ -584,4 +786,148 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
     preview,
     resultingBalanceCents: balance?.balanceCents ?? preview.resultingBalanceCents,
   }
+}
+
+/**
+ * Convert the short-lived standalone credit pattern used by an earlier class
+ * move implementation into the same linked, in-place proration model used by
+ * new moves. The original immutable row is retained as an internal adjustment
+ * and settled money is reassigned without changing its payment record.
+ */
+export async function repairLegacyClassSwapLedger(pool, {
+  accountIds = [],
+  apply = false,
+} = {}) {
+  const normalizedAccountIds = [...new Set(accountIds.map(Number).filter((value) => Number.isInteger(value) && value > 0))]
+  const candidates = await pool.query(
+    `SELECT adjustment.id AS adjustment_charge_id,
+            adjustment.family_billing_account_id AS account_id,
+            adjustment.member_id,
+            adjustment.source_id AS legacy_source_id,
+            adjustment.description AS adjustment_description,
+            adjustment.amount_cents AS adjustment_amount_cents,
+            adjustment.service_period_start,
+            adjustment.service_period_end,
+            adjustment.metadata AS adjustment_metadata,
+            source.id AS source_charge_id,
+            source.amount_cents AS source_amount_cents,
+            replacement.id AS replacement_charge_id,
+            replacement.amount_cents AS replacement_amount_cents
+       FROM billing_charge adjustment
+       JOIN billing_charge source ON source.id = adjustment.related_charge_id
+       JOIN LATERAL (
+         SELECT candidate.id, candidate.amount_cents
+           FROM billing_charge candidate
+          WHERE candidate.family_billing_account_id = adjustment.family_billing_account_id
+            AND candidate.source_type = 'scheduling_signup'
+            AND candidate.source_id = COALESCE(
+              NULLIF(adjustment.metadata->>'replacementSignupId', ''),
+              NULLIF(split_part(adjustment.source_id, ':', 2), '')
+            )
+            AND to_char(COALESCE(candidate.service_period_start, candidate.created_at::date), 'YYYY-MM')
+                  = to_char(COALESCE(adjustment.service_period_start, adjustment.created_at::date), 'YYYY-MM')
+          ORDER BY candidate.created_at, candidate.id
+          LIMIT 1
+       ) replacement ON TRUE
+      WHERE adjustment.source_type = 'enrollment_class_swap_credit'
+        AND adjustment.amount_cents < 0
+        AND ($1::bigint[] = '{}'::bigint[] OR adjustment.family_billing_account_id = ANY($1::bigint[]))
+      ORDER BY adjustment.family_billing_account_id, adjustment.id`,
+    [normalizedAccountIds],
+  )
+  const repairs = candidates.rows.map((row) => ({
+    adjustmentChargeId: Number(row.adjustment_charge_id),
+    accountId: Number(row.account_id),
+    memberId: row.member_id == null ? null : Number(row.member_id),
+    sourceChargeId: Number(row.source_charge_id),
+    sourceAmountCents: cents(row.source_amount_cents),
+    replacementChargeId: Number(row.replacement_charge_id),
+    replacementAmountCents: cents(row.replacement_amount_cents),
+    adjustmentAmountCents: cents(row.adjustment_amount_cents),
+    servicePeriodStart: dateOnly(row.service_period_start),
+    servicePeriodEnd: dateOnly(row.service_period_end),
+  }))
+  const applied = []
+  if (!apply) return { repairs, applied }
+
+  for (const repair of repairs) {
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [repair.accountId])
+      const adjustment = await client.query(
+        `SELECT *
+           FROM billing_charge
+          WHERE id = $1
+            AND family_billing_account_id = $2
+            AND source_type = 'enrollment_class_swap_credit'
+          FOR UPDATE`,
+        [repair.adjustmentChargeId, repair.accountId],
+      ).then((result) => result.rows[0] ?? null)
+      if (!adjustment) {
+        await client.query('COMMIT')
+        continue
+      }
+      const updated = await client.query(
+        `UPDATE billing_charge
+            SET source_type = 'charge_adjustment',
+                source_id = $2,
+                description = $3,
+                charge_type = 'adjustment',
+                billing_interval = 'one_time',
+                collection_status = 'none',
+                metadata = COALESCE(metadata, '{}'::jsonb) || $4::jsonb,
+                updated_at = now()
+          WHERE id = $1
+          RETURNING id`,
+        [
+          repair.adjustmentChargeId,
+          `class-swap-proration:${repair.adjustmentChargeId}`,
+          `Prorated class swap adjustment — ${String(adjustment.description ?? '').replace(/^Prorated class move credit\s*[—-]?\s*/i, '')}`.trim(),
+          JSON.stringify({
+            adjustmentKind: 'class_swap_proration',
+            adjustmentLabel: 'Prorated class swap',
+            customerAuditVisibility: 'suppressed',
+            repairedFromSourceType: 'enrollment_class_swap_credit',
+          }),
+        ],
+      )
+      if (!updated.rows[0]) throw new Error(`Class-swap adjustment #${repair.adjustmentChargeId} could not be updated.`)
+      const paymentReallocation = await reallocateSettledClassSwapPayments(client, {
+        accountId: repair.accountId,
+        sourceChargeId: repair.sourceChargeId,
+        replacementChargeId: repair.replacementChargeId,
+        sourceRetainedCents: Math.max(0, repair.sourceAmountCents - repair.adjustmentAmountCents),
+        requestKey: `legacy-${repair.adjustmentChargeId}`,
+      })
+      await recordBillingActivity(client, {
+        eventKey: `legacy-class-swap-ledger-repair:${repair.adjustmentChargeId}`,
+        accountId: repair.accountId,
+        memberId: repair.memberId,
+        chargeId: repair.adjustmentChargeId,
+        eventType: 'class_swap_ledger_repaired',
+        summary: 'A class move was reconciled into its original and replacement class bill lines.',
+        beforeValue: {
+          sourceType: 'enrollment_class_swap_credit',
+          amountCents: -repair.adjustmentAmountCents,
+        },
+        afterValue: {
+          sourceType: 'charge_adjustment',
+          sourceChargeId: repair.sourceChargeId,
+          replacementChargeId: repair.replacementChargeId,
+          reallocatedPaymentCents: paymentReallocation.transferredCents,
+        },
+        details: { paymentReallocation },
+        actorType: 'system',
+      })
+      await client.query('COMMIT')
+      applied.push({ ...repair, reallocatedPaymentCents: paymentReallocation.transferredCents })
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw error
+    } finally {
+      client.release()
+    }
+  }
+  return { repairs, applied }
 }

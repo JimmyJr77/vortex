@@ -132,23 +132,37 @@ function MonthlyHouseholdInvoiceSection({
   invoices,
   billingMonth,
   formatMoney,
+  localBillCents,
+  paymentMethodRequired,
 }: {
   invoices: CustomerBillingOverview['monthlyInvoices']
   billingMonth: string | null | undefined
   formatMoney: (cents: number) => string
+  localBillCents: number
+  paymentMethodRequired: boolean
 }) {
   const invoice = billingMonth
     ? invoices.find((item) => item.billingMonth?.slice(0, 7) === billingMonth.slice(0, 7)) ?? null
     : invoices[0] ?? null
   const billingMonthDate = billingMonth ? `${billingMonth.slice(0, 7)}-01` : null
   if (!invoice) {
+    const hasPostedBill = localBillCents > 0
     return (
       <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <strong className="text-gray-950">Monthly household invoice · {formatDate(billingMonthDate)}</strong>
-          <span className="text-gray-500">Not issued</span>
+          <div className="flex items-center gap-3">
+            <span className="text-gray-500">{hasPostedBill && paymentMethodRequired ? 'Awaiting payment method' : hasPostedBill ? 'Prepared locally' : 'No invoice needed'}</span>
+            {hasPostedBill ? <strong className="text-gray-950">{formatMoney(localBillCents)}</strong> : null}
+          </div>
         </div>
-        <p className="mt-2 text-xs text-gray-600">No household invoice has been issued for this billing month yet.</p>
+        <p className="mt-2 text-xs text-gray-600">
+          {hasPostedBill
+            ? paymentMethodRequired
+              ? 'Class charges are posted in Account History. Add a reusable payment method before Stripe can issue the household invoice.'
+              : 'Class charges are posted in Account History. Stripe has not issued a household invoice for this billing month yet.'
+            : 'No recurring class tuition is due for this billing month. One-time charges and payments, such as annual fees, appear in Account History.'}
+        </p>
       </div>
     )
   }
@@ -382,7 +396,7 @@ export default function MemberCustomerBilling({
   }
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6">
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
@@ -412,6 +426,8 @@ export default function MemberCustomerBilling({
           invoices={overview.monthlyInvoices}
           billingMonth={overview.summary.monthlyRecurringPeriod}
           formatMoney={formatMoney}
+          localBillCents={overview.summary.monthlyRecurringCents}
+          paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
         />
 
         <div className="border-t border-gray-200 p-5">

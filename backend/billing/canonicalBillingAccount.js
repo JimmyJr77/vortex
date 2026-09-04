@@ -416,11 +416,22 @@ export async function loadCanonicalCollectibleBalanceCents(pool, accountId) {
         WHERE invoice.family_billing_account_id = $1
           AND invoice.status = ANY($2::text[])
           AND line.billing_charge_id IS NOT NULL
-     ), invoice_reservations AS (
-       SELECT COALESCE(SUM(GREATEST(0, charge.amount_cents - COALESCE(application.applied_cents, 0))), 0)::bigint AS amount_cents
+    ), invoice_reservations AS (
+       SELECT COALESCE(SUM(GREATEST(
+                0,
+                charge.amount_cents
+                  + COALESCE(linked_adjustment.adjustment_cents, 0)
+                  - COALESCE(application.applied_cents, 0)
+              )), 0)::bigint AS amount_cents
          FROM reserved_charge_ids reserved
          JOIN billing_charge charge ON charge.id = reserved.billing_charge_id
          LEFT JOIN application_totals application ON application.billing_charge_id = charge.id
+         LEFT JOIN LATERAL (
+           SELECT COALESCE(SUM(adjustment.amount_cents), 0)::bigint AS adjustment_cents
+             FROM billing_charge adjustment
+            WHERE adjustment.related_charge_id = charge.id
+              AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
+         ) linked_adjustment ON TRUE
      ), payment_attempt_reservations AS (
        SELECT COALESCE(SUM(reservation.amount_cents), 0)::bigint AS amount_cents
          FROM billing_payment_attempt_charge reservation

@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   classSwapSettlement,
+  classSwapPaymentTransferCents,
+  classSwapTargetChargeValues,
   normalizeCustomerBillingClassSwapInput,
   priceCustomerBillingClassSwapTargetFromOrderPreview,
   validateCustomerBillingClassSwapEffectiveDate,
@@ -57,7 +59,7 @@ test('a same-price move has no net balance change when its unused source credit 
   )
 })
 
-test('a higher or lower priced replacement becomes an immutable one-time charge or account credit', () => {
+test('a higher or lower priced replacement reports its net prorated change for the in-place bill reconciliation', () => {
   assert.deepEqual(
     classSwapSettlement({ targetProratedCents: 10_125, unusedSourceCreditCents: 7_875 }),
     {
@@ -103,6 +105,48 @@ test('a class move uses the household-discounted monthly target from its preview
   assert.equal(target.discountCents, 2_250)
   assert.equal(target.netCents, 12_750)
   assert.equal(target.firstChargeCents, 12_750)
+})
+
+test('a partial-month replacement keeps its class price and records proration in the discount annotations', () => {
+  assert.deepEqual(
+    classSwapTargetChargeValues({
+      grossCents: 15_000,
+      automaticDiscountCents: 2_250,
+      firstPeriodCents: 9_563,
+    }),
+    {
+      amountCents: 9_563,
+      grossAmountCents: 15_000,
+      discountAmountCents: 5_437,
+      automaticDiscountCents: 2_250,
+      swapProrationCents: 3_187,
+      discountAnnotations: [
+        { kind: 'automatic', label: 'Automatic discount', amountCents: -2_250 },
+        { kind: 'manual', label: 'Prorated class swap', amountCents: -3_187 },
+      ],
+    },
+  )
+})
+
+test('a class move reassigns only the source payment that no longer belongs to delivered service', () => {
+  assert.equal(
+    classSwapPaymentTransferCents({
+      sourceAppliedCents: 12_750,
+      sourceRetainedCents: 0,
+      replacementChargeCents: 12_750,
+      replacementAppliedCents: 0,
+    }),
+    12_750,
+  )
+  assert.equal(
+    classSwapPaymentTransferCents({
+      sourceAppliedCents: 12_750,
+      sourceRetainedCents: 6_375,
+      replacementChargeCents: 9_563,
+      replacementAppliedCents: 0,
+    }),
+    6_375,
+  )
 })
 
 test('a class move excludes its source enrollment from household discount counts', async () => {

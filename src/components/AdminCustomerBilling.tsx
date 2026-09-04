@@ -584,21 +584,35 @@ function MembershipMetricCard({
 function MonthlyInvoiceSummary({
   invoices,
   billingMonth,
+  localBillCents,
+  paymentMethodRequired,
 }: {
   invoices: CustomerBillingOverview['monthlyInvoices']
   billingMonth: string | null | undefined
+  localBillCents: number
+  paymentMethodRequired: boolean
 }) {
   const invoice = billingMonth
     ? invoices.find((item) => item.billingMonth?.slice(0, 7) === billingMonth.slice(0, 7)) ?? null
     : invoices[0] ?? null
   if (!invoice) {
+    const hasPostedBill = localBillCents > 0
     return (
       <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <strong className="text-gray-950">Monthly household invoice · {billingMonthLabel(billingMonth)}</strong>
-          <span className="text-gray-500">Not issued</span>
+          <div className="flex items-center gap-3">
+            <span className="text-gray-500">{hasPostedBill && paymentMethodRequired ? 'Awaiting payment method' : hasPostedBill ? 'Prepared locally' : 'No invoice needed'}</span>
+            {hasPostedBill ? <strong className="text-gray-950">{money(localBillCents)}</strong> : null}
+          </div>
         </div>
-        <p className="mt-2 text-xs text-gray-600">No household invoice has been issued for this billing month yet.</p>
+        <p className="mt-2 text-xs text-gray-600">
+          {hasPostedBill
+            ? paymentMethodRequired
+              ? 'Class charges are posted in Account History. Add a reusable payment method before Stripe can issue the household invoice.'
+              : 'Class charges are posted in Account History. Stripe has not issued a household invoice for this billing month yet.'
+            : 'No recurring class tuition is due for this billing month. One-time charges and payments, such as annual fees, appear in Account History.'}
+        </p>
       </div>
     )
   }
@@ -1489,7 +1503,7 @@ export default function AdminCustomerBilling({
   }
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6">
       <div className="rounded-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-red-950 p-6 text-white shadow-xl">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200"><WalletCards className="h-4 w-4" /> Pricing & Billing</div><h1 className="text-3xl font-black tracking-tight">Account Billing &amp; Enrollments</h1><p className="mt-2 max-w-2xl text-sm text-gray-300">Search an individual, then see their household’s enrollment pricing, recurring charges, transactions, refunds, and complete account activity in one place.</p></div>
@@ -1531,7 +1545,12 @@ export default function AdminCustomerBilling({
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : overview.summary.stripeSync.status === 'warning' ? 'Ready for card' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
               {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} />)}
             </div>
-            <MonthlyInvoiceSummary invoices={overview.monthlyInvoices} billingMonth={overview.summary.monthlyRecurringPeriod} />
+            <MonthlyInvoiceSummary
+              invoices={overview.monthlyInvoices}
+              billingMonth={overview.summary.monthlyRecurringPeriod}
+              localBillCents={overview.summary.monthlyRecurringCents}
+              paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
+            />
             {overview.summary.stripeSync.status === 'failed' ? (
               <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-3">

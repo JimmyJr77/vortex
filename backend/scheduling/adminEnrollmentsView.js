@@ -537,6 +537,7 @@ export async function buildAdminMemberEnrollments(
       id: Number(memberRow.id),
       firstName: memberRow.first_name,
       lastName: memberRow.last_name,
+      name: [memberRow.first_name, memberRow.last_name].filter(Boolean).join(' ').trim() || 'Family member',
     },
     rows: [...schedulingRows, ...dropInRows],
   }
