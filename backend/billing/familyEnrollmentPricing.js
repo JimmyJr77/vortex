@@ -323,6 +323,18 @@ function preferredSubscriptions(rows) {
 }
 
 /**
+ * A billing subscription remains the financial owner when its associated
+ * enrollment is reassigned to another family member as an administrative
+ * correction. This keeps the correction from repricing the household.
+ */
+export function enrollmentBillingMemberId(line, localSubscription = null) {
+  const subscriptionMemberId = Number(localSubscription?.member_id ?? localSubscription?.memberId)
+  return Number.isSafeInteger(subscriptionMemberId) && subscriptionMemberId > 0
+    ? subscriptionMemberId
+    : Number(line.memberId)
+}
+
+/**
  * Canonical family tuition resolver.
  *
  * It starts from every live recurring class in the household, not from billing
@@ -396,7 +408,10 @@ export async function resolveFamilyEnrollmentPricing(pool, {
     return {
       ...(local ?? {}),
       id: local?.id == null ? -signupId : Number(local.id),
-      member_id: Number(line.memberId),
+      // The local subscription is the billing owner. It can intentionally
+      // differ from the enrollment's athlete when an administrator corrects a
+      // family-member assignment without changing any billing history.
+      member_id: enrollmentBillingMemberId(line, local),
       source_type: 'scheduling_signup',
       source_id: String(signupId),
       status: 'active',

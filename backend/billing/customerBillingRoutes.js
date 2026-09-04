@@ -25,6 +25,7 @@ import {
   moveCustomerBillingEnrollmentClass,
   previewCustomerBillingEnrollmentClassSwap,
 } from './customerBillingEnrollmentSwap.js'
+import { reassignCustomerBillingEnrollmentMember } from './customerBillingEnrollmentMemberSwap.js'
 import {
   collectCustomChargeWithSavedCard,
   collectOutstandingBalanceWithSavedCard,
@@ -618,6 +619,29 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       } catch (error) {
         console.error('[customer-billing] class swap:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Class move failed.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/enrollments/:signupId/member-swap',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await reassignCustomerBillingEnrollmentMember(pool, {
+          signupId: Number(req.params.signupId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'enrollment-member-swap'),
+          input: req.body,
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] enrollment member reassignment:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Enrollment member reassignment failed.',
+        })
       }
     },
   )

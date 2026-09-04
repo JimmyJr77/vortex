@@ -22,7 +22,7 @@ import {
   WalletCards,
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { CustomChargeModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
+import { CustomChargeModal, EnrollmentMemberReassignmentModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
 import NewBillingEnrollmentModal from './customerBilling/NewBillingEnrollmentModal'
 import { billingMonthAbbreviation, billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
@@ -1034,6 +1034,7 @@ export default function AdminCustomerBilling({
   const [lastActionUrl, setLastActionUrl] = useState<string | null>(null)
   const [priceEnrollment, setPriceEnrollment] = useState<CustomerBillingEnrollment | null>(null)
   const [swapEnrollment, setSwapEnrollment] = useState<CustomerBillingEnrollment | null>(null)
+  const [memberSwapEnrollment, setMemberSwapEnrollment] = useState<CustomerBillingEnrollment | null>(null)
   const [chargeToModify, setChargeToModify] = useState<BillingTransaction | null>(null)
   const [customChargeOpen, setCustomChargeOpen] = useState(false)
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
@@ -1620,7 +1621,7 @@ export default function AdminCustomerBilling({
         </>
       ) : null}
 
-      {priceEnrollment ? <PriceAdjustmentModal enrollment={priceEnrollment} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} onSwap={(enrollment) => { setPriceEnrollment(null); setSwapEnrollment(enrollment) }} /> : null}
+      {priceEnrollment && overview ? <PriceAdjustmentModal enrollment={priceEnrollment} members={overview.members} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} onSwap={(enrollment) => { setPriceEnrollment(null); setSwapEnrollment(enrollment) }} onMemberSwap={(enrollment) => { setPriceEnrollment(null); setMemberSwapEnrollment(enrollment) }} /> : null}
       {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
       {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
@@ -1628,6 +1629,7 @@ export default function AdminCustomerBilling({
       {passToAdjust ? <PassAdjustmentModal pass={passToAdjust} onClose={() => setPassToAdjust(null)} onSaved={handleSaved} /> : null}
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
       {swapEnrollment && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={swapEnrollment.memberId} swapEnrollment={swapEnrollment} onClose={() => setSwapEnrollment(null)} onCreated={(message) => { setSwapEnrollment(null); void refresh(message) }} /> : null}
+      {memberSwapEnrollment && overview ? <EnrollmentMemberReassignmentModal enrollment={memberSwapEnrollment} members={overview.members} onClose={() => setMemberSwapEnrollment(null)} onSaved={(message) => { setMemberSwapEnrollment(null); void refresh(message) }} /> : null}
       {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}
 
       {saving ? <div className="fixed bottom-5 right-5 z-[210] inline-flex items-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-xl"><Loader2 className="h-4 w-4 animate-spin" /> Updating billing account…</div> : null}

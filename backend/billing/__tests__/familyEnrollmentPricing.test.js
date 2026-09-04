@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildEnrollmentBillingPeriodManifest,
+  enrollmentBillingMemberId,
   enrollmentBillsInPeriod,
 } from '../familyEnrollmentPricing.js'
 import { underDiscountCreditForCharge } from '../familyDiscountAudit.js'
@@ -131,5 +132,16 @@ test('posted full-month under-discount creates only the exact immutable credit',
     }),
     0,
     'prorated/non-full-month charges are not auto-repaired',
+  )
+})
+
+test('an enrollment correction keeps its existing subscription owner for pricing', () => {
+  assert.equal(
+    enrollmentBillingMemberId({ memberId: 22 }, { member_id: 11 }),
+    11,
+  )
+  assert.equal(
+    enrollmentBillingMemberId({ memberId: 22 }, null),
+    22,
   )
 })

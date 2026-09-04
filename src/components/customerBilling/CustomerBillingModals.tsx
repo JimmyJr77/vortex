@@ -95,16 +95,102 @@ function defaultAdjustmentMonth(enrollment: CustomerBillingEnrollment) {
   return enrollmentMonth && enrollmentMonth > currentMonth ? enrollmentMonth : currentMonth
 }
 
+export function EnrollmentMemberReassignmentModal({
+  enrollment,
+  members,
+  onClose,
+  onSaved,
+}: {
+  enrollment: CustomerBillingEnrollment
+  members: CustomerBillingMember[]
+  onClose: () => void
+  onSaved: (message: string) => void
+}) {
+  const [targetMemberId, setTargetMemberId] = useState<number | ''>('')
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [requestKey] = useState(() => newRequestKey('enrollment-member-swap'))
+  const targetMember = members.find((member) => member.id === targetMemberId) ?? null
+
+  const submit = async () => {
+    if (!targetMember || targetMember.id === enrollment.memberId) return
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(
+        `/api/admin/customer-billing/enrollments/${enrollment.id}/member-swap`,
+        {
+          method: 'POST',
+          headers: { 'Idempotency-Key': requestKey },
+          body: JSON.stringify({ targetMemberId: targetMember.id }),
+        },
+      )
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'The family-member reassignment could not be saved.')
+      onSaved(
+        `${targetMember.name} is now assigned to ${enrollment.class_name || 'this class'}. The original enrollment date and all billing records were left unchanged.`,
+      )
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'The family-member reassignment could not be saved.')
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  return (
+    <ModalShell
+      title="Reassign family member"
+      subtitle={`${enrollment.class_name || 'Class'} · currently assigned to ${enrollment.memberName}`}
+      onClose={onClose}
+    >
+      <div className="space-y-5">
+        <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950">
+          <div className="font-semibold">Enrollment correction only</div>
+          <p className="mt-1 text-teal-900">The selected family member will be treated as having been in this class since the original enrollment date. This does not change billing, discounts, payments, memberships, or the class schedule.</p>
+        </div>
+        <label className="block text-sm font-medium text-gray-700">
+          Assign this class to
+          <select
+            aria-label="Family member for class reassignment"
+            value={targetMemberId}
+            onChange={(event) => { setTargetMemberId(event.target.value ? Number(event.target.value) : ''); setError(null) }}
+            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+          >
+            <option value="">Choose a family member</option>
+            {members.map((member) => (
+              <option key={member.id} value={member.id} disabled={member.id === enrollment.memberId}>
+                {member.name}{member.id === enrollment.memberId ? ' (currently assigned)' : member.isActive ? '' : ' (inactive)'}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="text-xs text-gray-500">The change is recorded in the account activity log without creating a financial entry.</p>
+        {error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+        <div className="flex flex-wrap justify-end gap-3">
+          <button type="button" onClick={onClose} disabled={working} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button>
+          <button type="button" onClick={() => void submit()} disabled={working || !targetMember || targetMember.id === enrollment.memberId} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50">
+            {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Confirm reassignment
+          </button>
+        </div>
+      </div>
+    </ModalShell>
+  )
+}
+
 export function PriceAdjustmentModal({
   enrollment,
+  members,
   onClose,
   onSaved,
   onSwap,
+  onMemberSwap,
 }: {
   enrollment: CustomerBillingEnrollment
+  members: CustomerBillingMember[]
   onClose: () => void
   onSaved: (message: string) => void
   onSwap?: (enrollment: CustomerBillingEnrollment) => void
+  onMemberSwap?: (enrollment: CustomerBillingEnrollment) => void
 }) {
   const assignedPromos = enrollment.priceAdjustments.filter(
     (adjustment) =>
@@ -273,6 +359,15 @@ export function PriceAdjustmentModal({
               <p className="mt-1 text-violet-800">Choose a replacement class and schedule. The account will preview any unused-class credit and new-class prorated cost before the move is applied.</p>
               <button type="button" onClick={() => onSwap(enrollment)} className="mt-3 rounded-lg border border-violet-300 bg-white px-3 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-100">
                 Choose replacement class
+              </button>
+            </div>
+          ) : null}
+          {onMemberSwap && members.some((member) => member.id !== enrollment.memberId) ? (
+            <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950">
+              <div className="font-semibold">Reassign family member</div>
+              <p className="mt-1 text-teal-800">Correct who this class belongs to without changing any billing. The newly assigned family member is treated as having been enrolled since the original start date.</p>
+              <button type="button" onClick={() => onMemberSwap(enrollment)} className="mt-3 rounded-lg border border-teal-300 bg-white px-3 py-2 text-sm font-semibold text-teal-800 hover:bg-teal-100">
+                Choose family member
               </button>
             </div>
           ) : null}
