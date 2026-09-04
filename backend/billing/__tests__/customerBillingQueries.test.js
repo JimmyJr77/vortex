@@ -46,6 +46,7 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
   assert.match(householdTransactionQuery, /direct_price_adjustment\.promo_code/)
   assert.match(householdTransactionQuery, /direct_price_adjustment\.kind = 'fixed_final_price'/)
   assert.match(householdTransactionQuery, /adjustment_price_adjustment\.promo_code/)
+  assert.match(householdTransactionQuery, /Neutralized duplicate local record; remote Stripe payment belongs to billing_payment/)
   assert.match(
     householdTransactionQuery,
     /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
@@ -81,10 +82,10 @@ test('customer account lookup excludes inactive accounts and returns its facilit
 })
 
 test('a usable household payment method resolves stale enrollment autopay alerts', async () => {
-  let captured = null
+  const queries = []
   await resolveAddressedBillingAlerts({
     async query(sql, params) {
-      captured = { sql: String(sql), params }
+      queries.push({ sql: String(sql), params })
       return { rows: [] }
     },
   }, {
@@ -93,9 +94,32 @@ test('a usable household payment method resolves stale enrollment autopay alerts
     householdCardRequired: true,
   })
 
-  assert.deepEqual(captured.params, [19, true])
-  assert.match(captured.sql, /'enrollment_autopay_setup_required'/)
-  assert.match(captured.sql, /'monthly_invoice_payment_method_required'/)
+  assert.equal(queries.length, 2)
+  assert.deepEqual(queries[0].params, [19, true])
+  assert.match(queries[0].sql, /'enrollment_autopay_setup_required'/)
+  assert.match(queries[0].sql, /'monthly_invoice_payment_method_required'/)
+  assert.deepEqual(queries[1].params, [19])
+  assert.match(queries[1].sql, /alert\.alert_type = 'webhook_failure'/)
+})
+
+test('reconciled payment facts close only the matching stale webhook alert', async () => {
+  const queries = []
+  await resolveAddressedBillingAlerts({
+    async query(sql, params) {
+      queries.push({ sql: String(sql), params })
+      return { rows: [] }
+    },
+  }, {
+    accountId: 10903,
+    paymentMethodAvailable: false,
+    householdCardRequired: true,
+  })
+
+  assert.equal(queries.length, 1)
+  assert.deepEqual(queries[0].params, [10903])
+  assert.match(queries[0].sql, /alert\.alert_type = 'webhook_failure'/)
+  assert.match(queries[0].sql, /allocation\.applied_cents = NULLIF\(substring\(alert\.message FROM 'received \(\[0-9\]\+\)'/)
+  assert.match(queries[0].sql, /payment\.amount_cents = NULLIF\(substring\(alert\.message FROM 'received \(\[0-9\]\+\)'/)
 })
 
 test('customer search treats active family-member links as authoritative', async () => {

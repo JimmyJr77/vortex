@@ -522,24 +522,56 @@ export async function resolveAddressedBillingAlerts(pool, {
   paymentMethodAvailable,
   householdCardRequired,
 }) {
-  if (paymentMethodAvailable !== true && householdCardRequired === true) return
   try {
+    if (paymentMethodAvailable === true || householdCardRequired !== true) {
+      await pool.query(
+        `UPDATE stripe_billing_alert
+            SET resolved_at = now(),
+                action_status = 'resolved',
+                resolution_note = CASE
+                  WHEN $2::boolean THEN 'Automatically resolved after a reusable payment method was saved.'
+                  ELSE 'Automatically resolved because the account no longer needs an automatic collection payment method.'
+                END,
+                updated_at = now()
+          WHERE family_billing_account_id = $1
+            AND alert_type IN (
+              'monthly_invoice_payment_method_required',
+              'enrollment_autopay_setup_required'
+            )
+            AND resolved_at IS NULL`,
+        [accountId, paymentMethodAvailable === true],
+      )
+    }
+    // A duplicate-invoice repair can finish after the original webhook
+    // capacity check. Close only this exact alert when the durable net
+    // applications now match a settled Stripe payment's received amount.
     await pool.query(
-      `UPDATE stripe_billing_alert
+      `UPDATE stripe_billing_alert alert
           SET resolved_at = now(),
               action_status = 'resolved',
-              resolution_note = CASE
-                WHEN $2::boolean THEN 'Automatically resolved after a reusable payment method was saved.'
-                ELSE 'Automatically resolved because the account no longer needs an automatic collection payment method.'
-              END,
+              resolution_note = 'Automatically resolved after payment applications were reconciled to the Stripe amount received.',
               updated_at = now()
-        WHERE family_billing_account_id = $1
-          AND alert_type IN (
-            'monthly_invoice_payment_method_required',
-            'enrollment_autopay_setup_required'
-          )
-          AND resolved_at IS NULL`,
-      [accountId, paymentMethodAvailable === true],
+        WHERE alert.family_billing_account_id = $1
+          AND alert.alert_type = 'webhook_failure'
+          AND alert.resolved_at IS NULL
+          AND alert.message ~ '^Stripe webhook delivery failed: billing payment [0-9]+ has [0-9]+ applied cents, received [0-9]+'
+          AND EXISTS (
+            SELECT 1
+              FROM billing_payment payment
+              LEFT JOIN LATERAL (
+                SELECT COALESCE(SUM(CASE
+                  WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                  ELSE application.amount_cents
+                END), 0)::bigint AS applied_cents
+                  FROM billing_payment_application application
+                 WHERE application.billing_payment_id = payment.id
+              ) allocation ON TRUE
+             WHERE payment.id = NULLIF(substring(alert.message FROM 'billing payment ([0-9]+) has'), '')::bigint
+               AND payment.external_status IN ('settled', 'succeeded')
+               AND allocation.applied_cents = NULLIF(substring(alert.message FROM 'received ([0-9]+)'), '')::bigint
+               AND payment.amount_cents = NULLIF(substring(alert.message FROM 'received ([0-9]+)'), '')::bigint
+          )`,
+      [accountId],
     )
   } catch (error) {
     // Alert reconciliation is never allowed to make the account page fail.
@@ -920,7 +952,15 @@ export async function buildCustomerBillingOverview(pool, {
         .map((row) => Number(row.id))
       : [],
   )
-  const monthlyRecurringCents = Number(displayPricing.netCents) || 0
+  const scheduledMonthlyRecurringCents = Number(displayPricing.netCents) || 0
+  const currentRecurringSatisfiedCents = Math.max(0, Number(view.currentRecurringSatisfiedCents) || 0)
+  // The card represents the part of the displayed billing month that still
+  // needs coverage. A settled current-month invoice is not re-added as a new
+  // charge merely because the calendar has not reached the fifth yet.
+  const monthlyRecurringCents = Math.max(0, scheduledMonthlyRecurringCents - currentRecurringSatisfiedCents)
+  const monthlyRecurringDiscountCents = monthlyRecurringCents === 0
+    ? 0
+    : Number(displayPricing.discountCents) || 0
   const futureCreditsCents = Number(view.futureCreditsCents) || 0
   const displayedBalanceCents =
     Number(view.outstandingBalanceCents || 0) + monthlyRecurringCents - futureCreditsCents
@@ -944,7 +984,7 @@ export async function buildCustomerBillingOverview(pool, {
       // The older account snapshot is current-state data and would retain a
       // class until its cancellation date passes.
       monthlyRecurringCents,
-      monthlyRecurringDiscountCents: Number(displayPricing.discountCents) || 0,
+      monthlyRecurringDiscountCents,
       monthlyRecurringPeriod: pricingMonth,
       futureCreditsCents,
       paidThisMonthCents: view.paidThisMonthCents,
@@ -1076,6 +1116,19 @@ function decodeMemberTransactionCursor(value) {
   const parsed = decodeCursor(value)
   if (!parsed || !Number.isFinite(Number(parsed.runningBalanceCents))) return null
   return parsed
+}
+
+// The duplicate-invoice repair keeps a canceled local payment as internal
+// evidence, but that row never represented a second Stripe collection. Keep
+// it out of customer-facing history (and exports) while preserving the repair
+// activity and immutable ledger trail for staff audit.
+function customerFacingPaymentPredicate(alias = 'p') {
+  return `NOT (
+    ${alias}.external_status = 'canceled'
+    AND ${alias}.stripe_payment_intent_id IS NULL
+    AND ${alias}.stripe_invoice_id IS NULL
+    AND ${alias}.note LIKE 'Neutralized duplicate local record; remote Stripe payment belongs to billing_payment #%'
+  )`
 }
 
 export async function listCustomerBillingTransactions(pool, {
@@ -1371,6 +1424,7 @@ export async function listCustomerBillingTransactions(pool, {
            AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded')
        ) payment_refunds ON TRUE
        WHERE p.family_billing_account_id = $1
+         AND ${customerFacingPaymentPredicate('p')}
        UNION ALL
        SELECT
          'refund', 'refund', r.id, NULL::bigint,
@@ -1650,6 +1704,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          2::int AS sort_order
        FROM billing_payment p
        WHERE p.family_billing_account_id = $1
+         AND ${customerFacingPaymentPredicate('p')}
 
        UNION ALL
 

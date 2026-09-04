@@ -38,7 +38,7 @@ export function summarizeCustomerBalanceCards({
 } = {}) {
   let outstandingChargesCents = Math.max(0, Number(refundsCents) || 0)
   let ledgerCreditCents = 0
-  let prepaidRecurringCents = 0
+  let currentRecurringSatisfiedCents = 0
 
   const activeRecurringSubscriptions = subscriptions.filter((subscription) => (
     subscription.status === 'active' && !annualMembershipSubscription(subscription)
@@ -98,9 +98,12 @@ export function summarizeCustomerBalanceCards({
       && recurringBillingMonth != null
       && chargeServiceMonth(charge) === recurringBillingMonth
     if (isCurrentRecurring) {
-      prepaidRecurringCents += Math.min(
+      // A payment or credit applied to this month's tuition belongs to this
+      // month's fee, not to Future credits. Counting it in both places makes
+      // a settled bill appear due again on the account card.
+      currentRecurringSatisfiedCents += Math.min(
         amount,
-        Math.max(0, Number(charge.applied_amount_cents ?? amount - remaining)),
+        Math.max(0, amount - remaining),
       )
       if (activeRecurringSubscriptions.length === 0) {
         monthlyRecurringCents += amount
@@ -117,8 +120,11 @@ export function summarizeCustomerBalanceCards({
   )
   return {
     outstandingBalanceCents: outstandingChargesCents,
-    monthlyRecurringCents,
-    monthlyRecurringDiscountCents,
-    futureCreditsCents: ledgerCreditCents + unappliedPaymentCents + prepaidRecurringCents,
+    monthlyRecurringCents: Math.max(0, monthlyRecurringCents - currentRecurringSatisfiedCents),
+    monthlyRecurringDiscountCents: currentRecurringSatisfiedCents >= monthlyRecurringCents
+      ? 0
+      : monthlyRecurringDiscountCents,
+    currentRecurringSatisfiedCents,
+    futureCreditsCents: ledgerCreditCents + unappliedPaymentCents,
   }
 }

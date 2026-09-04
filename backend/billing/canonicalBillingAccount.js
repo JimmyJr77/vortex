@@ -68,6 +68,7 @@ export function buildCanonicalFinancialSnapshot({
     refundsCents,
     balanceCents,
     outstandingBalanceCents: cards.outstandingBalanceCents,
+    currentRecurringSatisfiedCents: cards.currentRecurringSatisfiedCents,
     // A suppressed corrective ledger row still changes the account balance,
     // even though it must not reappear in the customer audit. Never understate
     // the household's spendable credit when that correction makes the net

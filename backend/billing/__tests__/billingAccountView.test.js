@@ -25,9 +25,10 @@ test('customer balance cards separate open charges, current recurring tuition, a
 
   assert.deepEqual(cards, {
     outstandingBalanceCents: 10000,
-    monthlyRecurringCents: 25500,
+    monthlyRecurringCents: 12750,
     monthlyRecurringDiscountCents: 4500,
-    futureCreditsCents: 14000,
+    currentRecurringSatisfiedCents: 12750,
+    futureCreditsCents: 1250,
   })
 })
 
@@ -53,9 +54,33 @@ test('customer balance cards normalize PostgreSQL Date service periods', () => {
 
   assert.deepEqual(cards, {
     outstandingBalanceCents: 5000,
-    monthlyRecurringCents: 25500,
+    monthlyRecurringCents: 12750,
     monthlyRecurringDiscountCents: 4500,
-    futureCreditsCents: 12750,
+    currentRecurringSatisfiedCents: 12750,
+    futureCreditsCents: 0,
+  })
+})
+
+test('a paid current bill is not reclassified as a future credit or charged again', () => {
+  const cards = summarizeCustomerBalanceCards({
+    recurringBillingMonth: '2026-09',
+    subscriptions: [
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+      { status: 'active', netMonthlyCents: 12750, discountAmountCents: 2250 },
+    ],
+    charges: [
+      { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 0, service_period_start: '2026-09-01' },
+      { charge_type: 'recurring', amount_cents: 12750, remaining_amount_cents: 0, service_period_start: '2026-09-01' },
+    ],
+    payments: [{ remaining_amount_cents: 6376 }],
+  })
+
+  assert.deepEqual(cards, {
+    outstandingBalanceCents: 0,
+    monthlyRecurringCents: 0,
+    monthlyRecurringDiscountCents: 0,
+    currentRecurringSatisfiedCents: 25500,
+    futureCreditsCents: 6376,
   })
 })
 
