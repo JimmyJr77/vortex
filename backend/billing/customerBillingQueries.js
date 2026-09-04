@@ -526,6 +526,18 @@ export function billingMonthDueDate(month) {
   return key ? `${key}-01` : null
 }
 
+// The monthly card is a budget/tracking figure, not a collection remainder.
+// Account Balance is the ledger's current financial position after payments,
+// credits, and adjustments have been applied.
+export function customerBillingCardPresentation(view = {}, displayPricing = {}) {
+  return {
+    monthlyRecurringCents: Number(displayPricing.netCents) || 0,
+    monthlyRecurringDiscountCents: Number(displayPricing.discountCents) || 0,
+    futureCreditsCents: Number(view.futureCreditsCents) || 0,
+    balanceCents: Number(view.balanceCents) || 0,
+  }
+}
+
 export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
@@ -961,18 +973,7 @@ export async function buildCustomerBillingOverview(pool, {
         .map((row) => Number(row.id))
       : [],
   )
-  const scheduledMonthlyRecurringCents = Number(displayPricing.netCents) || 0
-  const currentRecurringSatisfiedCents = Math.max(0, Number(view.currentRecurringSatisfiedCents) || 0)
-  // The card represents the part of the displayed billing month that still
-  // needs coverage. A settled current-month invoice is not re-added as a new
-  // charge merely because the calendar has not reached the fifth yet.
-  const monthlyRecurringCents = Math.max(0, scheduledMonthlyRecurringCents - currentRecurringSatisfiedCents)
-  const monthlyRecurringDiscountCents = monthlyRecurringCents === 0
-    ? 0
-    : Number(displayPricing.discountCents) || 0
-  const futureCreditsCents = Number(view.futureCreditsCents) || 0
-  const displayedBalanceCents =
-    Number(view.outstandingBalanceCents || 0) + monthlyRecurringCents - futureCreditsCents
+  const cardPresentation = customerBillingCardPresentation(view, displayPricing)
 
   const overview = {
     revision: view.revision,
@@ -983,19 +984,17 @@ export async function buildCustomerBillingOverview(pool, {
       chargesCents: view.chargesCents,
       paymentsCents: view.paymentsCents,
       refundsCents: view.refundsCents,
-      // This is intentionally a presentation equation. Collection code uses
-      // collectibleBalanceCents from the immutable ledger snapshot instead.
-      balanceCents: displayedBalanceCents,
+      balanceCents: cardPresentation.balanceCents,
       collectibleBalanceCents: view.collectibleBalanceCents,
       outstandingBalanceCents: view.outstandingBalanceCents,
       // The enrollment resolver evaluates the selected billing period's
       // lifecycle rules, including cancellations effective on its first day.
       // The older account snapshot is current-state data and would retain a
       // class until its cancellation date passes.
-      monthlyRecurringCents,
-      monthlyRecurringDiscountCents,
+      monthlyRecurringCents: cardPresentation.monthlyRecurringCents,
+      monthlyRecurringDiscountCents: cardPresentation.monthlyRecurringDiscountCents,
       monthlyRecurringPeriod: pricingMonth,
-      futureCreditsCents,
+      futureCreditsCents: cardPresentation.futureCreditsCents,
       paidThisMonthCents: view.paidThisMonthCents,
       monthlyTotals: {
         grossCents: Number(displayPricing.grossCents) || 0,

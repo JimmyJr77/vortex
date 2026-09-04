@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
   billingMonthDueDate,
+  customerBillingCardPresentation,
   customerFacingPriceSyncError,
   effectiveEnrollmentNextBillDate,
   earliestActiveNextBillDate,
@@ -463,6 +464,22 @@ test('billing-month due dates are serialized as full calendar dates', () => {
   assert.equal(billingMonthDueDate('2026-09'), '2026-09-01')
   assert.equal(billingMonthDueDate(new Date('2026-10-01T00:00:00.000Z')), '2026-10-01')
   assert.equal(billingMonthDueDate(null), null)
+})
+
+test('monthly recurring card remains the full scheduled tuition while balance uses ledger facts', () => {
+  assert.deepEqual(customerBillingCardPresentation({
+    balanceCents: 250,
+    futureCreditsCents: 0,
+    currentRecurringSatisfiedCents: 33750,
+  }, {
+    netCents: 34000,
+    discountCents: 6000,
+  }), {
+    monthlyRecurringCents: 34000,
+    monthlyRecurringDiscountCents: 6000,
+    futureCreditsCents: 0,
+    balanceCents: 250,
+  })
 })
 
 test('paid enrollment service months advance independently while unpaid classes stay due', () => {
