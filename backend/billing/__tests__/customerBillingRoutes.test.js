@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import express from 'express'
-import { retrySyncHttpStatus } from '../customerBillingRoutes.js'
+import { customerBillingOverviewEtag, retrySyncHttpStatus } from '../customerBillingRoutes.js'
 import { registerCustomerBillingRoutes } from '../customerBillingRoutes.js'
 
 test('a retry that leaves an active adjustment unsynchronized returns accepted, not success', () => {
@@ -22,6 +22,19 @@ test('a completed Stripe retry returns success', () => {
     }),
     200,
   )
+})
+
+test('billing overview ETag changes when derived recurring pricing changes without a ledger revision', () => {
+  const prior = {
+    revision: 'ledger-unchanged',
+    summary: { monthlyRecurringCents: 0, monthlyRecurringPeriod: '2026-09' },
+  }
+  const corrected = {
+    revision: 'ledger-unchanged',
+    summary: { monthlyRecurringCents: 25500, monthlyRecurringPeriod: '2026-09' },
+  }
+
+  assert.notEqual(customerBillingOverviewEtag(prior), customerBillingOverviewEtag(corrected))
 })
 
 test('billing anomaly route uses the authenticated facility instead of caller input', async () => {

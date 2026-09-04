@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyPaymentRequest, notifyRefundReceipt } from '../email/memberNotifications.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
@@ -89,6 +90,27 @@ export function retrySyncHttpStatus(data) {
   return data?.syncStatus === 'failed' || data?.adjustment?.status === 'sync_failed'
     ? 202
     : 200
+}
+
+/**
+ * The overview includes derived recurring pricing and live Stripe payment
+ * method readiness in addition to immutable-ledger facts. Its cache validator
+ * must therefore cover the complete response instead of only the ledger
+ * revision; otherwise a browser can retain an older $0 recurring price after
+ * pricing or lifecycle rules change without a ledger mutation.
+ */
+export function customerBillingOverviewEtag(data) {
+  const fingerprint = createHash('sha256')
+    .update(JSON.stringify(data))
+    .digest('base64url')
+  return `W/"customer-billing-${fingerprint}"`
+}
+
+function sendCustomerBillingOverview(res, data) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('ETag', customerBillingOverviewEtag(data))
+  res.json({ success: true, data })
 }
 
 function transactionFilters(req, accountId) {
@@ -398,8 +420,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           selectedMemberId: req.query.memberId == null ? null : Number(req.query.memberId),
         })
         if (!data) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        if (data.revision) res.setHeader('ETag', `W/"billing-${data.revision}"`)
-        res.json({ success: true, data })
+        sendCustomerBillingOverview(res, data)
       } catch (error) {
         console.error('[customer-billing] overview:', error)
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Billing overview failed.' })
@@ -422,8 +443,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           selectedMemberId: req.body?.memberId == null ? null : Number(req.body.memberId),
         })
         if (!data) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        if (data.revision) res.setHeader('ETag', `W/"billing-${data.revision}"`)
-        res.json({ success: true, data })
+        sendCustomerBillingOverview(res, data)
       } catch (error) {
         console.error('[customer-billing] account refresh:', error)
         res.status(errorStatus(error)).json({
