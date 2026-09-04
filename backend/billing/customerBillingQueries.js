@@ -538,6 +538,71 @@ export function customerBillingCardPresentation(view = {}, displayPricing = {}) 
   }
 }
 
+// A household invoice is a Stripe collection artifact, whereas Account
+// History is the ledger of record. A class may have been paid early, manually,
+// or before this account was moved to household invoicing. In those cases no
+// monthly-invoice row exists, but the billing card must still accurately show
+// the posted class bill and the settled money allocated to it.
+export function buildMonthlyLedgerBill({
+  billingMonth,
+  charges = [],
+  members = [],
+  classDisplays = new Map(),
+} = {}) {
+  const month = billingMonthKey(billingMonth)
+  if (!month) return null
+
+  const memberNames = new Map(
+    members.map((member) => [
+      Number(member.id),
+      member.name || [member.firstName, member.lastName].filter(Boolean).join(' ').trim() || null,
+    ]),
+  )
+  const lines = charges
+    .filter((charge) => (
+      charge?.charge_type === 'recurring' &&
+      billingMonthKey(charge.service_period_start ?? charge.created_at) === month &&
+      Number(charge.amount_cents) > 0
+    ))
+    .map((charge) => {
+      const id = Number(charge.id)
+      const effectiveAmountCents = Math.max(
+        0,
+        Number(charge.amount_cents ?? 0) + Number(charge.linked_adjustment_cents ?? 0),
+      )
+      const appliedCents = Math.max(
+        0,
+        Number(charge.applied_amount_cents ?? 0) + Number(charge.credit_applied_amount_cents ?? 0),
+      )
+      const classDisplay = classDisplays.get(id)
+      return {
+        id,
+        memberName: memberNames.get(Number(charge.member_id)) ?? null,
+        description: classDisplay?.description ?? charge.description ?? 'Recurring class tuition',
+        lineType: 'charge',
+        amountCents: effectiveAmountCents,
+        paidCents: Math.min(effectiveAmountCents, appliedCents),
+      }
+    })
+    // A canceled charge wholly offset by a linked correction remains in the
+    // immutable audit, but is not a bill the household owes this month.
+    .filter((line) => line.amountCents > 0)
+
+  if (lines.length === 0) return null
+  const totalCents = lines.reduce((sum, line) => sum + line.amountCents, 0)
+  const paidCents = lines.reduce((sum, line) => sum + line.paidCents, 0)
+  const remainingCents = Math.max(0, totalCents - paidCents)
+  return {
+    billingMonth: `${month}-01`,
+    totalCents,
+    paidCents,
+    remainingCents,
+    status: remainingCents === 0 ? 'paid' : paidCents > 0 ? 'partially_paid' : 'unpaid',
+    lineCount: lines.length,
+    lines: lines.map(({ paidCents: _paidCents, ...line }) => line),
+  }
+}
+
 export function isRetiredAnnualMembershipStripeSetupAlert(alert = {}) {
   const type = String(alert.alert_type ?? alert.type ?? '').trim()
   const message = String(alert.message ?? '').trim()
@@ -1045,6 +1110,16 @@ export async function buildCustomerBillingOverview(pool, {
       .map((row) => Number(row.id)),
   )
   const cardPresentation = customerBillingCardPresentation(view, displayPricing)
+  const monthlyLedgerClassDisplays = await loadTransactionClassDisplay(
+    pool,
+    (view.recurringCharges ?? []).map((charge) => Number(charge.id)),
+  )
+  const monthlyLedgerBill = buildMonthlyLedgerBill({
+    billingMonth: pricingMonth,
+    charges: view.recurringCharges,
+    members,
+    classDisplays: monthlyLedgerClassDisplays,
+  })
 
   const overview = {
     revision: view.revision,
@@ -1072,6 +1147,7 @@ export async function buildCustomerBillingOverview(pool, {
         discountCents: Number(displayPricing.discountCents) || 0,
         netCents: Number(displayPricing.netCents) || 0,
       },
+      monthlyLedgerBill,
       nextBillDate,
       latestPayment: view.latestPayment,
       stripeSync: syncFailures.length > 0

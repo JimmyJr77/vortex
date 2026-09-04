@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
+  buildMonthlyLedgerBill,
   billingMonthDueDate,
   customerBillingCardPresentation,
   customerFacingPriceSyncError,
@@ -19,6 +20,50 @@ import {
   recurringPricingForPeriod,
   searchCustomerBilling,
 } from '../customerBillingQueries.js'
+
+test('monthly ledger bill attributes an early household payment to its billed class month', () => {
+  const bill = buildMonthlyLedgerBill({
+    billingMonth: '2026-09',
+    members: [{ id: 42, name: 'Ryker Johnson' }],
+    classDisplays: new Map([[7, { description: 'Tornadoes #3 · Monday · 17:30–19:00' }]]),
+    charges: [
+      {
+        id: 7,
+        charge_type: 'recurring',
+        member_id: 42,
+        description: 'Tornadoes',
+        service_period_start: '2026-09-01',
+        amount_cents: 15000,
+        applied_amount_cents: 15000,
+        credit_applied_amount_cents: 0,
+      },
+      {
+        id: 8,
+        charge_type: 'recurring',
+        member_id: 42,
+        service_period_start: '2026-08-01',
+        amount_cents: 3750,
+        applied_amount_cents: 3750,
+      },
+    ],
+  })
+
+  assert.deepEqual(bill, {
+    billingMonth: '2026-09-01',
+    totalCents: 15000,
+    paidCents: 15000,
+    remainingCents: 0,
+    status: 'paid',
+    lineCount: 1,
+    lines: [{
+      id: 7,
+      memberName: 'Ryker Johnson',
+      description: 'Tornadoes #3 · Monday · 17:30–19:00',
+      lineType: 'charge',
+      amountCents: 15000,
+    }],
+  })
+})
 
 test('refund offsets reduce effective due amounts in annual and transaction displays', async () => {
   const annualQueries = []

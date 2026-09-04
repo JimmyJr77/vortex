@@ -123,6 +123,27 @@ function memberMonthlyInvoice(invoice = {}, { includeHostedInvoiceUrl = false } 
   }
 }
 
+function memberMonthlyLedgerBill(bill = null) {
+  if (!bill || typeof bill !== 'object') return null
+  return {
+    billingMonth: bill.billingMonth ?? null,
+    totalCents: Number(bill.totalCents ?? 0),
+    paidCents: Number(bill.paidCents ?? 0),
+    remainingCents: Number(bill.remainingCents ?? 0),
+    status: bill.status ?? 'unpaid',
+    lineCount: Number(bill.lineCount ?? 0),
+    lines: Array.isArray(bill.lines)
+      ? bill.lines.map((line) => ({
+          id: Number(line.id),
+          memberName: line.memberName ?? null,
+          description: line.description ?? '',
+          lineType: line.lineType ?? 'charge',
+          amountCents: Number(line.amountCents ?? 0),
+        }))
+      : [],
+  }
+}
+
 /**
  * Explicit member-facing allowlist. The admin overview intentionally contains
  * provider identifiers, adjustment audit snapshots, sync diagnostics, and
@@ -177,6 +198,7 @@ export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments
         discountCents: Number(summary.monthlyTotals?.discountCents ?? 0),
         netCents: Number(summary.monthlyTotals?.netCents ?? 0),
       },
+      monthlyLedgerBill: memberMonthlyLedgerBill(summary.monthlyLedgerBill),
       nextBillDate: summary.nextBillDate ?? null,
       latestPayment: summary.latestPayment
         ? {

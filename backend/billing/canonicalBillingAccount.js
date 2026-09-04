@@ -282,15 +282,29 @@ export async function loadCanonicalFinancialSnapshot(pool, {
              ON scoped_credit.id = credit_line.billing_charge_id
           WHERE scoped_credit.family_billing_account_id = $1
           GROUP BY credit_line.billing_charge_id
+       ), linked_adjustment_totals AS (
+         -- Customer history and monthly bill cards show a correction as part
+         -- of its original class charge. Keep that same effective amount in
+         -- the canonical snapshot so a class swap cannot make the card and
+         -- ledger disagree.
+         SELECT adjustment.related_charge_id AS billing_charge_id,
+                SUM(adjustment.amount_cents)::bigint AS adjustment_cents
+           FROM billing_charge adjustment
+          WHERE adjustment.family_billing_account_id = $1
+            AND adjustment.related_charge_id IS NOT NULL
+            AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
+          GROUP BY adjustment.related_charge_id
        ), candidate AS (
          SELECT charge.*,
                 COALESCE(application.applied_cents, 0)::bigint AS applied_amount_cents,
                 COALESCE(credit_application.applied_cents, 0)::bigint AS credit_applied_amount_cents,
                 COALESCE(credit_source_application.allocated_cents, 0)::bigint
                   AS credit_allocated_amount_cents,
+                COALESCE(linked_adjustment.adjustment_cents, 0)::bigint
+                  AS linked_adjustment_cents,
                 GREATEST(
                   0,
-                  charge.amount_cents
+                  charge.amount_cents + COALESCE(linked_adjustment.adjustment_cents, 0)
                     - COALESCE(application.applied_cents, 0)
                     - COALESCE(credit_application.applied_cents, 0)
                 )::bigint AS remaining_amount_cents
@@ -300,6 +314,8 @@ export async function loadCanonicalFinancialSnapshot(pool, {
              ON credit_application.billing_charge_id = charge.id
            LEFT JOIN credit_source_application_totals credit_source_application
              ON credit_source_application.billing_charge_id = charge.id
+           LEFT JOIN linked_adjustment_totals linked_adjustment
+             ON linked_adjustment.billing_charge_id = charge.id
           WHERE charge.family_billing_account_id = $1
        )
        SELECT candidate.*
@@ -371,6 +387,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
       subscriptions,
       recurringBillingMonth: effectiveRecurringBillingMonth,
     }),
+    recurringCharges: chargeResult.rows.filter((charge) => charge.charge_type === 'recurring'),
     collectibleBalanceCents,
   }
 }

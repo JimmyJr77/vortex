@@ -15,7 +15,19 @@ test('member overview is an explicit allowlist without provider or administrator
       isActive: true,
     },
     members: [{ id: 11, name: 'Jordan Rivera', email: 'private@example.com', phone: '555-0100' }],
-    summary: { balanceCents: 12000, latestPayment: { id: 99, amountCents: 5000, paidAt: '2026-08-01', method: 'card' } },
+    summary: {
+      balanceCents: 12000,
+      latestPayment: { id: 99, amountCents: 5000, paidAt: '2026-08-01', method: 'card' },
+      monthlyLedgerBill: {
+        billingMonth: '2026-09-01',
+        totalCents: 12000,
+        paidCents: 12000,
+        remainingCents: 0,
+        status: 'paid',
+        lineCount: 1,
+        lines: [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', amountCents: 12000 }],
+      },
+    },
     paymentMethod: {
       available: true,
       stripeEnabled: true,
@@ -59,6 +71,15 @@ test('member overview is an explicit allowlist without provider or administrator
   assert.equal(dto.monthlyInvoices[0].postPaymentCreditCents, 6376)
   assert.deepEqual(dto.monthlyInvoices[0].lines, [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', lineType: 'charge', amountCents: 12000 }])
   assert.equal(dto.monthlyInvoices[0].hostedInvoiceUrl, null)
+  assert.deepEqual(dto.summary.monthlyLedgerBill, {
+    billingMonth: '2026-09-01',
+    totalCents: 12000,
+    paidCents: 12000,
+    remainingCents: 0,
+    status: 'paid',
+    lineCount: 1,
+    lines: [{ id: 9, memberName: 'Jordan Rivera', description: 'Tornadoes', lineType: 'charge', amountCents: 12000 }],
+  })
   assert.deepEqual(dto.alerts, [])
   assert.deepEqual(dto.adjustments, [])
   assert.deepEqual(dto.subscriptions, [])

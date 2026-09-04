@@ -186,6 +186,15 @@ export interface CustomerBillingOverview {
     futureCreditsCents: number
     paidThisMonthCents: number
     monthlyTotals: { grossCents: number; discountCents: number; netCents: number }
+    monthlyLedgerBill: null | {
+      billingMonth: string
+      totalCents: number
+      paidCents: number
+      remainingCents: number
+      status: 'paid' | 'partially_paid' | 'unpaid'
+      lineCount: number
+      lines: Array<{ id: number; memberName: string | null; description: string; lineType: string; amountCents: number }>
+    }
     nextBillDate: string | null
     latestPayment: null | { id: number; amountCents: number; paidAt: string; method: string | null }
     stripeSync: { status: string; message: string }

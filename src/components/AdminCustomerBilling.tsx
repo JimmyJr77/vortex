@@ -586,33 +586,55 @@ function MonthlyInvoiceSummary({
   billingMonth,
   localBillCents,
   paymentMethodRequired,
+  monthlyLedgerBill,
 }: {
   invoices: CustomerBillingOverview['monthlyInvoices']
   billingMonth: string | null | undefined
   localBillCents: number
   paymentMethodRequired: boolean
+  monthlyLedgerBill: CustomerBillingOverview['summary']['monthlyLedgerBill']
 }) {
   const invoice = billingMonth
     ? invoices.find((item) => item.billingMonth?.slice(0, 7) === billingMonth.slice(0, 7)) ?? null
     : invoices[0] ?? null
   if (!invoice) {
-    const hasPostedBill = localBillCents > 0
+    const ledgerBill = monthlyLedgerBill?.billingMonth?.slice(0, 7) === billingMonth?.slice(0, 7)
+      ? monthlyLedgerBill
+      : null
+    const hasPostedBill = ledgerBill != null || localBillCents > 0
+    const label = ledgerBill?.status === 'paid'
+      ? 'Paid'
+      : ledgerBill?.status === 'partially_paid'
+        ? 'Partially paid'
+        : hasPostedBill && paymentMethodRequired
+          ? 'Awaiting payment method'
+          : hasPostedBill
+            ? 'Prepared locally'
+            : 'No invoice needed'
+    const totalCents = ledgerBill?.totalCents ?? localBillCents
     return (
       <div className="border-t border-gray-200 bg-white px-5 py-4 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <strong className="text-gray-950">Monthly household invoice · {billingMonthLabel(billingMonth)}</strong>
+          <div><strong className="text-gray-950">{ledgerBill ? 'Monthly household bill' : 'Monthly household invoice'} · {billingMonthLabel(billingMonth)}</strong>{ledgerBill ? <span className="ml-2 text-gray-500">{ledgerBill.lineCount} items · {label}</span> : null}</div>
           <div className="flex items-center gap-3">
-            <span className="text-gray-500">{hasPostedBill && paymentMethodRequired ? 'Awaiting payment method' : hasPostedBill ? 'Prepared locally' : 'No invoice needed'}</span>
-            {hasPostedBill ? <strong className="text-gray-950">{money(localBillCents)}</strong> : null}
+            {!ledgerBill ? <span className="text-gray-500">{label}</span> : null}
+            {hasPostedBill ? <strong className="text-gray-950">{money(totalCents)}</strong> : null}
           </div>
         </div>
         <p className="mt-2 text-xs text-gray-600">
-          {hasPostedBill
+          {ledgerBill
+            ? ledgerBill.status === 'paid'
+              ? 'Class charges and their payment are recorded in Account History. No separate Stripe invoice was required for this settled bill.'
+              : ledgerBill.status === 'partially_paid'
+                ? `${money(ledgerBill.remainingCents)} remains after payments recorded in Account History.`
+                : 'Class charges are posted in Account History and remain unpaid.'
+            : hasPostedBill
             ? paymentMethodRequired
               ? 'Class charges are posted in Account History. Add a reusable payment method before Stripe can issue the household invoice.'
               : 'Class charges are posted in Account History. Stripe has not issued a household invoice for this billing month yet.'
             : 'No recurring class tuition is due for this billing month. One-time charges and payments, such as annual fees, appear in Account History.'}
         </p>
+        {ledgerBill?.lines.length ? <div className="mt-3 grid gap-1 text-xs text-gray-600 sm:grid-cols-2">{ledgerBill.lines.map((line) => <div key={line.id} className="flex items-center justify-between gap-3"><span className="truncate">{line.memberName ? `${line.memberName} · ` : ''}{line.description}</span><span className="font-semibold text-gray-800">{money(line.amountCents)}</span></div>)}</div> : null}
       </div>
     )
   }
@@ -1550,6 +1572,7 @@ export default function AdminCustomerBilling({
               billingMonth={overview.summary.monthlyRecurringPeriod}
               localBillCents={overview.summary.monthlyRecurringCents}
               paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
+              monthlyLedgerBill={overview.summary.monthlyLedgerBill}
             />
             {overview.summary.stripeSync.status === 'failed' ? (
               <div className="flex flex-col gap-3 border-t border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 lg:flex-row lg:items-center lg:justify-between">

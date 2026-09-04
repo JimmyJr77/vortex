@@ -140,6 +140,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     },
     revision: 'revision-1',
     recurringBillingMonth: '2026-10',
+    recurringCharges: [],
     collectibleBalanceCents: 7000,
   })
   assert.equal(calls.length, 4)
@@ -150,6 +151,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
   assert.match(totalsSql, /payment\.external_status IN \('settled', 'succeeded'\)/)
   assert.match(chargesSql, /settled_payment\.external_status IN \('settled', 'succeeded'\)/)
   assert.match(chargesSql, /credit_source_application_totals/)
+  assert.match(chargesSql, /linked_adjustment_totals/)
   assert.match(paymentsSql, /payment\.external_status IN \('settled', 'succeeded'\)/)
 })
 
