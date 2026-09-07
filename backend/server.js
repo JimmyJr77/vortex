@@ -88,6 +88,10 @@ import {
   resetStaffPasswordByEmail,
 } from './auth/staffPasswordReset.js'
 import { initOpportunityTables, registerOpportunityRoutes } from './opportunities/registerRoutes.js'
+import { initPayrollTables } from './payroll/initTables.js'
+import { registerPayrollRoutes } from './payroll/registerRoutes.js'
+import { registerPayrollEmployeeRoutes } from './payroll/employeeRoutes.js'
+import { startPayrollComplianceScheduler } from './payroll/complianceScheduler.js'
 
 const { Pool } = pkg
 
@@ -1055,6 +1059,9 @@ export const initDatabase = async () => {
     } else {
       await initPlatformTables(pool)
     }
+
+    // Payroll depends on canonical facility and RBAC tables from platform boot.
+    await initPayrollTables(pool)
 
     // Migration 090 removed the legacy member_program table. Historical
     // databases can still retain this trigger, causing every member UPDATE to
@@ -2633,6 +2640,7 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/analytics')) return 'analytics.view'
   if (path.startsWith('/marketing')) return method === 'GET' ? 'analytics.view' : 'marketing.manage'
   if (path.startsWith('/opportunities')) return 'analytics.view'
+  if (path.startsWith('/payroll')) return method === 'GET' ? 'payroll.view' : 'payroll.manage'
   if (path.startsWith('/db-queries') || path.startsWith('/database')) return 'admin_access.manage'
   if (path.startsWith('/email')) return 'admin_access.manage'
   return null
@@ -2684,6 +2692,8 @@ registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerOpportunityRoutes(app, pool)
+registerPayrollRoutes(app, pool)
+registerPayrollEmployeeRoutes(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerEmailUnsubscribeRoutes(app)
@@ -12240,6 +12250,7 @@ const startServer = async () => {
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
         startPaymentFactAuditScheduler(pool)
+        startPayrollComplianceScheduler(pool)
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)

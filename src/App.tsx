@@ -45,6 +45,7 @@ const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
 const Storefront = lazyWithRetry(() => import('./components/store/Storefront'))
+const PayrollEmployeePortal = lazyWithRetry(() => import('./components/payroll/PayrollEmployeePortal'))
 
 function PageLoader() {
   return (
@@ -209,6 +210,10 @@ function App() {
 
     setActivePortal(portal)
     setShowMemberDashboard(true)
+  }
+
+  if (location.pathname === '/employee/payroll') {
+    return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>
   }
 
   // If user is admin, show admin panel

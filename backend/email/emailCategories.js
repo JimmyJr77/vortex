@@ -37,6 +37,7 @@ export const EMAIL_CATEGORIES = Object.freeze({
   waiver_request: STREAM_TRANSACTIONAL,
   security_notification: STREAM_TRANSACTIONAL,
   gymnastics_evaluation: STREAM_TRANSACTIONAL,
+  payroll_employee_invitation: STREAM_TRANSACTIONAL,
 
   // --- marketing (no senders today; reserved + scaffolded) ---
   newsletter: STREAM_MARKETING,
@@ -91,6 +92,7 @@ export const SECURITY_CATEGORIES = Object.freeze(
     'password_reset',
     'signin_magic_link',
     'security_notification',
+    'payroll_employee_invitation',
   ]),
 )
 

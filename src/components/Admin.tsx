@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
 import AdminInquiries from './AdminInquiries'
@@ -46,9 +46,11 @@ import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard, ShoppingBag } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard, ShoppingBag, Landmark } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
+
+const AdminPayroll = lazy(() => import('./payroll/AdminPayroll'))
 
 interface AdminProps {
   onLogout: () => void
@@ -85,9 +87,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'dashboard' | 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'dashboard' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -103,6 +105,7 @@ interface BillingAccountTarget {
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; masterAdminOnly?: boolean }> = [
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'payroll', label: 'Payroll', permission: 'payroll.view' },
   { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
   { id: 'admins', label: 'Staff Access', permission: 'admin_access.manage' },
   { id: 'membership', label: 'Members', permission: 'members.view' },
@@ -152,6 +155,7 @@ interface GroupDef {
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, sections: ['dashboard'] },
+  { id: 'payroll', label: 'Payroll', icon: Landmark, sections: ['payroll'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
@@ -387,6 +391,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     switch (activeTab) {
       case 'dashboard':
         return <AdminDashboard onOpenCustomerBilling={() => goToSection('customerBilling')} onOpenEnrollments={() => goToSection('signups')} />
+      case 'payroll':
+        return <Suspense fallback={<div className="py-16 text-center text-sm font-semibold text-slate-500">Loading payroll…</div>}><AdminPayroll /></Suspense>
       case 'opportunities':
         return <AdminOpportunities />
       case 'analytics':
