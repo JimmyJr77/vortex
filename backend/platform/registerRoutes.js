@@ -131,6 +131,7 @@ import {
   findBillingPaymentAttemptForStripeObject,
   recordAndCompleteBillingPaymentAttempt,
   releaseBillingPaymentAttempt,
+  retireFailedBillingPaymentAttempt,
 } from '../billing/paymentAttemptReservations.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 import {
@@ -4217,10 +4218,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         || event.type === 'invoice.payment_failed'
       ) {
         const obj = event.data?.object ?? {}
-        // payment_intent.payment_failed commonly transitions back to
-        // requires_payment_method and may later be reconfirmed successfully.
-        // Only the signed canceled lifecycle proves the remote collector is
-        // terminal and permits its exact reservation to be released.
+        // Verify current Stripe state and cancel declined saved-card intents
+        // before making their bills collectible again.
+        if (event.type === 'payment_intent.payment_failed') {
+          await retireFailedBillingPaymentAttempt(pool, await getStripeClient(), { stripeObject: obj })
+        }
         if (event.type === 'payment_intent.canceled') {
           await releaseBillingPaymentAttempt(pool, {
             stripeObject: obj,

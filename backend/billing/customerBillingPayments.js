@@ -37,7 +37,7 @@ import {
   attachBillingPaymentAttemptStripeObject,
   loadBillingPaymentAttemptByRequestKey,
   markBillingPaymentAttemptRemotePending,
-  paymentIntentFailureIsFinal,
+  retireFailedBillingPaymentAttempt,
   recordAndCompleteBillingPaymentAttempt,
   releaseBillingPaymentAttempt,
   reserveBillingPaymentAttempt,
@@ -1428,19 +1428,6 @@ export class SavedCardCollectionError extends Error {
   }
 }
 
-async function retrieveVerifiedCanceledPaymentIntent(stripe, intent) {
-  const paymentIntentId = typeof intent === 'string' ? intent : intent?.id
-  if (!paymentIntentId || typeof stripe?.paymentIntents?.retrieve !== 'function') return null
-  try {
-    const verified = await stripe.paymentIntents.retrieve(paymentIntentId)
-    return paymentIntentFailureIsFinal(verified) ? verified : null
-  } catch {
-    // A retrieval failure is not terminal proof. Keep the reservation so a
-    // delayed success cannot race a replacement collector.
-    return null
-  }
-}
-
 /** Collect only the balance not already reserved by a household invoice. */
 export async function collectOutstandingBalanceWithSavedCard(pool, {
   account,
@@ -1560,16 +1547,11 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
       return { payment, amountCents: amount, replayed: reservation.replayed }
     } catch (error) {
       const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
-      const canceledIntent = await retrieveVerifiedCanceledPaymentIntent(stripe, intent)
-      const finalFailure = Boolean(canceledIntent)
-      if (finalFailure) {
-        await releaseBillingPaymentAttempt(db, {
-          attemptId: reservation.id,
-          stripeObject: canceledIntent,
-          status: 'canceled',
-          reason: error?.message ?? String(error),
-        }).catch(() => {})
-      } else {
+      const retired = await retireFailedBillingPaymentAttempt(db, stripe, {
+        attemptId: reservation.id, stripeObject: intent,
+      }).catch(() => null)
+      const finalFailure = retired?.status === 'canceled'
+      if (!finalFailure) {
         await attachBillingPaymentAttemptStripeObject(db, {
           attemptId: reservation.id,
           paymentIntentId: intent?.id ?? succeededIntent?.id ?? null,
@@ -1745,16 +1727,11 @@ export async function collectCustomChargeWithSavedCard(pool, {
       return { intent, payment, replayed: reservation.replayed }
     } catch (error) {
       const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
-      const canceledIntent = await retrieveVerifiedCanceledPaymentIntent(stripe, intent)
-      const finalFailure = Boolean(canceledIntent)
-      if (finalFailure) {
-        await releaseBillingPaymentAttempt(db, {
-          attemptId: reservation.id,
-          stripeObject: canceledIntent,
-          status: 'canceled',
-          reason: error?.message ?? String(error),
-        }).catch(() => {})
-      } else {
+      const retired = await retireFailedBillingPaymentAttempt(db, stripe, {
+        attemptId: reservation.id, stripeObject: intent,
+      }).catch(() => null)
+      const finalFailure = retired?.status === 'canceled'
+      if (!finalFailure) {
         await attachBillingPaymentAttemptStripeObject(db, {
           attemptId: reservation.id,
           paymentIntentId: intent?.id ?? succeededIntent?.id ?? null,

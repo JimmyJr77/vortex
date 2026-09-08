@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 
 import {
   attachBillingPaymentAttemptStripeObject,
+  cancelFailedSavedCardPaymentIntent,
+  retireFailedBillingPaymentAttempt,
   completeBillingPaymentAttempt,
   paymentAttemptIsActive,
   paymentIntentFailureIsFinal,
@@ -1235,4 +1237,123 @@ test('PaymentIntent failure webhook retains retryable reservations', () => {
     routeSource,
     /if \(event\.type !== 'invoice\.payment_failed'\) \{[\s\S]*?releaseBillingPaymentAttempt\(pool/,
   )
+})
+
+function declinedSavedCardFixture() {
+  const attempt = {
+    id: 101, family_billing_account_id: 7, attempt_type: 'admin_balance_saved_card',
+    status: 'reconciliation_required', amount_cents: 8500,
+    stripe_customer_id: 'cus_7', stripe_payment_intent_id: 'pi_101',
+    stripe_checkout_session_id: null,
+  }
+  const intent = {
+    id: 'pi_101', object: 'payment_intent', status: 'requires_payment_method',
+    customer: 'cus_7', amount: 8500, amount_received: 0,
+    last_payment_error: { code: 'card_declined' },
+    metadata: { billingPaymentAttemptId: '101', familyBillingAccountId: '7' },
+  }
+  const calls = []
+  const stripe = { paymentIntents: {
+    retrieve: async () => ({ ...intent }),
+    cancel: async (id, params, options) => {
+      calls.push({ id, params, options })
+      intent.status = 'canceled'
+      return { ...intent }
+    },
+  } }
+  return { attempt, intent, stripe, calls }
+}
+
+test('declined saved-card cleanup verifies cancellation and is safe to replay', async () => {
+  const { attempt, intent, stripe, calls } = declinedSavedCardFixture()
+  for (let i = 0; i < 2; i += 1) {
+    assert.equal((await cancelFailedSavedCardPaymentIntent(stripe, attempt, intent)).status, 'canceled')
+  }
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].options.idempotencyKey, 'billing-payment-attempt:101:cancel-failed')
+})
+
+test('saved-card cleanup protects other payment states, open Checkout, and unattempted intents', async (t) => {
+  for (const status of ['processing', 'succeeded', 'requires_action', 'requires_capture', 'requires_confirmation']) {
+    await t.test(status, async () => {
+      const { attempt, intent, stripe, calls } = declinedSavedCardFixture()
+      intent.status = status
+      assert.equal(await cancelFailedSavedCardPaymentIntent(stripe, attempt, intent), null)
+      assert.equal(calls.length, 0)
+    })
+  }
+  for (const change of [
+    (f) => { f.attempt.attempt_type = 'member_balance_checkout' },
+    (f) => { f.attempt.stripe_checkout_session_id = 'cs_open' },
+    (f) => { f.intent.last_payment_error = null },
+    (f) => { f.attempt.status = 'succeeded' },
+  ]) {
+    const f = declinedSavedCardFixture()
+    change(f)
+    assert.equal(await cancelFailedSavedCardPaymentIntent(f.stripe, f.attempt, f.intent), null)
+    assert.equal(f.calls.length, 0)
+  }
+})
+
+test('saved-card cleanup refuses mismatched ownership, amount, or received money', async () => {
+  for (const change of [
+    (f) => { f.intent.customer = 'cus_other' },
+    (f) => { f.intent.metadata.billingPaymentAttemptId = '999' },
+    (f) => { f.intent.metadata.familyBillingAccountId = '999' },
+    (f) => { f.intent.amount = 100 },
+    (f) => { f.intent.amount_received = 100 },
+    (f) => { delete f.intent.amount_received },
+    (f) => { f.attempt.stripe_payment_intent_id = 'pi_other' },
+  ]) {
+    const f = declinedSavedCardFixture()
+    change(f)
+    await assert.rejects(cancelFailedSavedCardPaymentIntent(f.stripe, f.attempt, f.intent), /does not match/)
+    assert.equal(f.calls.length, 0)
+  }
+})
+
+test('failure cleanup attaches a create-error intent before releasing its reservation', async () => {
+  const f = declinedSavedCardFixture()
+  f.attempt.stripe_payment_intent_id = null
+  const steps = []
+  const result = await retireFailedBillingPaymentAttempt(activeAttemptReconciliationPool([f.attempt]), f.stripe, {
+    attemptId: f.attempt.id, stripeObject: f.intent,
+    attachFunction: async (_pool, args) => { steps.push('attach'); assert.equal(args.paymentIntentId, f.intent.id) },
+    releaseFunction: async (_pool, args) => {
+      steps.push('release')
+      assert.equal(args.stripeObject.status, 'canceled')
+      return { status: 'canceled' }
+    },
+  })
+  assert.equal(result.status, 'canceled')
+  assert.deepEqual(steps, ['attach', 'release'])
+})
+
+test('reconciliation cleans up an older declined reservation without transferring a membership', async () => {
+  const f = declinedSavedCardFixture()
+  let released = false
+  const summary = await reconcileActiveBillingPaymentAttempts(activeAttemptReconciliationPool([f.attempt]), f.stripe, {
+    releaseFunction: async (_pool, args) => { released = args.stripeObject.status === 'canceled' },
+    settleFunction: async () => assert.fail('declined payment must not settle'),
+  })
+  assert.equal(released, true)
+  assert.equal(summary.released, 1)
+  assert.equal(summary.errors.length, 0)
+})
+
+test('uncertain cancellation or concurrent success keeps the reservation until reconciliation', async () => {
+  for (const outcome of ['timeout', 'processing', 'succeeded']) {
+    const f = declinedSavedCardFixture()
+    f.stripe.paymentIntents.cancel = async () => {
+      if (outcome === 'timeout') throw new Error('timeout')
+      return { ...f.intent, status: outcome }
+    }
+    const summary = await reconcileActiveBillingPaymentAttempts(activeAttemptReconciliationPool([f.attempt]), f.stripe, {
+      releaseFunction: async () => assert.fail('unverified cancellation must not release'),
+      settleFunction: async () => assert.fail('inconclusive cancellation must not settle'),
+    })
+    assert.equal(summary.released, 0)
+    assert.equal(summary.retained, 1)
+    assert.equal(summary.errors.length, 1)
+  }
 })

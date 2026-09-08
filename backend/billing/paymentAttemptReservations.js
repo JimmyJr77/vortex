@@ -532,6 +532,65 @@ export async function findBillingPaymentAttemptForStripeObject(pool, object = {}
   return attempt
 }
 
+/** Cancel only a verified, declined saved-card intent before releasing its bills. */
+export async function cancelFailedSavedCardPaymentIntent(stripe, attempt, intent) {
+  if (!String(attempt?.attempt_type).endsWith('_saved_card')
+    || attempt.stripe_checkout_session_id || attempt.status === 'succeeded') return null
+  const intentId = stripeObjectId(intent)
+  if (!intentId || !String(intentId).startsWith('pi_')) return null
+  const verified = await stripe.paymentIntents.retrieve(intentId)
+  const matches = (remote) => (
+    remote?.id === intentId
+    && (!attempt.stripe_payment_intent_id || attempt.stripe_payment_intent_id === intentId)
+    && String(remote?.metadata?.billingPaymentAttemptId) === String(attempt.id)
+    && String(remote?.metadata?.familyBillingAccountId) === String(attempt.family_billing_account_id)
+    && Boolean(attempt.stripe_customer_id)
+    && stripeObjectId(remote?.customer) === attempt.stripe_customer_id
+    && Number(remote?.amount) === Number(attempt.amount_cents)
+    && remote?.amount_received === 0
+  )
+  if (!matches(verified)) throw new BillingPaymentAttemptMappingConflict('Failed Stripe payment does not match its reservation.')
+  if (verified.status === 'canceled') return verified
+  if (verified.status !== 'requires_payment_method' || !verified.last_payment_error) return null
+  // Never release on a failed or uncertain cancellation. A concurrent success
+  // will cause cancellation to fail and be settled by the existing reconciler.
+  const canceled = await stripe.paymentIntents.cancel(intentId, {}, {
+    idempotencyKey: `billing-payment-attempt:${attempt.id}:cancel-failed`,
+  })
+  if (!matches(canceled) || canceled.status !== 'canceled') {
+    throw new Error('Stripe did not confirm cancellation of the failed payment.')
+  }
+  return canceled
+}
+
+export async function retireFailedBillingPaymentAttempt(pool, stripe, {
+  attemptId = null,
+  stripeObject,
+  attachFunction = attachBillingPaymentAttemptStripeObject,
+  releaseFunction = releaseBillingPaymentAttempt,
+}) {
+  const mapped = attemptId ? { id: positiveId(attemptId, 'Payment attempt ID') }
+    : await findBillingPaymentAttemptForStripeObject(pool, stripeObject)
+  if (!mapped) return null
+  const attempt = await pool.query(
+    `SELECT attempt.*, account.stripe_customer_id
+       FROM billing_payment_attempt attempt
+       JOIN family_billing_account account ON account.id = attempt.family_billing_account_id
+      WHERE attempt.id = $1`, [mapped.id],
+  ).then((result) => result.rows[0])
+  if (!attempt) return null
+  const canceled = await cancelFailedSavedCardPaymentIntent(stripe, attempt, stripeObject)
+  if (!canceled) return null
+  // Persist IDs even when Stripe's create request threw before attachment.
+  await attachFunction(pool, {
+    attemptId: attempt.id, paymentIntentId: canceled.id, status: 'reconciliation_required',
+  })
+  return releaseFunction(pool, {
+    attemptId: attempt.id, stripeObject: canceled, status: 'canceled',
+    reason: 'Declined saved-card payment canceled in Stripe; bill available for retry.',
+  })
+}
+
 export async function releaseBillingPaymentAttempt(pool, {
   attemptId = null,
   stripeObject = null,
@@ -1088,6 +1147,12 @@ export async function reconcileActiveBillingPaymentAttempts(pool, stripe, {
         })
         summary.retained += 1
         continue
+      }
+
+      if (remote.status === 'requires_payment_method' && remote.last_payment_error
+        && String(attempt.attempt_type).endsWith('_saved_card')) {
+        const canceled = await cancelFailedSavedCardPaymentIntent(stripe, attempt, remote)
+        if (canceled) remote = canceled
       }
 
       if (remote.status === 'succeeded') {
