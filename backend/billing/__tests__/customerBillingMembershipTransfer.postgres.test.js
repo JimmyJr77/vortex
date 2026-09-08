@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { recallCustomerBillingMembershipBill } from '../customerBillingMembershipRecall.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -9,6 +10,8 @@ import { loadActiveAnnualMembership } from '../../scheduling/annualMembership.js
 // Uses a disposable schema, never existing account records. Opt in explicitly.
 const url = process.env.MEMBERSHIP_TRANSFER_TEST_DATABASE_URL
 const enabled = Boolean(url)
+const collectionStatusConstraint = readFileSync(new URL('../../migrations/771_membership_payment_allocation.sql', import.meta.url), 'utf8')
+  .match(/ALTER TABLE billing_charge ADD CONSTRAINT billing_charge_collection_status_check[\s\S]*?;/)[0]
 const people = [{ id: 11, name: 'Jordan Rivera' }, { id: 12, name: 'Alex Rivera' }, { id: 13, name: 'Casey Rivera' }]
 const paidAt = new Date(Date.now() - 30 * 86400000).toISOString()
 const renewal = new Date(Date.now() + 335 * 86400000).toISOString().slice(0, 10)
@@ -52,6 +55,7 @@ async function fixture(t) {
     INSERT INTO member VALUES (11,9,42,'Jordan','Rivera',true),(12,9,42,'Alex','Rivera',true),(13,9,42,'Casey','Rivera',true),(14,9,99,'Other','Family',true);
     INSERT INTO additional_fee VALUES (1,'Annual membership','once_per_year','per_year');
   `)
+  await pool.query(collectionStatusConstraint)
   await pool.query(`INSERT INTO billing_subscription (id, family_billing_account_id, member_id, source_type, source_id, pricing_option_key, status, start_date, next_bill_date) VALUES (21,7,11,'annual_membership','1:11','annual_membership','active',$1,$2)`, [paidAt.slice(0,10), renewal])
   await pool.query(`INSERT INTO billing_charge (id, family_billing_account_id, member_id, source_type, source_id, amount_cents, created_at, service_period_start, collection_status) VALUES (31,7,11,'additional_fee',$1,6000,$2,$3,'paid')`, [`1:11:${renewal}`, paidAt, paidAt.slice(0,10)])
   await pool.query(`INSERT INTO billing_payment VALUES (41,NULL,'settled',$1)`, [paidAt])
@@ -253,6 +257,7 @@ test('recall removes unpaid membership balance, is idempotent, and frees the ter
   await assert.rejects(() => recallCustomerBillingMembershipBill(pool, { ...options, chargeId: 31 }))
   const result = await recallCustomerBillingMembershipBill(pool, options)
   assert.equal(result.creditedAmountCents, 8500)
+  assert.equal((await pool.query('SELECT collection_status FROM billing_charge WHERE id = 32')).rows[0].collection_status, 'none')
   assert.equal((await recallCustomerBillingMembershipBill(pool, options)).replayed, true)
   await assert.rejects(() => recallCustomerBillingMembershipBill(pool, { ...options, requestKey: 'different-click' }))
   const balance = await pool.query('SELECT SUM(amount_cents)::int AS total FROM billing_charge WHERE member_id = 12')

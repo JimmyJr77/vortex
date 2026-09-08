@@ -107,7 +107,9 @@ export async function cancelUnpaidMembershipBills(db, {
       )
     }
     // Preserve the original charge and its amount. A linked credit cancels the
-    // duplicate fee. Retire its annual-fee identity to free the recipient's term
+    // duplicate fee. Collection status remains within the database enum; the
+    // retired source type supplies the cancelled status in Account History.
+    // Retire its annual-fee identity to free the recipient's term
     // key and prevent payment reconciliation from granting a second entitlement.
     await db.query(
       `INSERT INTO billing_charge (
@@ -121,7 +123,7 @@ export async function cancelUnpaidMembershipBills(db, {
         JSON.stringify({ originalChargeId: Number(charge.id), reason: recall ? 'Unpaid annual membership bill recalled' : 'Unpaid fee replaced by transferred membership', finalAmountCents: 0, membershipTransferEventKey: eventKey })],
     )
     await db.query(
-      `UPDATE billing_charge SET source_type = $3, collection_status = 'cancelled',
+      `UPDATE billing_charge SET source_type = $3, collection_status = 'none',
          metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
            'membershipTransferCancellation', $2::text, 'originalSourceType', 'additional_fee')
        WHERE id = $1`, [charge.id, eventKey, recall ? 'membership_bill_recalled' : 'membership_transfer_cancelled'],

@@ -34,6 +34,7 @@ test('recall offsets the effective unpaid bill and retires its fee identity for 
   assert.equal(credit.args[5], -8000)
   const original = h.writes.find(({ sql }) => sql.includes('UPDATE billing_charge'))
   assert.equal(original.args[2], 'membership_bill_recalled')
+  assert.match(original.sql, /collection_status = 'none'/)
   assert.doesNotMatch(original.sql, /SET amount_cents/)
 })
 
