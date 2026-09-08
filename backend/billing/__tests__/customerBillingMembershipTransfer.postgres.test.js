@@ -56,6 +56,8 @@ async function fixture(t) {
     INSERT INTO additional_fee VALUES (1,'Annual membership','once_per_year','per_year');
   `)
   await pool.query(collectionStatusConstraint)
+  await pool.query(readFileSync(new URL('../../migrations/771_membership_payment_allocation.sql', import.meta.url), 'utf8')
+    .match(/CREATE UNIQUE INDEX IF NOT EXISTS uq_additional_fee_redemption_charge[\s\S]*?;/)[0])
   await pool.query(`INSERT INTO billing_subscription (id, family_billing_account_id, member_id, source_type, source_id, pricing_option_key, status, start_date, next_bill_date) VALUES (21,7,11,'annual_membership','1:11','annual_membership','active',$1,$2)`, [paidAt.slice(0,10), renewal])
   await pool.query(`INSERT INTO billing_charge (id, family_billing_account_id, member_id, source_type, source_id, amount_cents, created_at, service_period_start, collection_status) VALUES (31,7,11,'additional_fee',$1,6000,$2,$3,'paid')`, [`1:11:${renewal}`, paidAt, paidAt.slice(0,10)])
   await pool.query(`INSERT INTO billing_payment VALUES (41,NULL,'settled',$1)`, [paidAt])
@@ -150,6 +152,7 @@ test('Stripe renewal transfer only changes ownership metadata and rolls back on 
   await assert.rejects(transfer({ stripeClient: stripe }), /Stripe test failure/)
   assert.equal((await overview())[0].active, true)
   assert.equal((await overview())[1].active, false)
+  assert.equal((await pool.query('SELECT member_id FROM additional_fee_redemption WHERE billing_charge_id = 31')).rows[0].member_id, '11')
   assert.deepEqual(updates.map((row) => row.input), [{ metadata: { memberId: '12' } }, { metadata: { memberId: '11' } }])
   await transfer({ stripeClient: stripe })
   assert.equal((await overview())[1].active, true)

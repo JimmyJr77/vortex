@@ -105,6 +105,13 @@ export async function transferCustomerBillingMembership(pool, {
               OR lower(f.name) LIKE '%annual%' OR lower(f.name) LIKE '%membership%')
          RETURNING r.*`, [memberId],
       )
+      // Reconciliation updates entitlements by charge ID. Retain ended provenance
+      // on the old owner. Release the unique charge link BEFORE inserting the
+      // recipient; the transaction restores it if any later step fails.
+      await db.query(
+        `UPDATE additional_fee_redemption SET billing_charge_id = NULL
+         WHERE id = ANY($1::bigint[])`, [redemptions.rows.map((row) => Number(row.id))],
+      )
       for (const row of redemptions.rows) {
         const inserted = await db.query(
           `INSERT INTO additional_fee_redemption
@@ -120,12 +127,6 @@ export async function transferCustomerBillingMembership(pool, {
         )
         if (!inserted.rows[0]) throw new Error('The recipient already has a membership record for this term. Refresh the account.')
       }
-      // Reconciliation updates entitlements by charge ID. Retain ended provenance
-      // on the old owner without leaving two entitlements bound to one charge.
-      await db.query(
-        `UPDATE additional_fee_redemption SET billing_charge_id = NULL
-         WHERE id = ANY($1::bigint[])`, [redemptions.rows.map((row) => Number(row.id))],
-      )
       await db.query(
         `UPDATE billing_subscription SET status = 'cancelled', auto_renewal = FALSE, updated_at = now()
          WHERE id = ANY($1::bigint[])`, [priorTargetSubscriptions.map((row) => Number(row.id))],
