@@ -29,11 +29,21 @@ export async function cancelDuplicateMembershipBills(db, {
       ORDER BY charge.id FOR UPDATE OF charge`,
     [account.id, targetMemberId, sourceMemberId, membershipDate.slice(0, 10), renewalDate],
   )
+  return cancelUnpaidMembershipBills(db, { account, candidates: candidates.rows, targetMemberId,
+    actorUserId, eventKey, stripeClient })
+}
+
+export async function cancelUnpaidMembershipBills(db, {
+  account, candidates, targetMemberId, actorUserId, eventKey, stripeClient = null, recall = false,
+}) {
   const cancelled = []
   let stripe = stripeClient
-  for (const charge of candidates.rows) {
+  for (const charge of candidates) {
+    if (recall && (charge.stripe_checkout_session_id || charge.stripe_invoice_item_id || charge.stripe_payment_intent_id)) {
+      throw new Error('This bill is linked to Stripe collection. Resolve that payment request before recalling it.')
+    }
     const effectiveCents = Number(charge.amount_cents) + Number(charge.adjustment_cents)
-    if (effectiveCents <= 0) throw new Error('The recipient’s membership fee has already been credited. Refresh and review its membership status before transferring.')
+    if (effectiveCents <= 0) throw new Error('The membership fee has already been credited. Refresh and review its membership status before canceling the bill.')
     const paid = await db.query(
       `SELECT 1 FROM billing_payment_application application
         JOIN billing_payment payment ON payment.id = application.billing_payment_id
@@ -42,27 +52,36 @@ export async function cancelDuplicateMembershipBills(db, {
        LIMIT 1`, [charge.id],
     )
     if (paid.rows[0] || ['paid', 'settled', 'succeeded', 'processing'].includes(charge.collection_status)) {
-      throw new Error('The recipient’s membership bill has a payment. Reconcile that payment before transferring the membership.')
+      throw new Error('The membership bill has a payment. Reconcile that payment before canceling the bill.')
+    }
+    if (recall) {
+      const credits = await db.query(
+        `SELECT 1 FROM billing_charge_credit_application application
+          JOIN billing_monthly_invoice_line line ON line.id = application.target_invoice_line_id
+          WHERE line.billing_charge_id = $1 LIMIT 1`, [charge.id],
+      )
+      if (credits.rows[0]) throw new Error('This bill has an applied credit. Reconcile it before recalling the bill.')
     }
     const invoiced = await db.query(
       `SELECT 1 FROM billing_monthly_invoice_line line
         JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
        WHERE line.billing_charge_id = $1 AND invoice.status NOT IN ('void', 'cancelled') LIMIT 1`, [charge.id],
     )
-    if (invoiced.rows[0]) throw new Error('The recipient’s membership bill is on an invoice. Resolve that invoice before transferring the membership.')
+    if (invoiced.rows[0]) throw new Error('The membership bill is on an invoice. Resolve that invoice before canceling the bill.')
     const attempts = await db.query(
       `SELECT attempt.* FROM billing_payment_attempt attempt
        WHERE attempt.family_billing_account_id = $1
          AND (attempt.status IN ('pending', 'processing', 'reconciliation_required')
-              OR (attempt.status = 'reserved' AND attempt.expires_at > now()))
+              OR (attempt.status = 'reserved' AND attempt.expires_at > now())
+              OR ($3::boolean AND attempt.stripe_payment_intent_id IS NOT NULL AND attempt.status <> 'canceled'))
          AND (attempt.target_charge_id = $2 OR EXISTS (
            SELECT 1 FROM billing_payment_attempt_charge reservation
            WHERE reservation.billing_payment_attempt_id = attempt.id AND reservation.billing_charge_id = $2))
-       ORDER BY attempt.id FOR UPDATE`, [account.id, charge.id],
+       ORDER BY attempt.id FOR UPDATE`, [account.id, charge.id, recall],
     )
     for (const attempt of attempts.rows) {
       if (!attempt.stripe_payment_intent_id || attempt.stripe_checkout_session_id) {
-        throw new Error('The recipient’s membership bill has an active payment attempt. Resolve it before transferring.')
+        throw new Error('The membership bill has an active payment attempt. Resolve it before canceling the bill.')
       }
       stripe ??= await getStripeClient()
       if (!stripe) throw new Error('Stripe is unavailable; the pending membership payment could not be verified.')
@@ -73,7 +92,7 @@ export async function cancelDuplicateMembershipBills(db, {
         || Number(intent.amount) !== Number(attempt.amount_cents)
         || Number(intent.amount_received ?? 0) !== 0
         || !['requires_payment_method', 'canceled'].includes(intent.status)) {
-        throw new Error('The recipient’s payment may be processing or completed. Reconcile it before transferring the membership.')
+        throw new Error('The recipient’s payment may be processing or completed. Reconcile it before canceling the bill.')
       }
       if (intent.status !== 'canceled') {
         const stopped = await stripe.paymentIntents.cancel(intent.id, {}, {
@@ -97,15 +116,15 @@ export async function cancelDuplicateMembershipBills(db, {
          billing_interval, service_period_start, service_period_end, collection_status, created_by_user_id, metadata
        ) VALUES ($1,$2,'charge_adjustment',$3,$4,$5,$6,$6,0,'credit','one_time',$7,$8,'none',$9,$10::jsonb)`,
       [account.id, targetMemberId, `membership-transfer-cancel:${charge.id}:${eventKey}`, charge.id,
-        `Credit for ${charge.description}: replaced by transferred membership`, -effectiveCents,
+        `Credit for ${charge.description}: ${recall ? 'bill recalled' : 'replaced by transferred membership'}`, -effectiveCents,
         charge.service_period_start, charge.service_period_end, actorUserId,
-        JSON.stringify({ originalChargeId: Number(charge.id), reason: 'Unpaid fee replaced by transferred membership', finalAmountCents: 0, membershipTransferEventKey: eventKey })],
+        JSON.stringify({ originalChargeId: Number(charge.id), reason: recall ? 'Unpaid annual membership bill recalled' : 'Unpaid fee replaced by transferred membership', finalAmountCents: 0, membershipTransferEventKey: eventKey })],
     )
     await db.query(
-      `UPDATE billing_charge SET source_type = 'membership_transfer_cancelled', collection_status = 'cancelled',
+      `UPDATE billing_charge SET source_type = $3, collection_status = 'cancelled',
          metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
            'membershipTransferCancellation', $2::text, 'originalSourceType', 'additional_fee')
-       WHERE id = $1`, [charge.id, eventKey],
+       WHERE id = $1`, [charge.id, eventKey, recall ? 'membership_bill_recalled' : 'membership_transfer_cancelled'],
     )
     cancelled.push({ chargeId: Number(charge.id), creditedAmountCents: effectiveCents, cancelledAttemptIds: attempts.rows.map((row) => Number(row.id)) })
   }

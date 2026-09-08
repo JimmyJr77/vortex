@@ -23,7 +23,7 @@ import {
   WalletCards,
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { CustomChargeModal, EnrollmentMemberReassignmentModal, MembershipTransferModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
+import { RecallMembershipBillModal, CustomChargeModal, EnrollmentMemberReassignmentModal, MembershipTransferModal, ModifyChargeModal, PriceAdjustmentModal, RefundModal } from './customerBilling/CustomerBillingModals'
 import NewBillingEnrollmentModal from './customerBilling/NewBillingEnrollmentModal'
 import { billingMonthAbbreviation, billingMonthLabel, calendarDate, localDate, money, monthLabel, statusTone } from './customerBilling/format'
 import type {
@@ -566,7 +566,9 @@ function MembershipMetricCard({
   onBillNow,
   onModifyBill,
   onModifyMembership,
+  onRecallBill,
 }: {
+  onRecallBill: (membership: CustomerBillingAnnualMembership) => void
   onModifyBill: (membership: CustomerBillingAnnualMembership) => void
   onModifyMembership: (membership: CustomerBillingAnnualMembership) => void
   membership: CustomerBillingAnnualMembership
@@ -580,7 +582,7 @@ function MembershipMetricCard({
   const lifetimeMember = membership.lifetimeMember === true
   return (
     <div className={`relative rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
-      {canManage && !lifetimeMember ? <div className="absolute right-3 top-3"><button type="button" aria-label={`Membership actions for ${membership.memberName}`} aria-expanded={menuOpen} disabled={saving} onClick={() => setMenuOpen((open) => !open)} className="rounded p-1 hover:bg-white/10"><MoreHorizontal className="h-5 w-5" /></button>{menuOpen ? <div className="absolute right-0 z-20 mt-1 w-48 rounded-lg border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-xl" onKeyDown={(event) => { if (event.key === 'Escape') setMenuOpen(false) }}><button type="button" disabled={!membership.membershipChargeId} onClick={() => { setMenuOpen(false); onModifyBill(membership) }} className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 disabled:text-gray-400">Modify bill</button><button type="button" disabled={!membership.active} onClick={() => { setMenuOpen(false); onModifyMembership(membership) }} className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 disabled:text-gray-400">Modify membership</button></div> : null}</div> : null}
+      {canManage && !lifetimeMember ? <div className="absolute right-3 top-3"><button type="button" aria-label={`Membership actions for ${membership.memberName}`} aria-expanded={menuOpen} disabled={saving} onClick={() => setMenuOpen((open) => !open)} className="rounded p-1 hover:bg-white/10"><MoreHorizontal className="h-5 w-5" /></button>{menuOpen ? <div className="absolute right-0 z-20 mt-1 w-48 rounded-lg border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-xl" onKeyDown={(event) => { if (event.key === 'Escape') setMenuOpen(false) }}><button type="button" disabled={!membership.membershipChargeId && !hasOutstandingBill} onClick={() => { setMenuOpen(false); onModifyBill(membership) }} className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 disabled:text-gray-400">Modify bill</button>{hasOutstandingBill ? <button type="button" onClick={() => { setMenuOpen(false); onRecallBill(membership) }} className="w-full rounded px-3 py-2 text-left text-red-700 hover:bg-gray-100">Recall bill</button> : null}<button type="button" disabled={!membership.active} onClick={() => { setMenuOpen(false); onModifyMembership(membership) }} className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 disabled:text-gray-400">Modify membership</button></div> : null}</div> : null}
       <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">{lifetimeMember ? 'Lifetime member' : 'Annual membership'}</div>
       <div className="mt-1 truncate pr-7 text-xl font-bold">{membership.memberName}</div>
       {membership.membershipDate ? <div className="mt-1 text-xs text-gray-300">Member since {calendarDate(membership.membershipDate.slice(0, 10))}</div> : null}
@@ -1339,9 +1341,12 @@ export default function AdminCustomerBilling({
     [transactions],
   )
 
+  const [billToRecall, setBillToRecall] = useState<{ chargeId: number; amountCents: number } | null>(null)
+
   const openMembershipBill = async (membership: CustomerBillingAnnualMembership) => {
-    if (!overview || !membership.membershipChargeId) return
-    const existing = transactions.find((row) => row.entryKind === 'charge' && row.refId === membership.membershipChargeId)
+    const billId = membership.outstandingChargeId ?? membership.membershipChargeId
+    if (!overview || !billId) return
+    const existing = transactions.find((row) => row.entryKind === 'charge' && row.refId === billId)
     if (existing) { setChargeToModify(existing); return }
     setSaving(true)
     try {
@@ -1352,7 +1357,7 @@ export default function AdminCustomerBilling({
         const response = await adminApiRequest(`/api/admin/customer-billing/families/${overview.account.familyId}/transactions?${params}`)
         const body = await jsonBody(response)
         if (!response.ok) throw new Error(body.message || 'Membership bill could not be loaded.')
-        const charge = (body.data?.rows as BillingTransaction[] ?? []).find((row) => row.entryKind === 'charge' && row.refId === membership.membershipChargeId)
+        const charge = (body.data?.rows as BillingTransaction[] ?? []).find((row) => row.entryKind === 'charge' && row.refId === billId)
         if (charge) { setChargeToModify(charge); return }
         cursor = body.data?.nextCursor ?? null
       } while (cursor)
@@ -1599,7 +1604,7 @@ export default function AdminCustomerBilling({
               <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${calendarDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
               <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : overview.summary.stripeSync.status === 'warning' ? 'Ready for card' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
-              {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} onModifyBill={(item) => void openMembershipBill(item)} onModifyMembership={(item) => setMembershipToTransfer({ membership: item })} />)}
+              {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} onModifyBill={(item) => void openMembershipBill(item)} onRecallBill={(item) => setBillToRecall({ chargeId: item.outstandingChargeId!, amountCents: item.outstandingAmountCents })} onModifyMembership={(item) => setMembershipToTransfer({ membership: item })} />)}
             </div>
             <MonthlyInvoiceSummary
               invoices={overview.monthlyInvoices}
@@ -1657,7 +1662,11 @@ export default function AdminCustomerBilling({
       ) : null}
 
       {priceEnrollment && overview ? <PriceAdjustmentModal enrollment={priceEnrollment} members={overview.members} onClose={() => setPriceEnrollment(null)} onSaved={handleSaved} onSwap={(enrollment) => { setPriceEnrollment(null); setSwapEnrollment(enrollment) }} onMemberSwap={(enrollment) => { setPriceEnrollment(null); setMemberSwapEnrollment(enrollment) }} /> : null}
-      {chargeToModify && overview ? <ModifyChargeModal familyId={overview.account.familyId} charge={chargeToModify} onTransferMembership={overview.annualMemberships.some((item) => item.memberId === chargeToModify.memberId && item.active && !item.lifetimeMember && item.membershipChargeId === chargeToModify.refId) ? () => {
+      {billToRecall && overview ? <RecallMembershipBillModal familyId={overview.account.familyId} {...billToRecall} onClose={() => setBillToRecall(null)} onSaved={(message) => { setBillToRecall(null); handleSaved(message) }} /> : null}
+      {chargeToModify && overview ? <ModifyChargeModal onRecallBill={overview.annualMemberships.some((item) => item.outstandingChargeId === chargeToModify.refId) ? () => {
+        const membership = overview.annualMemberships.find((item) => item.outstandingChargeId === chargeToModify.refId)!
+        setBillToRecall({ chargeId: chargeToModify.refId, amountCents: membership.outstandingAmountCents }); setChargeToModify(null)
+      } : undefined} familyId={overview.account.familyId} charge={chargeToModify} onTransferMembership={overview.annualMemberships.some((item) => item.memberId === chargeToModify.memberId && item.active && !item.lifetimeMember && item.membershipChargeId === chargeToModify.refId) ? () => {
         const membership = overview.annualMemberships.find((item) => item.memberId === chargeToModify.memberId)!
         setMembershipToTransfer({ membership, chargeId: chargeToModify.refId }); setChargeToModify(null)
       } : undefined} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}

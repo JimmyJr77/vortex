@@ -727,13 +727,44 @@ export function MembershipTransferModal({ familyId, membership, members, members
   </ModalShell>
 }
 
+export function RecallMembershipBillModal({ familyId, chargeId, amountCents, onClose, onSaved }: {
+  familyId: number; chargeId: number; amountCents: number
+  onClose: () => void; onSaved: (message: string) => void
+}) {
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [requestKey] = useState(() => newRequestKey('membership-bill-recall'))
+  const recall = async () => {
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/charges/${chargeId}/recall`, {
+        method: 'POST', headers: { 'Idempotency-Key': requestKey }, body: JSON.stringify({}),
+      })
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Bill could not be recalled.')
+      onSaved(`Annual membership bill recalled. ${money(body.data.creditedAmountCents)} removed from the amount owed.`)
+    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Bill could not be recalled.') }
+    finally { setWorking(false) }
+  }
+  return <ModalShell title="Recall annual membership bill" onClose={() => { if (!working) onClose() }}>
+    <div className="space-y-4">
+      <p className="text-sm text-gray-700">Recall this unpaid {money(amountCents)} bill? The bill and a matching credit will remain in Account History. This does not grant a membership. You can bill the membership again later.</p>
+      {error ? <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      <div className="flex justify-end gap-3"><button type="button" disabled={working} onClick={onClose} className="rounded-lg border px-4 py-2">Keep bill</button><button type="button" disabled={working} onClick={() => void recall()} className="rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50">{working ? 'Recalling…' : 'Recall bill'}</button></div>
+    </div>
+  </ModalShell>
+}
+
 export function ModifyChargeModal({
   familyId,
   charge,
   onClose,
   onSaved,
   onTransferMembership,
+  onRecallBill,
 }: {
+  onRecallBill?: () => void
   onTransferMembership?: () => void
   familyId: number
   charge: BillingTransaction
@@ -792,6 +823,7 @@ export function ModifyChargeModal({
       <div className="space-y-4">
         <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">Current-term changes preserve the original bill and post a linked credit or debit. Renewal changes do not affect today’s account balance.</p>
         {existingAnnotations.length > 0 ? <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800"><strong className="block">Existing discounts and adjustments</strong><div className="mt-2 space-y-1 text-xs">{existingAnnotations.map((annotation, index) => { const amountCents = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'adjustment'}-${index}`}>{annotation.code ?? annotation.label ?? 'Adjustment'} · {amountCents < 0 ? '−' : '+'}{money(Math.abs(amountCents))}</div> })}</div></div> : null}
+        {onRecallBill ? <button type="button" disabled={working} onClick={onRecallBill} className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">Recall unpaid bill</button> : null}
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-800">Change</legend>
           <div className="grid gap-2 sm:grid-cols-2">

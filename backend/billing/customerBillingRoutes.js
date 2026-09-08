@@ -1,3 +1,4 @@
+import { recallCustomerBillingMembershipBill } from './customerBillingMembershipRecall.js'
 import { transferCustomerBillingMembership } from './customerBillingMembershipTransfer.js'
 import { createHash } from 'node:crypto'
 import { publicAppUrl } from '../email/publicAppUrl.js'
@@ -312,6 +313,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           success: false,
           message: error?.message ?? 'Pass balance could not be adjusted.',
         })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/charges/:chargeId/recall',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await recallCustomerBillingMembershipBill(pool, {
+          familyId: Number(req.params.familyId), facilityId: facilityId(req),
+          chargeId: Number(req.params.chargeId), actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'membership-bill-recall'),
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Bill could not be recalled.' })
       }
     },
   )

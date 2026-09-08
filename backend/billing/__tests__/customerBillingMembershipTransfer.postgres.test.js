@@ -1,3 +1,4 @@
+import { recallCustomerBillingMembershipBill } from '../customerBillingMembershipRecall.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import pg from 'pg'
@@ -234,4 +235,32 @@ test('an unpaid renewal schedule does not count as a valid recipient membership'
   assert.equal(result.cancelledPendingBills[0].creditedAmountCents, 8500)
   assert.equal((await overview())[1].active, true)
   assert.equal((await pool.query('SELECT status FROM billing_subscription WHERE id=22')).rows[0].status, 'cancelled')
+})
+
+
+test('recall removes unpaid membership balance, is idempotent, and frees the term for rebilling', { skip: !enabled }, async (t) => {
+  const { pool, overview } = await fixture(t)
+  await pool.query(`ALTER TABLE billing_charge ADD COLUMN stripe_checkout_session_id text,
+    ADD COLUMN stripe_invoice_item_id text, ADD COLUMN stripe_payment_intent_id text;
+    ALTER TABLE billing_monthly_invoice_line ADD COLUMN id bigint;
+    CREATE TABLE billing_charge_credit_application (target_invoice_line_id bigint);
+  `)
+  const sourceId = `1:12:${renewal}`
+  await pool.query(`INSERT INTO billing_charge (id, family_billing_account_id, member_id, source_type, source_id,
+    amount_cents, collection_status) VALUES (32,7,12,'additional_fee',$1,8500,'unpaid')`, [sourceId])
+  const options = { familyId: 42, facilityId: 9, chargeId: 32, actorUserId: 1, requestKey: 'recall-test' }
+  await assert.rejects(() => recallCustomerBillingMembershipBill(pool, { ...options, facilityId: 99 }))
+  await assert.rejects(() => recallCustomerBillingMembershipBill(pool, { ...options, chargeId: 31 }))
+  const result = await recallCustomerBillingMembershipBill(pool, options)
+  assert.equal(result.creditedAmountCents, 8500)
+  assert.equal((await recallCustomerBillingMembershipBill(pool, options)).replayed, true)
+  await assert.rejects(() => recallCustomerBillingMembershipBill(pool, { ...options, requestKey: 'different-click' }))
+  const balance = await pool.query('SELECT SUM(amount_cents)::int AS total FROM billing_charge WHERE member_id = 12')
+  assert.equal(balance.rows[0].total, 0)
+  const membership = (await overview()).find((row) => row.memberId === 12)
+  assert.equal(membership.active, false)
+  assert.equal(membership.outstandingChargeId, null)
+  await pool.query(`INSERT INTO billing_charge (family_billing_account_id, member_id, source_type, source_id,
+    amount_cents, collection_status) VALUES (7,12,'additional_fee',$1,8500,'unpaid')`, [sourceId])
+  assert.ok((await overview()).find((row) => row.memberId === 12).outstandingChargeId)
 })
