@@ -689,7 +689,7 @@ export function MembershipTransferModal({ familyId, membership, members, members
   const [working, setWorking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [requestKey] = useState(() => newRequestKey('membership-transfer'))
-  const unavailable = (id: number) => id === membership.memberId || memberships.some((item) => item.memberId === id && (item.active || item.lifetimeMember || item.autoRenewal || item.outstandingChargeId != null))
+  const unavailable = (id: number) => id === membership.memberId || memberships.some((item) => item.memberId === id && (item.active || item.lifetimeMember))
   const submit = async () => {
     if (!targetMemberId || unavailable(Number(targetMemberId))) return
     setWorking(true)
@@ -701,7 +701,8 @@ export function MembershipTransferModal({ familyId, membership, members, members
       })
       const body = await responseBody(response)
       if (!response.ok) throw new Error(body.message || 'Membership transfer failed.')
-      onSaved(`Membership transferred to ${members.find((member) => member.id === Number(targetMemberId))?.name}. ${membership.memberName}’s membership is now not valid. The original membership and renewal dates were preserved.`, Number(targetMemberId))
+      const creditedCents = Array.isArray(body.data?.cancelledPendingBills) ? body.data.cancelledPendingBills.reduce((sum: number, bill: { creditedAmountCents: number }) => sum + Number(bill.creditedAmountCents || 0), 0) : 0
+      onSaved(`Membership transferred to ${members.find((member) => member.id === Number(targetMemberId))?.name}. ${membership.memberName}’s membership is now not valid. The original membership and renewal dates were preserved.${creditedCents > 0 ? ` The duplicate unpaid annual fee was credited by ${money(creditedCents)}.` : ''}`, Number(targetMemberId))
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Membership transfer failed.')
     } finally {
@@ -715,10 +716,11 @@ export function MembershipTransferModal({ familyId, membership, members, members
       <label className="block text-sm font-medium text-gray-700">Transfer membership to
         <select aria-label="Family member for membership transfer" value={targetMemberId} disabled={working} onChange={(event) => setTargetMemberId(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2">
           <option value="">Choose a family member</option>
-          {members.map((member) => <option key={member.id} value={member.id} disabled={unavailable(member.id)} className={unavailable(member.id) ? 'text-gray-400' : ''}>{member.name} · {member.accountType || 'Account type unknown'} · {member.age == null ? 'Age unknown' : `Age ${member.age}`}{member.id === membership.memberId ? ' (current owner)' : unavailable(member.id) ? ' (membership already assigned)' : ''}</option>)}
+          {members.map((member) => <option key={member.id} value={member.id} disabled={unavailable(member.id)} className={unavailable(member.id) ? 'text-gray-400' : ''}>{member.name} · {member.accountType || 'Account type unknown'} · {member.age == null ? 'Age unknown' : `Age ${member.age}`}{member.id === membership.memberId ? ' (current owner)' : unavailable(member.id) ? ' (membership already assigned)' : memberships.find((item) => item.memberId === member.id)?.outstandingChargeId != null ? ' (unpaid membership bill)' : ''}</option>)}
         </select>
       </label>
-      <p className="text-xs text-gray-500">Family members with a membership or pending membership bill cannot receive another membership.</p>
+      <p className="text-xs text-gray-500">Family members with a valid membership cannot receive another membership. An unpaid bill does not count as a valid membership.</p>
+      {memberships.some((item) => item.memberId === Number(targetMemberId) && item.outstandingChargeId != null) ? <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">Any unpaid annual fee covered by this transferred membership will be canceled with a matching credit. A failed payment attempt will be canceled first. Successful or processing payments must be reconciled before transferring.</p> : null}
       {error ? <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
       <div className="flex justify-end gap-3"><button type="button" disabled={working} onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" disabled={working || !targetMemberId || unavailable(Number(targetMemberId))} onClick={() => void submit()} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}Transfer membership</button></div>
     </div>

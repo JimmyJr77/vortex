@@ -1440,6 +1440,7 @@ export async function listCustomerBillingTransactions(pool, {
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          CASE
+           WHEN c.source_type = 'membership_transfer_cancelled' THEN 'cancelled'
            WHEN c.amount_cents = 0
              AND COALESCE(c.gross_amount_cents, 0) > 0
              AND COALESCE(c.discount_amount_cents, 0) = COALESCE(c.gross_amount_cents, 0) THEN 'paid'

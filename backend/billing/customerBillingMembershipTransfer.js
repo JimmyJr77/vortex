@@ -1,3 +1,4 @@
+import { cancelDuplicateMembershipBills } from './membershipTransferPendingBills.js'
 import { getStripeClient } from './stripeBilling.js'
 import { guardLegacyRemoteSubscriptionMutation } from './remoteSubscriptionMutationGuard.js'
 import { recordBillingActivity } from './billingActivity.js'
@@ -59,8 +60,8 @@ export async function transferCustomerBillingMembership(pool, {
       const original = memberships.find((row) => row.memberId === memberId)
       const destination = memberships.find((row) => row.memberId === targetMemberId)
       if (!original?.active) throw new Error('Only a valid annual membership can be transferred.')
-      if (destination?.active || destination?.outstandingChargeId || destination?.autoRenewal) {
-        throw new Error('The selected family member already has a membership or a pending membership bill.')
+      if (destination?.active) {
+        throw new Error('The selected family member already has a valid membership.')
       }
       if (input.membershipDate !== original.membershipDate || input.renewalDate !== original.renewalDate) {
         throw new Error('This membership changed. Refresh the account before transferring it.')
@@ -85,6 +86,12 @@ export async function transferCustomerBillingMembership(pool, {
         memberId: targetMemberId, memberName: memberName(target), transferredAt,
         membershipDate: original.membershipDate, renewalDate: original.renewalDate,
       }
+      const cancelledPendingBills = await cancelDuplicateMembershipBills(db, {
+        account, sourceMemberId: memberId, targetMemberId,
+        membershipDate: original.membershipDate, renewalDate: original.renewalDate,
+        actorUserId, eventKey, stripeClient: stripe,
+      })
+      transfer.cancelledPendingBills = cancelledPendingBills
       // Keep the original redemption as an ended audit record; the recipient gets
       // exactly the same satisfaction date, creation date, and paid-through period.
       const redemptions = await db.query(
@@ -181,7 +188,7 @@ export async function transferCustomerBillingMembership(pool, {
         chargeId: original.membershipChargeId, eventType: 'annual_membership_transferred',
         summary: `Annual membership transferred from ${transfer.previousMemberName} to ${transfer.memberName}. The original membership is no longer valid.`,
         beforeValue: original, afterValue: transfer,
-        details: { ...transfer, renewalPricingBefore: previousPricing.rows, transferredChargeIds: charges.rows.map((row) => Number(row.id)) }, actorUserId,
+        details: { ...transfer, cancelledPendingBills, renewalPricingBefore: previousPricing.rows, transferredChargeIds: charges.rows.map((row) => Number(row.id)) }, actorUserId,
       })
       for (const subscription of sourceSubscriptions) {
         if (!subscription.stripe_subscription_id || subscription.status === 'cancelled') continue

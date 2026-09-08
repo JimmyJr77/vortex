@@ -33,8 +33,12 @@ async function fixture(t) {
     CREATE TABLE additional_fee (id bigint PRIMARY KEY, name text, trigger_type text, apply_basis text);
     CREATE TABLE billing_subscription (id bigserial PRIMARY KEY, family_billing_account_id bigint, member_id bigint, source_type text, source_id text, pricing_option_key text, status text, start_date date, next_bill_date date, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(), stripe_subscription_id text, auto_renewal boolean DEFAULT true);
     CREATE UNIQUE INDEX subscription_source ON billing_subscription(source_type, source_id) WHERE source_id IS NOT NULL AND status <> 'cancelled';
-    CREATE TABLE billing_charge (id bigserial PRIMARY KEY, family_billing_account_id bigint, member_id bigint, source_type text, source_id text, amount_cents int, gross_amount_cents int, discount_amount_cents int, created_at timestamptz, service_period_start date, collection_status text, related_charge_id bigint, metadata jsonb);
+    CREATE TABLE billing_charge (id bigserial PRIMARY KEY, family_billing_account_id bigint, member_id bigint, source_type text, source_id text, amount_cents int, gross_amount_cents int, discount_amount_cents int, created_at timestamptz DEFAULT now(), service_period_start date, service_period_end date, description text DEFAULT 'Annual Fee', charge_type text, billing_interval text, created_by_user_id bigint, collection_status text, related_charge_id bigint, metadata jsonb);
     CREATE UNIQUE INDEX charge_source ON billing_charge(source_type, source_id) WHERE source_id IS NOT NULL;
+    CREATE TABLE billing_monthly_invoice (id bigint PRIMARY KEY, status text);
+    CREATE TABLE billing_monthly_invoice_line (billing_monthly_invoice_id bigint, billing_charge_id bigint);
+    CREATE TABLE billing_payment_attempt (id bigint PRIMARY KEY, family_billing_account_id bigint, target_charge_id bigint, status text, amount_cents int, expires_at timestamptz, stripe_payment_intent_id text, stripe_checkout_session_id text, metadata jsonb, released_at timestamptz, updated_at timestamptz);
+    CREATE TABLE billing_payment_attempt_charge (billing_payment_attempt_id bigint, billing_charge_id bigint);
     CREATE TABLE billing_payment (id bigint PRIMARY KEY, stripe_subscription_id text, external_status text, paid_at timestamptz);
     CREATE TABLE billing_payment_application (billing_charge_id bigint, billing_payment_id bigint, application_kind text, amount_cents int);
     CREATE TABLE additional_fee_redemption (id bigserial PRIMARY KEY, fee_id bigint, member_id bigint, signup_id bigint, period_key text, amount_cents int, created_at timestamptz, satisfied_at timestamptz, ended_at timestamptz, end_reason text, billing_charge_id bigint, UNIQUE(fee_id, member_id, period_key));
@@ -145,4 +149,89 @@ test('Stripe renewal transfer only changes ownership metadata and rolls back on 
   await transfer({ stripeClient: stripe })
   assert.equal((await overview())[1].active, true)
   assert.deepEqual(updates.at(-1).input, { metadata: { memberId: '12' } })
+})
+
+async function pendingRecipient(pool, { failedAttempt = false } = {}) {
+  await pool.query(`INSERT INTO billing_charge (id,family_billing_account_id,member_id,source_type,source_id,amount_cents,created_at,collection_status)
+    VALUES (32,7,12,'additional_fee',$1,8500,$2,'unpaid')`, [`1:12:${renewal}`, paidAt])
+  if (failedAttempt) {
+    await pool.query(`INSERT INTO billing_payment_attempt (id,family_billing_account_id,status,amount_cents,expires_at,stripe_payment_intent_id)
+      VALUES (10,7,'reconciliation_required',8500,now() - interval '1 day','pi_failed')`)
+    await pool.query(`INSERT INTO billing_payment_attempt_charge VALUES (10,32)`)
+  }
+}
+
+test('an unpaid recipient fee is credited once and its term key is reused by the transferred paid membership', { skip: !enabled }, async (t) => {
+  const { pool, transfer, overview } = await fixture(t)
+  await pendingRecipient(pool)
+  assert.equal((await overview())[1].active, false)
+  assert.equal((await overview())[1].outstandingAmountCents, 8500)
+  await transfer()
+  assert.equal((await overview())[1].active, true)
+  assert.equal((await overview())[1].outstandingAmountCents, 0)
+  assert.equal((await overview())[0].active, false)
+  const charges = (await pool.query('SELECT * FROM billing_charge ORDER BY id')).rows
+  assert.equal(charges.find((row) => row.id === '32').source_type, 'membership_transfer_cancelled')
+  assert.equal(charges.find((row) => row.id === '32').amount_cents, 8500)
+  assert.equal(charges.find((row) => row.related_charge_id === '32').amount_cents, -8500)
+  assert.equal(charges.find((row) => row.id === '31').source_id, `1:12:${renewal}`)
+  assert.equal((await pool.query('SELECT sum(amount_cents) FROM billing_charge')).rows[0].sum, '6000')
+  await transfer()
+  assert.equal((await pool.query("SELECT count(*) FROM billing_charge WHERE source_type='charge_adjustment'")).rows[0].count, '1')
+  assert.equal((await loadActiveAnnualMembership(pool, 12, { strict: true })).renewsOn.toISOString().slice(0,10), renewal)
+})
+
+test('a declined payment with zero received is canceled before canceling the duplicate annual fee', { skip: !enabled }, async (t) => {
+  const { pool, transfer, overview } = await fixture(t)
+  await pendingRecipient(pool, { failedAttempt: true })
+  const canceled = []
+  const stripeClient = { paymentIntents: {
+    retrieve: async () => ({ id: 'pi_failed', status: 'requires_payment_method', amount: 8500, amount_received: 0, customer: 'cus_family', metadata: { familyBillingAccountId: '7', billingPaymentAttemptId: '10' } }),
+    cancel: async (id) => { canceled.push(id); return { id, status: 'canceled' } },
+  } }
+  await transfer({ stripeClient })
+  assert.deepEqual(canceled, ['pi_failed'])
+  assert.equal((await pool.query('SELECT status FROM billing_payment_attempt WHERE id=10')).rows[0].status, 'canceled')
+  assert.equal((await overview())[1].active, true)
+})
+
+for (const status of ['processing', 'succeeded']) {
+  test(`a ${status} recipient payment is never canceled or credited by transfer`, { skip: !enabled }, async (t) => {
+    const { pool, transfer, overview } = await fixture(t)
+    await pendingRecipient(pool, { failedAttempt: true })
+    let cancellations = 0
+    const stripeClient = { paymentIntents: {
+      retrieve: async () => ({ id: 'pi_failed', status, amount: 8500, amount_received: status === 'succeeded' ? 8500 : 0, customer: 'cus_family', metadata: { familyBillingAccountId: '7', billingPaymentAttemptId: '10' } }),
+      cancel: async () => { cancellations++; throw new Error('Must not cancel') },
+    } }
+    await assert.rejects(transfer({ stripeClient }), /processing or completed/)
+    assert.equal(cancellations, 0)
+    assert.equal((await overview())[0].active, true)
+    assert.equal((await overview())[1].active, false)
+    assert.equal((await pool.query("SELECT count(*) FROM billing_charge WHERE source_type='charge_adjustment'")).rows[0].count, '0')
+  })
+}
+
+test('a partially paid recipient bill and an invoiced bill cannot be canceled by transfer', { skip: !enabled }, async (t) => {
+  const { pool, transfer } = await fixture(t)
+  await pendingRecipient(pool)
+  await pool.query(`INSERT INTO billing_payment_application VALUES (32,41,'application',1000)`)
+  await assert.rejects(transfer(), /has a payment|already has a valid membership/)
+  await pool.query('DELETE FROM billing_payment_application WHERE billing_charge_id=32')
+  await pool.query(`INSERT INTO billing_monthly_invoice VALUES(51,'open')`)
+  await pool.query(`INSERT INTO billing_monthly_invoice_line VALUES(51,32)`)
+  await assert.rejects(transfer(), /on an invoice/)
+})
+
+test('an unpaid renewal schedule does not count as a valid recipient membership', { skip: !enabled }, async (t) => {
+  const { pool, transfer, overview } = await fixture(t)
+  await pendingRecipient(pool)
+  await pool.query(`INSERT INTO billing_subscription (id,family_billing_account_id,member_id,source_type,source_id,pricing_option_key,status,start_date,next_bill_date)
+    VALUES (22,7,12,'annual_membership','1:12','annual_membership','active',$1,$2)`, [paidAt.slice(0,10),renewal])
+  assert.equal((await overview())[1].active, false)
+  assert.equal((await overview())[1].autoRenewal, true)
+  const result = await transfer()
+  assert.equal(result.cancelledPendingBills[0].creditedAmountCents, 8500)
+  assert.equal((await overview())[1].active, true)
+  assert.equal((await pool.query('SELECT status FROM billing_subscription WHERE id=22')).rows[0].status, 'cancelled')
 })

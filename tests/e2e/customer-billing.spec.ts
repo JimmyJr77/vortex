@@ -1023,7 +1023,7 @@ test.describe('Account Billing & Enrollments administration', () => {
   })
 })
 
-for (const entryPoint of ['history', 'card membership', 'card bill'] as const) {
+for (const entryPoint of ['history', 'card membership', 'card bill', 'unpaid recipient'] as const) {
   test(`transfers annual membership through ${entryPoint} and refreshes cards and history`, async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     const errors: string[] = []
@@ -1038,7 +1038,7 @@ for (const entryPoint of ['history', 'card membership', 'card bill'] as const) {
       renewalDate: active || memberId === 11 ? renewalDate : null,
       membershipChargeId: active && memberId !== 12 ? 801 : null,
       billingSubscriptionId: active ? memberId + 100 : null, autoRenewal: active,
-      canManageAutoRenewal: active, lifetimeMember: false, outstandingChargeId: null, outstandingAmountCents: 0,
+      canManageAutoRenewal: active, lifetimeMember: false, outstandingChargeId: entryPoint === 'unpaid recipient' && memberId === 10 && !transferred ? 802 : null, outstandingAmountCents: entryPoint === 'unpaid recipient' && memberId === 10 && !transferred ? 8500 : 0,
     })
     const bill = () => ({
       entryKind: 'charge', entryType: 'one_time', refId: 801, memberId: transferred ? 10 : 11,
@@ -1065,24 +1065,32 @@ for (const entryPoint of ['history', 'card membership', 'card bill'] as const) {
       await route.fulfill({ status: 201, json: { success: true, data: { memberId: 10 } } })
     })
     await findRiveraAccount(page)
+    if (entryPoint === 'unpaid recipient') {
+      const pendingCard = page.getByRole('button', { name: 'Membership actions for Alex Rivera' }).locator('../..')
+      await expect(pendingCard).toContainText('Unpaid annual fee: $85.00')
+      await expect(pendingCard).toContainText('No valid membership yet')
+      await expect(pendingCard.getByRole('button', { name: 'Bill now', exact: true })).toBeDisabled()
+    }
     if (entryPoint === 'history') {
       await page.getByRole('row').filter({ hasText: 'Annual membership fee' }).getByRole('button', { name: 'Modify', exact: true }).click()
     } else {
       await page.getByRole('button', { name: 'Membership actions for Jordan Rivera' }).click()
       await page.getByRole('button', { name: entryPoint === 'card bill' ? 'Modify bill' : 'Modify membership', exact: true }).click()
     }
-    if (entryPoint !== 'card membership') {
+    if (entryPoint === 'history' || entryPoint === 'card bill') {
       await expect(page.getByRole('heading', { name: 'Modify bill', exact: true })).toBeVisible()
       await page.getByRole('button', { name: 'Change ownership of this membership' }).click()
     }
     await expect(page.getByRole('heading', { name: 'Modify membership', exact: true })).toBeVisible()
     const options = page.getByLabel('Family member for membership transfer')
-    await expect(options.locator('option[value="10"]')).toHaveText('Alex Rivera · Guardian · Age 42')
+    await expect(options.locator('option[value="10"]')).toHaveText(`Alex Rivera · Guardian · Age 42${entryPoint === 'unpaid recipient' ? ' (unpaid membership bill)' : ''}`)
     await expect(options.locator('option[value="11"]')).toHaveJSProperty('disabled', true)
     await expect(options.locator('option[value="12"]')).toHaveJSProperty('disabled', true)
     await expect(options.locator('option[value="12"]')).toContainText('Youth · Age 9')
     await expect(page.getByRole('button', { name: 'Transfer membership', exact: true })).toBeDisabled()
+    await expect(options.locator('option[value="10"]')).toHaveJSProperty('disabled', false)
     await options.selectOption('10')
+    if (entryPoint === 'unpaid recipient') await expect(page.getByText(/Any unpaid annual fee covered by this transferred membership/)).toBeVisible()
     if (entryPoint === 'card membership') await page.screenshot({ path: '/tmp/vortex-membership-transfer-dialog.png', fullPage: true })
     await page.getByRole('button', { name: 'Transfer membership', exact: true }).click()
     await expect(page.getByRole('dialog')).toHaveCount(0)
@@ -1094,7 +1102,7 @@ for (const entryPoint of ['history', 'card membership', 'card bill'] as const) {
     await expect(newCard).toContainText('Member since')
     expect(calls).toHaveLength(1)
     expect(calls[0]).toMatchObject({ targetMemberId: 10, membershipDate, renewalDate })
-    if (entryPoint !== 'card membership') expect(calls[0].chargeId).toBe(801)
+    if (entryPoint === 'history' || entryPoint === 'card bill') expect(calls[0].chargeId).toBe(801)
     expect(errors).toEqual([])
     if (entryPoint === 'card membership') {
       await originalCard.screenshot({ path: '/tmp/vortex-membership-original-card.png' })
