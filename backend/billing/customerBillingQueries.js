@@ -193,9 +193,9 @@ export function buildCustomerBillingAnnualMemberships({
     const feeId = annualMembershipFeeId(referenceSubscription?.source_id) ?? annualMembershipFeeId(referenceCharge?.source_id) ?? (
       referenceRedemption?.fee_id == null ? null : Number(referenceRedemption.fee_id)
     )
-    const membershipCharge = feeId == null
+    const membershipCharge = activeCharge ?? memberCharges.find((row) => Number(row.id) === Number(activeRedemption?.billing_charge_id)) ?? (feeId == null
       ? referenceCharge
-      : memberCharges.find((row) => isAnnualMembershipCharge(row) && annualMembershipFeeId(row.source_id) === feeId) ?? referenceCharge
+      : memberCharges.find((row) => isAnnualMembershipCharge(row) && annualMembershipFeeId(row.source_id) === feeId) ?? referenceCharge)
     const outstandingCharge = memberCharges.find((row) => (
       isAnnualMembershipCharge(row) && Number(row.remaining_amount_cents ?? 0) > 0
     )) ?? null
@@ -216,6 +216,7 @@ export function buildCustomerBillingAnnualMemberships({
     return {
       memberId: Number(member.id),
       memberName: member.name,
+      ...(membershipCharge?.id == null ? {} : { membershipChargeId: Number(membershipCharge.id) }),
       billingSubscriptionId:
         referenceSubscription?.id == null ? null : Number(referenceSubscription.id),
       active: Boolean(activeRedemption || activeCharge),
@@ -409,7 +410,10 @@ export async function searchCustomerBilling(pool, { facilityId, query, limit = 5
 
 async function loadFamilyMembers(pool, familyId) {
   const result = await pool.query(
-    `SELECT DISTINCT m.id, m.first_name, m.last_name, m.email, m.phone, m.is_active
+    `SELECT DISTINCT m.id, m.first_name, m.last_name, m.email, m.phone, m.is_active,
+            EXTRACT(YEAR FROM age(CURRENT_DATE, m.date_of_birth))::int AS age,
+            EXISTS (SELECT 1 FROM parent_guardian_authority guardian
+                    WHERE guardian.parent_member_id = m.id AND guardian.has_legal_authority = TRUE) AS is_guardian
      FROM member m
      WHERE ${canonicalActiveHouseholdMemberPredicate({
        memberAlias: 'm',
@@ -422,6 +426,8 @@ async function loadFamilyMembers(pool, familyId) {
   )
   return result.rows.map((row) => ({
     id: Number(row.id),
+    age: row.age == null ? null : Number(row.age),
+    accountType: row.is_guardian ? 'Guardian' : row.age != null && Number(row.age) < 18 ? 'Youth' : 'Adult',
     firstName: row.first_name,
     lastName: row.last_name,
     name: [row.first_name, row.last_name].filter(Boolean).join(' '),
@@ -1807,6 +1813,7 @@ export async function listCustomerBillingTransactions(pool, {
         effectiveAmountCents: Number(rawDetails.effectiveAmountCents ?? row.amount_cents),
         classCatalogId: chargeDisplay?.classCatalogId ?? null,
         classSchedule: chargeDisplay?.classSchedule ?? null,
+        membershipTransfer: objectValue(rawDetails.metadata).membershipTransfer ?? null,
         transferTag: classTransferTag(rawDetails.metadata),
         discountAnnotations: Array.isArray(rawDetails.discountAnnotations) ? rawDetails.discountAnnotations : [],
         occurredAt: row.occurred_at,

@@ -1,5 +1,7 @@
 export interface CustomerBillingMember {
   id: number
+  age?: number | null
+  accountType?: 'Guardian' | 'Youth' | 'Adult'
   firstName: string
   lastName: string
   name: string
@@ -85,6 +87,7 @@ export interface CustomerBillingEnrollment {
 }
 
 export interface CustomerBillingAnnualMembership {
+  membershipChargeId?: number | null
   memberId: number
   memberName: string
   billingSubscriptionId: number | null
@@ -261,6 +264,7 @@ export interface BillingTransaction {
   effectiveAmountCents?: number
   classCatalogId?: number | null
   classSchedule?: string | null
+  membershipTransfer?: { previousMemberName: string; transferredAt: string } | null
   transferTag?: 'X-in' | 'X-out' | null
   discountAnnotations?: Array<{ kind: 'automatic' | 'coupon' | 'manual'; label: string; amountCents: number; code?: string | null }>
   occurredAt: string

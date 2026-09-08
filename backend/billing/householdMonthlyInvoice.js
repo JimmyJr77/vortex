@@ -2587,8 +2587,10 @@ export async function listHouseholdMonthlyInvoices(pool, accountId, { limit = 6,
               COALESCE(charge.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
                 AS customer_visible
          FROM billing_monthly_invoice_line line
-         LEFT JOIN member ON member.id = line.member_id
          LEFT JOIN billing_charge charge ON charge.id = line.billing_charge_id
+         LEFT JOIN member ON member.id = CASE
+           WHEN charge.metadata ? 'membershipTransfer' THEN charge.member_id
+           ELSE line.member_id END
         WHERE line.billing_monthly_invoice_id = ANY($1::bigint[])
         ORDER BY line.billing_monthly_invoice_id, line.id`,
       [invoiceIds],

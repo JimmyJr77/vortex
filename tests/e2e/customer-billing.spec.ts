@@ -48,6 +48,7 @@ const overview = {
     billingState: 'NY',
     billingZip: '10001',
     stripeCustomerId: 'cus_test_rivera',
+    accountStatus: 'active',
     isActive: true,
   },
   selectedMemberId: 11,
@@ -1021,3 +1022,85 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.retryCount).toBe(1)
   })
 })
+
+for (const entryPoint of ['history', 'card membership', 'card bill'] as const) {
+  test(`transfers annual membership through ${entryPoint} and refreshes cards and history`, async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    await openCustomerBilling(page, captured)
+    let transferred = false
+    const calls: Array<Record<string, unknown>> = []
+    const membershipDate = '2026-06-15T14:00:00.000Z'
+    const renewalDate = '2027-06-15'
+    const membership = (memberId: number, memberName: string, active: boolean) => ({
+      memberId, memberName, active, membershipDate: active || memberId === 11 ? membershipDate : null,
+      renewalDate: active || memberId === 11 ? renewalDate : null,
+      membershipChargeId: active && memberId !== 12 ? 801 : null,
+      billingSubscriptionId: active ? memberId + 100 : null, autoRenewal: active,
+      canManageAutoRenewal: active, lifetimeMember: false, outstandingChargeId: null, outstandingAmountCents: 0,
+    })
+    const bill = () => ({
+      entryKind: 'charge', entryType: 'one_time', refId: 801, memberId: transferred ? 10 : 11,
+      memberName: transferred ? 'Alex Rivera' : 'Jordan Rivera', description: 'Annual membership fee',
+      billingMonths: [], amountCents: 6000, occurredAt: membershipDate, status: 'paid',
+      runningBalanceCents: 0, appliedAmountCents: 6000, remainingAmountCents: 0, applications: [],
+      details: { sourceType: 'additional_fee', sourceId: `1:${transferred ? 10 : 11}:2027-06-15` },
+      membershipTransfer: transferred ? { previousMemberName: 'Jordan Rivera', transferredAt: '2026-09-08T16:00:00.000Z' } : null,
+    })
+    await page.route('**/api/admin/customer-billing/families/42/overview*', (route) => route.fulfill({ json: { success: true, data: {
+      ...overview,
+      members: [
+        { ...overview.members[0], age: 42, accountType: 'Guardian' },
+        { ...overview.members[1], age: 12, accountType: 'Youth' },
+        { id: 12, firstName: 'Taylor', lastName: 'Rivera', name: 'Taylor Rivera', age: 9, accountType: 'Youth', isActive: true },
+      ],
+      annualMemberships: [membership(11, 'Jordan Rivera', !transferred), membership(10, 'Alex Rivera', transferred), membership(12, 'Taylor Rivera', true)],
+    } } }))
+    await page.route('**/api/admin/customer-billing/families/42/transactions*', (route) => route.fulfill({ json: { success: true, data: { rows: [bill()], nextCursor: null } } }))
+    await page.route('**/api/admin/customer-billing/families/42/members/11/membership-transfer', async (route) => {
+      calls.push(route.request().postDataJSON())
+      expect(route.request().headers()['idempotency-key']).toBeTruthy()
+      transferred = true
+      await route.fulfill({ status: 201, json: { success: true, data: { memberId: 10 } } })
+    })
+    await findRiveraAccount(page)
+    if (entryPoint === 'history') {
+      await page.getByRole('row').filter({ hasText: 'Annual membership fee' }).getByRole('button', { name: 'Modify', exact: true }).click()
+    } else {
+      await page.getByRole('button', { name: 'Membership actions for Jordan Rivera' }).click()
+      await page.getByRole('button', { name: entryPoint === 'card bill' ? 'Modify bill' : 'Modify membership', exact: true }).click()
+    }
+    if (entryPoint !== 'card membership') {
+      await expect(page.getByRole('heading', { name: 'Modify bill', exact: true })).toBeVisible()
+      await page.getByRole('button', { name: 'Change ownership of this membership' }).click()
+    }
+    await expect(page.getByRole('heading', { name: 'Modify membership', exact: true })).toBeVisible()
+    const options = page.getByLabel('Family member for membership transfer')
+    await expect(options.locator('option[value="10"]')).toHaveText('Alex Rivera · Guardian · Age 42')
+    await expect(options.locator('option[value="11"]')).toHaveJSProperty('disabled', true)
+    await expect(options.locator('option[value="12"]')).toHaveJSProperty('disabled', true)
+    await expect(options.locator('option[value="12"]')).toContainText('Youth · Age 9')
+    await expect(page.getByRole('button', { name: 'Transfer membership', exact: true })).toBeDisabled()
+    await options.selectOption('10')
+    if (entryPoint === 'card membership') await page.screenshot({ path: '/tmp/vortex-membership-transfer-dialog.png', fullPage: true })
+    await page.getByRole('button', { name: 'Transfer membership', exact: true }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByText('Transferred from Jordan Rivera on 09/08/26')).toBeVisible()
+    const originalCard = page.getByRole('button', { name: 'Membership actions for Jordan Rivera' }).locator('../..')
+    const newCard = page.getByRole('button', { name: 'Membership actions for Alex Rivera' }).locator('../..')
+    await expect(originalCard).toContainText('Not valid · Auto-renewal No')
+    await expect(newCard).toContainText('Valid · Auto-renewal Yes')
+    await expect(newCard).toContainText('Member since')
+    expect(calls).toHaveLength(1)
+    expect(calls[0]).toMatchObject({ targetMemberId: 10, membershipDate, renewalDate })
+    if (entryPoint !== 'card membership') expect(calls[0].chargeId).toBe(801)
+    expect(errors).toEqual([])
+    if (entryPoint === 'card membership') {
+      await originalCard.screenshot({ path: '/tmp/vortex-membership-original-card.png' })
+      await newCard.screenshot({ path: '/tmp/vortex-membership-new-card.png' })
+      await page.getByText('Transferred from Jordan Rivera on 09/08/26').scrollIntoViewIfNeeded()
+      await page.screenshot({ path: '/tmp/vortex-membership-history.png' })
+    }
+  })
+}

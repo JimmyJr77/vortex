@@ -5,6 +5,7 @@ import { currentMonthInput, money, monthLabel } from './format'
 import type {
   BillingDiscountComponent,
   BillingTransaction,
+  CustomerBillingAnnualMembership,
   CustomerBillingEnrollment,
   CustomerBillingMember,
   PriceAdjustment,
@@ -675,12 +676,63 @@ export function CustomChargeModal({
   )
 }
 
+export function MembershipTransferModal({ familyId, membership, members, memberships, chargeId, onClose, onSaved }: {
+  familyId: number
+  membership: CustomerBillingAnnualMembership
+  members: CustomerBillingMember[]
+  memberships: CustomerBillingAnnualMembership[]
+  chargeId?: number
+  onClose: () => void
+  onSaved: (message: string, memberId: number) => void
+}) {
+  const [targetMemberId, setTargetMemberId] = useState('')
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [requestKey] = useState(() => newRequestKey('membership-transfer'))
+  const unavailable = (id: number) => id === membership.memberId || memberships.some((item) => item.memberId === id && (item.active || item.lifetimeMember || item.autoRenewal || item.outstandingChargeId != null))
+  const submit = async () => {
+    if (!targetMemberId || unavailable(Number(targetMemberId))) return
+    setWorking(true)
+    setError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/members/${membership.memberId}/membership-transfer`, {
+        method: 'POST', headers: { 'Idempotency-Key': requestKey },
+        body: JSON.stringify({ targetMemberId: Number(targetMemberId), membershipDate: membership.membershipDate, renewalDate: membership.renewalDate, chargeId }),
+      })
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Membership transfer failed.')
+      onSaved(`Membership transferred to ${members.find((member) => member.id === Number(targetMemberId))?.name}. ${membership.memberName}’s membership is now not valid. The original membership and renewal dates were preserved.`, Number(targetMemberId))
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Membership transfer failed.')
+    } finally {
+      setWorking(false)
+    }
+  }
+  return <ModalShell title="Modify membership" subtitle={`Annual membership · ${membership.memberName}`} onClose={() => { if (!working) onClose() }}>
+    <div className="space-y-5">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">Transferring immediately cancels {membership.memberName}’s membership. The new member receives the original membership date and renewal date. The bill amount and existing payments stay the same.</div>
+      <div className="rounded-lg bg-gray-50 p-3 text-sm">Membership date: <strong>{membership.membershipDate?.slice(0, 10) || '—'}</strong><br />Renewal date: <strong>{membership.renewalDate || '—'}</strong></div>
+      <label className="block text-sm font-medium text-gray-700">Transfer membership to
+        <select aria-label="Family member for membership transfer" value={targetMemberId} disabled={working} onChange={(event) => setTargetMemberId(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2">
+          <option value="">Choose a family member</option>
+          {members.map((member) => <option key={member.id} value={member.id} disabled={unavailable(member.id)} className={unavailable(member.id) ? 'text-gray-400' : ''}>{member.name} · {member.accountType || 'Account type unknown'} · {member.age == null ? 'Age unknown' : `Age ${member.age}`}{member.id === membership.memberId ? ' (current owner)' : unavailable(member.id) ? ' (membership already assigned)' : ''}</option>)}
+        </select>
+      </label>
+      <p className="text-xs text-gray-500">Family members with a membership or pending membership bill cannot receive another membership.</p>
+      {error ? <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+      <div className="flex justify-end gap-3"><button type="button" disabled={working} onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" disabled={working || !targetMemberId || unavailable(Number(targetMemberId))} onClick={() => void submit()} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}Transfer membership</button></div>
+    </div>
+  </ModalShell>
+}
+
 export function ModifyChargeModal({
   familyId,
   charge,
   onClose,
   onSaved,
+  onTransferMembership,
 }: {
+  onTransferMembership?: () => void
   familyId: number
   charge: BillingTransaction
   onClose: () => void
@@ -766,6 +818,7 @@ export function ModifyChargeModal({
         {!usingManualPrice ? <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">The code is validated by the server against annual-membership rules, eligibility, dates, and redemption limits before it is applied.</div> : null}
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
         <button type="button" onClick={() => void submit()} disabled={working || !reason.trim() || (usingManualPrice ? !Number.isFinite(finalAmountCents) || finalAmountCents < 0 : !promoCode.trim())} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{appliesTo === 'renewals' ? ' Save renewal pricing' : ' Save bill modification'}</button>
+        {onTransferMembership ? <div className="border-t border-gray-200 pt-4"><button type="button" disabled={working} onClick={onTransferMembership} className="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">Change ownership of this membership</button></div> : null}
       </div>
     </ModalShell>
   )

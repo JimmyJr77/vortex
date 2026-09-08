@@ -1,3 +1,4 @@
+import { transferCustomerBillingMembership } from './customerBillingMembershipTransfer.js'
 import { createHash } from 'node:crypto'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyPaymentRequest, notifyRefundReceipt } from '../email/memberNotifications.js'
@@ -334,6 +335,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           success: false,
           message: error?.message ?? 'Annual membership bill could not be created.',
         })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/members/:memberId/membership-transfer',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await transferCustomerBillingMembership(pool, {
+          familyId: Number(req.params.familyId), facilityId: facilityId(req),
+          memberId: Number(req.params.memberId), actorUserId: actorId(req),
+          requestKey: requiredIdempotencyKey(req, 'membership-transfer'), input: req.body,
+        })
+        res.status(data.replayed ? 200 : 201).json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Membership transfer failed.' })
       }
     },
   )
