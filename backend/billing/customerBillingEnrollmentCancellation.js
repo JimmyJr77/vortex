@@ -1,3 +1,4 @@
+import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { loadCalendarRowsForSlotGroups } from '../scheduling/freePassEngine.js'
@@ -20,19 +21,21 @@ function dayBefore(date) {
 export function normalizeCustomerBillingCancellationInput(input = {}, now = new Date()) {
   const mode = String(input.mode ?? '').trim()
   const reason = String(input.reason ?? '').trim()
-  if (!['immediate', 'end_of_month', 'specific_date'].includes(mode)) {
-    throw new Error('Choose immediate, end of month, or a specific cancellation date.')
+  if (!['immediate', 'beginning_of_month', 'end_of_month', 'specific_date'].includes(mode)) {
+    throw new Error('Choose immediate, beginning of month, end of month, or a specific cancellation date.')
   }
   if (!reason) throw new Error('An administrative reason is required to cancel an enrollment.')
   const today = todayDateOnly(now)
   const requested = dateOnly(input.effectiveDate)
-  const effectiveDate = mode === 'immediate'
+  const effectiveDate = mode === 'beginning_of_month'
+    ? `${today.slice(0, 7)}-01`
+    : mode === 'immediate'
     ? today
     : mode === 'end_of_month'
       ? firstOfNextMonth(today)
       : requested
   if (!effectiveDate) throw new Error('A cancellation date is required.')
-  if (effectiveDate < today) throw new Error('A cancellation date cannot be in the past.')
+  if (mode !== 'beginning_of_month' && effectiveDate < today) throw new Error('A cancellation date cannot be in the past.')
   return { mode, reason, effectiveDate, today }
 }
 
@@ -71,20 +74,28 @@ async function loadContext(pool, { signupId, facilityId = null }) {
   return context
 }
 
-async function postedAmountForPeriod(pool, context, periodKey) {
+async function postedAmountForPeriod(pool, context, periodKey, netOfCredits = false) {
   const result = await pool.query(
     `SELECT COALESCE(SUM(amount_cents), 0)::int AS amount_cents,
-            MIN(id)::bigint AS related_charge_id
-       FROM billing_charge
+            MIN(id) FILTER (WHERE amount_cents > 0)::bigint AS related_charge_id
+       FROM billing_charge charge
       WHERE family_billing_account_id = $1
-        AND amount_cents > 0
-        AND charge_type IN ('recurring', 'one_time', 'adjustment')
+        AND ${activeLedgerChargePredicate('charge')}
+        AND ($5::boolean OR amount_cents > 0)
+        AND charge_type IN ('recurring', 'one_time', 'adjustment', 'credit')
         AND (
           (source_type = 'scheduling_signup' AND source_id = $2)
           OR (subscription_id = $3)
+          OR ($5::boolean AND related_charge_id IN (
+            SELECT original.id FROM billing_charge original
+            WHERE original.family_billing_account_id = $1
+              AND ((original.source_type = 'scheduling_signup' AND original.source_id = $2)
+                OR original.subscription_id = $3)
+              AND to_char(COALESCE(original.service_period_start, original.created_at::date), 'YYYY-MM') = $4
+          ))
         )
         AND to_char(COALESCE(service_period_start, created_at::date), 'YYYY-MM') = $4`,
-    [context.family_billing_account_id, String(context.signup_id), context.subscription_id, periodKey],
+    [context.family_billing_account_id, String(context.signup_id), context.subscription_id, periodKey, netOfCredits],
   )
   return {
     amountCents: Math.max(0, Number(result.rows[0]?.amount_cents ?? 0)),
@@ -97,23 +108,27 @@ export async function previewCustomerBillingEnrollmentCancellation(pool, {
   facilityId = null,
   input = {},
   now = new Date(),
+  pricingResolver = resolveFamilyEnrollmentPricing,
 }) {
   const request = normalizeCustomerBillingCancellationInput(input, now)
   const context = await loadContext(pool, { signupId, facilityId })
   const periodKey = request.effectiveDate.slice(0, 7)
-  const pricing = await resolveFamilyEnrollmentPricing(pool, {
+  const pricing = await pricingResolver(pool, {
     familyId: Number(context.family_id),
     periodKey,
     ensureSchema: false,
   })
   const line = pricing.lines?.find((item) => Number(item.signupId) === Number(context.signup_id))
   const resolvedNetCents = Math.max(0, Math.round(Number(line?.netCents ?? 0)))
-  const posted = await postedAmountForPeriod(pool, context, periodKey)
+  const posted = await postedAmountForPeriod(pool, context, periodKey, request.mode === 'beginning_of_month')
   const { monthStart, monthEnd } = monthBounds(request.effectiveDate)
   let creditCents = 0
   let remainingClasses = 0
   let creditRatio = 0
-  if (request.mode !== 'end_of_month' && posted.amountCents > 0 && request.effectiveDate >= monthStart) {
+  if (request.mode === 'beginning_of_month') {
+    creditCents = posted.amountCents
+    creditRatio = posted.amountCents > 0 ? 1 : 0
+  } else if (request.mode !== 'end_of_month' && posted.amountCents > 0 && request.effectiveDate >= monthStart) {
     const rowsByGroup = await loadCalendarRowsForSlotGroups(pool, [Number(context.slot_group_id)])
     const calendarRows = [...rowsByGroup.values()].flat()
     const calculated = pauseCreditForLine(calendarRows, {
@@ -156,14 +171,22 @@ export async function cancelCustomerBillingEnrollment(pool, {
   actorUserId = null,
   input = {},
 }) {
-  const preview = await previewCustomerBillingEnrollmentCancellation(pool, { signupId, facilityId, input })
-  const immediate = preview.mode === 'immediate' || preview.effectiveDate <= todayDateOnly()
+  let preview
+  let immediate
   const client = await pool.connect()
   let stripeSubscriptionId = null
   let creditChargeId = null
   let familyId = null
+  let accountId = null
   try {
     await client.query('BEGIN')
+    // Serialize cancellation and re-read its credit while holding the account
+    // lock, so repeated or competing requests cannot credit the same bill twice.
+    const initialContext = await loadContext(client, { signupId, facilityId })
+    accountId = initialContext.family_billing_account_id
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [`household-monthly-invoice:${accountId}`])
+    preview = await previewCustomerBillingEnrollmentCancellation(client, { signupId, facilityId, input })
+    immediate = preview.effectiveDate <= todayDateOnly()
     const context = await loadContext(client, { signupId, facilityId })
     stripeSubscriptionId = context.stripe_subscription_id ?? null
     familyId = Number(context.family_id)
@@ -215,7 +238,7 @@ export async function cancelCustomerBillingEnrollment(pool, {
           context.family_billing_account_id,
           context.member_id,
           `${context.signup_id}:${preview.effectiveDate}`,
-          `Prorated cancellation credit — ${context.class_name} (${preview.effectiveDate.slice(0, 7)})`,
+          `${preview.mode === 'beginning_of_month' ? 'Full-month' : 'Prorated'} cancellation credit — ${context.class_name} (${preview.effectiveDate.slice(0, 7)})`,
           -preview.creditCents,
           context.subscription_id,
           preview.relatedChargeId,
@@ -245,7 +268,9 @@ export async function cancelCustomerBillingEnrollment(pool, {
       signupId: context.signup_id,
       chargeId: credit?.id ?? null,
       eventType: immediate ? 'enrollment_cancelled_immediately' : 'enrollment_cancellation_scheduled',
-      summary: immediate
+      summary: preview.mode === 'beginning_of_month'
+        ? `Enrollment was cancelled effective ${preview.effectiveDate}, with a full-month account credit.`
+        : immediate
         ? 'Enrollment was cancelled immediately through Customer Billing.'
         : `Enrollment cancellation was scheduled for ${preview.effectiveDate}.`,
       beforeValue: { status: context.signup_status, cancelEffectiveDate: context.cancel_effective_date ?? null },
@@ -280,7 +305,7 @@ export async function cancelCustomerBillingEnrollment(pool, {
       .catch((error) => console.warn('[customer-billing] cancellation family pricing sync:', error?.message ?? error))
   }
   await reconcileUpcomingProvisionalChargesForAccount(pool, {
-    accountId: context.family_billing_account_id,
+    accountId,
   }).catch((error) => console.warn('[customer-billing] upcoming bill reconciliation after cancellation:', error?.message ?? error))
   return {
     ...preview,

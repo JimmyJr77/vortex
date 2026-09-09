@@ -15,7 +15,7 @@ import type {
 interface EnrollmentCancellationPreview {
   effectiveDate: string
   lastActiveDate: string
-  mode: 'immediate' | 'end_of_month' | 'specific_date'
+  mode: 'immediate' | 'beginning_of_month' | 'end_of_month' | 'specific_date'
   className: string
   currentResolvedPriceCents: number
   postedAmountCents: number
@@ -211,7 +211,7 @@ export function PriceAdjustmentModal({
   const [confirmSurcharge, setConfirmSurcharge] = useState(false)
   const [preview, setPreview] = useState<PriceAdjustmentPreview | null>(null)
   const [showCancellation, setShowCancellation] = useState(false)
-  const [cancellationMode, setCancellationMode] = useState<'immediate' | 'end_of_month' | 'specific_date'>('end_of_month')
+  const [cancellationMode, setCancellationMode] = useState<'immediate' | 'beginning_of_month' | 'end_of_month' | 'specific_date'>('end_of_month')
   const [cancellationDate, setCancellationDate] = useState(new Date().toISOString().slice(0, 10))
   const [cancellationReason, setCancellationReason] = useState('')
   const [cancellationPreview, setCancellationPreview] = useState<EnrollmentCancellationPreview | null>(null)
@@ -335,8 +335,8 @@ export function PriceAdjustmentModal({
       const creditCents = Number(body.data?.creditCents ?? cancellationPreview.creditCents)
       onSaved(
         creditCents > 0
-          ? `Enrollment cancelled. A ${money(creditCents)} prorated account credit was recorded for unused classes.`
-          : 'Enrollment cancellation was recorded. No prorated credit was needed.',
+          ? `Enrollment cancelled. A ${money(creditCents)} ${cancellationPreview.mode === 'beginning_of_month' ? 'full-month' : 'prorated'} account credit was recorded.`
+          : 'Enrollment cancellation was recorded. No additional account credit was needed.',
       )
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Enrollment cancellation failed.')
@@ -474,6 +474,7 @@ export function PriceAdjustmentModal({
                 <p>Cancellation preserves the class and financial history in the audit. Any unused, already billed classes become a linked account credit; posted charges are never rewritten.</p>
                 <fieldset>
                   <legend className="mb-2 font-semibold">When should the cancellation take effect?</legend>
+                  <label className="mb-2 flex items-start gap-2"><input type="radio" checked={cancellationMode === 'beginning_of_month'} onChange={() => { setCancellationMode('beginning_of_month'); invalidateCancellation() }} /><span><strong>At the beginning of this month</strong><span className="block text-xs text-gray-600">Cancel effective the first day of this month and credit all of this enrollment’s charges for the month, less any credits already issued.</span></span></label>
                   <label className="mb-2 flex items-start gap-2"><input type="radio" checked={cancellationMode === 'immediate'} onChange={() => { setCancellationMode('immediate'); invalidateCancellation() }} /><span><strong>Immediately</strong><span className="block text-xs text-gray-600">Stop the enrollment now and credit unused scheduled classes in the current month.</span></span></label>
                   <label className="mb-2 flex items-start gap-2"><input type="radio" checked={cancellationMode === 'end_of_month'} onChange={() => { setCancellationMode('end_of_month'); invalidateCancellation() }} /><span><strong>At the end of this month</strong><span className="block text-xs text-gray-600">Keep the athlete enrolled through this billing month; no next-month tuition will bill.</span></span></label>
                   <label className="flex items-start gap-2"><input type="radio" checked={cancellationMode === 'specific_date'} onChange={() => { setCancellationMode('specific_date'); invalidateCancellation() }} /><span><strong>On a specific date</strong><span className="block text-xs text-gray-600">Stop on that date and calculate a credit for the remaining scheduled classes.</span></span></label>
@@ -493,9 +494,9 @@ export function PriceAdjustmentModal({
                 <div className="font-semibold">Cancellation billing impact</div>
                 <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                   <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Effective date</dt><dd className="mt-1 font-bold">{cancellationPreview.effectiveDate}</dd></div>
-                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Prorated account credit</dt><dd className="mt-1 text-lg font-bold">{money(cancellationPreview.creditCents)}</dd></div>
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">{cancellationPreview.mode === 'beginning_of_month' ? 'Full-month account credit' : 'Prorated account credit'}</dt><dd className="mt-1 text-lg font-bold">{money(cancellationPreview.creditCents)}</dd></div>
                   <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Already billed for this month</dt><dd className="mt-1 font-semibold">{money(cancellationPreview.postedAmountCents)}</dd></div>
-                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Unused scheduled classes</dt><dd className="mt-1 font-semibold">{cancellationPreview.remainingClasses}</dd></div>
+                  {cancellationPreview.mode !== 'beginning_of_month' ? <div><dt className="text-xs font-semibold uppercase tracking-wide text-red-700">Unused scheduled classes</dt><dd className="mt-1 font-semibold">{cancellationPreview.remainingClasses}</dd></div> : null}
                 </dl>
                 <p className="mt-3 text-xs text-red-800">The credit is linked to the existing class charge and reduces the household’s next collection. The enrollment itself is retained in the audit as cancelled.</p>
               </div>

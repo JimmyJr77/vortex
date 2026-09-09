@@ -25,3 +25,10 @@ test('customer billing cancellation requires a reason and a non-past specific da
     /past/i,
   )
 })
+
+
+test('beginning-of-month cancellation permits only the current month backdate', () => {
+  const request = normalizeCustomerBillingCancellationInput({mode:'beginning_of_month',effectiveDate:'2025-01-01',reason:'Remove this month'},new Date('2026-09-09T16:00:00Z'))
+  assert.equal(request.effectiveDate,'2026-09-01')
+  assert.throws(()=>normalizeCustomerBillingCancellationInput({mode:'beginning_of_month'},new Date('2026-09-09T16:00:00Z')),/reason/)
+})

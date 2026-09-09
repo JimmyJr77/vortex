@@ -940,7 +940,7 @@ function TransactionsPanel({
       </div>
       <div className="overflow-x-auto" style={{ contentVisibility: 'auto' }}>
         <table className="w-full min-w-[1060px] text-sm">
-          <thead className="bg-white text-left text-xs font-semibold uppercase tracking-wide text-gray-500"><tr><th className="w-10 px-4 py-3" /><th className="px-4 py-3">Date</th><th className="px-4 py-3">Member</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3 text-right">Amount</th><th className="px-4 py-3 text-right">Balance</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
+          <thead className="bg-white text-left text-xs font-semibold uppercase tracking-wide text-gray-500"><tr><th className="w-10 px-4 py-3" /><th className="px-4 py-3">Posted On</th><th className="px-4 py-3">Member</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3 text-right">Amount</th><th className="px-4 py-3 text-right">Balance</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
           <tbody>
             {rows.map((row) => {
               const key = `${row.entryKind}-${row.refId}`

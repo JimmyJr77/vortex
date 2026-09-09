@@ -1,3 +1,4 @@
+import { previewCustomerBillingEnrollmentCancellation } from '../customerBillingEnrollmentCancellation.js'
 import { reassessBillingAllocations } from '../reassessBillingAllocations.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -267,6 +268,26 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal(result.corrected,false)
     assert.match(result.message,/active collection/)
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_payment_application')).rows[0].n,0)
+  })
+
+  await t.test('beginning-of-month cancellation credits net billed tuition even without a class calendar', async () => {
+    await insert('scheduling_form',{id:1,title:'Synthetic enrollment'})
+    await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-09-06'})
+    await insert('billing_subscription',{id:1,family_billing_account_id:1,member_id:1,source_type:'scheduling_signup',source_id:'1',
+      description:'Synthetic class',monthly_amount_cents:12750,net_monthly_cents:12750,status:'active',start_date:'2026-09-06',next_bill_date:'2026-11-01',anchor_day:1})
+    await charge(1,12750,{subscription_id:1,charge_type:'recurring',service_period_start:'2026-09-06'})
+    await charge(2,-2500,{charge_type:'credit',source_type:'charge_adjustment',related_charge_id:1,service_period_start:'2026-09-06'})
+    await charge(3,12750,{subscription_id:1,charge_type:'recurring',service_period_start:'2026-10-01'})
+    await charge(4,8500,{charge_type:'one_time',service_period_start:'2026-09-01'})
+    const options={signupId:1,facilityId:1,input:{mode:'beginning_of_month',reason:'Administrative correction'},
+      now:new Date('2026-09-09T16:00:00Z'),pricingResolver:async()=>({lines:[]})}
+    const preview=await previewCustomerBillingEnrollmentCancellation(db,options)
+    assert.equal(preview.effectiveDate,'2026-09-01')
+    assert.equal(preview.creditCents,10250)
+    assert.equal(preview.creditRatio,1)
+    await charge(5,-10250,{subscription_id:1,charge_type:'credit',service_period_start:'2026-09-01'})
+    assert.equal((await previewCustomerBillingEnrollmentCancellation(db,options)).creditCents,0)
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,5)
   })
 
 })

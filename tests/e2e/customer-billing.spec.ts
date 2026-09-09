@@ -1154,3 +1154,22 @@ test('account refresh reassesses allocations and displays the server result', as
   await expect(page.getByText('Account refreshed. Payment allocations corrected.')).toBeVisible()
   expect(reassessed).toBe(true)
 })
+
+test('beginning-of-month cancellation previews a full-month credit before confirmation', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+  await openCustomerBilling(page, captured)
+  await findRiveraAccount(page)
+  await page.getByRole('row', { name: /Monday Foundations/ }).getByRole('button', { name: 'Modify' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Modify enrollment' })
+  await dialog.getByRole('button', { name: 'Cancel or remove this class enrollment' }).click()
+  await dialog.getByRole('radio', { name: /At the beginning of this month/ }).check()
+  await dialog.getByLabel('Administrative reason', { exact: true }).last().fill('Remove the full month')
+  await page.route('**/api/admin/customer-billing/enrollments/*/cancellation/preview', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ mode: 'beginning_of_month', reason: 'Remove the full month' })
+    await route.fulfill({ json: { success: true, data: { mode: 'beginning_of_month', effectiveDate: '2026-09-01', lastActiveDate: '2026-08-31', postedAmountCents: 10500, creditCents: 10500, remainingClasses: 0, creditRatio: 1 } } })
+  })
+  await dialog.getByRole('button', { name: 'Review cancellation and billing impact' }).click()
+  await expect(dialog.getByText('Full-month account credit', { exact: true })).toBeVisible()
+  await expect(dialog.getByText('2026-09-01', { exact: true })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Confirm cancellation', exact: true })).toBeVisible()
+})
