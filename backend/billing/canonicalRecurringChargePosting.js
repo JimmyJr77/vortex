@@ -99,8 +99,7 @@ async function reconcileProvisionalTargetCharges(db, {
                 discount_amount_cents = 0,
                 collection_status = 'cancelled',
                 metadata = COALESCE(metadata, '{}'::jsonb)
-                  || '{"customerAuditVisibility":"suppressed","provisionalBillingVoided":true}'::jsonb,
-                updated_at = now()
+                  || '{"customerAuditVisibility":"suppressed","provisionalBillingVoided":true}'::jsonb
           WHERE id = $1
           RETURNING id`,
         [Number(charge.id)],
@@ -140,8 +139,7 @@ async function reconcileProvisionalTargetCharges(db, {
               price_adjustment_id = $7,
               collection_status = 'unpaid',
               metadata = (COALESCE(metadata, '{}'::jsonb) - 'customerAuditVisibility' - 'provisionalBillingVoided')
-                || '{"provisionalBilling":true}'::jsonb,
-              updated_at = now()
+                || '{"provisionalBilling":true}'::jsonb
         WHERE id = $1
         RETURNING id`,
       [
@@ -204,6 +202,19 @@ async function loadAccount(db, accountId) {
 async function loadSubscriptions(db, accountId) {
   return db.query(
     `SELECT subscription.*,
+            ARRAY(
+              SELECT to_char(coverage.service_period_start, 'YYYY-MM-01')
+                FROM billing_charge coverage
+               WHERE coverage.subscription_id = subscription.id
+                 AND coverage.family_billing_account_id = subscription.family_billing_account_id
+                 AND coverage.source_type = 'billing_subscription'
+                 AND coverage.charge_type = 'recurring'
+                 AND coverage.service_period_start = date_trunc('month', coverage.service_period_start)::date
+                 AND coverage.service_period_end = (coverage.service_period_start + interval '1 month - 1 day')::date
+                 AND COALESCE(coverage.metadata->>'provisionalBillingVoided', 'false') <> 'true'
+               GROUP BY coverage.service_period_start
+              HAVING COUNT(*) = 1
+            ) AS posted_billing_months,
             signup.id AS signup_id,
             signup.status AS signup_status,
             signup.orphaned_at AS signup_orphaned_at,
@@ -266,7 +277,14 @@ async function lockEnrollmentLifecycleRows(db, accountId) {
 
 async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
   return db.query(
-    `SELECT charge.*
+    `SELECT charge.*,
+            charge.amount_cents + COALESCE((
+              SELECT SUM(adjustment.amount_cents)
+                FROM billing_charge adjustment
+               WHERE adjustment.related_charge_id = charge.id
+                 AND adjustment.family_billing_account_id = charge.family_billing_account_id
+                 AND adjustment.source_type IN ('charge_adjustment', 'refund_offset')
+            ), 0) AS effective_amount_cents
        FROM billing_charge charge
       WHERE charge.family_billing_account_id = $1
         AND (charge.charge_type = 'recurring' OR charge.billing_interval = 'month')
@@ -301,7 +319,7 @@ async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
   ).then((result) => result.rows)
 }
 
-function expectedLinesFromPricing(pricing, subscriptions, period) {
+function expectedLinesFromPricing(pricing, subscriptions, period, { refreshPricing = false } = {}) {
   const issues = []
   const subscriptionsById = new Map(subscriptions.map((row) => [Number(row.id), row]))
   const lifecycleManifest = buildEnrollmentBillingPeriodManifest(subscriptions, period.periodKey, {
@@ -411,9 +429,11 @@ function expectedLinesFromPricing(pricing, subscriptions, period) {
       ))
     }
     if (
-      cents(subscription.monthly_amount_cents) !== expected.grossCents ||
-      cents(subscription.discount_amount_cents) !== expected.discountCents ||
-      cents(subscription.net_monthly_cents) !== expected.netCents
+      !refreshPricing && (
+        cents(subscription.monthly_amount_cents) !== expected.grossCents ||
+        cents(subscription.discount_amount_cents) !== expected.discountCents ||
+        cents(subscription.net_monthly_cents) !== expected.netCents
+      )
     ) {
       issues.push(issue(
         'target_month_subscription_pricing_mismatch',
@@ -479,7 +499,7 @@ function expectedLinesFromPricing(pricing, subscriptions, period) {
   return { lines, issues, excludedSubscriptions, lifecycleManifest }
 }
 
-function compareTargetCharges(expectedLines, charges, period) {
+function compareTargetCharges(expectedLines, charges, period, { respectHistoricalCharges = false } = {}) {
   const issues = []
   const expectedById = new Map(expectedLines.map((line) => [line.subscriptionId, line]))
   const chargesBySubscription = new Map()
@@ -487,6 +507,9 @@ function compareTargetCharges(expectedLines, charges, period) {
   for (const charge of charges) {
     const subscriptionId = Number(charge.subscription_id)
     if (!Number.isSafeInteger(subscriptionId) || !expectedById.has(subscriptionId)) {
+      // A fully offset former enrollment is history, not an extra bill. Keep
+      // the original rows and settlement facts intact.
+      if (respectHistoricalCharges && Number(charge.effective_amount_cents) === 0) continue
       issues.push(issue(
         'target_month_recurring_charge_extra',
         `Recurring charge ${charge.id} does not belong to an expected ${period.periodKey} enrollment subscription.`,
@@ -516,14 +539,32 @@ function compareTargetCharges(expectedLines, charges, period) {
     }
     const charge = found[0]
     const actualAdjustmentId = charge.price_adjustment_id == null ? null : Number(charge.price_adjustment_id)
-    const exact =
+    const initialStart = billingDateString(expected.subscription.enrollment_start_date
+      ?? expected.subscription.start_date)
+    const isInitial = respectHistoricalCharges
+      && charge.source_type === 'scheduling_signup'
+      && String(charge.source_id) === String(expected.signupId)
+      && initialStart?.slice(0, 7) === period.periodKey
+      && billingDateString(charge.service_period_start) >= period.start
+      && billingDateString(charge.service_period_start) <= period.end
+      && billingDateString(charge.service_period_end) === period.end
+      && cents(charge.amount_cents) >= 0
+      && [0, 0.25, 0.5, 0.75, 1].some((ratio) =>
+        cents(charge.amount_cents) === Math.round(expected.netCents * ratio)
+        && cents(charge.gross_amount_cents) === Math.round(expected.grossCents * ratio))
+      && cents(charge.gross_amount_cents) - cents(charge.discount_amount_cents) === cents(charge.amount_cents)
+    // Initial-period charges were priced at enrollment, including partial-month
+    // classes. Never rewrite a settled initial bill to the full monthly price.
+    const exact = (isInitial && Number(charge.member_id) === expected.memberId) || (
       billingDateString(charge.service_period_start) === period.start &&
       billingDateString(charge.service_period_end) === period.end &&
       Number(charge.member_id) === expected.memberId &&
       cents(charge.gross_amount_cents) === expected.grossCents &&
       cents(charge.discount_amount_cents) === expected.discountCents &&
       cents(charge.amount_cents) === expected.netCents &&
-      actualAdjustmentId === expected.priceAdjustmentId
+      (actualAdjustmentId === expected.priceAdjustmentId
+        || (respectHistoricalCharges && actualAdjustmentId == null))
+    )
     if (!exact) {
       issues.push(issue(
         'target_month_recurring_charge_mismatch',
@@ -558,6 +599,7 @@ function compareTargetCharges(expectedLines, charges, period) {
 
 function scheduleIssues(expectedLines, missingLines, period, {
   allowTerminalNormalization = false,
+  allowScheduleAdvance = false,
 } = {}) {
   const issues = []
   const missingIds = new Set(missingLines.map((line) => line.subscriptionId))
@@ -595,6 +637,19 @@ function scheduleIssues(expectedLines, missingLines, period, {
     }
     if (!targetChargeExists && nextBillDate === period.start) continue
     if (targetChargeExists && nextBillDate === period.next) continue
+    if (allowScheduleAdvance && targetChargeExists && nextBillDate === period.start) continue
+    if (targetChargeExists && nextBillDate > period.next) {
+      // Advancing October to November must not invalidate a September replay.
+      // Require continuous posted coverage; a future date alone is not proof.
+      const posted = new Set(line.subscription.posted_billing_months ?? [])
+      let cursor = period.next
+      let covered = 0
+      while (cursor < nextBillDate && posted.has(cursor) && covered < 120) {
+        cursor = nextBillingMonth(cursor)
+        covered += 1
+      }
+      if (cursor === nextBillDate) continue
+    }
     if (line.netCents === 0 && nextBillDate && nextBillDate > period.start) continue
 
     if (!targetChargeExists && nextBillDate && nextBillDate > period.start) {
@@ -669,6 +724,7 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
   apply = false,
   allowEarlyPosting = false,
   pricingResolver = resolveFamilyEnrollmentPricing,
+  recurringRun = false,
 } = {}) {
   const period = targetPeriod(billingMonth)
   if (!isValidTimeZone(facilityTimeZone)) {
@@ -738,8 +794,9 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       ensureSchema: false,
       strictPricing: true,
     })
-    const expected = expectedLinesFromPricing(pricing, subscriptions, period)
-    let comparison = compareTargetCharges(expected.lines, charges, period)
+    const options = { refreshPricing: recurringRun, respectHistoricalCharges: recurringRun && !provisional }
+    const expected = expectedLinesFromPricing(pricing, subscriptions, period, options)
+    let comparison = compareTargetCharges(expected.lines, charges, period, options)
     if (apply && provisional) {
       await reconcileProvisionalTargetCharges(client, {
         accountId,
@@ -748,13 +805,14 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
         charges,
       })
       charges = await loadTargetCharges(client, { accountId, period, facilityTimeZone })
-      comparison = compareTargetCharges(expected.lines, charges, period)
+      comparison = compareTargetCharges(expected.lines, charges, period, options)
     }
     const issues = [
       ...expected.issues,
       ...comparison.issues,
       ...scheduleIssues(expected.lines, comparison.missing, period, {
         allowTerminalNormalization: apply,
+        allowScheduleAdvance: apply && recurringRun,
       }),
     ]
     const beforeSummary = summaryFor(
@@ -812,8 +870,32 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       }
     }
 
+    if (recurringRun) {
+      for (const line of expected.lines) {
+        if (line.subscription.stripe_subscription_id) {
+          throw new Error('Canonical repricing cannot change a legacy Stripe-owned subscription.')
+        }
+        if (cents(line.subscription.monthly_amount_cents) === line.grossCents
+          && cents(line.subscription.discount_amount_cents) === line.discountCents
+          && cents(line.subscription.net_monthly_cents) === line.netCents
+          && Number(line.subscription.member_id) === line.memberId) continue
+        await client.query(
+          `UPDATE billing_subscription
+              SET monthly_amount_cents = $2, discount_amount_cents = $3,
+                  net_monthly_cents = $4, member_id = $5, updated_at = now()
+            WHERE id = $1 AND family_billing_account_id = $6 AND status = 'active'`,
+          [line.subscriptionId, line.grossCents, line.discountCents, line.netCents, line.memberId, Number(accountId)],
+        )
+      }
+    }
     const postedChargeIds = []
     for (const line of comparison.missing) {
+      if (recurringRun && billingDateString(line.subscription.enrollment_start_date
+        ?? line.subscription.start_date)?.slice(0, 7) === period.periodKey) {
+        throw new BillingMigrationSafetyError('initial_enrollment_charge_requires_review',
+          'Missing initial tuition requires enrollment-period pricing; a full recurring month cannot be substituted.',
+          { accountId: Number(accountId), signupId: line.signupId, billingMonth: period.start })
+      }
       const existingVoided = provisional
         ? await client.query(
             `SELECT id
@@ -842,8 +924,7 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
                   price_adjustment_id = $10,
                   collection_status = 'unpaid',
                   metadata = (COALESCE(metadata, '{}'::jsonb) - 'customerAuditVisibility' - 'provisionalBillingVoided')
-                    || '{"provisionalBilling":true}'::jsonb,
-                  updated_at = now()
+                    || '{"provisionalBilling":true}'::jsonb
             WHERE id = $1
             RETURNING id`,
           [
@@ -932,8 +1013,8 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       ensureSchema: false,
       strictPricing: true,
     })
-    const finalExpected = expectedLinesFromPricing(finalPricing, finalSubscriptions, period)
-    comparison = compareTargetCharges(finalExpected.lines, charges, period)
+    const finalExpected = expectedLinesFromPricing(finalPricing, finalSubscriptions, period, options)
+    comparison = compareTargetCharges(finalExpected.lines, charges, period, options)
     const finalIssues = [
       ...finalExpected.issues,
       ...comparison.issues,
@@ -982,13 +1063,26 @@ export async function reconcileUpcomingProvisionalChargesForAccount(db, {
   const today = facilityDate(now, account.facility_timezone)
   if (Number(today.slice(8, 10)) < 5) return { status: 'skipped', reason: 'before_fifth_day_cutoff' }
   const billingMonth = nextBillingMonth(`${today.slice(0, 7)}-01`)
-  const result = await reconcileCanonicalRecurringChargesForMonth(db, {
-    accountId: Number(accountId),
-    billingMonth,
-    facilityTimeZone: account.facility_timezone,
-    now,
-    apply: true,
-    allowEarlyPosting: true,
-  })
-  return { status: 'reconciled', result }
+  try {
+    const result = await reconcileCanonicalRecurringChargesForMonth(db, {
+      accountId: Number(accountId),
+      billingMonth,
+      facilityTimeZone: account.facility_timezone,
+      now,
+      apply: true,
+      allowEarlyPosting: true,
+      recurringRun: true,
+    })
+    return { status: 'reconciled', result }
+  } catch (error) {
+    await db.query(`INSERT INTO stripe_billing_alert
+      (stripe_event_id,family_billing_account_id,alert_type,severity,message,details)
+      VALUES ($1,$2,'billing_turnover_incomplete','critical',$3,$4::jsonb)
+      ON CONFLICT (stripe_event_id) DO UPDATE SET message=EXCLUDED.message,
+        details=EXCLUDED.details,resolved_at=NULL,action_status='open',updated_at=now()`,
+    [`billing-turnover:${Number(accountId)}:${billingMonth}`,Number(accountId),error.message,
+      JSON.stringify({code:error.code,issues:error.details?.issues,billingMonth})])
+      .catch((alertError) => console.error('[billing] failed to persist turnover exception:', alertError.message))
+    throw error
+  }
 }

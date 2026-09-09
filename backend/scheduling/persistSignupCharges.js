@@ -1,3 +1,4 @@
+import { ensureRecurringEnrollmentMappings } from '../billing/recurringEnrollmentMappings.js'
 /**
  * Bridge created scheduling signups into the persisted family billing ledger.
  *
@@ -271,7 +272,14 @@ export async function persistSignupCharges(pool, {
   for (const signup of signups) {
     const slotKey = `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
     const line = lineChargeForSlot(preview, slotKey)
-    if (line == null) continue
+    if (line == null) {
+      const source=(await pool.query('SELECT enrollment_start_date,created_at FROM scheduling_signup WHERE id=$1',[signup.signupId])).rows[0]
+      const date=source?.enrollment_start_date??source?.created_at
+      if(!date)throw new Error('Enrollment billing needs a start date.')
+      const dateText=date instanceof Date?date.toISOString():String(date)
+      await ensureRecurringEnrollmentMappings(pool,{accountId:account.id,billingMonth:`${dateText.slice(0,7)}-01`})
+      continue
+    }
 
     const description = chargeDescription(preview, signup)
     let subscriptionId = null
@@ -342,7 +350,15 @@ export async function persistSignupCharges(pool, {
           if (sub.created) subscriptions += 1
         }
       } catch (err) {
-        console.warn('[scheduling] persistSignupCharges subscription:', err.message)
+        await pool.query(`INSERT INTO stripe_billing_alert
+          (stripe_event_id,family_billing_account_id,alert_type,severity,message,details)
+          VALUES ($1,$2,'enrollment_billing_incomplete','critical',$3,$4::jsonb)
+          ON CONFLICT (stripe_event_id) DO UPDATE SET message=EXCLUDED.message,
+            details=EXCLUDED.details,resolved_at=NULL,updated_at=now()`,
+        [`enrollment-billing:${signup.signupId}`,account.id,
+          'Confirmed enrollment could not establish recurring billing.',
+          JSON.stringify({signupId:signup.signupId,reason:err.message})])
+        throw err
       }
     }
 

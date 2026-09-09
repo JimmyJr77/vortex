@@ -1,3 +1,4 @@
+import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { getStripeClient, ensureStripeCustomer, stripeEnabled } from './stripeBilling.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
@@ -1185,12 +1186,14 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
              JOIN billing_charge credit_source
                ON credit_source.id = credit_line.billing_charge_id
             WHERE target_line.billing_charge_id = charge.id
+              AND ${activeLedgerChargePredicate('credit_source')}
               AND NOT (
-                credit_source.related_charge_id = charge.id
-                AND credit_source.source_type = 'refund_offset'
+                credit_source.related_charge_id IS NOT DISTINCT FROM charge.id
+                AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
               )
          ) credit_application ON TRUE
         WHERE charge.family_billing_account_id = $1
+          AND ${activeLedgerChargePredicate('charge')}
           AND charge.amount_cents > 0
           AND GREATEST(
                 0,
@@ -1257,6 +1260,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
              ) consumption
          ) consumed ON TRUE
         WHERE charge.family_billing_account_id = $1
+          AND ${activeLedgerChargePredicate('charge')}
           AND charge.amount_cents < 0
           AND charge.source_type NOT IN ('refund_offset', 'charge_adjustment')
           AND GREATEST(

@@ -192,9 +192,9 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     paymentsCents: 10000,
     refundsCents: 1000,
     balanceCents: 21000,
-    outstandingBalanceCents: 5000,
+    outstandingBalanceCents: 2000,
     currentRecurringSatisfiedCents: 0,
-    futureCreditsCents: 3000,
+    futureCreditsCents: 0,
     paidThisMonthCents: 2500,
     latestPayment: {
       id: 91,

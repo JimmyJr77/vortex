@@ -21,6 +21,11 @@ export async function recordBillingActivity(db, {
   occurredAt = null,
 }) {
   if (!accountId || !eventType || !summary) return null
+  // Reconciliation is a system operation, not a separate database actor type.
+  if (actorType === 'reconciliation') {
+    actorType = 'system'
+    details = { ...details, operationSource: 'reconciliation' }
+  }
   const result = await db.query(
     `INSERT INTO billing_account_activity (
        event_key, family_billing_account_id, member_id, signup_id,

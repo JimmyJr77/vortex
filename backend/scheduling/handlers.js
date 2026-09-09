@@ -4328,7 +4328,7 @@ export function createSchedulingHandlers(pool) {
           }
 
           const { signupId, signupStatus, positions, pricing } = signupResult
-          if (signupStatus === 'confirmed' && billingPreview) {
+          if (signupStatus === 'confirmed') {
             try {
               await persistSignupCharges(pool, {
                 memberId,

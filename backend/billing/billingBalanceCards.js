@@ -60,9 +60,8 @@ export function summarizeCustomerBalanceCards({
     0,
   )
 
-  const visibleCharges = charges.filter((charge) => (
-    charge.metadata?.customerAuditVisibility !== 'suppressed'
-  ))
+  // Presentation suppression cannot erase a correction's financial effect.
+  const visibleCharges = charges.filter((charge) => charge.metadata?.allocationRetired !== true)
   const chargesById = new Map(visibleCharges.map((charge) => [Number(charge.id), charge]))
   const linkedCreditOffsets = new Map()
   const linkedCreditRemainders = new Map()
@@ -122,13 +121,17 @@ export function summarizeCustomerBalanceCards({
     (sum, payment) => sum + Math.max(0, Number(payment.remaining_amount_cents ?? 0)),
     0,
   )
+  // A released waiver/overpayment first offsets existing debt. Showing both
+  // debt and available credit invites a second collection of settled money.
+  const availableCreditCents = ledgerCreditCents + unappliedPaymentCents
+  const appliedCreditCents = Math.min(outstandingChargesCents, availableCreditCents)
   return {
-    outstandingBalanceCents: outstandingChargesCents,
+    outstandingBalanceCents: outstandingChargesCents - appliedCreditCents,
     monthlyRecurringCents: Math.max(0, monthlyRecurringCents - currentRecurringSatisfiedCents),
     monthlyRecurringDiscountCents: currentRecurringSatisfiedCents >= monthlyRecurringCents
       ? 0
       : monthlyRecurringDiscountCents,
     currentRecurringSatisfiedCents,
-    futureCreditsCents: ledgerCreditCents + unappliedPaymentCents,
+    futureCreditsCents: availableCreditCents - appliedCreditCents,
   }
 }

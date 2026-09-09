@@ -1,3 +1,4 @@
+import { settledRefundPredicate, activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { randomUUID } from 'crypto'
 import {
   buildBalanceCheckoutParams,
@@ -12,7 +13,7 @@ import {
   stripeRefundReadyForLedgerFinalization,
 } from './stripeOperations.js'
 import { recordBillingActivity } from './billingActivity.js'
-import { ensureCustomerBillingAccount } from './customerBillingQueries.js'
+import { ensureCustomerBillingAccount, upcomingRecurringPricingMonth } from './customerBillingQueries.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
 import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.js'
 import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
@@ -29,6 +30,7 @@ import {
 import {
   HOUSEHOLD_INVOICE_RESERVING_STATUSES,
   loadCanonicalCollectibleBalanceCents,
+  loadCanonicalFinancialSnapshot,
 } from './canonicalBillingAccount.js'
 import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
@@ -1002,6 +1004,7 @@ export async function createOrRecoverBillingCheckoutSession(db, stripe, {
 }
 
 export async function checkoutAmountForBillingCharge(pool, { account, charge, requireManualCharge }) {
+  if (charge?.metadata?.allocationRetired === true) throw new Error('Retired correction entries cannot be collected.')
   if (requireManualCharge) assertCollectibleCustomCharge(charge)
   else if (!charge || Number(charge.amount_cents) <= 0) {
     throw new Error('Only a positive outstanding bill can receive a payment request.')
@@ -1027,8 +1030,9 @@ export async function checkoutAmountForBillingCharge(pool, { account, charge, re
              JOIN billing_charge credit_source
                ON credit_source.id = credit_line.billing_charge_id
             WHERE target_line.billing_charge_id = charge.id
+              AND ${activeLedgerChargePredicate('credit_source')}
               AND NOT (
-                credit_source.related_charge_id = charge.id
+                credit_source.related_charge_id IS NOT DISTINCT FROM charge.id
                 AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
               )
          ), 0)
@@ -1432,10 +1436,12 @@ export class SavedCardCollectionError extends Error {
 export async function collectOutstandingBalanceWithSavedCard(pool, {
   account,
   amountCents = null,
+  balanceScope = 'balance',
   authorization,
   actorUserId = null,
   attemptKey = null,
 }) {
+  if (!['balance', 'outstanding', 'custom'].includes(balanceScope)) throw new Error('Invalid payment balance option.')
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
@@ -1461,6 +1467,23 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     }
     if (availableCents <= 0) throw new Error('This account has no unpaid balance.')
     if (!existing && amount > availableCents) throw new Error('The collection amount cannot exceed the current account balance.')
+    if (!existing && balanceScope === 'outstanding') {
+      const timezone = (await db.query(
+        `SELECT facility.timezone FROM family_billing_account account
+         JOIN family ON family.id = account.family_id
+         JOIN facility ON facility.id = family.facility_id
+         WHERE account.id = $1`,
+        [account.id],
+      )).rows[0]?.timezone
+      if (!timezone) throw new Error('Billing timezone is required.')
+      const snapshot = await loadCanonicalFinancialSnapshot(db, {
+        accountId: account.id,
+        recurringBillingMonth: upcomingRecurringPricingMonth(new Date(), timezone),
+      })
+      if (amount > snapshot.outstandingBalanceCents) {
+        throw new Error('The outstanding balance changed. Refresh the account before collecting.')
+      }
+    }
     const auth = validateAuthorization(authorization, amount)
     const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
       accountId: account.id,
@@ -1468,7 +1491,8 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
       requestKey,
       amountCents: amount,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      metadata: { authorization: auth, actorUserId },
+      metadata: { authorization: auth, actorUserId, balanceScope },
+      outstandingOnly: balanceScope === 'outstanding',
     })
     let customerId
     let paymentMethodId
@@ -1874,7 +1898,7 @@ async function accountBalance(pool, accountId) {
                    WHERE family_billing_account_id = $1
                      AND external_status IN ('settled', 'succeeded')), 0)::int
        + COALESCE((SELECT SUM(amount_cents) FROM billing_refund
-                   WHERE family_billing_account_id = $1 AND COALESCE(external_status, 'succeeded') = 'succeeded'), 0)::int
+                   WHERE family_billing_account_id = $1 AND ${settledRefundPredicate('billing_refund')}), 0)::int
        AS balance_cents`,
     [accountId],
   )

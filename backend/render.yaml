@@ -100,11 +100,12 @@ services:
     branch: main
     autoDeployTrigger: commit
     rootDir: backend
-    # Daily execution makes charge posting and the first-of-month household
-    # invoice build resilient to missed runs; both are idempotent.
+    # Daily ledger preparation retries missed turnover without collecting money.
+    # Do not deploy/run post-only while a no-billing hold is in effect.
+    # Use --review-only during that hold; --collect explicitly enables collection.
     schedule: "10 6 * * *"
     buildCommand: npm install
-    startCommand: npm run billing:recurring
+    startCommand: npm run billing:recurring -- --review-only
     envVars:
       - key: NODE_ENV
         value: production

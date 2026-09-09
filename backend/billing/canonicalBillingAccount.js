@@ -1,3 +1,4 @@
+import { settledRefundPredicate, activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { summarizeCustomerBalanceCards } from './billingBalanceCards.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 
@@ -121,7 +122,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
            SELECT SUM(refund.amount_cents)
              FROM billing_refund refund
             WHERE refund.family_billing_account_id = $1
-              AND COALESCE(refund.external_status, 'succeeded') = 'succeeded'
+              AND ${settledRefundPredicate('refund')}
          ), 0)::bigint AS refunds_cents,
          COALESCE((
            SELECT SUM(payment.amount_cents)
@@ -273,7 +274,10 @@ export async function loadCanonicalFinancialSnapshot(pool, {
              ON target_line.id = application.target_invoice_line_id
            JOIN billing_charge scoped_charge
              ON scoped_charge.id = target_line.billing_charge_id
+           JOIN billing_monthly_invoice_line credit_line ON credit_line.id = application.credit_invoice_line_id
+           JOIN billing_charge credit_source ON credit_source.id = credit_line.billing_charge_id
           WHERE scoped_charge.family_billing_account_id = $1
+            AND ${activeLedgerChargePredicate('credit_source')}
           GROUP BY target_line.billing_charge_id
        ), credit_source_application_totals AS (
          SELECT credit_line.billing_charge_id,
@@ -284,6 +288,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
            JOIN billing_charge scoped_credit
              ON scoped_credit.id = credit_line.billing_charge_id
           WHERE scoped_credit.family_billing_account_id = $1
+            AND ${activeLedgerChargePredicate('scoped_credit')}
           GROUP BY credit_line.billing_charge_id
        ), linked_adjustment_totals AS (
          -- Customer history and monthly bill cards show a correction as part
@@ -383,7 +388,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
                 SUM(refund.amount_cents)::bigint AS refunded_cents
            FROM billing_refund refund
           WHERE refund.family_billing_account_id = $1
-            AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded')
+            AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded', 'reconciliation_required')
           GROUP BY refund.payment_id
        )
        SELECT payment.*,
@@ -443,9 +448,9 @@ export async function loadCanonicalCollectibleBalanceCents(pool, accountId) {
            ), 0)::bigint
          + COALESCE((
              SELECT SUM(amount_cents)
-               FROM billing_refund
+               FROM billing_refund refund
               WHERE family_billing_account_id = $1
-                AND COALESCE(external_status, 'succeeded') = 'succeeded'
+                AND ${settledRefundPredicate('refund')}
            ), 0)::bigint AS balance_cents
      ), application_totals AS (
        SELECT application.billing_charge_id,

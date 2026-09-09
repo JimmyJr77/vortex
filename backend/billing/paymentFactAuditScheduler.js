@@ -149,9 +149,15 @@ async function runClaimedPaymentFactAudit(pool, job, { now = new Date(), stripe 
       requestedByType: 'system',
       cohort: 'automatic_payment_fact_audit',
     })
+    const { reviewBillingTurnover, recordBillingTurnoverReview } = await import('./billingTurnoverReview.js')
+    const turnover = await reviewBillingTurnover(pool, { now, accountIds: [payment.accountId] })
+    await recordBillingTurnoverReview(pool, turnover)
     const result = {
       payment,
       targetMonth,
+      turnover,
+      financiallyVerified: turnover.issueAccountCount === 0 && auditSummary(report).nonReadyAccountCount === 0
+        && auditSummary(report).missingBillingAccountCount === 0,
       audit: auditSummary(report),
       verifiedAt: new Date().toISOString(),
     }

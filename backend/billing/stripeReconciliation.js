@@ -2095,7 +2095,7 @@ export async function reconcileStripeRefunds(pool, stripe, {
       if (!local?.id) throw new Error(`Stripe refund ${refundId} did not produce an exact local refund row.`)
       summary.synced += 1
       if (stripeRefundReadyForLedgerFinalization(local)) {
-        local = await finalizeRefund(pool, local, { actorType: 'reconciliation' })
+        local = await finalizeRefund(pool, local, { actorType: 'system' })
         if (!local?.id || local.external_status !== 'succeeded') {
           throw new Error(`Stripe refund ${refundId} did not finish its approved ledger treatment.`)
         }
@@ -2259,7 +2259,7 @@ export async function runStripeReconciliation(pool, { lookbackHours = 168 } = {}
         }
         await allocateHouseholdPayments(pool, {
           accountId: invoiceOutcome.payment.family_billing_account_id,
-          actorType: 'reconciliation',
+          actorType: 'system',
         })
         continue
       }

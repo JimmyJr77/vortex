@@ -177,17 +177,19 @@ function MetricCard({ label, value, detail, tone = 'default' }: { label: string;
 function BalanceCollectionModal({
   familyId,
   balanceCents,
+  outstandingBalanceCents,
   paymentMethod,
   onClose,
   onSaved,
 }: {
   familyId: number
   balanceCents: number
+  outstandingBalanceCents: number
   paymentMethod: NonNullable<CustomerBillingOverview['paymentMethod']['paymentMethod']>
   onClose: () => void
   onSaved: (message: string) => void
 }) {
-  const [mode, setMode] = useState<'balance' | 'custom'>('balance')
+  const [mode, setMode] = useState<'balance' | 'outstanding' | 'custom'>('balance')
   const [customAmount, setCustomAmount] = useState('')
   const [authorizationSource, setAuthorizationSource] = useState('')
   const [authorizationNote, setAuthorizationNote] = useState('')
@@ -198,7 +200,7 @@ function BalanceCollectionModal({
   const [requestKey] = useState(() => uniqueRequestKey('balance'))
   const [working, setWorking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const amountCents = mode === 'balance' ? balanceCents : Math.round(Number(customAmount) * 100)
+  const amountCents = mode === 'balance' ? balanceCents : mode === 'outstanding' ? outstandingBalanceCents : Math.round(Number(customAmount) * 100)
   const validAmount = Number.isInteger(amountCents) && amountCents > 0 && amountCents <= balanceCents
   const submit = async () => {
     if (!validAmount || !authorizationSource.trim() || !authorizationNote.trim() || !confirmed) return
@@ -210,6 +212,7 @@ function BalanceCollectionModal({
         body: JSON.stringify({
           requestKey,
           amountCents,
+          balanceScope: mode,
           authorization: { source: authorizationSource.trim(), note: authorizationNote.trim(), date: new Date().toISOString().slice(0, 10), confirmed: true, confirmedAmountCents: amountCents },
         }),
       })
@@ -226,7 +229,7 @@ function BalanceCollectionModal({
       onSaved(`Saved card charged ${money(amountCents)} and applied to the account balance.${remaining}`)
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Account balance could not be collected.') } finally { setWorking(false) }
   }
-  return <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 p-4"><div role="dialog" aria-modal="true" aria-labelledby="process-payment-title" className="w-full max-w-lg rounded-2xl bg-white shadow-2xl"><div className="flex items-start justify-between border-b border-gray-200 px-6 py-5"><div><h2 id="process-payment-title" className="text-xl font-bold text-gray-950">Process Payment</h2><p className="mt-1 text-sm text-gray-500">Choose how much of the current account balance to collect.</p></div><button type="button" onClick={onClose} className="text-xl text-gray-500">×</button></div><div className="space-y-4 p-6"><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'balance'} onChange={() => setMode('balance')} /><span><strong className="block">Current account balance · {money(balanceCents)}</strong><span className="text-xs text-gray-500">Apply the full outstanding account balance.</span></span></label><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'custom'} onChange={() => setMode('custom')} /><span className="flex-1"><strong className="block">Custom amount</strong><input type="number" min="0.01" max={(balanceCents / 100).toFixed(2)} step="0.01" value={customAmount} onChange={(event) => setCustomAmount(event.target.value)} className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="0.00" /></span></label><div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm"><strong className="block text-gray-900">Payment method</strong><label className="mt-2 flex items-center gap-2"><input type="radio" checked readOnly /><span className="capitalize">{paymentMethod.brand} •••• {paymentMethod.last4}</span></label></div><label className="block text-sm font-semibold text-gray-700">Authorization source<input value={authorizationSource} onChange={(event) => setAuthorizationSource(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="block text-sm font-semibold text-gray-700">Authorization note<input value={authorizationNote} onChange={(event) => setAuthorizationNote(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="flex items-start gap-2 text-sm text-gray-700"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1" />I confirm the exact amount of {money(validAmount ? amountCents : 0)} for this saved-card charge.</label>{!validAmount && mode === 'custom' ? <p className="text-sm text-red-700">Enter an amount from $0.01 through {money(balanceCents)}.</p> : null}{error ? <p className="text-sm text-red-700">{error}</p> : null}<button type="button" disabled={working || !validAmount || !authorizationSource.trim() || !authorizationNote.trim() || !confirmed} onClick={() => void submit()} className="w-full rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-40">{working ? 'Processing…' : `Charge ${money(validAmount ? amountCents : 0)}`}</button></div></div></div>
+  return <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 p-4"><div role="dialog" aria-modal="true" aria-labelledby="process-payment-title" className="w-full max-w-lg rounded-2xl bg-white shadow-2xl"><div className="flex items-start justify-between border-b border-gray-200 px-6 py-5"><div><h2 id="process-payment-title" className="text-xl font-bold text-gray-950">Process Payment</h2><p className="mt-1 text-sm text-gray-500">Payments apply to outstanding charges first, then the current recurring bill.</p></div><button type="button" onClick={onClose} className="text-xl text-gray-500">×</button></div><div className="space-y-4 p-6"><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'balance'} disabled={working} onChange={() => { setMode('balance'); setConfirmed(false) }} /><span><strong className="block">Current account balance · {money(balanceCents)}</strong><span className="text-xs text-gray-500">Pay the full collectible account balance, including the current recurring bill.</span></span></label><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'outstanding'} disabled={working || outstandingBalanceCents <= 0 || outstandingBalanceCents > balanceCents} onChange={() => { setMode('outstanding'); setConfirmed(false) }} /><span><strong className="block">Outstanding balance · {money(outstandingBalanceCents)}</strong><span className="text-xs text-gray-500">{outstandingBalanceCents <= 0 ? 'No outstanding balance to pay.' : outstandingBalanceCents > balanceCents ? 'Some of this balance is already reserved for another payment.' : 'Pay unpaid charges outside the current recurring bill.'}</span></span></label><label className="flex gap-3 rounded-xl border border-gray-200 p-3"><input type="radio" checked={mode === 'custom'} disabled={working} onChange={() => { setMode('custom'); setConfirmed(false) }} /><span className="flex-1"><strong className="block">Custom amount</strong><input type="number" min="0.01" max={(balanceCents / 100).toFixed(2)} step="0.01" value={customAmount} disabled={working} onChange={(event) => { setCustomAmount(event.target.value); setConfirmed(false) }} className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="0.00" /></span></label><div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm"><strong className="block text-gray-900">Payment method</strong><label className="mt-2 flex items-center gap-2"><input type="radio" checked readOnly /><span className="capitalize">{paymentMethod.brand} •••• {paymentMethod.last4}</span></label></div><label className="block text-sm font-semibold text-gray-700">Authorization source<input value={authorizationSource} onChange={(event) => setAuthorizationSource(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="block text-sm font-semibold text-gray-700">Authorization note<input value={authorizationNote} onChange={(event) => setAuthorizationNote(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 font-normal" /></label><label className="flex items-start gap-2 text-sm text-gray-700"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1" />I confirm the exact amount of {money(validAmount ? amountCents : 0)} for this saved-card charge.</label>{!validAmount && mode === 'custom' ? <p className="text-sm text-red-700">Enter an amount from $0.01 through {money(balanceCents)}.</p> : null}{error ? <p className="text-sm text-red-700">{error}</p> : null}<button type="button" disabled={working || !validAmount || !authorizationSource.trim() || !authorizationNote.trim() || !confirmed} onClick={() => void submit()} className="w-full rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-40">{working ? 'Processing…' : `Charge ${money(validAmount ? amountCents : 0)}`}</button></div></div></div>
 }
 
 const EXTERNAL_PAYMENT_METHODS = [
@@ -1192,8 +1195,10 @@ export default function AdminCustomerBilling({
       })
       setSearchResults([])
       await loadAudits(familyId, memberId, false)
+      return true
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Billing account failed to load.')
+      return false
     } finally {
       setLoading(false)
     }
@@ -1232,13 +1237,22 @@ export default function AdminCustomerBilling({
     if (message) setSuccess(message)
   }
 
-  const refreshAccountFromStripe = async () => {
+  const refreshAccountAllocations = async () => {
     if (!overview) return
     setSaving(true)
     setError(null)
     try {
-      await loadFamily(overview.account.familyId, selectedMemberId)
-      setSuccess('Account refreshed.')
+      let message = 'Account refreshed.'
+      if (canManage) {
+        const response = await adminApiRequest(`/api/admin/customer-billing/families/${overview.account.familyId}/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({ memberId: selectedMemberId }),
+        })
+        const body = await jsonBody(response)
+        if (!response.ok) throw new Error(body.message || 'Billing reassessment failed.')
+        message = body.data?.reassessment?.message || message
+      }
+      if (await loadFamily(overview.account.familyId, selectedMemberId)) setSuccess(message)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Billing account refresh failed.')
     } finally {
@@ -1595,7 +1609,7 @@ export default function AdminCustomerBilling({
                 <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || overview.summary.collectibleBalanceCents <= 0 || !overview.paymentMethod.available} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={!overview.paymentMethod.available ? 'A saved card is required.' : 'Choose an amount and payment method.'}><CreditCard className="h-4 w-4" /> Process Payment</button>
                 <button type="button" onClick={() => setExternalPaymentOpen(true)} disabled={!canManage || saving} title="Record cash, check, bank transfer, or another external payment" className="inline-flex items-center gap-2 rounded-lg border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-40"><Banknote className="h-4 w-4" /> Record External Payment</button>
                 <button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button>
-                <button type="button" onClick={() => void refreshAccountFromStripe()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account" title="Reload account billing data"><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button>
+                <button type="button" onClick={() => void refreshAccountAllocations()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account" title={canManage ? "Refresh and reassess payment allocations" : "Reload account billing data"}><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button>
               </div>
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -1670,7 +1684,7 @@ export default function AdminCustomerBilling({
         const membership = overview.annualMemberships.find((item) => item.memberId === chargeToModify.memberId)!
         setMembershipToTransfer({ membership, chargeId: chargeToModify.refId }); setChargeToModify(null)
       } : undefined} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
-      {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
+      {balanceCollectionOpen && overview && overview.paymentMethod.paymentMethod ? <BalanceCollectionModal familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} outstandingBalanceCents={overview.summary.outstandingBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {membershipToTransfer && overview ? <MembershipTransferModal familyId={overview.account.familyId} membership={membershipToTransfer.membership} chargeId={membershipToTransfer.chargeId} members={overview.members} memberships={overview.annualMemberships} onClose={() => setMembershipToTransfer(null)} onSaved={(message, memberId) => { setMembershipToTransfer(null); void loadFamily(overview.account.familyId, memberId).then(() => setSuccess(message)) }} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
       {externalPaymentOpen && overview ? <ExternalPaymentModal familyId={overview.account.familyId} collectibleBalanceCents={overview.summary.collectibleBalanceCents} onClose={() => setExternalPaymentOpen(false)} onSaved={handleSaved} /> : null}

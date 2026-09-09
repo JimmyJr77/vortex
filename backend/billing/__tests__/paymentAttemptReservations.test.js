@@ -63,7 +63,7 @@ function reservationPool({
       if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
         return { rows: unresolvedPaidCheckout ? [{ id: 81 }] : [] }
       }
-      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
+      if (!text.includes('canonical-billing:collectible-balance') && text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
         return { rows: unresolvedRefund ? [{ id: 91 }] : [] }
       }
       if (text.includes('WITH active_enrollment_checkout AS')) {

@@ -1,3 +1,4 @@
+import { settledRefundPredicate, chargeCreditApplicationSql } from './billingLedgerSql.js'
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
@@ -1444,8 +1445,8 @@ export async function listCustomerBillingTransactions(pool, {
            WHEN c.amount_cents = 0
              AND COALESCE(c.gross_amount_cents, 0) > 0
              AND COALESCE(c.discount_amount_cents, 0) = COALESCE(c.gross_amount_cents, 0) THEN 'paid'
-           WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)) AND c.amount_cents > 0 THEN 'paid'
-           WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
+           WHEN (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)) >= GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0)) AND c.amount_cents > 0 THEN 'paid'
+           WHEN (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)) > 0 THEN 'partially_paid'
            ELSE COALESCE(c.collection_status, 'none')
          END::text AS status,
          3::int AS sort_order,
@@ -1488,8 +1489,8 @@ export async function listCustomerBillingTransactions(pool, {
            'stripeCheckoutSessionId', c.stripe_checkout_session_id,
            'stripePaymentIntentId', c.stripe_payment_intent_id,
            'createdByUserId', c.created_by_user_id,
-           'appliedAmountCents', COALESCE(charge_applications.applied_cents, 0),
-           'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - COALESCE(charge_applications.applied_cents, 0)),
+           'appliedAmountCents', (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)),
+           'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0))),
            'paymentApplications', charge_applications.items,
            'metadata', c.metadata
          )) AS details
@@ -1543,6 +1544,7 @@ export async function listCustomerBillingTransactions(pool, {
            HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) <> 0
          ) effective
        ) charge_applications ON TRUE
+       LEFT JOIN LATERAL (${chargeCreditApplicationSql('c.id')}) charge_credits ON TRUE
        LEFT JOIN LATERAL (
          SELECT COALESCE(SUM(adjustment.amount_cents), 0)::int AS adjustment_cents,
                 MAX(COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, ''))) AS discount_code,
@@ -1700,7 +1702,7 @@ export async function listCustomerBillingTransactions(pool, {
          SELECT COALESCE(SUM(refund.amount_cents), 0)::int AS refunded_cents
          FROM billing_refund refund
          WHERE refund.payment_id = p.id
-           AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded')
+           AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded', 'reconciliation_required')
        ) payment_refunds ON TRUE
        WHERE p.family_billing_account_id = $1
          AND ${customerFacingPaymentPredicate('p')}
@@ -1709,7 +1711,7 @@ export async function listCustomerBillingTransactions(pool, {
          'refund', 'refund', r.id, NULL::bigint,
          COALESCE(NULLIF(r.reason, ''), 'Refund'),
          r.amount_cents,
-         CASE WHEN COALESCE(r.external_status, 'succeeded') = 'succeeded' THEN r.amount_cents ELSE 0 END,
+         CASE WHEN ${settledRefundPredicate('r')} THEN r.amount_cents ELSE 0 END,
          r.created_at, COALESCE(r.external_status, 'succeeded'), 1,
          jsonb_build_object(
            'paymentId', r.payment_id,
@@ -1861,7 +1863,6 @@ export async function listMemberCustomerBillingTransactions(pool, {
            SELECT SUM(c.amount_cents)::bigint
            FROM billing_charge c
            WHERE c.family_billing_account_id = $1
-             AND COALESCE(c.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
          ), 0)
          - COALESCE((
            SELECT SUM(p.amount_cents)::bigint
@@ -1873,7 +1874,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
            SELECT SUM(r.amount_cents)::bigint
            FROM billing_refund r
            WHERE r.family_billing_account_id = $1
-             AND COALESCE(r.external_status, 'succeeded') = 'succeeded'
+             AND ${settledRefundPredicate('r')}
          ), 0) AS balance_cents`,
       [accountId],
     )
@@ -2001,7 +2002,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          COALESCE(NULLIF(r.reason, ''), 'Refund')::text AS description,
          NULL::jsonb AS metadata,
          r.amount_cents::int AS amount_cents,
-         CASE WHEN COALESCE(r.external_status, 'succeeded') = 'succeeded' THEN r.amount_cents ELSE 0 END::int AS balance_amount_cents,
+         CASE WHEN ${settledRefundPredicate('r')} THEN r.amount_cents ELSE 0 END::int AS balance_amount_cents,
          r.created_at::timestamptz AS occurred_at,
          r.created_at::date AS billing_month,
          COALESCE(r.external_status, 'succeeded')::text AS entry_status,
@@ -2030,11 +2031,11 @@ export async function listMemberCustomerBillingTransactions(pool, {
             CASE
               WHEN page.entry_kind <> 'charge' THEN page.entry_status
               WHEN page.amount_cents <= 0 THEN 'paid'
-              WHEN COALESCE(charge_applications.applied_cents, 0) >= GREATEST(
+              WHEN (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)) >= GREATEST(
                 0,
                 page.amount_cents
               ) AND page.amount_cents > 0 THEN 'paid'
-              WHEN COALESCE(charge_applications.applied_cents, 0) > 0 THEN 'partially_paid'
+              WHEN (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)) > 0 THEN 'partially_paid'
               ELSE page.entry_status
             END::text AS status
      FROM page
@@ -2063,6 +2064,7 @@ export async function listMemberCustomerBillingTransactions(pool, {
          ))
          AND settled_payment.external_status IN ('settled', 'succeeded')
      ) charge_applications ON TRUE
+     LEFT JOIN LATERAL (${chargeCreditApplicationSql("CASE WHEN page.entry_kind = 'charge' THEN page.ref_id ELSE NULL END")}) charge_credits ON TRUE
      LEFT JOIN LATERAL (
        SELECT ARRAY_AGG(
          DISTINCT COALESCE(charge.service_period_start, charge.created_at::date)

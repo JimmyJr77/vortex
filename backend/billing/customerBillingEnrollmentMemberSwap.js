@@ -129,8 +129,8 @@ function replayedMemberSwap(activity) {
 /**
  * Correct the person assigned to an existing class enrollment. This is
  * intentionally an enrollment-record correction: its original enrollment and
- * creation dates remain intact, and no subscription, charge, payment,
- * adjustment, membership, or pricing row is changed.
+ * creation dates and financial amounts remain intact. Subscription and charge
+ * attribution follow the corrected member; money and payment applications do not change.
  */
 export async function reassignCustomerBillingEnrollmentMember(pool, {
   signupId,
@@ -204,6 +204,17 @@ export async function reassignCustomerBillingEnrollmentMember(pool, {
     )
     if (!updated.rows[0]) throw new Error('The enrollment changed before it could be reassigned. Please try again.')
 
+    // This is an identity correction from the original enrollment date. Keep
+    // charge amounts, payment applications and service dates unchanged.
+    await client.query(`UPDATE billing_subscription SET member_id=$2, updated_at=now()
+      WHERE family_billing_account_id=$3 AND source_type='scheduling_signup' AND source_id=$1`,
+    [String(normalizedSignupId), target.id, source.account_id])
+    await client.query(`UPDATE billing_charge charge SET member_id=$2
+      WHERE charge.family_billing_account_id=$3 AND (
+        (charge.source_type='scheduling_signup' AND charge.source_id=$1)
+        OR charge.subscription_id IN (SELECT id FROM billing_subscription
+          WHERE family_billing_account_id=$3 AND source_type='scheduling_signup' AND source_id=$1))`,
+    [String(normalizedSignupId), target.id, source.account_id])
     const previousMember = {
       id: Number(source.source_member_id),
       first_name: source.first_name,
@@ -224,7 +235,7 @@ export async function reassignCustomerBillingEnrollmentMember(pool, {
       memberId: Number(target.id),
       signupId: normalizedSignupId,
       eventType: 'enrollment_member_reassigned',
-      summary: `${source.class_name || 'Class'} enrollment was reassigned from ${result.previousMemberName} to ${result.memberName}. Billing was not changed.`,
+      summary: `${source.class_name || 'Class'} enrollment was reassigned from ${result.previousMemberName} to ${result.memberName}. Billing amounts were not changed.`,
       beforeValue: {
         signupId: normalizedSignupId,
         memberId: result.previousMemberId,

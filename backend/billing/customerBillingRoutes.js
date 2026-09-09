@@ -1,3 +1,4 @@
+import { reassessBillingAllocations } from './reassessBillingAllocations.js'
 import { recallCustomerBillingMembershipBill } from './customerBillingMembershipRecall.js'
 import { transferCustomerBillingMembership } from './customerBillingMembershipTransfer.js'
 import { createHash } from 'node:crypto'
@@ -466,20 +467,22 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
 
   app.post(
     '/api/admin/customer-billing/families/:familyId/refresh',
-    ...requirePermission(pool, jwtSecret, 'billing.view'),
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
     async (req, res) => {
       try {
-        // Refresh is deliberately a read operation. Stripe reconciliation,
-        // account activation, and payment allocation run only through their
-        // explicit operational jobs so billing.view can never authorize a
-        // financial mutation.
+        const account = (await pool.query(`SELECT account.id FROM family_billing_account account
+          JOIN family ON family.id=account.family_id
+          WHERE account.family_id=$1 AND family.facility_id=$2`,
+        [Number(req.params.familyId), facilityId(req)])).rows[0]
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const reassessment = await reassessBillingAllocations(pool, { accountId: account.id, actorUserId: actorId(req) })
         const data = await buildCustomerBillingOverview(pool, {
           familyId: Number(req.params.familyId),
           facilityId: facilityId(req),
           selectedMemberId: req.body?.memberId == null ? null : Number(req.body.memberId),
         })
         if (!data) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        sendCustomerBillingOverview(res, data)
+        sendCustomerBillingOverview(res, { ...data, reassessment })
       } catch (error) {
         console.error('[customer-billing] account refresh:', error)
         res.status(errorStatus(error)).json({
@@ -750,6 +753,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         const data = await collectOutstandingBalanceWithSavedCard(pool, {
           account,
           amountCents: req.body?.amountCents,
+          balanceScope: req.body?.balanceScope,
           authorization: req.body?.authorization,
           actorUserId: actorId(req),
           attemptKey: idempotencyKey(req, 'outstanding-balance'),

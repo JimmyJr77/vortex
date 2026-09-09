@@ -1,3 +1,4 @@
+import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { randomUUID } from 'node:crypto'
 import {
   HOUSEHOLD_INVOICE_RESERVING_STATUSES,
@@ -169,8 +170,9 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
          JOIN billing_charge scoped_charge
            ON scoped_charge.id = target_line.billing_charge_id
         WHERE scoped_charge.family_billing_account_id = $1
+          AND ${activeLedgerChargePredicate('credit_source')}
           AND NOT (
-            credit_source.related_charge_id = target_line.billing_charge_id
+            credit_source.related_charge_id IS NOT DISTINCT FROM target_line.billing_charge_id
             AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
           )
         GROUP BY target_line.billing_charge_id
@@ -192,6 +194,8 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
         GROUP BY reservation.billing_charge_id
      )
      SELECT charge.id, charge.member_id, charge.description, charge.created_at,
+            (charge.charge_type='recurring' AND date_trunc('month', COALESCE(charge.service_period_start,
+              (charge.created_at AT TIME ZONE 'UTC')::date))=billing_period.recurring_month) AS current_recurring,
             GREATEST(
               0,
               charge.amount_cents
@@ -201,6 +205,15 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
                 - COALESCE(reservation.reserved_cents, 0)
             )::int AS available_cents
        FROM billing_charge charge
+       CROSS JOIN LATERAL (
+         SELECT date_trunc('month', now() AT TIME ZONE facility.timezone)
+           + CASE WHEN EXTRACT(DAY FROM now() AT TIME ZONE facility.timezone) >= 5
+               THEN interval '1 month' ELSE interval '0 months' END AS recurring_month
+         FROM family_billing_account account
+         JOIN family ON family.id=account.family_id
+         JOIN facility ON facility.id=family.facility_id
+         WHERE account.id=$1
+       ) billing_period
        LEFT JOIN application_totals application ON application.billing_charge_id = charge.id
        LEFT JOIN credit_application_totals credit_application
          ON credit_application.billing_charge_id = charge.id
@@ -208,7 +221,8 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
          ON linked_offset.billing_charge_id = charge.id
        LEFT JOIN active_reservations reservation ON reservation.billing_charge_id = charge.id
       WHERE charge.family_billing_account_id = $1
-        AND charge.amount_cents > 0
+        AND ${activeLedgerChargePredicate('charge')}
+          AND charge.amount_cents > 0
         AND charge.charge_type <> 'credit'
         AND (
           $2::bigint IS NULL
@@ -241,7 +255,14 @@ async function loadReservationCandidates(pool, { accountId, targetChargeId = nul
                 - COALESCE(credit_application.applied_cents, 0)
                 - COALESCE(reservation.reserved_cents, 0)
             ) > 0
-      ORDER BY charge.created_at, charge.id
+      -- Match the Outstanding balance card: everything outside the current
+      -- recurring billing month is paid first. Creation order alone can put
+      -- an early-posted future bill ahead of older service or a later fee.
+      ORDER BY CASE WHEN charge.charge_type='recurring'
+        AND date_trunc('month', COALESCE(charge.service_period_start,
+          (charge.created_at AT TIME ZONE 'UTC')::date))=billing_period.recurring_month
+        THEN 1 ELSE 0 END,
+        COALESCE(charge.service_period_start::timestamp,charge.created_at AT TIME ZONE 'UTC'),charge.id
       FOR UPDATE OF charge`,
     [Number(accountId), target, HOUSEHOLD_INVOICE_RESERVING_STATUSES],
   )
@@ -257,6 +278,7 @@ export async function reserveBillingPaymentAttempt(pool, {
   targetChargeId = null,
   expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000),
   metadata = {},
+  outstandingOnly = false,
 }) {
   const normalizedAccountId = positiveId(accountId, 'Billing account ID')
   const type = normalizeAttemptType(attemptType)
@@ -334,10 +356,11 @@ export async function reserveBillingPaymentAttempt(pool, {
         )
       }
 
-      const candidates = await loadReservationCandidates(db, {
+      const allCandidates = await loadReservationCandidates(db, {
         accountId: normalizedAccountId,
         targetChargeId: target,
       })
+      const candidates = outstandingOnly ? allCandidates.filter((charge) => charge.current_recurring !== true) : allCandidates
       const available = candidates.reduce((sum, candidate) => sum + candidate.available_cents, 0)
       const collectibleBalanceCents = await loadCanonicalCollectibleBalanceCents(db, normalizedAccountId)
       if (available < amount || collectibleBalanceCents < amount) {

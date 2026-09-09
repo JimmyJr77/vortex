@@ -1,3 +1,4 @@
+import { prepareUpcomingBilling } from '../billing/upcomingBillingPreparation.js'
 /**
  * CLI entrypoint for the monthly recurring-charge generator.
  * Schedule via cron, e.g. daily:  0 6 * * *  cd backend && npm run billing:recurring
@@ -7,6 +8,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { generateRecurringCharges } from './generateRecurringCharges.js'
+import { reviewBillingTurnover, recordBillingTurnoverReview } from '../billing/billingTurnoverReview.js'
 import { expirePassCredits } from '../programs/multiClassPass.js'
 import { assertRequiredBillingSchema } from '../billing/billingSchemaReadiness.js'
 
@@ -25,8 +27,13 @@ function resolveSsl(connectionString) {
 
 async function main() {
   const connectionString = process.env.DATABASE_URL || process.env.DB_URL
+  const collectPayments = process.argv.includes('--collect')
+  const postOnly = process.argv.includes('--post-only')
+  const reviewOnly = process.argv.includes('--review-only') || (!collectPayments && !postOnly)
+  if (process.argv.includes('--review-only') && (collectPayments || postOnly)) throw new Error('Review mode cannot post or collect.')
   const pool = new Pool({
     connectionString,
+    ...(reviewOnly ? { options: '-c default_transaction_read_only=on' } : {}),
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'localhost',
     database: process.env.DB_NAME || 'vortex_athletics',
@@ -37,7 +44,18 @@ async function main() {
 
   try {
     await assertRequiredBillingSchema(pool)
-    const result = await generateRecurringCharges(pool)
+    if (reviewOnly) {
+      const review = await reviewBillingTurnover(pool)
+      console.log(JSON.stringify(review, null, 2))
+      if (review.issueAccountCount) process.exitCode = 1
+      return
+    }
+    const preparation = await prepareUpcomingBilling(pool)
+    if (preparation.some((row) => row.status === 'blocked')) process.exitCode = 1
+    const result = await generateRecurringCharges(pool, { collectPayments })
+    const review = await reviewBillingTurnover(pool)
+    await recordBillingTurnoverReview(pool, review)
+    if (review.issueAccountCount) process.exitCode = 1
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +
         `posted ${result.chargesPosted} charge(s) across ${result.periodsAdvanced} period(s), ` +

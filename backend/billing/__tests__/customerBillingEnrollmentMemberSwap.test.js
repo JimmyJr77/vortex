@@ -17,7 +17,7 @@ test('a member reassignment requires a valid target family member', () => {
   )
 })
 
-test('a member reassignment changes only the enrollment identity and writes an audit event', async () => {
+test('a member reassignment corrects enrollment and billing identity without changing money and writes an audit event', async () => {
   const calls = []
   const client = {
     async query(sql, params = []) {
@@ -53,6 +53,7 @@ test('a member reassignment changes only the enrollment identity and writes an a
       if (text.includes('UPDATE scheduling_signup')) {
         return { rows: [{ id: 301, member_id: 22, enrollment_start_date: '2026-05-10', created_at: '2026-05-10T12:00:00.000Z' }] }
       }
+      if (/UPDATE billing_subscription|UPDATE billing_charge/.test(text)) return {rows: []}
       if (text.includes('INSERT INTO billing_account_activity')) return { rows: [{ id: 900 }] }
       throw new Error(`Unexpected query: ${text}`)
     },
@@ -85,9 +86,11 @@ test('a member reassignment changes only the enrollment identity and writes an a
   assert.deepEqual(JSON.parse(enrollmentUpdate.params[6]), {
     first_name: 'Blair', last_name: 'Stone', email: 'blair@example.com', phone: '555-0122', answer: 'kept',
   })
-  assert.equal(calls.some((call) => /UPDATE\s+billing_subscription|INSERT\s+INTO\s+billing_charge|UPDATE\s+billing_charge/i.test(call.text)), false)
+  assert.equal(calls.some((call) => /INSERT\s+INTO\s+billing_charge|SET\s+amount_cents/i.test(call.text)), false)
+  assert.ok(calls.some((call) => /UPDATE billing_subscription/.test(call.text)))
+  assert.ok(calls.some((call) => /UPDATE billing_charge/.test(call.text)))
   const activity = calls.find((call) => call.text.includes('INSERT INTO billing_account_activity'))
   assert.ok(activity)
   assert.equal(activity.params[7], 'enrollment_member_reassigned')
-  assert.match(activity.params[8], /Billing was not changed/)
+  assert.match(activity.params[8], /Billing amounts were not changed/)
 })

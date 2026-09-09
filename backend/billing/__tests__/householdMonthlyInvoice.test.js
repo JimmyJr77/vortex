@@ -102,7 +102,7 @@ test('local household invoice persists canonical negative charge credits and the
       if (text === 'ROLLBACK') { state.rolledBack = true; return { rows: [] } }
       if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [] }
       if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) return { rows: [] }
-      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
+      if (!text.includes('canonical-billing:collectible-balance') && text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
       if (text.includes('FROM stripe_pending_enrollment pending') && text.includes('annual_membership_checkout_request')) return { rows: [] }
       if (text.includes('SELECT * FROM billing_monthly_invoice') && text.includes('billing_month = $2::date')) return { rows: [] }
       if (text.includes('SELECT charge.id, charge.member_id, charge.description') && text.includes('remaining_cents')) {
@@ -162,7 +162,7 @@ test('local household invoice persists canonical negative charge credits and the
   assert.match(chargeSelection, /billing_charge_credit_application/)
   assert.match(chargeSelection, /target_invoice_line_id/)
   assert.match(chargeSelection, /adjustment_charge\.source_type IN \('refund_offset', 'charge_adjustment'\)/)
-  assert.match(chargeSelection, /credit_source\.source_type = 'refund_offset'/)
+  assert.match(chargeSelection, /credit_source\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
   assert.match(creditSelection, /billing_charge_credit_application/)
   assert.match(creditSelection, /credit_invoice_line_id/)
   assert.match(creditSelection, /charge\.source_type NOT IN \('refund_offset', 'charge_adjustment'\)/)
@@ -221,7 +221,7 @@ test('local household invoice blocks collection while a Stripe refund awaits led
       if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
         return { rows: [] }
       }
-      if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
+      if (!text.includes('canonical-billing:collectible-balance') && text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) {
         return { rows: [{ id: 401 }] }
       }
       throw new Error(`Invoice collection continued past unresolved Stripe refund: ${text}`)
@@ -257,7 +257,7 @@ test('local household invoice blocks a completed Checkout owner with no exact pa
           if (text.includes('FROM billing_payment') && text.includes('paid-checkout-fulfillment-pending')) {
             return { rows: [] }
           }
-          if (text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
+          if (!text.includes('canonical-billing:collectible-balance') && text.includes('FROM billing_refund') && text.includes("external_status = 'reconciliation_required'")) return { rows: [] }
           if (text.includes('FROM stripe_pending_enrollment pending') && text.includes('annual_membership_checkout_request')) {
             return { rows: [owner] }
           }

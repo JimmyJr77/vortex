@@ -316,7 +316,7 @@ const activities = [{
   occurredAt: '2026-08-20T14:01:00.000Z',
 }]
 
-async function openCustomerBilling(page: Page, captured: CapturedRequests) {
+async function openCustomerBilling(page: Page, captured: CapturedRequests, outstandingCents = overview.summary.outstandingBalanceCents) {
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'e2e-admin-token')
@@ -509,7 +509,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests) {
           ...overview.summary,
           paymentsCents: overview.summary.paymentsCents + recordedPaymentCents,
           balanceCents: overview.summary.balanceCents - recordedPaymentCents,
-          outstandingBalanceCents: overview.summary.outstandingBalanceCents - recordedPaymentCents,
+          outstandingBalanceCents: Math.max(0, outstandingCents - recordedPaymentCents),
           collectibleBalanceCents: overview.summary.collectibleBalanceCents - recordedPaymentCents,
         },
         bundlePasses: overview.bundlePasses.map((pass) => ({ ...pass, classesRemaining })),
@@ -1112,3 +1112,45 @@ for (const entryPoint of ['history', 'card membership', 'card bill', 'unpaid rec
     }
   })
 }
+
+for (const choice of [
+  {name:'Current account balance',amount:14500},
+  {name:'Outstanding balance',amount:4500},
+  {name:'Custom amount',amount:6000},
+]) {
+  test(`process payment selects ${choice.name} with outstanding-first explanation`,async({page})=>{
+    const captured: CapturedRequests={searchQueries:[],priceChanges:[],customCharges:[],customChargeKeys:[],refunds:[],refundKeys:[],retryCount:0,balanceCollections:[],balanceCollectionKeys:[]}
+    await openCustomerBilling(page,captured,4500)
+    await findRiveraAccount(page)
+    await page.getByRole('button',{name:'Process Payment'}).click()
+    const dialog=page.getByRole('dialog',{name:'Process Payment'})
+    const radios=dialog.getByRole('radio')
+    await expect(radios.nth(0)).toHaveAccessibleName(/Current account balance/)
+    await expect(radios.nth(1)).toHaveAccessibleName(/Outstanding balance/)
+    await expect(radios.nth(2)).toHaveAccessibleName(/Custom amount/)
+    await dialog.getByRole('radio',{name:new RegExp(choice.name)}).check()
+    if(choice.name==='Custom amount')await dialog.getByRole('spinbutton').fill('60.00')
+    await expect(dialog.getByText('Payments apply to outstanding charges first, then the current recurring bill.')).toBeVisible()
+    await dialog.getByLabel('Authorization source').fill('Synthetic test')
+    await dialog.getByLabel('Authorization note').fill('Mock payment only')
+    await dialog.getByRole('checkbox').check()
+    await dialog.getByRole('button',{name:`Charge $${(choice.amount/100).toFixed(2)}`,exact:true}).click()
+    expect(captured.balanceCollections?.[0]).toMatchObject({amountCents:choice.amount})
+    await expect(dialog).toHaveCount(0)
+  })
+}
+
+test('account refresh reassesses allocations and displays the server result', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+  await openCustomerBilling(page, captured)
+  await findRiveraAccount(page)
+  let reassessed = false
+  await page.route('**/api/admin/customer-billing/families/*/refresh', async (route) => {
+    expect(route.request().method()).toBe('POST')
+    reassessed = true
+    await route.fulfill({ json: { success: true, data: { reassessment: { corrected: true, message: 'Account refreshed. Payment allocations corrected.' } } } })
+  })
+  await page.getByRole('button', { name: 'Refresh account', exact: true }).click()
+  await expect(page.getByText('Account refreshed. Payment allocations corrected.')).toBeVisible()
+  expect(reassessed).toBe(true)
+})

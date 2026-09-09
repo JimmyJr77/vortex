@@ -1,3 +1,4 @@
+import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import {
@@ -100,6 +101,38 @@ export function buildMembershipFirstAllocationPlan({ payments = [], charges = []
       available -= amountCents
       paymentApplied.set(Number(payment.id), (paymentApplied.get(Number(payment.id)) || 0) + amountCents)
       chargeApplied.set(Number(charge.id), alreadyApplied + amountCents)
+    }
+  }
+  return plan
+}
+
+/** Release only over-applied value on eligible (unreserved) charges. Money
+ * stays on the same payment/account; the ordinary planner reallocates it. */
+export function buildExcessApplicationReversalPlan({ payments = [], charges = [], applications = [] }) {
+  const settled = new Set(payments.filter((p) => SETTLED_PAYMENT_STATUSES.has(p.status)).map((p) => Number(p.id)))
+  const reversed = new Map()
+  for (const row of applications) {
+    if (row.application_kind !== 'reversal') continue
+    const id = Number(row.reverses_application_id)
+    reversed.set(id, (reversed.get(id) ?? 0) + cents(row.amount_cents))
+  }
+  const plan = []
+  for (const charge of charges) {
+    const rows = applications.filter((a) => a.application_kind === 'application'
+      && Number(a.billing_charge_id) === Number(charge.id)
+      && settled.has(Number(a.billing_payment_id)))
+      .sort((a, b) => Number(b.id) - Number(a.id))
+    const held = rows.reduce((sum, a) => sum + Math.max(0, cents(a.amount_cents) - (reversed.get(Number(a.id)) ?? 0)), 0)
+    let excess = Math.max(0, held - cents(charge.amount_cents))
+    for (const row of rows) {
+      if (!excess) break
+      const reversedCents = reversed.get(Number(row.id)) ?? 0
+      const amountCents = Math.min(excess, Math.max(0, cents(row.amount_cents) - reversedCents))
+      if (!amountCents) continue
+      if (!Number.isSafeInteger(Number(row.id)) || Number(row.id) <= 0) throw new Error('Application identity is required to release an over-allocation.')
+      plan.push({ applicationId: Number(row.id), paymentId: Number(row.billing_payment_id),
+        chargeId: Number(charge.id), amountCents, reversedCents })
+      excess -= amountCents
     }
   }
   return plan
@@ -335,6 +368,7 @@ export async function refreshChargeStatuses(db, accountId) {
   await db.query(
     `UPDATE billing_charge charge
      SET collection_status = CASE
+       WHEN NOT (${activeLedgerChargePredicate('charge')}) THEN 'paid'
        WHEN COALESCE((
          SELECT SUM(CASE
            WHEN application.application_kind = 'reversal' THEN -application.amount_cents
@@ -354,8 +388,9 @@ export async function refreshChargeStatuses(db, accountId) {
            JOIN billing_charge credit_source
              ON credit_source.id = credit_line.billing_charge_id
           WHERE target_line.billing_charge_id = charge.id
+            AND ${activeLedgerChargePredicate('credit_source')}
             AND NOT (
-              credit_source.related_charge_id = charge.id
+              credit_source.related_charge_id IS NOT DISTINCT FROM charge.id
               AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
             )
        ), 0) >= GREATEST(0, charge.amount_cents + COALESCE((
@@ -383,8 +418,9 @@ export async function refreshChargeStatuses(db, accountId) {
            JOIN billing_charge credit_source
              ON credit_source.id = credit_line.billing_charge_id
           WHERE target_line.billing_charge_id = charge.id
+            AND ${activeLedgerChargePredicate('credit_source')}
             AND NOT (
-              credit_source.related_charge_id = charge.id
+              credit_source.related_charge_id IS NOT DISTINCT FROM charge.id
               AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
             )
        ), 0) > 0 THEN 'partially_paid'
@@ -429,8 +465,9 @@ export async function refreshChargeStatuses(db, accountId) {
                JOIN billing_charge credit_source
                  ON credit_source.id = credit_line.billing_charge_id
               WHERE target_line.billing_charge_id = charge.id
+                AND ${activeLedgerChargePredicate('credit_source')}
                 AND NOT (
-                  credit_source.related_charge_id = charge.id
+                  credit_source.related_charge_id IS NOT DISTINCT FROM charge.id
                   AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
                 )
            ), 0)
@@ -585,6 +622,8 @@ export async function allocateHouseholdPaymentsLocked(client, {
   idempotencyNamespace = 'allocation',
   excludePendingEnrollmentId = null,
   manageTransaction = true,
+  restoreMembershipCredits = true,
+  updateEntitlements = true,
 }) {
   const activityActorType = ['admin', 'member', 'system', 'stripe'].includes(actorType)
     ? actorType
@@ -624,7 +663,8 @@ export async function allocateHouseholdPaymentsLocked(client, {
         blockedOwnerId: Number(paidCheckoutGap.owner_id),
       }
     }
-    const restoredMembershipPromoCredits = await restoreMissingAnnualMembershipPromoCredits(client, accountId)
+    const restoredMembershipPromoCredits = restoreMembershipCredits
+      ? await restoreMissingAnnualMembershipPromoCredits(client, accountId) : []
     const [paymentsResult, chargesResult, applicationsResult, refundsResult] = await Promise.all([
       client.query(
         `SELECT id, amount_cents, paid_at, COALESCE(external_status, '') AS status
@@ -635,8 +675,8 @@ export async function allocateHouseholdPaymentsLocked(client, {
         `SELECT c.id,
                 GREATEST(
                   0,
-                  c.amount_cents
-                    + COALESCE(adjustments.adjustment_cents, 0)
+                  CASE WHEN ${activeLedgerChargePredicate('c')}
+                    THEN c.amount_cents + COALESCE(adjustments.adjustment_cents, 0) ELSE 0 END
                     - COALESCE(credit_applications.applied_cents, 0)
                 )::int AS amount_cents,
                 c.service_period_start, c.created_at,
@@ -664,8 +704,9 @@ export async function allocateHouseholdPaymentsLocked(client, {
              JOIN billing_charge credit_source
                ON credit_source.id = credit_line.billing_charge_id
             WHERE target_line.billing_charge_id = c.id
+              AND ${activeLedgerChargePredicate('credit_source')}
               AND NOT (
-                credit_source.related_charge_id = c.id
+                credit_source.related_charge_id IS NOT DISTINCT FROM c.id
                 AND credit_source.source_type IN ('charge_adjustment', 'refund_offset')
               )
          ) credit_applications ON TRUE
@@ -726,8 +767,8 @@ export async function allocateHouseholdPaymentsLocked(client, {
         [accountId],
       ),
       client.query(
-        `SELECT application.billing_payment_id, application.billing_charge_id,
-                application.amount_cents, application.application_kind
+        `SELECT application.id, application.billing_payment_id, application.billing_charge_id,
+                application.amount_cents, application.application_kind, application.reverses_application_id
          FROM billing_payment_application application
          JOIN billing_payment payment ON payment.id = application.billing_payment_id
          WHERE payment.family_billing_account_id = $1`,
@@ -739,6 +780,30 @@ export async function allocateHouseholdPaymentsLocked(client, {
         [accountId],
       ),
     ])
+    const releases = buildExcessApplicationReversalPlan({
+      payments: paymentsResult.rows, charges: chargesResult.rows, applications: applicationsResult.rows,
+    })
+    for (const release of releases) {
+      const result = await client.query(
+        `INSERT INTO billing_payment_application (
+           billing_payment_id, billing_charge_id, amount_cents, application_kind,
+           reverses_application_id, idempotency_key, allocation_reason
+         ) VALUES ($1, $2, $3, 'reversal', $4, $5, 'effective_charge_reallocation')
+         RETURNING *`,
+        [release.paymentId, release.chargeId, release.amountCents, release.applicationId,
+          `effective-charge-release:${release.applicationId}:${release.reversedCents + release.amountCents}`],
+      )
+      if (!result.rows[0]) throw new Error('Could not release the exact over-applied charge value.')
+      applicationsResult.rows.push(result.rows[0])
+      await recordBillingActivityBestEffort(client, {
+        eventKey: `payment-application-released:${result.rows[0].id}`, accountId,
+        chargeId: release.chargeId, paymentId: release.paymentId,
+        eventType: 'payment_application_released',
+        summary: `Released $${(release.amountCents / 100).toFixed(2)} from an adjusted charge for household allocation.`,
+        details: release, actorType: activityActorType,
+      })
+    }
+    const applicationRevision = Math.max(0, ...applicationsResult.rows.map((row) => Number(row.id) || 0))
     const plan = buildMembershipFirstAllocationPlan({
       payments: paymentsResult.rows.map((row) => ({ id: row.id, amountCents: row.amount_cents, paidAt: row.paid_at, status: row.status })),
       charges: chargesResult.rows.map((row) => ({
@@ -765,7 +830,7 @@ export async function allocateHouseholdPaymentsLocked(client, {
          ) VALUES ($1, $2, $3, 'application', $4, $5)
          ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
          RETURNING *`,
-        [item.paymentId, item.chargeId, item.amountCents, `${idempotencyNamespace}:${item.paymentId}:${item.chargeId}`, item.allocationReason],
+        [item.paymentId, item.chargeId, item.amountCents, `${idempotencyNamespace}:${item.paymentId}:${item.chargeId}:revision:${applicationRevision}`, item.allocationReason],
       )
       if (!result.rows[0]) continue
       inserted.push(result.rows[0])
@@ -781,14 +846,14 @@ export async function allocateHouseholdPaymentsLocked(client, {
       })
     }
     await refreshChargeStatuses(client, accountId)
-    const advancedSubscriptions = await advancePaidThroughEnrollmentSubscriptions(
+    const advancedSubscriptions = updateEntitlements ? await advancePaidThroughEnrollmentSubscriptions(
       client,
       accountId,
       activityActorType,
-    )
-    const activatedMemberships = await activatePaidMemberships(client, accountId)
+    ) : []
+    const activatedMemberships = updateEntitlements ? await activatePaidMemberships(client, accountId) : []
     if (manageTransaction) await client.query('COMMIT')
-    return { applications: inserted, activatedMemberships, advancedSubscriptions, restoredMembershipPromoCredits }
+    return { applications: inserted, releasedApplications: releases, activatedMemberships, advancedSubscriptions, restoredMembershipPromoCredits }
   } catch (error) {
     if (manageTransaction) await client.query('ROLLBACK').catch(() => {})
     throw error

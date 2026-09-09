@@ -90,6 +90,7 @@ function recurringAccountFixture({
 
 function safeProcessors(overrides = {}) {
   return {
+    collectPayments: true,
     completionProcessor: async () => [],
     cancellationProcessor: async () => [],
     scheduledPauseProcessor: async () => 0,

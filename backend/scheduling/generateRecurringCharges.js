@@ -199,6 +199,7 @@ export async function processRecurringBillingAccount(db, account, {
   annualRenewalPoster = postDueAnnualMembershipRenewals,
   paymentAllocator = allocateHouseholdPayments,
   invoiceFactory = createHouseholdMonthlyInvoice,
+  collectPayments = false,
 } = {}) {
   const fresh = (await loadRecurringBillingAccounts(db, account.id))[0] ?? null
   if (!fresh) return { skipped: 'inactive', accountId: Number(account.id) }
@@ -287,6 +288,7 @@ export async function processRecurringBillingAccount(db, account, {
       facilityTimeZone: fresh.facility_timezone,
       now: asOfTimestamp,
       apply: true,
+      recurringRun: true,
     })
     if (reconciled.verified !== true) {
       const error = new Error(`Recurring charge parity failed for account ${fresh.id}.`)
@@ -332,6 +334,7 @@ export async function processRecurringBillingAccount(db, account, {
       facilityTimeZone: fresh.facility_timezone,
       now: asOfTimestamp,
       apply: true,
+      recurringRun: true,
     })
     if (current.verified !== true) {
       const error = new Error(`Recurring charge parity failed for account ${fresh.id}.`)
@@ -355,6 +358,7 @@ export async function processRecurringBillingAccount(db, account, {
       facilityTimeZone: fresh.facility_timezone,
       now: asOfTimestamp,
       apply: true,
+      recurringRun: true,
       allowEarlyPosting: true,
     })
     if (next.verified !== true) {
@@ -374,7 +378,7 @@ export async function processRecurringBillingAccount(db, account, {
   // to an otherwise-unallocated charge.
   await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
 
-  if (collectionMode === 'canonical_household') {
+  if (collectionMode === 'canonical_household' && collectPayments) {
     const existingInvoice = await loadMonthlyInvoiceState(db, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,
@@ -426,6 +430,7 @@ export async function generateRecurringCharges(pool, {
   maxCatchUpPerSub = 12,
   accountLock = withBillingAccountCollectionLock,
   accountProcessor = processRecurringBillingAccount,
+  collectPayments = false,
 } = {}) {
   const asOfTimestamp = asOf instanceof Date ? asOf : new Date(asOf)
   if (Number.isNaN(asOfTimestamp.getTime())) throw new Error('Recurring billing requires a valid as-of timestamp.')
@@ -446,6 +451,7 @@ export async function generateRecurringCharges(pool, {
         asOfTimestamp,
         clock,
         maxCatchUpPerSub,
+        collectPayments,
       }))
       if (result?.skipped === 'migration_managed') {
         skippedMigrationAccountIds.push(Number(account.id))

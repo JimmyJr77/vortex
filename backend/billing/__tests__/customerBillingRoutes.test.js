@@ -128,3 +128,18 @@ test('canonical Stripe refund creation rejects a missing Idempotency-Key before 
   assert.match(response.payload.message, /Idempotency-Key header is required/i)
   assert.equal(queryCount, 0)
 })
+
+test('allocation refresh requires billing.manage while overview stays read-only', () => {
+  const app = express()
+  registerCustomerBillingRoutes(app, {}, {
+    jwtSecret: 'test',
+    requirePermission: (_pool, _secret, permission) => {
+      const middleware = (_req, _res, next) => next()
+      middleware.permission = permission
+      return [middleware]
+    },
+  })
+  const permission = (suffix) => app._router.stack.find((layer) => layer.route?.path === `/api/admin/customer-billing/families/:familyId/${suffix}`).route.stack[0].handle.permission
+  assert.equal(permission('refresh'), 'billing.manage')
+  assert.equal(permission('overview'), 'billing.view')
+})
