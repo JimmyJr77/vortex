@@ -76,13 +76,29 @@ for(const claim of ['NONE','PENNSYLVANIA'])test(`Maryland employee draft, review
   await expect(adminStep.getByRole('button',{name:'Form-MW507-2026-signed.pdf',exact:true})).toBeVisible()
   await expect(adminStep.getByRole('button',{name:'supporting-review.pdf',exact:true})).toBeVisible()
   const downloadPromise=page.waitForEvent('download');await adminStep.getByRole('button',{name:'Form-MW507-2026-signed.pdf',exact:true}).click();expect((await downloadPromise).suggestedFilename()).toBe('Form-MW507-2026-signed.pdf')
+  if(claim==='NONE'){
+   await adminStep.getByRole('textbox',{name:'Review evidence / instructions',exact:true}).fill('Reviewed retained synthetic Maryland certificate and worksheet')
+   await adminStep.getByRole('button',{name:'Verify & complete',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Step reviewed and completed.'})).toBeVisible()
+  }
   await page.getByRole('button',{name:'Pay setup & leave',exact:true}).click()
   const source=page.getByRole('region',{name:'Signed Maryland certificate review',exact:true})
   await expect(source).toContainText('Signed internal MW507')
-  await expect(source).toContainText('Hiring checklist review is pending.')
+  await expect(source).toContainText(claim==='NONE'?'Hiring checklist review completed.':'Hiring checklist review is pending.')
   if(claim==='PENNSYLVANIA')await expect(source).toContainText('Nonresidence exemption claimed')
   await expect(page.getByRole('button',{name:'Save verified tax elections',exact:true})).toBeDisabled()
   const sourceDownload=page.waitForEvent('download');await source.getByRole('button',{name:'Download signed MW507 for review',exact:true}).click();expect((await sourceDownload).suggestedFilename()).toBe('Form-MW507-2026-signed.pdf')
+  if(claim==='NONE'){
+   const tax=page.getByRole('heading',{name:'Automatic withholding · 2026',exact:true}).locator('..')
+   await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toHaveValue('2');await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toBeDisabled()
+   await tax.getByRole('textbox',{name:'Certificate correctness and revocation evidence',exact:true}).fill('Reviewed certificate and synthetic employer correspondence')
+   await tax.getByRole('textbox',{name:'Residence and local-rate evidence',exact:true}).fill('Synthetic Maryland resident and verified 3.20 percent table')
+   for(const prefix of ['I reviewed the signed certificate','I checked the employer’s Comptroller correspondence','I verified Maryland work and residence'])await tax.getByRole('checkbox',{name:prefix,exact:false}).check()
+   await tax.getByRole('textbox',{name:'Verification source',exact:true}).fill('Reviewed signed Maryland certificate and synthetic federal settings')
+   await tax.getByRole('checkbox',{name:'I verified these values against signed forms',exact:false}).check()
+   await tax.getByRole('button',{name:'Save verified tax elections',exact:true}).click();await expect(tax.getByRole('status')).toContainText('Verified elections saved.')
+   const applied=(await h.pool.query('SELECT elections FROM payroll_tax_election WHERE employee_id=$1',[employee.id])).rows[0].elections
+   expect(applied.mw507Source.submissionId).toBe(rows.rows[0].id);expect(applied.maryland.exemptions).toBe(2);expect(applied.mw507ReviewRequired).toBeUndefined()
+  }
   await source.screenshot({path:`/tmp/payroll-mw507-admin-${claim}.png`})
   expect(errors).toEqual([])
  }finally{await page.unrouteAll({behavior:'ignoreErrors'});await page.close();await h.close();if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey}

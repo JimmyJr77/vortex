@@ -1,3 +1,4 @@
+import {mw507EmployerReview} from './mw507EmployerReview.js'
 import {registerMarylandAdditionalAgreementRoutes} from './marylandAdditionalAgreementRoutes.js'
 import {nativeMW507Election} from './nativeMW507Election.js'
 import {nativeW4Election} from './nativeW4Election.js'
@@ -32,8 +33,9 @@ export function registerTaxElectionRoutes(app,pool) {
    const employee=(await db.query('SELECT * FROM payroll_employee WHERE id=$1 AND facility_id=$2 FOR UPDATE',[req.params.id,req.canonicalAccess.facilityId])).rows[0]
    if(!employee){await db.query('ROLLBACK');return res.status(404).json({success:false,message:'Employee not found.'})}
    if(employee.w4_status!=='COMPLETE'||employee.state_withholding_status!=='COMPLETE'){await db.query('ROLLBACK');return res.status(409).json({success:false,message:'Review and complete W-4 and state withholding onboarding before enabling automatic calculations.'})}
-   const nativeMarylandTask=(await db.query("SELECT response FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key='STATE_WITHHOLDING'",[req.canonicalAccess.facilityId,employee.id])).rows[0]
-   if(nativeMarylandTask?.response?.mw507SubmissionId)throw Object.assign(new Error('Complete source-bound review of the signed Maryland certificate before applying its tax elections.'),{status:409})
+   const nativeMW507=await nativeMW507Election(db,req.canonicalAccess.facilityId,employee.id)
+   const mw507Source=nativeMW507?mw507EmployerReview(nativeMW507,b,employee):null
+   if(!nativeMW507&&(b.mw507SubmissionId||b.mw507Fingerprint))throw Object.assign(new Error('The signed MW507 source changed. Reload the current onboarding submission.'),{status:409})
    const nativeW4=await nativeW4Election(db,req.canonicalAccess.facilityId,employee.id)
    if(nativeW4){
     if(!nativeW4.reviewed||b.w4Fingerprint!==nativeW4.fingerprint||String(b.w4SubmissionId)!==String(nativeW4.submissionId))throw Object.assign(new Error('Review the current signed W-4 and reload its tax-election values before saving.'),{status:409})
@@ -41,7 +43,7 @@ export function registerTaxElectionRoutes(app,pool) {
     const previous=(await db.query('SELECT elections FROM payroll_tax_election WHERE facility_id=$1 AND employee_id=$2',[req.canonicalAccess.facilityId,employee.id])).rows[0]
     if(previous?.elections?.federal?.lockInLetter)throw Object.assign(new Error('Resolve the existing IRS lock-in review before applying an employee W-4.'),{status:409})
    }else if(b.w4SubmissionId||b.w4Fingerprint)throw Object.assign(new Error('The signed W-4 source changed. Reload the current onboarding submission.'),{status:409})
-   const elections={federal,maryland,...(nativeW4?{w4Source:{submissionId:nativeW4.submissionId,documentId:nativeW4.documentId,fingerprint:nativeW4.fingerprint,effectiveOn:nativeW4.effectiveOn}}:{})}
+   const elections={federal,maryland,...(mw507Source?{mw507Source}:{}),...(nativeW4?{w4Source:{submissionId:nativeW4.submissionId,documentId:nativeW4.documentId,fingerprint:nativeW4.fingerprint,effectiveOn:nativeW4.effectiveOn}}:{})}
    try {calculateWithholding2026({grossPayCents:200000,paymentDate:nativeW4?.effectiveOn,election:{...elections,verified:true},payFrequency:settings.pay_frequency,year:2026,workState:employee.work_state,residenceState:employee.residence_state})}
    catch(e){await db.query('ROLLBACK');return res.status(400).json({success:false,message:e.message})}
    await db.query(`INSERT INTO payroll_tax_election (facility_id,employee_id,tax_year,elections,source_note,verified_by) VALUES ($1,$2,2026,$3,$4,$5) ON CONFLICT (employee_id) DO UPDATE SET tax_year=2026,elections=EXCLUDED.elections,source_note=EXCLUDED.source_note,verified_by=EXCLUDED.verified_by,verified_at=now()`,[req.canonicalAccess.facilityId,req.params.id,elections,source,req.adminId])

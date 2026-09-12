@@ -28,6 +28,6 @@ export default function MW507SourceReview({source}:{source:NativeMW507}){
    {requirements.attachmentsRequired.length?<li>Review both Form MW507M and the spousal military identification attachment.</li>:null}
    {requirements.renewBy?<li>Collect a renewed exemption certificate by {requirements.renewBy}.</li>:null}
   </ul>
-  <p>These requirements are not completed by downloading or viewing this certificate. Applying internal Maryland certificates to payroll is pending the structured employer review workflow.</p>
+  <p>These requirements are not completed by downloading or viewing this certificate. Complete the applicable employer review before applying these choices. Exemption and nonresident claims still need their calculation and compliance workflow.</p>
  </section>
 }
