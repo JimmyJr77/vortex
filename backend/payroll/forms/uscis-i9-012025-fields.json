@@ -1,0 +1,2514 @@
+{
+  "source": "https://www.uscis.gov/sites/default/files/document/forms/i-9.pdf",
+  "edition": "01/20/25",
+  "sha256": "780f348c34df694bb0b4dbbfaf9f22b99b9757b80d16a37ba89aadf069597281",
+  "pageCount": 4,
+  "fields": [
+    {
+      "name": "3 A lawful permanent resident Enter USCIS or ANumber",
+      "type": "/Tx",
+      "label": "Section 1., If selected Item Number 3. enter Alien Registration Number or USCIS Number ",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            390.6,
+            498.24,
+            575.52,
+            509.4
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Employee",
+      "type": "/Tx",
+      "label": "Section 1.  Employee Information and Attestation.  Enter Signature of Employee.  If a preparer and or translator who assisted you in completing Section 1 that person must complete the Preparer and/or Translator Certification on Page 3.  ",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            42.0764,
+            420.8,
+            365.28,
+            433.718
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name Family Name from Section 1",
+      "type": "/Tx",
+      "label": "Supplement A, Preparer and / or Translator Certification for Section 1. Employee Information from Section 1. Enter the Last Name (Family Name).",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            36.96,
+            660.121,
+            257.04,
+            679.758
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name Given Name from Section 1",
+      "type": "/Tx",
+      "label": "Supplement A, Preparer and / or Translator Certification for Section 1. Employee Information from Section 1. Enter the First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            258.96,
+            660.118,
+            437.04,
+            679.752
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Middle initial if any from Section 1",
+      "type": "/Tx",
+      "label": "Supplement A, Preparer and / or Translator Certification for Section 1. Employee Information from Section 1. Enter the Middle Initial (if any).",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            438.96,
+            660.118,
+            575.04,
+            679.752
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name Given Name",
+      "type": "/Tx",
+      "label": "Section 1., Enter First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            204.164,
+            604.764,
+            341.84,
+            619.999
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Employee Middle Initial (if any)",
+      "type": "/Tx",
+      "label": "Section 1., Enter Middle Initial, if any",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            348.444,
+            604.764,
+            413.84,
+            619.999
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Employee Other Last Names Used (if any)",
+      "type": "/Tx",
+      "label": "Section 1., Enter Other Last Names Used (if any)",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            420.444,
+            604.764,
+            576.121,
+            619.997
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Today's Date mmddyyy",
+      "type": "/Tx",
+      "label": "Section 1., Enter Today's Date of Signature as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            372.444,
+            420.804,
+            474.12,
+            433.721
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List A",
+      "type": "",
+      "label": "",
+      "widgets": []
+    },
+    {
+      "name": "List A.  Document 2",
+      "type": "",
+      "label": "",
+      "widgets": []
+    },
+    {
+      "name": "List A.  Document 2. Expiration Date (if any)",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A.  Enter Expiration Date 2 as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            127.276,
+            216.48,
+            263.716,
+            233.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List A.   Document Title 3",
+      "type": "",
+      "label": "",
+      "widgets": []
+    },
+    {
+      "name": "List A.   Document Title 3.  If any",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List A.  Enter Document Title 3.  If any.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            198.24,
+            263.28,
+            214.92
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List A. Document 3",
+      "type": "",
+      "label": "",
+      "widgets": []
+    },
+    {
+      "name": "List A. Document 3.  Enter Issuing Authority",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A. Enter Issuing Authority 3.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            180.24,
+            263.28,
+            197.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List A.  Document 3 Number",
+      "type": "",
+      "label": "",
+      "widgets": []
+    },
+    {
+      "name": "List A.  Document 3 Number.  If any",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A.  Enter Document Number 3.  If any.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            127.276,
+            161.594,
+            263.716,
+            178.514
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List B Document 1 Title",
+      "type": "/Tx",
+      "label": "List B Document 1 Title ",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            276.84,
+            342.41,
+            419.198,
+            359.731
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Additional Information",
+      "type": "/Tx",
+      "label": "Enter Additional Information",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            266.732,
+            158.422,
+            575.732,
+            274.68
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Middle initial if any from Section 1-2",
+      "type": "/Tx",
+      "label": "Supplement B, Re verification and Rehire (formerly Section 3). Employee Information from Section 1. Enter the Middle Initial (if any). Instructions: This supplement replaces Section 3 on the previous version of Form I-9. Only use this page if your employee requires reverification, is rehired within three years of the date the original Form I-9 was completed, or provides proof of a legal name change.  Enter the employee's name in the fields above. Use a new section for each reverification or rehire. Review the Form I-9 instructions before completing this page. Keep this page as part of the employee's Form I-9 record. Additional guidance can be found in the Handbood for Employers: Guidance for Completing Form I-9 (M-274) at  https://www.uscis.gov/i-9-central/form-i-9-resources/handbook-for-employers-m-274",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            444.076,
+            659.059,
+            575.16,
+            677.714
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Sig Date mmddyyyy 1",
+      "type": "/Tx",
+      "label": "Signature Date mm/dd/yyyy",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            417.402,
+            415.08,
+            567.781,
+            437.998
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Sig Date mmddyyyy 0",
+      "type": "/Tx",
+      "label": "Signature Date mm/dd/yyyy",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            417.562,
+            540.799,
+            567.938,
+            563.717
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Sig Date mmddyyyy 2",
+      "type": "/Tx",
+      "label": "Signature Date mm/dd/yyyy",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            417.562,
+            288.799,
+            567.941,
+            311.717
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Sig Date mmddyyyy 3",
+      "type": "/Tx",
+      "label": "Signature Date mm/dd/yyyy",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            418.21,
+            162.8,
+            568.589,
+            185.718
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Preparer or Translator 0",
+      "type": "/Tx",
+      "label": "Signature of Preparer or Translator: This field cannot be signed electronically. Please print and sign in ink.      ",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.3218,
+            540.8,
+            413.16,
+            563.718
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Preparer or Translator 1",
+      "type": "/Tx",
+      "label": "Signature of Preparer or Translator: This field cannot be signed electronically. Please print and sign in ink.      ",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.1615,
+            415.081,
+            413.16,
+            437.998
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Preparer or Translator 2",
+      "type": "/Tx",
+      "label": "Signature of Preparer or Translator: This field cannot be signed electronically. Please print and sign in ink.      ",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.1615,
+            288.8,
+            413.16,
+            311.718
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Preparer or Translator 3",
+      "type": "/Tx",
+      "label": "Signature of Preparer or Translator: This field cannot be signed electronically. Please print and sign in ink.      ",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.1608,
+            162.8,
+            413.16,
+            185.718
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Last Name (Family Name) 0",
+      "type": "/Tx",
+      "label": "Preparer or Translator Last Name (Family Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.6422,
+            510.8,
+            269.16,
+            526.798
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Last Name (Family Name) 2",
+      "type": "/Tx",
+      "label": "Preparer or Translator Last Name (Family Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.3629,
+            258.68,
+            268.88,
+            274.679
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Last Name (Family Name) 3",
+      "type": "/Tx",
+      "label": "Preparer or Translator Last Name (Family Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.3624,
+            132.68,
+            269.16,
+            148.679
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Address (Street Number and Name) 0",
+      "type": "/Tx",
+      "label": "Preparer or Translator Address (Street Number and Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            38.9618,
+            482.24,
+            293.28,
+            498.239
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Address (Street Number and Name) 1",
+      "type": "/Tx",
+      "label": "Preparer or Translator Address (Street Number and Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            38.9592,
+            356.24,
+            292.32,
+            372.238
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Address (Street Number and Name) 2",
+      "type": "/Tx",
+      "label": "Preparer or Translator Address (Street Number and Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            38.679,
+            230.12,
+            292.04,
+            246.119
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Address (Street Number and Name) 3",
+      "type": "/Tx",
+      "label": "Preparer or Translator Address (Street Number and Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            38.9592,
+            104.0,
+            293.28,
+            119.999
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator First Name (Given Name) 0",
+      "type": "/Tx",
+      "label": "Preparer or Translator First Name (Given Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            273.082,
+            510.804,
+            491.16,
+            526.802
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator Last Name (Family Name) 1",
+      "type": "/Tx",
+      "label": "Preparer or Translator Last Name (Family Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            39.6432,
+            384.841,
+            269.158,
+            400.839
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        },
+        {
+          "page": 3,
+          "rect": [
+            273.082,
+            384.841,
+            491.16,
+            400.839
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator First Name (Given Name) 2",
+      "type": "/Tx",
+      "label": "Preparer or Translator First Name (Given Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            273.082,
+            258.68,
+            490.88,
+            274.679
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator First Name (Given Name) 3",
+      "type": "/Tx",
+      "label": "Preparer or Translator First Name (Given Name)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            273.082,
+            132.68,
+            491.16,
+            148.679
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator City or Town 0",
+      "type": "/Tx",
+      "label": "Preparer or Translator City or Town",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            297.242,
+            482.242,
+            449.28,
+            498.24
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator City or Town 1",
+      "type": "/Tx",
+      "label": "Preparer or Translator City or Town",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            297.245,
+            356.242,
+            449.28,
+            372.24
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator City or Town 2",
+      "type": "/Tx",
+      "label": "Preparer or Translator City or Town",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            296.965,
+            230.12,
+            451.64,
+            246.119
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer or Translator City or Town 3",
+      "type": "/Tx",
+      "label": "Preparer or Translator City or Town",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            297.245,
+            104.24,
+            449.28,
+            120.239
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer State 0",
+      "type": "/Ch",
+      "label": "Preparer and or Translator State:  Enter the State.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            453.118,
+            482.242,
+            491.492,
+            498.24
+          ],
+          "type": "/Ch",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer State 1",
+      "type": "/Ch",
+      "label": "Preparer and or Translator State:  Enter the State.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            453.118,
+            356.242,
+            491.5,
+            372.24
+          ],
+          "type": "/Ch",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer State 2",
+      "type": "/Ch",
+      "label": "Preparer and or Translator State:  Enter the State.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            453.403,
+            230.283,
+            491.785,
+            246.281
+          ],
+          "type": "/Ch",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Preparer State 3",
+      "type": "/Ch",
+      "label": "Preparer and or Translator State:  Enter the State.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            453.15,
+            104.436,
+            491.252,
+            120.434
+          ],
+          "type": "/Ch",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Zip Code 0",
+      "type": "/Tx",
+      "label": "Preparer  or  Translator  Zip Code.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            496.643,
+            482.242,
+            575.28,
+            498.24
+          ],
+          "type": "/Tx",
+          "maxLength": 6,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Zip Code 1",
+      "type": "/Tx",
+      "label": "Supplement A, Preparer and or  Translator Certification for Section 1.   Enter Zip Code.",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            496.642,
+            356.242,
+            575.28,
+            372.24
+          ],
+          "type": "/Tx",
+          "maxLength": 6,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Zip Code 2",
+      "type": "/Tx",
+      "label": "Preparer or Translator ZIP Code",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            496.361,
+            230.12,
+            575.0,
+            246.119
+          ],
+          "type": "/Tx",
+          "maxLength": 6,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Zip Code 3",
+      "type": "/Tx",
+      "label": "Preparer or Translator ZIP Code",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            496.206,
+            104.24,
+            574.844,
+            120.239
+          ],
+          "type": "/Tx",
+          "maxLength": 6,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "CB_1",
+      "type": "/Btn",
+      "label": "Section 1.  Employee Information and Attestation.   I am aware that federal law provides for imprisonment and/or fines for false statements, or the use of false documents, in connection with the completion of this form.  I attest, under penalty of perjury, that this information, including my selection of the box attesting to my citizenship or immigration status, is true and correct. Check one of the following boxes to attest to your citizenship or immigration status (See page 2 and 3 of the instructions.):  1.  A citizen of the United States.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            181.68,
+            523.32,
+            191.16,
+            532.8
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/On"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CB_2",
+      "type": "/Btn",
+      "label": "Section 1.  Employee Information and Attestation.    2.  A noncitizen of the United States. (See Instructions)",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            181.68,
+            511.32,
+            191.16,
+            520.8
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/On"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CB_3",
+      "type": "/Btn",
+      "label": "Section 1.  Employee Information and Attestation. 3. A lawful permanent resident. ",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            181.68,
+            499.32,
+            191.16,
+            508.8
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/On"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CB_4",
+      "type": "/Btn",
+      "label": "Section 1.  Employee Information and Attestation.  4.  An alien authorized to work until (exp. date, if any)",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            181.96,
+            487.32,
+            191.16,
+            496.364
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/On"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Date of Rehire 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Date of Rehire, if applicable. Enter Date as 2 digit month, 2 digit day and 4 digit year.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            42.1964,
+            556.735,
+            129.305,
+            575.389
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Date of Rehire 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Date of Rehire, if applicable. Enter Date as 2 digit month, 2 digit day and 4 digit year.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            42.1992,
+            370.735,
+            129.305,
+            389.39
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Date of Rehire 2",
+      "type": "/Tx",
+      "label": "Reverification and Rehires. Date of Rehire, if applicable. Enter Date mmddyyyy",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            42.1992,
+            185.062,
+            129.305,
+            203.717
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Todays Date 0",
+      "type": "/Tx",
+      "label": "Supplement B. Re verification and Rehire (formerly Section 3) Enter Today's date of Authorized Representative Signature as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            473.749,
+            450.893,
+            568.178,
+            469.548
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Todays Date 1",
+      "type": "/Tx",
+      "label": "Supplement B. Re verification and Rehire (formerly Section 3) Enter Today's date of Authorized Representative Signature as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            474.076,
+            265.55,
+            568.504,
+            284.206
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Todays Date 2",
+      "type": "/Tx",
+      "label": "Supplement B. Re verification and Rehire (formerly Section 3) Enter Today's date of Authorized Representative Signature as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            474.077,
+            79.24,
+            568.505,
+            97.8952
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Last Name (Family Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            143.749,
+            556.735,
+            335.16,
+            575.39
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Last Name (Family Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            143.749,
+            370.735,
+            335.16,
+            389.39
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Last Name (Family Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            144.076,
+            185.062,
+            335.16,
+            203.717
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name 0",
+      "type": "/Tx",
+      "label": " Reverification and Rehire. New Name, if applicable.  First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            342.076,
+            556.735,
+            515.16,
+            575.39
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            342.076,
+            370.735,
+            515.16,
+            389.39
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            342.076,
+            185.062,
+            515.16,
+            203.717
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Middle Initial 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Middle Initial.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            521.749,
+            556.735,
+            575.16,
+            575.39
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Middle Initial 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Middle Initial.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            522.731,
+            370.735,
+            575.16,
+            389.39
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Middle Initial 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  New Name, if applicable. Enter Middle Initial.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            522.731,
+            185.062,
+            575.16,
+            203.717
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "PT Middle Initial 0",
+      "type": "/Tx",
+      "label": "Enter Preparer or Translator Middle Initial (if any)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            495.082,
+            510.804,
+            575.16,
+            526.802
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "PT Middle Initial 1",
+      "type": "/Tx",
+      "label": "Enter Preparer or Translator Middle Initial (if any)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            495.079,
+            384.84,
+            575.16,
+            400.838
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "PT Middle Initial 2",
+      "type": "/Tx",
+      "label": "Enter Preparer or Translator Middle Initial (if any)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            494.799,
+            258.68,
+            574.88,
+            274.679
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "PT Middle Initial 3",
+      "type": "/Tx",
+      "label": "Enter Preparer or Translator Middle Initial (if any)",
+      "widgets": [
+        {
+          "page": 3,
+          "rect": [
+            494.798,
+            132.68,
+            575.16,
+            148.679
+          ],
+          "type": "/Tx",
+          "maxLength": 1,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Title 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Title.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.7491,
+            509.062,
+            239.28,
+            522.491
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Title 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Title.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.1799,
+            136.646,
+            238.714,
+            150.074
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Number (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            245.956,
+            509.062,
+            443.28,
+            522.49
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Number (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            245.629,
+            322.733,
+            443.28,
+            336.161
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Number (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            245.062,
+            136.646,
+            442.714,
+            150.074
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Expiration Date 0",
+      "type": "/Tx",
+      "label": "Supplement B.  Re verification and Rehire (formerly Section 3). Expiration Date (if any) (mm/dd/yyyy). Enter Expiration Date as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            450.284,
+            509.062,
+            575.28,
+            522.49
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Expiration Date 2",
+      "type": "/Tx",
+      "label": "Supplement B.  Re verification and Rehire (formerly Section 3). Expiration Date (if any) (mm/dd/yyyy). Enter Expiration Date as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            449.391,
+            136.646,
+            575.194,
+            150.074
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Expiration Date 1",
+      "type": "/Tx",
+      "label": "Supplement B.  Re verification and Rehire (formerly Section 3). Expiration Date (if any) (mm/dd/yyyy). Enter Expiration Date as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            449.956,
+            322.733,
+            575.28,
+            336.161
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Name of Emp or Auth Rep 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter name of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.5418,
+            450.895,
+            239.16,
+            469.549
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Name of Emp or Auth Rep 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter name of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.8691,
+            265.549,
+            241.32,
+            284.204
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Name of Emp or Auth Rep 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter name of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.868,
+            79.24,
+            239.16,
+            97.8952
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Emp Rep 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Signature of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            246.076,
+            450.893,
+            467.16,
+            469.548
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Emp Rep 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Signature of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            245.291,
+            265.55,
+            467.16,
+            284.206
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Emp Rep 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Signature of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            245.29,
+            79.24,
+            467.16,
+            97.8952
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "CB_Alt_0",
+      "type": "/Btn",
+      "label": "Check here if you used an alternative procedure authorized by DHS to examine documents.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            455.258,
+            426.44,
+            464.741,
+            435.923
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/Off",
+            "/Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CB_Alt_1",
+      "type": "/Btn",
+      "label": "Check here if you used an alternative procedure authorized by DHS to examine documents.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            455.583,
+            241.313,
+            464.738,
+            250.796
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/Off",
+            "/Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CB_Alt_2",
+      "type": "/Btn",
+      "label": "Check here if you used an alternative procedure authorized by DHS to examine documents.",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            456.259,
+            53.8773,
+            465.741,
+            63.3597
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/Off",
+            "/Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Addtl Info 0",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Additional Information (Initial and date each notation.)",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.0073,
+            415.734,
+            450.677,
+            438.603
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Addtl Info 2",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Additional Information (Initial and date each notation.)",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.4537,
+            43.24,
+            451.126,
+            67.4176
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Addtl Info 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3).  Enter Additional Information (Initial and date each notation.)",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.1273,
+            228.895,
+            450.8,
+            253.069
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "CB_Alt",
+      "type": "/Btn",
+      "label": "Check here if you used an alternative procedure authorized by DHS to examine documents.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            267.508,
+            147.201,
+            276.991,
+            156.684
+          ],
+          "type": "/Btn",
+          "maxLength": null,
+          "appearanceStates": [
+            "/Off",
+            "/Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Last Name Family Name from Section 1-2",
+      "type": "/Tx",
+      "label": "Reverification and Rehire. Employee Information from Section 1. Last Name (Family Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            41.4218,
+            659.062,
+            257.487,
+            677.716
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "First Name Given Name from Section 1-2",
+      "type": "/Tx",
+      "label": "Reverification and Rehire. Employee Information from Section 1. First Name (Given Name).",
+      "widgets": [
+        {
+          "page": 4,
+          "rect": [
+            264.076,
+            659.059,
+            437.16,
+            677.714
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "State",
+      "type": "/Ch",
+      "label": "Section 1., Select State from the drop down list.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            461.245,
+            579.924,
+            502.42,
+            593.474
+          ],
+          "type": "/Ch",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "ZIP Code",
+      "type": "/Tx",
+      "label": "Section 1., Enter ZIP Code.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            509.884,
+            579.924,
+            575.28,
+            593.474
+          ],
+          "type": "/Tx",
+          "maxLength": 6,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Date of Birth mmddyyyy",
+      "type": "/Tx",
+      "label": "Section 1., Enter Date of Birth as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            41.7803,
+            553.644,
+            140.872,
+            567.482
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "US Social Security Number",
+      "type": "/Tx",
+      "label": "Section 1: Enter U.S. Social Security Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            150.0,
+            553.439,
+            255.0,
+            567.201
+          ],
+          "type": "/Tx",
+          "maxLength": 9,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Telephone Number",
+      "type": "/Tx",
+      "label": "Section 1., Enter Employee's Telephone Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            456.149,
+            553.482,
+            575.347,
+            567.592
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name (Family Name)",
+      "type": "/Tx",
+      "label": "Employee Last Name (Family Name)",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            42.7246,
+            604.76,
+            198.401,
+            619.998
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Address Street Number and Name",
+      "type": "/Tx",
+      "label": "Section 1., Enter Address (Street Number and Name). ",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            41.884,
+            579.921,
+            228.121,
+            593.475
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Apt Number (if any)",
+      "type": "/Tx",
+      "label": "Section 1., Enter Apartment Number, if any",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            233.604,
+            579.924,
+            299.28,
+            593.474
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "City or Town",
+      "type": "/Tx",
+      "label": "Section 1., Enter City or Town.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            305.884,
+            579.924,
+            455.28,
+            593.474
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Employees E-mail Address",
+      "type": "/Tx",
+      "label": "Section 1., Enter Employee's E-mail Address.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            264.164,
+            553.641,
+            450.121,
+            567.478
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Exp Date mmddyyyy",
+      "type": "/Tx",
+      "label": "Exp. Date mmddyyyy",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            390.193,
+            484.114,
+            449.52,
+            497.03
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "USCIS ANumber",
+      "type": "/Tx",
+      "label": "Section 1., Employee Information and Attestation.  If you checked Item Number 4., enter one of these.  USCIS/A-Number or Form I-94 Admission Number or Foreign Passport Number and Country of Issuance.  Enter USCIS Alien Registration Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            180.6,
+            444.24,
+            263.4,
+            455.4
+          ],
+          "type": "/Tx",
+          "maxLength": 10,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Form I94 Admission Number",
+      "type": "/Tx",
+      "label": "Section 1., Employee Information and Attestation.  Enter Form I-94 Admission Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            276.6,
+            444.24,
+            383.4,
+            455.4
+          ],
+          "type": "/Tx",
+          "maxLength": 11,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Foreign Passport Number and Country of IssuanceRow1",
+      "type": "/Tx",
+      "label": "Section 1., Employee Information and Attestation.  Enter Foreign Passport Number and Country of Issuance.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            396.6,
+            444.24,
+            575.4,
+            455.4
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Title 1",
+      "type": "/Tx",
+      "label": "Supplement B,  Re verification and Rehire (formerly Section 3). Enter the Document Title.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            342.24,
+            263.28,
+            359.28
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        },
+        {
+          "page": 4,
+          "rect": [
+            41.7491,
+            322.735,
+            239.28,
+            336.164
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Issuing Authority 1",
+      "type": "/Tx",
+      "label": "Section 2.  List A.  Issuing Authority 1.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            324.24,
+            263.28,
+            341.28
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number 0 (if any)",
+      "type": "/Tx",
+      "label": "Section 2.  List A. Document Number 1. (if any)",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            306.24,
+            263.28,
+            323.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Title 2 If any",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  Enter Document Title 2. If any.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            270.24,
+            263.28,
+            286.92
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Issuing Authority_2",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A.  Enter Issuing Authority 2.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            252.24,
+            263.28,
+            269.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number If any_2",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A. Enter Document Number 2. If any.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            234.24,
+            263.28,
+            251.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Document Number if any_3",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. List A.  Enter Expiration Date 3 as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            144.24,
+            263.28,
+            161.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List C Expiration Date 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List C.  Enter Expiration Date as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            420.767,
+            288.889,
+            575.421,
+            305.929
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List C Document Number 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List C.  Enter Document Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            420.767,
+            306.823,
+            575.421,
+            323.863
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List C Issuing Authority 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List C.  Enter Issuing Authority.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            420.767,
+            324.727,
+            575.421,
+            341.797
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List C Document Title 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List C.  Enter Document Title.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            420.767,
+            342.411,
+            575.421,
+            359.451
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "FirstDayEmployed mmddyyyy",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification. Enter First Day of Employment as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            462.597,
+            111.292,
+            547.693,
+            126.636
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "S2 Todays Date mmddyyyy",
+      "type": "/Tx",
+      "label": "Section 2., Enter Today's Date of Signature as 2-digit Month, 2-digit Day, and 4-digit Year.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            489.85,
+            79.6392,
+            567.855,
+            99.2376
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Last Name First Name and Title of Employer or Authorized Representative",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.   Enter Last Name, First Name and Title of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            36.6116,
+            79.6411,
+            287.881,
+            99.238
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Signature of Employer or AR",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  Enter Signature of Employer or Authorized Representative.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            294.284,
+            79.6392,
+            485.32,
+            99.238
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Employers Business or Org Name",
+      "type": "/Tx",
+      "label": "Section 2., Employer Review and Verification.  Enter Employer's Business or Organization Name",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            36.6926,
+            53.0383,
+            238.871,
+            66.7443
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Employers Business or Org Address",
+      "type": "/Tx",
+      "label": "Employer's Business or Organization Address",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            245.82,
+            53.0352,
+            574.98,
+            66.744
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "Expiration Date if any",
+      "type": "/Tx",
+      "label": "Section 2.  List A. Enter Expiration Date 1.  (if any).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            126.84,
+            288.72,
+            263.28,
+            305.16
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List B Issuing Authority 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List B.  Enter Issuing Authority.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            277.486,
+            324.73,
+            419.731,
+            341.77
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List B Document Number 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List B.  Enter Document Number.",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            276.84,
+            306.823,
+            419.058,
+            323.863
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    },
+    {
+      "name": "List B Expiration Date 1",
+      "type": "/Tx",
+      "label": "Section 2. Employer Review and Verification.  List B.  Enter Expiration Date as 2 digit for the month, 2 digit for the day and 4 digit for the year (if any).",
+      "widgets": [
+        {
+          "page": 1,
+          "rect": [
+            276.84,
+            288.889,
+            419.058,
+            305.929
+          ],
+          "type": "/Tx",
+          "maxLength": null,
+          "appearanceStates": []
+        }
+      ]
+    }
+  ]
+}
