@@ -115,7 +115,7 @@ test('admin reviews reversal semantics and automatically reconciles participant 
   await replacementAccounting.getByRole('textbox',{name:'Replacement accounting review reference',exact:true}).fill('Reviewed corrected replacement accounting after proven unsent release')
   await replacementAccounting.getByRole('checkbox',{name:'I reviewed these exact journals and outside accounting, found no duplicate entries, and authorize automatic posting.',exact:true}).check()
   await replacementAccounting.getByRole('button',{name:'Authorize replacement accounting',exact:true}).click();await expect(replacementAccounting).toContainText('AUTHORIZED — AWAITING AUTOMATIC POSTING')
-  const activeAccounting=replacementAccounting.locator('article').filter({has:replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true})})
+  const activeAccounting=replacementAccounting.locator('article').filter({has:page.getByRole('button',{name:'Recover replacement journals',exact:true})})
   const settlementOptions={facility:1,fetcher:accounting.fetcher,paymentFetcher:replacementBank.fetcher},settlementStart=new Date();accounting.loseNextResponse()
   expect((await runRetirementReplacementSettlementSweep(h.pool,{...settlementOptions,now:settlementStart})).attempted).toBe(1)
   await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(activeAccounting).toContainText('UNCERTAIN');expect(accounting.posts()).toBe(3)

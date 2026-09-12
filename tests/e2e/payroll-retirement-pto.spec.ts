@@ -25,6 +25,8 @@ for(const federalMethod of ['FLAT_22','AGGREGATE'])test(`admin calculates retire
   await expect(form.getByRole('combobox',{name:'PTO federal withholding method',exact:true})).toHaveValue(federalMethod)
   await form.getByRole('button',{name:'Review PTO calculation',exact:true}).click()
   const review=form.getByRole('region',{name:'PTO calculation review',exact:true});await expect(review).toContainText('Proposed pretax contribution: $5.00')
+  const stateHistory=form.locator('details').filter({has:page.getByText('Prior Maryland payment evidence',{exact:true})})
+  await stateHistory.locator('summary').click();await expect(stateHistory).toContainText('Recorded state wages and withholding reconcile.');await expect(stateHistory).toContainText('$760.00 Maryland wages');await stateHistory.screenshot({path:`/tmp/payroll-maryland-pto-history-${federalMethod}.png`})
   await form.getByLabel('Reviewed Maryland PTO withholding ($)',{exact:true}).fill('7.60');await form.getByLabel('Maryland PTO calculation source',{exact:true}).fill('Synthetic professional state calculation for the displayed taxable wages')
   await form.getByRole('checkbox',{name:/I verified this state withholding amount/}).check();await form.getByRole('button',{name:'Review PTO calculation',exact:true}).click()
   await expect(review).toContainText('Calculated pretax contribution: $5.00');await expect(review).toContainText('Calculated Roth contribution: $2.00');await expect(review).toContainText('Deductions: $7.00')

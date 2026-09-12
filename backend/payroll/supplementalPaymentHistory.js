@@ -1,3 +1,4 @@
+import {reconcileMarylandPaymentHistory} from './marylandPaymentHistory.js'
 import {createHash} from 'node:crypto'
 import {reconcileIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
 import {retirementStatementLines} from './retirementStatement.js'
@@ -66,6 +67,7 @@ export async function loadSupplementalPaymentHistory(db,facility,employeeId,paym
   AND COALESCE(r.payment_date,p.pay_date) BETWEEN make_date(EXTRACT(YEAR FROM $3::date)::int-1,1,1) AND $3::date
   ORDER BY COALESCE(r.payment_date,p.pay_date),r.id`,[facility,employeeId,paymentDate])).rows
  const result=reconcileSupplementalPayments(rows,paymentDate)
+ result.marylandHistory=reconcileMarylandPaymentHistory(rows)
  const imported=(await db.query(`SELECT id FROM payroll_historical_payment WHERE facility_id=$1 AND employee_id=$2
   AND payment_date BETWEEN make_date(EXTRACT(YEAR FROM $3::date)::int-1,1,1) AND $3::date`,[facility,employeeId,paymentDate])).rows
  if(imported.length){result.reconciled=false;result.regularWithholdingVerified=false;result.issues.push({runId:null,messages:['Imported payment totals require supplemental-wage and regular-withholding allocation before this method can be used.'],historicalPaymentIds:imported.map(r=>Number(r.id))})}

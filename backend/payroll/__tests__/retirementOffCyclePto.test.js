@@ -29,7 +29,7 @@ for(const scenario of ['FLAT_22','AGGREGATE','POST_SEVERANCE_EXCLUDED'])test(`re
   const payout=await api(`/employees/${employee.id}/leave-payouts`,{...policy,payPeriodId:periods[1].id,fingerprint:preview.fingerprint,requestKey:randomUUID(),paymentMode:'STANDALONE'},'POST',201)
   const body={payPeriodId:periods[1].id,paymentDate,offCyclePto:{payoutId:Number(payout.id),historyCompleteVerified:true,historySource:'Complete employer and related-employer payroll reconciliation',federalMethod,retirementPtoEvidence:evidence}}
   const initial=(await api('/runs/preview',body)).preview.employees[0],basis=initial.ptoStateWithholdingBasis
-  assert.equal(basis.marylandWagesCents,taxWages);assert.equal(initial.pretaxDeductionCents,0)
+  assert.equal(basis.marylandHistory.reconciled,true);assert.ok(basis.marylandHistory.evidence.length>0);assert.ok(basis.marylandHistory.evidence.every(e=>e.reconciled&&Number.isSafeInteger(e.stateIncomeTaxCents)));assert.equal(basis.marylandWagesCents,taxWages);assert.equal(initial.pretaxDeductionCents,0)
   const stateWithholdingReview={basisFingerprint:basis.fingerprint,stateIncomeTaxCents:760,sourceReference:'Synthetic professional state calculation for exact displayed wages',confirmed:true}
   const reviewed={...body,offCyclePto:{...body.offCyclePto,stateWithholdingReview}}
   const stale=(await api('/runs/preview',{...reviewed,offCyclePto:{...reviewed.offCyclePto,historySource:'Changed employer history reconciliation source'}})).preview
