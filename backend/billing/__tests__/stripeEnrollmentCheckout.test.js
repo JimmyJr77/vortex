@@ -17,6 +17,7 @@ import {
   createEnrollmentStripeSubscriptions,
   enrollmentCheckoutSessionCanFinalize,
   enrollmentHasRecurringMembership,
+  enrollmentNeedsStripeCheckout,
   formatEnrollmentCheckoutSubmitMessage,
   formatFirstMonthTuitionLineName,
   formatPerClassStripeProductName,
@@ -889,6 +890,54 @@ test('enrollmentHasRecurringMembership ignores zero-dollar recurring lines', () 
     newSignups: [{ billingType: 'recurring', incrementalMonthly: 0, monthlyPrice: 0 }],
   }
   assert.equal(enrollmentHasRecurringMembership(preview), false)
+})
+
+function lifetimeWaivedEnrollmentPreview() {
+  return {
+    newSignups: [{ slotKey: 'class-1', billingType: 'recurring', incrementalMonthly: 150 }],
+    firstMonth: { totalCents: 0 },
+    discounts: {
+      enabled: true,
+      lines: [{ key: 'class-1', baseCents: 15000, finalCents: 0 }],
+      freeGrants: [{ lineKey: 'class-1', amountCents: 15000, lifetimeOwnerWaiver: true }],
+    },
+  }
+}
+
+test('lifetime-waived enrollment skips Stripe and the unrelated historical paid-checkout guard', async () => {
+  const { pool, stripe, state, options } = enrollmentCheckoutCreationHarness()
+  const preview = lifetimeWaivedEnrollmentPreview()
+  options.loadPreview = async () => preview
+  const result = await createAndBindEnrollmentCheckoutSession(pool, stripe, options)
+  assert.equal(result.skipCheckout, true)
+  assert.equal(result.preview, preview)
+  assert.equal(state.createCalls, 0)
+  assert.equal(state.pending, null)
+  assert.equal(state.queries.some(({ text }) => /WITH completed_owner AS/.test(text)), false)
+  assert.equal(state.lockDepth, 0)
+})
+
+test('lifetime waiver does not bypass checkout for fees, passes, balances, or other paid classes', () => {
+  const preview = lifetimeWaivedEnrollmentPreview()
+  assert.equal(enrollmentNeedsStripeCheckout(preview), false)
+  for (const extra of [
+    { additionalFeesOneTime: 85 },
+    { passPurchases: [{ packageId: 2 }], passPurchaseTotalCents: 1000 },
+    { carriedForward: { totalCents: 1000 } },
+    { newSignups: [...preview.newSignups, { slotKey: 'class-2', billingType: 'recurring', incrementalMonthly: 150 }] },
+  ]) assert.equal(enrollmentNeedsStripeCheckout({ ...preview, ...extra }), true)
+})
+
+test('temporary, partial, or unmatched waivers retain recurring checkout', () => {
+  for (const grant of [
+    { lifetimeOwnerWaiver: false },
+    { amountCents: 7500 },
+    { lineKey: 'another-class' },
+  ]) {
+    const preview = lifetimeWaivedEnrollmentPreview()
+    Object.assign(preview.discounts.freeGrants[0], grant)
+    assert.equal(enrollmentNeedsStripeCheckout(preview), true)
+  }
 })
 
 test('formatFirstMonthTuitionLineName uses tuition wording for a full remaining month', () => {

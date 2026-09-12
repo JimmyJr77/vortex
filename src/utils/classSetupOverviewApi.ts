@@ -16,6 +16,7 @@ export interface ClassSetupOffering {
 }
 
 export interface ClassSetupSlotGroup {
+  scheduleLines?: { timeSlotId: number; isActive: boolean; scheduleLabel: string }[]
   slotGroupId: number
   formId: number
   offeringId: number | null
@@ -77,6 +78,14 @@ async function parseJson<T>(res: Response): Promise<T> {
 export async function fetchClassSetupOverview(): Promise<ClassSetupOverviewResponse> {
   const res = await adminApiRequest('/api/admin/class-setup/overview')
   return parseJson(res)
+}
+
+export async function archiveClassSetupSchedule(classId: number, timeSlotId: number, archived: boolean): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/programs/${classId}/time-slots/${timeSlotId}/archive`, {
+    method: 'PATCH',
+    body: JSON.stringify({ archived }),
+  })
+  await parseJson(res)
 }
 
 export function formatOfferingsCell(offerings: ClassSetupOffering[]): string {
@@ -165,6 +174,8 @@ export function formatScheduleCell(
 }
 
 export interface ClassSetupOverviewScheduleLine {
+  timeSlotId?: number
+  isActive?: boolean
   slotGroupId: number | null
   activeDates: string
   days: string
@@ -189,7 +200,10 @@ export function expandScheduleLines(row: ClassSetupOverviewRow): ClassSetupOverv
     ]
   }
   return row.slotGroups.flatMap((group) =>
-    scheduleLinesForSlotGroup(group, row.offerings).map((line) => ({
+    (group.scheduleLines?.length
+      ? group.scheduleLines.flatMap((slot) => scheduleLinesForSlotGroup({ ...group, scheduleLabel: slot.scheduleLabel }, row.offerings)
+        .map((line) => ({ ...line, timeSlotId: slot.timeSlotId, isActive: slot.isActive })))
+      : scheduleLinesForSlotGroup(group, row.offerings)).map((line) => ({
       slotGroupId: group.slotGroupId,
       ...line,
     })),

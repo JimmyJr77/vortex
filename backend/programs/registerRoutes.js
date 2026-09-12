@@ -13,6 +13,7 @@ import {
 import { normalizeMultiClassPassPackages } from './multiClassPass.js'
 import { adminClassSetupOverviewHandler } from './classSetupOverview.js'
 import { duplicateClassEvent } from './duplicateClass.js'
+import { archiveClassSetupSchedule } from './classSetupScheduleArchive.js'
 
 const disciplineTagSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).required(),
@@ -174,6 +175,7 @@ export function registerProgramsAdminRoutes(app, pool) {
   console.log('✅ Programs admin routes registered')
 
   app.get('/api/admin/class-setup/overview', (req, res) => adminClassSetupOverviewHandler(pool, req, res))
+  app.patch('/api/admin/programs/:classId/time-slots/:slotId/archive', (req, res) => archiveClassSetupSchedule(pool, req, res))
 
   app.post('/api/admin/programs/:id/duplicate', async (req, res) => {
     try {

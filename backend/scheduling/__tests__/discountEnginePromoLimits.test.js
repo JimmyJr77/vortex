@@ -123,8 +123,12 @@ test('lifetime household waiver applies through cost-level selections only to it
   })
   const selectedCostLine = { ...line('matching', 5, 9), costUsesSelections: true, costDiscountRuleIds: new Set() }
   const otherFamilyLine = { ...line('other', 6, 10), costUsesSelections: true, costDiscountRuleIds: new Set() }
-  assert.equal(computeOrderDiscounts({ lines: [selectedCostLine], rules: [rule], caps: {} }).lines[0].finalCents, 0)
-  assert.equal(computeOrderDiscounts({ lines: [otherFamilyLine], rules: [rule], caps: {} }).lines[0].finalCents, 10000)
+  const matching = computeOrderDiscounts({ lines: [selectedCostLine], rules: [rule], caps: {} })
+  const other = computeOrderDiscounts({ lines: [otherFamilyLine], rules: [rule], caps: {} })
+  assert.equal(matching.lines[0].finalCents, 0)
+  assert.equal(matching.freeGrants[0].lifetimeOwnerWaiver, true)
+  assert.equal(other.lines[0].finalCents, 10000)
+  assert.deepEqual(other.freeGrants, [])
 })
 
 test('membership-fee promos are excluded from class tuition lines', () => {

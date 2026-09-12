@@ -27,9 +27,11 @@ import {
 } from './classSetupCopyPaste'
 import {
   expandScheduleLines,
+  archiveClassSetupSchedule,
+  type ClassSetupOverviewScheduleLine,
   type ClassSetupOverviewRow,
 } from '../../utils/classSetupOverviewApi'
-import { archiveClassEvent, deleteClassEvent, duplicateClassEvent } from '../../utils/programsApi'
+import { deleteClassEvent, duplicateClassEvent } from '../../utils/programsApi'
 
 interface Props {
   rows: ClassSetupOverviewRow[]
@@ -132,28 +134,20 @@ const AdminClassSetupOverviewTable = ({
   )
   const tableWidth = renderedColumnWidths.reduce((total, width) => total + width, actionColumnWidth)
 
-  const visibleRows = useMemo(() => {
-    const filtered = applyOverviewFilters(rows, filters).filter((row) =>
-      matchesOverviewSmartFilter(row, smartFilter),
-    )
-    if (!sortConfig.column) return filtered
-    return [...filtered].sort((a, b) =>
-      compareOverviewRows(a, b, sortConfig.column!, sortConfig.direction),
-    )
+  const visibleScheduleRows = useMemo(() => {
+    const expanded = rows.flatMap((classRow) =>
+      expandScheduleLines(classRow).map((line, lineIndex) => ({
+        row: { ...classRow, status: line.isActive === false && classRow.status === 'Active' ? 'Inactive' as const : classRow.status },
+        line,
+        lineIndex,
+        rowKey: `${classRow.classId}:${line.timeSlotId ?? `${line.slotGroupId ?? 'none'}:${lineIndex}`}`,
+      })),
+    ).filter(({ row }) => applyOverviewFilters([row], filters).length > 0 && matchesOverviewSmartFilter(row, smartFilter))
+    if (!sortConfig.column) return expanded
+    return expanded.sort((a, b) => compareOverviewRows(a.row, b.row, sortConfig.column!, sortConfig.direction))
   }, [rows, filters, smartFilter, sortConfig])
 
-  const visibleScheduleRows = useMemo(
-    () =>
-      visibleRows.flatMap((row) =>
-        expandScheduleLines(row).map((line, lineIndex) => ({
-          row,
-          line,
-          lineIndex,
-          rowKey: `${row.classId}:${line.slotGroupId ?? 'none'}:${lineIndex}`,
-        })),
-      ),
-    [visibleRows],
-  )
+  const visibleRows = [...new Map(visibleScheduleRows.map(({ row }) => [row.classId, row])).values()]
 
   const rowsById = useMemo(() => new Map(rows.map((row) => [row.classId, row])), [rows])
 
@@ -209,7 +203,7 @@ const AdminClassSetupOverviewTable = ({
     })
   }
 
-  const handleCellClick = (row: ClassSetupOverviewRow, columnId: OverviewColumnId) => {
+  const handleCellClick = (row: ClassSetupOverviewRow, columnId: OverviewColumnId, line: ClassSetupOverviewScheduleLine) => {
     if (copyMode) {
       handleCopyCellClick(row, columnId)
       return
@@ -217,7 +211,7 @@ const AdminClassSetupOverviewTable = ({
     if (!unlocked) return
     const col = OVERVIEW_COLUMNS.find((c) => c.id === columnId)
     if (!col?.editable) return
-    setEditTarget({ row, columnId })
+    setEditTarget({ row, columnId, line })
   }
 
   const filterOptionsFor = (columnId: OverviewColumnId): string[] | undefined => {
@@ -226,13 +220,15 @@ const AdminClassSetupOverviewTable = ({
     return undefined
   }
 
-  const handleArchive = async (row: ClassSetupOverviewRow) => {
+  const handleArchive = async (row: ClassSetupOverviewRow, line: ClassSetupOverviewScheduleLine) => {
     if (!unlocked || copyMode) return
-    if (!window.confirm(`Archive "${row.className}"? It will become inactive and remain in the database.`)) return
+    if (line.timeSlotId == null) return
+    const archived = line.isActive !== false
+    if (!window.confirm(`${archived ? 'Archive' : 'Restore'} "${row.className} · ${line.days} · ${line.times}"? This changes only this schedule line.`)) return
     setPendingAction({ classId: row.classId, kind: 'archive' })
     setActionError(null)
     try {
-      await archiveClassEvent(row.classId, true)
+      await archiveClassSetupSchedule(row.classId, line.timeSlotId, archived)
       await onRefresh()
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Failed to archive class')
@@ -438,7 +434,9 @@ const AdminClassSetupOverviewTable = ({
                 <tr key={rowKey} className="hover:bg-gray-50/60 group relative">
                   {OVERVIEW_COLUMNS.map((column, columnIndex) => {
                     const value =
-                      column.id === 'activeDates'
+                      column.id === 'status' && line.isActive === false && row.status !== 'Legacy'
+                        ? 'Inactive'
+                        : column.id === 'activeDates'
                         ? line.activeDates
                         : column.id === 'days'
                           ? line.days
@@ -465,7 +463,7 @@ const AdminClassSetupOverviewTable = ({
                           height: rowHeight,
                           overflow: textWrap ? 'hidden' : 'visible',
                         }}
-                        onClick={() => !collapsed && handleCellClick(row, column.id)}
+                        onClick={() => !collapsed && handleCellClick(row, column.id, line)}
                       >
                         {!collapsed &&
                           (column.id === 'capacity' && value !== '—' ? (
@@ -510,11 +508,11 @@ const AdminClassSetupOverviewTable = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => void handleArchive(row)}
-                        disabled={!unlocked || copyMode || row.classArchived || pendingAction?.classId === row.classId}
+                        onClick={() => void handleArchive(row, line)}
+                        disabled={!unlocked || copyMode || row.classArchived || line.timeSlotId == null || pendingAction?.classId === row.classId}
                         className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
-                        aria-label={`Archive ${row.className}`}
-                        title={!unlocked ? 'Unlock editing to archive class' : row.classArchived ? 'Already archived' : 'Archive class'}
+                        aria-label={`${line.isActive === false ? 'Restore' : 'Archive'} ${row.className} ${line.days} ${line.times}`}
+                        title={!unlocked ? 'Unlock editing to archive schedule line' : line.isActive === false ? 'Restore schedule line' : 'Archive schedule line'}
                       >
                         {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
                           ? <Loader2 className="h-4 w-4 animate-spin" />

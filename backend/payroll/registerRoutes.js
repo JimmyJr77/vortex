@@ -1,3 +1,7 @@
+import {registerRetirementReplacementAssessment} from './retirementReplacementAssessment.js'
+import {registerRetirementReplacementReceiptIntake} from './retirementReplacementReceiptIntake.js'
+import {registerRetirementReplacementReceiptBindings} from './retirementReplacementReceiptBinding.js'
+import {registerRetirementReplacementBank} from './retirementReplacementBank.js'
 import {registerRetirementReplacementAllocation} from './retirementReplacementAllocation.js'
 import {registerRetirementReplacementAuthorization} from './retirementReplacementAuthorization.js'
 import {registerRetirementReplacementPreview} from './retirementReplacementPreview.js'
@@ -737,6 +741,10 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   registerRetirementReturnPosting(app,pool,{fetcher:quickbooksFetcher,paymentFetcher})
   registerRetirementReplacementPreview(app,pool,{fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now:remittanceNow})
   registerRetirementReplacementAuthorization(app,pool,{fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now:remittanceNow})
+  registerRetirementReplacementAssessment(app,pool)
+  registerRetirementReplacementReceiptBindings(app,pool)
+  registerRetirementReplacementReceiptIntake(app,pool,{reader:retirementReceiptReader,now:remittanceNow})
+  registerRetirementReplacementBank(app,pool,{fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now:remittanceNow})
   registerRetirementReplacementAllocation(app,pool,{fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now:remittanceNow})
   registerRetirementReturnReleasePreview(app,pool,{fetcher:quickbooksFetcher})
   registerRetirementReturnRelease(app,pool,{fetcher:quickbooksFetcher})

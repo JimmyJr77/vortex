@@ -1,10 +1,13 @@
+import {checkRetirementReplacementReceipts,startRetirementReplacementReceiptScheduler} from '../retirementReplacementReceiptAutomation.js'
+import {runRetirementReplacementBankSweep,startRetirementReplacementBankScheduler} from '../retirementReplacementBankAutomation.js'
+import {retirementReplacementBankProvider} from '../testing/retirementReplacementBankProvider.js'
 import {runRetirementReplacementAllocationSweep,startRetirementReplacementAllocationScheduler} from '../retirementReplacementAutomation.js'
 import {readFile} from 'node:fs/promises'
 import {retirementReversalAccountingFixture} from '../testing/retirementReversalAccountingFixture.js'
 import {employeeRetirementContributions} from '../employeeRetirementContributions.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {randomBytes,randomUUID} from 'node:crypto'
+import {createHash,randomBytes,randomUUID} from 'node:crypto'
 import {createHarness} from '../testing/harness.js'
 import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
 import {retirementBankProvider} from '../testing/retirementBankProvider.js'
@@ -14,9 +17,9 @@ import {decryptDocument} from '../onboarding.js'
 const enabled=!!process.env.PAYROLL_TEST_DATABASE_URL
 async function scenario(work,{blockWrite=false}={}){
  const old=process.env.PAYROLL_DOCUMENT_KEY,key=randomBytes(32).toString('hex');process.env.PAYROLL_DOCUMENT_KEY=key
- const server=await createRetirementSftpServer(),provider=retirementBankProvider();let qboFetcher=async()=>{throw new Error('No synthetic accounting configured')},hook=async()=>{},transferHook=async()=>{},receiptDate='2026-09-19T15:00:00Z'
- const h=await createHarness({quickbooksFetcher:(...args)=>qboFetcher(...args),paymentFetcher:provider.fetcher,remittanceNow:()=>new Date(receiptDate),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:async(c,file,options)=>{await transferHook(options);return transferRetirementAllocation(c,file,{...server.options,...options,...(blockWrite?{beforeWrite:async()=>false}:{})})},retirementReceiptReader:async(c,receipt)=>{const result=await readRetirementSftpReceipt(c,receipt,server.options);await hook();return result}})
- try{const f=await retirementReceiptIntakeFixture(h,server.config),check=(requestKey=randomUUID())=>f.api(f.receiptPath,{confirmed:true,bindingId:f.bindingId,requestKey});await work({h,f,server,key,check,provider,setQbo:fetcher=>{qboFetcher=fetcher},setNow:value=>{receiptDate=value},setHook:fn=>{hook=fn},setTransferHook:fn=>{transferHook=fn}})}finally{await h.close();await server.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}
+ const server=await createRetirementSftpServer(),provider=retirementBankProvider();let paymentFetcher=provider.fetcher,qboFetcher=async()=>{throw new Error('No synthetic accounting configured')},hook=async()=>{},transferHook=async()=>{},receiptDate='2026-09-19T15:00:00Z'
+ const h=await createHarness({quickbooksFetcher:(...args)=>qboFetcher(...args),paymentFetcher:(...args)=>paymentFetcher(...args),remittanceNow:()=>new Date(receiptDate),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:async(c,file,options)=>{await transferHook(options);return transferRetirementAllocation(c,file,{...server.options,...options,...(blockWrite?{beforeWrite:async()=>false}:{})})},retirementReceiptReader:async(c,receipt)=>{const result=await readRetirementSftpReceipt(c,receipt,server.options);await hook();return result}})
+ try{const f=await retirementReceiptIntakeFixture(h,server.config),check=(requestKey=randomUUID())=>f.api(f.receiptPath,{confirmed:true,bindingId:f.bindingId,requestKey});await work({h,f,server,key,check,provider,setQbo:fetcher=>{qboFetcher=fetcher},setPayment:fetcher=>{paymentFetcher=fetcher},setNow:value=>{receiptDate=value},setHook:fn=>{hook=fn},setTransferHook:fn=>{transferHook=fn}})}finally{await h.close();await server.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}
 }
 test('receipt intake retains encrypted exact files/results once per check and protects scopes and audit privacy',{skip:!enabled},()=>scenario(async({h,f,server,check,key})=>{
  const bytes=f.receipt();server.files.set(f.remotePath,bytes);const requestKey=randomUUID(),[one,two]=await Promise.all([check(requestKey),check(requestKey)]);assert.equal(one.id,two.id);assert.equal(one.summary.status,'POSTED');assert.equal(one.summary.postedCents,1400)
@@ -80,7 +83,7 @@ test('returned funding reopens employee participant visibility and persists acro
  assert.equal((await employeeRetirementContributions(h.pool,2,f.employee.id)).items.length,0)
 }))
 
-for(const automatic of [false,true])test(`reviewed participant reversals require prior posting and a verified full bank return (${automatic?'automatic':'manual'} replacement)`,{skip:!enabled},()=>scenario(async({h,f,server,check,provider,setNow,setQbo,setTransferHook})=>{
+for(const automatic of [false,true])test(`reviewed participant reversals require prior posting and a verified full bank return (${automatic?'automatic':'manual'} replacement)`,{skip:!enabled},()=>scenario(async({h,f,server,check,provider,setNow,setQbo,setTransferHook,setPayment})=>{
  const accounting=retirementReversalAccountingFixture(h,f);setQbo(accounting.fetcher)
  const contract=await f.api(f.contractPath,{...f.contractBody,expectedRevision:1,requestKey:randomUUID(),contract:{...f.contractBody.contract,participantReversalConfirmed:true,statusValues:{...f.contractBody.contract.statusValues,REVERSED:'Reversed credit'}}})
  const binding=await f.api(f.bindingPath,{...f.bindingBody,expectedRevision:1,contractId:contract.id,requestKey:randomUUID()});f.bindingId=binding.id
@@ -119,6 +122,8 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  await assert.rejects(h.pool.query("INSERT INTO payroll_retirement_replacement_claim(authorization_id,kind) VALUES($1,'BANK')",[stored.id]),/Cancelled replacement/)
  await f.api(replacementPath,instructions,'POST',409)
  const nextInputs={...instructions,fileName:'reviewed_replacement_second_2026.csv'},nextPreview=await f.api(replacementPath,nextInputs),next=await f.api(authPath,{...body,inputs:nextInputs,fingerprint:nextPreview.fingerprint,requestKey:randomUUID()})
+ const replacementBindingPath=`/retirement-replacement-authorizations/${next.id}/receipt-binding`,replacementBindingBody={...f.bindingBody,expectedRevision:0,contractId:contract.id,fileName:'replacement_receipt.csv',requestKey:randomUUID()}
+ await f.api(replacementBindingPath,replacementBindingBody,'POST',409)
  const dispatchPath=`/retirement-replacement-authorizations/${next.id}/allocation-dispatch`,dispatchBody={confirmed:true,action:'SUBMIT',outsideActivityReviewed:true,reference:'Verified no outside replacement allocation has been submitted'}
  await f.api(dispatchPath,{confirmed:true,action:'RECOVER'},'POST',409)
  await f.api(dispatchPath,{...dispatchBody,outsideActivityReviewed:false},'POST',400)
@@ -143,6 +148,68 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  assert.equal(server.state.created,2)
  const replacementTarget=server.config.deliveryDirectory+'/'+nextInputs.fileName
  assert.ok(server.files.get(replacementTarget).toString().includes('PRIVATE-PARTICIPANT'))
+ const boundReplacement=await Promise.all([f.api(replacementBindingPath,replacementBindingBody),f.api(replacementBindingPath,replacementBindingBody)]);assert.equal(boundReplacement[0].id,boundReplacement[1].id);assert.equal(boundReplacement.filter(x=>x.reused).length,1)
+ const receiptLocation=await f.api(replacementBindingPath);assert.equal(receiptLocation.status,'BOUND');assert.equal(receiptLocation.originalFileName,nextInputs.fileName);assert.equal(receiptLocation.history.length,1)
+ await f.api(replacementBindingPath,{...replacementBindingBody,requestKey:randomUUID()},'POST',409)
+ const foreignLocation=await fetch(h.url+'/api/admin/payroll'+replacementBindingPath,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(foreignLocation.status,404)
+ await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_receipt_binding WHERE allocation_id=$1',[next.id]),/append-only/)
+ await assert.rejects(h.pool.query('INSERT INTO payroll_retirement_replacement_receipt_binding SELECT $1,2,allocation_id,claim_id,configuration_id,contract_id,2,disposition,directory,file_name,reference,$2,request_fingerprint,created_by,clock_timestamp() FROM payroll_retirement_replacement_receipt_binding WHERE allocation_id=$3',[randomUUID(),randomUUID(),next.id]),/scoped claim/)
+ delete process.env.PAYROLL_DOCUMENT_KEY
+ try{assert.equal((await f.api(replacementBindingPath,replacementBindingBody)).reused,true);await f.api(replacementBindingPath,{action:'SUSPEND',expectedRevision:1,requestKey:randomUUID(),confirmed:true,reference:'Suspend replacement receipt interpretation while verifying provider location'});assert.equal((await f.api(replacementBindingPath)).status,'SUSPENDED')}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ await f.api(replacementBindingPath,{...replacementBindingBody,expectedRevision:2,requestKey:randomUUID()});assert.equal((await f.api(replacementBindingPath)).history.length,3)
+ assert.equal((await f.api(f.bindingPath)).history[0].id,f.bindingId)
+ const replacementBank=retirementReplacementBankProvider(provider.fetcher,next.id,{beforePost:async()=>assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_retirement_replacement_claim WHERE authorization_id=$1 AND kind='BANK' AND encrypted_instruction IS NOT NULL",[next.id])).rows[0].n,1)})
+ setPayment(replacementBank.fetcher)
+ const fundingPath=`/retirement-replacement-authorizations/${next.id}/bank-dispatch`,fundingBody={confirmed:true,action:'SUBMIT',bankInstructionsReviewed:true,outsideActivityReviewed:true,reference:'Verified separate replacement funding with no outside payment or provider debit'}
+ await f.api(fundingPath,{confirmed:true,action:'RECOVER'},'POST',409)
+ await f.api(fundingPath,{...fundingBody,outsideActivityReviewed:false},'POST',400)
+ const allocationBytes=server.files.get(replacementTarget);server.files.delete(replacementTarget);await f.api(fundingPath,fundingBody,'POST',409);server.files.set(replacementTarget,allocationBytes);assert.equal(replacementBank.posts(),0)
+ const bankAutomationOptions={...automationOptions,paymentFetcher:replacementBank.fetcher},bankStart=new Date()
+ if(automatic){
+  assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,facility:2,now:bankStart})).attempted,0)
+  server.files.delete(replacementTarget);assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:bankStart})).attempted,1);assert.equal(replacementBank.posts(),0);server.files.set(replacementTarget,allocationBytes)
+  assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+60000)})).attempted,0)
+  const sweeps=await Promise.all([runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+360000)}),runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+360000)})]);assert.equal(sweeps.reduce((n,x)=>n+x.attempted,0),1)
+  assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+720000)})).attempted,1)
+  const history=(await f.api(authPath)).history.find(x=>x.id===next.id);assert.equal(history.bank_result.status,'SENT');assert.equal(history.bank_automatic,true);assert.equal(history.bank_attempts.length,3)
+  assert.equal((await h.pool.query("SELECT automatic FROM payroll_retirement_replacement_claim WHERE authorization_id=$1 AND kind='BANK'",[next.id])).rows[0].automatic,true)
+  const enabled=process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED;process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED='false';try{assert.equal(startRetirementReplacementBankScheduler(h.pool),null)}finally{if(enabled===undefined)delete process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED;else process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED=enabled}
+ }else{
+  const funding=await Promise.all([f.api(fundingPath,fundingBody),f.api(fundingPath,fundingBody)]);assert.equal(funding.filter(x=>x.recovery).length,1);assert.ok(funding.some(x=>x.result.status==='UNCERTAIN'));assert.ok(funding.some(x=>x.result.status==='SENT'))
+ }
+ assert.equal(replacementBank.posts(),1)
+ const bankClaim=(await h.pool.query("SELECT encrypted_instruction FROM payroll_retirement_replacement_claim WHERE authorization_id=$1 AND kind='BANK'",[next.id])).rows[0];const bankIntent=JSON.parse(decryptDocument(bankClaim.encrypted_instruction,`payroll-retirement-replacement-bank:1:${next.id}`).toString());assert.equal(bankIntent.originalAuthorizationId,f.remittanceId);assert.equal(bankIntent.originalWithheldDate,'2026-09-18');assert.equal(bankIntent.paymentDate,'2026-09-29')
+ replacementBank.complete()
+ if(automatic){assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+1080000)})).verified,1);assert.equal((await runRetirementReplacementBankSweep(h.pool,{...bankAutomationOptions,now:new Date(+bankStart+3600000)})).attempted,0)}
+ const bankPosted=await f.api(fundingPath,{confirmed:true,action:'RECOVER'});assert.equal(bankPosted.result.settlementStatus,'BANK_POSTED')
+ const replacementReceiptPath=`/retirement-replacement-authorizations/${next.id}/receipts`,receiptBinding=(await f.api(replacementBindingPath)).history[0],replacementReceiptRemote=receiptBinding.directory+'/'+receiptBinding.file_name
+ const replacementReceiptBody={confirmed:true,bindingId:receiptBinding.id,requestKey:randomUUID()},replacementReceiptValues={sourceFileName:nextInputs.fileName,sourceSha256:createHash('sha256').update(allocationBytes).digest('hex'),batchId:'Synthetic replacement participant batch',recordedAt:'2026-09-29T15:00:00Z'}
+ setNow('2026-09-30T15:00:00Z')
+ server.files.set(replacementReceiptRemote,f.receipt());assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'RECONCILIATION_REQUIRED')
+ server.files.set(replacementReceiptRemote,f.receipt(replacementReceiptValues))
+ const replacementReceipts=await Promise.all([f.api(replacementReceiptPath,replacementReceiptBody),f.api(replacementReceiptPath,replacementReceiptBody)]);assert.equal(replacementReceipts[0].id,replacementReceipts[1].id);assert.equal(replacementReceipts[0].summary.status,'POSTED');assert.equal(replacementReceipts[0].summary.postedCents,1400)
+ const privateReceipt=(await h.pool.query('SELECT * FROM payroll_retirement_replacement_receipt_observation WHERE id=$1',[replacementReceipts[0].id])).rows[0];assert.ok(!privateReceipt.encrypted_receipt.includes(Buffer.from('PRIVATE-PARTICIPANT')));assert.ok(decryptDocument(privateReceipt.encrypted_receipt,`payroll-retirement-replacement-receipt:1:${privateReceipt.id}:file`).equals(server.files.get(replacementReceiptRemote)))
+ assert.ok(!JSON.stringify(await f.api(replacementReceiptPath)).includes('PRIVATE-PARTICIPANT'));assert.ok(!JSON.stringify(await f.api(replacementReceiptPath)).includes('Synthetic replacement participant batch'))
+ delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(replacementReceiptPath,replacementReceiptBody)).reused,true)}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ server.files.set(replacementReceiptRemote,f.receipt({...replacementReceiptValues,recordedAt:'2026-09-30T12:00:00Z',ordinaryPretaxCents:500,totalCents:900}));assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'REGRESSION')
+ server.files.delete(replacementReceiptRemote);assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'RECEIPT_NOT_FOUND')
+ const receiptAutomationStart=new Date(Date.now()+360000),receiptAutomationOptions={reader:(c,r)=>readRetirementSftpReceipt(c,r,server.options),receiptNow:()=>new Date('2026-09-30T15:00:00Z')}
+ assert.equal((await checkRetirementReplacementReceipts(h.pool,2,{...receiptAutomationOptions,now:receiptAutomationStart})).checked,0)
+ server.files.set(replacementReceiptRemote,f.receipt(replacementReceiptValues))
+ assert.equal((await checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:receiptAutomationStart,reader:async()=>{throw new Error('Synthetic receipt outage')}})).checked,1);assert.equal((await f.api(replacementReceiptPath)).history[0].summary.status,'RECEIPT_UNAVAILABLE')
+ assert.equal((await checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+60000)})).checked,0)
+ const receiptSweeps=await Promise.all([checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+360000)}),checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+360000)})]);assert.equal(receiptSweeps.reduce((n,r)=>n+r.checked,0),1);assert.equal(receiptSweeps.reduce((n,r)=>n+r.posted,0),1)
+ const automaticReceipt=(await f.api(replacementReceiptPath)).history[0];assert.equal(automaticReceipt.automatic,true);assert.equal(automaticReceipt.summary.status,'POSTED');assert.equal((await h.pool.query('SELECT created_by FROM payroll_retirement_replacement_receipt_observation WHERE id=$1',[automaticReceipt.id])).rows[0].created_by,null)
+ assert.equal((await checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+3600000)})).checked,0)
+ server.files.delete(replacementReceiptRemote);assert.equal((await checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+25*3600000)})).checked,1);assert.equal((await f.api(replacementReceiptPath)).history[0].summary.status,'RECEIPT_NOT_FOUND')
+ await f.api(replacementBindingPath,{action:'SUSPEND',expectedRevision:3,requestKey:randomUUID(),confirmed:true,reference:'Suspend replacement receipt checks while verifying the provider path'});assert.equal((await checkRetirementReplacementReceipts(h.pool,1,{...receiptAutomationOptions,now:new Date(+receiptAutomationStart+26*3600000)})).checked,0)
+ const receiptEnabled=process.env.PAYROLL_RETIREMENT_REPLACEMENT_RECEIPT_CHECKS_ENABLED;process.env.PAYROLL_RETIREMENT_REPLACEMENT_RECEIPT_CHECKS_ENABLED='false';try{assert.equal(startRetirementReplacementReceiptScheduler(h.pool),null)}finally{if(receiptEnabled===undefined)delete process.env.PAYROLL_RETIREMENT_REPLACEMENT_RECEIPT_CHECKS_ENABLED;else process.env.PAYROLL_RETIREMENT_REPLACEMENT_RECEIPT_CHECKS_ENABLED=receiptEnabled}
+ const foreignReceipt=await fetch(h.url+'/api/admin/payroll'+replacementReceiptPath,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(foreignReceipt.status,404)
+ await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_receipt_observation WHERE allocation_id=$1',[next.id]),/append-only/)
+ assert.equal((await f.api(f.receiptPath)).history[0].summary.status,'REVERSED');assert.equal(replacementBank.posts(),1);assert.equal(server.state.created,2)
+ replacementBank.missing(true);assert.equal((await f.api(fundingPath,fundingBody)).result.status,'NOT_FOUND');assert.equal(replacementBank.posts(),1)
+ delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(fundingPath,{confirmed:true,action:'RECOVER'})).result.status,'RECOVERY_UNAVAILABLE')}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ const foreignBank=await fetch(h.url+'/api/admin/payroll'+fundingPath,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2','Content-Type':'application/json'},body:JSON.stringify({confirmed:true,action:'RECOVER'})});assert.equal(foreignBank.status,404)
  server.files.delete(replacementTarget)
  assert.equal((await f.api(dispatchPath,dispatchBody)).result.status,'REMOTE_FILE_NOT_FOUND');assert.equal(server.state.created,2)
  delete process.env.PAYROLL_DOCUMENT_KEY

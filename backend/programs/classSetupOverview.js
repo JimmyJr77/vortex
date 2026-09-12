@@ -15,7 +15,7 @@ import {
   formHasCustomPricingOverride,
   resolveEffectiveFormPricing,
 } from './pricingDefaults.js'
-import { buildGroupDisplayLabel } from '../scheduling/slotDisplayLabel.js'
+import { buildGroupDisplayLabel, buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 
 function resolveStatus({ classArchived, programArchived, classIsActive, programIsActive }) {
   if (classArchived || programArchived) return 'Legacy'
@@ -37,7 +37,7 @@ function mapOfferingRow(row) {
   }
 }
 
-function mapSlotGroupRow(row, scheduleLabel) {
+function mapSlotGroupRow(row, scheduleLabel, slots = []) {
   const activeStart = row.active_start ? String(row.active_start).slice(0, 10) : null
   const activeEnd = row.active_end ? String(row.active_end).slice(0, 10) : null
   return {
@@ -50,6 +50,11 @@ function mapSlotGroupRow(row, scheduleLabel) {
     activeEnd,
     datesTbd: Boolean(row.dates_tbd),
     scheduleLabel,
+    scheduleLines: slots.map((slot) => ({
+      timeSlotId: Number(slot.id),
+      isActive: slot.is_active !== false,
+      scheduleLabel: buildSlotDisplayLabel(slot, { siblingRows: slots }),
+    })),
   }
 }
 
@@ -276,7 +281,7 @@ export async function buildClassSetupOverview(pool) {
     if (groupIds.length) {
       const slotsRes = await pool.query(
         `
-          SELECT slot_group_id, week_letter, schedule_mode, specific_date, day_of_week, start_time, end_time
+          SELECT id, is_active, slot_group_id, week_letter, schedule_mode, specific_date, day_of_week, start_time, end_time
           FROM scheduling_time_slot
           WHERE slot_group_id = ANY($1::int[])
           ORDER BY slot_group_id, week_letter NULLS LAST, day_of_week NULLS LAST,
@@ -296,7 +301,7 @@ export async function buildClassSetupOverview(pool) {
       const gid = Number(row.id)
       const scheduleLabel = buildGroupDisplayLabel(slotsByGroupId.get(gid) ?? [])
       if (!slotGroupsByFormId.has(fid)) slotGroupsByFormId.set(fid, [])
-      slotGroupsByFormId.get(fid).push(mapSlotGroupRow(row, scheduleLabel))
+      slotGroupsByFormId.get(fid).push(mapSlotGroupRow(row, scheduleLabel, slotsByGroupId.get(gid) ?? []))
     }
 
     const enrolRes = await pool.query(

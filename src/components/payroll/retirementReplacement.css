@@ -1,0 +1,28 @@
+@media (max-width: 640px) {
+  .payroll-replacement {
+    padding: 0.25rem;
+    min-width: 0;
+  }
+  .payroll-replacement :is(section, article, fieldset) {
+    padding: 0.25rem;
+    min-width: 0;
+  }
+  .payroll-replacement :is(label, legend, summary, p) {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .payroll-replacement :is(select, textarea, button, input:not([type="checkbox"])) {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .payroll-replacement select {
+    width: 100%;
+  }
+  .payroll-replacement button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .payroll-replacement input[type="checkbox"] {
+    flex-shrink: 0;
+  }
+}

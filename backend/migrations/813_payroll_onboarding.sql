@@ -5121,3 +5121,50 @@ CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_attempt (
 DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON payroll_retirement_replacement_attempt;
 CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON payroll_retirement_replacement_attempt FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection();
 ALTER TABLE payroll_retirement_replacement_claim ADD COLUMN IF NOT EXISTS automatic BOOLEAN NOT NULL DEFAULT false CHECK(NOT automatic OR created_by IS NULL);
+
+ALTER TABLE payroll_retirement_replacement_claim ADD COLUMN IF NOT EXISTS encrypted_instruction BYTEA;
+
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_receipt_binding (
+ id UUID PRIMARY KEY,facility_id BIGINT NOT NULL REFERENCES facility(id),allocation_id UUID NOT NULL REFERENCES payroll_retirement_replacement_authorization(id),claim_id UUID NOT NULL REFERENCES payroll_retirement_replacement_authorization(id),configuration_id UUID NOT NULL REFERENCES payroll_retirement_sftp_configuration(id),contract_id UUID NOT NULL REFERENCES payroll_retirement_receipt_contract(id),revision INTEGER NOT NULL CHECK(revision>0),disposition TEXT NOT NULL CHECK(disposition IN ('REVIEWED','SUSPENDED')),directory TEXT NOT NULL,file_name TEXT NOT NULL,reference TEXT NOT NULL,request_key UUID NOT NULL,request_fingerprint TEXT NOT NULL,created_by BIGINT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,allocation_id,revision),UNIQUE(facility_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_validate_retirement_replacement_receipt_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE latest payroll_retirement_replacement_receipt_binding%ROWTYPE;a payroll_retirement_replacement_authorization%ROWTYPE;
+BEGIN
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=NEW.facility_id FOR UPDATE;
+ SELECT * INTO latest FROM payroll_retirement_replacement_receipt_binding WHERE facility_id=NEW.facility_id AND allocation_id=NEW.allocation_id ORDER BY revision DESC LIMIT 1;
+ SELECT * INTO a FROM payroll_retirement_replacement_authorization WHERE id=NEW.allocation_id;
+ IF NEW.revision<>COALESCE(latest.revision,0)+1 OR a.id IS NULL OR a.facility_id<>NEW.facility_id OR a.preview->>'configurationId'<>NEW.configuration_id::text OR NEW.claim_id<>a.id OR NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_claim WHERE authorization_id=a.id AND kind='ALLOCATION') OR NOT EXISTS(SELECT 1 FROM payroll_retirement_receipt_contract WHERE id=NEW.contract_id AND facility_id=NEW.facility_id AND plan_id=a.preview->>'planId' AND plan_revision_id::text=a.preview->'allocation'->>'planRevisionId' AND allocation_format_id::text=a.preview->'allocation'->>'formatId' AND disposition='REVIEWED') THEN RAISE EXCEPTION 'Replacement receipt binding requires scoped claim, setup, contract and current revision.'; END IF;
+ IF NEW.disposition='REVIEWED' THEN
+  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_cancellation WHERE authorization_id=a.id) OR (SELECT disposition FROM payroll_retirement_receipt_contract WHERE facility_id=NEW.facility_id AND plan_id=a.preview->>'planId' ORDER BY revision DESC LIMIT 1)='SUSPENDED' THEN RAISE EXCEPTION 'Cancelled replacement or suspended contract cannot bind receipt interpretation.'; END IF;
+ ELSIF latest.id IS NULL OR latest.disposition<>'REVIEWED' OR NEW.contract_id<>latest.contract_id OR NEW.directory<>latest.directory OR NEW.file_name<>latest.file_name OR NEW.claim_id<>latest.claim_id OR NEW.configuration_id<>latest.configuration_id THEN RAISE EXCEPTION 'Replacement receipt suspension must preserve its reviewed binding.';
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_validate_retirement_replacement_receipt_binding ON payroll_retirement_replacement_receipt_binding;
+CREATE TRIGGER payroll_validate_retirement_replacement_receipt_binding BEFORE INSERT ON payroll_retirement_replacement_receipt_binding FOR EACH ROW EXECUTE FUNCTION payroll_validate_retirement_replacement_receipt_binding();
+DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON payroll_retirement_replacement_receipt_binding;
+CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON payroll_retirement_replacement_receipt_binding FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection();
+
+
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_receipt_observation (
+ id UUID PRIMARY KEY,sequence BIGSERIAL NOT NULL UNIQUE,facility_id BIGINT NOT NULL REFERENCES facility(id),allocation_id UUID NOT NULL REFERENCES payroll_retirement_replacement_authorization(id),binding_id UUID NOT NULL REFERENCES payroll_retirement_replacement_receipt_binding(id),request_key UUID NOT NULL,request_fingerprint TEXT NOT NULL,
+ transport_status TEXT NOT NULL CHECK(transport_status IN ('READ','NOT_FOUND','CHANGED','UNSUPPORTED','UNAVAILABLE')),decision TEXT NOT NULL CHECK(decision IN ('NOT_EVALUATED','RECONCILIATION_REQUIRED','RECONCILED','STALE','CONFLICT','REGRESSION')),summary JSONB NOT NULL,encrypted_receipt BYTEA,encrypted_result BYTEA,created_by BIGINT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,request_key),
+ CHECK((transport_status='READ')=(encrypted_receipt IS NOT NULL)),CHECK((decision IN ('RECONCILED','STALE','CONFLICT','REGRESSION'))=(encrypted_result IS NOT NULL)),CHECK((summary->>'decision') IS NOT DISTINCT FROM decision)
+);
+CREATE OR REPLACE FUNCTION payroll_validate_retirement_replacement_receipt_observation() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=NEW.facility_id FOR UPDATE;
+ IF NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_receipt_binding b JOIN payroll_retirement_replacement_authorization a ON a.id=b.allocation_id JOIN payroll_retirement_replacement_claim c ON c.authorization_id=b.claim_id AND c.kind='ALLOCATION' WHERE b.id=NEW.binding_id AND b.facility_id=NEW.facility_id AND b.allocation_id=NEW.allocation_id AND a.facility_id=NEW.facility_id AND c.authorization_id=a.id AND b.disposition='REVIEWED') THEN RAISE EXCEPTION 'Receipt observation requires its scoped original reviewed binding and claim.'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_validate_retirement_replacement_receipt_observation ON payroll_retirement_replacement_receipt_observation;
+CREATE TRIGGER payroll_validate_retirement_replacement_receipt_observation BEFORE INSERT ON payroll_retirement_replacement_receipt_observation FOR EACH ROW EXECUTE FUNCTION payroll_validate_retirement_replacement_receipt_observation();
+DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON payroll_retirement_replacement_receipt_observation;
+CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON payroll_retirement_replacement_receipt_observation FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection();
+
+
+-- Receipt checks run without inventing a human actor for scheduled work.
+ALTER TABLE payroll_retirement_replacement_receipt_observation ADD COLUMN IF NOT EXISTS automatic BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE payroll_retirement_replacement_receipt_observation ALTER COLUMN created_by DROP NOT NULL;
+ALTER TABLE payroll_retirement_replacement_receipt_observation DROP CONSTRAINT IF EXISTS payroll_retirement_replacement_receipt_actor;
+ALTER TABLE payroll_retirement_replacement_receipt_observation ADD CONSTRAINT payroll_retirement_replacement_receipt_actor CHECK((automatic AND created_by IS NULL) OR (NOT automatic AND created_by IS NOT NULL));

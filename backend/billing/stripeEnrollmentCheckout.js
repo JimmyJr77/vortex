@@ -333,10 +333,23 @@ function enrollmentCheckoutCollectionConflict(owner, message = null) {
 }
 
 export function enrollmentHasRecurringMembership(preview) {
+  // Signup list prices precede the discount layer. Only an applied lifetime
+  // waiver that fully covers this line removes its future payment obligation;
+  // temporary free promotions still need a payment method for renewal.
+  const lifetimeWaivedKeys = new Set(
+    (preview.discounts?.enabled ? preview.discounts.freeGrants ?? [] : [])
+      .filter((grant) => grant.lifetimeOwnerWaiver === true && grant.amountCents > 0)
+      .filter((grant) => (preview.discounts.lines ?? []).some(
+        (line) => line.key === grant.lineKey && line.finalCents === 0
+          && grant.amountCents >= line.baseCents,
+      ))
+      .map((grant) => grant.lineKey),
+  )
   return (preview.newSignups ?? []).some(
     (line) =>
       line.billingType === 'recurring' &&
       !line.multiClassPassApplied &&
+      !lifetimeWaivedKeys.has(line.slotKey) &&
       (line.monthlyPrice ?? line.incrementalMonthly ?? 0) > 0,
   )
 }

@@ -29,12 +29,15 @@ import {
 } from '../../utils/programPricingOptions'
 import {
   type ClassSetupOverviewRow,
+  type ClassSetupOverviewScheduleLine,
+  archiveClassSetupSchedule,
 } from '../../utils/classSetupOverviewApi'
 import { type OverviewColumnId } from './overviewColumns'
 
 export interface EditTarget {
   row: ClassSetupOverviewRow
   columnId: OverviewColumnId
+  line?: ClassSetupOverviewScheduleLine
 }
 
 interface Props {
@@ -118,7 +121,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setPrimarySportId(row.primarySportId)
     setAllowDropIns(!row.excludeFromDropIns)
     setSkillLevel(row.skillLevel ?? '')
-    setStatusValue(row.status)
+    setStatusValue(target?.line?.isActive === false ? 'Inactive' : row.status)
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
     setPricingDraft(options)
     const cents = Number(row.effectiveCostAmountCents ?? 0)
@@ -140,7 +143,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       default:
         break
     }
-  }, [row, columnId])
+  }, [row, columnId, target?.line])
 
   const loadSchedule = useCallback(async (refreshOverview = false) => {
     if (row?.formId == null) return
@@ -302,6 +305,11 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           })
           break
         case 'status':
+          if (target?.line) {
+            if (target.line.timeSlotId == null) throw new Error('This schedule line has no editable identity. Refresh Class Master.')
+            await archiveClassSetupSchedule(row.classId, target.line.timeSlotId, statusValue !== 'Active')
+            break
+          }
           if (statusValue === 'Legacy') {
             await archiveClassEvent(row.classId, true)
           } else {
@@ -497,7 +505,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           >
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
-            <option value="Legacy">Legacy (archive class)</option>
+            {!target?.line && <option value="Legacy">Legacy (archive class)</option>}
           </select>
         </div>
       )

@@ -42,7 +42,7 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'days',
   'times',
   'capacity',
-  'status',
+  // Status is schedule-line scoped; the class-wide copy engine cannot copy it safely.
   'costPerMonth',
 ])
 

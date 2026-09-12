@@ -1008,6 +1008,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             amountCents: amount,
             durationMonths: freeGrantDurationMonths(rule),
             durationWeeks: freeGrantDurationWeeks(rule),
+            ...(cfg.lifetime_owner_waiver === true ? { lifetimeOwnerWaiver: true } : {}),
           })
         }
         continue
