@@ -1,6 +1,7 @@
 import OnboardingNextSteps from './OnboardingNextSteps'
 import EmployeeW4 from './EmployeeW4'
 import EmployeeMW507 from './EmployeeMW507'
+import EmployeeI9Draft from './EmployeeI9Draft'
 import BenefitsDeductionAuthorization from './BenefitsDeductionAuthorization'
 import EmployeeBenefitsChoice from './EmployeeBenefitsChoice'
 import HiringBenefitsReview from './HiringBenefitsReview'
@@ -64,6 +65,7 @@ function TaskStep({ taskId, task, packet, employeeId, busy, act, employmentStatu
   {employeeId && Object.keys(task.response || {}).filter(key=>key!=='firstShift'&&key!=='paySetup'&&key!=='benefitsReview'&&key!=='benefitsElection'&&key!=='benefitsDeductionAuthorization'&&key!=='benefitsDeductionWithdrawal'&&key!=='benefitsDeductionSupersededByFunding').length ? <dl className="my-3 space-y-2 rounded-xl bg-slate-50 p-3 text-sm">{Object.entries(task.response).filter(([key])=>key!=='firstShift'&&key!=='paySetup'&&key!=='benefitsReview'&&key!=='benefitsElection'&&key!=='benefitsDeductionAuthorization'&&key!=='benefitsDeductionWithdrawal'&&key!=='benefitsDeductionSupersededByFunding').map(([key, value]) => <div key={key}><dt className="font-bold">{labels[key] || key}</dt><dd className="break-words whitespace-pre-wrap">{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}</dd></div>)}</dl> : null}
   {files.length ? <ul className="my-3 space-y-2">{files.map(file => <li key={file.id}><button type="button" className="text-sm font-bold text-blue-700 underline" disabled={busy} onClick={() => void act(() => workforceApi.download(Number(file.id), file.filename, !!employeeId), 'Document downloaded.')}>{file.filename}</button></li>)}</ul> : null}
   {canSubmit&&task.task_key==='W4'?<EmployeeW4 key={`${task.id}-${task.onboarding_cycle}`} taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed W-4 was submitted for hiring-admin review.')}/>:null}
+  {canSubmit&&activated&&task.task_key==='I9'?<EmployeeI9Draft taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady}/>:null}
   {canSubmit&&activated&&task.task_key==='STATE_WITHHOLDING'&&packet.marylandCertificateAvailable?<EmployeeMW507 taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed MW507 was submitted for hiring-admin review.')}/>:null}
   {canSubmit&&nativeCertificate?<p className="mt-3 text-sm">Your internal certificate is saved. Use the internal form above to sign an amendment.</p>:null}
   {canSubmit&&nativeCertificate?<label className="mt-3 block text-sm font-semibold">Supporting documents (PDF, PNG or JPEG; up to 5 MB)<input type="file" accept="application/pdf,image/png,image/jpeg" disabled={busy||!packet.vaultReady} onChange={e=>{const file=e.target.files?.[0];if(file)void act(()=>workforceApi.upload(Number(task.id),file,task.onboarding_cycle),'Supporting document securely uploaded.')}}/></label>:null}

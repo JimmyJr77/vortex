@@ -3,7 +3,7 @@ import type {PDFDocumentProxy} from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import officialFormUrl from '../../../backend/payroll/forms/irs-w4-2026.pdf?url'
 
-export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCount=5,sourceUrl=officialFormUrl}:{pdfBase64?:string;onDisplayed?:(page:number)=>Promise<void>;formName?:string;pageCount?:number;sourceUrl?:string}){
+export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCount=5,sourceUrl=officialFormUrl,editionLabel='2026'}:{pdfBase64?:string;onDisplayed?:(page:number)=>Promise<void>;formName?:string;pageCount?:number;sourceUrl?:string;editionLabel?:string}){
  const [pdf,setPdf]=useState<PDFDocumentProxy|null>(null),[page,setPage]=useState(1),[attempt,setAttempt]=useState(0),[ready,setReady]=useState(0),[error,setError]=useState(''),[text,setText]=useState(''),[zoom,setZoom]=useState(1)
  const canvas=useRef<HTMLCanvasElement>(null)
  useEffect(()=>{
@@ -42,7 +42,7 @@ export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCo
  },[pdf,page,onDisplayed,attempt])
  const select=(value:number)=>{setReady(0);setError('');setText('');setPage(value);setAttempt(current=>current+1)}
  return <section aria-label={`Official ${formName} page review`} className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-3">
-  <p className="font-bold">{pdfBase64?`Review your completed ${formName}`:`Official 2026 ${formName}, instructions and worksheets`}</p>
+  <p className="font-bold">{pdfBase64?`Review your completed ${formName}`:`Official ${editionLabel} ${formName}, instructions and worksheets`}</p>
   <nav aria-label={`${formName} pages`} className="flex flex-wrap gap-2">{Array.from({length:pageCount},(_,index)=>index+1).map(n=><button type="button" key={n} aria-current={page===n?'page':undefined} className={`rounded-lg border px-3 py-2 text-sm ${page===n?'bg-slate-950 text-white':'bg-white'}`} onClick={()=>select(n)}>Page {n}</button>)}</nav>
   <p role="status" className="text-sm">{ready===page?`Page ${page} of ${pageCount} displayed${onDisplayed?' and review visit saved':''}.`:'Loading page…'}</p>
   {error?<p role="alert" className="text-sm text-red-800">{error}</p>:null}
