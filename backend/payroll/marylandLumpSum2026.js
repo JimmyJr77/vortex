@@ -4,7 +4,7 @@ const guidance='https://services.marylandcomptroller.gov/taxes/en/maryland-incom
 const tables=new Map([[2.25,[225,875]],[2.4,[240,890]],[2.65,[265,915]],[2.7,[275,925]],[2.74,[275,925]],[2.75,[275,925]],[2.94,[300,950]],[2.95,[300,950]],[2.96,[300,950]],[3.03,[305,955]],[3.06,[310,960]],[3.2,[320,970]],[3.3,[330,980]]])
 const fail=message=>Object.assign(new Error(message),{status:409})
 
-// Standalone arithmetic; not yet imported by payroll execution. The caller
+// Exact lump-sum arithmetic used by the PTO state calculation. The caller
 // must establish the lump-sum classification and reconciled Maryland tax wages.
 export function marylandLumpSum2026({year,workState,residenceState,taxableWagesCents,wageBasisVerified,lumpSumVerified,election}){
  if(year!==2026||workState!=='MD'||residenceState!=='MD'||wageBasisVerified!==true||lumpSumVerified!==true)throw fail('Verify a 2026 Maryland-resident lump-sum payment and its Maryland taxable wages.')

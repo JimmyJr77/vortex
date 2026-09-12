@@ -4,6 +4,26 @@ import { federalWithholding2026, marylandWithholding2026, calculateWithholding20
 
 const federal={filingStatus:'SINGLE'}
 const maryland={filingStatus:'SINGLE',localRate:3.2,exemptions:1}
+test('Maryland snapshots separate base, bonus and additional withholding without changing total tax',()=>{
+ const input={grossPayCents:200000,election:{verified:true,federal,maryland:{...maryland,extraWithholdingCents:250}},payFrequency:'SEMIMONTHLY',year:2026,workState:'MD',residenceState:'MD'}
+ const regular=calculateWithholding2026(input),parts=regular.incomeTaxWageBasis.stateTaxComponents
+ assert.equal(regular.stateIncomeTaxCents,13964)
+ assert.equal(parts.regularBaseCents,13714);assert.equal(parts.annualBonusTaxCents,0)
+ assert.equal(parts.requestedAdditionalCents,250);assert.equal(parts.appliedAdditionalCents,250);assert.equal(parts.totalCents,13964)
+ assert.match(parts.electionFingerprint,/^[a-f0-9]{64}$/)
+ const bonus=calculateWithholding2026({...input,hasBonus:true,annualBonusCents:50000,bonusReviewComplete:true})
+ assert.equal(bonus.stateIncomeTaxCents,14839)
+ assert.equal(bonus.incomeTaxWageBasis.stateTaxComponents.regularBaseCents,9739)
+ assert.equal(bonus.incomeTaxWageBasis.stateTaxComponents.annualBonusTaxCents,4850)
+ assert.equal(bonus.incomeTaxWageBasis.stateTaxComponents.appliedAdditionalCents,250)
+ const exempt=calculateWithholding2026({...input,election:{...input.election,maryland:{...input.election.maryland,exempt:true}}})
+ assert.equal(exempt.stateIncomeTaxCents,0);assert.equal(exempt.incomeTaxWageBasis.stateTaxComponents.requestedAdditionalCents,250);assert.equal(exempt.incomeTaxWageBasis.stateTaxComponents.appliedAdditionalCents,0)
+ assert.notEqual(exempt.incomeTaxWageBasis.stateTaxComponents.electionFingerprint,parts.electionFingerprint)
+ for(const payFrequency of ['WEEKLY','BIWEEKLY','SEMIMONTHLY','MONTHLY']){
+  const small=calculateWithholding2026({...input,grossPayCents:100,payFrequency}),evidence=small.incomeTaxWageBasis.stateTaxComponents
+  assert.equal(evidence.payFrequency,payFrequency);assert.equal(evidence.regularBaseCents,0);assert.equal(evidence.totalCents,250);assert.equal(small.stateIncomeTaxCents,250)
+ }
+})
 test('2026 official worksheet examples calculated independently for $2,000 semimonthly wages',()=>{
  assert.equal(federalWithholding2026(200000,federal),14917)
  assert.equal(marylandWithholding2026(200000,maryland),13714)

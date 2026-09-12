@@ -5274,3 +5274,39 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_replacement_settlement_event ON payroll_retirement_replacement_settlement_journal;
 CREATE TRIGGER payroll_guard_replacement_settlement_event BEFORE INSERT ON payroll_retirement_replacement_settlement_journal FOR EACH ROW EXECUTE FUNCTION payroll_guard_replacement_settlement_event();
+
+
+-- Retained employee/employer agreement for per-period Maryland additions.
+CREATE TABLE IF NOT EXISTS payroll_maryland_additional_agreement (
+ id BIGSERIAL PRIMARY KEY,
+ facility_id BIGINT NOT NULL REFERENCES facility(id),
+ employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ revision INTEGER NOT NULL CHECK(revision>0),
+ status TEXT NOT NULL CHECK(status IN ('ACTIVE','SUSPENDED')),
+ agreement JSONB NOT NULL CHECK(jsonb_typeof(agreement)='object'),
+ effective_on DATE NOT NULL,
+ fingerprint TEXT NOT NULL CHECK(fingerprint ~ '^[a-f0-9]{64}$'),
+ source_reference TEXT NOT NULL CHECK(length(source_reference) BETWEEN 20 AND 2000),
+ request_key UUID NOT NULL,
+ request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),
+ verified_by BIGINT NOT NULL,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ UNIQUE(employee_id,revision),
+ UNIQUE(employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_maryland_additional_agreement() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Maryland additional-withholding agreement history is immutable.'; END IF;
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=NEW.facility_id FOR UPDATE;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee e WHERE e.id=NEW.employee_id AND e.facility_id=NEW.facility_id) OR NEW.agreement->>'employeeId' IS DISTINCT FROM NEW.employee_id::text THEN RAISE EXCEPTION 'Maryland agreement employee scope mismatch.'; END IF;
+ IF NEW.revision<>(SELECT COALESCE(MAX(revision),0)+1 FROM payroll_maryland_additional_agreement WHERE employee_id=NEW.employee_id) THEN RAISE EXCEPTION 'Maryland agreement revision mismatch.'; END IF;
+ IF NEW.agreement->'version' IS DISTINCT FROM '1'::jsonb OR NEW.agreement->'verified' IS DISTINCT FROM 'true'::jsonb OR NEW.agreement->>'periodBasis' IS DISTINCT FROM 'PAYMENT_DATE' OR COALESCE(NEW.agreement->>'payFrequency','') NOT IN ('WEEKLY','BIWEEKLY','SEMIMONTHLY','MONTHLY') OR COALESCE(NEW.agreement->>'electionFingerprint','') !~ '^[a-f0-9]{64}$' OR jsonb_typeof(NEW.agreement->'amountCents') IS DISTINCT FROM 'number' OR COALESCE(NEW.agreement->>'amountCents','') !~ '^[0-9]+$' THEN RAISE EXCEPTION 'Maryland agreement payload is invalid.'; END IF;
+ IF (NEW.agreement->>'amountCents')::numeric>9007199254740991 OR length(btrim(NEW.source_reference))<20 OR NEW.source_reference ~ '[[:cntrl:]]' THEN RAISE EXCEPTION 'Maryland agreement amount or reference is invalid.'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_maryland_additional_agreement WHERE employee_id=NEW.employee_id AND effective_on>NEW.effective_on) THEN RAISE EXCEPTION 'Maryland agreement effective date cannot move backward.'; END IF;
+ IF NEW.status='ACTIVE' AND EXTRACT(YEAR FROM NEW.effective_on)<>2026 THEN RAISE EXCEPTION 'Maryland active agreement requires a supported tax year.'; END IF;
+ IF NEW.status='SUSPENDED' AND NOT EXISTS(SELECT 1 FROM payroll_maryland_additional_agreement a WHERE a.employee_id=NEW.employee_id AND a.revision=NEW.revision-1 AND a.status='ACTIVE' AND a.agreement=NEW.agreement) THEN RAISE EXCEPTION 'Maryland suspension must preserve the active agreement.'; END IF;
+
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_maryland_additional_agreement ON payroll_maryland_additional_agreement;
+CREATE TRIGGER payroll_guard_maryland_additional_agreement BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_additional_agreement FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_additional_agreement();

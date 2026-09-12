@@ -1,11 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {reconcileIncomeTaxWageRows} from '../incomeTaxWageReconciliation.js'
+import {reconcileIncomeTaxWageRows,reconcileApprovedIncomeTaxWageRows} from '../incomeTaxWageReconciliation.js'
 test('income wage reconciliation requires consistent source, statement, wage and withholding evidence',()=>{
  const basis={version:1,source:'NATIVE_ENGINE',year:2026,workState:'MD',residenceState:'MD',grossWagesCents:100,federalWagesCents:100,marylandWagesCents:100,marylandRegularWagesCents:100,marylandAnnualBonusWagesCents:0,pretaxDeductionCents:0}
  const row={run_id:1,employee_id:1,run_kind:'REGULAR',payment_date:'2026-09-18',regular_pay_cents:100,overtime_pay_cents:0,other_taxable_pay_cents:0,federal_income_tax_cents:0,state_income_tax_cents:0,calculation_snapshot:{employees:[{employeeId:1,grossPayCents:100,federalIncomeTaxCents:0,stateIncomeTaxCents:0,incomeTaxWageBasis:basis}]},statement_snapshot:{incomeTaxWageBasis:basis}}
  const check=rows=>reconcileIncomeTaxWageRows(rows).get('1')
  assert.deepEqual(check([row]),{verified:1,federal:100n,maryland:100n,issues:[]})
+ const approved={...row,status:'APPROVED',statement_snapshot:null}
+ assert.equal(reconcileApprovedIncomeTaxWageRows([approved]).get('1').verified,1)
+ assert.equal(check([approved]).verified,0)
+ for(const patch of [{status:'FINALIZED'},{status:'DRAFT'},{state_income_tax_cents:1},{regular_pay_cents:101},{reviewed_income_basis:{}}])assert.equal(reconcileApprovedIncomeTaxWageRows([{...approved,...patch}]).get('1').verified,0)
  for(const changed of [{...row,statement_snapshot:{}},{...row,federal_income_tax_cents:null},{...row,state_income_tax_cents:1},{...row,payment_date:'2027-09-18'},{...row,calculation_snapshot:{employees:{}}}])assert.equal(check([changed]).verified,0)
  assert.match(check([row,row]).issues[0],/duplicate/)
  const changed=structuredClone(row);changed.calculation_snapshot.employees[0].incomeTaxWageBasis.federalWagesCents=99;changed.statement_snapshot.incomeTaxWageBasis=structuredClone(changed.calculation_snapshot.employees[0].incomeTaxWageBasis)

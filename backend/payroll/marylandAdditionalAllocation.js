@@ -1,0 +1,8 @@
+import {marylandAdditionalPeriod} from './marylandAdditionalPeriod.js'
+export function verifyMarylandAdditionalAllocation(allocation,{requestedAdditionalCents,electionFingerprint,payFrequency,employeeId,paymentDate}){
+ const fail=()=>{throw Object.assign(new Error('Maryland additional-withholding allocation changed or does not match this payment and election.'),{status:409})}
+ if(!allocation||allocation.error||allocation.version!==1||!Array.isArray(allocation.applications)||allocation.requestedAdditionalCents!==requestedAdditionalCents||allocation.electionFingerprint!==electionFingerprint||allocation.period?.payFrequency!==payFrequency||(employeeId!==undefined&&allocation.employeeId!==String(employeeId))||(paymentDate!==undefined&&allocation.paymentDate!==paymentDate))return fail()
+ const expected=marylandAdditionalPeriod({employeeId:allocation.employeeId,agreement:{verified:true,employeeId:allocation.employeeId,amountCents:requestedAdditionalCents,periodBasis:'PAYMENT_DATE',payFrequency,fingerprint:allocation.agreementFingerprint,electionFingerprint},period:allocation.period,paymentDate:allocation.paymentDate,history:{reconciled:true,evidence:allocation.applications.map(row=>({...row,employeeId:allocation.employeeId,reconciled:true,additionalWithholding:{status:'VERIFIED',requestedAdditionalCents,appliedAdditionalCents:row.appliedAdditionalCents,payFrequency,electionFingerprint}}))}})
+ if(expected.fingerprint!==allocation.fingerprint||expected.committedAdditionalCents!==allocation.committedAdditionalCents||expected.remainingAdditionalCents!==allocation.remainingAdditionalCents)return fail()
+ return expected
+}

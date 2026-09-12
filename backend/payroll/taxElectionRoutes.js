@@ -1,7 +1,9 @@
+import {registerMarylandAdditionalAgreementRoutes} from './marylandAdditionalAgreementRoutes.js'
 import {effectiveScheduleSettings} from './payCalendar.js'
 import { calculateWithholding2026, withholdingVersionFor, WITHHOLDING_SOURCES } from './withholding2026.js'
 const clean=v=>String(v||'').trim().slice(0,2000)
 export function registerTaxElectionRoutes(app,pool) {
+ registerMarylandAdditionalAgreementRoutes(app,pool)
  app.get('/api/admin/payroll/employees/:id/tax-elections',async(req,res)=>{
   try {
    const employee=(await pool.query('SELECT s.*,e.id FROM payroll_employee e JOIN payroll_settings s ON s.facility_id=e.facility_id WHERE e.id=$1 AND e.facility_id=$2',[req.params.id,req.canonicalAccess.facilityId])).rows[0]

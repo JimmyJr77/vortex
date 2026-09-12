@@ -1,3 +1,4 @@
+import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {registerRetirementReplacementSettlementReleasePreview} from './retirementReplacementSettlementReleasePreview.js'
 import {registerRetirementReplacementSettlementRelease} from './retirementReplacementSettlementRelease.js'
 import {registerRetirementReplacementSettlementPreview} from './retirementReplacementSettlementPreview.js'
@@ -516,6 +517,15 @@ async function loadBasePreview(pool, facilityId, payPeriodId, paymentDate = null
   const taxElections=(await pool.query('SELECT * FROM payroll_tax_election WHERE facility_id=$1',[facilityId])).rows
   const taxYear=new Date(periodResult.rows[0].pay_date).getUTCFullYear()
   for(const employee of employees) { const election=taxElections.find(e=>Number(e.employee_id)===Number(employee.id) && e.tax_year===taxYear); employee.taxElection=election?{...election.elections,verified:true}:null }
+
+  if(!skipHistoricalCoverage){
+   const actualPaymentDate=new Date(paymentDate||periodResult.rows[0].pay_date).toISOString().slice(0,10)
+   const agreements=(await pool.query('SELECT DISTINCT employee_id FROM payroll_maryland_additional_agreement WHERE facility_id=$1 AND effective_on<=$2::date',[facilityId,actualPaymentDate])).rows
+   for(const employee of employees.filter(e=>e.taxElection&&agreements.some(a=>Number(a.employee_id)===Number(e.id)))){
+    try{employee.taxElection.marylandAdditionalAllocation=await loadOptionalMarylandAdditionalPeriod(pool,{facility:facilityId,employeeId:employee.id,paymentDate:actualPaymentDate,excludeRunId:excludedRunId})}
+    catch(e){if(![400,404,409].includes(e.status))throw e;employee.taxElection.marylandAdditionalAllocation={error:e.message}}
+   }
+  }
 
   const mappedEntries = entriesResult.rows.map((row) => ({
     id: row.id, employeeId: row.employee_id, clockIn: row.clock_in, clockOut: row.clock_out, workDate:row.work_date,

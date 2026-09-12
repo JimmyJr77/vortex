@@ -10,6 +10,7 @@ import {loadSupplementalPaymentHistory} from '../supplementalPaymentHistory.js'
 test('regular payroll calculates reviewed retirement, retains approval ledger and finalizes separate benefit and retirement deductions',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const h=await createHarness({retirementNow:()=>new Date('2026-09-11T12:00:00Z')});t.after(()=>h.close())
  const {api,employee,periods,preview,processingPath,processing}=await regularRetirementFixture(h)
+ await h.pool.query("UPDATE payroll_tax_election SET elections=jsonb_set(elections,'{maryland,extraWithholdingCents}','250'::jsonb) WHERE employee_id=$1",[employee.id])
  const first=await preview(periods[0]),calculated=first.employees[0]
  assert.equal(first.canApprove,true,JSON.stringify(first.warnings));assert.equal(calculated.pretaxDeductionCents,1000);assert.equal(calculated.posttaxDeductionCents,12900)
  assert.equal(calculated.retirementPlans[0].calculation.requiresPayrollIntegration,false);assert.equal(calculated.incomeTaxWageBasis.federalWagesCents,19000)
@@ -22,8 +23,12 @@ test('regular payroll calculates reviewed retirement, retains approval ledger an
  await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-REGULAR-RETIREMENT'})
  const posted=(await h.pool.query('SELECT * FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows[0]
  assert.equal(posted.statement_snapshot.retirement.plans[0].ordinaryPretaxCents,1000);assert.equal(posted.statement_snapshot.retirement.plans[0].ordinaryRothCents,400)
+ const stateComponents=posted.statement_snapshot.incomeTaxWageBasis.stateTaxComponents
+ assert.equal(stateComponents.appliedAdditionalCents,250);assert.equal(stateComponents.regularBaseCents,0)
+ assert.equal(stateComponents.totalCents,Number(posted.state_income_tax_cents))
+ assert.deepEqual(stateComponents,calculated.incomeTaxWageBasis.stateTaxComponents)
  const annualReport=await retirementAnnualReporting(h.pool,1,employee.id);assert.equal(annualReport.pretaxDeferrals,'10.00');assert.equal(annualReport.rothDeferrals,'4.00')
- const supplementalHistory=await loadSupplementalPaymentHistory(h.pool,1,employee.id,'2026-09-30');assert.equal(supplementalHistory.reconciled,true,JSON.stringify(supplementalHistory.issues));assert.equal(supplementalHistory.evidence[0].grossCents,20000);assert.equal(supplementalHistory.evidence[0].incomeTaxGrossCents,19000);assert.equal(supplementalHistory.ytdSupplementalCents,0)
+ const supplementalHistory=await loadSupplementalPaymentHistory(h.pool,1,employee.id,'2026-09-30');assert.equal(supplementalHistory.reconciled,true,JSON.stringify(supplementalHistory.issues));assert.equal(supplementalHistory.evidence[0].grossCents,20000);assert.equal(supplementalHistory.evidence[0].incomeTaxGrossCents,19000);assert.equal(supplementalHistory.ytdSupplementalCents,0);assert.equal(supplementalHistory.marylandHistory.evidence[0].additionalWithholding.status,'VERIFIED');assert.equal(supplementalHistory.marylandHistory.evidence[0].additionalWithholding.appliedAdditionalCents,250)
  const next=await preview(periods[1]);assert.equal(next.canApprove,true,JSON.stringify(next.warnings));assert.equal(next.employees[0].benefitCollection.status,'ALREADY_COLLECTED');assert.equal(next.employees[0].posttaxDeductionCents,400)
  assert.equal((await retirementOffCycleWarnings(h.pool,1,employee.id,'2026-09-30'))[0].blocking,true);assert.deepEqual(await retirementOffCycleWarnings(h.pool,2,employee.id,'2026-09-30'),[])
  await api(processingPath,{planRevisionId:processing.planRevisionId,expectedRevision:2,requestKey:randomUUID(),review:{disposition:'SUSPENDED',catchUpAuthorized:false,confirmed:true,reference:'Synthetic suspension stops regular payroll processing',policies:processing.policies}})

@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test'
 import {randomUUID} from 'node:crypto'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {regularRetirementFixture} from '../../backend/payroll/testing/regularRetirementFixture.js'
-for(const federalMethod of ['FLAT_22','AGGREGATE'])test(`admin calculates retirement PTO, reviews state withholding and finalizes ${federalMethod} payroll`,async({page})=>{
+for(const stateMethod of ['REVIEWED','MD_LUMP_SUM'])for(const federalMethod of ['FLAT_22','AGGREGATE'])test(`admin calculates retirement PTO, reviews state withholding and finalizes ${federalMethod} ${stateMethod} payroll`,async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(120000);page.setDefaultTimeout(15000)
  const h=await createHarness({databaseNow:'2026-09-11T12:00:00.000Z',retirementNow:()=>new Date('2026-09-11T12:00:00Z')});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  try{
@@ -17,6 +17,8 @@ for(const federalMethod of ['FLAT_22','AGGREGATE'])test(`admin calculates retire
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click()
   const form=page.getByRole('form',{name:`Standalone payment for PTO payout ${reservation.id}`,exact:true})
+  await expect(form.getByRole('combobox',{name:'PTO state withholding method',exact:true})).toHaveValue('MD_LUMP_SUM')
+  await form.getByRole('combobox',{name:'PTO state withholding method',exact:true}).selectOption(stateMethod)
   await form.getByLabel('PTO payment date',{exact:true}).fill('2026-09-22');await form.getByLabel('PTO payment-history evidence',{exact:true}).fill('Reviewed complete employer and related employer history')
   await form.getByRole('combobox',{name:'PTO federal withholding method',exact:true}).selectOption(federalMethod)
   await form.getByRole('checkbox',{name:'I reconciled complete employer and related-employer payment history for this payment date.',exact:true}).check()
@@ -24,20 +26,23 @@ for(const federalMethod of ['FLAT_22','AGGREGATE'])test(`admin calculates retire
   await form.getByLabel('Retirement PTO evidence reference',{exact:true}).fill('Retained actual earning period and usable leave evidence');await form.getByRole('checkbox',{name:/I verified this reserved payout/}).check()
   await expect(form.getByRole('combobox',{name:'PTO federal withholding method',exact:true})).toHaveValue(federalMethod)
   await form.getByRole('button',{name:'Review PTO calculation',exact:true}).click()
-  const review=form.getByRole('region',{name:'PTO calculation review',exact:true});await expect(review).toContainText('Proposed pretax contribution: $5.00')
+  const review=form.getByRole('region',{name:'PTO calculation review',exact:true});await expect(review).toContainText(stateMethod==='REVIEWED'?'Proposed pretax contribution: $5.00':'Calculated pretax contribution: $5.00')
   const stateHistory=form.locator('details').filter({has:page.getByText('Prior Maryland payment evidence',{exact:true})})
-  await stateHistory.locator('summary').click();await expect(stateHistory).toContainText('Recorded state wages and withholding reconcile.');await expect(stateHistory).toContainText('$760.00 Maryland wages');await stateHistory.screenshot({path:`/tmp/payroll-maryland-pto-history-${federalMethod}.png`})
+  await stateHistory.locator('summary').click();await expect(stateHistory).toContainText('Recorded state wages and withholding reconcile.');await expect(stateHistory).toContainText('$760.00 Maryland wages');await expect(stateHistory).toContainText('Additional withholding: $0.00 applied of $0.00 requested.');await stateHistory.screenshot({path:`/tmp/payroll-maryland-pto-history-${federalMethod}.png`})
+  if(stateMethod==='REVIEWED'){
   await form.getByLabel('Reviewed Maryland PTO withholding ($)',{exact:true}).fill('7.60');await form.getByLabel('Maryland PTO calculation source',{exact:true}).fill('Synthetic professional state calculation for the displayed taxable wages')
   await form.getByRole('checkbox',{name:/I verified this state withholding amount/}).check();await form.getByRole('button',{name:'Review PTO calculation',exact:true}).click()
+  }else{await expect(review).toContainText('Automatic Maryland withholding: $9.22');await expect(review).toContainText('$95.00 taxable wages × 9.70%');await expect(review.getByRole('link',{name:'Maryland withholding table'})).toHaveAttribute('href',/pm320\.pdf$/)}
   await expect(review).toContainText('Calculated pretax contribution: $5.00');await expect(review).toContainText('Calculated Roth contribution: $2.00');await expect(review).toContainText('Deductions: $7.00')
-  if(federalMethod==='FLAT_22')await expect(review).toContainText('Calculated net pay: $56.85')
-  else await expect(review).toContainText('Calculated net pay: $68.25')
-  await page.setViewportSize({width:390,height:1100});await review.screenshot({path:`/tmp/payroll-retirement-pto-${federalMethod}.png`})
+  if(federalMethod==='FLAT_22')await expect(review).toContainText(stateMethod==='REVIEWED'?'Calculated net pay: $56.85':'Calculated net pay: $55.23')
+  else await expect(review).toContainText(stateMethod==='REVIEWED'?'Calculated net pay: $68.25':'Calculated net pay: $66.63')
+  await page.setViewportSize({width:390,height:1100});await review.screenshot({path:`/tmp/payroll-retirement-pto-${federalMethod}-${stateMethod}.png`})
   await form.getByRole('button',{name:'Create standalone PTO payroll',exact:true}).click();await expect(form.getByRole('status')).toContainText('created')
   await page.getByRole('button',{name:'Payroll runs',exact:true}).click();await page.getByRole('row').filter({hasText:'Standalone PTO payout'}).getByRole('button',{name:'Open review',exact:true}).click()
   await page.getByRole('button',{name:'Send to review',exact:true}).click();await h.pool.query("UPDATE payroll_compliance_task SET status='COMPLETE' WHERE facility_id=1");await page.getByRole('button',{name:'Approve run',exact:true}).click()
-  await page.getByLabel('External payment confirmation',{exact:true}).fill('SYNTHETIC-NATIVE-RETIREMENT-PTO');await page.getByRole('button',{name:'Confirm paid & finalize',exact:true}).click();await expect(page.getByText('Payroll finalized and employee statements saved.',{exact:true})).toBeVisible()
+  await page.getByLabel('External payment confirmation',{exact:true}).fill('SYNTHETIC-NATIVE-RETIREMENT-PTO');const finalized=page.waitForResponse(r=>/\/runs\/\d+\/finalize$/.test(new URL(r.url()).pathname)&&r.request().method()==='POST',{timeout:30000});await page.getByRole('button',{name:'Confirm paid & finalize',exact:true}).click();expect((await finalized).status()).toBe(200);await expect(page.getByText('Payroll finalized and employee statements saved.',{exact:true})).toBeVisible({timeout:15000})
   const row=(await h.pool.query("SELECT r.status,re.statement_snapshot FROM payroll_run r JOIN payroll_run_employee re ON re.payroll_run_id=r.id WHERE r.run_kind='OFF_CYCLE_PTO'")).rows[0]
+  if(stateMethod==='MD_LUMP_SUM'){expect(row.statement_snapshot.incomeTaxWageBasis.stateCalculation.stateIncomeTaxCents).toBe(922);expect(row.statement_snapshot.incomeTaxWageBasis.stateCalculation.rateBasisPoints).toBe(970)}
   expect(row.status).toBe('FINALIZED');expect(row.statement_snapshot.supplementalTax.method).toBe(federalMethod);expect(row.statement_snapshot.retirement.plans[0].ordinaryPretaxCents).toBe(500);expect(row.statement_snapshot.incomeTaxWageBasis.marylandWagesCents).toBe(9500);expect(errors).toEqual([])
  }finally{try{if(!page.isClosed()){await page.unrouteAll({behavior:'ignoreErrors'});await page.close()}}finally{await h.close()}}
 })

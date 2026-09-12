@@ -27,5 +27,22 @@ test('Maryland history rejects missing, contradictory and duplicate evidence wit
   const r=row();mutate(r);const result=reconcileMarylandPaymentHistory([r]);assert.equal(result.reconciled,false);assert.equal(result.evidence[0].marylandWagesCents,null)
  }
  const invalid=row();invalid.regular_pay_cents=9999;const invalidBefore=reconcileMarylandPaymentHistory([invalid]);invalid.regular_pay_cents=9998;assert.notEqual(reconcileMarylandPaymentHistory([invalid]).fingerprint,invalidBefore.fingerprint)
- assert.deepEqual(Object.keys(reconcileMarylandPaymentHistory([original]).evidence[0]).sort(),['employeeId','marylandWagesCents','paymentDate','reconciled','runId','sourceFingerprint','stateIncomeTaxCents'].sort())
+ assert.deepEqual(Object.keys(reconcileMarylandPaymentHistory([original]).evidence[0]).sort(),['additionalWithholding','employeeId','marylandWagesCents','paymentDate','reconciled','runId','sourceFingerprint','stateIncomeTaxCents'].sort())
+})
+test('Maryland additional deductions require matching retained components and never infer a legacy amount',()=>{
+ const legacy=row(),before=reconcileMarylandPaymentHistory([legacy])
+ assert.equal(before.reconciled,true);assert.equal(before.evidence[0].additionalWithholding.status,'MISSING');assert.equal(before.evidence[0].additionalWithholding.appliedAdditionalCents,null)
+ const original=row(),components={version:1,method:'REGULAR_PERIOD',payFrequency:'WEEKLY',regularBaseCents:250,annualBonusTaxCents:0,requestedAdditionalCents:250,appliedAdditionalCents:250,totalCents:500,exempt:false,electionFingerprint:'a'.repeat(64)}
+ const set=(r,c)=>{r.calculation_snapshot.employees[0].incomeTaxWageBasis.stateTaxComponents=c;r.statement_snapshot.incomeTaxWageBasis.stateTaxComponents=structuredClone(c)}
+ set(original,components)
+ const checked=reconcileMarylandPaymentHistory([original]);assert.equal(checked.evidence[0].additionalWithholding.status,'VERIFIED');assert.equal(checked.evidence[0].additionalWithholding.appliedAdditionalCents,250)
+ assert.notEqual(checked.fingerprint,before.fingerprint)
+ for(const patch of [{regularBaseCents:251},{requestedAdditionalCents:251},{appliedAdditionalCents:-1},{appliedAdditionalCents:'250'},{totalCents:501},{exempt:true},{payFrequency:'DAILY'},{electionFingerprint:'bad'}]){
+  const r=row();set(r,{...components,...patch});assert.equal(reconcileMarylandPaymentHistory([r]).evidence[0].additionalWithholding.status,'INVALID')
+ }
+ const changed=structuredClone(original);changed.statement_snapshot.incomeTaxWageBasis.stateTaxComponents.appliedAdditionalCents++
+ assert.equal(reconcileMarylandPaymentHistory([changed]).evidence[0].additionalWithholding.status,'INVALID')
+ const exempt=row();exempt.state_income_tax_cents=0;exempt.calculation_snapshot.employees[0].stateIncomeTaxCents=0;set(exempt,{...components,regularBaseCents:0,appliedAdditionalCents:0,totalCents:0,exempt:true})
+ const result=reconcileMarylandPaymentHistory([exempt]).evidence[0].additionalWithholding
+ assert.equal(result.status,'VERIFIED');assert.equal(result.requestedAdditionalCents,250);assert.equal(result.appliedAdditionalCents,0)
 })

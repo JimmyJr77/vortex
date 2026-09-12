@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createHarness} from '../testing/harness.js'
 import {loadSupplementalPaymentHistory} from '../supplementalPaymentHistory.js'
-for(const aggregate of [false,true])test(`standalone PTO settles reserved vacation: federal ${aggregate?'aggregate':'flat'}`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const stateMethod of ['REVIEWED','MD_LUMP_SUM'])for(const aggregate of [false,true])test(`standalone PTO settles reserved vacation: ${stateMethod} federal ${aggregate?'aggregate':'flat'}`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const h=await createHarness();t.after(()=>h.close())
  const api=async(path,body,status=200,method='POST')=>{const r=await fetch(`${h.url}/api/admin/payroll${path}`,{method,headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json();assert.equal(r.status,status,JSON.stringify(j));return j.data}
  await api('/settings',{legalBusinessName:'Standalone PTO Fixture',businessAddress:'123 Test Street',businessPhone:'5550100000'},200,'PATCH')
@@ -25,10 +25,10 @@ for(const aggregate of [false,true])test(`standalone PTO settles reserved vacati
  const regular=(await api('/runs/preview',{payPeriodId:p.id})).preview
  assert.ok(regular.employees.every(e=>!e.payItems.some(p=>p.kind==='LEAVE_PAYOUT')))
  if(aggregate)await h.pool.query("UPDATE payroll_employee SET employment_status='ACTIVE',hire_date='2099-09-07',termination_date=NULL WHERE id=$1",[e.id])
- const body={payPeriodId:p.id,paymentDate:preview.asOfDate,offCyclePto:{...(aggregate?{federalMethod:'AGGREGATE'}:{}),payoutId:payout.id,historyCompleteVerified:true,historySource:'Synthetic complete employer payment reconciliation'}}
+ const body={payPeriodId:p.id,paymentDate:preview.asOfDate,offCyclePto:{stateMethod,...(aggregate?{federalMethod:'AGGREGATE'}:{}),payoutId:payout.id,historyCompleteVerified:true,historySource:'Synthetic complete employer payment reconciliation'}}
  if(aggregate){const flat=(await api('/runs/preview',{...body,offCyclePto:{...body.offCyclePto,federalMethod:'FLAT_22'}})).preview;assert.equal(flat.employees[0].federalIncomeTaxCents,null);assert.ok(flat.warnings.some(w=>w.message.includes('Flat 22%')))}
  const w=(await api('/runs/preview',body)).preview.employees[0]
- assert.equal(w.grossPayCents,10000);assert.equal(w.federalIncomeTaxCents,aggregate?0:2200);assert.equal(w.stateIncomeTaxCents,null)
+ assert.equal(w.grossPayCents,10000);assert.equal(w.federalIncomeTaxCents,aggregate?0:2200);assert.equal(w.stateIncomeTaxCents,stateMethod==='REVIEWED'?null:970)
  let run=await api('/runs',body,201)
  assert.equal((await api('/runs',body)).id,run.id)
  await api('/runs',{...body,offCyclePto:{...body.offCyclePto,historySource:'Synthetic changed reconciliation evidence'}},409)
@@ -40,7 +40,7 @@ for(const aggregate of [false,true])test(`standalone PTO settles reserved vacati
  await assert.rejects(()=>h.pool.query("UPDATE payroll_leave_payout SET payment_mode='REGULAR' WHERE id=$1",[payout.id]),/reviewed terms/)
  await api(`/runs/${run.id}/status`,{status:'REVIEW'},200,'PATCH')
  await api(`/runs/${run.id}/status`,{status:'APPROVED'},409,'PATCH')
- await api(`/runs/${run.id}/employees/${e.id}/withholding`,{federalIncomeTaxCents:aggregate?0:2200,stateIncomeTaxCents:800,sourceNote:'Synthetic professional vacation withholding worksheet',professionalConfirmed:true},200,'PATCH')
+ if(stateMethod==='REVIEWED')await api(`/runs/${run.id}/employees/${e.id}/withholding`,{federalIncomeTaxCents:aggregate?0:2200,stateIncomeTaxCents:800,sourceNote:'Synthetic professional vacation withholding worksheet',professionalConfirmed:true},200,'PATCH')
  await api(`/runs/${run.id}/status`,{status:'APPROVED'},409,'PATCH')
  await h.pool.query("UPDATE payroll_compliance_task SET status='COMPLETE' WHERE facility_id=1")
  await api(`/runs/${run.id}/status`,{status:'APPROVED'},200,'PATCH')
@@ -53,7 +53,8 @@ for(const aggregate of [false,true])test(`standalone PTO settles reserved vacati
  await h.pool.query('DROP TRIGGER reject_pto_payment_audit ON payroll_audit_log')
  await api(`/runs/${run.id}/finalize`,{paymentDate:preview.asOfDate,paymentConfirmationReference:'SYNTHETIC-PTO-SETTLEMENT'})
  const paid=(await h.pool.query('SELECT * FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows[0]
- assert.equal(Number(paid.net_pay_cents),aggregate?8435:6235)
+ assert.equal(Number(paid.net_pay_cents),(aggregate?8435:6235)-(stateMethod==='MD_LUMP_SUM'?170:0))
+ if(stateMethod==='MD_LUMP_SUM'){assert.equal(paid.statement_snapshot.incomeTaxWageBasis.stateCalculation.stateIncomeTaxCents,970);assert.equal(paid.statement_snapshot.incomeTaxWageBasis.stateCalculation.taxableWagesCents,10000)}
  assert.equal(Number(paid.regular_minutes)+Number(paid.overtime_minutes)+Number(paid.sick_leave_accrual_minutes),0)
  if(aggregate){assert.equal(paid.statement_snapshot.supplementalTax.method,'AGGREGATE');assert.equal(paid.statement_snapshot.supplementalTax.aggregateBasis.regularRunId,Number(original.id))}
  assert.equal(paid.statement_snapshot.runKind,'OFF_CYCLE_PTO')

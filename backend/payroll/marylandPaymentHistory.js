@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto'
 import {reconcileIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
+import {marylandAdditionalWithholdingEvidence} from './marylandAdditionalWithholdingEvidence.js'
 
 // Retain state-specific source evidence independently of federal supplemental
 // classifications. This does not select a withholding method for PTO.
@@ -14,7 +15,7 @@ export function reconcileMarylandPaymentHistory(rows){
   const reconciled=result?.verified===1&&!result.issues.length&&result.maryland<=BigInt(Number.MAX_SAFE_INTEGER)
   const sourceFingerprint=createHash('sha256').update(JSON.stringify(source)).digest('hex')
   if(!reconciled)issues.push({runId,employeeId,message:'Reconcile Maryland wages and withholding with the retained calculation and employee statement.'})
-  evidence.push({runId,employeeId,paymentDate:source.paymentDate,reconciled,marylandWagesCents:reconciled?Number(result.maryland):null,stateIncomeTaxCents:reconciled?Number(row.state_income_tax_cents):null,sourceFingerprint})
+  evidence.push({runId,employeeId,paymentDate:source.paymentDate,reconciled,marylandWagesCents:reconciled?Number(result.maryland):null,stateIncomeTaxCents:reconciled?Number(row.state_income_tax_cents):null,additionalWithholding:marylandAdditionalWithholdingEvidence(row,reconciled),sourceFingerprint})
  }
  evidence.sort((a,b)=>a.paymentDate.localeCompare(b.paymentDate)||a.runId.localeCompare(b.runId)||a.employeeId.localeCompare(b.employeeId)||a.sourceFingerprint.localeCompare(b.sourceFingerprint))
  issues.sort((a,b)=>a.runId.localeCompare(b.runId)||a.employeeId.localeCompare(b.employeeId))

@@ -1,3 +1,5 @@
+import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
+import {marylandElectionFingerprint} from './marylandElectionFingerprint.js'
 import {regularRetirementPayroll} from './regularRetirementPayroll.js'
 import {retirement401kTaxWages} from './retirement401kTaxWages.js'
 import {loadAggregatePaymentBasis} from './aggregatePaymentBasis.js'
@@ -22,10 +24,10 @@ export function validateOffCycleBonus(body){
  return {...(body.federalMethod==='AGGREGATE'?{federalMethod:'AGGREGATE'}:{}),version:1,stateBonusRateVerified:true,employeeId:Number(body.employeeId),amountCents:body.amountCents,review,historyCompleteVerified:true,historySource:String(body.historySource).trim().slice(0,2000),requestKey:String(body.requestKey)}
 }
 export async function loadOffCycleBonusPreview(db,facility,periodId,paymentDate,context,runId=null){
- const result=await loadBaseBonusPreview(db,facility,periodId,paymentDate,context)
- return regularRetirementPayroll(db,facility,result,runId,inputs=>loadBaseBonusPreview(db,facility,periodId,paymentDate,context,inputs[context.employeeId]),'OFF_CYCLE')
+ const result=await loadBaseBonusPreview(db,facility,periodId,paymentDate,context,undefined,runId)
+ return regularRetirementPayroll(db,facility,result,runId,inputs=>loadBaseBonusPreview(db,facility,periodId,paymentDate,context,inputs[context.employeeId],runId),'OFF_CYCLE')
 }
-async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,retirement401k){
+async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,retirement401k,runId=null){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(paymentDate))||!Number.isFinite(Date.parse(paymentDate))||new Date(paymentDate).toISOString().slice(0,10)!==paymentDate)throw fail('Choose a valid standalone bonus payment date.')
  const employee=(await db.query('SELECT * FROM payroll_employee WHERE facility_id=$1 AND id=$2',[facility,context.employeeId])).rows[0]
  const period=(await db.query("SELECT * FROM payroll_pay_period WHERE facility_id=$1 AND id=$2 AND status<>'VOID'",[facility,periodId])).rows[0]
@@ -69,12 +71,18 @@ async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,ret
   federal=taxBreakdown.federalIncomeTaxCents;
   if(bonusAllocation?.additionalOvertimeCents>0)throw fail('Record a verified Maryland income-tax calculation for the annual bonus and additional overtime before approving this standalone payment.')
   state=Number((BigInt(calculated.retirement401k?.marylandAnnualBonusWagesCents??context.amountCents)*970n+5000n)/10000n)
+  const baseState=state,allocation=await loadOptionalMarylandAdditionalPeriod(db,{facility,employeeId:employee.id,paymentDate,excludeRunId:runId}),extra=allocation?.remainingAdditionalCents??0
+  const totalState=BigInt(baseState)+BigInt(extra);if(totalState>BigInt(Number.MAX_SAFE_INTEGER))throw fail('Maryland withholding exceeds safe cent precision.')
+  state=Number(totalState)
+  calculated.incomeTaxWageBasis??={version:1,source:'NATIVE_ENGINE',year,workState:employee.work_state,residenceState:employee.residence_state,grossWagesCents:calculated.grossPayCents,federalWagesCents:calculated.grossPayCents,marylandWagesCents:calculated.grossPayCents,marylandRegularWagesCents:0,marylandAnnualBonusWagesCents:calculated.grossPayCents,pretaxDeductionCents:0}
+  calculated.incomeTaxWageBasis.stateTaxComponents={version:1,method:'BONUS_PERIOD',payFrequency:period.frequency,regularBaseCents:0,annualBonusTaxCents:baseState,requestedAdditionalCents:election.maryland.extraWithholdingCents??0,appliedAdditionalCents:extra,totalCents:state,exempt:false,electionFingerprint:marylandElectionFingerprint(election.maryland),...(allocation?{allocation}:{})}
+
  }catch(e){calculated.warnings.push({code:'WITHHOLDING_ENGINE_NOT_CONFIGURED',severity:'critical',blocking:true,message:e.message})}
  calculated.federalIncomeTaxCents=federal;calculated.stateIncomeTaxCents=state
  calculated.withholdingMethod=federal!==null&&state!==null?'2026-standalone-federal-supplemental-md-annual-bonus-9.70':null
  calculated.netPayCents=federal!==null&&state!==null?calculated.grossPayCents-calculated.socialSecurityTaxCents-calculated.medicareTaxCents-calculated.additionalMedicareTaxCents-federal-state-calculated.totalDeductionCents:null
  if(calculated.netPayCents!==null&&calculated.netPayCents<0)calculated.warnings.push({code:'NEGATIVE_NET_PAY',severity:'critical',blocking:true,message:'Calculated taxes exceed this bonus payment.'})
- calculated.offcycleFingerprint=createHash('sha256').update(JSON.stringify([context.employeeId,context.amountCents,context.review.classification,context.review.paymentType,context.review.source,context.review.earnedStart,context.review.earnedEnd,context.review.allocationFingerprint,bonusAllocation?.coverage?.evidence.map(e=>[e.entryId,e.workDate,e.runId]),context.review.amountDiscretionVerified,context.review.paymentDiscretionVerified,context.review.noPriorPromiseVerified,context.historySource,context.stateBonusRateVerified,context.requestKey,context.federalMethod,aggregateBasis?.fingerprint,history.fingerprint,paymentDate,Number(periodId)])).digest('hex')
+ calculated.offcycleFingerprint=createHash('sha256').update(JSON.stringify([...(calculated.incomeTaxWageBasis?.stateTaxComponents?.allocation?[calculated.incomeTaxWageBasis.stateTaxComponents.allocation]:[]),context.employeeId,context.amountCents,context.review.classification,context.review.paymentType,context.review.source,context.review.earnedStart,context.review.earnedEnd,context.review.allocationFingerprint,bonusAllocation?.coverage?.evidence.map(e=>[e.entryId,e.workDate,e.runId]),context.review.amountDiscretionVerified,context.review.paymentDiscretionVerified,context.review.noPriorPromiseVerified,context.historySource,context.stateBonusRateVerified,context.requestKey,context.federalMethod,aggregateBasis?.fingerprint,history.fingerprint,paymentDate,Number(periodId)])).digest('hex')
  calculated.supplementalTax={...taxBreakdown,...(aggregateBasis?{aggregateBasis}:{}),historyFingerprint:history.fingerprint,ytdSupplementalCents:history.ytdSupplementalCents,ytdWagesCents:ytd}
  const warnings=[...calculated.warnings.map(w=>({...w,employeeId:Number(employee.id)})),...await standaloneComplianceWarnings(db,facility)]
  if(!settings.legal_business_name||!settings.business_address||!settings.onboarding_policy?.businessPhone)warnings.push({code:'EMPLOYER_STATEMENT_DETAILS',severity:'critical',blocking:true,message:'Complete employer name, address and telephone before payment.'})
