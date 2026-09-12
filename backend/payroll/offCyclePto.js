@@ -41,6 +41,7 @@ export async function loadOffCyclePtoPreview(db,facility,periodId,paymentDate,co
  const election=electionRow?{...electionRow.elections,verified:true}:null
  assertNativeW4ExemptionDate(election,paymentDate)
  if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
+ if(election?.mw507ReviewRequired)throw fail('Review and save the latest signed MW507 before preparing this payment.')
  const adjustments=[{kind:'LEAVE_PAYOUT',name:'Unused PTO payout',amountCents:Number(payout.amount_cents),minutes:Number(payout.minutes),taxTreatmentVerified:true,leavePayout:{id:Number(payout.id),hourlyRateCents:Number(payout.hourly_rate_cents),fingerprint:payout.review.fingerprint}}]
  const calculated=buildEmployeePreview({employee:{id:Number(employee.id),payType:'HOURLY',hourlyRateCents:0,legalFirstName:employee.legal_first_name,legalLastName:employee.legal_last_name,w4Status:employee.w4_status,stateWithholdingStatus:employee.state_withholding_status,workState:employee.work_state,residenceState:employee.residence_state},entries:[],adjustments,ytdSocialSecurityWagesCents:ytd,taxElection:election,payPeriod:{...period,pay_date:paymentDate},payFrequency:period.frequency,taxYear:year,employerTaxConfig:settings.employer_tax_config})
  calculated.payType=employee.pay_type;calculated.sickLeaveAccrualMinutes=0

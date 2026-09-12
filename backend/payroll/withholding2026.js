@@ -76,6 +76,7 @@ export function assertNativeW4ExemptionDate(election,paymentDate){
 }
 export function calculateWithholding2026({grossPayCents,election,payFrequency,year,workState,residenceState,paymentDate,pretaxDeductionCents=0,retirement401k,hasBonus=false,annualBonusCents=0,bonusReviewComplete=false,ytdWagesCents=0,leavePayoutCents=0,regularWagesCents=0}) {
  if(election?.w4ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed W-4 before calculating withholding.')
+ if(election?.mw507ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed MW507 before calculating withholding.')
  assertNativeW4ExemptionDate(election,paymentDate)
  if(!election?.verified||year!==2026||!Object.hasOwn(FREQUENCIES,payFrequency)||workState!=='MD'||residenceState!=='MD')throw new Error('Verified 2026 Maryland-resident tax elections and a supported payroll frequency are required for automatic withholding.')
  if(pretaxDeductionCents)throw new Error('Pretax deductions need a separately verified tax calculation.')

@@ -1,6 +1,8 @@
 import {readW4Draft,saveW4Draft} from './w4Draft.js'
 import {benefitContributionReport} from './benefitContributionReport.js'
 import {previewW4Submission2026,signW4Submission2026,recordW4PageVisit2026} from './w4Submission2026.js'
+import {previewMW507Submission2026,signMW507Submission2026,recordMW507PageVisit2026} from './mw507Submission2026.js'
+import {readMW507Draft,saveMW507Draft} from './mw507Draft.js'
 import {recordPayrollAutomation} from './automationHistory.js'
 import {benefitsDeductionProposal,signedBenefitsDeduction} from './benefitsDeductionAuthorization.js'
 import {compensationEvidence} from './employmentCompensation.js'
@@ -75,7 +77,7 @@ async function packet(db,facility,employeeId,admin=false) {
  if(employee.employment_status==='ONBOARDING'&&firstShift.status==='NEEDS_REVIEW'){ready.ready=false;ready.complete=Math.max(0,ready.complete-1);ready.blockers.push('Review the current first shift and arrival details')}
  if(employee.employment_status==='ONBOARDING'&&paySetup.status==='NEEDS_REVIEW'){ready.ready=false;ready.complete=Math.max(0,ready.complete-1);ready.blockers.push('Review the current employee pay setup')}
  if(employee.employment_status==='ONBOARDING'&&benefitsDeduction.required&&benefitsDeduction.status!=='CURRENT'){ready.ready=false;ready.blockers.push('Sign the current benefit deduction authorization');if(paySetup.status==='CURRENT')ready.complete=Math.max(0,ready.complete-1)}
- return {benefitsDeduction,benefitPlans:benefitPlans(policy),benefitsElection:tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsElection||null,benefitsReview:admin?tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsReview||null:benefitsReviewForEmployee(tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsReview),paySetup:{marylandAgreement:paySetup.marylandAgreement?{status:paySetup.marylandAgreement.status,paymentDate:paySetup.marylandAgreement.paymentDate,effectiveOn:paySetup.marylandAgreement.effectiveOn||null}:null,paymentReadiness:paySetup.paymentReadiness?{status:paySetup.paymentReadiness.status,issue:paySetup.paymentReadiness.issue}:null,benefitsCurrent:paySetup.benefitsCurrent,status:paySetup.status,issues:paySetup.issues,fingerprint:paySetup.fingerprint,taxYear:paySetup.taxYear,paymentMethod:paySetup.paymentMethod},reviewIssues:onboardingReviewIssues(employee,tasks,policy),firstShift,wageTerms:wageNoticeTerms(employee,policy),leaveBalances,tasks:admin?tasks:tasks.map(t=>t.owner==='ADMIN'?{...t,response:{},reviewed_by:null}:t),documents:docs,requests,readiness:ready,policy,vaultReady:vaultReady()}
+ return {marylandCertificateAvailable:employee.work_state==='MD'||employee.residence_state==='MD',benefitsDeduction,benefitPlans:benefitPlans(policy),benefitsElection:tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsElection||null,benefitsReview:admin?tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsReview||null:benefitsReviewForEmployee(tasks.find(t=>t.task_key==='PAY_REVIEW')?.response?.benefitsReview),paySetup:{marylandAgreement:paySetup.marylandAgreement?{status:paySetup.marylandAgreement.status,paymentDate:paySetup.marylandAgreement.paymentDate,effectiveOn:paySetup.marylandAgreement.effectiveOn||null}:null,paymentReadiness:paySetup.paymentReadiness?{status:paySetup.paymentReadiness.status,issue:paySetup.paymentReadiness.issue}:null,benefitsCurrent:paySetup.benefitsCurrent,status:paySetup.status,issues:paySetup.issues,fingerprint:paySetup.fingerprint,taxYear:paySetup.taxYear,paymentMethod:paySetup.paymentMethod},reviewIssues:onboardingReviewIssues(employee,tasks,policy),firstShift,wageTerms:wageNoticeTerms(employee,policy),leaveBalances,tasks:admin?tasks:tasks.map(t=>t.owner==='ADMIN'?{...t,response:{},reviewed_by:null}:t),documents:docs,requests,readiness:ready,policy,vaultReady:vaultReady()}
 }
 export function registerWorkforceAdminRoutes(app,pool) {
  registerTimeCorrectionImpactRoutes(app,pool)
@@ -362,6 +364,11 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   return packet(db,ctx.facility,ctx.employee)
  }))
  app.get('/api/payroll/employee/onboarding',auth,(req,res)=>employeeTransaction(req,res,db=>packet(db,context(req).facility,context(req).employee)))
+ app.get('/api/payroll/employee/onboarding/:taskId/mw507/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readMW507Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
+ app.post('/api/payroll/employee/onboarding/:taskId/mw507/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveMW507Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
+ app.post('/api/payroll/employee/onboarding/:taskId/mw507/preview',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>previewMW507Submission2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
+ app.post('/api/payroll/employee/onboarding/:taskId/mw507/page',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>recordMW507PageVisit2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
+ app.post('/api/payroll/employee/onboarding/:taskId/mw507/sign',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>signMW507Submission2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.get('/api/payroll/employee/onboarding/:taskId/w4/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readW4Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
  app.post('/api/payroll/employee/onboarding/:taskId/w4/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveW4Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.post('/api/payroll/employee/onboarding/:taskId/w4/preview',auth,(req,res)=>{
@@ -384,6 +391,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   if(!task||task.owner!=='EMPLOYEE')throw fail('Employee onboarding step not found.',404)
   assertTaskCycle(task,req.body)
   if(!['OPEN','CHANGES_REQUESTED'].includes(task.status))throw fail('This step is already submitted or completed. Ask your hiring admin to reopen it before saving a draft.',409)
+  if(task.response?.w4SubmissionId||task.response?.mw507SubmissionId)throw fail('Use the internal certificate draft to preserve the signed submission while preparing an amendment.',409)
   let response;try{response=onboardingDraft(task.task_key,req.body||{})}catch(e){throw fail(e.message)}
   await db.query('UPDATE payroll_onboarding_task SET response=$1,updated_at=now() WHERE id=$2',[response,task.id])
   await log(db,ctx,'ONBOARDING_DRAFT_SAVED','onboarding_task',task.id)
@@ -396,6 +404,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   assertTaskCycle(task,req.body)
   if(['COMPLETE','NOT_APPLICABLE'].includes(task.status))throw fail('Ask your hiring admin to reopen this completed step.',409)
   if(task.task_key==='W4'&&task.response?.w4SubmissionId)throw fail('Use the internal W-4 form to submit an employee-signed amendment to this W-4.',409)
+  if(task.task_key==='STATE_WITHHOLDING'&&task.response?.mw507SubmissionId)throw fail('Use the internal MW507 form to submit an employee-signed amendment to this certificate.',409)
   const policy=await hiringPolicy(db,ctx.facility,employee)
   let response; try {response=validateResponse(task.task_key,req.body||{},(await salaryRowsAt(db,ctx.facility,[employee]))[0],policy)}catch(e){throw fail(e.message)}
   if(['W4','STATE_WITHHOLDING','I9'].includes(task.task_key)) {

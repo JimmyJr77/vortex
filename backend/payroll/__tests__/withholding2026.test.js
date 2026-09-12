@@ -4,6 +4,9 @@ import { federalWithholding2026, marylandWithholding2026, calculateWithholding20
 
 const federal={filingStatus:'SINGLE'}
 const maryland={filingStatus:'SINGLE',localRate:3.2,exemptions:1}
+test('a newly signed Maryland certificate blocks use of previously verified elections',()=>{
+ for(const payFrequency of ['WEEKLY','BIWEEKLY','SEMIMONTHLY','MONTHLY'])assert.throws(()=>calculateWithholding2026({grossPayCents:200000,election:{verified:true,federal,maryland,mw507ReviewRequired:'123'},payFrequency,year:2026,workState:'MD',residenceState:'MD'}),/latest employee-signed MW507/)
+})
 test('native exempt W-4 preserves blank filing status and is limited to supported payment dates',()=>{
  const exempt={filingStatus:null,exempt:true,multipleJobs:false,nonresidentAlien:false,lockInLetter:false}
  for(const periods of [12,24,26,52])assert.equal(federalWithholding2026(200000,exempt,periods),0)

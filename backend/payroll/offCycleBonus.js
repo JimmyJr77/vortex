@@ -41,6 +41,7 @@ async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,ret
  const election=electionRow?{...electionRow.elections,verified:true}:null
  assertNativeW4ExemptionDate(election,paymentDate)
  if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
+ if(election?.mw507ReviewRequired)throw fail('Review and save the latest signed MW507 before preparing this payment.')
  let bonusAllocation=null,allocationIssue=null
  if(context.review.classification==='NONDISCRETIONARY')try{
   const allocation=await previewEarnedBonus(db,facility,employee.id,{amountCents:context.amountCents,earnedStart:context.review.earnedStart,earnedEnd:context.review.earnedEnd})

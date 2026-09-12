@@ -66,6 +66,11 @@ export type MarylandSigningHistory={history:Array<{id:string;revision:number;fin
 export type W4Preview={reviewId:string;expiresAt:string;previewSha256:string;pdfBase64:string;perjury:string;pageCount:number}
 
 export const employeePayrollApi = {
+  readMW507Draft:<T>(taskId:number,cycle:number)=>request<{revision:number;baseSubmissionId:string|null;draft:T|null;savedAt:string|null}>(`/api/payroll/employee/onboarding/${taskId}/mw507/draft?onboardingCycle=${cycle}`),
+  saveMW507Draft:(taskId:number,body:unknown)=>request<{revision:number;baseSubmissionId:string|null;savedAt:string}>(`/api/payroll/employee/onboarding/${taskId}/mw507/draft`,{method:'POST',body:JSON.stringify(body)}),
+  previewMW507:(taskId:number,body:unknown)=>request<W4Preview>(`/api/payroll/employee/onboarding/${taskId}/mw507/preview`,{method:'POST',body:JSON.stringify(body)}),
+  visitMW507Page:(taskId:number,body:unknown)=>request<{recorded:boolean}>(`/api/payroll/employee/onboarding/${taskId}/mw507/page`,{method:'POST',body:JSON.stringify(body)}),
+  signMW507:(taskId:number,body:unknown)=>request<{documentId:string;submissionId:string;status:string}>(`/api/payroll/employee/onboarding/${taskId}/mw507/sign`,{method:'POST',body:JSON.stringify(body)}),
   readW4Draft:<T>(taskId:number,cycle:number)=>request<{revision:number;baseSubmissionId:string|null;draft:T|null;savedAt:string|null}>(`/api/payroll/employee/onboarding/${taskId}/w4/draft?onboardingCycle=${cycle}`),
   saveW4Draft:(taskId:number,body:unknown)=>request<{revision:number;baseSubmissionId:string|null;savedAt:string}>(`/api/payroll/employee/onboarding/${taskId}/w4/draft`,{method:'POST',body:JSON.stringify(body)}),
   previewW4:(taskId:number,body:unknown)=>request<W4Preview>(`/api/payroll/employee/onboarding/${taskId}/w4/preview`,{method:'POST',body:JSON.stringify(body)}),

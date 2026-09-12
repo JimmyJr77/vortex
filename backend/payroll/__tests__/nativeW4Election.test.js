@@ -30,6 +30,7 @@ test('signed W-4 prepopulates exact federal elections and amendments invalidate 
  assert.deepEqual(applied.federal,reviewed.nativeW4.federal);assert.equal(applied.w4Source.submissionId,signed.submissionId);assert.equal(applied.w4ReviewRequired,undefined)
  assert.ok(Number.isInteger(calculateWithholding2026({grossPayCents:200000,election:{...applied,verified:true},payFrequency:'SEMIMONTHLY',year:2026,workState:'MD',residenceState:'MD'}).federalIncomeTaxCents))
  await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{status:'CHANGES_REQUESTED',note:'Employee requested an amended extra withholding amount',onboardingCycle:1})
+ await api(`/onboarding/${task.id}/draft`,{onboardingCycle:1,note:'Generic draft must not erase the signed W-4 reference'},'POST',409,true)
  answers.extraWithholdingCents=7000;const amendment=await sign(),stale=(await get()).election.elections
  assert.throws(()=>calculateWithholding2026({grossPayCents:200000,election:{...stale,verified:true},payFrequency:'SEMIMONTHLY',year:2026,workState:'MD',residenceState:'MD'}),/latest employee-signed W-4/)
  await review();await save(body(reviewed),409)

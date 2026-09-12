@@ -30,6 +30,8 @@ export function registerTaxElectionRoutes(app,pool) {
    const employee=(await db.query('SELECT * FROM payroll_employee WHERE id=$1 AND facility_id=$2 FOR UPDATE',[req.params.id,req.canonicalAccess.facilityId])).rows[0]
    if(!employee){await db.query('ROLLBACK');return res.status(404).json({success:false,message:'Employee not found.'})}
    if(employee.w4_status!=='COMPLETE'||employee.state_withholding_status!=='COMPLETE'){await db.query('ROLLBACK');return res.status(409).json({success:false,message:'Review and complete W-4 and state withholding onboarding before enabling automatic calculations.'})}
+   const nativeMarylandTask=(await db.query("SELECT response FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key='STATE_WITHHOLDING'",[req.canonicalAccess.facilityId,employee.id])).rows[0]
+   if(nativeMarylandTask?.response?.mw507SubmissionId)throw Object.assign(new Error('Complete source-bound review of the signed Maryland certificate before applying its tax elections.'),{status:409})
    const nativeW4=await nativeW4Election(db,req.canonicalAccess.facilityId,employee.id)
    if(nativeW4){
     if(!nativeW4.reviewed||b.w4Fingerprint!==nativeW4.fingerprint||String(b.w4SubmissionId)!==String(nativeW4.submissionId))throw Object.assign(new Error('Review the current signed W-4 and reload its tax-election values before saving.'),{status:409})
