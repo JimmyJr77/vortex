@@ -1,3 +1,4 @@
+import {employeeRetirementReplacement} from './employeeRetirementReplacement.js'
 import {payrollEmployeeAuth} from './employeeAuth.js'
 import {retirementRemittanceSources} from './retirementRemittanceSources.js'
 import {retirementReceiptBindingState} from './retirementReceiptBinding.js'
@@ -11,7 +12,7 @@ export async function employeeRetirementContributions(db,facility,employeeId,{be
   if(!source||source.status==='RECONCILIATION_REQUIRED'){items.push({runId:String(run.id),status:'REVIEW_REQUIRED',contributions:[]});continue}
   const contributions=[]
   for(const a of source.allocations.filter(a=>String(a.employeeId)===String(employeeId))){
-   const row={planName:a.planName,amountCents:a.totalCents,status:a.totalCents?'RECEIPT_UNVERIFIED':'NO_CONTRIBUTION',fundingStatus:'NO_RETURN_RECORDED',postedCents:null,reportedCents:null,providerRecordedAt:null,checkedAt:null}
+   const row={planName:a.planName,amountCents:a.totalCents,status:a.totalCents?'RECEIPT_UNVERIFIED':'NO_CONTRIBUTION',fundingStatus:'NO_RETURN_RECORDED',postedCents:null,reportedCents:null,providerRecordedAt:null,checkedAt:null,replacement:null}
    if(a.totalCents)try{
     const deliveries=(await db.query(`SELECT d.id,d.remittance_id,parent.basis FROM payroll_retirement_allocation_authorization d JOIN payroll_retirement_remittance_authorization parent ON parent.id=d.remittance_id WHERE d.facility_id=$1 AND parent.facility_id=$1 AND parent.run_id=$2 AND parent.plan_id=$3 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_allocation_cancellation c WHERE c.authorization_id=d.id) AND NOT EXISTS(SELECT 1 FROM payroll_retirement_remittance_cancellation c WHERE c.authorization_id=parent.id)`,[facility,run.id,a.planId])).rows
     if(deliveries.length>1)throw new Error('Ambiguous contribution delivery')
@@ -30,7 +31,7 @@ export async function employeeRetirementContributions(db,facility,employeeId,{be
    }catch{row.status='REVIEW_REQUIRED';row.postedCents=null;row.reportedCents=null;row.providerRecordedAt=null}
    if(a.totalCents){
     const returned=(await db.query("SELECT EXISTS(SELECT 1 FROM payroll_retirement_remittance_authorization p JOIN payroll_retirement_remittance_observation o ON o.authorization_id=p.id WHERE p.facility_id=$1 AND p.run_id=$2 AND p.plan_id=$3 AND o.result->>'status' IN ('RETURNED','REVERSED') AND EXISTS(SELECT 1 FROM jsonb_array_elements(p.basis->'allocations') x WHERE x->>'employeeId'=$4)) AS recorded",[facility,run.id,a.planId,String(employeeId)])).rows[0].recorded
-    if(returned){row.fundingStatus='RETURN_REVIEW_REQUIRED';row.status='REVIEW_REQUIRED';row.postedCents=null;row.reportedCents=null;row.providerRecordedAt=null}
+    if(returned){row.fundingStatus='RETURN_REVIEW_REQUIRED';row.status='REVIEW_REQUIRED';row.postedCents=null;row.reportedCents=null;row.providerRecordedAt=null;row.replacement=await employeeRetirementReplacement(db,facility,run.id,employeeId,a,{now});if(row.replacement?.caseStatus==='CLOSED'){row.fundingStatus='RETURN_REPLACED';row.status='REVERSED';row.postedCents=0}}
    }
    contributions.push(row)
   }

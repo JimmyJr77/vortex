@@ -1,3 +1,4 @@
+import {retirementReplacementAssessment} from './retirementReplacementAssessment.js'
 import {retirementParticipantReversalEvidence} from './retirementParticipantReversalEvidence.js'
 import {retirementRecordedReturn} from './retirementRecordedReturn.js'
 import {retirementReturnBankEvidence,retirementReturnAccountingStatus} from './retirementReturnAccountingEvidence.js'
@@ -9,7 +10,7 @@ import {decryptDocument} from './onboarding.js'
 import {retirementScheduleUuid as uuid} from './retirementDispatchScheduleState.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const categories=['ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents','totalCents']
-export async function retirementContributionAssessment(db,facility,id,{now=new Date()}={}){
+export async function retirementOriginalContributionAssessment(db,facility,id,{now=new Date()}={}){
  if(!uuid(id))throw fail('Choose a valid retirement contribution.',400)
  const a=(await db.query('SELECT a.*,EXISTS(SELECT 1 FROM payroll_retirement_remittance_cancellation c WHERE c.authorization_id=a.id) cancelled FROM payroll_retirement_remittance_authorization a WHERE a.id=$1 AND a.facility_id=$2',[id,facility])).rows[0]
  if(!a)throw fail('Retirement contribution not found.',404)
@@ -64,6 +65,19 @@ export async function retirementContributionAssessment(db,facility,id,{now=new D
  if(data.returnAccountingStatus!=='NOT_REQUIRED')data.status='REVIEW_REQUIRED'
  if(data.returnReviewRequired)data.replacementReviewStatus=data.payrollStatus==='MATCHED'&&data.bankStatus==='RETURN_CREDIT_POSTED'&&data.receiptStatus==='REVERSED'&&data.reversedAllocationCents===data.amountCents&&data.returnAccountingStatus==='MATCHED'?'EVIDENCE_READY':'EVIDENCE_REQUIRED'
  return data
+}
+// Keep original-return verification independent to avoid using a replacement
+// resolution as evidence of its own original funding/reversal prerequisites.
+export async function retirementContributionAssessment(db,facility,id,options={}){
+ const original=await retirementOriginalContributionAssessment(db,facility,id,options)
+ if(!original.returnReviewRequired)return original
+ original.replacementCaseStatus='OPEN'
+ const replacements=(await db.query('SELECT id FROM payroll_retirement_replacement_authorization r WHERE r.original_authorization_id=$1 AND r.facility_id=$2 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_cancellation c WHERE c.authorization_id=r.id)',[id,facility])).rows
+ if(replacements.length!==1)return original
+ const replacement=await retirementReplacementAssessment(db,facility,replacements[0].id,options)
+ original.replacementEvidence={authorizationId:replacement.authorizationId,originalAuthorizationId:id,status:replacement.status,originalEvidenceStatus:replacement.originalEvidenceStatus,bankStatus:replacement.bankStatus,receiptStatus:replacement.receiptStatus,deliveryStatus:replacement.deliveryStatus,accountingStatus:replacement.accountingStatus,caseStatus:replacement.caseStatus,returnReviewRequired:replacement.returnReviewRequired,amountCents:replacement.amountCents,postedCents:replacement.postedCents}
+ if(original.replacementReviewStatus==='EVIDENCE_READY'&&replacement.caseStatus==='CLOSED'&&replacement.amountCents===original.amountCents){original.status='REPLACEMENT_RECONCILED';original.replacementCaseStatus='CLOSED';original.returnReviewRequired=false;original.issues=[]}
+ return original
 }
 export function registerRetirementContributionAssessment(app,pool){
  app.get('/api/admin/payroll/retirement-remittance-authorizations/:id/assessment',async(req,res)=>{res.setHeader('Cache-Control','no-store');const db=await pool.connect();try{await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const data=await retirementContributionAssessment(db,req.canonicalAccess.facilityId,req.params.id);await db.query('COMMIT');res.json({success:true,data})}catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to assess contribution evidence.'})}finally{db.release()}})

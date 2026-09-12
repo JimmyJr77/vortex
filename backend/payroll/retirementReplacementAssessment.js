@@ -1,5 +1,6 @@
+import {replacementSettlementStatus} from './retirementReplacementSettlementEvidence.js'
 import {createHash} from 'node:crypto'
-import {retirementContributionAssessment} from './retirementContributionAssessment.js'
+import {retirementOriginalContributionAssessment} from './retirementContributionAssessment.js'
 import {retirementReplacementReceiptBindingState} from './retirementReplacementReceiptBinding.js'
 import {retirementSettlementEvents} from './retirementSettlementEvents.js'
 import {decryptDocument} from './onboarding.js'
@@ -14,7 +15,7 @@ export async function retirementReplacementAssessment(db,facility,id,{now=new Da
  if(!a)throw fail('Replacement contribution not found.',404)
  const p=a.preview,issues=[],data={authorizationId:id,originalAuthorizationId:a.original_authorization_id,amountCents:p.amountCents,status:'REVIEW_REQUIRED',originalEvidenceStatus:'REVIEW_REQUIRED',bankStatus:'UNVERIFIED',receiptStatus:'UNVERIFIED',deliveryStatus:'UNVERIFIED',accountingStatus:'REQUIRED',caseStatus:'OPEN',returnReviewRequired:false,bankCheckedAt:null,receiptCheckedAt:null,postedCents:null,issues}
  if(a.cancelled){data.status='CANCELLED';data.caseStatus='CANCELLED';return data}
- try{const original=await retirementContributionAssessment(db,facility,a.original_authorization_id,{now});if(original.replacementReviewStatus!=='EVIDENCE_READY'||original.amountCents!==p.amountCents)throw fail('Original evidence needs review');data.originalEvidenceStatus='MATCHED'}catch{issues.push('Reconcile the original deductions, full bank return, participant reversals and return accounting.')}
+ try{const original=await retirementOriginalContributionAssessment(db,facility,a.original_authorization_id,{now});if(original.replacementReviewStatus!=='EVIDENCE_READY'||original.amountCents!==p.amountCents)throw fail('Original evidence needs review');data.originalEvidenceStatus='MATCHED'}catch{issues.push('Reconcile the original deductions, full bank return, participant reversals and return accounting.')}
  data.returnReviewRequired=!!(await db.query("SELECT 1 FROM payroll_retirement_replacement_observation WHERE authorization_id=$1 AND kind='BANK' AND result->>'status' IN ('RETURNED','REVERSED') LIMIT 1",[id])).rowCount
  try{
   const claim=(await db.query("SELECT encrypted_instruction FROM payroll_retirement_replacement_claim WHERE authorization_id=$1 AND kind='BANK'",[id])).rows[0],observation=(await db.query("SELECT result,created_at FROM payroll_retirement_replacement_observation WHERE authorization_id=$1 AND kind='BANK' ORDER BY id DESC LIMIT 1",[id])).rows[0]
@@ -36,7 +37,9 @@ export async function retirementReplacementAssessment(db,facility,id,{now=new Da
  }catch{issues.push('Obtain a current receipt matching every replacement participant allocation.')}
  if(data.returnReviewRequired){data.postedCents=null;issues.push('A recorded replacement bank return requires a separate resolution; later ordinary observations cannot clear it.')}
  if(data.originalEvidenceStatus==='MATCHED'&&data.bankStatus==='BANK_POSTED'&&data.receiptStatus==='POSTED'&&!data.returnReviewRequired)data.deliveryStatus='MATCHED'
- issues.push('Replacement settlement accounting and original return-case closure still require reconciliation.')
+ try{data.accountingStatus=await replacementSettlementStatus(db,facility,id,{now})}catch{data.accountingStatus='REVIEW_REQUIRED'}
+ if(data.accountingStatus!=='MATCHED')issues.push('Replacement settlement accounting requires current matching journals and source evidence.')
+ if(data.deliveryStatus==='MATCHED'&&data.accountingStatus==='MATCHED'&&!issues.length){data.status='RECONCILED';data.caseStatus='CLOSED'}
  return data
 }
 export function registerRetirementReplacementAssessment(app,pool){

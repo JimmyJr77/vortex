@@ -30,6 +30,7 @@ export async function retainRetirementContribution(db,facility,id,{actorId=null,
   if(decision.clearDeliveryWarnings){
    const allocations=(await db.query('SELECT id FROM payroll_retirement_allocation_authorization a WHERE facility_id=$1 AND remittance_id=$2 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_allocation_cancellation c WHERE c.authorization_id=a.id)',[facility,id])).rows
    const keys=[`retirement-bank-${id}`,...allocations.flatMap(a=>[`retirement-allocation-${a.id}`,`retirement-receipt-${a.id}`])]
+   if(decision.summary.status==='REPLACEMENT_RECONCILED'){const replacement=decision.summary.replacementEvidence.authorizationId;keys.push(`retirement-replacement-bank-${replacement}`,`retirement-replacement-file-${replacement}`,`retirement-replacement-receipt-${replacement}`)}
    await db.query("UPDATE payroll_alert SET status='DISMISSED',dismissed_at=COALESCE(dismissed_at,now()) WHERE facility_id=$1 AND dedupe_key=ANY($2::text[]) AND status='OPEN'",[facility,keys])
   }
   await db.query("UPDATE payroll_alert SET status='DISMISSED',dismissed_at=COALESCE(dismissed_at,now()) WHERE facility_id=$1 AND dedupe_key=$2 AND status='OPEN'",[facility,`retirement-contribution-check-${id}`])

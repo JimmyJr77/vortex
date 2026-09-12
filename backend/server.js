@@ -1,3 +1,4 @@
+import {startRetirementReplacementSettlementScheduler} from './payroll/retirementReplacementSettlementAutomation.js'
 import {startRetirementReplacementReceiptScheduler} from './payroll/retirementReplacementReceiptAutomation.js'
 import {startRetirementReplacementBankScheduler} from './payroll/retirementReplacementBankAutomation.js'
 import {startRetirementReplacementAllocationScheduler} from './payroll/retirementReplacementAutomation.js'
@@ -12234,6 +12235,7 @@ const startServer = async () => {
         startCarrierSettlementScheduler(pool)
         startRetirementSettlementScheduler(pool)
         startRetirementReturnScheduler(pool)
+        startRetirementReplacementSettlementScheduler(pool)
         startRetirementReplacementAllocationScheduler(pool)
         startRetirementReplacementBankScheduler(pool)
         startRetirementContributionScheduler(pool)

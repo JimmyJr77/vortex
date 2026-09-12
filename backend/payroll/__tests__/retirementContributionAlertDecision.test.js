@@ -12,3 +12,11 @@ test('routine observation timestamps do not create status changes and cancellati
  const cancelled=decide({...assessment,status:'CANCELLED'});assert.equal(cancelled.combinedAlert,'DISMISS');assert.equal(cancelled.clearDeliveryWarnings,false)
  assert.throws(()=>decide({...assessment,amountCents:1.5}));assert.throws(()=>decide({...assessment,status:'UNKNOWN'}));assert.throws(()=>decide({...assessment,issues:null}))
 })
+
+test('replacement closure requires every original return and replacement component and reopens on contradictions',()=>{
+ const replacement={authorizationId:'replacement',originalAuthorizationId:assessment.authorizationId,status:'RECONCILED',caseStatus:'CLOSED',originalEvidenceStatus:'MATCHED',bankStatus:'BANK_POSTED',receiptStatus:'POSTED',deliveryStatus:'MATCHED',accountingStatus:'MATCHED',returnReviewRequired:false,amountCents:1400,postedCents:1400}
+ const closed={...assessment,status:'REPLACEMENT_RECONCILED',bankStatus:'RETURN_CREDIT_POSTED',receiptStatus:'REVERSED',accountingStatus:'VERIFIED_WITH_RETURN',returnAccountingStatus:'MATCHED',returnReviewRequired:false,reversedAllocationCents:1400,postedCents:0,replacementCaseStatus:'CLOSED',replacementEvidence:replacement}
+ const result=decide(closed);assert.equal(result.combinedAlert,'DISMISS');assert.equal(result.summary.status,'REPLACEMENT_RECONCILED');assert.equal(result.clearDeliveryWarnings,true)
+ for(const patch of [{accountingStatus:'REVIEW_REQUIRED'},{bankStatus:'UNVERIFIED'},{receiptStatus:'UNVERIFIED'},{returnReviewRequired:true},{postedCents:1399},{originalAuthorizationId:'other'}]){const reopened=decide({...closed,replacementEvidence:{...replacement,...patch}});assert.equal(reopened.combinedAlert,'OPEN');assert.equal(reopened.summary.status,'REVIEW_REQUIRED');assert.equal(reopened.clearDeliveryWarnings,false)}
+ for(const patch of [{returnAccountingStatus:'REQUIRED'},{reversedAllocationCents:1399},{payrollStatus:'REVIEW_REQUIRED'},{returnReviewRequired:true}])assert.equal(decide({...closed,...patch}).combinedAlert,'OPEN')
+})

@@ -7,7 +7,9 @@ export async function monthlyBenefitsFixture(h,{taxTreatment='POSTTAX',hourlyRat
  await h.pool.query("UPDATE payroll_employee SET employment_status='ACTIVE',w4_status='COMPLETE',state_withholding_status='COMPLETE' WHERE id=$1",[employee.id])
  await h.pool.query("UPDATE payroll_onboarding_task SET status='COMPLETE',response='{\"method\":\"CHECK\"}' WHERE employee_id=$1 AND task_key='PAYMENT'",[employee.id])
  await api(`/employees/${employee.id}/tax-elections`,{confirmed:true,sourceNote:'Synthetic signed tax forms verified',federal:{filingStatus:'SINGLE'},maryland:{filingStatus:'SINGLE',localRate:3.2,exemptions:1}},'PATCH')
- await h.pool.query("INSERT INTO payroll_employee_session(facility_id,employee_id,token_hash,expires_at) VALUES(1,$1,$2,now()+interval '1 day')",[employee.id,hashPayrollToken('monthly-benefits-session')])
+ // Historical payroll fixtures may freeze now(); sessions must also be valid
+ // against the real-time expiry check performed after acquiring write locks.
+ await h.pool.query("INSERT INTO payroll_employee_session(facility_id,employee_id,token_hash,expires_at) VALUES(1,$1,$2,GREATEST(now(),clock_timestamp())+interval '1 day')",[employee.id,hashPayrollToken('monthly-benefits-session')])
  let packet=await api('/onboarding',undefined,'GET',200,true)
  packet=await api('/benefits-election',{choice:'ENROLL',signature:'Monthly Benefits',confirmed:true,displayedTerms:packet.policy.benefitsText,requestKey:'monthly-benefit-election',selections:[{planId:'medical',optionId:'family'}],onboardingCycle:1},'POST',200,true)
  const task=packet.tasks.find(t=>t.task_key==='PAY_REVIEW')

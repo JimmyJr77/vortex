@@ -3,14 +3,14 @@ import {encryptDocument} from '../onboarding.js'
 import {journalPayload} from '../quickbooks.js'
 export function retirementReversalAccountingFixture(h,f){
  const journals=new Map(),accounts={wages:'1',employerTax:'2',reimbursements:'3',taxLiability:'4',deductions:'5',clearing:'6',retirement:'7'}
- let posts=0
+ let posts=0,loseNext=false,closed=false,onPost=async()=>{}
  const fetcher=async(url,options)=>{
   const reply=body=>({ok:true,json:async()=>body})
-  if(options.method==='POST'){const entry={...JSON.parse(options.body),Id:String(100+posts++)};journals.set(entry.Id,entry);return reply({JournalEntry:entry})}
+  if(options.method==='POST'){await onPost();const entry={...JSON.parse(options.body),Id:String(100+posts++)};journals.set(entry.Id,entry);if(loseNext){loseNext=false;throw new Error('Synthetic lost journal response')}return reply({JournalEntry:entry})}
   if(url.includes('/query?'))return reply({QueryResponse:{JournalEntry:[...journals.values()].filter(j=>decodeURIComponent(url).includes(j.DocNumber))}})
   const id=url.split('/').pop()
   if(url.includes('/journalentry/'))return reply({JournalEntry:journals.get(id)})
-  if(url.endsWith('/preferences'))return reply({Preferences:{CurrencyPrefs:{HomeCurrency:{value:'USD'}},AccountingInfoPrefs:{}}})
+  if(url.endsWith('/preferences'))return reply({Preferences:{CurrencyPrefs:{HomeCurrency:{value:'USD'}},AccountingInfoPrefs:closed?{BookCloseDate:'2026-12-31'}:{}}})
   return reply({Account:{Id:id,Name:`Account ${id}`,Active:true,AccountType:id==='8'?'Bank':'Other Current Liability',CurrencyRef:{value:'USD'}}})
  }
  const base=`/retirement-remittance-authorizations/${f.remittanceId}`
@@ -27,5 +27,5 @@ export function retirementReversalAccountingFixture(h,f){
   await f.api(path,{confirmed:true,requestKey:randomUUID(),expectedRevision:0,fundingRevisionId:state.funding[0].id,connectionGeneration:state.connection.generation,realmId:'123',environment:'sandbox',bankAccountId:'8',liabilityAccountId:'7',reference:'Verified original payroll retirement liability and funding bank'},'POST',201)
   return post('settlement')
  }
- return {fetcher,prepareOriginal,prepareReturn:()=>post('return'),posts:()=>posts}
+ return {fetcher,onPost:fn=>{onPost=fn},prepareOriginal,prepareReturn:()=>post('return'),posts:()=>posts,loseNextResponse:()=>{loseNext=true},closed:v=>{closed=v},journal:id=>journals.get(id),setJournal:(id,value)=>{if(value)journals.set(id,value);else journals.delete(id)}}
 }

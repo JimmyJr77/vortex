@@ -1,3 +1,5 @@
+import {runRetirementReplacementSettlementSweep} from '../retirementReplacementSettlementAutomation.js'
+import {retirementReplacementAssessment} from '../retirementReplacementAssessment.js'
 import {checkRetirementReplacementReceipts,startRetirementReplacementReceiptScheduler} from '../retirementReplacementReceiptAutomation.js'
 import {runRetirementReplacementBankSweep,startRetirementReplacementBankScheduler} from '../retirementReplacementBankAutomation.js'
 import {retirementReplacementBankProvider} from '../testing/retirementReplacementBankProvider.js'
@@ -188,11 +190,67 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  server.files.set(replacementReceiptRemote,f.receipt());assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'RECONCILIATION_REQUIRED')
  server.files.set(replacementReceiptRemote,f.receipt(replacementReceiptValues))
  const replacementReceipts=await Promise.all([f.api(replacementReceiptPath,replacementReceiptBody),f.api(replacementReceiptPath,replacementReceiptBody)]);assert.equal(replacementReceipts[0].id,replacementReceipts[1].id);assert.equal(replacementReceipts[0].summary.status,'POSTED');assert.equal(replacementReceipts[0].summary.postedCents,1400)
+ const replacementAssessmentPath=`/retirement-replacement-authorizations/${next.id}/assessment`
+ const matchedReplacement=await f.api(replacementAssessmentPath)
+ assert.equal(matchedReplacement.deliveryStatus,'MATCHED',JSON.stringify(matchedReplacement));assert.equal(matchedReplacement.bankStatus,'BANK_POSTED');assert.equal(matchedReplacement.receiptStatus,'POSTED');assert.equal(matchedReplacement.postedCents,1400);assert.equal(matchedReplacement.status,'REVIEW_REQUIRED');assert.equal(matchedReplacement.accountingStatus,'REQUIRED');assert.equal(matchedReplacement.caseStatus,'OPEN')
+ assert.ok(!JSON.stringify(matchedReplacement).includes('PRIVATE-PARTICIPANT'))
+ const employeeReplacement=()=>f.api('/retirement-contributions',undefined,'GET',200,true)
+ const employeeWithReplacement=await employeeReplacement(),employeeOutcome=employeeWithReplacement.items[0].contributions[0];assert.equal(employeeOutcome.status,'REVIEW_REQUIRED');assert.equal(employeeOutcome.postedCents,null);assert.equal(employeeOutcome.replacement.status,'POSTED');assert.equal(employeeOutcome.replacement.postedCents,1400);assert.equal(employeeOutcome.replacement.caseStatus,'OPEN')
+ assert.deepEqual(Object.keys(employeeOutcome.replacement).sort(),['accountingStatus','caseStatus','postedCents','receiptCheckedAt','status'].sort())
+ for(const secret of ['PRIVATE-PARTICIPANT','Synthetic replacement participant batch',next.id,nextInputs.fileName,'realmId','sourceSha256','encrypted_result'])assert.ok(!JSON.stringify(employeeWithReplacement).includes(secret))
+ assert.equal((await employeeRetirementContributions(h.pool,2,f.employee.id)).items.length,0);assert.equal((await employeeRetirementContributions(h.pool,1,999999)).items.length,0)
+ assert.deepEqual(await f.api('/retirement-contributions?employeeId=999999&facilityId=2',undefined,'GET',200,true),employeeWithReplacement)
+ assert.equal((await employeeRetirementContributions(h.pool,1,f.employee.id,{now:new Date(Date.now()+25*3600000)})).items[0].contributions[0].replacement.postedCents,null)
+
+ const staleReplacement=await retirementReplacementAssessment(h.pool,1,next.id,{now:new Date(Date.now()+25*3600000)});assert.equal(staleReplacement.deliveryStatus,'UNVERIFIED');assert.equal(staleReplacement.bankStatus,'UNVERIFIED');assert.equal(staleReplacement.receiptStatus,'UNVERIFIED');assert.equal(staleReplacement.postedCents,null)
+ const futureReplacement=await retirementReplacementAssessment(h.pool,1,next.id,{now:new Date(Date.now()-3600000)});assert.equal(futureReplacement.bankStatus,'UNVERIFIED');assert.equal(futureReplacement.receiptStatus,'UNVERIFIED')
+ const foreignAssessment=await fetch(h.url+'/api/admin/payroll'+replacementAssessmentPath,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(foreignAssessment.status,404)
+ const settlementPreviewPath=`/retirement-replacement-authorizations/${next.id}/settlement-preview`,settlementApprovalPath=`/retirement-replacement-authorizations/${next.id}/settlement-authorizations`
+ const originalReturnJournal=accounting.journal('101');accounting.setJournal('101',null);await f.api(settlementPreviewPath,{},'POST',409);accounting.setJournal('101',originalReturnJournal)
+ accounting.closed(true);await f.api(settlementPreviewPath,{},'POST',409);accounting.closed(false)
+ const settlementPreview=await f.api(settlementPreviewPath,{})
+ assert.equal(settlementPreview.returnJournalId,'101');assert.equal(settlementPreview.sourceJournalId,'99');assert.equal(settlementPreview.journals.length,1);assert.equal(settlementPreview.journals[0].payload.TxnDate,'2026-09-29');assert.deepEqual(settlementPreview.journals[0].payload.Line.map(l=>[l.JournalEntryLineDetail.PostingType,l.JournalEntryLineDetail.AccountRef.value,l.Amount]),[['Debit','7',14],['Credit','8',14]])
+ assert.equal(accounting.posts(),2)
+ const settlementReview={confirmed:true,autoPost:true,outsideAccountingReviewed:true,fingerprint:settlementPreview.fingerprint,requestKey:randomUUID(),reference:'Reviewed exact replacement liability and bank journals with no outside accounting duplicates'}
+ await f.api(settlementApprovalPath,{...settlementReview,outsideAccountingReviewed:false},'POST',400)
+ const settlementApprovals=await Promise.all([f.api(settlementApprovalPath,settlementReview),f.api(settlementApprovalPath,settlementReview)]);assert.equal(settlementApprovals[0].id,settlementApprovals[1].id)
+ const cancelledSettlement=settlementApprovals[0].id,cancelSettlementPath=`/retirement-replacement-settlement-authorizations/${cancelledSettlement}/cancel`,cancelSettlement={confirmed:true,reference:'Cancel reviewed replacement accounting before any provider posting'}
+ delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(settlementApprovalPath,settlementReview)).reused,true);await f.api(cancelSettlementPath,cancelSettlement);assert.equal((await f.api(cancelSettlementPath,cancelSettlement)).reused,true)}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ const approvedSettlement=await f.api(settlementApprovalPath,{...settlementReview,requestKey:randomUUID()}),postSettlementPath=`/retirement-replacement-settlement-authorizations/${approvedSettlement.id}/post`
+ await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'},'POST',409)
+ accounting.setJournal('101',null);await f.api(postSettlementPath,{confirmed:true,action:'POST'},'POST',409);assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=$1',[approvedSettlement.id])).rows[0].n,0);accounting.setJournal('101',originalReturnJournal)
+ accounting.onPost(async()=>{assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=$1',[approvedSettlement.id])).rows[0].n,1);assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_replacement_settlement_journal WHERE authorization_id=$1',[approvedSettlement.id])).rows[0].n,1)})
+ accounting.loseNextResponse()
+ const settlementWorkerOptions={facility:1,fetcher:accounting.fetcher,paymentFetcher:replacementBank.fetcher},settlementStart=new Date()
+ if(automatic){assert.equal((await runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,facility:2,now:settlementStart})).attempted,0);assert.equal((await runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,now:settlementStart})).attempted,1)}
+ else assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'POST'})).results[0].status,'UNCERTAIN')
+ assert.equal(accounting.posts(),3);assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'REVIEW_REQUIRED')
+ if(automatic){const sweeps=await Promise.all([runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,now:new Date(+settlementStart+360000)}),runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,now:new Date(+settlementStart+360000)})]);assert.equal(sweeps.reduce((n,r)=>n+r.attempted,0),1)}
+ else assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'SYNCED')
+ assert.equal(accounting.posts(),3);assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'MATCHED');assert.equal((await f.api(replacementAssessmentPath)).caseStatus,'CLOSED');assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.accountingStatus,'MATCHED')
+ const closedCase=await f.api(`/retirement-remittance-authorizations/${f.remittanceId}/assessment`);assert.equal(closedCase.status,'REPLACEMENT_RECONCILED');assert.equal(closedCase.replacementCaseStatus,'CLOSED');assert.equal(closedCase.returnReviewRequired,false)
+ const caseHistory=async()=> (await h.pool.query('SELECT id,summary FROM payroll_retirement_contribution_assessment WHERE authorization_id=$1 ORDER BY id DESC',[f.remittanceId])).rows
+ const closedHistory=await caseHistory();assert.equal(closedHistory[0].summary.status,'REPLACEMENT_RECONCILED');assert.equal((await h.pool.query('SELECT status FROM payroll_alert WHERE facility_id=1 AND dedupe_key=$1',[`retirement-contribution-${f.remittanceId}`])).rows[0].status,'DISMISSED')
+ assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_alert WHERE facility_id=1 AND status='OPEN' AND dedupe_key=ANY($1::text[])",[[`retirement-replacement-bank-${next.id}`,`retirement-replacement-file-${next.id}`,`retirement-replacement-receipt-${next.id}`]])).rows[0].n,0)
+ const closedEmployee=(await employeeReplacement()).items[0].contributions[0];assert.equal(closedEmployee.replacement.caseStatus,'CLOSED');assert.equal(closedEmployee.fundingStatus,'RETURN_REPLACED');assert.equal(closedEmployee.status,'REVERSED');assert.equal(closedEmployee.replacement.postedCents,1400)
+ await assert.rejects(h.pool.query('INSERT INTO payroll_retirement_contribution_assessment(facility_id,authorization_id,fingerprint,summary) VALUES(1,$1,$2,$3)',[f.remittanceId,'0'.repeat(64),{...closedHistory[0].summary,replacementEvidence:{...closedHistory[0].summary.replacementEvidence,postedCents:1}}]),/Replacement closure requires/)
+ accounting.closed(true);assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'SYNCED');accounting.closed(false)
+ accounting.setJournal('101',null);assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'NEEDS_REVIEW');assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'REVIEW_REQUIRED');accounting.setJournal('101',originalReturnJournal);assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'SYNCED')
+ assert.equal((await retirementReplacementAssessment(h.pool,1,next.id,{now:new Date(Date.now()+25*3600000)})).accountingStatus,'REVIEW_REQUIRED')
+ const replacementJournal=accounting.journal('102');accounting.setJournal('102',null);assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).results[0].status,'NOT_FOUND');assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'REVIEW_REQUIRED');assert.equal(accounting.posts(),3);accounting.setJournal('102',replacementJournal)
+ assert.equal((await caseHistory())[0].summary.status,'REVIEW_REQUIRED');assert.ok((await caseHistory()).some(row=>row.summary.status==='REPLACEMENT_RECONCILED'));assert.equal((await h.pool.query('SELECT status FROM payroll_alert WHERE facility_id=1 AND dedupe_key=$1',[`retirement-contribution-${f.remittanceId}`])).rows[0].status,'OPEN');assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.caseStatus,'OPEN')
+ assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'SYNCED')
+ assert.equal((await caseHistory())[0].summary.status,'REPLACEMENT_RECONCILED');assert.ok((await caseHistory()).filter(row=>row.summary.status==='REPLACEMENT_RECONCILED').length>=2)
+ await f.api(`/retirement-replacement-settlement-authorizations/${approvedSettlement.id}/cancel`,cancelSettlement,'POST',409)
+ const foreignSettlement=await fetch(h.url+'/api/admin/payroll'+postSettlementPath,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2','Content-Type':'application/json'},body:JSON.stringify({confirmed:true,action:'POST'})});assert.equal(foreignSettlement.status,404)
+ await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=$1',[approvedSettlement.id]),/append-only/)
+ await assert.rejects(h.pool.query("INSERT INTO payroll_retirement_replacement_settlement_observation(journal_id,source,result,create_attempted) SELECT id,'RECOVERY','{}'::jsonb,true FROM payroll_retirement_replacement_settlement_journal WHERE authorization_id=$1",[approvedSettlement.id]),/check constraint/)
  const privateReceipt=(await h.pool.query('SELECT * FROM payroll_retirement_replacement_receipt_observation WHERE id=$1',[replacementReceipts[0].id])).rows[0];assert.ok(!privateReceipt.encrypted_receipt.includes(Buffer.from('PRIVATE-PARTICIPANT')));assert.ok(decryptDocument(privateReceipt.encrypted_receipt,`payroll-retirement-replacement-receipt:1:${privateReceipt.id}:file`).equals(server.files.get(replacementReceiptRemote)))
  assert.ok(!JSON.stringify(await f.api(replacementReceiptPath)).includes('PRIVATE-PARTICIPANT'));assert.ok(!JSON.stringify(await f.api(replacementReceiptPath)).includes('Synthetic replacement participant batch'))
  delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(replacementReceiptPath,replacementReceiptBody)).reused,true)}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
  server.files.set(replacementReceiptRemote,f.receipt({...replacementReceiptValues,recordedAt:'2026-09-30T12:00:00Z',ordinaryPretaxCents:500,totalCents:900}));assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'REGRESSION')
  server.files.delete(replacementReceiptRemote);assert.equal((await f.api(replacementReceiptPath,{...replacementReceiptBody,requestKey:randomUUID()})).summary.status,'RECEIPT_NOT_FOUND')
+ assert.equal((await f.api(replacementAssessmentPath)).receiptStatus,'UNVERIFIED');assert.equal((await f.api(replacementAssessmentPath)).postedCents,null)
  const receiptAutomationStart=new Date(Date.now()+360000),receiptAutomationOptions={reader:(c,r)=>readRetirementSftpReceipt(c,r,server.options),receiptNow:()=>new Date('2026-09-30T15:00:00Z')}
  assert.equal((await checkRetirementReplacementReceipts(h.pool,2,{...receiptAutomationOptions,now:receiptAutomationStart})).checked,0)
  server.files.set(replacementReceiptRemote,f.receipt(replacementReceiptValues))
@@ -208,6 +266,10 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_receipt_observation WHERE allocation_id=$1',[next.id]),/append-only/)
  assert.equal((await f.api(f.receiptPath)).history[0].summary.status,'REVERSED');assert.equal(replacementBank.posts(),1);assert.equal(server.state.created,2)
  replacementBank.missing(true);assert.equal((await f.api(fundingPath,fundingBody)).result.status,'NOT_FOUND');assert.equal(replacementBank.posts(),1)
+ assert.equal((await f.api(replacementAssessmentPath)).bankStatus,'UNVERIFIED')
+ assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.status,'REVIEW_REQUIRED');assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.postedCents,null)
+ await h.pool.query("INSERT INTO payroll_retirement_replacement_observation(authorization_id,kind,source,result,created_by,automatic) VALUES($1,'BANK','RECOVERY',$2,NULL,true)",[next.id,{status:'RETURNED'}])
+ replacementBank.missing(false);assert.equal((await f.api(fundingPath,fundingBody)).result.settlementStatus,'BANK_POSTED');const returnedReplacement=await f.api(replacementAssessmentPath);assert.equal(returnedReplacement.returnReviewRequired,true);assert.equal(returnedReplacement.deliveryStatus,'UNVERIFIED');assert.equal(returnedReplacement.bankStatus,'UNVERIFIED');assert.equal(returnedReplacement.postedCents,null);assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.postedCents,null)
  delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(fundingPath,{confirmed:true,action:'RECOVER'})).result.status,'RECOVERY_UNAVAILABLE')}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
  const foreignBank=await fetch(h.url+'/api/admin/payroll'+fundingPath,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2','Content-Type':'application/json'},body:JSON.stringify({confirmed:true,action:'RECOVER'})});assert.equal(foreignBank.status,404)
  server.files.delete(replacementTarget)
@@ -221,11 +283,11 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_authorization'),/append-only/)
  await h.pool.query(await readFile(new URL('../../migrations/813_payroll_onboarding.sql',import.meta.url),'utf8'));assert.equal((await f.api(authPath)).history.length,2)
 
- assert.equal(server.state.created,2);assert.equal(provider.posts(),1);assert.equal(accounting.posts(),2)
+ assert.equal(server.state.created,2);assert.equal(provider.posts(),1);assert.equal(accounting.posts(),3)
 
  assert.equal((await check()).summary.status,'REVERSED')
  const employee=await f.api('/retirement-contributions',undefined,'GET',200,true);assert.equal(employee.items[0].contributions[0].status,'REVIEW_REQUIRED');assert.equal(employee.items[0].contributions[0].postedCents,null)
  assert.equal((await f.api(`/retirement-remittance-authorizations/${f.remittanceId}/assessment`)).returnReviewRequired,true)
- provider.creditValid(false);await f.api(bankPath,{action:'RECOVER',confirmed:true});const changed=await f.api(`/retirement-remittance-authorizations/${f.remittanceId}/assessment`);assert.equal(changed.reversedAllocationCents,null);assert.equal(changed.replacementReviewStatus,'EVIDENCE_REQUIRED');assert.equal((await check()).summary.status,'RECONCILIATION_REQUIRED');assert.equal(accounting.posts(),2)
+ provider.creditValid(false);await f.api(bankPath,{action:'RECOVER',confirmed:true});const changed=await f.api(`/retirement-remittance-authorizations/${f.remittanceId}/assessment`);assert.equal(changed.reversedAllocationCents,null);assert.equal(changed.replacementReviewStatus,'EVIDENCE_REQUIRED');assert.equal((await check()).summary.status,'RECONCILIATION_REQUIRED');assert.equal(accounting.posts(),3)
  assert.equal(provider.posts(),1);assert.equal(server.state.created,2)
 }))

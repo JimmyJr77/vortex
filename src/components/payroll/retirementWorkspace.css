@@ -1,0 +1,37 @@
+/* Retirement workflows remain in their payroll context without consuming a
+   fresh horizontal gutter for every nested review/history section on phones. */
+@media (max-width: 640px) {
+  .payroll-retirement-workspace,
+  .payroll-retirement-workspace :is(section, article, fieldset, details, div) {
+    min-width: 0;
+  }
+  .payroll-retirement-workspace :is(section, article, fieldset, details, .payroll-replacement) {
+    padding-inline: 0;
+    border-inline-width: 0;
+    border-radius: 0;
+  }
+  .payroll-retirement-workspace :is(label, legend, summary, p, h4, h5, h6, li, dt, dd) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .payroll-retirement-workspace :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, button) {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .payroll-retirement-workspace :is(select, textarea) {
+    width: 100%;
+  }
+  .payroll-retirement-workspace button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .payroll-retirement-workspace :is(input[type="checkbox"], input[type="radio"]) {
+    flex-shrink: 0;
+  }
+  .payroll-retirement-workspace label:has(> input:is([type="checkbox"], [type="radio"])) {
+    min-height: 44px;
+    align-items: flex-start;
+  }
+}

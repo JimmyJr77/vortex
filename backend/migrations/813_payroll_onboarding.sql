@@ -4851,12 +4851,17 @@ BEGIN
   RAISE EXCEPTION 'Contribution assessment requires a scoped retirement authorization.';
  END IF;
  IF TG_TABLE_NAME='payroll_retirement_contribution_assessment' THEN
-  IF (jsonb_typeof(NEW.summary)='object' AND NEW.summary->>'authorizationId'=NEW.authorization_id::text AND NEW.summary->>'status' IN ('REVIEW_REQUIRED','RECONCILED','CANCELLED') AND jsonb_typeof(NEW.summary->'issues')='array' AND NEW.summary->>'amountCents'=(SELECT amount_cents::text FROM payroll_retirement_remittance_authorization WHERE id=NEW.authorization_id)) IS NOT TRUE THEN
+  IF (jsonb_typeof(NEW.summary)='object' AND NEW.summary->>'authorizationId'=NEW.authorization_id::text AND NEW.summary->>'status' IN ('REVIEW_REQUIRED','RECONCILED','REPLACEMENT_RECONCILED','CANCELLED') AND jsonb_typeof(NEW.summary->'issues')='array' AND NEW.summary->>'amountCents'=(SELECT amount_cents::text FROM payroll_retirement_remittance_authorization WHERE id=NEW.authorization_id)) IS NOT TRUE THEN
    RAISE EXCEPTION 'Contribution assessment must retain its exact authorization and amount.';
   END IF;
   IF NEW.summary->>'status'='RECONCILED' AND (NEW.summary->>'payrollStatus'='MATCHED' AND NEW.summary->>'bankStatus'='BANK_POSTED' AND NEW.summary->>'receiptStatus'='POSTED' AND NEW.summary->>'accountingStatus'='MATCHED' AND COALESCE(NEW.summary->>'returnAccountingStatus','NOT_REQUIRED')='NOT_REQUIRED' AND COALESCE(NEW.summary->>'returnReviewRequired','false')='false' AND NEW.summary->>'postedCents'=NEW.summary->>'amountCents' AND NEW.summary->'issues'='[]'::jsonb) IS NOT TRUE THEN
    RAISE EXCEPTION 'Reconciled contribution requires matching evidence in every component.';
   END IF;
+  IF NEW.summary->>'status'='REPLACEMENT_RECONCILED' AND (
+   NEW.summary->>'replacementCaseStatus'='CLOSED' AND NEW.summary->>'returnReviewRequired'='false' AND NEW.summary->>'payrollStatus'='MATCHED' AND NEW.summary->>'bankStatus'='RETURN_CREDIT_POSTED' AND NEW.summary->>'receiptStatus'='REVERSED' AND NEW.summary->>'returnAccountingStatus'='MATCHED' AND NEW.summary->>'reversedAllocationCents'=NEW.summary->>'amountCents' AND NEW.summary->'issues'='[]'::jsonb
+   AND NEW.summary->'replacementEvidence'->>'originalAuthorizationId'=NEW.authorization_id::text AND NEW.summary->'replacementEvidence'->>'status'='RECONCILED' AND NEW.summary->'replacementEvidence'->>'caseStatus'='CLOSED' AND NEW.summary->'replacementEvidence'->>'originalEvidenceStatus'='MATCHED' AND NEW.summary->'replacementEvidence'->>'bankStatus'='BANK_POSTED' AND NEW.summary->'replacementEvidence'->>'receiptStatus'='POSTED' AND NEW.summary->'replacementEvidence'->>'deliveryStatus'='MATCHED' AND NEW.summary->'replacementEvidence'->>'accountingStatus'='MATCHED' AND NEW.summary->'replacementEvidence'->>'returnReviewRequired'='false' AND NEW.summary->'replacementEvidence'->>'amountCents'=NEW.summary->>'amountCents' AND NEW.summary->'replacementEvidence'->>'postedCents'=NEW.summary->>'amountCents'
+   AND EXISTS(SELECT 1 FROM payroll_retirement_replacement_authorization r WHERE r.id::text=NEW.summary->'replacementEvidence'->>'authorizationId' AND r.original_authorization_id=NEW.authorization_id AND r.facility_id=NEW.facility_id AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_cancellation c WHERE c.authorization_id=r.id))
+  ) IS NOT TRUE THEN RAISE EXCEPTION 'Replacement closure requires matching original return, scoped replacement and accounting evidence.'; END IF;
  ELSE
   IF TG_OP='UPDATE' AND (NEW.authorization_id<>OLD.authorization_id OR NEW.facility_id<>OLD.facility_id OR NEW.checked_at<OLD.checked_at) THEN
    RAISE EXCEPTION 'Contribution checkpoint identity and time cannot move backwards.';
@@ -5168,3 +5173,63 @@ ALTER TABLE payroll_retirement_replacement_receipt_observation ADD COLUMN IF NOT
 ALTER TABLE payroll_retirement_replacement_receipt_observation ALTER COLUMN created_by DROP NOT NULL;
 ALTER TABLE payroll_retirement_replacement_receipt_observation DROP CONSTRAINT IF EXISTS payroll_retirement_replacement_receipt_actor;
 ALTER TABLE payroll_retirement_replacement_receipt_observation ADD CONSTRAINT payroll_retirement_replacement_receipt_actor CHECK((automatic AND created_by IS NULL) OR (NOT automatic AND created_by IS NOT NULL));
+
+-- Replacement bank accounting has separate immutable claims and journal identities.
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_authorization (
+ id UUID PRIMARY KEY,facility_id BIGINT NOT NULL REFERENCES facility(id),
+ replacement_id UUID NOT NULL REFERENCES payroll_retirement_replacement_authorization(id),
+ mapping_id BIGINT NOT NULL REFERENCES payroll_retirement_settlement_mapping(id),preview JSONB NOT NULL,
+ fingerprint TEXT NOT NULL CHECK(fingerprint ~ '^[a-f0-9]{64}$'),request_key UUID NOT NULL,
+ reference TEXT NOT NULL CHECK(length(reference) BETWEEN 20 AND 2000),auto_post BOOLEAN NOT NULL CHECK(auto_post),
+ created_by BIGINT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,request_key)
+);
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_cancellation (
+ authorization_id UUID PRIMARY KEY REFERENCES payroll_retirement_replacement_settlement_authorization(id),
+ reference TEXT NOT NULL CHECK(length(reference) BETWEEN 20 AND 2000),created_by BIGINT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_claim (
+ authorization_id UUID PRIMARY KEY REFERENCES payroll_retirement_replacement_settlement_authorization(id),created_by BIGINT,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_journal (
+ id UUID PRIMARY KEY,authorization_id UUID NOT NULL REFERENCES payroll_retirement_replacement_settlement_claim(authorization_id),facility_id BIGINT NOT NULL REFERENCES facility(id),
+ realm_id TEXT NOT NULL,environment TEXT NOT NULL CHECK(environment IN ('sandbox','production')),event_key TEXT NOT NULL,payload JSONB NOT NULL,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),UNIQUE(authorization_id,event_key),UNIQUE(facility_id,realm_id,environment,event_key)
+);
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_observation (
+ id BIGSERIAL PRIMARY KEY,journal_id UUID NOT NULL REFERENCES payroll_retirement_replacement_settlement_journal(id),source TEXT NOT NULL CHECK(source IN ('SUBMISSION','RECOVERY')),
+ result JSONB NOT NULL,create_attempted BOOLEAN NOT NULL DEFAULT false,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),CHECK(source<>'RECOVERY' OR NOT create_attempted)
+);
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_attempt (
+ id BIGSERIAL PRIMARY KEY,authorization_id UUID NOT NULL REFERENCES payroll_retirement_replacement_settlement_authorization(id),status TEXT NOT NULL CHECK(status IN ('SYNCED','NEEDS_REVIEW','BLOCKED')),message TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE OR REPLACE FUNCTION payroll_validate_replacement_settlement_approval() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE employer BIGINT;
+BEGIN
+ IF TG_TABLE_NAME='payroll_retirement_replacement_settlement_authorization' THEN employer:=NEW.facility_id;
+ ELSE SELECT facility_id INTO employer FROM payroll_retirement_replacement_settlement_authorization WHERE id=NEW.authorization_id; END IF;
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=employer FOR UPDATE;
+ IF TG_TABLE_NAME='payroll_retirement_replacement_settlement_authorization' THEN
+  IF NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_authorization p JOIN payroll_retirement_settlement_mapping m ON m.id=NEW.mapping_id WHERE p.id=NEW.replacement_id AND p.facility_id=NEW.facility_id AND m.facility_id=p.facility_id AND m.realm_id=NEW.preview->>'realmId' AND m.environment=NEW.preview->>'environment' AND p.id::text=NEW.preview->>'authorizationId' AND p.original_authorization_id::text=NEW.preview->>'originalAuthorizationId' AND p.return_authorization_id::text=NEW.preview->>'returnAuthorizationId' AND p.preview->'amountCents'=NEW.preview->'amountCents' AND p.preview->'planId'=NEW.preview->'planId' AND p.preview->'runId'=NEW.preview->'runId' AND m.id::text=NEW.preview->>'mappingId' AND NEW.fingerprint=NEW.preview->>'fingerprint' AND jsonb_array_length(NEW.preview->'journals')>0 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_cancellation c WHERE c.authorization_id=p.id)) THEN RAISE EXCEPTION 'Replacement settlement requires exact scoped approval and mapping.'; END IF;
+  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_authorization a WHERE a.replacement_id=NEW.replacement_id AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_cancellation c WHERE c.authorization_id=a.id)) THEN RAISE EXCEPTION 'Replacement settlement already has an active approval.'; END IF;
+ ELSIF TG_TABLE_NAME='payroll_retirement_replacement_settlement_cancellation' THEN
+  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=NEW.authorization_id) THEN RAISE EXCEPTION 'Claimed replacement settlement requires recovery.'; END IF;
+ ELSE
+  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_cancellation WHERE authorization_id=NEW.authorization_id) THEN RAISE EXCEPTION 'Cancelled replacement settlement cannot be claimed.'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+DO $$ DECLARE tab TEXT; BEGIN FOREACH tab IN ARRAY ARRAY['payroll_retirement_replacement_settlement_authorization','payroll_retirement_replacement_settlement_cancellation','payroll_retirement_replacement_settlement_claim'] LOOP
+ EXECUTE format('DROP TRIGGER IF EXISTS payroll_validate_replacement_settlement_approval ON %I',tab);
+ EXECUTE format('CREATE TRIGGER payroll_validate_replacement_settlement_approval BEFORE INSERT ON %I FOR EACH ROW EXECUTE FUNCTION payroll_validate_replacement_settlement_approval()',tab);
+END LOOP; END $$;
+CREATE OR REPLACE FUNCTION payroll_validate_replacement_settlement_journal() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_authorization a CROSS JOIN LATERAL jsonb_array_elements(a.preview->'journals') j WHERE a.id=NEW.authorization_id AND a.facility_id=NEW.facility_id AND a.preview->>'realmId'=NEW.realm_id AND a.preview->>'environment'=NEW.environment AND j->'event'->>'key'=NEW.event_key AND j->'payload'=NEW.payload) THEN RAISE EXCEPTION 'Replacement journal requires exact retained employer, company and payload.'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_validate_replacement_settlement_journal ON payroll_retirement_replacement_settlement_journal;
+CREATE TRIGGER payroll_validate_replacement_settlement_journal BEFORE INSERT ON payroll_retirement_replacement_settlement_journal FOR EACH ROW EXECUTE FUNCTION payroll_validate_replacement_settlement_journal();
+DO $$ DECLARE tab TEXT; BEGIN FOREACH tab IN ARRAY ARRAY['payroll_retirement_replacement_settlement_authorization','payroll_retirement_replacement_settlement_cancellation','payroll_retirement_replacement_settlement_claim','payroll_retirement_replacement_settlement_journal','payroll_retirement_replacement_settlement_observation','payroll_retirement_replacement_settlement_attempt'] LOOP
+ EXECUTE format('DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON %I',tab);
+ EXECUTE format('CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection()',tab);
+END LOOP; END $$;

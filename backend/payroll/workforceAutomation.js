@@ -1,3 +1,4 @@
+import {runRetirementReplacementSettlementSweep} from './retirementReplacementSettlementAutomation.js'
 import {checkRetirementReplacementReceipts} from './retirementReplacementReceiptAutomation.js'
 import {runRetirementReplacementBankSweep} from './retirementReplacementBankAutomation.js'
 import {runRetirementReplacementAllocationSweep} from './retirementReplacementAutomation.js'
@@ -45,6 +46,7 @@ export async function runWorkforceAutomation(pool, facilityId, {retirementReceip
  await ensureEmployerSetup(pool,facilityId)
  await runRetirementSettlementSweep(pool,{facility:facilityId,fetcher:quickbooksFetcher,paymentFetcher,now})
  await runRetirementReturnSweep(pool,{facility:facilityId,fetcher:quickbooksFetcher,paymentFetcher,now})
+ await runRetirementReplacementSettlementSweep(pool,{facility:facilityId,fetcher:quickbooksFetcher,paymentFetcher,now})
  await runRetirementReplacementAllocationSweep(pool,{facility:facilityId,fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now,dispatchNow:retirementDispatchNow})
  await runRetirementReplacementBankSweep(pool,{facility:facilityId,fetcher:quickbooksFetcher,paymentFetcher,reader:retirementReceiptReader,transfer:retirementAllocationTransfer,now,dispatchNow:retirementDispatchNow})
  await runRetirementContributionSweep(pool,{facility:facilityId,now})
