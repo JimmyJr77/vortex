@@ -77,6 +77,9 @@ export const workforceApi = {
  schedulePayRate: (employeeId:number,body:unknown) => request(`/employees/${employeeId}/pay-rates`,true,body),
  cancelPayRate: (employeeId:number,id:number,body:unknown) => request(`/employees/${employeeId}/pay-rates/${id}/cancel`,true,body),
  acknowledgePayRate: (id:number,cancellation=false) => request(`/pay-rates/${id}/acknowledge`,false,{acknowledged:true,cancellation}),
+ i9Preparers:(employeeId:number,taskId:number,cycle:number)=>request<PreparerRoster>(`/employees/${employeeId}/onboarding/${taskId}/i9/preparers?onboardingCycle=${cycle}`,true),
+ inviteI9Preparer:(employeeId:number,taskId:number,body:unknown)=>request<{id:string;token:string;expiresAt:string}>(`/employees/${employeeId}/onboarding/${taskId}/i9/preparers`,true,body),
+ cancelI9Preparer:(employeeId:number,taskId:number,requestId:string,body:unknown)=>request(`/employees/${employeeId}/onboarding/${taskId}/i9/preparers/${requestId}/cancel`,true,body),
  i9Context:(employeeId:number,taskId:number,cycle:number)=>request<I9HiringContext>(`/employees/${employeeId}/onboarding/${taskId}/i9/context?onboardingCycle=${cycle}`,true),
  saveI9Context:(employeeId:number,taskId:number,body:unknown)=>request<I9HiringContext>(`/employees/${employeeId}/onboarding/${taskId}/i9/context`,true,body),
  packet: (employeeId?: number) => request<Packet>(employeeId ? `/employees/${employeeId}/onboarding` : '/onboarding', !!employeeId),
@@ -85,7 +88,7 @@ export const workforceApi = {
  withdrawBenefitsDeduction:(body:unknown)=>request<Packet>('/benefits-deduction-authorization/withdraw',false,body),
  authorizeBenefitsDeduction:(body:unknown)=>request<Packet>('/benefits-deduction-authorization',false,body),
  benefitsElection:(body:unknown)=>request<Packet>('/benefits-election',false,body),
- review: (employeeId: number, taskId: number, status: string, note: string, onboardingCycle=1, paySetupFingerprint?:string, benefitsReview?:BenefitsReview) => request<Packet>(`/employees/${employeeId}/onboarding/${taskId}/review`, true, { status, note, onboardingCycle, paySetupFingerprint, benefitsReview }),
+ review: (employeeId: number, taskId: number, status: string, note: string, onboardingCycle=1, paySetupFingerprint?:string, benefitsReview?:BenefitsReview,i9PreparerReview?:{confirmed:boolean;fingerprint:string}) => request<Packet>(`/employees/${employeeId}/onboarding/${taskId}/review`, true, { status, note, onboardingCycle, paySetupFingerprint, benefitsReview,i9PreparerReview }),
  activate: (employeeId: number) => request(`/employees/${employeeId}/activate`, true, {}),
  retainCorrectionImpact:(id:number,body:unknown)=>request<{id:number;reviewedAt:string;reason:string}>(`/requests/${id}/payroll-impact/reviews`,true,body),
  authorizeCorrectionPayment:(id:number,body:unknown)=>request<{id:number}>(`/requests/${id}/payroll-correction-authorizations`,true,body),
@@ -118,3 +121,5 @@ export const workforceApi = {
 
 export type I9HiringRecord={revision:number;offerAcceptedOn:string;eVerify:boolean;evidence:string;actorUserId:number;recordedAt:string}
 export type I9HiringContext={revision:number;current:I9HiringRecord|null;history:I9HiringRecord[]}
+
+export type PreparerRoster={submissionId:string|null;fingerprint:string;requests:Array<{id:string;name:string;email:string;evidence:string;expiresAt:string;cancelledAt:string|null;signedAt:string|null;signatureId:string|null;documentId:string|null}>}

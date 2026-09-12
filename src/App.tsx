@@ -45,6 +45,7 @@ const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
 const Storefront = lazyWithRetry(() => import('./components/store/Storefront'))
+const I9PreparerPortal = lazyWithRetry(() => import('./components/payroll/I9PreparerPortal'))
 const PayrollEmployeePortal = lazyWithRetry(() => import('./components/payroll/PayrollEmployeePortal'))
 
 function PageLoader() {
@@ -211,6 +212,8 @@ function App() {
     setActivePortal(portal)
     setShowMemberDashboard(true)
   }
+
+  if (location.pathname === '/employee/payroll/preparer') return <Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense>
 
   if (location.pathname === '/employee/payroll') {
     return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>

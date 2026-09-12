@@ -1,3 +1,4 @@
+import {registerPayrollPreparerRoutes} from './payroll/i9PreparerRoutes.js'
 import {startRetirementReplacementSettlementScheduler} from './payroll/retirementReplacementSettlementAutomation.js'
 import {startRetirementReplacementReceiptScheduler} from './payroll/retirementReplacementReceiptAutomation.js'
 import {startRetirementReplacementBankScheduler} from './payroll/retirementReplacementBankAutomation.js'
@@ -2660,6 +2661,7 @@ registerOpportunityRoutes(app, pool)
 registerW2ProviderIntake(app,pool)
 registerPayrollRoutes(app, pool)
 registerPayrollEmployeeRoutes(app, pool)
+registerPayrollPreparerRoutes(app,pool)
 registerQuickbooksCallback(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })

@@ -5603,3 +5603,63 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_submission ON payroll_i9_submission;
 CREATE TRIGGER payroll_guard_i9_submission BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_submission FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_submission();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_preparer_request (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL REFERENCES facility(id),employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ submission_id BIGINT NOT NULL REFERENCES payroll_i9_submission(id),token_hash text NOT NULL UNIQUE CHECK(token_hash ~ '^[a-f0-9]{64}$'),
+ encrypted_recipient bytea NOT NULL CHECK(octet_length(encrypted_recipient)>28),actor_user_id BIGINT NOT NULL,
+ request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),encrypted_access bytea NOT NULL CHECK(octet_length(encrypted_access)>28),UNIQUE(facility_id,employee_id,request_key),
+ created_at timestamptz NOT NULL DEFAULT clock_timestamp(),expires_at timestamptz NOT NULL DEFAULT clock_timestamp()+interval '14 days',
+ cancelled_at timestamptz,cancelled_by BIGINT,cancellation_reason text,
+ CHECK((cancelled_at IS NULL AND cancelled_by IS NULL AND cancellation_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND length(cancellation_reason)>=12))
+);
+CREATE TABLE IF NOT EXISTS payroll_i9_preparer_review (
+ id BIGSERIAL PRIMARY KEY,request_id BIGINT NOT NULL REFERENCES payroll_i9_preparer_request(id),
+ encrypted_review bytea NOT NULL CHECK(octet_length(encrypted_review)>28),preview_sha256 text NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ created_at timestamptz NOT NULL DEFAULT clock_timestamp(),expires_at timestamptz NOT NULL DEFAULT clock_timestamp()+interval '30 minutes'
+);
+CREATE TABLE IF NOT EXISTS payroll_i9_preparer_signature (
+ id BIGSERIAL PRIMARY KEY,request_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_preparer_request(id),review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_preparer_review(id),
+ document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),
+ encrypted_signature bytea NOT NULL CHECK(octet_length(encrypted_signature)>28),signed_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_preparer_request() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Preparer invitation history must be retained.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' THEN
+  IF (to_jsonb(NEW)-ARRAY['cancelled_at','cancelled_by','cancellation_reason']) IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['cancelled_at','cancelled_by','cancellation_reason']) OR OLD.cancelled_at IS NOT NULL OR NEW.cancelled_at IS NULL OR EXISTS(SELECT 1 FROM payroll_i9_preparer_signature WHERE request_id=OLD.id) THEN RAISE EXCEPTION 'Only unsigned preparer invitations may be cancelled, retaining their scope.' USING ERRCODE='23514'; END IF;
+ ELSE
+  IF NOT EXISTS(SELECT 1 FROM payroll_i9_submission s JOIN payroll_onboarding_task t ON t.id=s.task_id AND t.onboarding_cycle=s.onboarding_cycle WHERE s.id=NEW.submission_id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id AND s.task_id=NEW.task_id AND s.onboarding_cycle=NEW.onboarding_cycle AND s.preparer_required AND t.response->>'i9SubmissionId'=s.id::text AND t.status IN ('SUBMITTED','CHANGES_REQUESTED')) THEN RAISE EXCEPTION 'Preparer invitation requires the current employee-signed Section 1 with assistance.' USING ERRCODE='23514'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_preparer_request ON payroll_i9_preparer_request;
+CREATE TRIGGER payroll_guard_i9_preparer_request BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_preparer_request FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_preparer_request();
+CREATE OR REPLACE FUNCTION payroll_guard_i9_preparer_evidence() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE invitation payroll_i9_preparer_request%ROWTYPE;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Preparer certification evidence is immutable.' USING ERRCODE='23514'; END IF;
+ SELECT * INTO invitation FROM payroll_i9_preparer_request WHERE id=NEW.request_id;
+ IF NOT FOUND OR invitation.cancelled_at IS NOT NULL OR invitation.expires_at<=clock_timestamp() OR NOT EXISTS(SELECT 1 FROM payroll_onboarding_task WHERE id=invitation.task_id AND onboarding_cycle=invitation.onboarding_cycle AND response->>'i9SubmissionId'=invitation.submission_id::text AND status IN ('SUBMITTED','CHANGES_REQUESTED')) THEN RAISE EXCEPTION 'Preparer evidence requires a live invitation and current Section 1.' USING ERRCODE='23514'; END IF;
+ IF TG_TABLE_NAME='payroll_i9_preparer_signature' THEN
+  IF NOT EXISTS(SELECT 1 FROM payroll_i9_preparer_page_visit WHERE review_id=NEW.review_id) THEN RAISE EXCEPTION 'Preparer signing requires a displayed supplement.' USING ERRCODE='23514'; END IF;
+  IF NOT EXISTS(SELECT 1 FROM payroll_i9_preparer_review WHERE id=NEW.review_id AND request_id=NEW.request_id AND expires_at>clock_timestamp() AND id=(SELECT MAX(id) FROM payroll_i9_preparer_review WHERE request_id=NEW.request_id)) OR NOT EXISTS(SELECT 1 FROM payroll_private_document WHERE id=NEW.document_id AND facility_id=invitation.facility_id AND employee_id=invitation.employee_id AND task_id=invitation.task_id AND onboarding_cycle=invitation.onboarding_cycle) THEN RAISE EXCEPTION 'Preparer signature must match its current review and scoped document.' USING ERRCODE='23514'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_preparer_review ON payroll_i9_preparer_review;
+CREATE TRIGGER payroll_guard_i9_preparer_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_preparer_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_preparer_evidence();
+DROP TRIGGER IF EXISTS payroll_guard_i9_preparer_signature ON payroll_i9_preparer_signature;
+CREATE TRIGGER payroll_guard_i9_preparer_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_preparer_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_preparer_evidence();
+CREATE TABLE IF NOT EXISTS payroll_i9_preparer_page_visit (
+ review_id BIGINT PRIMARY KEY REFERENCES payroll_i9_preparer_review(id),displayed_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_preparer_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Preparer page review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_preparer_review WHERE id=NEW.review_id AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'Display an unexpired preparer review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_preparer_page ON payroll_i9_preparer_page_visit;
+CREATE TRIGGER payroll_guard_i9_preparer_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_preparer_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_preparer_page();

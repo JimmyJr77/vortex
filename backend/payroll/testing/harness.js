@@ -1,3 +1,4 @@
+import {registerPayrollPreparerRoutes} from '../i9PreparerRoutes.js'
 import {registerW2ProviderIntake,w2ProviderPath} from '../w2NoticeProviderIntake.js'
 // Local-only payroll integration harness. Never reads application .env files.
 import express from 'express'
@@ -33,7 +34,7 @@ export async function createHarness({retirementReceiptReader=async()=>({status:'
   catch{res.status(500).json({success:false})}
  })
  registerW2ProviderIntake(app,pool,providerIntake)
- registerPayrollRoutes(app,pool,{retirementReceiptReader,retirementAllocationTransfer,retirementSftpVerifier,remittanceNow,now:payrollNow,invitationSender,carrierNoticeSender,paymentFetcher,quickbooksFetcher});registerPayrollEmployeeRoutes(app,pool,{paymentFetcher,retirementNow});registerQuickbooksCallback(app,pool,{fetcher:quickbooksFetcher})
+ registerPayrollRoutes(app,pool,{retirementReceiptReader,retirementAllocationTransfer,retirementSftpVerifier,remittanceNow,now:payrollNow,invitationSender,carrierNoticeSender,paymentFetcher,quickbooksFetcher});registerPayrollEmployeeRoutes(app,pool,{paymentFetcher,retirementNow});registerPayrollPreparerRoutes(app,pool);registerQuickbooksCallback(app,pool,{fetcher:quickbooksFetcher})
  const server=await new Promise(resolve=>{const s=app.listen(Number(process.env.PAYROLL_TEST_PORT)||0,'127.0.0.1',()=>resolve(s))})
  return {pool,url:`http://127.0.0.1:${server.address().port}`,close:async()=>{await new Promise(resolve=>server.close(resolve));await pool.end();await root.query(`DROP SCHEMA ${schema} CASCADE`);await root.end()}}
 }

@@ -1,3 +1,4 @@
+import {preparerRoster,invitePreparer,cancelPreparer} from './i9Preparers.js'
 import {signI9} from './i9Signing.js'
 import {previewI9,recordI9Page} from './i9Review.js'
 import {readI9HiringContext,saveI9HiringContext} from './i9HiringContext.js'
@@ -98,6 +99,9 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>preparerRoster(db,context(req),req.params.taskId,req.query.onboardingCycle))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>invitePreparer(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers/:requestId/cancel',(req,res)=>transaction(pool,res,db=>cancelPreparer(db,context(req),req.params.taskId,req.params.requestId,req.body||{})))
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/context',(req,res)=>transaction(pool,res,db=>readI9HiringContext(db,context(req),req.params.taskId,req.query.onboardingCycle)))
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/context',(req,res)=>transaction(pool,res,db=>saveI9HiringContext(db,context(req),req.params.taskId,req.body||{})))
  app.get('/api/admin/payroll/employees/:id/onboarding',(req,res)=>transaction(pool,res,db=>packet(db,context(req).facility,req.params.id,true)))
@@ -140,12 +144,16 @@ export function registerWorkforceAdminRoutes(app,pool) {
    const section1=(await db.query("SELECT status,response FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key='I9'",[ctx.facility,ctx.employee])).rows[0]
    if(section1?.response?.i9SubmissionId&&section1.status!=='COMPLETE')throw fail('Review and complete the employee Section 1 and any required preparer certifications before completing employer review.',409)
   }
-  if(status==='COMPLETE'&&task.task_key==='I9'&&task.response?.i9PreparerRequired)throw fail('Each preparer or translator must complete their separate Supplement A certification before this I-9 step can be approved.',409)
+  if(status==='COMPLETE'&&task.task_key==='I9'&&task.response?.i9PreparerRequired){
+   const roster=await preparerRoster(db,ctx,task.id,task.onboarding_cycle),active=roster.requests.filter(r=>!r.cancelledAt)
+   if(!active.length||active.some(r=>!r.signatureId)||req.body?.i9PreparerReview?.confirmed!==true||req.body.i9PreparerReview.fingerprint!==roster.fingerprint)throw fail('Obtain every preparer certification and confirm the current complete preparer list before approving Section 1.',409)
+  }
   if(status==='COMPLETE'&&task.task_key==='WAGE_NOTICE'&&!wageAcknowledgmentCurrent(task.response,(await salaryRowsAt(db,ctx.facility,[employee]))[0],await hiringPolicy(db,ctx.facility,employee)))throw fail('Ask the employee to review and acknowledge the current hiring pay terms before completing this step.',409)
   if(status==='COMPLETE'&&task.task_key==='HANDBOOK'&&!handbookAcknowledgmentCurrent(task.response,await hiringPolicy(db,ctx.facility,employee)))throw fail('Ask the employee to review and acknowledge the current handbook and benefits terms before completing this step.',409)
   if(status==='COMPLETE'&&task.task_key==='PAY_REVIEW'&&employee.pay_type==='SALARY'&&(!employee.salary_review||employee.overtime_classification==='EXEMPT_REVIEW'))throw fail('Complete salary classification review before verifying pay setup.',409)
   if(status==='COMPLETE'&&task.task_key==='PAY_REVIEW'&&employee.pay_type==='SALARY'&&employee.overtime_classification==='NONEXEMPT'){try{if(Number(employee.annual_salary_cents)<fixedSalaryMinimumCents(employee.salary_review||{}))throw new Error('Raise salary to cover the applicable minimum wage before completing pay setup.')}catch(e){throw fail(e.message,409)}}
   let response=task.response
+  if(status==='COMPLETE'&&task.task_key==='I9'&&task.response?.i9PreparerRequired)response={...response,i9PreparerReview:{fingerprint:req.body.i9PreparerReview.fingerprint,confirmed:true,reviewedBy:ctx.admin}}
   if(status==='COMPLETE'&&task.task_key==='PAY_REVIEW'){
    const tasks=(await db.query('SELECT * FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2',[ctx.facility,ctx.employee])).rows
    const setup=await employeePaySetup(db,ctx.facility,(await salaryRowsAt(db,ctx.facility,[employee]))[0],tasks)
