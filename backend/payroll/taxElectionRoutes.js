@@ -1,4 +1,5 @@
 import {registerMarylandAdditionalAgreementRoutes} from './marylandAdditionalAgreementRoutes.js'
+import {nativeMW507Election} from './nativeMW507Election.js'
 import {nativeW4Election} from './nativeW4Election.js'
 import {effectiveScheduleSettings} from './payCalendar.js'
 import { calculateWithholding2026, withholdingVersionFor, WITHHOLDING_SOURCES } from './withholding2026.js'
@@ -11,7 +12,8 @@ export function registerTaxElectionRoutes(app,pool) {
    if(!employee)return res.status(404).json({success:false,message:'Employee not found.'})
    const election=(await pool.query('SELECT tax_year,elections,source_note,verified_at FROM payroll_tax_election WHERE employee_id=$1 AND facility_id=$2',[req.params.id,req.canonicalAccess.facilityId])).rows[0]
    const nativeW4=await nativeW4Election(pool,req.canonicalAccess.facilityId,req.params.id)
-   res.json({success:true,data:{election:election||null,nativeW4,version:withholdingVersionFor((await effectiveScheduleSettings(pool,req.canonicalAccess.facilityId,employee)).pay_frequency),sources:WITHHOLDING_SOURCES}})
+   const nativeMW507=await nativeMW507Election(pool,req.canonicalAccess.facilityId,req.params.id)
+   res.set('Cache-Control','no-store').json({success:true,data:{election:election||null,nativeW4,nativeMW507,version:withholdingVersionFor((await effectiveScheduleSettings(pool,req.canonicalAccess.facilityId,employee)).pay_frequency),sources:WITHHOLDING_SOURCES}})
   }catch{res.status(500).json({success:false,message:'Unable to load tax elections.'})}
  })
  app.patch('/api/admin/payroll/employees/:id/tax-elections',async(req,res)=>{
