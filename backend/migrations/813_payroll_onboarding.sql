@@ -5212,7 +5212,7 @@ BEGIN
   IF NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_authorization p JOIN payroll_retirement_settlement_mapping m ON m.id=NEW.mapping_id WHERE p.id=NEW.replacement_id AND p.facility_id=NEW.facility_id AND m.facility_id=p.facility_id AND m.realm_id=NEW.preview->>'realmId' AND m.environment=NEW.preview->>'environment' AND p.id::text=NEW.preview->>'authorizationId' AND p.original_authorization_id::text=NEW.preview->>'originalAuthorizationId' AND p.return_authorization_id::text=NEW.preview->>'returnAuthorizationId' AND p.preview->'amountCents'=NEW.preview->'amountCents' AND p.preview->'planId'=NEW.preview->'planId' AND p.preview->'runId'=NEW.preview->'runId' AND m.id::text=NEW.preview->>'mappingId' AND NEW.fingerprint=NEW.preview->>'fingerprint' AND jsonb_array_length(NEW.preview->'journals')>0 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_cancellation c WHERE c.authorization_id=p.id)) THEN RAISE EXCEPTION 'Replacement settlement requires exact scoped approval and mapping.'; END IF;
   IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_authorization a WHERE a.replacement_id=NEW.replacement_id AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_cancellation c WHERE c.authorization_id=a.id)) THEN RAISE EXCEPTION 'Replacement settlement already has an active approval.'; END IF;
  ELSIF TG_TABLE_NAME='payroll_retirement_replacement_settlement_cancellation' THEN
-  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=NEW.authorization_id) THEN RAISE EXCEPTION 'Claimed replacement settlement requires recovery.'; END IF;
+  IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=NEW.authorization_id) AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_release WHERE authorization_id=NEW.authorization_id) THEN RAISE EXCEPTION 'Claimed replacement settlement requires recovery.'; END IF;
  ELSE
   IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_cancellation WHERE authorization_id=NEW.authorization_id) THEN RAISE EXCEPTION 'Cancelled replacement settlement cannot be claimed.'; END IF;
  END IF;
@@ -5233,3 +5233,44 @@ DO $$ DECLARE tab TEXT; BEGIN FOREACH tab IN ARRAY ARRAY['payroll_retirement_rep
  EXECUTE format('DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON %I',tab);
  EXECUTE format('CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection()',tab);
 END LOOP; END $$;
+
+
+CREATE TABLE IF NOT EXISTS payroll_retirement_replacement_settlement_release (
+ authorization_id UUID PRIMARY KEY REFERENCES payroll_retirement_replacement_settlement_claim(authorization_id),
+ fingerprint TEXT NOT NULL CHECK(fingerprint ~ '^[a-f0-9]{64}$'),
+ evidence JSONB NOT NULL CHECK(jsonb_typeof(evidence)='array'),
+ reference TEXT NOT NULL CHECK(length(trim(reference)) BETWEEN 20 AND 2000),
+ created_by BIGINT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE OR REPLACE FUNCTION payroll_validate_replacement_settlement_release() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE expected INTEGER; job RECORD;
+BEGIN
+ PERFORM s.facility_id FROM payroll_settings s JOIN payroll_retirement_replacement_settlement_authorization a ON a.facility_id=s.facility_id WHERE a.id=NEW.authorization_id FOR UPDATE OF s;
+ SELECT jsonb_array_length(preview->'journals') INTO expected FROM payroll_retirement_replacement_settlement_authorization WHERE id=NEW.authorization_id;
+ IF expected IS NULL OR expected<1 OR jsonb_array_length(NEW.evidence)<>expected OR (SELECT count(*) FROM payroll_retirement_replacement_settlement_journal WHERE authorization_id=NEW.authorization_id)<>expected THEN RAISE EXCEPTION 'Release requires every original journal.'; END IF;
+ FOR job IN SELECT * FROM payroll_retirement_replacement_settlement_journal WHERE authorization_id=NEW.authorization_id LOOP
+  IF (SELECT count(*) FROM payroll_retirement_replacement_settlement_observation WHERE journal_id=job.id AND source='SUBMISSION')<>1 OR (SELECT source FROM payroll_retirement_replacement_settlement_observation WHERE journal_id=job.id ORDER BY id LIMIT 1) IS DISTINCT FROM 'SUBMISSION' OR EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_observation WHERE journal_id=job.id AND source='RECOVERY' AND result->>'status' IS DISTINCT FROM 'NOT_FOUND') OR (SELECT count(*) FROM payroll_retirement_replacement_settlement_observation WHERE journal_id=job.id AND source='SUBMISSION' AND NOT create_attempted AND result->>'status'='NOT_SENT')<>1 OR EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_observation WHERE journal_id=job.id AND (create_attempted OR result->>'status' IS NULL OR result->>'status' NOT IN ('NOT_SENT','NOT_FOUND'))) THEN RAISE EXCEPTION 'Release requires affirmative non-send without contradictory observations.'; END IF;
+  IF (SELECT count(*) FROM jsonb_array_elements(NEW.evidence) e WHERE e->>'journalId'=job.id::text AND EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_observation o WHERE o.id::text=e->>'observationId' AND o.journal_id=job.id AND o.source='RECOVERY' AND NOT o.create_attempted AND o.result->>'status'='NOT_FOUND' AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_observation newer WHERE newer.journal_id=job.id AND newer.id>o.id)))<>1 THEN RAISE EXCEPTION 'Release requires latest retained journal absence.'; END IF;
+ END LOOP;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_validate_replacement_settlement_release ON payroll_retirement_replacement_settlement_release;
+CREATE TRIGGER payroll_validate_replacement_settlement_release BEFORE INSERT ON payroll_retirement_replacement_settlement_release FOR EACH ROW EXECUTE FUNCTION payroll_validate_replacement_settlement_release();
+DROP TRIGGER IF EXISTS payroll_guard_payment_connection ON payroll_retirement_replacement_settlement_release;
+CREATE TRIGGER payroll_guard_payment_connection BEFORE UPDATE OR DELETE ON payroll_retirement_replacement_settlement_release FOR EACH ROW EXECUTE FUNCTION payroll_guard_payment_connection();
+
+-- Preserve every old job while allowing a new authorization to reserve an
+-- event only after its original claimed authorization has proven release.
+DO $$ DECLARE c RECORD; BEGIN
+ FOR c IN SELECT conname FROM pg_constraint WHERE conrelid='payroll_retirement_replacement_settlement_journal'::regclass AND contype='u' AND pg_get_constraintdef(oid)='UNIQUE (facility_id, realm_id, environment, event_key)' LOOP
+  EXECUTE format('ALTER TABLE payroll_retirement_replacement_settlement_journal DROP CONSTRAINT %I',c.conname);
+ END LOOP;
+END $$;
+CREATE OR REPLACE FUNCTION payroll_guard_replacement_settlement_event() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=NEW.facility_id FOR UPDATE;
+ IF EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_journal j WHERE j.facility_id=NEW.facility_id AND j.realm_id=NEW.realm_id AND j.environment=NEW.environment AND j.event_key=NEW.event_key AND NOT EXISTS(SELECT 1 FROM payroll_retirement_replacement_settlement_release r JOIN payroll_retirement_replacement_settlement_cancellation c ON c.authorization_id=r.authorization_id WHERE r.authorization_id=j.authorization_id)) THEN RAISE EXCEPTION 'Retirement bank event already has an unreleased settlement journal.'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_replacement_settlement_event ON payroll_retirement_replacement_settlement_journal;
+CREATE TRIGGER payroll_guard_replacement_settlement_event BEFORE INSERT ON payroll_retirement_replacement_settlement_journal FOR EACH ROW EXECUTE FUNCTION payroll_guard_replacement_settlement_event();

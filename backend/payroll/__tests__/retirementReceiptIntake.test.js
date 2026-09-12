@@ -216,6 +216,29 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  const settlementApprovals=await Promise.all([f.api(settlementApprovalPath,settlementReview),f.api(settlementApprovalPath,settlementReview)]);assert.equal(settlementApprovals[0].id,settlementApprovals[1].id)
  const cancelledSettlement=settlementApprovals[0].id,cancelSettlementPath=`/retirement-replacement-settlement-authorizations/${cancelledSettlement}/cancel`,cancelSettlement={confirmed:true,reference:'Cancel reviewed replacement accounting before any provider posting'}
  delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(settlementApprovalPath,settlementReview)).reused,true);await f.api(cancelSettlementPath,cancelSettlement);assert.equal((await f.api(cancelSettlementPath,cancelSettlement)).reused,true)}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ // A changed second preflight must retain affirmative non-send; release then
+ // permits a new approval without deleting the old journal reservation.
+ const unsentSettlement=await f.api(settlementApprovalPath,{...settlementReview,requestKey:randomUUID()}),unsentBase=`/retirement-replacement-settlement-authorizations/${unsentSettlement.id}`
+ await f.api(unsentBase+'/release-preview',{},'POST',409)
+ let returnReads=0
+ accounting.onRead(async url=>{if(url.includes('/journalentry/101')&&++returnReads===2)accounting.setJournal('101',null)})
+ const unsentResult=await f.api(unsentBase+'/post',{confirmed:true,action:'POST'})
+ accounting.onRead(async()=>{});accounting.setJournal('101',originalReturnJournal)
+ assert.equal(unsentResult.results[0].status,'NOT_SENT');assert.equal(accounting.posts(),2)
+ const releasePreview=await f.api(unsentBase+'/release-preview',{})
+ assert.equal(releasePreview.status,'RELEASE_PREVIEW_ONLY');assert.equal(releasePreview.replacementAuthorizationId,next.id);assert.equal(releasePreview.journals[0].status,'NOT_FOUND')
+ assert.equal((await f.api(unsentBase+'/release-preview',{})).fingerprint,releasePreview.fingerprint)
+ const foreignRelease=await fetch(h.url+'/api/admin/payroll'+unsentBase+'/release-preview',{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json','x-test-facility':'2'},body:'{}'});assert.equal(foreignRelease.status,404)
+ const unsentJob=(await h.pool.query('SELECT * FROM payroll_retirement_replacement_settlement_journal WHERE authorization_id=$1',[unsentSettlement.id])).rows[0]
+ accounting.setJournal('outside',{...unsentJob.payload,Id:'outside'});await f.api(unsentBase+'/release-preview',{},'POST',409);accounting.setJournal('outside',null)
+ const releaseBody={confirmed:true,outsideActivityReviewed:true,fingerprint:releasePreview.fingerprint,reference:'Verified original replacement journals never sent and absent without outside accounting'}
+ await f.api(unsentBase+'/release-unsent',{...releaseBody,fingerprint:'0'.repeat(64)},'POST',409)
+ const releaseResults=await Promise.all([f.api(unsentBase+'/release-unsent',releaseBody),f.api(unsentBase+'/release-unsent',releaseBody)])
+ assert.equal(releaseResults.filter(r=>r.reused).length,1)
+ delete process.env.PAYROLL_DOCUMENT_KEY;try{assert.equal((await f.api(unsentBase+'/release-unsent',releaseBody)).reused,true)}finally{process.env.PAYROLL_DOCUMENT_KEY=vault}
+ await f.api(unsentBase+'/release-unsent',{...releaseBody,reference:'A different review must never replace the retained release'},'POST',409)
+ await f.api(unsentBase+'/post',{confirmed:true,action:'RECOVER'},'POST',409)
+ await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_replacement_settlement_release WHERE authorization_id=$1',[unsentSettlement.id]),/append-only/)
  const approvedSettlement=await f.api(settlementApprovalPath,{...settlementReview,requestKey:randomUUID()}),postSettlementPath=`/retirement-replacement-settlement-authorizations/${approvedSettlement.id}/post`
  await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'},'POST',409)
  accounting.setJournal('101',null);await f.api(postSettlementPath,{confirmed:true,action:'POST'},'POST',409);assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_replacement_settlement_claim WHERE authorization_id=$1',[approvedSettlement.id])).rows[0].n,0);accounting.setJournal('101',originalReturnJournal)
@@ -227,6 +250,7 @@ for(const automatic of [false,true])test(`reviewed participant reversals require
  assert.equal(accounting.posts(),3);assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'REVIEW_REQUIRED')
  if(automatic){const sweeps=await Promise.all([runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,now:new Date(+settlementStart+360000)}),runRetirementReplacementSettlementSweep(h.pool,{...settlementWorkerOptions,now:new Date(+settlementStart+360000)})]);assert.equal(sweeps.reduce((n,r)=>n+r.attempted,0),1)}
  else assert.equal((await f.api(postSettlementPath,{confirmed:true,action:'RECOVER'})).status,'SYNCED')
+ await f.api(`/retirement-replacement-settlement-authorizations/${approvedSettlement.id}/release-preview`,{},'POST',409)
  assert.equal(accounting.posts(),3);assert.equal((await f.api(replacementAssessmentPath)).accountingStatus,'MATCHED');assert.equal((await f.api(replacementAssessmentPath)).caseStatus,'CLOSED');assert.equal((await employeeReplacement()).items[0].contributions[0].replacement.accountingStatus,'MATCHED')
  const closedCase=await f.api(`/retirement-remittance-authorizations/${f.remittanceId}/assessment`);assert.equal(closedCase.status,'REPLACEMENT_RECONCILED');assert.equal(closedCase.replacementCaseStatus,'CLOSED');assert.equal(closedCase.returnReviewRequired,false)
  const caseHistory=async()=> (await h.pool.query('SELECT id,summary FROM payroll_retirement_contribution_assessment WHERE authorization_id=$1 ORDER BY id DESC',[f.remittanceId])).rows

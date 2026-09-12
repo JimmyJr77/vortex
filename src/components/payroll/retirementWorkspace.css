@@ -1,5 +1,12 @@
 /* Retirement workflows remain in their payroll context without consuming a
    fresh horizontal gutter for every nested review/history section on phones. */
+.payroll-retirement-jump-target {
+  scroll-margin-top: 6rem;
+}
+.payroll-retirement-jump-target:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+}
 @media (max-width: 640px) {
   .payroll-retirement-workspace,
   .payroll-retirement-workspace :is(section, article, fieldset, details, div) {

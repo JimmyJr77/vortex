@@ -13,7 +13,7 @@ import {retirementBankProvider} from '../../backend/payroll/testing/retirementBa
 import {retirementReceiptIntakeFixture} from '../../backend/payroll/testing/retirementReceiptIntakeFixture.js'
 import {readRetirementSftpReceipt,transferRetirementAllocation,verifyRetirementSftpConnection} from '../../backend/payroll/retirementSftpTransport.js'
 test('admin reviews reversal semantics and automatically reconciles participant reversal receipts',async({page})=>{
- test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated database');test.setTimeout(180000)
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated database');test.setTimeout(240000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  let employeePage:Page|undefined
  let remittanceClock='2026-09-19T15:00:00Z'
@@ -22,9 +22,9 @@ test('admin reviews reversal semantics and automatically reconciles participant 
  try{
   const f=await retirementReceiptIntakeFixture(h,server.config),accounting=retirementReversalAccountingFixture(h,f);qboFetcher=accounting.fetcher
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  let loseAuthorization=true
+  let loseAuthorization=true,loseSettlementRelease=true
   const authorizationRequests:unknown[]=[]
-  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url()),isApproval=u.pathname.endsWith('/replacement-authorizations')&&route.request().method()==='POST';if(isApproval)authorizationRequests.push(route.request().postDataJSON());const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(isApproval&&loseAuthorization){loseAuthorization=false;expect(response.ok()).toBe(true);await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost replacement authorization response'})});return}await route.fulfill({response})})
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url()),isApproval=u.pathname.endsWith('/replacement-authorizations')&&route.request().method()==='POST';if(isApproval)authorizationRequests.push(route.request().postDataJSON());const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(isApproval&&loseAuthorization){loseAuthorization=false;expect(response.ok()).toBe(true);await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost replacement authorization response'})});return}if(loseSettlementRelease&&u.pathname.includes('/retirement-replacement-settlement-authorizations/')&&u.pathname.endsWith('/release-unsent')){loseSettlementRelease=false;expect(response.ok()).toBe(true);await route.fulfill({status:503,json:{success:false,message:'Synthetic lost replacement settlement release response'}});return}await route.fulfill({response})})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'Employer setup',exact:true}).click();await page.getByRole('button',{name:'Load retirement plan history',exact:true}).click()
   const contract=page.getByRole('region',{name:'Retirement receipt contract standard',exact:true});await contract.getByRole('button',{name:'Load receipt contract history',exact:true}).click();await contract.getByText(/Receipt revision 1 · REVIEWED/).click();await contract.getByRole('button',{name:'Edit from receipt revision 1',exact:true}).click()
   await contract.getByRole('textbox',{name:'Provider value for REVERSED (optional)',exact:true}).fill('Reversed credit')
@@ -98,21 +98,39 @@ test('admin reviews reversal semantics and automatically reconciles participant 
   await replacementAccounting.getByRole('textbox',{name:'Replacement accounting review reference',exact:true}).fill('Reviewed original return and replacement bank journals with no outside duplicate accounting')
   await replacementAccounting.getByRole('checkbox',{name:'I reviewed these exact journals and outside accounting, found no duplicate entries, and authorize automatic posting.',exact:true}).check()
   await replacementAccounting.getByRole('button',{name:'Authorize replacement accounting',exact:true}).click();await expect(replacementAccounting).toContainText('AUTHORIZED — AWAITING AUTOMATIC POSTING')
+  const retainedReturn=accounting.journal('101');let replacementReturnReads=0
+  accounting.onRead(async url=>{if(url.includes('/journalentry/101')&&++replacementReturnReads===2)accounting.setJournal('101',null)})
+  expect((await runRetirementReplacementSettlementSweep(h.pool,{facility:1,fetcher:accounting.fetcher,paymentFetcher:replacementBank.fetcher,now:new Date()})).attempted).toBe(1)
+  accounting.onRead(async()=>{});accounting.setJournal('101',retainedReturn)
+  await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(replacementAccounting).toContainText('NOT SENT');expect(accounting.posts()).toBe(2)
+  const releasePanel=replacementAccounting.getByRole('region',{name:/Unsent settlement release/})
+  await releasePanel.getByRole('button',{name:'Review unsent retirement settlement',exact:true}).click();await expect(releasePanel).toContainText('absence verified')
+  await releasePanel.getByRole('textbox',{name:'Unsent settlement release reason',exact:true}).fill('Reviewed original replacement journals never sent and absence of outside duplicate accounting')
+  await releasePanel.getByRole('checkbox',{name:'I reviewed this exact non-send evidence and verified no outside accounting activity.',exact:true}).check()
+  await page.setViewportSize({width:390,height:1100});await releasePanel.screenshot({path:'/tmp/payroll-replacement-settlement-release-mobile.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
+  await releasePanel.getByRole('button',{name:'Release unsent retirement settlement',exact:true}).click();await expect(releasePanel).toContainText('Synthetic lost replacement settlement release response');await releasePanel.getByRole('button',{name:'Retry original settlement release',exact:true}).click();await expect(replacementAccounting).toContainText('Settlement approval: CANCELLED')
+  expect((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_replacement_settlement_release')).rows[0].n).toBe(1)
+  await page.setViewportSize({width:1280,height:1000})
+  await replacementAccounting.getByRole('button',{name:'Prepare replacement accounting preview',exact:true}).click()
+  await replacementAccounting.getByRole('textbox',{name:'Replacement accounting review reference',exact:true}).fill('Reviewed corrected replacement accounting after proven unsent release')
+  await replacementAccounting.getByRole('checkbox',{name:'I reviewed these exact journals and outside accounting, found no duplicate entries, and authorize automatic posting.',exact:true}).check()
+  await replacementAccounting.getByRole('button',{name:'Authorize replacement accounting',exact:true}).click();await expect(replacementAccounting).toContainText('AUTHORIZED — AWAITING AUTOMATIC POSTING')
+  const activeAccounting=replacementAccounting.locator('article').filter({has:replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true})})
   const settlementOptions={facility:1,fetcher:accounting.fetcher,paymentFetcher:replacementBank.fetcher},settlementStart=new Date();accounting.loseNextResponse()
   expect((await runRetirementReplacementSettlementSweep(h.pool,{...settlementOptions,now:settlementStart})).attempted).toBe(1)
-  await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(replacementAccounting).toContainText('UNCERTAIN');expect(accounting.posts()).toBe(3)
+  await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(activeAccounting).toContainText('UNCERTAIN');expect(accounting.posts()).toBe(3)
   expect((await runRetirementReplacementSettlementSweep(h.pool,{...settlementOptions,now:new Date(+settlementStart+360000)})).synced).toBe(1)
-  await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(replacementAccounting).toContainText('SYNCED · Sources VERIFIED');await expect(replacementAccounting).toContainText('Automatic replacement accounting attempts (2)')
+  await replacementAccounting.getByRole('button',{name:'Refresh replacement accounting history',exact:true}).click();await expect(activeAccounting).toContainText('SYNCED · Sources VERIFIED');await expect(replacementAccounting).toContainText('Automatic replacement accounting attempts (2)')
   await replacementAssessment.getByRole('button',{name:'Review replacement reconciliation',exact:true}).click();await expect(replacementAssessment).toContainText('Replacement accounting: MATCHED');await expect(replacementAssessment).toContainText('Case: CLOSED');expect(accounting.posts()).toBe(3)
   await employeeContributions.getByRole('button',{name:'Refresh retirement contributions',exact:true}).click();await expect(employeeContributions).toContainText('Replacement accounting: reconciled.');await expect(employeeContributions).toContainText('Your original return case is reconciled.');await expect(employeeContributions).not.toContainText('Your original return case remains open')
   await assessment.getByRole('button',{name:'Review contribution reconciliation',exact:true}).click();await expect(assessment).toContainText('Return case: CLOSED');await expect(assessment).toContainText('Assessment: REPLACEMENT RECONCILED');await expect(instructions).toContainText('The replacement and original return currently reconcile.');await expect(instructions.getByRole('button',{name:'Verify replacement contribution instructions',exact:true})).toBeDisabled()
   const caseHistory=assessment.getByRole('region',{name:'Contribution assessment history',exact:true});await caseHistory.getByRole('button',{name:'Refresh latest contribution history',exact:true}).click();await expect(caseHistory).toContainText('Recorded outcome: REPLACEMENT RECONCILED')
   await employeePage.setViewportSize({width:390,height:1100});await employeeContributions.screenshot({path:'/tmp/payroll-employee-replacement-credit-mobile.png'});expect(await employeePage.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
   const postedReplacementJournal=accounting.journal('102');accounting.setJournal('102',null)
-  await replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true}).click();await expect(replacementAccounting).toContainText('NOT FOUND');expect(accounting.posts()).toBe(3)
+  await replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true}).click();await expect(activeAccounting).toContainText('NOT FOUND');expect(accounting.posts()).toBe(3)
   await replacementAssessment.getByRole('button',{name:'Review replacement reconciliation',exact:true}).click();await expect(replacementAssessment).toContainText('Replacement accounting: REVIEW REQUIRED');accounting.setJournal('102',postedReplacementJournal)
   await assessment.getByRole('button',{name:'Review contribution reconciliation',exact:true}).click();await expect(assessment).toContainText('Return case: OPEN');await employeeContributions.getByRole('button',{name:'Refresh retirement contributions',exact:true}).click();await expect(employeeContributions).toContainText('Your original return case remains open');await caseHistory.getByRole('button',{name:'Refresh latest contribution history',exact:true}).click();await expect(caseHistory).toContainText('Recorded outcome: REVIEW REQUIRED');await expect(caseHistory).toContainText('Recorded outcome: REPLACEMENT RECONCILED')
-  await replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true}).click();await expect(replacementAccounting).toContainText('SYNCED · Sources VERIFIED')
+  await replacementAccounting.getByRole('button',{name:'Recover replacement journals',exact:true}).click();await expect(activeAccounting).toContainText('SYNCED · Sources VERIFIED')
   await assessment.getByRole('button',{name:'Review contribution reconciliation',exact:true}).click();await expect(assessment).toContainText('Return case: CLOSED')
   replacementBank.missing(true);await approvals.getByRole('button',{name:'Recover replacement bank payment',exact:true}).click();await expect(approvals).toContainText('Bank payment: NOT FOUND');expect(replacementBank.posts()).toBe(1)
   await replacementAssessment.getByRole('button',{name:'Review replacement reconciliation',exact:true}).click();await expect(replacementAssessment).toContainText('Bank: UNVERIFIED');await expect(replacementAssessment).toContainText('Replacement delivery: UNVERIFIED')

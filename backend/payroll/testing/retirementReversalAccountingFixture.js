@@ -3,8 +3,9 @@ import {encryptDocument} from '../onboarding.js'
 import {journalPayload} from '../quickbooks.js'
 export function retirementReversalAccountingFixture(h,f){
  const journals=new Map(),accounts={wages:'1',employerTax:'2',reimbursements:'3',taxLiability:'4',deductions:'5',clearing:'6',retirement:'7'}
- let posts=0,loseNext=false,closed=false,onPost=async()=>{}
+ let posts=0,loseNext=false,closed=false,onPost=async()=>{},onRead=async()=>{}
  const fetcher=async(url,options)=>{
+  if(options.method!=='POST')await onRead(url)
   const reply=body=>({ok:true,json:async()=>body})
   if(options.method==='POST'){await onPost();const entry={...JSON.parse(options.body),Id:String(100+posts++)};journals.set(entry.Id,entry);if(loseNext){loseNext=false;throw new Error('Synthetic lost journal response')}return reply({JournalEntry:entry})}
   if(url.includes('/query?'))return reply({QueryResponse:{JournalEntry:[...journals.values()].filter(j=>decodeURIComponent(url).includes(j.DocNumber))}})
@@ -27,5 +28,5 @@ export function retirementReversalAccountingFixture(h,f){
   await f.api(path,{confirmed:true,requestKey:randomUUID(),expectedRevision:0,fundingRevisionId:state.funding[0].id,connectionGeneration:state.connection.generation,realmId:'123',environment:'sandbox',bankAccountId:'8',liabilityAccountId:'7',reference:'Verified original payroll retirement liability and funding bank'},'POST',201)
   return post('settlement')
  }
- return {fetcher,onPost:fn=>{onPost=fn},prepareOriginal,prepareReturn:()=>post('return'),posts:()=>posts,loseNextResponse:()=>{loseNext=true},closed:v=>{closed=v},journal:id=>journals.get(id),setJournal:(id,value)=>{if(value)journals.set(id,value);else journals.delete(id)}}
+ return {fetcher,onRead:fn=>{onRead=fn},onPost:fn=>{onPost=fn},prepareOriginal,prepareReturn:()=>post('return'),posts:()=>posts,loseNextResponse:()=>{loseNext=true},closed:v=>{closed=v},journal:id=>journals.get(id),setJournal:(id,value)=>{if(value)journals.set(id,value);else journals.delete(id)}}
 }

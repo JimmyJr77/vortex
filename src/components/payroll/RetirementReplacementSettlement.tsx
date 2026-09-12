@@ -1,3 +1,4 @@
+import RetirementSettlementRelease from './RetirementSettlementRelease'
 import {useEffect,useRef,useState} from 'react'
 import {adminApiRequest} from '../../utils/api'
 type Journal={id?:string;payload:{DocNumber:string;TxnDate:string;Line:{Amount:number;JournalEntryLineDetail:{PostingType:string;AccountRef:{value:string}}}[]};result?:{status:string;accountingVerified:boolean}|null}
@@ -13,6 +14,7 @@ function HistoryRow({row,onChanged}:{row:Approval;onChanged:()=>void}){
   {row.attempts.length?<details><summary>Automatic replacement accounting attempts ({row.attempts.length})</summary>{row.attempts.map(a=><p key={a.id}>{a.status.replaceAll('_',' ')} · {a.message}</p>)}</details>:null}
   {error?<p role="alert">{error}</p>:null}
   {!row.cancelled_at?<fieldset disabled={busy} className="space-y-2">{row.claimed?<button type="button" className="rounded border px-3 py-2" onClick={()=>void act()}>Recover replacement journals</button>:<><label className="block">Replacement accounting cancellation reason<textarea className="block w-full rounded border p-2" value={reason} maxLength={2000} onChange={e=>{setReason(e.target.value);setConfirmed(false)}}/></label><label className="flex gap-2"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>Cancel this accounting approval before posting starts.</label><button type="button" className="rounded border px-3 py-2" disabled={!confirmed||reason.trim().length<20} onClick={()=>void act(true)}>Cancel replacement accounting approval</button></>}</fieldset>:null}
+  {row.claimed&&!row.cancelled_at?<RetirementSettlementRelease replacement id={row.id} evidenceKey={JSON.stringify(row.journals)} onChanged={onChanged}/>:null}
  </article>
 }
 export default function RetirementReplacementSettlement({id}:{id:string}){

@@ -1,9 +1,10 @@
+import OnboardingNextSteps from './OnboardingNextSteps'
 import BenefitsDeductionAuthorization from './BenefitsDeductionAuthorization'
 import EmployeeBenefitsChoice from './EmployeeBenefitsChoice'
 import HiringBenefitsReview from './HiringBenefitsReview'
 import EmployeeAcknowledgments from './EmployeeAcknowledgments'
 import OnboardingHistory from './OnboardingHistory'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import { workforceApi, type Packet, type OnboardingTask, type BenefitsReview } from '../../utils/workforceApi'
 
 export const workforceInput = 'mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900'
@@ -12,6 +13,7 @@ const stableTerms=(value:unknown)=>JSON.stringify(value,(_key,v)=>v&&typeof v===
 const labels: Record<string, string> = { legalFirstName: 'Legal first name', legalLastName: 'Legal last name', address: 'Home street address', city: 'City', state: 'State', postalCode: 'ZIP code', phone: 'Phone', emergencyName: 'Emergency contact name', emergencyPhone: 'Emergency contact phone', emergencyRelationship: 'Relationship' }
 const sources: Record<string, string> = { W4: 'https://www.irs.gov/pub/irs-pdf/fw4.pdf', STATE_WITHHOLDING: 'https://www.marylandcomptroller.gov/forms/current_forms/MW507.pdf', I9: 'https://www.uscis.gov/i-9' }
 export default function OnboardingWorkspace({ employeeId, employmentStatus, onChanged }: { employeeId?: number; employmentStatus: string; onChanged: () => Promise<void> }) {
+ const workspaceId=useId()
  const [data, setData] = useState<Packet | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState(''), [busy, setBusy] = useState(false)
  const load = useCallback(async () => { setData(await workforceApi.packet(employeeId)) }, [employeeId])
  useEffect(() => { let live = true; workforceApi.packet(employeeId).then(next => { if (live) setData(next) }).catch(e => { if (live) setError(e.message) }); return () => { live = false } }, [employeeId])
@@ -23,14 +25,15 @@ export default function OnboardingWorkspace({ employeeId, employmentStatus, onCh
   {notice ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p> : null}
   {!data ? <p>Loading onboarding packet…</p> : <>
    <div className="rounded-xl bg-slate-50 p-4"><p className="font-bold">{data.readiness.complete} of {data.readiness.total} steps complete</p><progress aria-label="Onboarding progress" value={data.readiness.complete} max={data.readiness.total || 1} className="mt-2 h-3 w-full accent-red-600" />{data.readiness.ready ? <p className="mt-2 text-sm text-emerald-800">All required steps have been reviewed.</p> : <p className="mt-2 text-sm text-slate-600">Next: {data.readiness.blockers[0]}</p>}</div>
+   <OnboardingNextSteps packet={data} admin={!!employeeId} workspaceId={workspaceId}/>
    {data.policy.firstDayInstructions ? <div className="rounded-xl bg-blue-50 p-4 text-sm"><h3 className="font-bold">Your first day</h3><p className="mt-2 whitespace-pre-wrap">{data.policy.firstDayInstructions}</p></div> : null}
    {data.policy.payrollProviderUrl ? <a href={data.policy.payrollProviderUrl} target="_blank" rel="noreferrer" className="inline-block font-bold text-blue-700 underline">Open secure payroll provider</a> : null}
-   {data.tasks.map(task => <TaskStep key={`${task.id}-${task.status}-${task.task_key==='HANDBOOK'?JSON.stringify([data.policy.handbookText,data.policy.benefitsText]):task.task_key==='WAGE_NOTICE'?JSON.stringify(data.wageTerms):task.task_key==='PAY_REVIEW'?data.paySetup?.fingerprint:''}`} task={task} packet={data} employmentStatus={employmentStatus} employeeId={employeeId} busy={busy} act={act} />)}
+   {data.tasks.map(task => <TaskStep key={`${task.id}-${task.status}-${task.task_key==='HANDBOOK'?JSON.stringify([data.policy.handbookText,data.policy.benefitsText]):task.task_key==='WAGE_NOTICE'?JSON.stringify(data.wageTerms):task.task_key==='PAY_REVIEW'?data.paySetup?.fingerprint:''}`} taskId={`${workspaceId}-task-${task.id}`} task={task} packet={data} employmentStatus={employmentStatus} employeeId={employeeId} busy={busy} act={act} />)}
    {employeeId && employmentStatus === 'ONBOARDING' ? <button type="button" disabled={busy || !data.readiness.ready} onClick={() => void act(() => workforceApi.activate(employeeId), 'Onboarding complete. Employee activated.')} className={workforceButton}>Complete onboarding & activate employee</button> : null}
   </>}
  </section>
 }
-function TaskStep({ task, packet, employeeId, busy, act, employmentStatus }: { employmentStatus:string;task: OnboardingTask; packet: Packet; employeeId?: number; busy: boolean; act: (work: () => Promise<unknown>, message: string) => Promise<void> }) {
+function TaskStep({ taskId, task, packet, employeeId, busy, act, employmentStatus }: { taskId:string;employmentStatus:string;task: OnboardingTask; packet: Packet; employeeId?: number; busy: boolean; act: (work: () => Promise<unknown>, message: string) => Promise<void> }) {
  const [benefits,setBenefits]=useState<BenefitsReview>({...packet.benefitsReview,disposition:packet.benefitsReview?.disposition||'',effectiveOn:packet.benefitsReview?.effectiveOn||'',summary:packet.benefitsReview?.summary||'',confirmed:false,employerFundingConfirmed:false})
  const [form, setForm] = useState<Record<string, unknown>>(() => ((task.task_key === 'HANDBOOK' && (task.response?.terms !== (packet.policy.handbookText || '') || task.response?.benefitsTerms !== (packet.policy.benefitsText || ''))) || (task.task_key === 'WAGE_NOTICE' && Object.entries(packet.wageTerms || {}).some(([key,value]) => stableTerms((task.response?.terms as Record<string,unknown> | undefined)?.[key]) !== stableTerms(value)))) ? {...task.response, acknowledged:false} : task.response || {}), [reviewNote, setReviewNote] = useState('')
  const set = (key: string, value: unknown) => setForm(current => ({ ...current, [key]: value }))
@@ -41,7 +44,7 @@ function TaskStep({ task, packet, employeeId, busy, act, employmentStatus }: { e
  const done = !deductionPending && !stalePay && !acknowledgmentIssue && !staleShift && ['COMPLETE', 'NOT_APPLICABLE'].includes(task.status)
  const files = packet.documents.filter(d => Number(d.task_id) === Number(task.id))
  const canSubmit = !employeeId && task.owner === 'EMPLOYEE' && ['OPEN','SUBMITTED','CHANGES_REQUESTED'].includes(task.status)
- return <details className="rounded-xl border border-slate-200 p-4" open={task.status === 'CHANGES_REQUESTED' || (task.task_key === 'PROFILE' && !done)}>
+ return <details id={taskId} className="rounded-xl border border-slate-200 p-4" open={task.status === 'CHANGES_REQUESTED' || (task.task_key === 'PROFILE' && !done)}>
   <summary className="cursor-pointer text-sm font-bold text-slate-900"><span>{task.title}</span><span className={`ml-3 inline-block rounded-full px-2 py-1 text-xs ${done ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{stalePay||staleShift||acknowledgmentIssue?'REVIEW REQUIRED':deductionPending?'SIGNATURE REQUIRED':task.status.replaceAll('_', ' ')}</span><span className="ml-2 text-xs font-normal text-slate-500">{task.owner === 'ADMIN' ? 'Hiring admin' : 'Employee'} · due {String(task.due_date || '').slice(0, 10)}</span></summary>
   <p className="mt-3 text-sm leading-6 text-slate-600">{task.instructions}</p>
   {acknowledgmentIssue ? <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-950">{acknowledgmentIssue.message}. {task.status==='COMPLETE'?(employeeId?'Request changes below to collect a fresh acknowledgment.':'Ask your hiring admin to reopen this step so you can review and acknowledge the revised terms.'):'Review the revised terms below before submitting again.'}</p>:null}
