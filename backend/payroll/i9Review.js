@@ -1,3 +1,4 @@
+import {I9_EMPLOYEE_ATTESTATION} from './i9Attestation.js'
 import {createHash} from 'node:crypto'
 import {readI9Draft} from './i9Draft.js'
 import {readI9HiringContext} from './i9HiringContext.js'
@@ -28,7 +29,7 @@ export async function previewI9(db,session,taskId,body){
  const row=(await db.query(`INSERT INTO payroll_i9_review(facility_id,employee_id,task_id,onboarding_cycle,employee_session_id,draft_revision,base_response_hash,hiring_revision,encrypted_review,preview_sha256)
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,expires_at`,[session.facility_id,session.employee_id,taskId,body.onboardingCycle,session.session_id,current.draft.revision,current.draft.baseResponseHash,current.hiring.revision,encrypted,previewSha256])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,action,entity_type,entity_id,after_data) VALUES($1,'I9_PREVIEW_CREATED','i9_review',$2,$3)",[session.facility_id,String(row.id),{employeeId:session.employee_id,taskId,onboardingCycle:body.onboardingCycle,draftRevision:current.draft.revision,hiringRevision:current.hiring.revision,previewSha256}])
- return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:pdf.toString('base64'),pageCount:4,hiringRevision:current.hiring.revision}
+ return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:pdf.toString('base64'),pageCount:4,attestation:I9_EMPLOYEE_ATTESTATION,hiringRevision:current.hiring.revision}
 }
 // Shared freshness and integrity check for page review and the future signing transaction.
 export async function currentI9Review(db,session,taskId,body){

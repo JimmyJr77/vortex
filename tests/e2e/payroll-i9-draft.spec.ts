@@ -10,10 +10,11 @@ test('I-9 employee draft resumes, retries once and displays all official instruc
   const {employee}=await monthlyBenefitsFixture(h)
   await page.setViewportSize({width:390,height:950})
   await page.addInitScript(()=>sessionStorage.setItem('vortex_payroll_employee_session_v1','monthly-benefits-session'))
-  let lose=true
+  let lose=true,loseSigning=true
   await page.route('**/api/payroll/employee/**',async route=>{
    const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})
    if(lose&&u.pathname.endsWith('/i9/draft')&&route.request().method()==='POST'){expect(response.status()).toBe(200);lose=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost I-9 draft response. Retry unchanged.'})});return}
+   if(loseSigning&&u.pathname.endsWith('/i9/sign')){expect(response.status()).toBe(200);loseSigning=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost I-9 signing response. Retry unchanged.'})});return}
    await route.fulfill({response})
   })
   const open=async()=>{await page.goto('/tests/support/payroll.html?employee=1');await page.getByRole('button',{name:'Onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Form I-9 employee section'}).click()}
@@ -80,6 +81,22 @@ test('I-9 employee draft resumes, retries once and displays all official instruc
   await panel.getByLabel('First name (given name)',{exact:true}).fill('Changed')
   await expect(completed).toHaveCount(0);await expect(prepare).toBeDisabled()
   expect((await h.pool.query("SELECT status FROM payroll_onboarding_task WHERE employee_id=$1 AND task_key='I9'",[employee.id])).rows[0].status).toBe('OPEN')
+  await panel.getByLabel('First name (given name)',{exact:true}).fill('Łukasz');await save.click();await expect(panel.getByRole('status')).toContainText('I-9 draft saved securely.');await prepare.click()
+  const sign=panel.getByRole('button',{name:'Sign I-9 Section 1',exact:true});await expect(sign).toBeDisabled()
+  for(let n=1;n<=4;n++){await completed.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(completed.getByRole('status')).toContainText(`Page ${n} of 4 displayed and review visit saved.`)}
+  await panel.getByRole('checkbox',{name:'I read this attestation and reviewed all four pages.',exact:false}).check()
+  await panel.getByLabel('Employee’s I-9 signature',{exact:true}).fill('Łukasz Żółć')
+  await sign.click();await expect(panel.getByRole('alert')).toContainText('Synthetic lost I-9 signing response')
+  await sign.click();await expect(page.getByRole('status').filter({hasText:'Your signed I-9 Section 1 was submitted'})).toBeVisible()
+  expect((await h.pool.query('SELECT * FROM payroll_i9_submission WHERE employee_id=$1',[employee.id])).rowCount).toBe(1)
+  await open();await expect(panel).toHaveCount(0);await page.getByRole('button',{name:'Prepare an I-9 amendment',exact:true}).click();await expect(panel.getByLabel('Social Security number (if provided)',{exact:true})).toHaveValue('')
+  await expect(page.getByText('Employee Section 1 signing confirmation',{exact:false})).toBeVisible()
+  const step=page.locator('details').filter({has:panel});await expect(step.getByRole('button',{name:'Update submission',exact:true})).toHaveCount(0)
+  const download=page.waitForEvent('download');await step.getByRole('button',{name:'Form-I9-Section1-signed.pdf',exact:true}).click();expect((await download).suggestedFilename()).toBe('Form-I9-Section1-signed.pdf')
+  await page.getByRole('button',{name:'Close amendment (discards unsaved entries)',exact:true}).click();await expect(panel).toHaveCount(0)
+  await page.locator('details').filter({has:page.getByRole('button',{name:'Prepare an I-9 amendment',exact:true})}).screenshot({path:'/tmp/payroll-i9-signed-receipt-mobile.png'})
+  await openAdmin();await expect(page.getByRole('button',{name:'Form-I9-Section1-signed.pdf',exact:true})).toBeVisible()
+  const adminDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Form-I9-Section1-signed.pdf',exact:true}).click();expect((await adminDownload).suggestedFilename()).toBe('Form-I9-Section1-signed.pdf')
   expect(errors).toEqual([])
  }finally{await page.unrouteAll({behavior:'ignoreErrors'});await page.close();await h.close();if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey}
 })

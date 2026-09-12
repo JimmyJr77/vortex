@@ -1,0 +1,1 @@
+export const I9_EMPLOYEE_ATTESTATION='I am aware that federal law provides for imprisonment and/or fines for false statements, or the use of false documents, in connection with the completion of this form. I attest, under penalty of perjury, that this information, including my selection of the box attesting to my citizenship or immigration status, is true and correct.'

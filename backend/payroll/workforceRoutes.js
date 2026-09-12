@@ -1,3 +1,4 @@
+import {signI9} from './i9Signing.js'
 import {previewI9,recordI9Page} from './i9Review.js'
 import {readI9HiringContext,saveI9HiringContext} from './i9HiringContext.js'
 import {readI9Draft,saveI9Draft} from './i9Draft.js'
@@ -135,6 +136,11 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!['COMPLETE','CHANGES_REQUESTED','NOT_APPLICABLE'].includes(status)||!note)throw fail('A review decision and supporting note are required.')
   if(status==='COMPLETE'&&task.owner==='EMPLOYEE'&&task.status!=='SUBMITTED')throw fail('The employee must submit this step before approval.',409)
   if(status==='NOT_APPLICABLE'&&['PROFILE','W4','I9','I9_REVIEW','WAGE_NOTICE','PAYMENT','PAY_REVIEW'].includes(task.task_key))throw fail('This required onboarding step cannot be waived.')
+  if(status==='COMPLETE'&&task.task_key==='I9_REVIEW'){
+   const section1=(await db.query("SELECT status,response FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key='I9'",[ctx.facility,ctx.employee])).rows[0]
+   if(section1?.response?.i9SubmissionId&&section1.status!=='COMPLETE')throw fail('Review and complete the employee Section 1 and any required preparer certifications before completing employer review.',409)
+  }
+  if(status==='COMPLETE'&&task.task_key==='I9'&&task.response?.i9PreparerRequired)throw fail('Each preparer or translator must complete their separate Supplement A certification before this I-9 step can be approved.',409)
   if(status==='COMPLETE'&&task.task_key==='WAGE_NOTICE'&&!wageAcknowledgmentCurrent(task.response,(await salaryRowsAt(db,ctx.facility,[employee]))[0],await hiringPolicy(db,ctx.facility,employee)))throw fail('Ask the employee to review and acknowledge the current hiring pay terms before completing this step.',409)
   if(status==='COMPLETE'&&task.task_key==='HANDBOOK'&&!handbookAcknowledgmentCurrent(task.response,await hiringPolicy(db,ctx.facility,employee)))throw fail('Ask the employee to review and acknowledge the current handbook and benefits terms before completing this step.',409)
   if(status==='COMPLETE'&&task.task_key==='PAY_REVIEW'&&employee.pay_type==='SALARY'&&(!employee.salary_review||employee.overtime_classification==='EXEMPT_REVIEW'))throw fail('Complete salary classification review before verifying pay setup.',409)
@@ -369,6 +375,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   return packet(db,ctx.facility,ctx.employee)
  }))
  app.get('/api/payroll/employee/onboarding',auth,(req,res)=>employeeTransaction(req,res,db=>packet(db,context(req).facility,context(req).employee)))
+ app.post('/api/payroll/employee/onboarding/:taskId/i9/sign',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>signI9(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.post('/api/payroll/employee/onboarding/:taskId/i9/preview',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>previewI9(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.post('/api/payroll/employee/onboarding/:taskId/i9/page',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>recordI9Page(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.get('/api/payroll/employee/onboarding/:taskId/i9/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readI9Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
@@ -400,7 +407,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   if(!task||task.owner!=='EMPLOYEE')throw fail('Employee onboarding step not found.',404)
   assertTaskCycle(task,req.body)
   if(!['OPEN','CHANGES_REQUESTED'].includes(task.status))throw fail('This step is already submitted or completed. Ask your hiring admin to reopen it before saving a draft.',409)
-  if(task.response?.w4SubmissionId||task.response?.mw507SubmissionId)throw fail('Use the internal certificate draft to preserve the signed submission while preparing an amendment.',409)
+  if(task.response?.w4SubmissionId||task.response?.mw507SubmissionId||task.response?.i9SubmissionId)throw fail('Use the internal certificate draft to preserve the signed submission while preparing an amendment.',409)
   let response;try{response=onboardingDraft(task.task_key,req.body||{})}catch(e){throw fail(e.message)}
   await db.query('UPDATE payroll_onboarding_task SET response=$1,updated_at=now() WHERE id=$2',[response,task.id])
   await log(db,ctx,'ONBOARDING_DRAFT_SAVED','onboarding_task',task.id)
@@ -412,6 +419,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   if(!task||task.owner!=='EMPLOYEE')throw fail('Employee onboarding step not found.',404)
   assertTaskCycle(task,req.body)
   if(['COMPLETE','NOT_APPLICABLE'].includes(task.status))throw fail('Ask your hiring admin to reopen this completed step.',409)
+  if(task.task_key==='I9'&&task.response?.i9SubmissionId)throw fail('Use the internal I-9 form to sign an amendment while preserving the prior signature.',409)
   if(task.task_key==='W4'&&task.response?.w4SubmissionId)throw fail('Use the internal W-4 form to submit an employee-signed amendment to this W-4.',409)
   if(task.task_key==='STATE_WITHHOLDING'&&task.response?.mw507SubmissionId)throw fail('Use the internal MW507 form to submit an employee-signed amendment to this certificate.',409)
   const policy=await hiringPolicy(db,ctx.facility,employee)

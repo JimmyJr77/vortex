@@ -18,7 +18,7 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   await page.addInitScript(()=>sessionStorage.setItem('vortex_payroll_employee_session_v1','monthly-benefits-session'))
   let lose=true
   await page.route('**/api/payroll/employee/**',async route=>{
-   const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`})
+   const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})
    if(lose&&u.pathname.endsWith('/w4/sign')){expect(response.status()).toBe(200);lose=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost W-4 response. Retry unchanged.'})});return}
    await route.fulfill({response})
   })
@@ -137,7 +137,7 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   expect(await panel.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true)
   expect((await api('/onboarding',undefined,'GET',200,true)).tasks.find(t=>t.task_key==='W4').status).toBe('SUBMITTED')
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click()
   const step=page.locator('details').filter({has:page.getByText('Federal Form W-4',{exact:true})});await step.locator('summary').first().click()
   await expect(step.getByRole('button',{name:'Form-W4-2026-signed.pdf',exact:true})).toBeVisible()
@@ -159,7 +159,6 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   expect(elected.federal.extraWithholdingCents).toBe(exemption?0:4250);expect(elected.federal.filingStatus).toBe(exemption?null:'HEAD_OF_HOUSEHOLD');expect(elected.w4Source.submissionId).toBe(rows.rows[0].id);expect(elected.w4ReviewRequired).toBeUndefined()
   expect(errors).toEqual([])
  }finally{
-  await page.unrouteAll({behavior:'ignoreErrors'});await page.close();await h.close()
-  if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey
+  try{await page.unrouteAll({behavior:'ignoreErrors'});await page.close()}finally{try{await h.close()}finally{if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey}}
  }
 })

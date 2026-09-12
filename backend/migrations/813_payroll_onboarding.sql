@@ -5583,3 +5583,23 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_page_visit ON payroll_i9_page_visit;
 CREATE TRIGGER payroll_guard_i9_page_visit BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_page_visit();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_submission (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL REFERENCES facility(id),employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id),review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_review(id),
+ document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),
+ encrypted_signature bytea NOT NULL CHECK(octet_length(encrypted_signature)>28),preparer_required boolean NOT NULL,signed_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_submission() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 signature history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_review r JOIN payroll_onboarding_task t ON t.id=r.task_id AND t.onboarding_cycle=r.onboarding_cycle JOIN payroll_i9_draft d ON d.task_id=t.id AND d.onboarding_cycle=t.onboarding_cycle WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.task_id=NEW.task_id AND r.onboarding_cycle=NEW.onboarding_cycle AND r.employee_session_id=NEW.employee_session_id AND r.expires_at>clock_timestamp() AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND d.revision=r.draft_revision AND d.base_response_hash=r.base_response_hash AND r.hiring_revision=(SELECT MAX(hiring_revision.revision) FROM payroll_i9_hiring_context hiring_revision WHERE hiring_revision.task_id=r.task_id AND hiring_revision.onboarding_cycle=r.onboarding_cycle) AND NOT EXISTS(SELECT 1 FROM payroll_i9_review newer WHERE newer.task_id=r.task_id AND newer.onboarding_cycle=r.onboarding_cycle AND newer.id>r.id)) THEN RAISE EXCEPTION 'I-9 signature requires the current scoped review.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_private_document WHERE id=NEW.document_id AND facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle) THEN RAISE EXCEPTION 'I-9 signature document scope must match.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND revoked_at IS NULL AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'I-9 signature requires a live scoped employee session.' USING ERRCODE='23514'; END IF;
+ IF (SELECT count(*) FROM payroll_i9_page_visit WHERE review_id=NEW.review_id)<>4 THEN RAISE EXCEPTION 'I-9 signing requires all four reviewed pages.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_submission ON payroll_i9_submission;
+CREATE TRIGGER payroll_guard_i9_submission BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_submission FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_submission();
