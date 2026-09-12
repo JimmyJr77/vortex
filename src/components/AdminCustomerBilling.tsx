@@ -62,6 +62,18 @@ const EMPTY_CONTACT: ContactDraft = {
   billingZip: '',
 }
 
+function billingContactDraft(account: CustomerBillingOverview['account']): ContactDraft {
+  return {
+    payerMemberId: account.payerMemberId,
+    billingEmail: account.billingEmail || '',
+    billingPhone: account.billingPhone || '',
+    billingStreet: account.billingStreet || '',
+    billingCity: account.billingCity || '',
+    billingState: account.billingState || '',
+    billingZip: account.billingZip || '',
+  }
+}
+
 async function jsonBody(response: Response) {
   return response.json().catch(() => ({}))
 }
@@ -1062,6 +1074,7 @@ export default function AdminCustomerBilling({
   const [passToAdjust, setPassToAdjust] = useState<CustomerBillingOverview['bundlePasses'][number] | null>(null)
   const [refundPayment, setRefundPayment] = useState<BillingTransaction | null>(null)
   const [contactDraft, setContactDraft] = useState<ContactDraft>(EMPTY_CONTACT)
+  const [editingContact, setEditingContact] = useState(false)
   const [newEnrollmentOpen, setNewEnrollmentOpen] = useState(false)
 
   const canManage = access.isMasterAdmin || access.permissions.includes('billing.manage')
@@ -1184,15 +1197,8 @@ export default function AdminCustomerBilling({
       const nextOverview = overviewBody.data as CustomerBillingOverview
       setOverview(nextOverview)
       setSelectedMemberId(memberId)
-      setContactDraft({
-        payerMemberId: nextOverview.account.payerMemberId,
-        billingEmail: nextOverview.account.billingEmail || '',
-        billingPhone: nextOverview.account.billingPhone || '',
-        billingStreet: nextOverview.account.billingStreet || '',
-        billingCity: nextOverview.account.billingCity || '',
-        billingState: nextOverview.account.billingState || '',
-        billingZip: nextOverview.account.billingZip || '',
-      })
+      setContactDraft(billingContactDraft(nextOverview.account))
+      setEditingContact(false)
       setSearchResults([])
       await loadAudits(familyId, memberId, false)
       return true
@@ -1400,7 +1406,7 @@ export default function AdminCustomerBilling({
   }
 
   const saveContact = async () => {
-    if (!overview) return
+    if (!overview || !editingContact || !canManageContact || saving) return
     setSaving(true)
     setError(null)
     try {
@@ -1410,6 +1416,7 @@ export default function AdminCustomerBilling({
       })
       const body = await jsonBody(response)
       if (!response.ok) throw new Error(body.message || 'Billing contact failed to save.')
+      setEditingContact(false)
       await refresh('Billing contact updated.')
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Billing contact failed to save.')
@@ -1647,15 +1654,16 @@ export default function AdminCustomerBilling({
             <div className="space-y-5 border-t border-gray-200 p-5">
               <details open className="w-full">
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg text-sm font-bold text-gray-800 marker:hidden"><span className="flex items-center gap-2"><PencilLine className="h-4 w-4" /> Billing contact & payer</span><ChevronDown className="h-4 w-4" /></summary>
+                {canManageContact && !editingContact ? <button type="button" onClick={() => setEditingContact(true)} disabled={saving || loading} aria-label="Edit billing contact and payer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"><PencilLine className="h-4 w-4" />Edit</button> : null}
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
-                  <label className="text-xs font-semibold text-gray-600">Payer<select disabled={!canManageContact} value={contactDraft.payerMemberId ?? ''} onChange={(event) => setContactDraft((current) => ({ ...current, payerMemberId: event.target.value ? Number(event.target.value) : null }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100"><option value="">No payer selected</option>{overview.members.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
-                  <label className="text-xs font-semibold text-gray-600">Billing email<input disabled={!canManageContact} value={contactDraft.billingEmail} onChange={(event) => setContactDraft((current) => ({ ...current, billingEmail: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <label className="text-xs font-semibold text-gray-600">Billing phone<input disabled={!canManageContact} value={contactDraft.billingPhone} onChange={(event) => setContactDraft((current) => ({ ...current, billingPhone: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <label className="text-xs font-semibold text-gray-600">Street<input disabled={!canManageContact} value={contactDraft.billingStreet} onChange={(event) => setContactDraft((current) => ({ ...current, billingStreet: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <label className="text-xs font-semibold text-gray-600">City<input disabled={!canManageContact} value={contactDraft.billingCity} onChange={(event) => setContactDraft((current) => ({ ...current, billingCity: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <label className="text-xs font-semibold text-gray-600">State<input disabled={!canManageContact} value={contactDraft.billingState} onChange={(event) => setContactDraft((current) => ({ ...current, billingState: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  <label className="text-xs font-semibold text-gray-600">ZIP<input disabled={!canManageContact} value={contactDraft.billingZip} onChange={(event) => setContactDraft((current) => ({ ...current, billingZip: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
-                  {canManageContact ? <button type="button" onClick={() => void saveContact()} disabled={saving} className="rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white sm:col-span-2 lg:col-span-4 2xl:col-span-7 disabled:opacity-50">Save billing contact</button> : null}
+                  <label className="text-xs font-semibold text-gray-600">Payer<select disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.payerMemberId ?? ''} onChange={(event) => setContactDraft((current) => ({ ...current, payerMemberId: event.target.value ? Number(event.target.value) : null }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100"><option value="">No payer selected</option>{overview.members.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
+                  <label className="text-xs font-semibold text-gray-600">Billing email<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingEmail} onChange={(event) => setContactDraft((current) => ({ ...current, billingEmail: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  <label className="text-xs font-semibold text-gray-600">Billing phone<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingPhone} onChange={(event) => setContactDraft((current) => ({ ...current, billingPhone: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  <label className="text-xs font-semibold text-gray-600">Street<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingStreet} onChange={(event) => setContactDraft((current) => ({ ...current, billingStreet: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  <label className="text-xs font-semibold text-gray-600">City<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingCity} onChange={(event) => setContactDraft((current) => ({ ...current, billingCity: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  <label className="text-xs font-semibold text-gray-600">State<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingState} onChange={(event) => setContactDraft((current) => ({ ...current, billingState: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  <label className="text-xs font-semibold text-gray-600">ZIP<input disabled={!canManageContact || !editingContact || saving || loading} value={contactDraft.billingZip} onChange={(event) => setContactDraft((current) => ({ ...current, billingZip: event.target.value }))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100" /></label>
+                  {canManageContact && editingContact ? <div className="flex gap-2 sm:col-span-2 lg:col-span-4 2xl:col-span-7"><button type="button" onClick={() => void saveContact()} disabled={saving || loading} className="rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Save billing contact</button><button type="button" onClick={() => { setContactDraft(billingContactDraft(overview.account)); setEditingContact(false) }} disabled={saving || loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button></div> : null}
                 </div>
               </details>
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-2 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-2 text-sm text-gray-500">No reusable default card found.</p>}</div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>

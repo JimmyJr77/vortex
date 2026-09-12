@@ -1,10 +1,15 @@
+import {recordPayrollAutomation} from './automationHistory.js'
+import { runWorkforceAutomation } from './workforceAutomation.js'
 import { reviewPayrollComplianceSources } from './registerRoutes.js'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-export async function runPayrollComplianceSweep(pool) {
+export async function runPayrollComplianceSweep(pool,{workforceRunner=runWorkforceAutomation,sourceReviewer=reviewPayrollComplianceSources}={}) {
   const { rows: facilities } = await pool.query('SELECT facility_id FROM payroll_settings')
+  const failures=[]
   for (const { facility_id: facilityId } of facilities) {
+   try{await recordPayrollAutomation(pool,facilityId,'SCHEDULED',async()=>{
+    const result=await workforceRunner(pool, facilityId)
     await pool.query(`INSERT INTO payroll_alert (facility_id,dedupe_key,severity,title,message)
       SELECT $1,'due-task-'||id||'-'||COALESCE(due_date::text,'none'),severity,
         'Payroll task needs attention: '||title,
@@ -18,8 +23,11 @@ export async function runPayrollComplianceSweep(pool) {
         'Pay period '||period_start::text||' through '||period_end::text||' is still '||status||'. Payday is '||pay_date::text||'.'
       FROM payroll_pay_period WHERE facility_id=$1 AND status <> 'PAID' AND pay_date BETWEEN CURRENT_DATE AND CURRENT_DATE + 7
       ON CONFLICT (facility_id,dedupe_key) DO UPDATE SET status='OPEN',message=EXCLUDED.message`, [facilityId])
-    await reviewPayrollComplianceSources(pool, facilityId, { limit: 5 })
+    await sourceReviewer(pool, facilityId, { limit: 5 })
+    return result
+   })}catch(error){failures.push(error)}
   }
+  if(failures.length)throw new AggregateError(failures,'Payroll checks failed for one or more facilities.')
 }
 
 export function startPayrollComplianceScheduler(pool) {

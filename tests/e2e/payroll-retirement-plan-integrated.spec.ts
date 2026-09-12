@@ -1,0 +1,57 @@
+import {test,expect} from '@playwright/test'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {retirementPlanFixture} from '../../backend/payroll/testing/retirementPlanFixture.js'
+import {randomUUID} from 'node:crypto'
+
+test('admin creates a retirement plan, recovers a lost response and preserves a stale draft with real APIs',async({page})=>{
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated local payroll database')
+ test.setTimeout(120000)
+ page.setDefaultTimeout(15000)
+ const h=await createHarness();let loseResponse=true
+ try{
+  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+  await page.route('**/api/admin/payroll/**',async route=>{
+   const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`})
+   if(u.pathname.endsWith('/retirement-plans')&&route.request().method()==='POST'&&loseResponse){loseResponse=false;expect(response.ok()).toBe(true);return route.fulfill({status:503,json:{success:false,message:'Synthetic lost save response'}})}
+   await route.fulfill({response})
+  })
+  await page.goto('/tests/support/payroll.html')
+  await page.getByRole('button',{name:'Employer setup',exact:true}).click()
+  const panel=page.getByRole('region',{name:'Retirement plan setup',exact:true})
+  await panel.getByRole('button',{name:'Load retirement plan history',exact:true}).click()
+  const fixture=retirementPlanFixture()
+  for(const [label,value] of Object.entries({'Retirement plan identifier':fixture.planId,'Retirement plan name':fixture.name,'Retirement recordkeeper':fixture.providerName,'Retained plan document reference':fixture.planReference,'Plan effective date':fixture.effectiveOn,'Eligibility and entry-date terms':fixture.eligibilityTerms,'Eligible compensation definition':fixture.compensationTerms,'Employee election and withdrawal terms':fixture.employeeTerms,'Administrator review reference':fixture.reviewReference}))await panel.getByLabel(label,{exact:true}).fill(value)
+  for(const [label,value] of Object.entries({'Pretax deferrals':'true','Roth deferrals':'true','Catch-up contributions':'false','Higher age-based catch-up':'false','Regular wages in plan compensation':'true','Overtime wages in plan compensation':'true','Bonuses in plan compensation':'false','Paid leave in plan compensation':'true','Automatic enrollment applicability':'NOT_APPLICABLE','Employer contributions':'NONE','Additional ordinary deferral dollar cap':'NONE'}))await panel.getByRole('combobox',{name:label,exact:true}).selectOption(value)
+  await panel.getByRole('combobox',{name:'Unused PTO payout terms',exact:true}).selectOption('REVIEWED')
+  for(const [label,value] of Object.entries({'Unused PTO deferrals while employed':'INCLUDED','Unused PTO deferrals after employment ends':'EXCLUDED','Post-employment unused PTO in section 415 compensation':'INCLUDED','Plan limitation year':'CALENDAR_YEAR'}))await panel.getByRole('combobox',{name:label,exact:true}).selectOption(value)
+  await panel.getByLabel('Unused PTO plan terms and document reference',{exact:true}).fill('Actual retained plan cashout clauses and limitation year reference.')
+  await panel.getByRole('checkbox').check()
+  await panel.getByRole('button',{name:'Retain retirement plan review',exact:true}).click()
+  await expect(panel.getByRole('alert')).toHaveText('Synthetic lost save response',{timeout:20000})
+  await panel.getByRole('button',{name:'Load retirement plan history',exact:true}).click()
+  await expect(panel.getByRole('alert')).toContainText('Your draft is preserved')
+  await panel.getByRole('button',{name:'Retry the original plan review',exact:true}).click()
+  await expect(panel.getByRole('status')).toContainText('Plan review retained.')
+  expect((await h.pool.query('SELECT count(*)::int AS count FROM payroll_retirement_plan_revision')).rows[0].count).toBe(1)
+  await panel.getByText(`${fixture.name} · Revision 1 · Effective 2026-01-01`,{exact:true}).click()
+  await panel.getByRole('button',{name:'Edit from this retained revision',exact:true}).click()
+  await expect(panel.getByRole('combobox',{name:'Unused PTO deferrals after employment ends',exact:true})).toHaveValue('EXCLUDED')
+  expect((await h.pool.query('SELECT plan FROM payroll_retirement_plan_revision')).rows[0].plan.unusedPto.postSeverance415).toBe('INCLUDED')
+  await panel.getByRole('textbox',{name:'Administrator review reference',exact:true}).fill('Local draft review must survive a concurrent update')
+  const response=await fetch(`${h.url}/api/admin/payroll/retirement-plans`,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify({plan:{...fixture,employeeTerms:'Revised employee terms retained by another administrator.'},expectedRevision:1,requestKey:randomUUID()})})
+  expect(response.status).toBe(200)
+  await panel.getByRole('button',{name:'Load retirement plan history',exact:true}).click()
+  await expect(panel.getByRole('alert')).toContainText('Your draft is preserved')
+  await expect(panel.getByRole('textbox',{name:'Administrator review reference',exact:true})).toHaveValue('Local draft review must survive a concurrent update')
+  await expect(panel.getByRole('button',{name:'Retain retirement plan review',exact:true})).toBeDisabled()
+  await panel.getByText(`${fixture.name} · Revision 2 · Effective 2026-01-01`,{exact:true}).click()
+  await panel.locator('details').filter({hasText:'Revision 2'}).getByRole('button',{name:'Edit from this retained revision',exact:true}).click()
+  await expect(panel.getByRole('textbox',{name:'Employee election and withdrawal terms',exact:true})).toHaveValue('Revised employee terms retained by another administrator.')
+  await expect(panel.getByRole('combobox',{name:'Unused PTO payout terms',exact:true})).toHaveValue('UNREVIEWED')
+  await panel.getByRole('combobox',{name:'Unused PTO payout terms',exact:true}).selectOption('REVIEWED')
+  await expect(panel.getByRole('combobox',{name:'Unused PTO deferrals after employment ends',exact:true})).toHaveValue('')
+  await page.setViewportSize({width:390,height:1000})
+  await panel.screenshot({path:'/tmp/payroll-retirement-plan-integrated-mobile.png'})
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
+ }finally{await page.close();await h.close()}
+})

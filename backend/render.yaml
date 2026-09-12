@@ -18,6 +18,19 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      # Persistent 64-character hexadecimal key; keep a recoverable secret-store backup.
+      - key: PAYROLL_DOCUMENT_KEY
+        sync: false
+      - key: QUICKBOOKS_CLIENT_ID
+        sync: false
+      - key: QUICKBOOKS_CLIENT_SECRET
+        sync: false
+      - key: QUICKBOOKS_REDIRECT_URI
+        sync: false
+      - key: QUICKBOOKS_ENVIRONMENT
+        value: sandbox
+      - key: PAYROLL_COMPLIANCE_SCHEDULER_ENABLED
+        value: "true"
       - key: FRONTEND_URL
         value: https://www.vortexathletics.com
       - key: PUBLIC_APP_URL

@@ -1,3 +1,5 @@
+import {carrierRemittanceSmtpTracking} from '../payroll/carrierRemittanceTracking.js'
+import {w2NoticeSmtpTracking} from '../payroll/w2NoticeProvider.js'
 import nodemailer from 'nodemailer'
 import crypto from 'crypto'
 import {
@@ -292,13 +294,19 @@ export async function sendEmail({
     headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click'
   }
 
+  const noticeTracking=w2NoticeSmtpTracking({category,idempotencyKey})||carrierRemittanceSmtpTracking({category,idempotencyKey})
+  if(noticeTracking)Object.assign(headers,noticeTracking.headers)
   const delivery = await recordDelivery({
     facilityId, memberId, invitationId, category: category || 'unknown', stream,
     templateVersion, email: normalizedTo, status: 'queued', idempotencyKey,
+    ...(noticeTracking?{provider:noticeTracking.provider}:{}),
   })
   if (delivery.duplicate) {
     return { sent: false, skipped: true, reason: 'duplicate' }
   }
+
+  if(category==='payroll_w2_notice'&&noticeTracking&&!delivery.id)throw new Error('Unable to retain the W-2 provider delivery before sending.')
+  if(category==='payroll_carrier_remittance'&&!delivery.id)return {sent:false,skipped:true,reason:'delivery_log_unavailable'}
 
   try {
     const info = await transport.sendMail({

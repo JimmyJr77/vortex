@@ -1,0 +1,2851 @@
+{
+  "year": 2026,
+  "sourceUrl": "https://www.irs.gov/pub/irs-pdf/fw2.pdf",
+  "retrievedOn": "2026-09-10",
+  "sha256": "61eca7c81f16d3965819fe1f31be4fe68c1b2887a81f51172f1d2ed2b2b9f087",
+  "pageCount": 11,
+  "employeePacket": [
+    {
+      "copy": "B",
+      "pageIndex": 3,
+      "instructionsPageIndex": 4,
+      "fields": [
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].BoxA_ReadOrder[0].f2_01[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            732.002,
+            278.8,
+            744.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].f2_02[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            708.001,
+            330.2,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].f2_03[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            635.998,
+            330.2,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].f2_04[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            612.0,
+            330.2,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            588.002,
+            171.8,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            588.002,
+            308.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].f2_07[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            588.002,
+            330.2,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Left[0].f2_08[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            515.999,
+            330.2,
+            585.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            708.001,
+            451.6,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_10[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            708.001,
+            574.0,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box3_ReadOrder[0].f2_11[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            684.0,
+            452.6,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_12[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            684.0,
+            574.0,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            660.002,
+            452.6,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_14[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            660.002,
+            574.0,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            636.001,
+            452.6,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_16[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            636.001,
+            574.0,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_17[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            624.002,
+            452.6,
+            636.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box10_ReadOrder[0].f2_18[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            612.0,
+            574.0,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_19[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            600.001,
+            452.6,
+            612.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            588.002,
+            488.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            588.002,
+            574.0,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            564.001,
+            488.6,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            564.001,
+            574.0,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            540.0,
+            488.6,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            540.0,
+            574.0,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            516.002,
+            488.6,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            516.002,
+            574.0,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            577.701,
+            358.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].Retirement_ReadOrder[0].c2_3[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            577.701,
+            394.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].c2_4[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            577.999,
+            430.6,
+            587.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_28[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            528.001,
+            452.6,
+            564.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_29[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            504.0,
+            391.4,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Col_Right[0].f2_30[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            504.0,
+            452.6,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_31[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            480.002,
+            63.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Boxes15_ReadOrder[0].f2_32[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            480.002,
+            193.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Boxes15_ReadOrder[0].f2_33[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            455.998,
+            63.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Boxes15_ReadOrder[0].f2_34[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            456.001,
+            193.4,
+            468.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box16_ReadOrder[0].f2_35[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            480.002,
+            279.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box16_ReadOrder[0].f2_36[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            455.998,
+            279.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box17_ReadOrder[0].f2_37[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            480.002,
+            359.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box17_ReadOrder[0].f2_38[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            455.998,
+            359.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box18_ReadOrder[0].f2_39[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            480.002,
+            445.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box18_ReadOrder[0].f2_40[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            455.998,
+            445.4,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box19_ReadOrder[0].f2_41[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            480.002,
+            524.6,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].Box19_ReadOrder[0].f2_42[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            455.998,
+            524.6,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].f2_43[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            480.002,
+            574.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Top[0].f2_44[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            455.998,
+            574.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].BoxA_ReadOrder[0].f2_45[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            336.002,
+            278.8,
+            348.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].f2_46[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            312.001,
+            330.2,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].f2_47[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            239.998,
+            330.2,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].f2_48[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            216.0,
+            330.2,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].FirstName_ReadOrder[0].f2_49[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            192.002,
+            171.8,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].LastName_ReadOrder[0].f2_50[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            192.002,
+            308.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].f2_51[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            192.002,
+            330.2,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Left[0].f2_52[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            119.999,
+            330.2,
+            189.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box1_ReadOrder[0].f2_53[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            312.001,
+            451.6,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_54[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            312.001,
+            574.0,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box3_ReadOrder[0].f2_55[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            288.0,
+            452.6,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_56[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            288.0,
+            574.0,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box5_ReadOrder[0].f2_57[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            264.002,
+            452.6,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_58[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            264.002,
+            574.0,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box7_ReadOrder[0].f2_59[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            240.001,
+            452.6,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_60[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            240.001,
+            574.0,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_61[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            228.002,
+            452.6,
+            240.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box10_ReadOrder[0].f2_62[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            216.0,
+            574.0,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_63[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            204.001,
+            452.6,
+            216.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_64[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            192.002,
+            488.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_65[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            192.002,
+            574.0,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_66[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            168.001,
+            488.6,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_67[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            168.001,
+            574.0,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_68[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            144.0,
+            488.6,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_69[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            144.0,
+            574.0,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_70[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            120.002,
+            488.6,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_71[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            120.002,
+            574.0,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Statutory_ReadOrder[0].c2_6[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            181.701,
+            358.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].Retirement_ReadOrder[0].c2_7[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            181.701,
+            394.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].c2_8[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            181.999,
+            430.6,
+            191.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_72[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            132.001,
+            452.6,
+            168.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_73[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            108.0,
+            391.4,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Col_Right[0].f2_74[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            108.0,
+            452.6,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_75[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            84.002,
+            63.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Boxes15_ReadOrder[0].f2_76[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            84.002,
+            193.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Boxes15_ReadOrder[0].f2_77[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            59.998,
+            63.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Boxes15_ReadOrder[0].f2_78[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            60.001,
+            193.4,
+            72.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box16_ReadOrder[0].f2_79[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            84.002,
+            279.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box16_ReadOrder[0].f2_80[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            59.998,
+            279.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box17_ReadOrder[0].f2_81[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            84.002,
+            359.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box17_ReadOrder[0].f2_82[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            59.998,
+            359.0,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box18_ReadOrder[0].f2_83[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            84.002,
+            445.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box18_ReadOrder[0].f2_84[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            59.998,
+            445.4,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box19_ReadOrder[0].f2_85[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            84.002,
+            524.6,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].Box19_ReadOrder[0].f2_86[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            59.998,
+            524.6,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].f2_87[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            84.002,
+            574.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyB[0].CopyB_Bottom[0].f2_88[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            59.998,
+            574.0,
+            71.999
+          ]
+        }
+      ]
+    },
+    {
+      "copy": "C",
+      "pageIndex": 5,
+      "instructionsPageIndex": 6,
+      "fields": [
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].BoxA_ReadOrder[0].f2_01[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            732.002,
+            278.8,
+            744.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].f2_02[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            708.001,
+            330.2,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].f2_03[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            635.998,
+            330.2,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].f2_04[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            612.0,
+            330.2,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            588.002,
+            171.8,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            588.002,
+            308.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].f2_07[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            588.002,
+            330.2,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Left[0].f2_08[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            515.999,
+            330.2,
+            585.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            708.001,
+            451.6,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_10[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            708.001,
+            574.0,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box3_ReadOrder[0].f2_11[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            684.0,
+            452.6,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_12[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            684.0,
+            574.0,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            660.002,
+            452.6,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_14[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            660.002,
+            574.0,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            636.001,
+            452.6,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_16[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            636.001,
+            574.0,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_17[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            624.002,
+            452.6,
+            636.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box10_ReadOrder[0].f2_18[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            612.0,
+            574.0,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_19[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            600.001,
+            452.6,
+            612.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            588.002,
+            488.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            588.002,
+            574.0,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            564.001,
+            488.6,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            564.001,
+            574.0,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            540.0,
+            488.6,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            540.0,
+            574.0,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            516.002,
+            488.6,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            516.002,
+            574.0,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            577.701,
+            358.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].Retirement_ReadOrder[0].c2_3[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            577.701,
+            394.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].c2_4[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            577.999,
+            430.6,
+            587.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_28[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            528.001,
+            452.6,
+            564.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_29[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            504.0,
+            391.4,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Col_Right[0].f2_30[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            504.0,
+            452.6,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_31[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            480.002,
+            63.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Boxes15_ReadOrder[0].f2_32[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            480.002,
+            193.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Boxes15_ReadOrder[0].f2_33[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            455.998,
+            63.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Boxes15_ReadOrder[0].f2_34[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            456.001,
+            193.4,
+            468.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box16_ReadOrder[0].f2_35[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            480.002,
+            279.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box16_ReadOrder[0].f2_36[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            455.998,
+            279.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box17_ReadOrder[0].f2_37[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            480.002,
+            359.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box17_ReadOrder[0].f2_38[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            455.998,
+            359.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box18_ReadOrder[0].f2_39[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            480.002,
+            445.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box18_ReadOrder[0].f2_40[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            455.998,
+            445.4,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box19_ReadOrder[0].f2_41[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            480.002,
+            524.6,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].Box19_ReadOrder[0].f2_42[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            455.998,
+            524.6,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].f2_43[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            480.002,
+            574.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Top[0].f2_44[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            455.998,
+            574.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].BoxA_ReadOrder[0].f2_45[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            336.002,
+            278.8,
+            348.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].f2_46[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            312.001,
+            330.2,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].f2_47[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            239.998,
+            330.2,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].f2_48[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            216.0,
+            330.2,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].FirstName_ReadOrder[0].f2_49[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            192.002,
+            171.8,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].LastName_ReadOrder[0].f2_50[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            192.002,
+            308.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].f2_51[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            192.002,
+            330.2,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Left[0].f2_52[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            119.999,
+            330.2,
+            189.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box1_ReadOrder[0].f2_53[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            312.001,
+            451.6,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_54[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            312.001,
+            574.0,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box3_ReadOrder[0].f2_55[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            288.0,
+            452.6,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_56[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            288.0,
+            574.0,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box5_ReadOrder[0].f2_57[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            264.002,
+            452.6,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_58[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            264.002,
+            574.0,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box7_ReadOrder[0].f2_59[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            240.001,
+            452.6,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_60[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            240.001,
+            574.0,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_61[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            228.002,
+            452.6,
+            240.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box10_ReadOrder[0].f2_62[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            216.0,
+            574.0,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_63[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            204.001,
+            452.6,
+            216.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_64[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            192.002,
+            488.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_65[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            192.002,
+            574.0,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_66[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            168.001,
+            488.6,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_67[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            168.001,
+            574.0,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_68[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            144.0,
+            488.6,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_69[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            144.0,
+            574.0,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_70[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            120.002,
+            488.6,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_71[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            120.002,
+            574.0,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Statutory_ReadOrder[0].c2_6[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            181.701,
+            358.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].Retirement_ReadOrder[0].c2_7[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            181.701,
+            394.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].c2_8[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            181.999,
+            430.6,
+            191.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_72[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            132.001,
+            452.6,
+            168.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_73[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            108.0,
+            391.4,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Col_Right[0].f2_74[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            108.0,
+            452.6,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_75[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            84.002,
+            63.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Boxes15_ReadOrder[0].f2_76[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            84.002,
+            193.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Boxes15_ReadOrder[0].f2_77[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            59.998,
+            63.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Boxes15_ReadOrder[0].f2_78[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            60.001,
+            193.4,
+            72.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box16_ReadOrder[0].f2_79[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            84.002,
+            279.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box16_ReadOrder[0].f2_80[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            59.998,
+            279.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box17_ReadOrder[0].f2_81[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            84.002,
+            359.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box17_ReadOrder[0].f2_82[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            59.998,
+            359.0,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box18_ReadOrder[0].f2_83[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            84.002,
+            445.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box18_ReadOrder[0].f2_84[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            59.998,
+            445.4,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box19_ReadOrder[0].f2_85[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            84.002,
+            524.6,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].Box19_ReadOrder[0].f2_86[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            59.998,
+            524.6,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].f2_87[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            84.002,
+            574.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].CopyC[0].CopyC_Bottom[0].f2_88[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            59.998,
+            574.0,
+            71.999
+          ]
+        }
+      ]
+    },
+    {
+      "copy": "2",
+      "pageIndex": 7,
+      "instructionsPageIndex": 8,
+      "fields": [
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].BoxA_ReadOrder[0].f2_01[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            732.002,
+            278.8,
+            744.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].f2_02[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            708.001,
+            330.2,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].f2_03[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            635.998,
+            330.2,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].f2_04[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            612.0,
+            330.2,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            588.002,
+            171.8,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            588.002,
+            308.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].f2_07[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            588.002,
+            330.2,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Left[0].f2_08[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            515.999,
+            330.2,
+            585.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            708.001,
+            451.6,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_10[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            708.001,
+            574.0,
+            720.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box3_ReadOrder[0].f2_11[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            684.0,
+            452.6,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_12[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            684.0,
+            574.0,
+            695.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            660.002,
+            452.6,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_14[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            660.002,
+            574.0,
+            672.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            636.001,
+            452.6,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_16[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            636.001,
+            574.0,
+            648.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_17[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            624.002,
+            452.6,
+            636.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box10_ReadOrder[0].f2_18[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            612.0,
+            574.0,
+            623.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_19[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            600.001,
+            452.6,
+            612.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            588.002,
+            488.6,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            588.002,
+            574.0,
+            600.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            564.001,
+            488.6,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            564.001,
+            574.0,
+            576.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            540.0,
+            488.6,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            540.0,
+            574.0,
+            551.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            516.002,
+            488.6,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            516.002,
+            574.0,
+            528.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            577.701,
+            358.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].Retirement_ReadOrder[0].c2_3[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            577.701,
+            394.6,
+            587.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].c2_4[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            577.999,
+            430.6,
+            587.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_28[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            528.001,
+            452.6,
+            564.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_29[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            504.0,
+            391.4,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Col_Right[0].f2_30[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            504.0,
+            452.6,
+            515.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_31[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            480.002,
+            63.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Boxes15_ReadOrder[0].f2_32[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            480.002,
+            193.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Boxes15_ReadOrder[0].f2_33[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            455.998,
+            63.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Boxes15_ReadOrder[0].f2_34[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            456.001,
+            193.4,
+            468.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box16_ReadOrder[0].f2_35[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            480.002,
+            279.8,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box16_ReadOrder[0].f2_36[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            455.998,
+            279.8,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box17_ReadOrder[0].f2_37[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            480.002,
+            359.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box17_ReadOrder[0].f2_38[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            455.998,
+            359.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box18_ReadOrder[0].f2_39[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            480.002,
+            445.4,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box18_ReadOrder[0].f2_40[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            455.998,
+            445.4,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box19_ReadOrder[0].f2_41[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            480.002,
+            524.6,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].Box19_ReadOrder[0].f2_42[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            455.998,
+            524.6,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].f2_43[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            480.002,
+            575.0,
+            492.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Top[0].f2_44[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            455.998,
+            575.0,
+            467.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].BoxA_ReadOrder[0].f2_45[0]",
+          "type": "/Tx",
+          "rect": [
+            153.2,
+            336.002,
+            278.8,
+            348.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].f2_46[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            312.001,
+            330.2,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].f2_47[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            239.998,
+            330.2,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].f2_48[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            216.0,
+            330.2,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].FirstName_ReadOrder[0].f2_49[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            192.002,
+            171.8,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].LastName_ReadOrder[0].f2_50[0]",
+          "type": "/Tx",
+          "rect": [
+            173.8,
+            192.002,
+            308.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].f2_51[0]",
+          "type": "/Tx",
+          "rect": [
+            310.6,
+            192.002,
+            330.2,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Left[0].f2_52[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            119.999,
+            330.2,
+            189.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box1_ReadOrder[0].f2_53[0]",
+          "type": "/Tx",
+          "rect": [
+            333.2,
+            312.001,
+            451.6,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_54[0]",
+          "type": "/Tx",
+          "rect": [
+            455.6,
+            312.001,
+            574.0,
+            324.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box3_ReadOrder[0].f2_55[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            288.0,
+            452.6,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_56[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            288.0,
+            574.0,
+            299.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box5_ReadOrder[0].f2_57[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            264.002,
+            452.6,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_58[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            264.002,
+            574.0,
+            276.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box7_ReadOrder[0].f2_59[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            240.001,
+            452.6,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_60[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            240.001,
+            574.0,
+            252.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_61[0]",
+          "type": "/Tx",
+          "rect": [
+            346.6,
+            228.002,
+            452.6,
+            240.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box10_ReadOrder[0].f2_62[0]",
+          "type": "/Tx",
+          "rect": [
+            454.6,
+            216.0,
+            574.0,
+            227.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_63[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            204.001,
+            452.6,
+            216.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_64[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            192.002,
+            488.6,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_65[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            192.002,
+            574.0,
+            204.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_66[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            168.001,
+            488.6,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_67[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            168.001,
+            574.0,
+            180.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_68[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            144.0,
+            488.6,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_69[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            144.0,
+            574.0,
+            155.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_70[0]",
+          "type": "/Tx",
+          "rect": [
+            462.8,
+            120.002,
+            488.6,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Box12_ReadOrder[0].f2_71[0]",
+          "type": "/Tx",
+          "rect": [
+            490.6,
+            120.002,
+            574.0,
+            132.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Statutory_ReadOrder[0].c2_6[0]",
+          "type": "/Btn",
+          "rect": [
+            348.6,
+            181.701,
+            358.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].Retirement_ReadOrder[0].c2_7[0]",
+          "type": "/Btn",
+          "rect": [
+            384.6,
+            181.701,
+            394.6,
+            191.701
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].c2_8[0]",
+          "type": "/Btn",
+          "rect": [
+            420.6,
+            181.999,
+            430.6,
+            191.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_72[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            132.001,
+            452.6,
+            168.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_73[0]",
+          "type": "/Tx",
+          "rect": [
+            332.2,
+            108.0,
+            391.4,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Col_Right[0].f2_74[0]",
+          "type": "/Tx",
+          "rect": [
+            393.4,
+            108.0,
+            452.6,
+            119.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Boxes15_ReadOrder[0].Box15_ReadOrder[0].f2_75[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            84.002,
+            63.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Boxes15_ReadOrder[0].f2_76[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            84.002,
+            193.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Boxes15_ReadOrder[0].f2_77[0]",
+          "type": "/Tx",
+          "rect": [
+            38.0,
+            59.998,
+            63.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Boxes15_ReadOrder[0].f2_78[0]",
+          "type": "/Tx",
+          "rect": [
+            65.8,
+            60.001,
+            193.4,
+            72.0
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box16_ReadOrder[0].f2_79[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            84.002,
+            279.8,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box16_ReadOrder[0].f2_80[0]",
+          "type": "/Tx",
+          "rect": [
+            195.4,
+            59.998,
+            279.8,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box17_ReadOrder[0].f2_81[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            84.002,
+            359.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box17_ReadOrder[0].f2_82[0]",
+          "type": "/Tx",
+          "rect": [
+            281.8,
+            59.998,
+            359.0,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box18_ReadOrder[0].f2_83[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            84.002,
+            445.4,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box18_ReadOrder[0].f2_84[0]",
+          "type": "/Tx",
+          "rect": [
+            361.0,
+            59.998,
+            445.4,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box19_ReadOrder[0].f2_85[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            84.002,
+            524.6,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].Box19_ReadOrder[0].f2_86[0]",
+          "type": "/Tx",
+          "rect": [
+            447.4,
+            59.998,
+            524.6,
+            71.999
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].f2_87[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            84.002,
+            575.0,
+            96.001
+          ]
+        },
+        {
+          "name": "topmostSubform[0].Copy2[0].Copy2_Bottom[0].f2_88[0]",
+          "type": "/Tx",
+          "rect": [
+            526.6,
+            59.998,
+            575.0,
+            71.999
+          ]
+        }
+      ]
+    }
+  ],
+  "note": "Source template only. Both repeated form panels contain the same employee in a generated packet. Copies B/C/2 and their following instruction pages are selected; Copy A is excluded. Renderer and issuance are not yet implemented."
+}

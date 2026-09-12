@@ -1,0 +1,32 @@
+import {test,expect} from '@playwright/test'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {hashPayrollToken} from '../../backend/payroll/employeeAuth.js'
+test('employee saves partial onboarding, resumes after reload and submits completed details',async({page})=>{
+ test.setTimeout(90000);page.setDefaultTimeout(15000)
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
+ const h=await createHarness();try{
+ const r=await fetch(`${h.url}/api/admin/payroll/employees`,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify({employeeNumber:'DRAFT-BROWSER',legalFirstName:'Draft',legalLastName:'Employee',hireDate:'2026-08-03',hourlyRateCents:2500})})
+ expect(r.status).toBe(201);const e=(await r.json()).data
+ await h.pool.query("INSERT INTO payroll_employee_session(facility_id,employee_id,token_hash,expires_at) VALUES(1,$1,$2,now()+interval '1 day')",[e.id,hashPayrollToken('draft-browser-session')])
+ await page.addInitScript(()=>sessionStorage.setItem('vortex_payroll_employee_session_v1','draft-browser-session'))
+ await page.route('**/api/payroll/employee/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+ await page.setViewportSize({width:390,height:1200});await page.goto('/tests/support/payroll.html?employee')
+ await page.getByRole('button',{name:'Onboarding',exact:true}).click()
+ const step=page.locator('details').filter({has:page.getByText('Personal details & emergency contact',{exact:true})})
+ await step.getByRole('textbox',{name:'Legal first name',exact:true}).fill('Saved Draft')
+ await step.getByRole('button',{name:'Save progress',exact:true}).click()
+ await expect(page.getByRole('status')).toHaveText('Draft saved. This step has not been submitted for review.')
+ await page.reload();await page.getByRole('button',{name:'Onboarding',exact:true}).click()
+ await expect(step.getByRole('textbox',{name:'Legal first name',exact:true})).toHaveValue('Saved Draft')
+ await expect(step.locator('summary')).toContainText('OPEN')
+ await step.screenshot({path:'/tmp/payroll-onboarding-draft-mobile.png'})
+ for(const [label,value] of [['Legal last name','Employee'],['Home street address','123 Test Street'],['City','Bowie'],['State','MD'],['ZIP code','20715'],['Phone','555-010-1000'],['Emergency contact name','Test Contact'],['Emergency contact phone','555-010-1001'],['Relationship','Sibling']])await step.getByRole('textbox',{name:label,exact:true}).fill(value)
+ await step.getByRole('button',{name:'Submit for review',exact:true}).click()
+ await expect(page.getByRole('status')).toHaveText('Step submitted for review.')
+ await expect(step.locator('summary')).toContainText('SUBMITTED')
+ await expect(step.getByRole('button',{name:'Save progress',exact:true})).toHaveCount(0)
+ expect((await h.pool.query('SELECT legal_first_name FROM payroll_employee WHERE id=$1',[e.id])).rows[0].legal_first_name).toBe('Saved Draft')
+ expect(errors).toEqual([])
+ }finally{await page.unrouteAll({behavior:'wait'});await page.close();await h.close()}
+})

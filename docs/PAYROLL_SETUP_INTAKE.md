@@ -69,3 +69,17 @@ Do not store Social Security numbers, immigration identifiers, employment-author
 ## Important distinction
 
 A Zelle, bill-pay, ACH, check, or transfer labeled "payroll" is not by itself compliant payroll. The payment must be supported by a payroll calculation and the related withholding, employer taxes, reporting, pay stub, and employment records.
+
+## Carrier payment destinations
+
+In Admin > Payroll → Reports & QuickBooks → Carrier payment destinations:
+
+1. Configure the employer payment connection and encrypted document storage.
+2. Enter the carrier name used on its invoices and load its destination history.
+3. Enter the verified business account ID from the connected payment provider and review the displayed account owner, type, ending and environment.
+4. Independently match the carrier or authorized collection agent to its payment instructions, record the supporting reference, confirm and save.
+5. Recheck the retained destination when details change. Changed destinations or employer connections require another preview and reviewed revision. Current and superseded records and their verification history remain accessible.
+
+This setup uses an existing provider business account. Creating and verifying a new carrier bank account inside Vortex, scheduled rechecks and invoice payment authorization/execution remain unfinished. Saving a destination never sends money.
+
+For a current posted invoice with no outside payment/credit activity, open Prepare carrier payment, review the proposed amount/date, retain the authorization and use Submit authorized carrier payment. Submission requires a future bank business day. After a claim, cancellation is unavailable; use Recover carrier payment for an uncertain or pending outcome. Provider approval is not bank settlement, and verified bank settlement still requires carrier remittance/accounting closeout. Claimed payments now recover automatically, and their open history refreshes every 30 seconds. Pending claims retry every five minutes; verified bank settlements are checked daily. For scheduled first submission, choose the time and decision reference in the authorization history. Times are entered in your browser timezone and must resolve to a future bank business day before the payment date. An active schedule disables manual submission; cancel the schedule to change timing or submit manually. Blocked preflights raise an alert and retry after five minutes; a claimed payment uses recovery instead.

@@ -1,0 +1,8 @@
+type Row=Record<string,unknown>
+const money=(n:unknown)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0)/100)
+export default function AuthorizedSettlementReview({snapshot}:{snapshot:unknown}){
+ const employees=snapshot&&typeof snapshot==='object'?(snapshot as Row).employees:null
+ const weeks:Row[]=Array.isArray(employees)?employees.flatMap((e:Row)=>Array.isArray(e?.authorizedSettlement)?(e.authorizedSettlement as Row[]).map(week=>({...week,employeeName:e.employeeName})):[]):[]
+ if(!weeks.length)return null
+ return <section aria-label="Allocated workweek earnings" className="mt-4 space-y-3"><h4 className="font-black">Allocated workweek earnings</h4><p className="text-sm text-slate-600">Straight-time earnings cover all worked hours. The overtime premium is added once using the combined workweek rate.</p>{weeks.map((week,index)=><article key={`${week.week}-${index}`} className="space-y-1 rounded-xl border border-slate-200 p-4 text-sm"><p className="font-bold">{String(week.employeeName||'Workweek earnings')}</p><p className="font-bold">{String(week.periodStart||week.week)} through {String(week.periodEnd||week.end)}</p><p>{(Number(week.workedMinutes)/60).toFixed(2)} worked hours · straight-time wages {money(week.straightTimePayCents)}</p><p>{(Number(week.overtimeMinutes)/60).toFixed(2)} overtime hours · premium {money(week.overtimePremiumCents)}</p><p>{Number(week.workedMinutes)>0?`Combined regular rate: ${money(Number(week.regularRateNumerator)/Number(week.regularRateDenominator))}/hour`:'No worked hours to calculate a regular rate.'}</p></article>)}</section>
+}

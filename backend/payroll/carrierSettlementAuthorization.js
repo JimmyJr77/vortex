@@ -1,0 +1,32 @@
+import {carrierSettlementCanRelease} from './carrierSettlementRelease.js'
+import {randomUUID} from 'node:crypto'
+import {prepareCarrierSettlement} from './carrierSettlementPreview.js'
+const fail=(message,status=409)=>{throw Object.assign(new Error(message),{status})}
+const uuid=v=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(v)
+const review=b=>b?.confirmed===true&&typeof b.reference==='string'&&b.reference.trim().length>=12&&b.reference.length<=2000&&!/[\u0000-\u001f\u007f]/.test(b.reference)
+export function registerCarrierSettlementAuthorizationRoutes(app,pool,options){
+ const endpoint=work=>async(req,res)=>{res.setHeader('Cache-Control','no-store');const db=await pool.connect();try{await db.query('BEGIN');await db.query('SELECT facility_id FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[req.canonicalAccess.facilityId]);const data=await work(db,req);await db.query('COMMIT');res.json({success:true,data})}catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to retain carrier settlement authorization.'})}finally{db.release()}}
+ const scoped=async(db,req)=>{if(!uuid(req.params.id))fail('Choose a carrier payment.',400);const row=(await db.query('SELECT a.id FROM payroll_carrier_payment_authorization a JOIN payroll_benefit_carrier_invoice i ON i.id=a.invoice_id WHERE a.id=$1 AND i.facility_id=$2',[req.params.id,req.canonicalAccess.facilityId])).rows[0];if(!row)fail('Carrier payment was not found.',404);return row}
+ const path='/api/admin/payroll/carrier-payment-authorizations/:id/settlement-authorizations'
+ app.get(path,endpoint(async(db,req)=>{await scoped(db,req);const history=(await db.query('SELECT a.*,c.created_at AS cancelled_at,c.reference AS cancellation_reference,EXISTS(SELECT 1 FROM payroll_carrier_settlement_claim p WHERE p.authorization_id=a.id) AS claimed FROM payroll_carrier_settlement_authorization a LEFT JOIN payroll_carrier_settlement_cancellation c ON c.authorization_id=a.id WHERE a.payment_authorization_id=$1 ORDER BY a.created_at DESC,a.id',[req.params.id])).rows;for(const a of history){a.can_release=a.claimed&&!a.cancelled_at&&await carrierSettlementCanRelease(db,a.id);a.attempts=(await db.query('SELECT id,status,message,created_at FROM payroll_carrier_settlement_attempt WHERE authorization_id=$1 ORDER BY id DESC LIMIT 10',[a.id])).rows;a.journals=(await db.query('SELECT j.id,j.event_key,j.payload,(SELECT result FROM payroll_carrier_settlement_observation WHERE journal_id=j.id ORDER BY id DESC LIMIT 1) AS result FROM payroll_carrier_settlement_journal j WHERE j.authorization_id=$1 ORDER BY j.event_key',[a.id])).rows;}return {history}}))
+ app.post(path,endpoint(async(db,req)=>{
+  await scoped(db,req);const b=req.body
+  if(!review(b)||b.autoPost!==true||typeof b.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(b.fingerprint)||typeof b.requestKey!=='string'||!/^[A-Za-z0-9_-]{16,80}$/.test(b.requestKey))fail('Confirm automatic posting of this exact bank settlement review and provide its reference.',400)
+  const previous=(await db.query('SELECT a.*,EXISTS(SELECT 1 FROM payroll_carrier_settlement_cancellation c WHERE c.authorization_id=a.id) AS cancelled FROM payroll_carrier_settlement_authorization a WHERE payment_authorization_id=$1 ORDER BY created_at DESC',[req.params.id])).rows
+  const retry=previous.find(a=>a.request_key===b.requestKey)
+  if(retry){if(retry.cancelled||retry.fingerprint!==b.fingerprint||retry.reference!==b.reference.trim())fail('This request key belongs to a changed or cancelled review. Refresh settlement history.');return {id:retry.id,reused:true}}
+  if(previous.some(a=>!a.cancelled))fail('A carrier settlement authorization is already active. Review its history.')
+  const preview=await prepareCarrierSettlement(db,req.canonicalAccess.facilityId,req.params.id,options)
+  if(preview.fingerprint!==b.fingerprint)fail('Bank, premium, mapping or accounting-period facts changed. Review the settlement again.')
+  const id=randomUUID();await db.query('INSERT INTO payroll_carrier_settlement_authorization(id,payment_authorization_id,mapping_id,preview,fingerprint,request_key,reference,auto_post,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,true,$8)',[id,req.params.id,preview.mappingId,preview,preview.fingerprint,b.requestKey,b.reference.trim(),req.adminId])
+  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'CARRIER_SETTLEMENT_AUTHORIZED','carrier_settlement_authorization',$3,$4)",[req.canonicalAccess.facilityId,req.adminId,id,{paymentAuthorizationId:req.params.id,fingerprint:preview.fingerprint}]);return {id,reused:false}
+ }))
+ app.post('/api/admin/payroll/carrier-settlement-authorizations/:id/cancel',endpoint(async(db,req)=>{
+  if(!uuid(req.params.id)||!review(req.body))fail('Confirm cancellation and retain its reason.',400)
+  const a=(await db.query('SELECT a.id FROM payroll_carrier_settlement_authorization a JOIN payroll_carrier_payment_authorization p ON p.id=a.payment_authorization_id JOIN payroll_benefit_carrier_invoice i ON i.id=p.invoice_id WHERE a.id=$1 AND i.facility_id=$2',[req.params.id,req.canonicalAccess.facilityId])).rows[0];if(!a)fail('Carrier settlement authorization was not found.',404)
+  const old=(await db.query('SELECT reference FROM payroll_carrier_settlement_cancellation WHERE authorization_id=$1',[a.id])).rows[0]
+  if(old){if(old.reference!==req.body.reference.trim())fail('Cancellation is already retained with a different reference.');return {id:a.id,reused:true}}
+  if((await db.query('SELECT authorization_id FROM payroll_carrier_settlement_claim WHERE authorization_id=$1',[a.id])).rows.length)fail('Settlement posting is claimed. Recover its outcome before further accounting changes.')
+  await db.query('INSERT INTO payroll_carrier_settlement_cancellation(authorization_id,reference,created_by) VALUES($1,$2,$3)',[a.id,req.body.reference.trim(),req.adminId]);await db.query("UPDATE payroll_alert SET status='DISMISSED',dismissed_at=now() WHERE facility_id=$1 AND dedupe_key=$2 AND status='OPEN'",[req.canonicalAccess.facilityId,`carrier-settlement-${a.id}`]);await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'CARRIER_SETTLEMENT_CANCELLED','carrier_settlement_authorization',$3,$4)",[req.canonicalAccess.facilityId,req.adminId,a.id,{reference:req.body.reference.trim()}]);return {id:a.id,reused:false}
+ }))
+}

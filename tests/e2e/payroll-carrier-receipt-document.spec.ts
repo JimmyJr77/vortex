@@ -1,0 +1,8 @@
+import {test,expect} from '@playwright/test'
+import {carrierPaymentReceiptHtml} from '../../backend/payroll/carrierPaymentReceipt.js'
+test('carrier receipt download renders safely on mobile and desktop',async({page})=>{
+ const html=carrierPaymentReceiptHtml({id:'00000000-0000-4000-8000-000000000001',employerName:'Synthetic Employer',carrier:'Synthetic <Benefits> & Health',invoiceNumber:'SEP-2026',invoiceRevision:2,amountCents:55000,paymentDate:'2026-09-18',mode:'TEST',status:'NEEDS_REVIEW',destination:{holderName:'Benefits Business',accountType:'checking',accountLast4:'1234'},bankWithdrawals:[{postedDate:'2026-09-17',amountCents:25000},{postedDate:'2026-09-18',amountCents:30000}],createdAt:'2026-09-18T12:00:00Z',observedAt:'2026-09-19T12:00:00Z'})
+ await page.setViewportSize({width:390,height:1000});await page.setContent(html)
+ await expect(page.getByRole('heading',{name:'Carrier payment receipt',exact:true})).toBeVisible();await expect(page.locator('body')).toContainText('Synthetic <Benefits> & Health');await expect(page.locator('body')).toContainText('Needs review — later payment evidence changed');await expect(page.locator('body')).toContainText('$550.00');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
+ await page.screenshot({path:'/tmp/payroll-carrier-receipt-document-mobile.png',fullPage:true});await page.setViewportSize({width:1000,height:1000});await page.emulateMedia({media:'print'});await expect(page.locator('body')).toContainText('does not confirm that the carrier applied');await page.screenshot({path:'/tmp/payroll-carrier-receipt-document-print.png',fullPage:true})
+})

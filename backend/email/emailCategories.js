@@ -38,6 +38,8 @@ export const EMAIL_CATEGORIES = Object.freeze({
   security_notification: STREAM_TRANSACTIONAL,
   gymnastics_evaluation: STREAM_TRANSACTIONAL,
   payroll_employee_invitation: STREAM_TRANSACTIONAL,
+  payroll_w2_notice: STREAM_TRANSACTIONAL,
+  payroll_carrier_remittance: STREAM_TRANSACTIONAL,
 
   // --- marketing (no senders today; reserved + scaffolded) ---
   newsletter: STREAM_MARKETING,
@@ -68,6 +70,7 @@ export const FINANCIAL_CATEGORIES = Object.freeze(
     'refund_receipt',
     'billing_alert',
     'billing_access',
+    'payroll_carrier_remittance',
   ]),
 )
 

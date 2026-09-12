@@ -1,0 +1,38 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {createHarness} from '../testing/harness.js'
+import {runWorkforceAutomation} from '../workforceAutomation.js'
+test('first-shift review is retained, invalidated by schedule changes and surfaced by automation',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const h=await createHarness();t.after(()=>h.close())
+ const api=async(path,body,status=200,method=body===undefined?'GET':'POST')=>{const r=await fetch(`${h.url}/api/admin/payroll${path}`,{method,headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const j=await r.json();assert.equal(r.status,status,JSON.stringify(j));return j.data}
+ const e=await api('/employees',{employeeNumber:'FIRST-SHIFT-REVIEW',legalFirstName:'First',legalLastName:'Shift',personalEmail:'first.shift@example.test',hireDate:'2026-08-03',hourlyRateCents:2500},201)
+ const task=(await api(`/employees/${e.id}/onboarding`)).tasks.find(t=>t.task_key==='FIRST_SHIFT')
+ const review=()=>api(`/employees/${e.id}/onboarding/${task.id}/review`,{status:'COMPLETE',note:'Reviewed shift, supervisor and arrival instructions'})
+ await api(`/employees/${e.id}/onboarding/${task.id}/review`,{status:'COMPLETE',note:'No shift exists yet'},409)
+ const shift=await api('/shifts',{employeeId:e.id,scheduledStart:'2026-08-03T12:00:00Z',scheduledEnd:'2026-08-03T16:00:00Z',location:'Reception',notes:'Meet supervisor at reception'},201)
+ await review()
+ let packet=await api(`/employees/${e.id}/onboarding`)
+ assert.equal(packet.firstShift.status,'CURRENT');assert.equal(packet.firstShift.reviewed.id,Number(shift.id))
+ await api(`/shifts/${shift.id}`,{notes:'Meet supervisor in the training room'},200,'PATCH')
+ packet=await api(`/employees/${e.id}/onboarding`)
+ assert.equal(packet.firstShift.status,'NEEDS_REVIEW');assert.equal(packet.readiness.complete,0)
+ assert.ok(packet.readiness.blockers.includes('Review the current first shift and arrival details'))
+ await api(`/employees/${e.id}/activate`,{},409)
+ await runWorkforceAutomation(h.pool,1,{sync:false,now:new Date('2026-08-03T12:00Z')})
+ const alert=()=>h.pool.query("SELECT status FROM payroll_alert WHERE facility_id=1 AND dedupe_key=$1",[`first-shift-review-${e.id}`])
+ assert.equal((await alert()).rows[0].status,'OPEN')
+ await review()
+ await runWorkforceAutomation(h.pool,1,{sync:false,now:new Date('2026-08-03T12:00Z')})
+ assert.equal((await alert()).rows[0].status,'DISMISSED')
+ await api(`/shifts/${shift.id}`,{status:'COMPLETED'},200,'PATCH')
+ assert.equal((await api(`/employees/${e.id}/onboarding`)).firstShift.status,'CURRENT')
+ await api(`/shifts/${shift.id}`,{status:'CANCELLED'},200,'PATCH')
+ assert.equal((await api(`/employees/${e.id}/onboarding`)).firstShift.status,'NEEDS_REVIEW')
+ await api(`/employees/${e.id}/onboarding/${task.id}/review`,{status:'COMPLETE',note:'Cancelled shift is not a handoff'},409)
+ const replacement=await api('/shifts',{employeeId:e.id,scheduledStart:'2026-08-04T12:00:00Z',scheduledEnd:'2026-08-04T16:00:00Z'},201)
+ assert.equal((await api(`/employees/${e.id}/onboarding`)).firstShift.status,'NEEDS_REVIEW')
+ await review()
+ assert.equal((await api(`/employees/${e.id}/onboarding`)).firstShift.reviewed.id,Number(replacement.id))
+ const history=await api(`/employees/${e.id}/onboarding/${task.id}/history`)
+ assert.ok(history.some(r=>r.snapshot.response.firstShift?.notes==='Meet supervisor at reception'))
+})

@@ -1,3 +1,4 @@
+import { finalizeRefundLedgerTreatment } from '../customerBillingPayments.js'
 import { previewCustomerBillingEnrollmentCancellation } from '../customerBillingEnrollmentCancellation.js'
 import { reassessBillingAllocations } from '../reassessBillingAllocations.js'
 import test from 'node:test'
@@ -288,6 +289,26 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await charge(5,-10250,{subscription_id:1,charge_type:'credit',service_period_start:'2026-09-01'})
     assert.equal((await previewCustomerBillingEnrollmentCancellation(db,options)).creditCents,0)
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,5)
+  })
+
+  await t.test('completed overpayment refund finalizes with a valid audit actor and replays without duplicate reversals', async () => {
+    await charge(1,25500)
+    await payment(1,31876)
+    await allocation(1,1,25500)
+    const refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,amount_cents:6376,
+      stripe_refund_id:'re_completed_fixture',external_status:'reconciliation_required',ledger_treatment:'return_overpayment',
+      error_message:'[stripe-refund-ledger-finalization-pending:re_completed_fixture] Stripe returned the money;'})
+    const first=await finalizeRefundLedgerTreatment(db,refund,{actorType:'reconciliation',stripeClient:null})
+    assert.equal(first.external_status,'succeeded')
+    const second=await finalizeRefundLedgerTreatment(db,refund.id,{actorType:'reconciliation',stripeClient:null})
+    assert.equal(second.external_status,'succeeded')
+    const activities=(await db.query("SELECT actor_type FROM billing_account_activity WHERE event_type='refund_succeeded'")).rows
+    assert.deepEqual(activities,[{actor_type:'system'}])
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_payment_application')).rows[0].n,1)
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_refund')).rows[0].n,1)
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,1)
+    const snapshot=await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-10'})
+    assert.equal(snapshot.balanceCents,0)
   })
 
 })

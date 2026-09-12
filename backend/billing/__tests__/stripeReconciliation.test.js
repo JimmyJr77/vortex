@@ -680,7 +680,7 @@ test('refund reconciliation fully paginates the all-age inventory and finalizes 
     },
     finalizeRefund: async (_pool, refund, options) => {
       finalizeOrder.push(refund.stripe_refund_id)
-      assert.equal(options.actorType, 'reconciliation')
+      assert.equal(options.actorType, 'system')
       return refund
     },
     resolveRetryAlert: async () => {},
@@ -880,7 +880,8 @@ test('a treated reconciliation-required refund is revalidated and finalized by e
       external_status: 'succeeded',
       ledger_treatment: 'reverse_charge',
     }),
-    finalizeRefund: async (_pool, local) => {
+    finalizeRefund: async (_pool, local, options) => {
+      assert.equal(options.actorType, 'system')
       finalized = true
       return local
     },

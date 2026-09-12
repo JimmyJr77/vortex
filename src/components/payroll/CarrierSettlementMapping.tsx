@@ -1,0 +1,33 @@
+import {useId,useState} from 'react'
+import {adminApiRequest} from '../../utils/api'
+type Account={Id:string;Name:string;FullyQualifiedName?:string;AccountType:string;Active:boolean;CurrencyRef?:{value:string}}
+type Model={revision:number;connection:{realmId:string;environment:string;generation:number}|null;funding:{id:number;mode:string;created_at:string}[];history:{id:number;payment_connection_id:number;status:string;reference:string;created_at:string;details:{bank:{name:string};liability:{name:string}}}[]}
+const path='/api/admin/payroll/quickbooks/carrier-settlement-mapping'
+async function request(url:string,body?:object){const r=await adminApiRequest(url,body?{method:'POST',body:JSON.stringify(body)}:undefined),j=await r.json();if(!r.ok)throw new Error(j.message||'Unable to review carrier settlement accounts.');return j.data}
+export default function CarrierSettlementMapping(){
+ const refId=useId(),[model,setModel]=useState<Model|null>(null),[accounts,setAccounts]=useState<Account[]>([]),[funding,setFunding]=useState(''),[bank,setBank]=useState(''),[liability,setLiability]=useState(''),[reference,setReference]=useState(''),[confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('')
+ const invalidate=()=>{setConfirmed(false);setMessage('')}
+ const load=async()=>{setBusy(true);setError('');invalidate();setModel(null);setAccounts([]);try{const data:Model=await request(path);setModel(data);if(data.connection)setAccounts(await request('/api/admin/payroll/quickbooks/accounts'))}catch(e){setError(e instanceof Error?e.message:'Unable to load accounts.')}finally{setBusy(false)}}
+ const save=async()=>{if(!model?.connection||busy||!confirmed)return;setBusy(true);setError('');setMessage('');try{await request(path,{expectedRevision:model.revision,fundingRevisionId:Number(funding),connectionGeneration:model.connection.generation,realmId:model.connection.realmId,environment:model.connection.environment,bankAccountId:bank,liabilityAccountId:liability,reference,confirmed:true});setModel(await request(path));setMessage('Carrier settlement mapping verified and retained.')}catch(e){setModel(null);setAccounts([]);setError(e instanceof Error?e.message:'Unable to retain mapping.')}finally{setBusy(false);setConfirmed(false)}}
+ const choices=(type:string)=>accounts.filter(a=>a.Active===true&&a.AccountType===type&&(!a.CurrencyRef?.value||a.CurrencyRef.value==='USD'))
+ const fundingChoices=model?.funding.filter(f=>f.mode===(model.connection?.environment==='production'?'LIVE':'TEST'))||[]
+ return <section aria-label="Carrier settlement accounts" className="space-y-3 rounded-xl border p-4 text-sm">
+  <h4 className="font-bold">Carrier settlement accounts</h4><p>Match the employer funding account to its QuickBooks bank account and the liability used by the carrier premium journal. Historical funding remains available for earlier withdrawals.</p>
+  <button type="button" disabled={busy} onClick={()=>void load()} className="rounded-lg border px-4 py-2 font-bold">Review carrier settlement accounts</button>
+  {error?<p role="alert" className="text-red-700">{error}</p>:null}{message?<p role="status">{message}</p>:null}
+  {model?<>{!model.connection?<p>Connect QuickBooks before reviewing carrier settlement accounts.</p>:<>
+   <p>Company {model.connection.realmId} · {model.connection.environment}</p>
+   {!fundingChoices.length?<p>Configure an employer payment connection in the same environment as QuickBooks.</p>:null}
+   <fieldset disabled={busy} className="space-y-3"><legend className="font-bold">Review bank and carrier liability</legend>
+    <label htmlFor={`${refId}-funding`} className="block">Carrier settlement funding</label><select id={`${refId}-funding`} value={funding} onChange={e=>{setFunding(e.target.value);invalidate()}} className="mt-1 block w-full rounded-lg border p-2"><option value="">Select funding history</option>{fundingChoices.map(f=><option key={f.id} value={f.id}>Revision {f.id} · {f.id===model.funding[0]?.id?'Current':'Historical'} · {f.mode} · {new Date(f.created_at).toLocaleDateString()}</option>)}</select>
+    <label htmlFor={`${refId}-bank`} className="block">Carrier settlement bank</label><select id={`${refId}-bank`} value={bank} onChange={e=>{setBank(e.target.value);invalidate()}} className="mt-1 block w-full rounded-lg border p-2"><option value="">Select bank account</option>{choices('Bank').map(a=><option key={a.Id} value={a.Id}>{a.FullyQualifiedName||a.Name}</option>)}</select>
+    <label htmlFor={`${refId}-liability`} className="block">Carrier settlement liability</label><select id={`${refId}-liability`} value={liability} onChange={e=>{setLiability(e.target.value);invalidate()}} className="mt-1 block w-full rounded-lg border p-2"><option value="">Select carrier liability</option>{choices('Other Current Liability').map(a=><option key={a.Id} value={a.Id}>{a.FullyQualifiedName||a.Name}</option>)}</select>
+    <label htmlFor={refId} className="block">Carrier settlement review reference</label><textarea id={refId} value={reference} maxLength={500} rows={3} onChange={e=>{setReference(e.target.value);invalidate()}} className="block w-full rounded-lg border p-2"/>
+    <label className="flex items-start gap-2"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>I verified the funding revision against the bank records and matched the carrier liability to the premium journal.</span></label>
+    <button type="button" disabled={!confirmed||!fundingChoices.some(f=>String(f.id)===funding)||!choices('Bank').some(a=>a.Id===bank)||!choices('Other Current Liability').some(a=>a.Id===liability)||bank===liability||reference.trim().length<12} onClick={()=>void save()} className="rounded-lg bg-slate-900 px-4 py-2 font-bold text-white disabled:opacity-50">Verify and retain carrier mapping</button>
+   </fieldset></>}
+   <p>Saving verifies the accounts and retains this review. Settlement posting still requires matching bank evidence and accounting approval.</p>
+   <h5 className="font-bold">Carrier mapping history</h5>{model.history.length?<ul className="space-y-2">{model.history.map(r=><li key={r.id} className="rounded-lg border p-3"><p>Mapping {r.id} · {r.status==='CURRENT'?'Current company binding':r.status==='SUPERSEDED'?'Superseded':'Company changed — review again'}</p><p className="break-words">{r.details.bank.name} → {r.details.liability.name} · Funding revision {r.payment_connection_id}</p><p className="break-words">{r.reference}</p><p>Reviewed {new Date(r.created_at).toLocaleString()}</p></li>)}</ul>:<p>No carrier settlement mapping has been retained.</p>}
+  </>:null}
+ </section>
+}

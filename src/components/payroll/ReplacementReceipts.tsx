@@ -1,0 +1,14 @@
+import ReceiptDownload from './ReceiptDownload'
+import {useEffect,useState} from 'react'
+import {adminApiRequest} from '../../utils/api'
+import {employeePayrollApi,type ReplacementReceipt} from '../../utils/employeePayrollApi'
+export default function ReplacementReceipts({runId}:{runId?:number}){
+ const [rows,setRows]=useState<ReplacementReceipt[]>([]),[error,setError]=useState(''),[loading,setLoading]=useState(true),[revision,setRevision]=useState(0)
+ useEffect(()=>{let active=true,running=false;setLoading(true);setError('');setRows([])
+  const load=async()=>{if(runId===undefined)return employeePayrollApi.replacementReceipts();const response=await adminApiRequest(`/api/admin/payroll/runs/${runId}/payment-replacement-receipts`),json=await response.json();if(!response.ok)throw new Error(json.message||'Unable to load replacement receipts.');return json.data as ReplacementReceipt[]}
+  const refresh=async()=>{if(running)return;running=true;try{const data=await load();if(active){setRows(data);setError('')}}catch(e){if(active){setRows([]);setError(e instanceof Error?e.message:'Unable to load replacement receipts.')}}finally{running=false;if(active)setLoading(false)}}
+  void refresh();const timer=setInterval(()=>{if(document.visibilityState==='visible')void refresh()},30000)
+  return()=>{active=false;clearInterval(timer)}
+ },[runId,revision])
+ return <section aria-label="Replacement payment receipts" className="space-y-3 rounded-xl border p-4"><h3 className="font-bold">Replacement payment receipts</h3><p>A replacement receipt records bank evidence for previously reported net pay. Refer to the original pay statement for wages and taxes.</p><button type="button" disabled={loading} className="font-bold underline" onClick={()=>setRevision(value=>value+1)}>Refresh replacement receipts</button>{loading?<p role="status">Loading replacement receipts…</p>:error?<p role="alert">{error}</p>:!rows.length?<p>No bank-confirmed replacement receipts yet.</p>:rows.map(row=><article key={row.id} className="space-y-2 rounded border p-3"><h4 className="font-bold">{row.employeeName} · {(row.amountCents/100).toLocaleString('en-US',{style:'currency',currency:'USD'})}</h4>{row.sourceKind==='STOPPED_CHECK'?<p>Direct-deposit replacement of a stopped check</p>:null}<p role="status">{row.status==='BANK_CONFIRMED'?'Bank evidence confirmed':'Needs review — later payment evidence changed'}</p><p>Original pay date: {row.originalPaymentDate}<br/>Replacement date: {row.paymentDate}<br/>Bank posted: {row.bankPostedDates.join(', ')}</p>{row.account?<p>{row.account.accountType} ending {row.account.accountLast4}</p>:null}<p className="break-all text-sm">Receipt: {row.id}</p><ReceiptDownload id={row.id} runId={runId}/><p className="text-sm">Retained {new Date(row.createdAt).toLocaleString()}</p></article>)}</section>
+}

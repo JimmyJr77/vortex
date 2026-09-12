@@ -1,0 +1,78 @@
+import {test,expect} from '@playwright/test'
+import assert from 'node:assert/strict'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+for(const initial of ['HOURLY'])test(`${initial}-first imported payment previews matching retained workweek earnings`,async({page})=>{
+ test.setTimeout(90000)
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
+ const h=await createHarness();try{
+ const api=async(path:string,body:unknown,method='POST',status=200)=>{const r=await fetch(`${h.url}/api/admin/payroll${path}`,{method,headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json();assert.equal(r.status,status,JSON.stringify(j));return j.data}
+ await api('/settings',{legalBusinessName:'Split Payroll',businessAddress:'123 Test Street, Bowie MD',businessPhone:'555-010-0000'},'PATCH')
+ await api('/employer-taxes',{futaRatePercent:0.6,mdUiRatePercent:2.6,source:'Synthetic employer tax notice',confirmed:true},'PATCH')
+ const e=await api('/employees',{employeeNumber:`SPLIT-${initial}`,legalFirstName:'Split',legalLastName:'Settlement',hireDate:'2026-08-03',payType:initial,hourlyRateCents:2500,annualSalaryCents:6240000},'POST',201)
+ const review={classification:'NONEXEMPT',fixed40Verified:true,minimumWageVerified:true,minimumWageCents:1500,confirmed:true,source:'Synthetic verified fixed salary agreement'}
+ if(initial==='SALARY'){
+  await api(`/employees/${e.id}/salary-review`,review)
+  await h.pool.query("INSERT INTO payroll_salary_change(facility_id,employee_id,effective_on,annual_salary_cents,salary_review,reason) SELECT facility_id,id,hire_date,annual_salary_cents,salary_review,'Retained prior agreement' FROM payroll_employee WHERE id=$1",[e.id])
+ }
+ await h.pool.query("UPDATE payroll_employee SET employment_status='ACTIVE',w4_status='COMPLETE',state_withholding_status='COMPLETE' WHERE id=$1",[e.id])
+ await api(`/employees/${e.id}/tax-elections`,{confirmed:true,sourceNote:'Synthetic signed employee tax elections',federal:{filingStatus:'SINGLE'},maryland:{filingStatus:'SINGLE',localRate:3.2,exemptions:1}},'PATCH')
+ for(const day of ['03','04','05'])await h.pool.query("INSERT INTO payroll_time_entry(facility_id,employee_id,clock_in,clock_out,source,status) VALUES(1,$1,$2,$3,'ADMIN','APPROVED')",[e.id,`2026-08-${day}T12:00Z`,`2026-08-${day}T20:00Z`])
+ const periods=(await h.pool.query("INSERT INTO payroll_pay_period(facility_id,period_start,period_end,pay_date,frequency) VALUES(1,'2026-08-03','2026-08-05','2026-08-14','SEMIMONTHLY'),(1,'2026-08-07','2026-08-09','2026-08-21','SEMIMONTHLY') RETURNING id")).rows
+ await api('/runs/preview',{payPeriodId:periods[0].id});await h.pool.query("UPDATE payroll_compliance_task SET status='COMPLETE' WHERE facility_id=1")
+ const historical=await api(`/employees/${e.id}/historical-payments`,{requestId:'browser-imported-wages',periodStart:'2026-08-03',periodEnd:'2026-08-05',paymentDate:'2026-08-14',method:'CHECK',reference:'IMPORTED-PREVIEW-001',grossCents:60000,taxCents:12000,netCents:48000,evidence:'Synthetic source wage register and cleared payment',wageOnlyConfirmed:true,confirmed:true},'POST',201)
+ await h.pool.query("UPDATE payroll_employee SET employment_status='TERMINATED',termination_date='2026-08-05' WHERE id=$1",[e.id])
+ await h.pool.query("UPDATE payroll_employee SET employment_status='ONBOARDING',hire_date='2026-08-07',termination_date=NULL,pay_type='SALARY',annual_salary_cents=6240000 WHERE id=$1",[e.id])
+ await h.pool.query('UPDATE payroll_onboarding_task SET onboarding_cycle=onboarding_cycle+1 WHERE facility_id=1 AND employee_id=$1',[e.id])
+ await api(`/employees/${e.id}/salary-review`,{...review,employmentStart:'2026-08-07'})
+ await h.pool.query("UPDATE payroll_employee SET employment_status='ACTIVE' WHERE id=$1",[e.id])
+ for(const day of ['07','08','09'])await h.pool.query("INSERT INTO payroll_time_entry(facility_id,employee_id,clock_in,clock_out,source,status) VALUES(1,$1,$2,$3,'ADMIN','APPROVED')",[e.id,`2026-08-${day}T12:00Z`,`2026-08-${day}T${day==='09'?22:20}:00Z`])
+ const input={payPeriodId:periods[1].id,week:'2026-08-03',salaryAllocations:[{employmentStart:'2026-08-07',earningsCents:120000,source:'Synthetic complete workweek salary allocation'}]}
+ const allocation=await api(`/employees/${e.id}/workweek-allocation-preview`,input)
+ await api(`/employees/${e.id}/workweek-allocations`,{...input,fingerprint:allocation.fingerprint,requestId:'native-allocation-review',reason:'Reviewed full workweek and historic hourly payroll',confirmed:true},'POST',201)
+ await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+ await page.route('**/api/admin/payroll/**',async route=>{const url=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${url.pathname}${url.search}`})})})
+ await page.setViewportSize({width:390,height:1200});await page.goto('/tests/support/payroll.html')
+ await page.getByText('Payment evidence',{exact:true}).click()
+ await page.getByText('Preview imported workweeks',{exact:true}).click()
+ const form=page.getByText('Preview imported workweeks',{exact:true}).locator('..')
+ await form.getByLabel('Imported allocation review period',{exact:true}).selectOption(String(periods[1].id))
+ await form.getByRole('button',{name:'Calculate imported allocation',exact:true}).click()
+ await expect(form.getByRole('alert')).toContainText('complete imported work period')
+ await form.getByLabel('Imported allocation review period',{exact:true}).selectOption(String(periods[0].id))
+ await form.getByRole('button',{name:'Calculate imported allocation',exact:true}).click()
+ await expect(form.getByRole('status')).toContainText('Recorded gross: $600.00')
+ await expect(form.getByRole('status')).toContainText('2026-08-03 · 24.00 hours · straight-time $600.00 · premium $0.00')
+ await form.getByLabel('Imported allocation review reason').fill('Verified wage source against complete dated workweek allocation')
+ await form.getByLabel('I verified that the source gross').check()
+ await form.getByLabel('I confirm this imported allocation').check()
+ await form.getByRole('button',{name:'Retain imported allocation',exact:true}).click()
+ await expect(form.getByRole('status')).toContainText('Imported allocation review retained')
+ await form.getByRole('button',{name:'Load imported review history',exact:true}).click()
+ await expect(form.getByText('Saved evidence record; current validity requires revalidation.',{exact:true})).toHaveCount(1)
+ expect((await h.pool.query("SELECT COUNT(*)::int n FROM payroll_audit_log WHERE action='HISTORICAL_ALLOCATION_REVIEWED'")).rows[0].n).toBe(1)
+ await form.screenshot({path:'/tmp/payroll-import-retention-mobile.png'})
+ const evidence=(await api('/runs/preview',{payPeriodId:periods[1].id})).preview.employees[0].employmentWeekReviews[0]
+ expect(evidence.paymentReconciliation.status).toBe('EVIDENCE_RECONCILED')
+ await api(`/employees/${e.id}/workweek-settlement-authorizations`,{payPeriodId:periods[1].id,week:input.week,fingerprint:evidence.paymentReconciliation.fingerprint,requestId:'browser-import-settlement',reason:'Verified imported wage evidence and complete payment history',historyComplete:true,confirmed:true},'POST',201)
+ await page.getByRole('button',{name:'Payroll runs',exact:true}).click()
+ await page.getByRole('combobox',{name:'Pay period',exact:true}).selectOption(String(periods[1].id))
+ await page.getByRole('button',{name:'Preview payroll',exact:true}).click()
+ const source=page.getByText(`Imported payment ${historical.id}: dated wage coverage matches its retained source review.`,{exact:true})
+ await expect(source).toBeVisible()
+ await expect(source.locator('..')).toContainText('Unsettled difference — straight-time: $1,200.00 · premium: $180.00')
+ await source.locator('..').screenshot({path:'/tmp/payroll-import-settlement-mobile.png'})
+ expect((await h.pool.query('SELECT COUNT(*)::int n FROM payroll_run')).rows[0].n).toBe(0)
+ expect((await h.pool.query('SELECT COUNT(*)::int n FROM payroll_historical_payment WHERE id=$1',[historical.id])).rows[0].n).toBe(1)
+ const leaveRequest=(await h.pool.query("INSERT INTO payroll_employee_request(facility_id,employee_id,kind,status,payload) VALUES(1,$1,'LEAVE','APPROVED',$2) RETURNING id",[e.id,{leaveType:'PTO',startDate:'2026-08-08',endDate:'2026-08-08',minutes:60}])).rows[0]
+ await h.pool.query("INSERT INTO payroll_paid_leave(facility_id,employee_id,request_id,leave_date,minutes,hourly_rate_cents,included_in_salary) VALUES(1,$1,$2,'2026-08-08',60,NULL,true)",[e.id,leaveRequest.id])
+ await page.getByRole('button',{name:'Preview payroll',exact:true}).click()
+ await page.getByText('Preview salary allocation',{exact:true}).click()
+ await page.getByLabel('Straight-time salary assigned to week ($)',{exact:true}).fill('1200')
+ await page.getByLabel('Salary allocation evidence',{exact:true}).fill('Reviewed worked salary allocation and dated approved leave evidence')
+ await page.getByRole('button',{name:'Calculate workweek allocation',exact:true}).click()
+ const leaveEvidence=page.getByText('Approved leave evidence',{exact:true}).locator('..')
+ await expect(leaveEvidence).toContainText('2026-08-08 · 1.00 leave hours · recorded as included in salary')
+ await expect(leaveEvidence).toContainText('Leave included in salary: $30.00 · additional hourly leave: $0.00')
+ await leaveEvidence.screenshot({path:'/tmp/payroll-allocation-leave-mobile.png'})
+ }finally{await page.unrouteAll({behavior:'wait'});await page.close();await h.close()}
+})

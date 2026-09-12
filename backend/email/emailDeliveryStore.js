@@ -166,7 +166,7 @@ export async function updateDeliveryStatus(id, status, { smtpCode = null, provid
   try {
     await _pool.query(
       `UPDATE email_delivery
-         SET status = $2,
+         SET status = CASE WHEN status IN ('bounced','complaint') AND $2 IN ('queued','accepted','failed') THEN status WHEN status='failed' AND category='payroll_carrier_remittance' AND $2 IN ('queued','accepted') THEN status ELSE $2 END,
              smtp_code = COALESCE($3, smtp_code),
              provider_reason = COALESCE($4, provider_reason),
              attempt_count = attempt_count + 1,

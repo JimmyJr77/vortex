@@ -1,0 +1,20 @@
+import {useState} from 'react'
+import {payrollApi,type EarnedBonusAllocation} from '../../utils/payrollApi'
+import {workforceButton,workforceInput} from './OnboardingWorkspace'
+const money=(cents:number)=>(cents/100).toLocaleString('en-US',{style:'currency',currency:'USD'})
+export default function EarnedBonusPreview({employeeId,amount,onInvalidated,finalizedOnly=false}:{employeeId:number;amount:string;onInvalidated:()=>void;finalizedOnly?:boolean}){
+ const [start,setStart]=useState(''),[end,setEnd]=useState(''),[verified,setVerified]=useState(false)
+ const [busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState<EarnedBonusAllocation|null>(null)
+ const clear=()=>{onInvalidated();setResult(null);setError('');setVerified(false)}
+ return <section aria-label="Earned bonus overtime allocation" className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+ {result?<><input type="hidden" name="earnedStart" value={result.earnedStart}/><input type="hidden" name="earnedEnd" value={result.earnedEnd}/><input type="hidden" name="allocationFingerprint" value={result.fingerprint}/></>:null}
+ <h3 className="font-bold">Allocate earned bonus overtime</h3>
+ <p className="text-sm">Use this method when the bonus agreement supports allocation in proportion to hours worked during the earning period. Each overtime calculation includes the full workweek, even when the earning period covers only part of it.</p>
+ <label className="block text-sm font-bold">Bonus earning start<input disabled={busy} type="date" className={workforceInput} value={start} onChange={e=>{setStart(e.target.value);clear()}}/></label>
+ <label className="block text-sm font-bold">Bonus earning end<input disabled={busy} type="date" className={workforceInput} value={end} onChange={e=>{setEnd(e.target.value);clear()}}/></label>
+ <label className="flex gap-2 text-sm"><input disabled={busy} type="checkbox" checked={verified} onChange={e=>{setVerified(e.target.checked);setResult(null);onInvalidated()}}/>I verified that allocating this bonus in proportion to earned hours matches its agreement.</label>
+ <button type="button" disabled={busy||!verified||!start||!end||!(Number(amount)>0)} className={workforceButton} onClick={async()=>{onInvalidated();setBusy(true);setError('');setResult(null);try{setResult(await payrollApi.previewBonusAllocation(employeeId,{amountCents:Math.round(Number(amount)*100),earnedStart:start,earnedEnd:end}))}catch(e){setError(e instanceof Error?e.message:'Unable to allocate bonus')}finally{setBusy(false)}}}>Calculate bonus overtime</button>
+ {error?<p role="alert" className="text-sm text-red-700">{error}</p>:null}
+ {result?<div role="status" className="space-y-2 text-sm"><p className="font-bold">Additional bonus overtime: {money(result.additionalOvertimeCents)}</p>{result.weeks.map(w=><div key={w.week} className="rounded-lg border border-amber-200 bg-white p-3"><p className="font-bold">Week starting {w.week}</p><p>{w.earnedMinutes/60} earned hours · {w.workedMinutes/60} full-week hours · {w.overtimeMinutes/60} overtime hours</p><p>Overtime treatment: {w.overtimeEligible?'nonexempt':'exempt'}</p><p>Bonus allocation {money(w.allocatedBonusCents)} · additional overtime {money(w.additionalOvertimeCents)}</p></div>)}{result.compensation?.length?<details className="space-y-1"><summary className="cursor-pointer font-bold">Dated employment agreements</summary>{result.compensation.map(a=><p key={`${a.employmentStart}-${a.start}`}>{a.start} through {a.end} · {a.payType==='HOURLY'?'hourly, nonexempt':`salary, ${a.salaryReview?.classification.toLowerCase()}`}</p>)}</details>:null}<p>{finalizedOnly?'Standalone payroll requires finalized payment of every underlying workweek before settling this bonus and additional overtime.':'Recording this bonus saves the earning dates, allocation and supporting time records. Payroll adds the additional overtime after verifying that the work belongs to this payroll or was already paid in finalized payroll.'}</p></div>:null}
+ </section>
+}

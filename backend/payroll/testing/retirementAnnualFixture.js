@@ -1,0 +1,2 @@
+import {retirementAnnualAmounts,retirementAnnualReferences} from '../retirementAnnualInput.js'
+export function retirementAnnualFixture(){return {taxYear:2026,asOfDate:'2026-09-11',ageAtYearEnd:45,confirmed:true,...Object.fromEntries(retirementAnnualAmounts.map(key=>[key,0])),participantOrdinaryCapCents:null,participantCatchUpCapCents:null,compensationCapTreatment:'DEFERRALS_CONTINUE',...Object.fromEntries(retirementAnnualReferences.map(key=>[key,`Synthetic reviewed ${key} evidence excluding application payroll.`]))}}

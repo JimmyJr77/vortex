@@ -1,0 +1,15 @@
+import {useRef,useState} from 'react'
+import {adminApiRequest} from '../../utils/api'
+export type CarrierDocument={id:string;filename:string;created_at:string}
+export default function CarrierInvoiceDocuments({invoiceId,documents,ready,onSaved}:{invoiceId:string;documents:CarrierDocument[];ready:boolean;onSaved:()=>Promise<void>}){
+ const [busy,setBusy]=useState(false),[error,setError]=useState('');const input=useRef<HTMLInputElement>(null)
+ const upload=async(file:File)=>{setBusy(true);setError('');try{
+  if(file.size>5*1024*1024||!file.size)throw new Error('Choose a PDF, PNG or JPEG up to 5 MB.')
+  const contentBase64=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Unable to read the selected file.'));reader.readAsDataURL(file)})
+  const response=await adminApiRequest(`/api/admin/payroll/benefit-carrier-invoices/${invoiceId}/documents`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:file.name,contentBase64})}),json=await response.json()
+  if(!response.ok)throw new Error(json.message||'Unable to retain carrier document')
+  if(input.current)input.current.value='';await onSaved()
+ }catch(e){setError(e instanceof Error?e.message:'Unable to retain carrier document')}finally{setBusy(false)}}
+ const download=async(document:CarrierDocument)=>{setBusy(true);setError('');try{const response=await adminApiRequest(`/api/admin/payroll/benefit-carrier-invoices/${invoiceId}/documents/${document.id}`);if(!response.ok){const json=await response.json();throw new Error(json.message||'Unable to download carrier document')}const url=URL.createObjectURL(await response.blob()),link=window.document.createElement('a');link.href=url;link.download=document.filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){setError(e instanceof Error?e.message:'Unable to download carrier document')}finally{setBusy(false)}}
+ return <div className="space-y-2 border-t pt-3"><p className="font-bold">Supporting documents</p><p>Files remain attached to this invoice revision with their upload date.</p>{documents.map(d=><p key={d.id}><button type="button" disabled={busy} onClick={()=>void download(d)} className="break-all text-left font-semibold underline disabled:opacity-50">Download {d.filename}</button><br/><span className="text-slate-600">Added {new Date(d.created_at).toLocaleString()}</span></p>)}{!ready?<p className="text-amber-900">Encrypted payroll document storage must be configured before uploading.</p>:null}<label className="block font-semibold">Attach carrier invoice document<input ref={input} type="file" accept="application/pdf,image/png,image/jpeg" disabled={busy||!ready} onChange={e=>{const file=e.target.files?.[0];if(file)void upload(file)}} className="mt-1 block w-full text-xs"/></label><p className="text-slate-600">PDF, PNG or JPEG, up to 5 MB; 20 documents per revision.</p>{busy?<p role="status">Processing invoice document…</p>:null}{error?<p role="alert" className="text-red-700">{error}</p>:null}</div>
+}

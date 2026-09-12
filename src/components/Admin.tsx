@@ -179,8 +179,8 @@ const groupForSection = (tab: TabType): GroupId =>
 
 
 export default function Admin({ onLogout, availablePortals = ['admin'], onSwitchPortal }: AdminProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('users')
-  const [activeGroup, setActiveGroup] = useState<GroupId>('home')
+  const [activeTab, setActiveTab] = useState<TabType>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'payroll':'users')
+  const [activeGroup, setActiveGroup] = useState<GroupId>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'payroll':'home')
   const [navOpen, setNavOpen] = useState(false)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
   const [programs, setPrograms] = useState<Program[]>([])
@@ -321,14 +321,14 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   }, [goToSection, openGroup])
 
   useEffect(() => {
-    if (activeGroup === 'home') return
+    if (accessLoading || activeGroup === 'home') return
     const sections = visibleSectionsForGroup(activeGroup)
     if (sections.length === 0) {
       setActiveGroup('home')
     } else if (!sections.includes(activeTab)) {
       setActiveTab(sections[0])
     }
-  }, [activeGroup, activeTab, visibleSectionsForGroup])
+  }, [accessLoading, activeGroup, activeTab, visibleSectionsForGroup])
 
   useEffect(() => {
     if (activeTab !== 'messages' && messagesMaximized) setMessagesMaximized(false)

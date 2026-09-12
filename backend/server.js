@@ -1,3 +1,31 @@
+import {startRetirementReplacementAllocationScheduler} from './payroll/retirementReplacementAutomation.js'
+import {startRetirementReturnScheduler} from './payroll/retirementReturnAutomation.js'
+import {startRetirementSettlementScheduler} from './payroll/retirementSettlementAutomation.js'
+import {startRetirementContributionScheduler} from './payroll/retirementContributionAutomation.js'
+import {startRetirementReceiptScheduler} from './payroll/retirementReceiptAutomation.js'
+import {startRetirementDispatchScheduler} from './payroll/retirementDispatchSchedule.js'
+import {startRetirementAllocationRecoveryScheduler} from './payroll/retirementAllocationRecovery.js'
+import {startRetirementRemittanceRecoveryScheduler} from './payroll/retirementRemittanceRecovery.js'
+import {startRetirementDestinationScheduler} from './payroll/retirementDestinationAutomation.js'
+import {startCarrierRemittanceScheduler} from './payroll/carrierRemittanceAutomation.js'
+import {startCarrierInvoiceScheduler} from './payroll/carrierInvoiceAutomation.js'
+import {startCarrierReconciliationScheduler} from './payroll/carrierReconciliationAutomation.js'
+import {startCarrierSettlementScheduler} from './payroll/carrierSettlementAutomation.js'
+import {prepareCarrierPayment} from './payroll/benefitCarrierInvoice.js'
+import {startCarrierPaymentSubmissionScheduler} from './payroll/carrierPaymentSchedule.js'
+import {startCarrierPaymentRecoveryScheduler} from './payroll/carrierPaymentRecovery.js'
+import {startCarrierReversalRecoveryScheduler} from './payroll/carrierReversalRecovery.js'
+import {startCarrierPremiumRecoveryScheduler} from './payroll/carrierPremiumRecovery.js'
+import {startW2ProviderEventScheduler} from './payroll/w2NoticeProviderScheduler.js'
+import {registerW2ProviderIntake,w2ProviderPath} from './payroll/w2NoticeProviderIntake.js'
+import {startSettlementAutomationScheduler} from './payroll/settlementAutomationScheduler.js'
+import {startCheckReplacementRecoveryScheduler} from './payroll/checkReplacementRecoveryScheduler.js'
+import {startPaymentReturnCaseScheduler} from './payroll/paymentReturnCaseScheduler.js'
+import {startReplacementRecoveryScheduler} from './payroll/paymentReplacementRecoveryScheduler.js'
+import {startCheckIssueRecoveryScheduler} from './payroll/checkIssueRecoveryScheduler.js'
+import {startCheckPayeeRecoveryScheduler} from './payroll/checkPayeeRecoveryScheduler.js'
+import {startBankEnrollmentRecoveryScheduler} from './payroll/bankEnrollmentRecoveryScheduler.js'
+import {canonicalAdminPermission,createCanonicalAdminAuth,payrollPermissionFor} from './platform/canonicalAdminAuth.js'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
@@ -88,9 +116,14 @@ import {
   resetStaffPasswordByEmail,
 } from './auth/staffPasswordReset.js'
 import { initOpportunityTables, registerOpportunityRoutes } from './opportunities/registerRoutes.js'
+import { registerQuickbooksCallback } from './payroll/quickbooks.js'
 import { initPayrollTables } from './payroll/initTables.js'
-import { registerPayrollRoutes } from './payroll/registerRoutes.js'
+import {dispatchPayrollInstruction} from './payroll/paymentDispatch.js'
+import {startPaymentSubmissionScheduler} from './payroll/paymentSubmissionSchedule.js'
+import { registerPayrollRoutes,loadRunPreview,payrollFingerprint } from './payroll/registerRoutes.js'
 import { registerPayrollEmployeeRoutes } from './payroll/employeeRoutes.js'
+import {startSettlementRecoveryScheduler} from './payroll/settlementRecoveryScheduler.js'
+import {startPaymentRecoveryScheduler} from './payroll/paymentRecoveryScheduler.js'
 import { startPayrollComplianceScheduler } from './payroll/complianceScheduler.js'
 
 const { Pool } = pkg
@@ -273,14 +306,16 @@ app.use((req, res, next) => {
 // payload, so reconstructing it from req.body would make signature verification
 // unreliable. The route-level raw parser remains useful when routes are mounted in
 // isolation (for example, focused tests).
-app.use(express.json({
+const applicationJson=express.json({
   limit: '10mb',
   verify: (req, _res, buffer) => {
     if (req.originalUrl?.split('?')[0] === '/api/stripe/webhook') {
       req.rawBody = Buffer.from(buffer)
     }
   },
-}))
+})
+// The signed notice endpoint must receive original bytes in its bounded raw parser.
+app.use((req,res,next)=>req.originalUrl?.split('?')[0]===w2ProviderPath?next():applicationJson(req,res,next))
 
 // Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
 const isProduction = process.env.NODE_ENV === 'production'
@@ -2236,39 +2271,7 @@ const syncRoleProfiles = async (userId, roles, { isMasterAdmin = false } = {}) =
   }
 }
 
-const hasAdminPermission = async (userId, permission) => {
-  if (!userId) return false
-  const access = await loadCanonicalAccessContext(pool, userId)
-  if (!access?.portalAccess.admin) return false
-  if (access.isOwner) return true
-  const roles = [...new Set(access.storageRoles.map((role) => (
-    role === 'MASTER_ADMIN' ? 'ADMIN' : role
-  )))]
-
-  const result = await pool.query(`
-    WITH base_permissions AS (
-      SELECT DISTINCT p.key
-      FROM role r
-      JOIN role_permission rp ON rp.role_id = r.id
-      JOIN permission p ON p.id = rp.permission_id
-      WHERE r.key = ANY($1::text[])
-    ),
-    overrides AS (
-      SELECT p.key, apo.effect
-      FROM app_user_permission_override apo
-      JOIN permission p ON p.id = apo.permission_id
-      WHERE apo.user_id = $2
-    )
-    SELECT
-      EXISTS (SELECT 1 FROM base_permissions WHERE key = $3) as base_allowed,
-      (SELECT effect FROM overrides WHERE key = $3 LIMIT 1) as override_effect
-  `, [roles, userId, permission])
-
-  const row = result.rows[0]
-  if (row?.override_effect === 'deny') return false
-  if (row?.override_effect === 'allow') return true
-  return row?.base_allowed === true
-}
+const hasAdminPermission = (userId,permission)=>canonicalAdminPermission(pool,userId,permission)
 
 const hasAllAdminPermissions = async (userId, permissions = []) => {
   for (const permission of permissions) {
@@ -2497,48 +2500,7 @@ const authenticateAdmin = async (req, res, next) => {
 // Canonical admin guard. Authorization is resolved from the stable app_user id
 // and current database relationships; mutable JWT email/role claims and the
 // compatibility admin_profile mirror are never authority.
-const authenticateCanonicalAdmin = async (req, res, next) => {
-  const authHeader = req.headers.authorization
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'No authentication token provided. Admin access required.',
-    })
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET)
-    const userId = await resolveCanonicalTokenUserId(pool, decoded)
-    if (userId == null) {
-      return res.status(401).json({ success: false, message: 'Invalid authentication token' })
-    }
-
-    const access = await loadCanonicalAccessContext(pool, userId)
-    if (!access) {
-      return res.status(401).json({ success: false, message: 'Invalid token: Admin account not found' })
-    }
-    if (!access.isActive) {
-      return res.status(403).json({ success: false, message: 'Access denied: Admin account is inactive' })
-    }
-    if (!access.portalAccess.admin) {
-      return res.status(403).json({ success: false, message: 'Access denied: Admin privileges required.' })
-    }
-
-    req.adminId = access.userId
-    req.adminEmail = access.email
-    req.isAdmin = true
-    req.isMasterAdmin = access.isOwner
-    req.canonicalAccess = access
-    return next()
-  } catch (error) {
-    if (error?.name === 'JsonWebTokenError' || error?.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Invalid or expired authentication token' })
-    }
-    console.error('[ADMIN AUTH] Canonical authentication error:', error)
-    return res.status(500).json({ success: false, message: 'Authentication error' })
-  }
-}
+const authenticateCanonicalAdmin = createCanonicalAdminAuth(pool,JWT_SECRET)
 
 // Member authentication middleware (for member portal, not admin)
 const authenticateMember = async (req, res, next) => {
@@ -2640,7 +2602,7 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/analytics')) return 'analytics.view'
   if (path.startsWith('/marketing')) return method === 'GET' ? 'analytics.view' : 'marketing.manage'
   if (path.startsWith('/opportunities')) return 'analytics.view'
-  if (path.startsWith('/payroll')) return method === 'GET' ? 'payroll.view' : 'payroll.manage'
+  if (path.startsWith('/payroll')) return payrollPermissionFor(method)
   if (path.startsWith('/db-queries') || path.startsWith('/database')) return 'admin_access.manage'
   if (path.startsWith('/email')) return 'admin_access.manage'
   return null
@@ -2692,8 +2654,10 @@ registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerOpportunityRoutes(app, pool)
+registerW2ProviderIntake(app,pool)
 registerPayrollRoutes(app, pool)
 registerPayrollEmployeeRoutes(app, pool)
+registerQuickbooksCallback(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerEmailUnsubscribeRoutes(app)
@@ -12251,6 +12215,34 @@ const startServer = async () => {
         startMessageThreadAutoArchiveScheduler(pool)
         startPaymentFactAuditScheduler(pool)
         startPayrollComplianceScheduler(pool)
+        startPaymentRecoveryScheduler(pool)
+        startW2ProviderEventScheduler(pool)
+        startSettlementAutomationScheduler(pool)
+        startSettlementRecoveryScheduler(pool)
+        startCarrierPremiumRecoveryScheduler(pool)
+        startCarrierReversalRecoveryScheduler(pool)
+        startCarrierPaymentRecoveryScheduler(pool)
+        startRetirementDestinationScheduler(pool)
+        startRetirementRemittanceRecoveryScheduler(pool)
+        startRetirementReceiptScheduler(pool)
+        startRetirementAllocationRecoveryScheduler(pool)
+        startRetirementDispatchScheduler(pool)
+        startCarrierPaymentSubmissionScheduler(pool,{prepare:prepareCarrierPayment})
+        startCarrierSettlementScheduler(pool)
+        startRetirementSettlementScheduler(pool)
+        startRetirementReturnScheduler(pool)
+        startRetirementReplacementAllocationScheduler(pool)
+        startRetirementContributionScheduler(pool)
+        startCarrierReconciliationScheduler(pool)
+        startCarrierInvoiceScheduler(pool)
+        startCarrierRemittanceScheduler(pool)
+        startReplacementRecoveryScheduler(pool)
+        startCheckPayeeRecoveryScheduler(pool)
+        startCheckIssueRecoveryScheduler(pool)
+        startCheckReplacementRecoveryScheduler(pool)
+        startPaymentReturnCaseScheduler(pool)
+        startBankEnrollmentRecoveryScheduler(pool)
+        startPaymentSubmissionScheduler(pool,{dispatch:dispatchPayrollInstruction,loadRunPreview,payrollFingerprint})
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)

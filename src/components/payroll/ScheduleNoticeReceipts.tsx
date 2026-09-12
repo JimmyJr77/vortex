@@ -1,0 +1,7 @@
+import {useState} from 'react'
+import {workforceApi,type ScheduleReceipt} from '../../utils/workforceApi'
+import {workforceButton} from './OnboardingWorkspace'
+export default function ScheduleNoticeReceipts({versionId}:{versionId:number}){
+ const [rows,setRows]=useState<ScheduleReceipt[]|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('')
+ return <details className="mt-2 rounded-lg border border-slate-200 p-3"><summary className="cursor-pointer font-bold">Employee notice receipts</summary><p className="mt-2 text-slate-600">Receipt status covers all employee records in this employer. Acknowledgment does not replace advance delivery of notice.</p><button type="button" className={`${workforceButton} mt-2`} disabled={busy} onClick={async()=>{setBusy(true);setError('');try{setRows(await workforceApi.scheduleAcknowledgments(versionId))}catch(e){setError(e instanceof Error?e.message:'Unable to load receipts')}finally{setBusy(false)}}}>Refresh notice receipts</button>{rows?<ul className="mt-3 space-y-2">{rows.map(r=><li key={`${r.employee_id}-${r.notice_kind||'pending'}`}>{r.legal_first_name} {r.legal_last_name} · {r.employment_status.toLowerCase()}<span className="block text-slate-600">{r.acknowledged_at?`${r.notice_kind==='CANCELLATION'?'Cancellation':'Change'} receipt acknowledged ${r.acknowledged_at.slice(0,10)}`:`${r.notice_kind==='CANCELLATION'?'Cancellation':'Change'} receipt not yet acknowledged`}</span></li>)}</ul>:null}{error?<p role="alert" className="mt-2 text-red-700">{error}</p>:null}</details>
+}

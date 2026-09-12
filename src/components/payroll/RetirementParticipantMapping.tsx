@@ -1,0 +1,33 @@
+import {useEffect,useRef,useState} from 'react'
+import {adminApiRequest} from '../../utils/api'
+type Source={fingerprint:string;employeeName:string;employeeNumber:string;planName:string;providerName:string}
+type Data={source:Source;vaultReady:boolean;status:string;history:{id:string;revision:number;disposition:string;reference:string;masked_identifiers:{providerPlanId:string;participantId:string}|null}[]}
+const request=async(path:string,body?:unknown)=>{const r=await adminApiRequest(path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined),j=await r.json();if(!r.ok||!j.success)throw Object.assign(new Error(j.message||'Unable to review retirement participant mapping.'),{status:r.status});return j.data}
+export default function RetirementParticipantMapping({employeeId,planId}:{employeeId:number;planId:string}){
+ const path=`/api/admin/payroll/employees/${employeeId}/retirement-participant/${encodeURIComponent(planId)}`
+ const [requested,setRequested]=useState(false),[data,setData]=useState<Data|null>(null),[basis,setBasis]=useState<{sourceFingerprint:string;expectedRevision:number}|null>(null),[providerPlanId,setProviderPlanId]=useState(''),[participantId,setParticipantId]=useState(''),[disposition,setDisposition]=useState('VERIFIED'),[reference,setReference]=useState(''),[confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[readIssue,setReadIssue]=useState(''),[message,setMessage]=useState(''),[refresh,setRefresh]=useState(0),pending=useRef<Record<string,unknown>|null>(null)
+ useEffect(()=>{if(!requested||busy)return;let live=true,inFlight=false;const read=async()=>{if(inFlight)return;inFlight=true;try{const next=await request(path);if(live){setData(next);setReadIssue('')}}catch(e){if(live){setData(null);setReadIssue(e instanceof Error?e.message:'Unable to read participant mapping.')}}finally{inFlight=false}};void read();const timer=setInterval(()=>void read(),30000);return()=>{live=false;clearInterval(timer)}},[path,requested,busy,refresh])
+ const stale=!data||!basis||basis.sourceFingerprint!==data.source.fingerprint||basis.expectedRevision!==(data.history[0]?.revision||0)
+ const save=async(retry=false)=>{setBusy(true);setError('');setMessage('');try{
+  if(!retry){if(stale||!confirmed)throw new Error('Review and confirm the current employee and plan mapping.');pending.current={...basis,disposition,providerPlanId,participantId,reference,confirmed:true,requestKey:crypto.randomUUID()}}
+  await request(path,pending.current);pending.current=null;setProviderPlanId('');setParticipantId('');setBasis(null);setConfirmed(false);setMessage('Participant mapping review retained. No enrollment or contribution was transmitted.')
+ }catch(e){if(e&&typeof e==='object'&&'status' in e&&Number(e.status)>=400&&Number(e.status)<500)pending.current=null;setError(e instanceof Error?e.message:'Unable to retain participant mapping.')}finally{setBusy(false)}}
+ return <section aria-label={`Retirement participant mapping ${planId}`} className="space-y-3 rounded-lg border p-3">
+  <h5 className="font-bold">Recordkeeper participant mapping</h5><p>Match this employee to the recordkeeper’s actual plan and participant records before contribution allocation.</p>
+  <button type="button" disabled={busy} className="rounded border px-3 py-2" onClick={()=>{setRequested(true);setRefresh(n=>n+1)}}>Load participant mapping</button>
+  {error?<p role="alert">{error}</p>:null}{readIssue?<p role="alert">{readIssue} Automatic refresh will retry.</p>:null}{message?<p role="status">{message}</p>:null}
+  {data?<><p>{data.source.employeeName} · Employee {data.source.employeeNumber}</p><p>{data.source.planName} · {data.source.providerName}</p><p>Mapping status: {data.status.replaceAll('_',' ')}</p>
+   <button type="button" disabled={busy||!!pending.current} className="rounded border px-3 py-2" onClick={()=>{setBasis({sourceFingerprint:data.source.fingerprint,expectedRevision:data.history[0]?.revision||0});setConfirmed(false)}}>Review current participant basis</button>
+   {basis&&stale&&!pending.current?<p role="alert">Employee, plan or mapping history changed. Review the current basis before saving your preserved draft.</p>:null}
+   <fieldset disabled={busy||stale||!!pending.current||!data.vaultReady} className="space-y-3"><legend className="font-bold">Reviewed participant details</legend>
+    <label className="block">Participant mapping disposition<select value={disposition} onChange={e=>{setDisposition(e.target.value);setConfirmed(false)}} className="mt-1 block w-full rounded border p-2"><option value="VERIFIED">Verified recordkeeper mapping</option><option value="SUSPENDED">Suspend this mapping</option></select></label>
+    {disposition==='VERIFIED'?<><label className="block">Recordkeeper plan identifier<input maxLength={200} value={providerPlanId} onChange={e=>{setProviderPlanId(e.target.value);setConfirmed(false)}} className="mt-1 block w-full rounded border p-2"/></label><label className="block">Recordkeeper participant identifier<input maxLength={200} value={participantId} onChange={e=>{setParticipantId(e.target.value);setConfirmed(false)}} className="mt-1 block w-full rounded border p-2"/></label></>:null}
+    <label className="block">Participant mapping evidence reference<textarea minLength={20} maxLength={2000} value={reference} onChange={e=>{setReference(e.target.value);setConfirmed(false)}} className="mt-1 block w-full rounded border p-2"/></label>
+    <label className="flex gap-2"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>I verified this employee’s recordkeeper plan and participant association, or reviewed the reason to suspend it.</label>
+    <button type="button" disabled={!confirmed||reference.trim().length<20||disposition==='VERIFIED'&&(!providerPlanId.trim()||!participantId.trim())} className="rounded border px-3 py-2" onClick={()=>void save()}>Retain participant mapping</button>
+   </fieldset>{!data.vaultReady?<p>Configure encrypted storage before retaining participant details.</p>:null}
+   {data.history.map(row=><article key={row.id} className="space-y-1 rounded border p-3"><h6 className="font-bold">Participant revision {row.revision} · {row.disposition}</h6>{row.masked_identifiers?<p>Plan {row.masked_identifiers.providerPlanId} · Participant {row.masked_identifiers.participantId}</p>:null}<p className="break-words">{row.reference}</p></article>)}
+  </>:null}
+  {pending.current?<button type="button" disabled={busy} className="rounded border px-3 py-2" onClick={()=>void save(true)}>Retry original participant review</button>:null}
+ </section>
+}

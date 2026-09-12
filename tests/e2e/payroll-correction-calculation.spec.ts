@@ -1,0 +1,38 @@
+import {test,expect} from '@playwright/test'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {correctionFixture} from '../../backend/payroll/testing/correctionFixture.js'
+test('admin calculates overtime wage difference from a retained correction review',async({page})=>{
+ test.setTimeout(90000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
+ const h=await createHarness();try{
+ await correctionFixture(h)
+ await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+ await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
+ await page.setViewportSize({width:390,height:1200});await page.goto('/tests/support/payroll.html')
+ await page.getByRole('button',{name:'Requests & approvals',exact:true}).click()
+ const card=page.getByRole('heading',{name:'Split Settlement · TIME CORRECTION',exact:true}).locator('../..')
+ await card.getByRole('button',{name:'Review payroll impact',exact:true}).click()
+ await card.getByRole('button',{name:'Calculate correction wages',exact:true}).click()
+ await expect(card.getByText('Sick-leave credit difference: 4 minutes',{exact:true})).toBeVisible()
+ await expect(card.getByText('Worked wage difference: $75.00',{exact:true})).toBeVisible()
+ await expect(card.getByText(/Overtime hours: 0.00 → 2.00/)).toBeVisible()
+ await expect(card.getByText(/Taxes, leave adjustments and payment or recovery still require resolution/)).toBeVisible()
+ await card.getByLabel('Calculation retention reason',{exact:true}).fill('Verified the additional overtime against the original paid week')
+ await card.getByLabel('I reviewed the wage difference and its original payroll evidence.',{exact:true}).check()
+ await card.getByRole('button',{name:'Retain wage calculation',exact:true}).click()
+ await expect(card.getByText(/Wage calculation #.* retained/)).toBeVisible()
+ await card.getByRole('button',{name:'Load retained calculations',exact:true}).click()
+ await expect(card.getByText(/matches current wage evidence/)).toBeVisible()
+ await page.reload()
+ await page.getByRole('button',{name:'Requests & approvals',exact:true}).click()
+ await card.getByRole('button',{name:'Review payroll impact',exact:true}).click()
+ await card.getByRole('button',{name:'Load retained calculations',exact:true}).click()
+ await expect(card.getByText(/matches current wage evidence/)).toBeVisible()
+ await expect(card.getByText('Retained sick-leave difference: 4 minutes (not applied).',{exact:true})).toBeVisible()
+ await card.getByText('Retained wage evidence',{exact:true}).click()
+ await expect(card.getByText('Proposed: 40.00 regular hours and 2.00 overtime hours · $1,075.00',{exact:true})).toBeVisible()
+ const amounts=card.getByRole('region',{name:'Correction workweek amounts',exact:true})
+ await expect(amounts.getByText('Straight-time wages: $1,000.00 → $1,050.00',{exact:true})).toBeVisible()
+ await expect(amounts.getByText('Overtime premium: $0.00 → $25.00',{exact:true})).toBeVisible()
+ await amounts.screenshot({path:'/tmp/payroll-correction-workweek-mobile.png'})
+ }finally{await page.unrouteAll({behavior:'wait'});await page.close();await h.close()}
+})

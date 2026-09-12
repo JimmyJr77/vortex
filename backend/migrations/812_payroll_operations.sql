@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS payroll_time_entry (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_one_open_clock
-  ON payroll_time_entry(employee_id) WHERE clock_out IS NULL;
+  ON payroll_time_entry(employee_id) WHERE clock_out IS NULL AND status <> 'REJECTED';
 CREATE INDEX IF NOT EXISTS idx_payroll_time_employee_clock ON payroll_time_entry(employee_id, clock_in);
 
 CREATE TABLE IF NOT EXISTS payroll_pay_period (
