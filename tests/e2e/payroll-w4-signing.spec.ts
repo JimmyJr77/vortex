@@ -4,7 +4,7 @@ import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 import {decryptDocument} from '../../backend/payroll/onboarding.js'
 import {createRequire} from 'node:module'
-import {writeFile} from 'node:fs/promises'
+import {writeFile,readFile} from 'node:fs/promises'
 const {PDFDocument}=createRequire(new URL('../../backend/package.json',import.meta.url))('pdf-lib')
 
 for(const exemption of [false,true])test(`employee completes W-4 internally, resumes and signs, then admin applies it: exemption=${exemption}`,async({page})=>{
@@ -26,15 +26,15 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   await open()
   const panel=page.getByRole('region',{name:'Complete W-4 internally',exact:true})
   const capturePage=async(n:number)=>{const data=await panel.locator('canvas').evaluate(canvas=>(canvas as HTMLCanvasElement).toDataURL('image/png').split(',')[1]);await writeFile(`/tmp/payroll-w4-native-${exemption?'exempt-':''}preview-page${n}.png`,Buffer.from(data,'base64'))}
-  await panel.getByRole('textbox',{name:'First name and middle initial',exact:true}).fill('Synthetic')
+  await panel.getByRole('textbox',{name:'First name and middle initial',exact:true}).fill('Łukasz')
   await panel.getByLabel('Social security number',{exact:true}).fill('123-4')
   await panel.getByRole('button',{name:'Save W-4 draft',exact:true}).click()
   await expect(panel.getByRole('status').filter({hasText:'W-4 draft saved securely.'})).toBeVisible()
   await open()
-  await expect(panel.getByRole('textbox',{name:'First name and middle initial',exact:true})).toHaveValue('Synthetic')
+  await expect(panel.getByRole('textbox',{name:'First name and middle initial',exact:true})).toHaveValue('Łukasz')
   await expect(panel.getByLabel('Social security number',{exact:true})).toHaveValue('123-4')
 
-  await panel.getByRole('textbox',{name:'Last name',exact:true}).fill('Employee')
+  await panel.getByRole('textbox',{name:'Last name',exact:true}).fill('Żółć')
   await panel.getByRole('textbox',{name:'Address',exact:true}).fill('123 Test Street')
   await panel.getByRole('textbox',{name:'City or town, state, and ZIP code',exact:true}).fill('Bowie MD 20715')
   await panel.getByLabel('Social security number',{exact:true}).fill('123456789')
@@ -42,6 +42,64 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   await panel.getByRole('combobox',{name:'Are you a nonresident alien?',exact:true}).selectOption('NO')
   await panel.getByRole('textbox',{name:'Step 3: Total credits in dollars',exact:true}).fill('125.55')
   await panel.getByRole('textbox',{name:'Step 4(c): Extra withholding in dollars',exact:true}).fill('10.00')
+  if(!exemption){
+   await panel.locator('summary').filter({hasText:'Calculate Step 2(b): Multiple Jobs Worksheet'}).click()
+   const worksheet=panel.getByRole('region',{name:'Multiple Jobs Worksheet',exact:true})
+   await worksheet.getByRole('textbox',{name:'Job 1: annual taxable wages in dollars',exact:true}).fill('80000')
+   await worksheet.getByRole('textbox',{name:'Job 2: annual taxable wages in dollars',exact:true}).fill('30000')
+   await worksheet.getByRole('textbox',{name:'Pay periods per year at the highest paying job',exact:true}).fill('26')
+   await panel.getByRole('checkbox').first().check()
+   await worksheet.getByRole('textbox',{name:'Other additional withholding per paycheck in dollars',exact:true}).fill('10')
+   await worksheet.getByRole('button',{name:'Calculate multiple-job withholding',exact:true}).click()
+   await expect(worksheet).toContainText('$285.00')
+   const apply=worksheet.getByRole('button',{name:'Apply worksheet to Step 4(c)',exact:true})
+   await expect(apply).toBeDisabled()
+   await worksheet.getByRole('checkbox',{name:'This W-4 is for the highest paying job.',exact:true}).check()
+   const downloadPromise=page.waitForEvent('download')
+   await worksheet.getByRole('button',{name:'Download worksheet for my records',exact:true}).click()
+   const download=await downloadPromise
+   expect(await readFile((await download.path())!,'utf8')).toContain('Step 4(c): total per paycheck: $285.00')
+   await worksheet.screenshot({path:'/tmp/payroll-w4-multiple-jobs-mobile.png'})
+   await apply.click()
+   await expect(panel.getByRole('checkbox').first()).not.toBeChecked()
+   await expect(panel.getByRole('textbox',{name:'Step 4(c): Extra withholding in dollars',exact:true})).toHaveValue('285.00')
+   await worksheet.getByRole('textbox',{name:'Job 1: annual taxable wages in dollars',exact:true}).fill('81000')
+   await expect(apply).toHaveCount(0)
+   await worksheet.getByRole('combobox',{name:'Number of concurrent jobs',exact:true}).selectOption('3')
+   await worksheet.getByRole('textbox',{name:'Job 3: annual taxable wages in dollars',exact:true}).fill('20000')
+   await worksheet.getByRole('button',{name:'Calculate multiple-job withholding',exact:true}).click()
+   await expect(worksheet).toContainText('$524.62')
+   await panel.getByRole('button',{name:'Save W-4 draft',exact:true}).click()
+   await expect(panel.getByRole('status').filter({hasText:'W-4 draft saved securely.'})).toBeVisible()
+   await open()
+   await expect(panel.getByRole('textbox',{name:'Step 4(c): Extra withholding in dollars',exact:true})).toHaveValue('285.00')
+  }
+  if(!exemption){
+   await panel.locator('summary').filter({hasText:'Calculate Step 4(b): Deductions Worksheet'}).click()
+   const deductions=panel.getByRole('region',{name:'Deductions Worksheet',exact:true})
+   await deductions.getByRole('combobox',{name:'Detailed deductions filing status',exact:true}).selectOption('HEAD_OF_HOUSEHOLD')
+   await deductions.getByRole('textbox',{name:'Estimated total annual income',exact:true}).fill('50000')
+   await deductions.getByRole('textbox',{name:'Line 5: eligible Schedule 1 adjustments',exact:true}).fill('1500')
+   await deductions.getByRole('textbox',{name:'Line 12: qualifying cash gifts if taking the standard deduction',exact:true}).fill('600')
+   await deductions.getByRole('button',{name:'Calculate deductions worksheet',exact:true}).click()
+   await expect(deductions).toContainText('$2100.00')
+   const apply=deductions.getByRole('button',{name:'Apply worksheet to Step 4(b)',exact:true})
+   await expect(apply).toBeDisabled()
+   await deductions.getByRole('checkbox',{name:'I reviewed my eligible estimates and will use this deduction amount on only one W-4.',exact:true}).check()
+   const downloadPromise=page.waitForEvent('download')
+   await deductions.getByRole('button',{name:'Download deductions worksheet',exact:true}).click()
+   const download=await downloadPromise
+   expect(await readFile((await download.path())!,'utf8')).toContain('Step 4(b): $2100.00')
+   await deductions.locator('dl').screenshot({path:'/tmp/payroll-w4-deductions-results-mobile.png'})
+   await apply.click()
+   await expect(panel.getByRole('textbox',{name:'Step 4(b): Deductions in dollars',exact:true})).toHaveValue('2100.00')
+   await deductions.getByRole('textbox',{name:'Estimated total annual income',exact:true}).fill('60000')
+   await expect(apply).toHaveCount(0)
+   await panel.getByRole('button',{name:'Save W-4 draft',exact:true}).click()
+   await expect(panel.getByRole('status').filter({hasText:'W-4 draft saved securely.'})).toBeVisible()
+   await open()
+   await expect(panel.getByRole('textbox',{name:'Step 4(b): Deductions in dollars',exact:true})).toHaveValue('2100.00')
+  }
   if(exemption){await panel.getByRole('checkbox',{name:'Exempt from withholding:',exact:false}).check();await panel.getByRole('button',{name:'Clear filing status and Steps 2–4 for exemption',exact:true}).click()}
   const prepare=panel.getByRole('button',{name:'Prepare W-4 for review',exact:true})
   await prepare.click()
@@ -63,14 +121,15 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   }
   await expect(panel).toContainText('5 of 5 pages visited.')
   await panel.getByRole('checkbox',{name:'I have reviewed all five pages and my entries.',exact:false}).check()
-  await panel.getByRole('textbox',{name:'Employee’s signature (This form is not valid unless you sign it.)',exact:true}).fill('Synthetic Employee')
+  await panel.getByRole('textbox',{name:'Employee’s signature (This form is not valid unless you sign it.)',exact:true}).fill('Łukasz Żółć')
   await sign.click();await expect(panel.getByRole('alert')).toContainText('Synthetic lost W-4 response')
   await sign.click();await expect(page.getByRole('status').filter({hasText:'Your signed W-4 was submitted for hiring-admin review.'})).toBeVisible()
   const rows=await h.pool.query('SELECT * FROM payroll_w4_submission WHERE employee_id=$1',[employee.id]);expect(rows.rowCount).toBe(1)
   const doc=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[rows.rows[0].document_id])).rows[0]
   const pdf=await PDFDocument.load(decryptDocument(doc.encrypted_content,`1:${employee.id}:${doc.task_id}`))
   expect(pdf.getForm().getTextField('topmostSubform[0].Page1[0].f1_11[0]').getText()||'').toBe(exemption?'':'42.50')
-  expect(pdf.getForm().getTextField('vortex.w4.employeeSignature').getText()).toBe('Synthetic Employee')
+  expect(pdf.getForm().getTextField('topmostSubform[0].Page1[0].f1_10[0]').getText()||'').toBe(exemption?'':'2100.00')
+  expect(pdf.getForm().getTextField('vortex.w4.employeeSignature').getText()).toBe('Łukasz Żółć')
   const storage=await page.evaluate(()=>JSON.stringify({session:{...sessionStorage},local:{...localStorage}}))
   expect(storage).not.toContain('123456789');expect(storage).not.toContain('123 Test Street')
   await open();await expect(page.getByRole('button',{name:'Form-W4-2026-signed.pdf',exact:true})).toBeVisible()
@@ -96,6 +155,7 @@ for(const exemption of [false,true])test(`employee completes W-4 internally, res
   await tax.getByRole('button',{name:'Save verified tax elections',exact:true}).click()
   await expect(tax.getByRole('status')).toContainText('Verified elections saved.')
   const elected=(await api(`/employees/${employee.id}/tax-elections`)).election.elections
+  expect(elected.federal.deductionsCents).toBe(exemption?0:210000)
   expect(elected.federal.extraWithholdingCents).toBe(exemption?0:4250);expect(elected.federal.filingStatus).toBe(exemption?null:'HEAD_OF_HOUSEHOLD');expect(elected.w4Source.submissionId).toBe(rows.rows[0].id);expect(elected.w4ReviewRequired).toBeUndefined()
   expect(errors).toEqual([])
  }finally{

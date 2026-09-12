@@ -1,0 +1,4 @@
+export const w4DeductionStatuses:Record<string,string>
+export type W4DeductionsInput={status:string;filingStatus:string;totalIncomeCents:number;selfSenior:boolean;spouseSenior:boolean;qualifiedTipsCents:number;qualifiedOvertimeCents:number;vehicleInterestCents:number;adjustmentsCents:number;medicalExpensesCents:number;stateLocalTaxesCents:number;mortgageInterestCents:number;acquisitionDebtCents:number;charitableGiftsCents:number;otherItemizedCents:number;cashGiftsCents:number}
+export type W4DeductionsResult={lines:Record<string,number|null>;usesItemized:boolean;step4bCents:number}
+export function w4Deductions2026(input:W4DeductionsInput):W4DeductionsResult

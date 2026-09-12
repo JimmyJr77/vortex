@@ -23,3 +23,15 @@ test('W-4 unsigned and exempt outputs preserve blank choices and cannot invent s
  await assert.rejects(()=>renderW4Pdf2026({answers:body,signedOn:'2026-09-12'}),{status:400})
  await assert.rejects(()=>renderW4Pdf2026({answers:body,signature:'Name',signedOn:'2026-02-31'}),{status:400})
 })
+test('embedded W-4 font preserves extended Latin, Greek and Cyrillic canonical names',async()=>{
+ for(const name of ['Łukasz Żółć','Nguyễn Thị','Ελένη Παπαδοπούλου','Олена Коваль']){
+  const answers=syntheticW4();answers.personal.firstNameMiddleInitial=name;answers.personal.lastName=name
+  const bytes=await renderW4Pdf2026({answers,signature:name,signedOn:'2026-09-12'})
+  const form=(await PDFDocument.load(bytes)).getForm()
+  assert.equal(form.getTextField(W4_2026_FIELDS.lastName).getText(),name)
+  assert.equal(form.getTextField('vortex.w4.employeeSignature').getText(),name)
+  assert.ok(form.getFields().every(field=>field.acroField.getWidgets().every(widget=>widget.getAppearances()?.normal)))
+ }
+ const unsupported=syntheticW4();unsupported.personal.lastName='王'
+ await assert.rejects(()=>renderW4Pdf2026({answers:unsupported}),{status:400})
+})

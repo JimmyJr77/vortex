@@ -1,6 +1,7 @@
 import {readFile} from 'node:fs/promises'
 import {createHash} from 'node:crypto'
-import {PDFDocument,PDFDict,PDFName,StandardFonts,rgb} from 'pdf-lib'
+import {PDFDocument,PDFDict,PDFName,rgb} from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
 import {W4_2026,W4_2026_FIELDS,w4FormInput2026} from './w4Form2026.js'
 const fail=message=>Object.assign(new Error(message),{status:400})
 const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value
@@ -17,12 +18,18 @@ export async function renderW4Pdf2026({answers,signature=null,signedOn=null,empl
  // Remove the alternative XFA representation so it cannot retain blank/stale
  // answers independently of the canonical AcroForm fields updated below.
  pdf.catalog.lookup(PDFName.of('AcroForm'),PDFDict).delete(PDFName.of('XFA'))
- const form=pdf.getForm(),font=await pdf.embedFont(StandardFonts.Helvetica),page=pdf.getPage(0)
+ const fontBytes=await readFile(new URL('./forms/fonts/NotoSans-Regular.ttf',import.meta.url))
+ if(createHash('sha256').update(fontBytes).digest('hex')!=='b85c38ecea8a7cfb39c24e395a4007474fa5a4fc864f6ee33309eb4948d232d5')throw new Error('The approved W-4 font changed. Review its rendering before use.')
+ pdf.registerFontkit(fontkit)
+ const form=pdf.getForm(),font=await pdf.embedFont(fontBytes,{subset:true}),page=pdf.getPage(0)
+ const supportedCharacters=new Set(font.getCharacterSet())
  const fill=(name,value)=>{
   const field=form.getTextField(name),text=String(value)
   const rect=field.acroField.getWidgets()[0].getRectangle()
-  let width
-  try{width=font.widthOfTextAtSize(text,10)}catch{throw fail('This form contains characters that need an embedded Unicode font before PDF rendering.')}
+  // Custom fonts can silently emit .notdef boxes; reject missing glyphs before
+  // a hire is asked to review or sign an incomplete representation of a name.
+  if([...text].some(character=>!supportedCharacters.has(character.codePointAt(0))))throw fail('An entry contains characters not yet supported by the W-4 PDF font. Additional font support is required to preserve the exact entry.')
+  const width=font.widthOfTextAtSize(text,10)
   const size=width?Math.min(10,10*(rect.width-5)/width):10
   if(size<6)throw fail('An entry is too long to print legibly in its W-4 field. Review the entry before signing.')
   field.setFontSize(size);field.setText(text)
