@@ -1,3 +1,4 @@
+import EmployeeMarylandAgreement from './EmployeeMarylandAgreement'
 import EmployeeRetirementContributions from './EmployeeRetirementContributions'
 import EmployeeRetirement from './EmployeeRetirement'
 import EmployeeBenefitCoverage from './EmployeeBenefitCoverage'
@@ -54,6 +55,7 @@ export default function PayrollEmployeePortal() {
   const [data, setData] = useState<EmployeePayrollPortalData | null>(null)
   const [requestReason,setRequestReason]=useState('')
   const requestCoverageHelp=(month:string)=>{setRequestReason(`Benefit coverage question for ${month}: `);setView('requests')}
+  const [onboardingRefresh,setOnboardingRefresh]=useState(0)
   const [view, setView] = useState<PortalView>('home')
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -154,7 +156,7 @@ export default function PayrollEmployeePortal() {
 
         {view === 'pay' ? <EmployeeW2Documents/> : null}
         {view === 'requests' ? <WorkforceRequests timeEntries={data.timeEntries} initialReason={requestReason} onSubmitted={()=>setRequestReason('')} /> : null}
-        {view === 'onboarding' ? <><EmployeeRetirement/><EmployeeRetirementContributions/><OnboardingWorkspace employmentStatus={data.employee.employmentStatus} onChanged={load} /><EmployeeBenefitCoverage onRequestHelp={requestCoverageHelp}/><EmployeeFilingIdentityReview /><EmployeeBankEnrollment /><EmployeePaymentAuthorization /><EmployeeW2Consent /></> : null}
+        {view === 'onboarding' ? <><EmployeeMarylandAgreement onChanged={()=>setOnboardingRefresh(value=>value+1)}/><EmployeeRetirement/><EmployeeRetirementContributions/><OnboardingWorkspace refresh={onboardingRefresh} employmentStatus={data.employee.employmentStatus} onChanged={load} /><EmployeeBenefitCoverage onRequestHelp={requestCoverageHelp}/><EmployeeFilingIdentityReview /><EmployeeBankEnrollment /><EmployeePaymentAuthorization /><EmployeeW2Consent /></> : null}
       </main>
       <button type="button" onClick={() => void act(load, 'Payroll portal refreshed.')} disabled={busy} aria-label="Refresh payroll portal" className="fixed bottom-5 right-5 rounded-full bg-white p-3 text-slate-700 shadow-lg ring-1 ring-slate-200 hover:bg-slate-50"><RefreshCw className={`h-5 w-5 ${busy ? 'animate-spin' : ''}`} /></button>
     </div>

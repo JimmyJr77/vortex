@@ -5310,3 +5310,41 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_maryland_additional_agreement ON payroll_maryland_additional_agreement;
 CREATE TRIGGER payroll_guard_maryland_additional_agreement BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_additional_agreement FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_additional_agreement();
+
+CREATE TABLE IF NOT EXISTS payroll_maryland_agreement_proposal (
+ id UUID PRIMARY KEY, facility_id BIGINT NOT NULL REFERENCES facility(id), employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ revision INTEGER NOT NULL CHECK(revision>0), terms JSONB NOT NULL CHECK(jsonb_typeof(terms)='object'),
+ fingerprint TEXT NOT NULL CHECK(fingerprint ~ '^[a-f0-9]{64}$'), created_by BIGINT NOT NULL,
+ request_key UUID NOT NULL, request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'), created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ UNIQUE(employee_id,revision), UNIQUE(employee_id,request_key)
+);
+CREATE TABLE IF NOT EXISTS payroll_maryland_agreement_signature (
+ id UUID PRIMARY KEY, facility_id BIGINT NOT NULL REFERENCES facility(id), employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ proposal_id UUID NOT NULL UNIQUE REFERENCES payroll_maryland_agreement_proposal(id),
+ decision TEXT NOT NULL CHECK(decision IN ('ACCEPT','DECLINE')), signature TEXT NOT NULL CHECK(length(btrim(signature)) BETWEEN 3 AND 200),
+ agreement_id BIGINT REFERENCES payroll_maryland_additional_agreement(id), employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id),
+ request_key UUID NOT NULL, request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'), created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ UNIQUE(employee_id,request_key), CHECK((decision='ACCEPT')=(agreement_id IS NOT NULL))
+);
+CREATE OR REPLACE FUNCTION payroll_guard_maryland_agreement_signing() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Maryland signing records are immutable.'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee WHERE id=NEW.employee_id AND facility_id=NEW.facility_id) THEN RAISE EXCEPTION 'Maryland signing employee scope mismatch.'; END IF;
+ IF TG_TABLE_NAME='payroll_maryland_agreement_proposal' THEN
+  IF NEW.revision<>(SELECT COALESCE(MAX(revision),0)+1 FROM payroll_maryland_agreement_proposal WHERE employee_id=NEW.employee_id) THEN RAISE EXCEPTION 'Maryland proposal revision mismatch.'; END IF;
+  IF NEW.terms->'version' IS DISTINCT FROM '1'::jsonb OR NEW.terms->'agreement'->'version' IS DISTINCT FROM '1'::jsonb OR NEW.terms->'agreement'->'verified' IS DISTINCT FROM 'true'::jsonb OR NEW.terms->'agreement'->>'employeeId' IS DISTINCT FROM NEW.employee_id::text OR NEW.terms->'agreement'->>'periodBasis' IS DISTINCT FROM 'PAYMENT_DATE' OR COALESCE(NEW.terms->'agreement'->>'payFrequency','') NOT IN ('WEEKLY','BIWEEKLY','SEMIMONTHLY','MONTHLY') OR COALESCE(NEW.terms->'agreement'->>'electionFingerprint','') !~ '^[a-f0-9]{64}$' THEN RAISE EXCEPTION 'Maryland proposal agreement terms are invalid.'; END IF;
+  IF jsonb_typeof(NEW.terms->'agreement'->'amountCents') IS DISTINCT FROM 'number' OR COALESCE(NEW.terms->'agreement'->>'amountCents','') !~ '^[0-9]+$' OR jsonb_typeof(NEW.terms->'expectedAgreementRevision') IS DISTINCT FROM 'number' OR COALESCE(NEW.terms->>'expectedAgreementRevision','') !~ '^[0-9]+$' OR COALESCE(NEW.terms->>'effectiveOn','') !~ '^2026-[0-9]{2}-[0-9]{2}$' OR COALESCE(NEW.terms->>'hireDate','') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' OR jsonb_typeof(NEW.terms->'onboardingCycles') IS DISTINCT FROM 'array' OR jsonb_typeof(NEW.terms->'employeeTerms') IS DISTINCT FROM 'string' OR length(btrim(COALESCE(NEW.terms->>'employeeTerms',''))) NOT BETWEEN 20 AND 4000 OR NEW.terms->>'employeeTerms' ~ '[[:cntrl:]]' THEN RAISE EXCEPTION 'Maryland proposal source is invalid.'; END IF;
+  IF (NEW.terms->'agreement'->>'amountCents')::numeric>9007199254740991 OR (NEW.terms->>'expectedAgreementRevision')::numeric>2147483646 OR (NEW.terms->>'effectiveOn')::date::text<>NEW.terms->>'effectiveOn' OR (NEW.terms->>'hireDate')::date::text<>NEW.terms->>'hireDate' THEN RAISE EXCEPTION 'Maryland proposal source amount or date is invalid.'; END IF;
+
+ ELSE
+  IF NOT EXISTS(SELECT 1 FROM payroll_maryland_agreement_proposal WHERE id=NEW.proposal_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id) OR NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id) THEN RAISE EXCEPTION 'Maryland signing source scope mismatch.'; END IF;
+  IF NEW.signature ~ '[[:cntrl:]]' OR NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND revoked_at IS NULL AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'Maryland signing session or signature is invalid.'; END IF;
+  IF NEW.proposal_id IS DISTINCT FROM (SELECT id FROM payroll_maryland_agreement_proposal WHERE employee_id=NEW.employee_id AND facility_id=NEW.facility_id ORDER BY revision DESC LIMIT 1) THEN RAISE EXCEPTION 'Maryland signing proposal was superseded.'; END IF;
+  IF NEW.agreement_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM payroll_maryland_additional_agreement a JOIN payroll_maryland_agreement_proposal p ON p.id=NEW.proposal_id WHERE a.id=NEW.agreement_id AND a.employee_id=NEW.employee_id AND a.facility_id=NEW.facility_id AND a.status='ACTIVE' AND a.agreement=p.terms->'agreement' AND a.effective_on=(p.terms->>'effectiveOn')::date AND a.revision=(p.terms->>'expectedAgreementRevision')::integer+1 AND a.verified_by=p.created_by AND a.source_reference='Internal employee agreement acceptance for proposal '||p.id::text) THEN RAISE EXCEPTION 'Maryland signed agreement does not match the accepted proposal.'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_maryland_agreement_proposal ON payroll_maryland_agreement_proposal;
+CREATE TRIGGER payroll_guard_maryland_agreement_proposal BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_agreement_proposal FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_agreement_signing();
+DROP TRIGGER IF EXISTS payroll_guard_maryland_agreement_signature ON payroll_maryland_agreement_signature;
+CREATE TRIGGER payroll_guard_maryland_agreement_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_agreement_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_agreement_signing();

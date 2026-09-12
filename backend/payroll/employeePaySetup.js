@@ -1,3 +1,4 @@
+import {marylandAgreementPaySetup} from './marylandAgreementPaySetup.js'
 import {benefitsTerms,benefitPlans} from './benefitCatalog.js'
 import {employeePaymentReadiness} from './paymentReadiness.js'
 import {benefitsReviewCurrent} from './benefitsReview.js'
@@ -19,6 +20,8 @@ export async function employeePaySetup(db,facility,employee,tasks){
  if(paymentReadiness?.issue)issues.push(paymentReadiness.issue)
  const basis=JSON.parse(JSON.stringify({taxElection:election||null,payFrequency:schedule.pay_frequency,payment:{status:payment?.status||null,response:payment?.response||{},directDepositStatus:employee.direct_deposit_status},employee:Object.fromEntries(['pay_type','hourly_rate_cents','annual_salary_cents','overtime_classification','salary_review','work_state','residence_state','sick_leave_policy','w4_status','state_withholding_status'].map(k=>[k,employee[k]??null]))}))
  const today=(await db.query('SELECT (now() AT TIME ZONE $1)::date::text AS today',[settings.timezone])).rows[0].today
+ const marylandAgreement=await marylandAgreementPaySetup(db,{facility,employee,election,settings,review,today})
+ if(marylandAgreement){basis.marylandAgreement=marylandAgreement;if(marylandAgreement.issue)issues.push(marylandAgreement.issue)}
  if(paymentReadiness)basis.payment.providerReadiness=paymentReadiness
  basis.benefitsPolicy=benefitsTerms(settings.onboarding_policy)
  basis.benefitPlans=benefitPlans(settings.onboarding_policy)
@@ -26,5 +29,5 @@ export async function employeePaySetup(db,facility,employee,tasks){
  const benefitsCurrent=review?.status==='COMPLETE'&&benefitsReviewCurrent(review?.response?.benefitsReview,basis.benefitsPolicy,today,basis.benefitsElection,basis.benefitPlans)
  const fingerprint=createHash('sha256').update(JSON.stringify(compensationEvidence(basis))).digest('hex')
  const status=review?.status==='COMPLETE'?(issues.length||!benefitsCurrent||review.response?.paySetup?.fingerprint!==fingerprint?'NEEDS_REVIEW':'CURRENT'):'PENDING'
- return {status,issues,fingerprint,taxYear:election?.tax_year||null,paymentMethod:payment?.response?.method||null,paymentReadiness,benefitsCurrent,today,basis}
+ return {marylandAgreement,status,issues,fingerprint,taxYear:election?.tax_year||null,paymentMethod:payment?.response?.method||null,paymentReadiness,benefitsCurrent,today,basis}
 }

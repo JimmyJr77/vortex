@@ -60,7 +60,12 @@ export type ReplacementReceipt={sourceKind?:string;id:string;employeeName:string
 
 export type EmployeeBenefitCoverage = {month:string;rows:{planId:string;planName:string;onboardingCycle:number;status:string;reviewedAt:string|null;carrier:string|null;coverageStart:string|null;coverageEnd:string|null}[]}
 
+export type MarylandSigningTerms={employeeTerms:string;effectiveOn:string;agreement:{amountCents:number;payFrequency:string;electionFingerprint:string;periodBasis:'PAYMENT_DATE'}}
+export type MarylandSigningHistory={history:Array<{id:string;revision:number;fingerprint:string;terms:MarylandSigningTerms;decision:'ACCEPT'|'DECLINE'|null;signature:string|null;signed_at:string|null;agreement_id:string|null}>;actionable:boolean;reason:string}
+
 export const employeePayrollApi = {
+  marylandAgreementProposals:()=>request<MarylandSigningHistory>('/api/payroll/employee/maryland-agreement-proposals'),
+  respondMarylandAgreement:(id:string,body:Record<string,unknown>)=>request<{id:string;agreementId:string|null;reused:boolean}>(`/api/payroll/employee/maryland-agreement-proposals/${id}/respond`,{method:'POST',body:JSON.stringify(body)}),
   retirementContributions:(cursor?:string)=>request<{items:EmployeeRetirementContribution[];nextCursor:string|null}>(`/api/payroll/employee/retirement-contributions${cursor?'?beforeRunId='+encodeURIComponent(cursor):''}`),
   retirement:()=>request<{plans:RetirementEmployeePlan[]}>('/api/payroll/employee/retirement'),
   saveRetirementElection:(planId:string,body:unknown)=>request<{id:string;reused:boolean}>(`/api/payroll/employee/retirement/${encodeURIComponent(planId)}/elections`,{method:'POST',body:JSON.stringify(body)}),

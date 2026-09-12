@@ -1,3 +1,4 @@
+import {registerMarylandAgreementSigning} from './marylandAgreementSigning.js'
 import {createHash} from 'node:crypto'
 import {marylandElectionFingerprint} from './marylandElectionFingerprint.js'
 import {effectiveScheduleSettings} from './payCalendar.js'
@@ -7,6 +8,7 @@ const day=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Num
 const present=row=>row?{id:String(row.id),revision:row.revision,status:row.status,agreement:row.agreement,effectiveOn:row.effective_on instanceof Date?row.effective_on.toISOString().slice(0,10):String(row.effective_on).slice(0,10),fingerprint:row.fingerprint,sourceReference:row.source_reference,createdAt:row.created_at}:null
 
 export function registerMarylandAdditionalAgreementRoutes(app,pool){
+ registerMarylandAgreementSigning(app,pool)
  const path='/api/admin/payroll/employees/:id/maryland-additional-agreements'
  app.get(path,async(req,res)=>{
   try{
