@@ -16,7 +16,7 @@ for(const claim of ['NONE','PENNSYLVANIA','NO_LIABILITY'])test(`Maryland employe
   await page.addInitScript(()=>sessionStorage.setItem('vortex_payroll_employee_session_v1','monthly-benefits-session'))
   let lose=true
   await page.route('**/api/payroll/employee/**',async route=>{
-   const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`})
+   const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})
    if(lose&&u.pathname.endsWith('/mw507/sign')){expect(response.status()).toBe(200);lose=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost MW507 response. Retry unchanged.'})});return}
    await route.fulfill({response})
   })
@@ -71,7 +71,7 @@ for(const claim of ['NONE','PENNSYLVANIA','NO_LIABILITY'])test(`Maryland employe
   await step.getByLabel('Supporting documents (PDF, PNG or JPEG; up to 5 MB)',{exact:true}).setInputFiles({name:'supporting-review.pdf',mimeType:'application/pdf',buffer:Buffer.from(await pdf.save())})
   await expect(page.getByRole('status').filter({hasText:'Supporting document securely uploaded.'})).toBeVisible()
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click()
   const adminStep=page.locator('details').filter({has:page.getByText('State withholding certificate',{exact:true})});await adminStep.locator('summary').first().click()
   await expect(adminStep.getByRole('button',{name:'Form-MW507-2026-signed.pdf',exact:true})).toBeVisible()

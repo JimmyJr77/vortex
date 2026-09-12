@@ -33,15 +33,18 @@ async function history(db,facility,employeeId){
  else if(rows[0])reason='Your response has been retained.'
  return {history:rows,actionable,reason}
 }
-export function registerMarylandAgreementSigning(app,pool){
- const adminPath='/api/admin/payroll/employees/:id/maryland-agreement-proposals',employeePath='/api/payroll/employee/maryland-agreement-proposals'
- for(const isEmployee of [false,true])app.get(isEmployee?employeePath:adminPath,...(isEmployee?[payrollEmployeeAuth(pool)]:[]),async(req,res)=>{
+const adminPath='/api/admin/payroll/employees/:id/maryland-agreement-proposals',employeePath='/api/payroll/employee/maryland-agreement-proposals'
+function registerAgreementHistory(app,pool,isEmployee){
+ app.get(isEmployee?employeePath:adminPath,...(isEmployee?[payrollEmployeeAuth(pool)]:[]),async(req,res)=>{
   res.setHeader('Cache-Control','no-store')
   try{const facility=isEmployee?req.payrollEmployee.facility_id:req.canonicalAccess.facilityId,id=isEmployee?req.payrollEmployee.employee_id:req.params.id
    if(!(await pool.query('SELECT id FROM payroll_employee WHERE facility_id=$1 AND id=$2',[facility,id])).rowCount)throw fail('Employee not found.',404)
    res.json({success:true,data:await history(pool,facility,id)})
   }catch(e){res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load agreement proposals.'})}
  })
+}
+export function registerMarylandAgreementSigning(app,pool){
+ registerAgreementHistory(app,pool,false)
  app.get(`${adminPath}/preview`,async(req,res)=>{
   res.setHeader('Cache-Control','no-store')
   try{const terms=await source(pool,req.canonicalAccess.facilityId,req.params.id,req.query.effectiveOn);res.json({success:true,data:{terms,sourceFingerprint:hash(terms)}})}catch(e){res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to review agreement terms.'})}
@@ -65,6 +68,9 @@ export function registerMarylandAgreementSigning(app,pool){
    await db.query('COMMIT');res.status(201).json({success:true,data:{id:proposalId,reused:false}})
   }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to propose agreement.'})}finally{db.release()}
  })
+}
+export function registerEmployeeMarylandAgreementSigning(app,pool){
+ registerAgreementHistory(app,pool,true)
  app.post(`${employeePath}/:id/respond`,payrollEmployeeAuth(pool),async(req,res)=>{
   const db=await pool.connect()
   try{

@@ -1,3 +1,4 @@
+import {registerEmployeeMarylandAgreementSigning} from './marylandAgreementSigning.js'
 import {registerEmployeeRetirementContributions} from './employeeRetirementContributions.js'
 import {registerRetirementElectionRoutes} from './retirementElections.js'
 import {registerEmployeeBenefitCoverage} from './employeeBenefitCoverage.js'
@@ -85,6 +86,7 @@ async function employeePortalData(pool, facilityId, employeeId) {
 }
 
 export function registerPayrollEmployeeRoutes(app, pool, {paymentFetcher=fetch,retirementNow=()=>new Date()}={}) {
+  registerEmployeeMarylandAgreementSigning(app,pool)
   registerPaymentAuthorizationRoutes(app,pool)
   registerBankEnrollmentRoutes(app,pool,{fetcher:paymentFetcher})
   registerEmployeeFilingIdentityRoutes(app,pool)
