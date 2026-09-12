@@ -25,4 +25,5 @@ test('I-9 renderer rejects unprintable or unsupported entries before returning a
  const answers={edition:'01/20/25',personal,attestation:{kind:'CITIZEN'},ssnPending:false,preparerAssisted:false}
  await assert.rejects(()=>renderI9Section1Preview({answers:{...answers,personal:{...personal,address:'W'.repeat(200)}},context}),/legibly/)
  await assert.rejects(()=>renderI9Section1Preview({answers:{...answers,personal:{...personal,lastName:'漢字'}},context}),/font support/)
+ await assert.rejects(()=>renderI9Section1Preview({answers:{...answers,personal:{...personal,middleInitial:'AB'}},context}),e=>e.status===400&&/at most 1 characters/.test(e.message))
 })

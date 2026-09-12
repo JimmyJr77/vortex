@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react'
+import {useCallback,useEffect,useRef,useState} from 'react'
 import {employeePayrollApi} from '../../utils/employeePayrollApi'
 import W4PdfReview from './W4PdfReview'
 import instructionsUrl from '../../../backend/payroll/forms/uscis-i9-instructions-012025.pdf?url'
@@ -9,14 +9,17 @@ const empty=():Draft=>({...Object.fromEntries(Object.keys(labels).map(k=>[k,''])
 const input='mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm'
 export default function EmployeeI9Draft({taskId,cycle,vaultReady}:{taskId:number;cycle:number;vaultReady:boolean}){
  const [draft,setDraft]=useState(empty),[meta,setMeta]=useState<{revision:number;baseResponseHash:string}|null>(null),[reload,setReload]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[showInstructions,setShowInstructions]=useState(false)
+ const [dirty,setDirty]=useState(false),[preview,setPreview]=useState<Awaited<ReturnType<typeof employeePayrollApi.previewI9>>|null>(null)
  const retry=useRef<Record<string,unknown>|null>(null)
- useEffect(()=>{let live=true;void employeePayrollApi.readI9Draft<Draft>(taskId,cycle).then(data=>{if(live){setMeta(data);setDraft(data.draft||empty());if(data.draft)setNotice('Your saved I-9 draft is ready to continue.')}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[taskId,cycle,reload])
- const change=<K extends keyof Draft>(key:K,value:Draft[K])=>{setDraft(current=>({...current,[key]:value}));retry.current=null;setError('');setNotice('')}
+ useEffect(()=>{let live=true;void employeePayrollApi.readI9Draft<Draft>(taskId,cycle).then(data=>{if(live){setMeta(data);setDirty(false);setPreview(null);setDraft(data.draft||empty());if(data.draft)setNotice('Your saved I-9 draft is ready to continue.')}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[taskId,cycle,reload])
+ const change=<K extends keyof Draft>(key:K,value:Draft[K])=>{setDraft(current=>({...current,[key]:value}));setDirty(true);setPreview(null);retry.current=null;setError('');setNotice('')}
  const save=async()=>{
   if(!meta)return;setBusy(true);setError('');setNotice('')
-  try{const body=retry.current||{draft,expectedRevision:meta.revision,baseResponseHash:meta.baseResponseHash,onboardingCycle:cycle,requestKey:crypto.randomUUID()};retry.current=body;const result=await employeePayrollApi.saveI9Draft(taskId,body);setMeta(result);retry.current=null;setNotice('I-9 draft saved securely. It has not been signed or submitted.')}
+  try{const body=retry.current||{draft,expectedRevision:meta.revision,baseResponseHash:meta.baseResponseHash,onboardingCycle:cycle,requestKey:crypto.randomUUID()};retry.current=body;const result=await employeePayrollApi.saveI9Draft(taskId,body);setMeta(result);setDirty(false);setPreview(null);retry.current=null;setNotice('I-9 draft saved securely. It has not been signed or submitted.')}
   catch(e){setError(e instanceof Error?e.message:'Unable to save I-9 draft.')}finally{setBusy(false)}
  }
+ const prepare=async()=>{if(!meta||dirty)return;setBusy(true);setError('');setPreview(null);try{setPreview(await employeePayrollApi.previewI9(taskId,{onboardingCycle:cycle,expectedRevision:meta.revision,baseResponseHash:meta.baseResponseHash}))}catch(e){setError(e instanceof Error?e.message:'Unable to prepare I-9.')}finally{setBusy(false)}}
+ const displayed=useCallback(async(page:number)=>{if(preview)await employeePayrollApi.recordI9Page(taskId,{onboardingCycle:cycle,reviewId:preview.reviewId,previewSha256:preview.previewSha256,page,displayed:true})},[preview,taskId,cycle])
  const field=(key:TextKey)=><label key={key} className="block text-sm font-semibold">{labels[key]}<input autoComplete="off" type={key==='ssn'?'password':'text'} maxLength={key==='ssn'?11:200} className={input} value={draft[key]} onChange={e=>change(key,e.target.value)}/></label>
  const question=(key:'ssnPending'|'preparerAssisted',label:string)=><label className="block text-sm font-semibold">{label}<select className={input} value={draft[key]===null?'':draft[key]?'YES':'NO'} onChange={e=>change(key,e.target.value===''?null:e.target.value==='YES')}><option value="">Not answered yet</option><option value="NO">No</option><option value="YES">Yes</option></select></label>
  return <section aria-label="Internal I-9 draft" className="mt-4 space-y-4 rounded-xl border border-blue-200 bg-blue-50/30 p-4">
@@ -27,7 +30,7 @@ export default function EmployeeI9Draft({taskId,cycle,vaultReady}:{taskId:number
   {showInstructions?<W4PdfReview formName="I-9 instructions" pageCount={8} sourceUrl={instructionsUrl} editionLabel="01/20/25 edition"/>:null}
   {error?<p role="alert" className="text-sm text-red-800">{error}</p>:null}{notice?<p role="status" className="text-sm text-emerald-800">{notice}</p>:null}
   {!vaultReady?<p role="alert">Your hiring admin must enable secure document storage before saving private I-9 details.</p>:null}
-  <button type="button" disabled={busy} className="text-sm underline" onClick={()=>{setMeta(null);setError('');setNotice('');retry.current=null;setReload(v=>v+1)}}>Reload saved I-9 draft (replaces unsaved entries)</button>
+  <button type="button" disabled={busy} className="text-sm underline" onClick={()=>{setMeta(null);setPreview(null);setError('');setNotice('');retry.current=null;setReload(v=>v+1)}}>Reload saved I-9 draft (replaces unsaved entries)</button>
   <form autoComplete="off" onSubmit={e=>{e.preventDefault();void save()}}><fieldset disabled={busy||!meta||!vaultReady} className="space-y-3 disabled:opacity-50"><legend className="font-bold">Employee information</legend>
    {(Object.keys(labels) as TextKey[]).filter(key=>!['aNumber','authorizationExpiresOn','identifierNumber','passportCountry'].includes(key)).map(field)}
    <p className="text-sm">Leave nonapplicable fields blank. SSN is voluntary unless your employer participates in E-Verify; if you applied and are waiting for it, indicate that below. Do not enter an ITIN. If you have one legal name, enter it as your last name and “Unknown” as your first name.</p>
@@ -39,5 +42,8 @@ export default function EmployeeI9Draft({taskId,cycle,vaultReady}:{taskId:number
    {draft.preparerAssisted?<p className="text-sm">Each assisting preparer or translator must separately complete and sign Supplement A. Saving this answer does not certify their work.</p>:null}
    <button className="rounded-lg bg-slate-950 px-4 py-2 font-bold text-white">Save I-9 draft</button>
   </fieldset></form>
+  <button type="button" disabled={busy||!meta||dirty||!vaultReady} className="rounded-lg bg-slate-950 px-4 py-2 font-bold text-white disabled:opacity-40" onClick={()=>void prepare()}>Prepare saved I-9 for review</button>
+  {dirty?<p className="text-sm">Save your changes before preparing the form.</p>:null}
+  {preview?<><p className="text-sm">Unsigned Section 1 preview. Review your entries and all four pages. Employee signing, any preparer certifications and employer examination remain required.</p><W4PdfReview reviewTitle="Review your unsigned I-9 Section 1" formName="I-9" pageCount={4} pdfBase64={preview.pdfBase64} onDisplayed={displayed} editionLabel="01/20/25 edition"/></>:null}
  </section>
 }

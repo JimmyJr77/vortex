@@ -87,6 +87,8 @@ test('employee payroll portal exposes a separate narrow route surface', () => {
     '/api/payroll/employee/benefits-deduction-authorization/withdraw',
     '/api/payroll/employee/onboarding/:taskId/documents',
     '/api/payroll/employee/onboarding/:taskId/draft',
+    '/api/payroll/employee/onboarding/:taskId/i9/preview',
+    '/api/payroll/employee/onboarding/:taskId/i9/page',
     '/api/payroll/employee/onboarding/:taskId/i9/draft',
     '/api/payroll/employee/onboarding/:taskId/i9/draft',
     '/api/payroll/employee/maryland-agreement-proposals',

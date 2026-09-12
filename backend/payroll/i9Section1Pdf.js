@@ -18,6 +18,7 @@ export async function renderI9Section1Preview({answers,context}){
   if([...text].some(c=>!characters.has(c.codePointAt(0))))throw fail('An I-9 entry needs additional font support to retain its exact characters.')
   const width=font.widthOfTextAtSize(text,9),size=Math.min(9,rect.height-2,width?9*(rect.width-4)/width:9)
   if(size<6)throw fail('An I-9 entry is too long to print legibly.')
+  if(field.getMaxLength()!==undefined&&text.length>field.getMaxLength())throw fail(`The I-9 field ${name} allows at most ${field.getMaxLength()} characters.`)
   field.setFontSize(size);field.setText(text);expected.set(name,text)
  }
  const names={lastName:'Last Name (Family Name)',firstName:'First Name Given Name',middleInitial:'Employee Middle Initial (if any)',otherLastNames:'Employee Other Last Names Used (if any)',address:'Address Street Number and Name',apartment:'Apt Number (if any)',city:'City or Town',postalCode:'ZIP Code',ssn:'US Social Security Number',email:'Employees E-mail Address',phone:'Telephone Number'}

@@ -1,3 +1,4 @@
+import {previewI9,recordI9Page} from './i9Review.js'
 import {readI9HiringContext,saveI9HiringContext} from './i9HiringContext.js'
 import {readI9Draft,saveI9Draft} from './i9Draft.js'
 import {readW4Draft,saveW4Draft} from './w4Draft.js'
@@ -368,6 +369,8 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   return packet(db,ctx.facility,ctx.employee)
  }))
  app.get('/api/payroll/employee/onboarding',auth,(req,res)=>employeeTransaction(req,res,db=>packet(db,context(req).facility,context(req).employee)))
+ app.post('/api/payroll/employee/onboarding/:taskId/i9/preview',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>previewI9(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
+ app.post('/api/payroll/employee/onboarding/:taskId/i9/page',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>recordI9Page(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.get('/api/payroll/employee/onboarding/:taskId/i9/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readI9Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
  app.post('/api/payroll/employee/onboarding/:taskId/i9/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveI9Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.get('/api/payroll/employee/onboarding/:taskId/mw507/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readMW507Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})

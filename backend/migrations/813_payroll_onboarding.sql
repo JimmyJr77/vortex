@@ -5552,3 +5552,34 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_hiring_context ON payroll_i9_hiring_context;
 CREATE TRIGGER payroll_guard_i9_hiring_context BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_hiring_context FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_hiring_context();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_review (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL REFERENCES facility(id),employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id),draft_revision integer NOT NULL CHECK(draft_revision>0),
+ base_response_hash text NOT NULL CHECK(base_response_hash ~ '^[a-f0-9]{64}$'),hiring_revision integer NOT NULL CHECK(hiring_revision>0),
+ encrypted_review bytea NOT NULL CHECK(octet_length(encrypted_review)>28),preview_sha256 text NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ created_at timestamptz NOT NULL DEFAULT clock_timestamp(),expires_at timestamptz NOT NULL DEFAULT clock_timestamp()+interval '30 minutes',
+ FOREIGN KEY(task_id,onboarding_cycle,hiring_revision) REFERENCES payroll_i9_hiring_context(task_id,onboarding_cycle,revision)
+);
+CREATE TABLE IF NOT EXISTS payroll_i9_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_review(id),page_number integer NOT NULL CHECK(page_number BETWEEN 1 AND 4),
+ displayed_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(review_id,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_review() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 review history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_onboarding_task t JOIN payroll_i9_draft d ON d.task_id=t.id AND d.onboarding_cycle=t.onboarding_cycle WHERE t.id=NEW.task_id AND t.facility_id=NEW.facility_id AND t.employee_id=NEW.employee_id AND t.onboarding_cycle=NEW.onboarding_cycle AND t.task_key='I9' AND t.owner='EMPLOYEE' AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND d.revision=NEW.draft_revision AND d.base_response_hash=NEW.base_response_hash) THEN RAISE EXCEPTION 'I-9 review requires the current scoped draft.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND revoked_at IS NULL AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'I-9 review requires a live scoped employee session.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_review ON payroll_i9_review;
+CREATE TRIGGER payroll_guard_i9_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_review();
+CREATE OR REPLACE FUNCTION payroll_guard_i9_page_visit() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 page history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_review WHERE id=NEW.review_id AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'I-9 page visit requires an unexpired review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_page_visit ON payroll_i9_page_visit;
+CREATE TRIGGER payroll_guard_i9_page_visit BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_page_visit();
