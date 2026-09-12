@@ -1,4 +1,4 @@
-import {assertNativeW4ExemptionDate} from './withholding2026.js'
+import {assertNativeW4ExemptionDate,assertNativeMW507Date} from './withholding2026.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {marylandElectionFingerprint} from './marylandElectionFingerprint.js'
 import {regularRetirementPayroll} from './regularRetirementPayroll.js'
@@ -40,6 +40,7 @@ async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,ret
  const electionRow=(await db.query('SELECT elections FROM payroll_tax_election WHERE facility_id=$1 AND employee_id=$2 AND tax_year=$3',[facility,employee.id,year])).rows[0]
  const election=electionRow?{...electionRow.elections,verified:true}:null
  assertNativeW4ExemptionDate(election,paymentDate)
+ assertNativeMW507Date(election,paymentDate)
  if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
  if(election?.mw507ReviewRequired)throw fail('Review and save the latest signed MW507 before preparing this payment.')
  let bonusAllocation=null,allocationIssue=null

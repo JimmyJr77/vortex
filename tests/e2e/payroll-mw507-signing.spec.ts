@@ -6,7 +6,7 @@ import {createRequire} from 'node:module'
 import {writeFile} from 'node:fs/promises'
 const {PDFDocument}=createRequire(new URL('../../backend/package.json',import.meta.url))('pdf-lib')
 const expect=baseExpect.configure({timeout:20000})
-for(const claim of ['NONE','PENNSYLVANIA'])test(`Maryland employee draft, review and signature: ${claim}`,async({page})=>{
+for(const claim of ['NONE','PENNSYLVANIA','NO_LIABILITY'])test(`Maryland employee draft, review and signature: ${claim}`,async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(120000);page.setDefaultTimeout(15000)
  const oldKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='67'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
@@ -41,10 +41,11 @@ for(const claim of ['NONE','PENNSYLVANIA'])test(`Maryland employee draft, review
    for(const [label,value] of [['Estimated federal AGI in dollars','90000'],['Worksheet line a: personal exemption count','3'],['Worksheet line b: additional dependents age 65 or over','1'],['Worksheet line c: eligible additional deduction amount in dollars','4800'],['Worksheet line d: taxpayer/spouse age 65 or blindness exemption count (0–4)','2']])await panel.getByLabel(label,{exact:true}).fill(value)
    await panel.getByRole('button',{name:'Save MW507 draft',exact:true}).click();await expect(panel).toContainText('MW507 draft saved securely.')
    await open();await expect(panel.getByLabel('Estimated federal AGI in dollars',{exact:true})).toHaveValue('90000')
-  }else{
+  }else if(claim==='PENNSYLVANIA'){
    await panel.getByRole('checkbox',{name:'I certify that I do not maintain',exact:false}).check()
    await panel.getByRole('combobox',{name:'Pennsylvania local-tax exemption',exact:true}).selectOption('YORK_ADAMS')
   }
+  if(claim==='NO_LIABILITY'){await panel.getByRole('checkbox',{name:'Last year I did not owe',exact:false}).check();await panel.getByRole('checkbox',{name:'This year I do not expect',exact:false}).check()}
   await panel.getByRole('button',{name:'Prepare MW507 for review',exact:true}).click()
   await expect(panel).toContainText('Page 1 of 2 displayed and review visit saved.')
   const sign=panel.getByRole('button',{name:'Sign and submit MW507',exact:true});await expect(sign).toBeDisabled()
@@ -76,28 +77,29 @@ for(const claim of ['NONE','PENNSYLVANIA'])test(`Maryland employee draft, review
   await expect(adminStep.getByRole('button',{name:'Form-MW507-2026-signed.pdf',exact:true})).toBeVisible()
   await expect(adminStep.getByRole('button',{name:'supporting-review.pdf',exact:true})).toBeVisible()
   const downloadPromise=page.waitForEvent('download');await adminStep.getByRole('button',{name:'Form-MW507-2026-signed.pdf',exact:true}).click();expect((await downloadPromise).suggestedFilename()).toBe('Form-MW507-2026-signed.pdf')
-  if(claim==='NONE'){
+  if(claim!=='PENNSYLVANIA'){
    await adminStep.getByRole('textbox',{name:'Review evidence / instructions',exact:true}).fill('Reviewed retained synthetic Maryland certificate and worksheet')
    await adminStep.getByRole('button',{name:'Verify & complete',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Step reviewed and completed.'})).toBeVisible()
   }
   await page.getByRole('button',{name:'Pay setup & leave',exact:true}).click()
   const source=page.getByRole('region',{name:'Signed Maryland certificate review',exact:true})
   await expect(source).toContainText('Signed internal MW507')
-  await expect(source).toContainText(claim==='NONE'?'Hiring checklist review completed.':'Hiring checklist review is pending.')
+  await expect(source).toContainText(claim!=='PENNSYLVANIA'?'Hiring checklist review completed.':'Hiring checklist review is pending.')
   if(claim==='PENNSYLVANIA')await expect(source).toContainText('Nonresidence exemption claimed')
   await expect(page.getByRole('button',{name:'Save verified tax elections',exact:true})).toBeDisabled()
   const sourceDownload=page.waitForEvent('download');await source.getByRole('button',{name:'Download signed MW507 for review',exact:true}).click();expect((await sourceDownload).suggestedFilename()).toBe('Form-MW507-2026-signed.pdf')
-  if(claim==='NONE'){
+  if(claim!=='PENNSYLVANIA'){
    const tax=page.getByRole('heading',{name:'Automatic withholding · 2026',exact:true}).locator('..')
-   await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toHaveValue('2');await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toBeDisabled()
+   await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toHaveValue(claim==='NO_LIABILITY'?'':'2');await expect(tax.getByRole('spinbutton',{name:'MW507 exemptions',exact:true})).toBeDisabled()
    await tax.getByRole('textbox',{name:'Certificate correctness and revocation evidence',exact:true}).fill('Reviewed certificate and synthetic employer correspondence')
    await tax.getByRole('textbox',{name:'Residence and local-rate evidence',exact:true}).fill('Synthetic Maryland resident and verified 3.20 percent table')
+   if(claim==='NO_LIABILITY'){await tax.getByRole('spinbutton',{name:'Expected weekly wages ($)',exact:true}).fill('500');await tax.getByRole('textbox',{name:'Expected weekly-wage review evidence',exact:true}).fill('Reviewed synthetic weekly compensation expectation');await tax.getByRole('textbox',{name:'Comptroller submission evidence',exact:true}).fill('Synthetic retained certificate delivery receipt')}
    for(const prefix of ['I reviewed the signed certificate','I checked the employer’s Comptroller correspondence','I verified Maryland work and residence'])await tax.getByRole('checkbox',{name:prefix,exact:false}).check()
    await tax.getByRole('textbox',{name:'Verification source',exact:true}).fill('Reviewed signed Maryland certificate and synthetic federal settings')
    await tax.getByRole('checkbox',{name:'I verified these values against signed forms',exact:false}).check()
    await tax.getByRole('button',{name:'Save verified tax elections',exact:true}).click();await expect(tax.getByRole('status')).toContainText('Verified elections saved.')
    const applied=(await h.pool.query('SELECT elections FROM payroll_tax_election WHERE employee_id=$1',[employee.id])).rows[0].elections
-   expect(applied.mw507Source.submissionId).toBe(rows.rows[0].id);expect(applied.maryland.exemptions).toBe(2);expect(applied.mw507ReviewRequired).toBeUndefined()
+   expect(applied.mw507Source.submissionId).toBe(rows.rows[0].id);expect(applied.maryland.exemptions).toBe(claim==='NO_LIABILITY'?null:2);expect(applied.maryland.exempt).toBe(claim==='NO_LIABILITY');expect(applied.mw507ReviewRequired).toBeUndefined()
   }
   await source.screenshot({path:`/tmp/payroll-mw507-admin-${claim}.png`})
   expect(errors).toEqual([])

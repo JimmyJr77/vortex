@@ -85,3 +85,13 @@ test('native withholding retains wage inputs before credits, allowances and bonu
  assert.equal(bonus.incomeTaxWageBasis.federalWagesCents,200000)
  assert.throws(()=>calculateWithholding2026({...args,pretaxDeductionCents:1}),/Pretax/)
 })
+
+
+test('signed Maryland certificate dates and exempt blank fields are preserved across frequencies',()=>{
+ for(const payFrequency of ['WEEKLY','BIWEEKLY','SEMIMONTHLY','MONTHLY']){
+  const input={grossPayCents:200000,payFrequency,year:2026,workState:'MD',residenceState:'MD',election:{verified:true,federal:{filingStatus:'SINGLE'},maryland:{filingStatus:null,exemptions:null,localRate:3.2,exempt:true},mw507Source:{receivedOn:'2026-09-12',claimKind:'NO_LIABILITY'}}}
+  for(const paymentDate of [undefined,'2026-09-11','2026-02-30','2027-01-01'])assert.throws(()=>calculateWithholding2026({...input,paymentDate}),/MW507 requires/)
+  for(const paymentDate of ['2026-09-12','2026-12-31'])assert.equal(calculateWithholding2026({...input,paymentDate}).stateIncomeTaxCents,0)
+  assert.throws(()=>calculateWithholding2026({...input,paymentDate:'2026-09-12',election:{...input.election,maryland:{...input.election.maryland,exempt:false}}}),/Automatic Maryland/)
+ }
+})

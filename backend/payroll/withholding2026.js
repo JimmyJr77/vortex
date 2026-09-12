@@ -56,7 +56,7 @@ export function marylandWithholding2026(grossCents,election,payFrequency='SEMIMO
 export function marylandWithholdingDetails2026(grossCents,election,payFrequency='SEMIMONTHLY') {
  const frequency=FREQUENCIES[payFrequency],table=MARYLAND_BY_FREQUENCY[payFrequency]
  const gross=amount(grossCents,'Maryland wages')
- if(!frequency||!table?.[election.filingStatus]||Number(election.localRate)!==3.2||!Number.isInteger(election.exemptions)||election.exemptions<0||election.exemptions>99)throw new Error('Automatic Maryland calculation requires verified 3.20% local elections and a supported payroll frequency.')
+ if(!frequency||(!table?.[election.filingStatus]&&!(election.exempt===true&&election.filingStatus==null))||Number(election.localRate)!==3.2||(!(Number.isInteger(election.exemptions)&&election.exemptions>=0&&election.exemptions<=99)&&!(election.exempt===true&&election.exemptions==null)))throw new Error('Automatic Maryland calculation requires verified 3.20% local elections and a supported payroll frequency.')
  const requestedAdditionalCents=election.extraWithholdingCents??0
  amount(requestedAdditionalCents,'Maryland additional withholding')
  if(election.exempt===true)return {baseCents:0,requestedAdditionalCents,appliedAdditionalCents:0,totalCents:0}
@@ -74,10 +74,16 @@ export function assertNativeW4ExemptionDate(election,paymentDate){
  const valid=v=>typeof v==='string'&&/^2026-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v
  if(!valid(election.w4Source.effectiveOn)||!valid(paymentDate)||paymentDate<election.w4Source.effectiveOn)throw new Error('The signed 2026 W-4 exemption requires a 2026 payment date on or after its received date. Review another certificate or the applicable payment-date treatment.')
 }
+export function assertNativeMW507Date(election,paymentDate){
+ if(!election?.mw507Source)return
+ const valid=v=>typeof v==='string'&&/^2026-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v
+ if(!valid(election.mw507Source.receivedOn)||!valid(paymentDate)||paymentDate<election.mw507Source.receivedOn)throw new Error('The signed 2026 MW507 requires a 2026 payment date on or after its received date. Select the applicable historical certificate before using earlier or later-year payments.')
+}
 export function calculateWithholding2026({grossPayCents,election,payFrequency,year,workState,residenceState,paymentDate,pretaxDeductionCents=0,retirement401k,hasBonus=false,annualBonusCents=0,bonusReviewComplete=false,ytdWagesCents=0,leavePayoutCents=0,regularWagesCents=0}) {
  if(election?.w4ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed W-4 before calculating withholding.')
  if(election?.mw507ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed MW507 before calculating withholding.')
  assertNativeW4ExemptionDate(election,paymentDate)
+ assertNativeMW507Date(election,paymentDate)
  if(!election?.verified||year!==2026||!Object.hasOwn(FREQUENCIES,payFrequency)||workState!=='MD'||residenceState!=='MD')throw new Error('Verified 2026 Maryland-resident tax elections and a supported payroll frequency are required for automatic withholding.')
  if(pretaxDeductionCents)throw new Error('Pretax deductions need a separately verified tax calculation.')
  if(leavePayoutCents&&(!Number.isSafeInteger(leavePayoutCents)||leavePayoutCents<0||!Number.isSafeInteger(regularWagesCents)||regularWagesCents<=0||grossPayCents<=leavePayoutCents+annualBonusCents||!Number.isSafeInteger(ytdWagesCents)||ytdWagesCents+grossPayCents>100000000))throw new Error('PTO payouts require concurrent regular wages and cumulative wages no greater than $1 million for automatic aggregate withholding. Record a separately verified calculation otherwise.')

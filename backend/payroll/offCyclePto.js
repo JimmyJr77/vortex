@@ -1,4 +1,4 @@
-import {assertNativeW4ExemptionDate} from './withholding2026.js'
+import {assertNativeW4ExemptionDate,assertNativeMW507Date} from './withholding2026.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {ptoStateReviewBasis} from './ptoStateWithholding.js'
 import {ptoStateMethodInput,calculatePtoState} from './ptoStateCalculation.js'
@@ -40,6 +40,7 @@ export async function loadOffCyclePtoPreview(db,facility,periodId,paymentDate,co
  const electionRow=(await db.query('SELECT elections FROM payroll_tax_election WHERE facility_id=$1 AND employee_id=$2 AND tax_year=$3',[facility,employee.id,year])).rows[0]
  const election=electionRow?{...electionRow.elections,verified:true}:null
  assertNativeW4ExemptionDate(election,paymentDate)
+ assertNativeMW507Date(election,paymentDate)
  if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
  if(election?.mw507ReviewRequired)throw fail('Review and save the latest signed MW507 before preparing this payment.')
  const adjustments=[{kind:'LEAVE_PAYOUT',name:'Unused PTO payout',amountCents:Number(payout.amount_cents),minutes:Number(payout.minutes),taxTreatmentVerified:true,leavePayout:{id:Number(payout.id),hourlyRateCents:Number(payout.hourly_rate_cents),fingerprint:payout.review.fingerprint}}]
