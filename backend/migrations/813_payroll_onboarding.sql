@@ -5534,3 +5534,21 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_draft ON payroll_i9_draft;
 CREATE TRIGGER payroll_guard_i9_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_draft();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_hiring_context (
+ facility_id BIGINT NOT NULL REFERENCES facility(id),employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ revision integer NOT NULL CHECK(revision>0),offer_accepted_on date NOT NULL,e_verify boolean NOT NULL,
+ evidence text NOT NULL CHECK(length(evidence) BETWEEN 12 AND 2000),actor_user_id BIGINT NOT NULL,
+ recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(task_id,onboarding_cycle,revision)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_hiring_context() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 hiring context history is immutable.' USING ERRCODE='23514'; END IF;
+ PERFORM 1 FROM payroll_onboarding_task WHERE id=NEW.task_id AND facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND onboarding_cycle=NEW.onboarding_cycle AND task_key='I9' AND owner='EMPLOYEE' AND status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') FOR UPDATE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'I-9 hiring context requires the current editable employee step.' USING ERRCODE='23514'; END IF;
+ IF NEW.revision<>(SELECT COALESCE(MAX(revision),0)+1 FROM payroll_i9_hiring_context WHERE task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle) THEN RAISE EXCEPTION 'I-9 context revision must advance sequentially.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_hiring_context ON payroll_i9_hiring_context;
+CREATE TRIGGER payroll_guard_i9_hiring_context BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_hiring_context FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_hiring_context();

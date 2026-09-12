@@ -77,6 +77,8 @@ export const workforceApi = {
  schedulePayRate: (employeeId:number,body:unknown) => request(`/employees/${employeeId}/pay-rates`,true,body),
  cancelPayRate: (employeeId:number,id:number,body:unknown) => request(`/employees/${employeeId}/pay-rates/${id}/cancel`,true,body),
  acknowledgePayRate: (id:number,cancellation=false) => request(`/pay-rates/${id}/acknowledge`,false,{acknowledged:true,cancellation}),
+ i9Context:(employeeId:number,taskId:number,cycle:number)=>request<I9HiringContext>(`/employees/${employeeId}/onboarding/${taskId}/i9/context?onboardingCycle=${cycle}`,true),
+ saveI9Context:(employeeId:number,taskId:number,body:unknown)=>request<I9HiringContext>(`/employees/${employeeId}/onboarding/${taskId}/i9/context`,true,body),
  packet: (employeeId?: number) => request<Packet>(employeeId ? `/employees/${employeeId}/onboarding` : '/onboarding', !!employeeId),
  saveDraft: (taskId: number, body: unknown) => request<Packet>(`/onboarding/${taskId}/draft`, false, body),
  submit: (taskId: number, body: unknown) => request<Packet>(`/onboarding/${taskId}`, false, body),
@@ -113,3 +115,6 @@ export const workforceApi = {
   link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
  },
 }
+
+export type I9HiringRecord={revision:number;offerAcceptedOn:string;eVerify:boolean;evidence:string;actorUserId:number;recordedAt:string}
+export type I9HiringContext={revision:number;current:I9HiringRecord|null;history:I9HiringRecord[]}

@@ -1,3 +1,4 @@
+import {readI9HiringContext,saveI9HiringContext} from './i9HiringContext.js'
 import {readI9Draft,saveI9Draft} from './i9Draft.js'
 import {readW4Draft,saveW4Draft} from './w4Draft.js'
 import {benefitContributionReport} from './benefitContributionReport.js'
@@ -95,6 +96,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/context',(req,res)=>transaction(pool,res,db=>readI9HiringContext(db,context(req),req.params.taskId,req.query.onboardingCycle)))
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/context',(req,res)=>transaction(pool,res,db=>saveI9HiringContext(db,context(req),req.params.taskId,req.body||{})))
  app.get('/api/admin/payroll/employees/:id/onboarding',(req,res)=>transaction(pool,res,db=>packet(db,context(req).facility,req.params.id,true)))
  app.get('/api/admin/payroll/workforce', (req,res)=>transaction(pool,res,async db=>{
   const f=context(req).facility

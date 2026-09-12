@@ -46,6 +46,22 @@ test('I-9 employee draft resumes, retries once and displays all official instruc
   const task=(await h.pool.query("SELECT status,response FROM payroll_onboarding_task WHERE employee_id=$1 AND task_key='I9'",[employee.id])).rows[0]
   expect(task.status).toBe('OPEN');expect(JSON.stringify(task.response)).not.toContain('SYNTHETIC-PASSPORT')
   expect(JSON.stringify((await h.pool.query("SELECT after_data FROM payroll_audit_log WHERE action='I9_DRAFT_SAVED'")).rows)).not.toContain('123-4')
+  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
+  const openAdmin=async()=>{await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Form I-9 employee section'}).click()}
+  await openAdmin()
+  const admin=page.getByRole('region',{name:'I-9 hiring context',exact:true}),record=admin.getByRole('button',{name:'Record I-9 hiring context',exact:true})
+  await expect(record).toBeDisabled()
+  await admin.getByLabel('Offer accepted on',{exact:true}).fill('2026-09-01')
+  await admin.getByRole('combobox',{name:'Employer and hiring-site E-Verify participation',exact:true}).selectOption('false')
+  await admin.getByLabel('Offer and participation verification evidence',{exact:true}).fill('Synthetic accepted offer and hiring-site participation records reviewed.')
+  await admin.getByRole('checkbox').check();await record.click()
+  await expect(admin.getByRole('status')).toContainText('I-9 hiring context recorded.')
+  await openAdmin();await expect(admin.getByLabel('Offer accepted on',{exact:true})).toHaveValue('2026-09-01')
+  await expect(admin.getByRole('combobox',{name:'Employer and hiring-site E-Verify participation',exact:true})).toHaveValue('false')
+  await admin.locator('summary').click();await expect(admin).toContainText('Revision 1: offer accepted 2026-09-01')
+  await expect(admin.getByRole('checkbox')).not.toBeChecked()
+  await admin.screenshot({path:'/tmp/payroll-i9-context-admin.png'})
   expect(errors).toEqual([])
  }finally{await page.unrouteAll({behavior:'ignoreErrors'});await page.close();await h.close();if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey}
 })
