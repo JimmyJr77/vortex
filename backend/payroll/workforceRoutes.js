@@ -1,4 +1,6 @@
+import {readW4Draft,saveW4Draft} from './w4Draft.js'
 import {benefitContributionReport} from './benefitContributionReport.js'
+import {previewW4Submission2026,signW4Submission2026,recordW4PageVisit2026} from './w4Submission2026.js'
 import {recordPayrollAutomation} from './automationHistory.js'
 import {benefitsDeductionProposal,signedBenefitsDeduction} from './benefitsDeductionAuthorization.js'
 import {compensationEvidence} from './employmentCompensation.js'
@@ -360,6 +362,20 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   return packet(db,ctx.facility,ctx.employee)
  }))
  app.get('/api/payroll/employee/onboarding',auth,(req,res)=>employeeTransaction(req,res,db=>packet(db,context(req).facility,context(req).employee)))
+ app.get('/api/payroll/employee/onboarding/:taskId/w4/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readW4Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
+ app.post('/api/payroll/employee/onboarding/:taskId/w4/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveW4Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
+ app.post('/api/payroll/employee/onboarding/:taskId/w4/preview',auth,(req,res)=>{
+  res.setHeader('Cache-Control','no-store')
+  return employeeTransaction(req,res,db=>previewW4Submission2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))
+ })
+ app.post('/api/payroll/employee/onboarding/:taskId/w4/sign',auth,(req,res)=>{
+  res.setHeader('Cache-Control','no-store')
+  return employeeTransaction(req,res,db=>signW4Submission2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))
+ })
+ app.post('/api/payroll/employee/onboarding/:taskId/w4/page',auth,(req,res)=>{
+  res.setHeader('Cache-Control','no-store')
+  return employeeTransaction(req,res,db=>recordW4PageVisit2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))
+ })
  app.post('/api/payroll/employee/onboarding/:taskId/draft',auth,(req,res)=>employeeTransaction(req,res,async db=>{
   const ctx=context(req)
   await db.query('SELECT facility_id FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[ctx.facility])
@@ -379,6 +395,7 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   if(!task||task.owner!=='EMPLOYEE')throw fail('Employee onboarding step not found.',404)
   assertTaskCycle(task,req.body)
   if(['COMPLETE','NOT_APPLICABLE'].includes(task.status))throw fail('Ask your hiring admin to reopen this completed step.',409)
+  if(task.task_key==='W4'&&task.response?.w4SubmissionId)throw fail('Use the internal W-4 form to submit an employee-signed amendment to this W-4.',409)
   const policy=await hiringPolicy(db,ctx.facility,employee)
   let response; try {response=validateResponse(task.task_key,req.body||{},(await salaryRowsAt(db,ctx.facility,[employee]))[0],policy)}catch(e){throw fail(e.message)}
   if(['W4','STATE_WITHHOLDING','I9'].includes(task.task_key)) {

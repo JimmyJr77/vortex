@@ -1,3 +1,4 @@
+import {assertNativeW4ExemptionDate} from './withholding2026.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {ptoStateReviewBasis} from './ptoStateWithholding.js'
 import {ptoStateMethodInput,calculatePtoState} from './ptoStateCalculation.js'
@@ -38,8 +39,10 @@ export async function loadOffCyclePtoPreview(db,facility,periodId,paymentDate,co
  const year=Number(paymentDate.slice(0,4)),ytd=history.evidence.filter(e=>Number(e.paymentDate.slice(0,4))===year).reduce((n,e)=>n+e.grossCents,0)
  const electionRow=(await db.query('SELECT elections FROM payroll_tax_election WHERE facility_id=$1 AND employee_id=$2 AND tax_year=$3',[facility,employee.id,year])).rows[0]
  const election=electionRow?{...electionRow.elections,verified:true}:null
+ assertNativeW4ExemptionDate(election,paymentDate)
+ if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
  const adjustments=[{kind:'LEAVE_PAYOUT',name:'Unused PTO payout',amountCents:Number(payout.amount_cents),minutes:Number(payout.minutes),taxTreatmentVerified:true,leavePayout:{id:Number(payout.id),hourlyRateCents:Number(payout.hourly_rate_cents),fingerprint:payout.review.fingerprint}}]
- const calculated=buildEmployeePreview({employee:{id:Number(employee.id),payType:'HOURLY',hourlyRateCents:0,legalFirstName:employee.legal_first_name,legalLastName:employee.legal_last_name,w4Status:employee.w4_status,stateWithholdingStatus:employee.state_withholding_status,workState:employee.work_state,residenceState:employee.residence_state},entries:[],adjustments,ytdSocialSecurityWagesCents:ytd,taxElection:election,payFrequency:period.frequency,taxYear:year,employerTaxConfig:settings.employer_tax_config})
+ const calculated=buildEmployeePreview({employee:{id:Number(employee.id),payType:'HOURLY',hourlyRateCents:0,legalFirstName:employee.legal_first_name,legalLastName:employee.legal_last_name,w4Status:employee.w4_status,stateWithholdingStatus:employee.state_withholding_status,workState:employee.work_state,residenceState:employee.residence_state},entries:[],adjustments,ytdSocialSecurityWagesCents:ytd,taxElection:election,payPeriod:{...period,pay_date:paymentDate},payFrequency:period.frequency,taxYear:year,employerTaxConfig:settings.employer_tax_config})
  calculated.payType=employee.pay_type;calculated.sickLeaveAccrualMinutes=0
  calculated.warnings=calculated.warnings.filter(w=>w.code!=='WITHHOLDING_ENGINE_NOT_CONFIGURED'&&w.code!=='NEGATIVE_NET_PAY')
  if(!history.reconciled)calculated.warnings.push({code:'SUPPLEMENTAL_HISTORY_REVIEW',severity:'critical',blocking:true,message:'Reconcile supplemental payment history and imported totals before paying this PTO payout.'})

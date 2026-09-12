@@ -4,6 +4,15 @@ import { federalWithholding2026, marylandWithholding2026, calculateWithholding20
 
 const federal={filingStatus:'SINGLE'}
 const maryland={filingStatus:'SINGLE',localRate:3.2,exemptions:1}
+test('native exempt W-4 preserves blank filing status and is limited to supported payment dates',()=>{
+ const exempt={filingStatus:null,exempt:true,multipleJobs:false,nonresidentAlien:false,lockInLetter:false}
+ for(const periods of [12,24,26,52])assert.equal(federalWithholding2026(200000,exempt,periods),0)
+ for(const override of [{exempt:false},{filingStatus:'INVALID'},{filingStatus:'__proto__'},{nonresidentAlien:true},{lockInLetter:true},{creditsCents:-1}])assert.throws(()=>federalWithholding2026(200000,{...exempt,...override}))
+ const input={grossPayCents:200000,election:{verified:true,federal:exempt,maryland,w4Source:{effectiveOn:'2026-09-12'}},payFrequency:'SEMIMONTHLY',year:2026,workState:'MD',residenceState:'MD'}
+ assert.equal(calculateWithholding2026({...input,paymentDate:'2026-09-12'}).federalIncomeTaxCents,0)
+ assert.equal(calculateWithholding2026({...input,paymentDate:'2026-12-31'}).stateIncomeTaxCents,13714)
+ for(const paymentDate of [undefined,'2026-09-11','2027-01-01','2026-02-30'])assert.throws(()=>calculateWithholding2026({...input,paymentDate}),/received date/)
+})
 test('Maryland snapshots separate base, bonus and additional withholding without changing total tax',()=>{
  const input={grossPayCents:200000,election:{verified:true,federal,maryland:{...maryland,extraWithholdingCents:250}},payFrequency:'SEMIMONTHLY',year:2026,workState:'MD',residenceState:'MD'}
  const regular=calculateWithholding2026(input),parts=regular.incomeTaxWageBasis.stateTaxComponents

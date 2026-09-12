@@ -5348,3 +5348,86 @@ DROP TRIGGER IF EXISTS payroll_guard_maryland_agreement_proposal ON payroll_mary
 CREATE TRIGGER payroll_guard_maryland_agreement_proposal BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_agreement_proposal FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_agreement_signing();
 DROP TRIGGER IF EXISTS payroll_guard_maryland_agreement_signature ON payroll_maryland_agreement_signature;
 CREATE TRIGGER payroll_guard_maryland_agreement_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_maryland_agreement_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_maryland_agreement_signing();
+
+
+-- Native W-4 review and signing evidence. Sensitive answers/signatures stay encrypted.
+CREATE TABLE IF NOT EXISTS payroll_w4_review (
+ id BIGSERIAL PRIMARY KEY,
+ facility_id BIGINT NOT NULL REFERENCES facility(id),
+ employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id),
+ encrypted_review BYTEA NOT NULL CHECK(octet_length(encrypted_review)>28),
+ preview_sha256 TEXT NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ expires_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()+interval '30 minutes',
+ CHECK(expires_at>created_at)
+);
+CREATE TABLE IF NOT EXISTS payroll_w4_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_w4_review(id),
+ page_number integer NOT NULL CHECK(page_number BETWEEN 1 AND 5),
+ visited_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ PRIMARY KEY(review_id,page_number)
+);
+CREATE TABLE IF NOT EXISTS payroll_w4_submission (
+ id BIGSERIAL PRIMARY KEY,
+ facility_id BIGINT NOT NULL REFERENCES facility(id),
+ employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id),
+ review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_w4_review(id),
+ document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),
+ request_key UUID NOT NULL,
+ request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),
+ encrypted_signature BYTEA NOT NULL CHECK(octet_length(encrypted_signature)>28),
+ signed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_w4_evidence() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'W-4 review and signing evidence must be retained unchanged.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_onboarding_task t WHERE t.id=NEW.task_id AND t.facility_id=NEW.facility_id AND t.employee_id=NEW.employee_id AND t.onboarding_cycle=NEW.onboarding_cycle AND t.task_key='W4' AND t.owner='EMPLOYEE' AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED')) THEN RAISE EXCEPTION 'W-4 evidence requires the current open employee step.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee_session s JOIN payroll_employee e ON e.id=s.employee_id AND e.facility_id=s.facility_id WHERE s.id=NEW.employee_session_id AND s.employee_id=NEW.employee_id AND s.facility_id=NEW.facility_id AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp() AND e.employment_status IN ('ONBOARDING','ACTIVE','LEAVE')) THEN RAISE EXCEPTION 'W-4 evidence requires a current employee session.' USING ERRCODE='23514'; END IF;
+ IF TG_TABLE_NAME='payroll_w4_submission' THEN
+  IF (SELECT count(*) FROM payroll_w4_page_visit WHERE review_id=NEW.review_id)<>5 THEN RAISE EXCEPTION 'All five W-4 pages must be visited before signing.' USING ERRCODE='23514'; END IF;
+  IF NOT EXISTS(SELECT 1 FROM payroll_w4_review r WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.task_id=NEW.task_id AND r.onboarding_cycle=NEW.onboarding_cycle AND r.employee_session_id=NEW.employee_session_id AND r.expires_at>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM payroll_w4_review newer WHERE newer.task_id=r.task_id AND newer.onboarding_cycle=r.onboarding_cycle AND newer.id>r.id)) THEN RAISE EXCEPTION 'W-4 signature requires the latest unexpired scoped preview.' USING ERRCODE='23514'; END IF;
+  IF NOT EXISTS(SELECT 1 FROM payroll_private_document d WHERE d.id=NEW.document_id AND d.facility_id=NEW.facility_id AND d.employee_id=NEW.employee_id AND d.task_id=NEW.task_id AND d.onboarding_cycle=NEW.onboarding_cycle AND d.mime_type='application/pdf') THEN RAISE EXCEPTION 'W-4 signature requires the matching retained PDF.' USING ERRCODE='23514'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_w4_review ON payroll_w4_review;
+CREATE TRIGGER payroll_guard_w4_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_w4_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_w4_evidence();
+DROP TRIGGER IF EXISTS payroll_guard_w4_submission ON payroll_w4_submission;
+CREATE TRIGGER payroll_guard_w4_submission BEFORE INSERT OR UPDATE OR DELETE ON payroll_w4_submission FOR EACH ROW EXECUTE FUNCTION payroll_guard_w4_evidence();
+
+CREATE OR REPLACE FUNCTION payroll_guard_w4_page_visit() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'W-4 page visits must be retained unchanged.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_w4_review r JOIN payroll_employee_session s ON s.id=r.employee_session_id JOIN payroll_onboarding_task t ON t.id=r.task_id WHERE r.id=NEW.review_id AND r.expires_at>clock_timestamp() AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp() AND t.onboarding_cycle=r.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND NOT EXISTS(SELECT 1 FROM payroll_w4_review n WHERE n.task_id=r.task_id AND n.onboarding_cycle=r.onboarding_cycle AND n.id>r.id)) THEN RAISE EXCEPTION 'W-4 page visits require a current scoped review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_w4_page_visit ON payroll_w4_page_visit;
+CREATE TRIGGER payroll_guard_w4_page_visit BEFORE INSERT OR UPDATE OR DELETE ON payroll_w4_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_w4_page_visit();
+
+CREATE TABLE IF NOT EXISTS payroll_w4_draft (
+ facility_id BIGINT NOT NULL REFERENCES facility(id), employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id), onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ revision integer NOT NULL CHECK(revision>0), base_submission_id BIGINT REFERENCES payroll_w4_submission(id),
+ encrypted_draft BYTEA CHECK(encrypted_draft IS NULL OR octet_length(encrypted_draft)>28),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id), request_key UUID, request_revision integer,
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(task_id,onboarding_cycle)
+);
+
+CREATE OR REPLACE FUNCTION payroll_guard_w4_draft() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Clear W-4 draft content while retaining its revision.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.task_id<>OLD.task_id OR NEW.onboarding_cycle<>OLD.onboarding_cycle OR NEW.facility_id<>OLD.facility_id OR NEW.employee_id<>OLD.employee_id OR NEW.revision<>OLD.revision+1) THEN RAISE EXCEPTION 'W-4 draft scope and revision must be preserved.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_onboarding_task WHERE id=NEW.task_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id AND onboarding_cycle=NEW.onboarding_cycle AND task_key='W4' AND owner='EMPLOYEE' AND status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED')) THEN RAISE EXCEPTION 'W-4 draft requires the current open employee step.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id AND revoked_at IS NULL AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'W-4 draft requires a current scoped session.' USING ERRCODE='23514'; END IF;
+ IF NEW.base_submission_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM payroll_w4_submission WHERE id=NEW.base_submission_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id AND task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle) THEN RAISE EXCEPTION 'W-4 draft signature basis must have matching scope.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_w4_draft ON payroll_w4_draft;
+CREATE TRIGGER payroll_guard_w4_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_w4_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_w4_draft();

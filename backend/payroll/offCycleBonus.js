@@ -1,3 +1,4 @@
+import {assertNativeW4ExemptionDate} from './withholding2026.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {marylandElectionFingerprint} from './marylandElectionFingerprint.js'
 import {regularRetirementPayroll} from './regularRetirementPayroll.js'
@@ -38,6 +39,8 @@ async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,ret
  const year=Number(paymentDate.slice(0,4)),ytd=history.evidence.filter(e=>Number(e.paymentDate.slice(0,4))===year).reduce((n,e)=>n+e.grossCents,0)
  const electionRow=(await db.query('SELECT elections FROM payroll_tax_election WHERE facility_id=$1 AND employee_id=$2 AND tax_year=$3',[facility,employee.id,year])).rows[0]
  const election=electionRow?{...electionRow.elections,verified:true}:null
+ assertNativeW4ExemptionDate(election,paymentDate)
+ if(election?.w4ReviewRequired)throw fail('Review and save the latest signed W-4 before preparing this payment.')
  let bonusAllocation=null,allocationIssue=null
  if(context.review.classification==='NONDISCRETIONARY')try{
   const allocation=await previewEarnedBonus(db,facility,employee.id,{amountCents:context.amountCents,earnedStart:context.review.earnedStart,earnedEnd:context.review.earnedEnd})
@@ -48,7 +51,7 @@ async function loadBaseBonusPreview(db,facility,periodId,paymentDate,context,ret
  }catch(e){allocationIssue=e.message}
  const adjustments=[{kind:'BONUS',name:'Standalone annual bonus',amountCents:context.amountCents,taxTreatmentVerified:true,bonusReview:{...context.review,verifiedAt:'off-cycle-reviewed'},...(bonusAllocation?{bonusAllocation}:{})}]
  if(bonusAllocation?.additionalOvertimeCents>0)adjustments.push({kind:'BONUS_OVERTIME',name:'Earned bonus additional overtime',amountCents:bonusAllocation.additionalOvertimeCents,taxTreatmentVerified:true,federalSupplemental:true})
- const calculated=buildEmployeePreview({employee:{id:Number(employee.id),payType:'HOURLY',hourlyRateCents:0,legalFirstName:employee.legal_first_name,legalLastName:employee.legal_last_name,w4Status:employee.w4_status,stateWithholdingStatus:employee.state_withholding_status,workState:employee.work_state,residenceState:employee.residence_state},entries:[],adjustments,ytdSocialSecurityWagesCents:ytd,taxElection:election,payFrequency:period.frequency,taxYear:year,employerTaxConfig:settings.employer_tax_config})
+ const calculated=buildEmployeePreview({employee:{id:Number(employee.id),payType:'HOURLY',hourlyRateCents:0,legalFirstName:employee.legal_first_name,legalLastName:employee.legal_last_name,w4Status:employee.w4_status,stateWithholdingStatus:employee.state_withholding_status,workState:employee.work_state,residenceState:employee.residence_state},entries:[],adjustments,ytdSocialSecurityWagesCents:ytd,taxElection:election,payPeriod:{...period,pay_date:paymentDate},payFrequency:period.frequency,taxYear:year,employerTaxConfig:settings.employer_tax_config})
  if(retirement401k){
   // Standalone withholding is calculated below; the regular-wage engine
   // intentionally refuses a bonus without concurrent regular wages.

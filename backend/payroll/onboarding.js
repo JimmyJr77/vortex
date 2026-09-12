@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'node:
 
 export const TASKS = [
  ['PROFILE', 'Personal details & emergency contact', 'EMPLOYEE', 'Confirm your legal name, home address, phone, and emergency contact.'],
- ['W4', 'Federal Form W-4', 'EMPLOYEE', 'Complete and sign the official W-4. Upload the signed form or provide the secure payroll provider receipt.'],
+ ['W4', 'Federal Form W-4', 'EMPLOYEE', 'Complete, review and sign your W-4 in this checklist. If you already completed it, upload the signed form or provide its secure payroll provider receipt.'],
  ['STATE_WITHHOLDING', 'State withholding certificate', 'EMPLOYEE', 'Complete the withholding certificate for your residence and work jurisdiction.'],
  ['I9', 'Form I-9 employee section', 'EMPLOYEE', 'Complete and sign Section 1 by your first day. Choose your own acceptable documents for employer verification.'],
  ['PAYMENT', 'Payment election', 'EMPLOYEE', 'Choose check or direct deposit. Direct deposit requires signed authorization and confirmed setup through the payroll provider.'],

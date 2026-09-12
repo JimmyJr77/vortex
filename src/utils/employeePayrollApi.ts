@@ -63,7 +63,14 @@ export type EmployeeBenefitCoverage = {month:string;rows:{planId:string;planName
 export type MarylandSigningTerms={employeeTerms:string;effectiveOn:string;agreement:{amountCents:number;payFrequency:string;electionFingerprint:string;periodBasis:'PAYMENT_DATE'}}
 export type MarylandSigningHistory={history:Array<{id:string;revision:number;fingerprint:string;terms:MarylandSigningTerms;decision:'ACCEPT'|'DECLINE'|null;signature:string|null;signed_at:string|null;agreement_id:string|null}>;actionable:boolean;reason:string}
 
+export type W4Preview={reviewId:string;expiresAt:string;previewSha256:string;pdfBase64:string;perjury:string;pageCount:number}
+
 export const employeePayrollApi = {
+  readW4Draft:<T>(taskId:number,cycle:number)=>request<{revision:number;baseSubmissionId:string|null;draft:T|null;savedAt:string|null}>(`/api/payroll/employee/onboarding/${taskId}/w4/draft?onboardingCycle=${cycle}`),
+  saveW4Draft:(taskId:number,body:unknown)=>request<{revision:number;baseSubmissionId:string|null;savedAt:string}>(`/api/payroll/employee/onboarding/${taskId}/w4/draft`,{method:'POST',body:JSON.stringify(body)}),
+  previewW4:(taskId:number,body:unknown)=>request<W4Preview>(`/api/payroll/employee/onboarding/${taskId}/w4/preview`,{method:'POST',body:JSON.stringify(body)}),
+  visitW4Page:(taskId:number,body:unknown)=>request<{recorded:boolean}>(`/api/payroll/employee/onboarding/${taskId}/w4/page`,{method:'POST',body:JSON.stringify(body)}),
+  signW4:(taskId:number,body:unknown)=>request<{documentId:string;submissionId:string;status:string}>(`/api/payroll/employee/onboarding/${taskId}/w4/sign`,{method:'POST',body:JSON.stringify(body)}),
   marylandAgreementProposals:()=>request<MarylandSigningHistory>('/api/payroll/employee/maryland-agreement-proposals'),
   respondMarylandAgreement:(id:string,body:Record<string,unknown>)=>request<{id:string;agreementId:string|null;reused:boolean}>(`/api/payroll/employee/maryland-agreement-proposals/${id}/respond`,{method:'POST',body:JSON.stringify(body)}),
   retirementContributions:(cursor?:string)=>request<{items:EmployeeRetirementContribution[];nextCursor:string|null}>(`/api/payroll/employee/retirement-contributions${cursor?'?beforeRunId='+encodeURIComponent(cursor):''}`),
