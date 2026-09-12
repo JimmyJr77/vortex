@@ -5514,3 +5514,23 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_mw507_draft ON payroll_mw507_draft;
 CREATE TRIGGER payroll_guard_mw507_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_mw507_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_mw507_draft();
+
+
+CREATE TABLE IF NOT EXISTS payroll_i9_draft (
+ facility_id BIGINT NOT NULL REFERENCES facility(id), employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id), onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),
+ revision integer NOT NULL CHECK(revision>0), base_response_hash text NOT NULL CHECK(base_response_hash ~ '^[a-f0-9]{64}$'),
+ encrypted_draft bytea CHECK(encrypted_draft IS NULL OR octet_length(encrypted_draft)>28),
+ employee_session_id BIGINT NOT NULL REFERENCES payroll_employee_session(id), request_key UUID, request_revision integer,
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(task_id,onboarding_cycle)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_draft() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Clear I-9 draft content while preserving revision.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.task_id<>OLD.task_id OR NEW.onboarding_cycle<>OLD.onboarding_cycle OR NEW.facility_id<>OLD.facility_id OR NEW.employee_id<>OLD.employee_id OR NEW.revision<>OLD.revision+1) THEN RAISE EXCEPTION 'I-9 draft scope and revision must be preserved.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_onboarding_task WHERE id=NEW.task_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id AND onboarding_cycle=NEW.onboarding_cycle AND task_key='I9' AND owner='EMPLOYEE' AND status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED')) THEN RAISE EXCEPTION 'I-9 draft requires current editable employee step.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_employee_session WHERE id=NEW.employee_session_id AND employee_id=NEW.employee_id AND facility_id=NEW.facility_id AND revoked_at IS NULL AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'I-9 draft requires current scoped session.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_draft ON payroll_i9_draft;
+CREATE TRIGGER payroll_guard_i9_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_draft();

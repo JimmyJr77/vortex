@@ -1,3 +1,4 @@
+import {readI9Draft,saveI9Draft} from './i9Draft.js'
 import {readW4Draft,saveW4Draft} from './w4Draft.js'
 import {benefitContributionReport} from './benefitContributionReport.js'
 import {previewW4Submission2026,signW4Submission2026,recordW4PageVisit2026} from './w4Submission2026.js'
@@ -364,6 +365,8 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
   return packet(db,ctx.facility,ctx.employee)
  }))
  app.get('/api/payroll/employee/onboarding',auth,(req,res)=>employeeTransaction(req,res,db=>packet(db,context(req).facility,context(req).employee)))
+ app.get('/api/payroll/employee/onboarding/:taskId/i9/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readI9Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
+ app.post('/api/payroll/employee/onboarding/:taskId/i9/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveI9Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.get('/api/payroll/employee/onboarding/:taskId/mw507/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>readMW507Draft(db,req.payrollEmployee,req.params.taskId,req.query.onboardingCycle))})
  app.post('/api/payroll/employee/onboarding/:taskId/mw507/draft',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>saveMW507Draft(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
  app.post('/api/payroll/employee/onboarding/:taskId/mw507/preview',auth,(req,res)=>{res.setHeader('Cache-Control','no-store');return employeeTransaction(req,res,db=>previewMW507Submission2026(db,req.payrollEmployee,req.params.taskId,req.body||{}))})
