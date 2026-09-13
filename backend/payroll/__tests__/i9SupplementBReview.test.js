@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {PDFDocument} from 'pdf-lib'
+import {writeFile} from 'node:fs/promises'
+import {decryptDocument} from '../onboarding.js'
 import {createHarness} from '../testing/harness.js'
 import {employerI9ReviewFixture,syntheticI9CopyPdf} from '../testing/employerI9ReviewFixture.js'
 import {I9_EMPLOYER_ATTESTATION} from '../i9Examination.js'
@@ -75,6 +77,50 @@ test('native Supplement B preview retains exact encrypted source, scopes page re
  await api(path+'/copies',{...upload,reviewId:changed.reviewId,previewSha256:changed.previewSha256},'POST',409)
  const expired=(await h.pool.query(`INSERT INTO payroll_i9_supplement_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,document_fingerprint,created_at,expires_at) SELECT facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,document_fingerprint,clock_timestamp()-interval '2 hours',clock_timestamp()-interval '1 hour' FROM payroll_i9_supplement_review WHERE id=$1 RETURNING id`,[newer.reviewId])).rows[0]
  await api(path+'/page',{...page,reviewId:expired.id,previewSha256:newer.previewSha256},'POST',409)
+ await api(`/compliance/${followup.compliance_task_id}`,{status:'COMPLETE',completionNote:'A generic note is not signed reverification evidence.'},'PATCH',409)
+ await assert.rejects(()=>h.pool.query("UPDATE payroll_compliance_task SET status='COMPLETE' WHERE id=$1",[followup.compliance_task_id]),/retained signed evidence/)
+ const signingReview=await api(path+'/preview',body),signingPage={...page,reviewId:signingReview.reviewId,previewSha256:signingReview.previewSha256}
+ const today=(await h.pool.query("SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=1")).rows[0].today
+ const examination={examinedOn:today,examinerInitials:'RA',identityEvidence:'Authenticated named examiner performed the synthetic physical review.',reverificationRequired:true,requirementSource:'https://www.uscis.gov/i-9-central',requirementEvidence:'Synthetic current employment authorization required reverification.',employeeChoseDocuments:true,currentAuthorizationReviewed:true,documentsGenuineAndRelated:true,copiesComplete:true,copyIds:[retained.id],physicalPresence:true,acceptance:'STANDARD',acceptanceSource:'https://www.uscis.gov/i-9-central',acceptanceEvidence:'Synthetic current employment authorization document accepted.',validUntil:'2032-01-01',authorizationIndefinite:false,authorizationThrough:'2032-01-01',followUpKind:'REVERIFICATION',followUpOn:'2032-01-01',noFurtherReverificationRequired:false}
+ const signBody={...signingPage,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:signingReview.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination}
+ await api(path+'/sign',signBody,'POST',409)
+ for(let n=1;n<=4;n++)await api(path+'/page',{...signingPage,documentKey:'source',page:n})
+ await api(path+'/page',signingPage)
+ await api(path+'/sign',signBody,'POST',409)
+ for(let n=1;n<=2;n++)await api(path+'/copy-page',{...signingPage,copyId:retained.id,page:n})
+ await api(path+'/sign',{...signBody,signature:'Different examiner'},'POST',400)
+ await h.pool.query(`CREATE FUNCTION reject_supplement_sign_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_SUPPLEMENT_SIGNED' THEN RAISE EXCEPTION 'Synthetic signing audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_supplement_sign_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_supplement_sign_audit()`)
+ const documentCount=(await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n
+ await api(path+'/sign',signBody,'POST',500)
+ assert.equal((await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n,documentCount)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_supplement_signature')).rowCount,0)
+ await h.pool.query('DROP TRIGGER reject_supplement_sign_audit ON payroll_audit_log')
+ const [completed,repeated]=await Promise.all([api(path+'/sign',signBody),api(path+'/sign',signBody)]);assert.deepEqual(completed,repeated)
+ assert.deepEqual(await api(path+'/sign',{...signBody,requestKey:signBody.requestKey.toUpperCase()}),completed)
+ assert.equal(completed.status,'COMPLETE');assert.equal(completed.nextFollowup.kind,'REVERIFICATION');assert.equal(completed.nextFollowup.due_on,'2032-01-01')
+ await api(path+'/sign',{...signBody,signature:'Different examiner'},'POST',409)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_supplement_signature'),/immutable/)
+ const savedDocument=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[completed.documentId])).rows[0]
+ const signedPdf=decryptDocument(savedDocument.encrypted_content,`1:${employee.id}:${task.id}`),signedForm=(await PDFDocument.load(signedPdf)).getForm()
+ assert.equal(signedForm.getTextField('Signature of Emp Rep 0').getText(),'Reviewer Alice')
+ assert.equal(signedForm.getTextField('Todays Date 0').getText(),`${today.slice(5,7)}/${today.slice(8,10)}/${today.slice(0,4)}`)
+ await writeFile('/tmp/payroll-i9-supplement-signed-integrated.pdf',signedPdf)
+ // A subsequent reverification retains and requires review of the prior signed supplement.
+ const nextPath=`/employees/${employee.id}/i9/supplement/${completed.nextFollowup.id}`
+ const finalAnswers={...answers,document:{list:'C',title:'Unrestricted Social Security card',number:'SYNTHETIC-CARD',expiresOn:''}}
+ const finalReview=await api(nextPath+'/preview',{signatureId:signed.signatureId,answers:finalAnswers})
+ assert.equal(finalReview.previousSupplements.length,1);assert.equal(finalReview.previousSupplements[0].signatureId,completed.signatureId)
+ const finalPage={...page,reviewId:finalReview.reviewId,previewSha256:finalReview.previewSha256}
+ const finalCopy=await api(nextPath+'/copies',{...upload,...finalPage,requestKey:randomUUID()})
+ for(let n=1;n<=4;n++)await api(nextPath+'/page',{...finalPage,documentKey:'source',page:n})
+ await api(nextPath+'/page',finalPage)
+ for(let n=1;n<=2;n++)await api(nextPath+'/copy-page',{...finalPage,copyId:finalCopy.id,page:n})
+ const finalBody={...signBody,...finalPage,requestKey:randomUUID(),attestation:finalReview.attestation,examination:{...examination,copyIds:[finalCopy.id],validUntil:'',authorizationIndefinite:true,authorizationThrough:'',followUpKind:'NONE',followUpOn:'',noFurtherReverificationRequired:true,acceptanceEvidence:'Synthetic unrestricted card and permanent authorization reviewed.'}}
+ await api(nextPath+'/sign',finalBody,'POST',409)
+ await api(nextPath+'/page',{...finalPage,documentKey:finalReview.previousSupplements[0].documentKey})
+ assert.equal((await api(nextPath+'/sign',finalBody)).nextFollowup,null)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_supplement_signature')).rowCount,2)
+ const records=await api(`/employees/${employee.id}/i9/employer-records`);assert.equal(records.records[0].supplements.length,2);assert.equal(records.records[0].supplements[0].signature,'Reviewer Alice');assert.equal(records.records[0].supplements[1].examination.followUpKind,'NONE')
  await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{onboardingCycle:1,status:'CHANGES_REQUESTED',note:'Reopen employer certification for a corrected examination.'})
  await api(path+'/preview',body,'POST',409)
  await api(path+'/page',{...page,reviewId:newer.reviewId,previewSha256:newer.previewSha256},'POST',409)

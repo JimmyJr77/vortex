@@ -1176,6 +1176,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
       const before = await client.query('SELECT * FROM payroll_compliance_task WHERE id=$1 AND facility_id=$2', [req.params.id, req.canonicalAccess.facilityId])
       if (!before.rows[0]) {await client.query('ROLLBACK');return res.status(404).json({ success: false, message: 'Compliance task not found' })}
       if(['COMPLETE','NOT_APPLICABLE'].includes(status)&&before.rows[0].task_key.startsWith('I9_EVERIFY_CASE:')){await client.query('ROLLBACK');return res.status(409).json({success:false,message:'Record the official E-Verify result and retain case evidence through the dedicated result workflow.'})}
+      if(['COMPLETE','NOT_APPLICABLE'].includes(status)&&before.rows[0].task_key.startsWith('I9_DOCUMENT_FOLLOWUP:')){await client.query('ROLLBACK');return res.status(409).json({success:false,message:'Complete the document follow-up through its retained I-9 examination and signing workflow.'})}
       if(status==='NOT_APPLICABLE'&&['ein','pay-frequency','payroll-records'].includes(before.rows[0].task_key)){await client.query('ROLLBACK');return res.status(409).json({success:false,message:'Employer identity, wage policies, and payroll recordkeeping reviews cannot be waived.'})}
       const { rows } = await client.query(`UPDATE payroll_compliance_task SET status=$1, completion_note=$2,
         completed_at=CASE WHEN $1='COMPLETE' THEN now() ELSE NULL END,

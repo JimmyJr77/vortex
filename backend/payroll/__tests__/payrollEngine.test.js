@@ -121,3 +121,9 @@ test('E-Verify follow-up stays visible without automatically blocking earned pay
  assert.equal(preview.warnings.find(w=>w.code==='COMPLIANCE_I9_EVERIFY_CASE:1').blocking,false)
  assert.equal(preview.warnings.find(w=>w.code==='COMPLIANCE_ein').blocking,true)
 })
+
+test('future and overdue I-9 document follow-ups remain visible without withholding earned pay',()=>{
+ const complianceTasks=['2032-01-01','2020-01-01'].map((dueDate,index)=>({taskKey:`I9_DOCUMENT_FOLLOWUP:1:${index}`,title:'I-9 document follow-up',status:'OPEN',severity:'CRITICAL',dueDate}))
+ const preview=buildPayrollPreview({settings:{timezone:'America/New_York'},employees:[],entries:[],complianceTasks})
+ for(const task of complianceTasks){const warning=preview.warnings.find(w=>w.code===`COMPLIANCE_${task.taskKey}`);assert.ok(warning);assert.equal(warning.blocking,false)}
+})

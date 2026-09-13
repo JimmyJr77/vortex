@@ -352,8 +352,8 @@ export function buildPayrollPreview({ settings, employees, entries, complianceTa
   }))
   const warnings = employeePreviews.flatMap((preview) => preview.warnings.map((item) => ({ ...item, employeeId: preview.employeeId })))
   for (const task of complianceTasks.filter((item) => item.status !== 'COMPLETE' && item.status !== 'NOT_APPLICABLE' && item.severity === 'CRITICAL')) {
-    const eVerify=String(task.taskKey||'').startsWith('I9_EVERIFY_CASE:')
-    warnings.push(warning(`COMPLIANCE_${task.taskKey}`, 'critical', eVerify?`${task.title}. Resolve the case follow-up separately; it does not automatically withhold earned pay.`:task.title, !eVerify))
+    const i9Followup=['I9_EVERIFY_CASE:','I9_DOCUMENT_FOLLOWUP:'].some(prefix=>String(task.taskKey||'').startsWith(prefix))
+    warnings.push(warning(`COMPLIANCE_${task.taskKey}`, 'critical', i9Followup?`${task.title}. Resolve the I-9 follow-up separately; this warning does not withhold earned pay.`:task.title, !i9Followup))
   }
   if(!settings.legalBusinessName||!settings.businessAddress||!settings.onboardingPolicy?.businessPhone)warnings.push(warning('EMPLOYER_STATEMENT_DETAILS','critical','Complete employer name, address, and telephone in Employer setup before issuing payroll statements.',true))
   if (settings.payrollExecutionMode === 'RECORD_ONLY') {

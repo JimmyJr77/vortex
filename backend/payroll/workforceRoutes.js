@@ -1,3 +1,4 @@
+import {signI9SupplementB} from './i9SupplementBSigning.js'
 import {listI9SupplementBCopies,uploadI9SupplementBCopy,viewI9SupplementBCopy,recordI9SupplementBCopyPage} from './i9SupplementBCopies.js'
 import {previewI9SupplementB,recordI9SupplementBPage} from './i9SupplementBReview.js'
 import {readEVerifyResults,recordEVerifyResult} from './i9EVerify.js'
@@ -116,6 +117,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>uploadI9SupplementBCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/copy',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9SupplementBCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9SupplementBCopyPage(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9SupplementB(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/employer-records',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9EmployerRecords(db,context(req)))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9ExaminationDraft(db,context(req),req.params.taskId,req.query))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9ExaminationDraft(db,context(req),req.params.taskId,req.body||{}))})

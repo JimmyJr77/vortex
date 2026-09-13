@@ -17,8 +17,15 @@ export async function i9SupplementBBasis(db,ctx,taskId){
  if(['CITIZEN','NONCITIZEN_NATIONAL'].includes(retained.context.attestationKind))throw fail('Do not reverify a U.S. citizen or noncitizen national.')
  const bytes=decryptDocument(row.encrypted_content,`${ctx.facility}:${ctx.employee}:${row.task_id}`)
  if(hash(bytes)!==row.content_sha256||retained.documentSha256!==row.content_sha256)throw fail('The source employer certification failed its integrity check.')
- const basisHash=hash(JSON.stringify({signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on}))
- return {row,bytes,retained,basisHash}
+ const previousSupplements=[]
+ for(const prior of (await db.query('SELECT s.*,d.content_sha256,d.encrypted_content,d.task_id FROM payroll_i9_supplement_signature s JOIN payroll_private_document d ON d.id=s.document_id WHERE s.signature_id=$1 ORDER BY s.id',[row.id])).rows){
+  const retainedPrior=JSON.parse(decryptDocument(prior.encrypted_evidence,`i9-supplement-signature:${ctx.facility}:${ctx.employee}:${prior.compliance_task_id}:${prior.actor_user_id}`).toString())
+  const pdf=decryptDocument(prior.encrypted_content,`${ctx.facility}:${ctx.employee}:${prior.task_id}`)
+  if(hash(pdf)!==prior.content_sha256||retainedPrior.documentSha256!==prior.content_sha256)throw fail('A prior supplement failed its integrity check.')
+  previousSupplements.push({signatureId:prior.id,documentId:prior.document_id,documentKey:`prior:${prior.id}`,sha256:prior.content_sha256,pdfBase64:pdf.toString('base64'),pageCount:1})
+ }
+ const basisHash=hash(JSON.stringify({signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on,previousSupplements:previousSupplements.map(p=>[p.signatureId,p.sha256])}))
+ return {row,bytes,retained,basisHash,previousSupplements}
 }
 export async function previewI9SupplementB(db,ctx,taskId,body){
  if(!body||Object.keys(body).some(k=>!['signatureId','answers'].includes(k)))throw fail('Use the supported Supplement B preview fields.',400)
@@ -26,10 +33,10 @@ export async function previewI9SupplementB(db,ctx,taskId,body){
  if(String(body.signatureId)!==String(current.row.id))throw fail('Reload the current employer certification before preparing Supplement B.')
  taskId=current.row.compliance_task_id
  const answers=i9SupplementBInput(body.answers),pdf=await renderI9SupplementBPreview(current.bytes,answers),previewSha256=hash(pdf)
- const evidence={answers,pdfBase64:pdf.toString('base64'),sourceDocumentId:current.row.document_id,sourceSha256:current.row.content_sha256,sourcePdfBase64:current.bytes.toString('base64')}
+ const evidence={answers,previousSupplements:current.previousSupplements,pdfBase64:pdf.toString('base64'),sourceDocumentId:current.row.document_id,sourceSha256:current.row.content_sha256,sourcePdfBase64:current.bytes.toString('base64')}
  const row=(await db.query(`INSERT INTO payroll_i9_supplement_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,document_fingerprint) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,previewSha256,encryptDocument(Buffer.from(JSON.stringify(evidence)),aad(ctx,{compliance_task_id:taskId,actor_user_id:ctx.admin})),hash(JSON.stringify(answers.document))])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_SUPPLEMENT_PREVIEW_CREATED','i9_supplement_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,complianceTaskId:taskId,signatureId:current.row.id,previewSha256}])
- return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:evidence.pdfBase64,pageCount:1,source:{documentId:evidence.sourceDocumentId,sha256:evidence.sourceSha256,pdfBase64:evidence.sourcePdfBase64,pageCount:4},attestation:I9_SUPPLEMENT_B_ATTESTATION}
+ return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:evidence.pdfBase64,pageCount:1,previousSupplements:current.previousSupplements,source:{documentId:evidence.sourceDocumentId,sha256:evidence.sourceSha256,pdfBase64:evidence.sourcePdfBase64,pageCount:4},attestation:I9_SUPPLEMENT_B_ATTESTATION}
 }
 export async function currentI9SupplementBReview(db,ctx,taskId,body){
  const current=await i9SupplementBBasis(db,ctx,taskId)
@@ -42,8 +49,9 @@ export async function currentI9SupplementBReview(db,ctx,taskId,body){
  return {row,retained,current}
 }
 export async function recordI9SupplementBPage(db,ctx,taskId,body){
- if(body.displayed!==true||!['supplement','source'].includes(body.documentKey)||!Number.isInteger(body.page)||body.page<1||body.page>(body.documentKey==='source'?4:1))throw fail('Display a page from the current Supplement B review packet.',400)
- const {row}=await currentI9SupplementBReview(db,ctx,taskId,body)
+ if(body.displayed!==true||!(['supplement','source'].includes(body.documentKey)||/^prior:[1-9]\d*$/.test(body.documentKey))||!Number.isInteger(body.page)||body.page<1||body.page>(body.documentKey==='source'?4:1))throw fail('Display a page from the current Supplement B review packet.',400)
+ const {row,retained}=await currentI9SupplementBReview(db,ctx,taskId,body)
+ if(body.documentKey.startsWith('prior:')&&!(retained.previousSupplements||[]).some(p=>p.documentKey===body.documentKey))throw fail('Choose a prior supplement in this review packet.',400)
  await db.query('INSERT INTO payroll_i9_supplement_page_visit(review_id,document_key,page_number) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[row.id,body.documentKey,body.page])
  return {documentKey:body.documentKey,page:body.page,recorded:true}
 }
