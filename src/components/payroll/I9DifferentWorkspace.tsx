@@ -51,6 +51,7 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUp
   {unsaved&&!loading?<p>You have unsaved replacement entries or examination notes.</p>:null}
   {loading?<p role="status">Loading retained receipt context…</p>:null}{error?<p role="alert">{error}</p>:null}
   {context?.sourceKind==='SUPPLEMENT_B'?<p>This receipt was recorded during reverification and requires its Supplement B replacement process.</p>:context?<>
+   <p>This complete replacement certification resolves these original receipt rows when signed: {context.receiptTasks.map(task=>`${task.rowKey} (due ${task.dueOn})`).join('; ')}.</p>
    <p>Receipt row {context.rowKey}; due {context.dueOn}. Original first day employed: {context.employerDefaults.firstDayEmployed}.</p>
    <fieldset disabled={busy||loading||signing} className="min-w-0 space-y-3">
     <label className="block">Replacement document combination<select aria-label="Replacement document combination" className={input} value={choice} onChange={e=>change(()=>setChoice(e.target.value))}><option value="">Choose documents presented</option><option value="LIST_A">List A</option><option value="LIST_B_C">List B and List C</option></select></label>

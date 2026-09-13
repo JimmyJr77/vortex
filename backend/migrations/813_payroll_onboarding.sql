@@ -6173,3 +6173,35 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_different_draft ON payroll_i9_different_draft;
 CREATE TRIGGER payroll_guard_i9_different_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_draft();
+
+-- A new complete Section 2 can resolve multiple original receipt rows together.
+ALTER TABLE payroll_i9_different_review ADD COLUMN IF NOT EXISTS receipt_task_ids BIGINT[];
+CREATE TABLE IF NOT EXISTS payroll_i9_different_resolution (
+ different_signature_id BIGINT NOT NULL REFERENCES payroll_i9_different_signature(id),
+ compliance_task_id BIGINT PRIMARY KEY REFERENCES payroll_compliance_task(id),
+ row_key TEXT NOT NULL CHECK(row_key IN ('A1','A2','A3','B','C')),
+ due_on DATE NOT NULL
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_resolution() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Receipt resolution evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_different_signature s JOIN payroll_i9_different_review r ON r.id=s.review_id JOIN payroll_i9_signature_followup f ON f.signature_id=s.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE s.id=NEW.different_signature_id AND c.id=NEW.compliance_task_id AND c.facility_id=s.facility_id AND c.employee_id=s.employee_id AND c.status IN ('OPEN','IN_PROGRESS') AND f.kind='RECEIPT_REPLACEMENT' AND f.row_key=NEW.row_key AND c.due_date=NEW.due_on AND c.id=ANY(r.receipt_task_ids)) THEN RAISE EXCEPTION 'Resolve only the original receipts in the signed replacement review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_resolution ON payroll_i9_different_resolution;
+CREATE TRIGGER payroll_guard_i9_different_resolution BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_resolution FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_resolution();
+CREATE OR REPLACE FUNCTION payroll_check_i9_different_resolution() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE covered BIGINT[];
+BEGIN
+ SELECT receipt_task_ids INTO covered FROM payroll_i9_different_review WHERE id=NEW.review_id;
+ IF covered IS NULL OR cardinality(covered)=0 OR NOT NEW.compliance_task_id=ANY(covered) OR EXISTS(SELECT 1 FROM unnest(covered) AS covered_task(task_id) WHERE NOT EXISTS(SELECT 1 FROM payroll_i9_different_resolution r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.different_signature_id=NEW.id AND r.compliance_task_id=covered_task.task_id AND c.status='COMPLETE')) THEN RAISE EXCEPTION 'Complete every reviewed receipt with its signed resolution evidence.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_check_i9_different_resolution ON payroll_i9_different_signature;
+CREATE CONSTRAINT TRIGGER payroll_check_i9_different_resolution AFTER INSERT ON payroll_i9_different_signature DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION payroll_check_i9_different_resolution();
+
+CREATE OR REPLACE FUNCTION payroll_guard_i9_document_completion() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.task_key LIKE 'I9_DOCUMENT_FOLLOWUP:%' AND (NEW.status='NOT_APPLICABLE' OR (NEW.status='COMPLETE' AND NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_resolution r JOIN payroll_i9_different_signature s ON s.id=r.different_signature_id WHERE r.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id))) THEN RAISE EXCEPTION 'I-9 document follow-up completion requires retained signed evidence.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;

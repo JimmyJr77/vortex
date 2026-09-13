@@ -20,10 +20,12 @@ export async function i9DifferentDocumentsBasis(db,ctx,taskId){
  // The receipt basis holds the facility/task locks; avoid reversing the employee-update lock order.
  const hiring=(await db.query(`SELECT e.hire_date::text AS "hireDate",h.revision,h.e_verify AS "eVerify",h.offer_accepted_on::text AS "offerAcceptedOn",v.hiring_revision AS "signedHiringRevision" FROM payroll_employee e JOIN payroll_i9_review v ON v.id=$3 AND v.facility_id=e.facility_id AND v.employee_id=e.id JOIN LATERAL (SELECT revision,e_verify,offer_accepted_on FROM payroll_i9_hiring_context WHERE facility_id=e.facility_id AND employee_id=e.id AND task_id=$4 AND onboarding_cycle=$5 ORDER BY revision DESC LIMIT 1) h ON true WHERE e.id=$1 AND e.facility_id=$2`,[ctx.employee,ctx.facility,submission.review_id,submission.task_id,submission.onboarding_cycle])).rows[0]
  if(!hiring||hiring.revision!==hiring.signedHiringRevision||hiring.hireDate!==retained.answers.firstDayEmployed||hiring.eVerify!==current.retained.context.eVerify||hiring.offerAcceptedOn!==current.retained.context.offerAcceptedOn)throw fail('The current hiring information differs from the signed I-9. Reconcile the original employee and employer certification before replacing its receipt.')
+ const receiptTasks=(await db.query(`SELECT c.id AS "taskId",f.row_key AS "rowKey",c.due_date::text AS "dueOn",c.status FROM payroll_i9_signature_followup f JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.signature_id=$1 AND f.kind='RECEIPT_REPLACEMENT' AND f.row_key IN ('A1','A2','A3','B','C') AND c.facility_id=$2 AND c.employee_id=$3 AND c.status IN ('OPEN','IN_PROGRESS') ORDER BY c.due_date,c.id FOR UPDATE OF c`,[root.id,ctx.facility,ctx.employee])).rows
+ if(current.receipt.sourceKind==='SECTION2'&&(!receiptTasks.some(t=>String(t.taskId)===String(root.compliance_task_id))||receiptTasks.some(t=>!current.retained.examination.documents.some(d=>d.rowKey===t.rowKey&&d.acceptance==='RECEIPT'&&d.followUpKind==='RECEIPT_REPLACEMENT'))))throw fail('Reconcile the original receipt tasks with the signed examination before replacement.')
  const employeeSource={bytes,documentId:submission.document_id,sha256:submission.content_sha256,pageCount:4,submissionId:submission.id}
  // Include the employee source in addition to the receipt and prior amendments;
  // a later preview/sign operation must re-resolve and compare this exact basis.
- return {...current,employeeSource,currentHiringContext:hiring,originalSection2:retained.answers,basisHash:hash(JSON.stringify({receiptBasisHash:current.basisHash,currentHiringContext:hiring,employeeDocumentId:employeeSource.documentId,employeeSha256:employeeSource.sha256,employerReviewId:review.id,employerPreviewSha256:review.preview_sha256}))}
+ return {...current,receiptTasks,employeeSource,currentHiringContext:hiring,originalSection2:retained.answers,basisHash:hash(JSON.stringify({receiptBasisHash:current.basisHash,receiptTasks,currentHiringContext:hiring,employeeDocumentId:employeeSource.documentId,employeeSha256:employeeSource.sha256,employerReviewId:review.id,employerPreviewSha256:review.preview_sha256}))}
 }
 
 export async function prepareI9DifferentDocuments(db,ctx,taskId,body){
@@ -33,7 +35,7 @@ export async function prepareI9DifferentDocuments(db,ctx,taskId,body){
  if(String(body.signatureId)!==String(current.row.id))throw fail('Reload the current employer certification before replacing its receipt.')
  if(body.section2?.firstDayEmployed!==current.originalSection2.firstDayEmployed)throw fail('Keep the original first day of employment on the replacement certification.')
  const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- const rendered=await renderI9DifferentDocumentsPreview(current.employeeSource.bytes,{section2:body.section2,reason:body.reason,initials:body.initials,recordedOn:clock.today,originalEmployerSha256:current.row.content_sha256})
+ const rendered=await renderI9DifferentDocumentsPreview(current.employeeSource.bytes,{section2:body.section2,reason:body.reason,initials:body.initials,recordedOn:clock.today,originalEmployerSha256:current.row.content_sha256,receiptTasks:current.receiptTasks})
  return {current,...rendered,previewSha256:hash(rendered.pdf),recordedOn:clock.today}
 }
 
@@ -41,5 +43,5 @@ export async function i9DifferentDocumentsContext(db,ctx,taskId){
  const current=await i9DifferentDocumentsBasis(db,ctx,taskId)
  const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
  const original=current.originalSection2
- return {signatureId:current.row.id,sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.retained.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,eVerify:current.retained.context.eVerify},employerDefaults:{firstDayEmployed:original.firstDayEmployed,businessName:original.businessName,businessAddress:original.businessAddress}}
+ return {receiptTasks:current.receiptTasks,signatureId:current.row.id,sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.retained.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,eVerify:current.retained.context.eVerify},employerDefaults:{firstDayEmployed:original.firstDayEmployed,businessName:original.businessName,businessAddress:original.businessAddress}}
 }

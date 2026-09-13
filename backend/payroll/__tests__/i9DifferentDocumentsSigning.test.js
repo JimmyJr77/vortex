@@ -11,10 +11,10 @@ import {i9SupplementBBasis} from '../i9SupplementBReview.js'
 import {i9EmployerRecords} from '../i9EmployerRecords.js'
 import {I9_EMPLOYER_ATTESTATION} from '../i9Examination.js'
 import {decryptDocument} from '../onboarding.js'
-for(const authorizedWorker of [false,true])test(`replacement signing retains evidence and resolves receipt (${authorizedWorker?'finite authorization':'citizen'})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multipleReceipts:false},{authorizedWorker:true,multipleReceipts:false},{authorizedWorker:false,multipleReceipts:true}])test(`replacement signing retains evidence and resolves receipt (${multipleReceipts?'multiple receipts':authorizedWorker?'finite authorization':'citizen'})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='94'.repeat(32);t.after(()=>{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
  const h=await createHarness();t.after(()=>h.close())
- const {api,employee,signed,pdf}=await receiptFixture(h,{authorizedWorker}),ctx={facility:1,employee:employee.id,admin:99}
+ const {api,employee,signed,pdf}=await receiptFixture(h,{authorizedWorker,multipleReceipts}),ctx={facility:1,employee:employee.id,admin:99}
  const task=(await h.pool.query('SELECT compliance_task_id FROM payroll_i9_signature_followup WHERE signature_id=$1',[signed.signatureId])).rows[0].compliance_task_id
  const current=await i9DifferentDocumentsBasis(h.pool,ctx,task)
  const path=`/employees/${employee.id}/i9/different-documents/${task}`
@@ -42,6 +42,18 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
   await assert.rejects(()=>signI9DifferentDocuments(changed,ctx,task,body),e=>e.status===409&&/current hiring information/.test(e.message))
   assert.equal((await changed.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
  }finally{await changed.query('ROLLBACK');changed.release()}
+ if(multipleReceipts){
+  const sibling=current.receiptTasks.find(t=>String(t.taskId)!==String(task))
+  await h.pool.query("UPDATE payroll_compliance_task SET status='IN_PROGRESS' WHERE id=$1",[sibling.taskId])
+  await api(path+'/sign',body,'POST',409)
+  await h.pool.query("UPDATE payroll_compliance_task SET status='OPEN' WHERE id=$1",[sibling.taskId])
+  await h.pool.query(`CREATE FUNCTION omit_receipt_resolution() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NULL; END $$; CREATE TRIGGER omit_receipt_resolution BEFORE INSERT ON payroll_i9_different_resolution FOR EACH ROW WHEN (NEW.row_key='B') EXECUTE FUNCTION omit_receipt_resolution()`)
+  await api(path+'/sign',body,'POST',500)
+  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_resolution')).rowCount,0)
+  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
+  assert.equal((await h.pool.query("SELECT c.id FROM payroll_compliance_task c JOIN payroll_i9_signature_followup f ON f.compliance_task_id=c.id WHERE f.signature_id=$1 AND c.status='OPEN'",[signed.signatureId])).rowCount,2)
+  await h.pool.query('DROP TRIGGER omit_receipt_resolution ON payroll_i9_different_resolution')
+ }
  await h.pool.query(`CREATE FUNCTION reject_different_sign_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_DIFFERENT_SIGNED' THEN RAISE EXCEPTION 'Synthetic signing audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_different_sign_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_different_sign_audit()`)
  await api(path+'/sign',body,'POST',500)
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
@@ -51,6 +63,16 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
  assert.deepEqual(retry,result)
  await api(path+'/sign',{...body,signature:'Changed'},'POST',409)
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount,1)
+ const resolutions=(await h.pool.query('SELECT r.*,c.status FROM payroll_i9_different_resolution r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.different_signature_id=$1 ORDER BY r.row_key',[result.signatureId])).rows
+ assert.equal(resolutions.length,multipleReceipts?2:1)
+ assert.ok(resolutions.every(r=>r.status==='COMPLETE'))
+ assert.deepEqual(resolutions.map(r=>r.row_key),multipleReceipts?['B','C']:['A1'])
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_resolution'),/immutable/)
+ if(multipleReceipts){
+  assert.equal(review.receiptTasks[0].dueOn,'2026-11-15')
+  for(const covered of resolutions)await api(`/employees/${employee.id}/i9/different-documents/${covered.compliance_task_id}/context`,undefined,'GET',409)
+ }
+
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[task])).rows[0].status,'COMPLETE')
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_signature'),/immutable/)
  const retained=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[result.documentId])).rows[0]
@@ -65,6 +87,8 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
  const signatureRow=(await h.pool.query('SELECT * FROM payroll_i9_different_signature WHERE id=$1',[result.signatureId])).rows[0]
  const currentEvidence=JSON.parse(decryptDocument(signatureRow.encrypted_evidence,`i9-different-signature:1:${employee.id}:${task}:99`).toString())
  assert.equal(currentEvidence.context.hireDate,'2026-09-01')
+ assert.equal(currentEvidence.timing.dueOn,multipleReceipts?'2026-11-15':'2026-11-30')
+ assert.equal(currentEvidence.resolvedReceiptTasks.length,multipleReceipts?2:1)
  assert.equal(currentEvidence.context.revision,current.currentHiringContext.revision)
  assert.equal(currentEvidence.context.signedHiringRevision,current.currentHiringContext.signedHiringRevision)
  const followups=(await h.pool.query("SELECT * FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT:%'")).rows

@@ -11,10 +11,11 @@ const names=new Set(['Last Name (Family Name)','First Name Given Name','Employee
 // Produce a new Section 2 attachment from the original employee-signed source.
 // The original employee signature remains only in that immutable source.
 export async function renderI9DifferentDocumentsPreview(employeeSignedSource,raw){
- if(!raw||Array.isArray(raw)||Object.keys(raw).some(k=>!['section2','reason','initials','recordedOn','originalEmployerSha256'].includes(k)))throw fail('Use the supported different-document replacement fields.')
+ if(!raw||Array.isArray(raw)||Object.keys(raw).some(k=>!['section2','reason','initials','recordedOn','originalEmployerSha256','receiptTasks'].includes(k)))throw fail('Use the supported different-document replacement fields.')
  for(const [key,max] of [['reason',500],['initials',20]])if(typeof raw[key]!=='string'||raw[key].trim().length<(key==='reason'?12:1)||raw[key].length>max||/[\u0000-\u001f\u007f]/.test(raw[key]))throw fail('Record a meaningful replacement explanation and examiner initials.')
  if(!/^\d{4}-\d{2}-\d{2}$/.test(raw.recordedOn||'')||!Number.isFinite(Date.parse(raw.recordedOn))||new Date(raw.recordedOn).toISOString().slice(0,10)!==raw.recordedOn)throw fail('Record an actual date for the new document explanation.')
  if(!/^[a-f0-9]{64}$/.test(raw.originalEmployerSha256||''))throw fail('Retain the hash of the original signed employer certification.')
+ if(raw.receiptTasks!==undefined&&(!Array.isArray(raw.receiptTasks)||!raw.receiptTasks.length||raw.receiptTasks.length>3||raw.receiptTasks.some(t=>!t||typeof t!=='object'||Array.isArray(t)||!['A1','A2','A3','B','C'].includes(t.rowKey)||!/^[1-9]\d*$/.test(String(t.taskId))||!/^\d{4}-\d{2}-\d{2}$/.test(t.dueOn))))throw fail('Retain the scoped receipt tasks resolved by this certification.')
  const input=i9Section2Input(raw.section2),stamp=`${raw.recordedOn.slice(5,7)}/${raw.recordedOn.slice(8,10)}/${raw.recordedOn.slice(0,4)}`
  const explanation=`${raw.initials.trim()} ${stamp}: Different documentation replaces the prior receipt. See attached explanation starting on page 2.`
  const section2={...input,...(input.documentChoice==='LIST_B_C'?{listA:undefined}:{}),additionalInformation:explanation}
@@ -67,6 +68,7 @@ export async function renderI9DifferentDocumentsPreview(employeeSignedSource,raw
  paragraph('Employee',[form.getTextField('First Name Given Name').getText(),form.getTextField('Last Name (Family Name)').getText()].filter(Boolean).join(' '))
  paragraph('Original signed employer certification SHA-256',raw.originalEmployerSha256)
  paragraph('Original employee-signed source SHA-256',sourceBefore)
+ for(const task of raw.receiptTasks||[])paragraph('Receipt resolved by this certification',`Row ${task.rowKey}; task ${task.taskId}; due ${task.dueOn}`)
  paragraph('Reason for different documentation',raw.reason.trim())
  paragraph('Examiner initials and date',`${raw.initials.trim()} ${stamp}`)
  paragraph('Additional employer information',input.additionalInformation||'(blank)')

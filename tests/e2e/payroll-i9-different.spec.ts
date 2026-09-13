@@ -6,29 +6,31 @@ const scenarios=[
  {name:'finite authorization',authorizedWorker:true,rows:['B','C'],alternative:false},
  {name:'List A extension',authorizedWorker:true,rows:['A1'],alternative:false},
  {name:'List B extension',authorizedWorker:false,rows:['B','C'],alternative:false},
+ {name:'two original receipts',authorizedWorker:false,rows:['A1'],alternative:false},
  {name:'List A citizen',authorizedWorker:false,rows:['A1'],alternative:false},
  {name:'List A multiple alternative',authorizedWorker:true,rows:['A1','A2','A3'],alternative:true},
 ]
 for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin signs different replacement documents (${name})`,async({page})=>{
- const listA=rows[0]==='A1',authorizationRow=listA?'A1':'C',exception=name.includes('extension'),exceptionRow=rows[0]
+ const listA=rows[0]==='A1',authorizationRow=listA?'A1':'C',exception=name.includes('extension'),exceptionRow=rows[0],multipleReceipts=name==='two original receipts'
  let notation=''
  const alternativeChecks=['Employer is currently in E-Verify good standing','All relevant hiring sites are enrolled','Required examiner training is complete','The procedure is applied consistently without discrimination','I examined copies before live video','The same originals were presented during live video']
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000);page.setDefaultTimeout(15000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='96'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  try{
-  const {pdf}=await receiptFixture(h,{authorizedWorker,eVerify:alternative})
+  const {pdf}=await receiptFixture(h,{authorizedWorker,eVerify:alternative,multipleReceipts})
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
   let failContext=true,loseUpload=true,loseSign=true,loseDraft=true
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());if(failContext&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/context')){failContext=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic context outage.'})});return}const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0});if(loseDraft&&route.request().method()==='POST'&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/draft')){expect(response.status()).toBe(200);loseDraft=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic draft response lost.'})});return}if(loseUpload&&route.request().method()==='POST'&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/copies')){expect(response.status()).toBe(200);loseUpload=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic upload response lost.'})});return}if(loseSign&&response.status()===200&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/sign')){expect(response.status()).toBe(200);loseSign=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic signing response lost.'})});return}await route.fulfill({response})})
   await page.setViewportSize({width:1100,height:950})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click()
   const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true});await records.locator('summary').filter({hasText:'Current certification'}).click()
-  await records.getByRole('button',{name:'Prepare different replacement documents',exact:true}).click()
+  await records.getByRole('button',{name:'Prepare different replacement documents',exact:true}).first().click()
   const work=page.getByRole('region',{name:'Different-document replacement workspace',exact:true})
   await expect(work.getByRole('alert')).toContainText('Synthetic context outage.')
   await work.getByRole('button',{name:'Reload saved replacement (replaces unsaved entries)',exact:true}).click()
   await expect(work.getByLabel('Employer business name',{exact:true})).not.toHaveValue('')
+  if(multipleReceipts)await expect(work).toContainText('C (due 2026-11-15); B (due 2026-11-30)')
   await expect(work.getByLabel('Replacement examiner name and title',{exact:true})).toHaveValue('')
   await work.getByLabel('Replacement document combination',{exact:true}).selectOption(listA?'LIST_A':'LIST_B_C')
   if(listA)for(let n=1;n<rows.length;n++)await work.getByRole('button',{name:'Add List A document',exact:true}).click()
@@ -179,6 +181,9 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   const download=page.waitForEvent('download');await history.getByRole('button',{name:'Download signed different-document certification',exact:true}).click()
   await (await download).saveAs('/tmp/payroll-different-ui-signed.pdf')
   expect((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount).toBe(1)
+  const resolutions=(await h.pool.query('SELECT r.row_key,c.status FROM payroll_i9_different_resolution r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id ORDER BY r.row_key')).rows
+  expect(resolutions).toEqual(multipleReceipts?[{row_key:'B',status:'COMPLETE'},{row_key:'C',status:'COMPLETE'}]:[{row_key:'A1',status:'COMPLETE'}])
+  if(multipleReceipts)await expect(history).toContainText('Resolved original receipt rows: C (task')
   const followups=(await h.pool.query("SELECT kind,due_on::text FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT:%'")).rows
   expect(followups).toEqual(authorizedWorker?[{kind:'REVERIFICATION',due_on:'2030-01-01'}]:[])
   await expect(records.getByRole('button',{name:'Prepare different replacement documents',exact:true})).toHaveCount(0)
