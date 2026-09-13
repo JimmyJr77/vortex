@@ -69,7 +69,7 @@ export default function EmployeeW4({taskId,cycle,vaultReady,onSubmitted}:{taskId
     <h4 className="font-bold">Step 2: Multiple Jobs or Spouse Works</h4>
     {official('multipleJobs')}
     <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.twoJobs} onChange={e=>change('twoJobs',e.target.checked)}/><span>{wording.twoJobs}</span></label>
-    <W4MultipleJobsWorksheet key={draftReload} filingStatus={form.filingStatus} exempt={form.exempt} onApply={value=>{setForm(current=>({...current,extraWithholdingCents:value,twoJobs:false}));retry.current=null;draftRetry.current=null;setError('');setNotice('Worksheet applied to Step 4(c). Review the amount, then save your draft or prepare the W-4.')}}/>
+    <W4MultipleJobsWorksheet key={`multiple-jobs-${draftReload}`} filingStatus={form.filingStatus} exempt={form.exempt} onApply={value=>{setForm(current=>({...current,extraWithholdingCents:value,twoJobs:false}));retry.current=null;draftRetry.current=null;setError('');setNotice('Worksheet applied to Step 4(c). Review the amount, then save your draft or prepare the W-4.')}}/>
     {official('oneJob')}
     <h4 className="font-bold">Step 3: Claim Dependent and Other Credits</h4>
     {official('credits')}
@@ -80,7 +80,7 @@ export default function EmployeeW4({taskId,cycle,vaultReady,onSubmitted}:{taskId
     <h4 className="font-bold">Step 4: Other Adjustments</h4>
     {official('otherIncome')}{money('otherIncomeCents','Step 4(a): Other income in dollars')}
     {official('deductions')}{money('deductionsCents','Step 4(b): Deductions in dollars')}
-    <W4DeductionsWorksheet key={draftReload} filingStatus={form.filingStatus} exempt={form.exempt} onApply={value=>{change('deductionsCents',value);setNotice('Deductions worksheet applied to Step 4(b). Review the amount, then save your draft or prepare the W-4.')}}/>
+    <W4DeductionsWorksheet key={`deductions-${draftReload}`} filingStatus={form.filingStatus} exempt={form.exempt} onApply={value=>{change('deductionsCents',value);setNotice('Deductions worksheet applied to Step 4(b). Review the amount, then save your draft or prepare the W-4.')}}/>
     {official('extra')}{money('extraWithholdingCents','Step 4(c): Extra withholding in dollars')}
     <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.exempt} onChange={e=>change('exempt',e.target.checked)}/><span>Exempt from withholding: {wording.exempt}</span></label>
     {form.exempt?<div className="space-y-2 text-sm"><p>For exemption, leave filing status and Steps 2–4 blank, as the official instructions require.</p><button type="button" className="font-bold underline" onClick={()=>{draftRetry.current=null;setForm(current=>({...current,filingStatus:'',twoJobs:false,...Object.fromEntries(amounts.map(k=>[k,'']))}))}}>Clear filing status and Steps 2–4 for exemption</button></div>:null}

@@ -1,5 +1,8 @@
+import {nativeJourneyRehireCompletion} from '../support/nativeJourneyRehireCompletion'
+import {nativeJourneyRehirePayroll} from '../support/nativeJourneyRehirePayroll'
 import {nativeJourneyPreparer} from '../support/nativeJourneyPreparer'
 import {nativeJourneyAmendment} from '../support/nativeJourneyAmendment'
+import {nativeJourneyRehire} from '../support/nativeJourneyRehire'
 import {nativeW4,nativeMW507,nativeI9,nativeEmployerI9} from '../support/nativePayrollJourney'
 import {nativeJourneyQuickbooks} from '../support/nativeJourneyQuickbooks'
 import {syntheticI9CopyPdf} from '../../backend/payroll/testing/employerI9ReviewFixture.js'
@@ -16,6 +19,7 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  await adminContext.addInitScript(() => localStorage.setItem('adminToken','payroll-test-admin'))
  const admin=await adminContext.newPage(), employeeContext=await browser.newContext({viewport:{width:390,height:844}}), employee=await employeeContext.newPage()
  const errors:string[]=[];admin.on('pageerror',e=>errors.push(e.message));employee.on('pageerror',e=>errors.push(e.message))
+ for(const page of [admin,employee])page.on('console',message=>{if(message.type()==='error'&&message.text().includes('Encountered two children with the same key'))errors.push(message.text())})
  try{
  for(const context of [adminContext,employeeContext])for(const prefix of ['admin/payroll','payroll/employee'])await context.route(`**/api/${prefix}/**`,async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
  admin.setDefaultTimeout(15000);employee.setDefaultTimeout(15000)
@@ -363,6 +367,30 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
   expect((await h.pool.query('SELECT status FROM payroll_run')).rows.map(row=>row.status)).toEqual(['FINALIZED'])
   expect(quickbooks.journals).toHaveLength(1)
  }
+ if(preparers===0){
+  const start=(await h.pool.query("SELECT to_char((now() AT TIME ZONE timezone)::date+1,'YYYY-MM-DD') AS day FROM payroll_settings WHERE facility_id=1")).rows[0].day
+  await nativeJourneyRehire(admin,employee,email,start)
+  expect((await h.pool.query('SELECT id FROM payroll_employee WHERE employee_number=$1',[number])).rowCount).toBe(1)
+  expect((await h.pool.query('SELECT id FROM payroll_onboarding_task WHERE employee_id=$1 AND onboarding_cycle=2',[hire.id])).rowCount).toBe(13)
+  expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(1)
+  expect((await h.pool.query('SELECT employee_id FROM payroll_tax_election WHERE employee_id=$1',[hire.id])).rowCount).toBe(0)
+  const acceptedOn=new Date(new Date(`${start}T12:00:00Z`).valueOf()-86400000).toISOString().slice(0,10)
+  await nativeJourneyRehireCompletion(admin,employee,number,start,acceptedOn,await syntheticI9CopyPdf())
+  expect((await h.pool.query('SELECT employment_status FROM payroll_employee WHERE id=$1',[hire.id])).rows[0].employment_status).toBe('ACTIVE')
+  expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(2)
+  expect((await h.pool.query('SELECT id FROM payroll_w4_submission WHERE employee_id=$1',[hire.id])).rowCount).toBe(2)
+  expect((await h.pool.query('SELECT id FROM payroll_mw507_submission WHERE employee_id=$1',[hire.id])).rowCount).toBe(2)
+  await nativeJourneyRehirePayroll(admin,employee)
+  expect((await h.pool.query('SELECT status FROM payroll_run ORDER BY id')).rows.map(row=>row.status)).toEqual(['FINALIZED','FINALIZED'])
+  const wages=(await h.pool.query('SELECT employee_id,regular_minutes,regular_pay_cents,net_pay_cents FROM payroll_run_employee ORDER BY payroll_run_id')).rows
+  expect(wages.map(row=>Number(row.employee_id))).toEqual([Number(hire.id),Number(hire.id)])
+  expect(wages.map(row=>Number(row.regular_minutes))).toEqual([480,480])
+  expect(wages.map(row=>Number(row.regular_pay_cents))).toEqual([20000,20000])
+  expect(wages.map(row=>Number(row.net_pay_cents))).toEqual([18470,18470])
+  expect(quickbooks.journals).toHaveLength(2)
+  expect(new Set(quickbooks.journals.map(journal=>journal.requestId)).size).toBe(2)
+  expect(quickbooks.journals.map(journal=>journal.payload.TxnDate)).toEqual(['2026-09-21','2026-10-06'])
+ }
  expect(errors).toEqual([])
- }finally{await adminContext.close();await employeeContext.close();await h.close();quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}
+ }finally{try{await adminContext.unrouteAll({behavior:'wait'});await employeeContext.unrouteAll({behavior:'wait'});await adminContext.close();await employeeContext.close()}finally{await h.close();quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}}
 })

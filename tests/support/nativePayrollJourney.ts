@@ -52,10 +52,10 @@ export async function nativeI9(page:Page,assisted=false,address='2 Test Street')
  await panel.getByRole('button',{name:'Sign I-9 Section 1',exact:true}).click()
  await expect(page.getByRole('status').filter({hasText:'Your signed I-9 Section 1 was submitted'})).toBeVisible()
 }
-export async function nativeEmployerI9(page:Page,pdf:Buffer,preparers=0){
+export async function nativeEmployerI9(page:Page,pdf:Buffer,preparers=0,dates={start:'2026-09-10',exam:'2026-09-10'}){
  const draft=page.getByRole('region',{name:'Employer I-9 draft',exact:true})
  await draft.getByRole('combobox',{name:'Employee-chosen document combination',exact:true}).selectOption('LIST_A')
- for(const [name,value] of [['List A document 1: Document title','U.S. Passport'],['List A document 1: Issuing authority','U.S. Department of State'],['List A document 1: Document number (if any)','SYNTHETIC-JOURNEY-ID'],['List A document 1: Expiration date (if any)','2030-01-01'],['First day of employment (YYYY-MM-DD)','2026-09-10'],['Representative last name, first name and title','Reviewer Alice, Hiring Admin'],['Employer business or organization name','Synthetic Payroll Journey'],['Employer business address, city, state and ZIP','123 Test Street, Bowie MD 20715']])await draft.getByLabel(name,{exact:true}).fill(value)
+ for(const [name,value] of [['List A document 1: Document title','U.S. Passport'],['List A document 1: Issuing authority','U.S. Department of State'],['List A document 1: Document number (if any)','SYNTHETIC-JOURNEY-ID'],['List A document 1: Expiration date (if any)','2030-01-01'],['First day of employment (YYYY-MM-DD)',dates.start],['Representative last name, first name and title','Reviewer Alice, Hiring Admin'],['Employer business or organization name','Synthetic Payroll Journey'],['Employer business address, city, state and ZIP','123 Test Street, Bowie MD 20715']])await draft.getByLabel(name,{exact:true}).fill(value)
  await draft.getByRole('combobox',{name:'Examination method',exact:true}).selectOption('PHYSICAL')
  await draft.getByRole('button',{name:'Save employer I-9 draft',exact:true}).click();await expect(draft.getByRole('status')).toContainText('Employer I-9 draft saved securely.')
  await draft.getByLabel('Employer business or organization name',{exact:true}).fill('Unsaved edit')
@@ -69,7 +69,7 @@ export async function nativeEmployerI9(page:Page,pdf:Buffer,preparers=0){
  await copies.getByRole('button',{name:'View list a document 1 copy 1',exact:true}).click();await pages(copies.getByRole('region',{name:'Official I-9 document copy page review',exact:true}),2)
  const exam=draft.getByRole('region',{name:'Employer examination and signature',exact:true})
  await exam.getByRole('button',{name:'Refresh copies available for certification',exact:true}).click()
- for(const [name,value] of [['Actual examination date','2026-09-10'],['Examiner initials','RA'],['Examiner identity and authority evidence','Authenticated hiring administrator personally examined synthetic original documents.'],['Late-completion explanation (required if signing after the deadline)','Synthetic historical hire certification uses the actual server signing date.'],['Your employer electronic signature','Reviewer Alice']])await exam.getByLabel(name,{exact:true}).fill(value)
+ for(const [name,value] of [['Actual examination date',dates.exam],['Examiner initials','RA'],['Examiner identity and authority evidence','Authenticated hiring administrator personally examined synthetic original documents.'],['Late-completion explanation (required if signing after the deadline)','Synthetic historical hire certification uses the actual server signing date.'],['Your employer electronic signature','Reviewer Alice']])await exam.getByLabel(name,{exact:true}).fill(value)
  for(const day of ['Monday','Tuesday','Wednesday','Thursday','Friday'])await exam.getByRole('checkbox',{name:day,exact:true}).check()
  await exam.getByRole('combobox',{name:'Employment lasts fewer than three business days',exact:true}).selectOption('no')
  await exam.getByRole('combobox',{name:'Acceptance basis',exact:true}).selectOption('STANDARD')
