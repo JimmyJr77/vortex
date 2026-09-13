@@ -32,7 +32,7 @@ test('exceptions require an official source, matching signed notation and follow
  assert.throws(()=>validate({...value,shortEmployment:true,lateReason:'Synthetic delayed completion for this test.'},form),/Receipts cannot/)
  assert.throws(()=>validate({...value,documents:[{...value.documents[0],ruleSource:'https://uscis.gov.attacker.example/rule'}]},form),/official/)
  assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpOn:'2026-11-02'}]},form),/validity/)
- assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpKind:'REVERIFICATION'}]},form),/citizen/)
+ assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpKind:'REVERIFICATION'}]},form),/receipt replacement/)
 })
 test('finite employment authorization needs timely reverification and selected copies cannot repeat',()=>{
  const worker={...context,attestationKind:'AUTHORIZED_WORKER',authorizationExpiresOn:'2026-10-01'}
@@ -41,4 +41,16 @@ test('finite employment authorization needs timely reverification and selected c
  assert.equal(validate(value,answers,worker).late,false)
  assert.throws(()=>validate({...value,documents:[{...value.documents[0],copyIds:['1','1']}]}),/only once/)
  assert.throws(()=>validate({...value,calendarConfirmed:false}),/calendar/)
+})
+
+test('a finite-authorization hire can use a receipt without dropping the authorization deadline',()=>{
+ const notation='RA 09/02/2026 Lost document replacement receipt.'
+ const form={...answers,additionalInformation:notation}
+ const value=input();Object.assign(value.documents[0],{acceptance:'RECEIPT',ruleSource:'https://www.uscis.gov/i-9-central',ruleEvidence:'Examiner verified the actual lost-document replacement receipt.',validUntil:'2026-11-30',formNotation:notation,followUpKind:'RECEIPT_REPLACEMENT',followUpOn:'2026-09-30',noFollowUpConfirmed:false})
+ const worker={...context,attestationKind:'AUTHORIZED_WORKER',authorizationExpiresOn:'2026-10-01'}
+ assert.equal(validate(value,form,worker).late,false)
+ assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpOn:'2026-10-02'}]},form,worker),/authorization date/)
+ assert.throws(()=>validate(value,form,{...worker,authorizationExpiresOn:'2026-09-02'}),/expired/)
+ assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpKind:'OTHER'}]},form,worker),/receipt replacement/)
+ assert.throws(()=>validate({...value,documents:[{...value.documents[0],acceptance:'OTHER_ACCEPTABLE'}]},form,worker),/authorization date/)
 })

@@ -63,6 +63,7 @@ export function validateI9Examination(exam,answers,context){
    if(d.acceptance==='RECEIPT'&&exam.shortEmployment)throw fail('Receipts cannot be used for employment lasting fewer than three business days.')
    if(['RECEIPT','EXTENSION'].includes(d.acceptance)&&(!d.validUntil||d.validUntil<today||d.followUpKind==='NONE'))throw fail('Record the current receipt/extension validity and required follow-up.')
   }
+  if(d.acceptance==='RECEIPT'&&d.followUpKind!=='RECEIPT_REPLACEMENT')throw fail('Schedule the required receipt replacement follow-up.')
   if(d.followUpKind==='NONE'){
    if(!d.noFollowUpConfirmed||d.followUpOn)throw fail('Explicitly confirm that this document requires no follow-up, or schedule one.')
   }else{
@@ -74,7 +75,11 @@ export function validateI9Examination(exam,answers,context){
  }
  if(context.attestationKind==='AUTHORIZED_WORKER'&&context.authorizationExpiresOn&&context.authorizationExpiresOn!=='N/A'){
   const through=exam.documents.filter(d=>d.acceptance==='EXTENSION').map(d=>d.validUntil).filter(Boolean).sort().at(-1)||date(context.authorizationExpiresOn,'employee authorization expiration')
-  if(through<today||!exam.documents.some(d=>d.followUpKind==='REVERIFICATION'&&d.followUpOn<=through))throw fail('Resolve expired employment authorization or schedule its required reverification by the verified validity date.')
+  // A replacement receipt can be the next required action. It must occur by
+  // authorization expiry; receipt completion then records current authorization
+  // and schedules the ensuing reverification. A receipt never extends it.
+  const timelyAction=exam.documents.some(d=>d.followUpOn<=through&&(d.followUpKind==='REVERIFICATION'||(d.acceptance==='RECEIPT'&&d.followUpKind==='RECEIPT_REPLACEMENT')))
+  if(through<today||!timelyAction)throw fail('Resolve expired employment authorization or schedule reverification or receipt replacement by the verified authorization date.')
  }
  return {dueOn,late:today>dueOn}
 }
