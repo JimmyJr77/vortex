@@ -1,3 +1,4 @@
+import {listI9DifferentDocumentsCopies,uploadI9DifferentDocumentsCopy,viewI9DifferentDocumentsCopy,recordI9DifferentDocumentsCopyPage} from './i9DifferentDocumentsCopies.js'
 import {previewI9DifferentDocuments,recordI9DifferentDocumentsPage} from './i9DifferentDocumentsReview.js'
 import {readI9ReceiptDraft,saveI9ReceiptDraft} from './i9ReceiptDraft.js'
 import {signI9Receipt} from './i9ReceiptSigning.js'
@@ -118,6 +119,10 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.get('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readEVerifyResults(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordEVerifyResult(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/receipt/:taskId/context',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9ReceiptContext(db,context(req),req.params.taskId))})
+ app.get('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>listI9DifferentDocumentsCopies(db,context(req),req.params.taskId,req.query))})
+ app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>uploadI9DifferentDocumentsCopy(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copy',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9DifferentDocumentsCopy(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9DifferentDocumentsCopyPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9DifferentDocuments(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9DifferentDocumentsPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/receipt/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9Receipt(db,context(req),req.params.taskId,req.body||{}))})

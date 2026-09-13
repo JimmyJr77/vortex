@@ -1,3 +1,5 @@
+import {randomUUID} from 'node:crypto'
+import {syntheticI9CopyPdf} from '../testing/employerI9ReviewFixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {encryptDocument,decryptDocument} from '../onboarding.js'
@@ -34,6 +36,33 @@ test('different-document reviews retain scoped encrypted packets and immutable c
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_page_visit')).rowCount,10)
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_page_visit'),/immutable/)
  await assert.rejects(()=>h.pool.query("INSERT INTO payroll_i9_different_page_visit VALUES($1,'source',5,clock_timestamp())",[review.reviewId]),/valid page/)
+ const upload={...page,rowKey:'B',requestKey:randomUUID(),filename:'PRIVATE-ID.pdf',contentBase64:(await syntheticI9CopyPdf()).toString('base64')}
+ await api(path+'/copies',{...upload,rowKey:'A1'},'POST',400)
+ await api(path+'/copies',{...upload,contentBase64:Buffer.from('%PDF-invalid').toString('base64')},'POST',400)
+ const documentsBefore=(await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n
+ await h.pool.query(`CREATE FUNCTION reject_different_copy_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_DIFFERENT_COPY_RETAINED' THEN RAISE EXCEPTION 'Synthetic copy audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_different_copy_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_different_copy_audit()`)
+ await api(path+'/copies',upload,'POST',500)
+ assert.equal((await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n,documentsBefore)
+ await h.pool.query('DROP TRIGGER reject_different_copy_audit ON payroll_audit_log')
+ const [copy,retry]=await Promise.all([api(path+'/copies',upload),api(path+'/copies',upload)])
+ assert.deepEqual(copy,retry)
+ assert.equal(copy.pageCount,2)
+ await api(path+'/copies',{...upload,rowKey:'C'},'POST',409)
+ const view={...page,rowKey:'B',copyId:copy.id}
+ const viewed=await api(path+'/copy',view)
+ assert.equal(viewed.contentBase64,upload.contentBase64)
+ assert.equal(viewed.filename.includes('PRIVATE'),false)
+ const privateRow=(await h.pool.query('SELECT d.encrypted_content FROM payroll_i9_different_copy c JOIN payroll_private_document d ON d.id=c.document_id WHERE c.id=$1',[copy.id])).rows[0]
+ assert.equal(privateRow.encrypted_content.includes(Buffer.from('%PDF')),false)
+ await api(path+'/copy',{...view,rowKey:'C'},'POST',404)
+ await api(path+'/copy-page',{...view,page:3},'POST',400)
+ for(let n=1;n<=2;n++)await api(path+'/copy-page',{...view,page:n})
+ await api(path+'/copy-page',view)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_copy_page')).rowCount,2)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_copy'),/immutable/)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_copy_page'),/immutable/)
+ const query=new URLSearchParams({reviewId:page.reviewId,previewSha256:page.previewSha256,rowKey:'B'})
+ assert.equal((await api(path+'/copies?'+query)).copies.length,1)
  const second=await api(path+'/preview',body)
  await api(path+'/page',page,'POST',409)
  await assert.rejects(()=>h.pool.query("INSERT INTO payroll_i9_different_page_visit VALUES($1,'replacement',2,clock_timestamp()) ON CONFLICT DO NOTHING",[review.reviewId]),/valid page/)
@@ -52,6 +81,20 @@ test('different-document reviews retain scoped encrypted packets and immutable c
   }}
   await assert.rejects(()=>currentI9DifferentDocumentsReview(altered,ctx,task,valid),/incomplete|integrity/)
  }
+ const refreshed={...view,reviewId:second.reviewId,previewSha256:second.previewSha256}
+ assert.equal((await api(path+'/copy',refreshed)).contentBase64,upload.contentBase64)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_copy_page WHERE review_id=$1',[second.reviewId])).rowCount,0)
+ await api(path+'/copy-page',view,'POST',409)
+ await api(path+'/copy-page',refreshed)
  await api(path+'/page',valid)
+ const changed=await api(path+'/preview',{...body,section2:{...body.section2,listB:{...doc,number:'CHANGED'}}})
+ await api(path+'/copy',{...view,reviewId:changed.reviewId,previewSha256:changed.previewSha256},'POST',404)
+ const listA=await api(path+'/preview',{...body,section2:{...body.section2,documentChoice:'LIST_A',listB:undefined,listC:undefined,listA:[doc,doc,doc]}})
+ for(const rowKey of ['A1','A2','A3']){
+  const key={...page,reviewId:listA.reviewId,previewSha256:listA.previewSha256,rowKey}
+  const saved=await api(path+'/copies',{...upload,...key,requestKey:randomUUID()})
+  assert.equal((await api(path+'/copy',{...key,copyId:saved.id})).pageCount,2)
+  await api(path+'/copy',{...key,rowKey:rowKey==='A1'?'A2':'A1',copyId:saved.id},'POST',404)
+ }
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[task])).rows[0].status,'OPEN')
 })

@@ -1,3 +1,5 @@
+import {i9Section2Input} from './i9Section2.js'
+import {i9DocumentEntries} from './i9DocumentEntries.js'
 import {createHash} from 'node:crypto'
 import {encryptDocument,decryptDocument} from './onboarding.js'
 import {prepareI9DifferentDocuments,i9DifferentDocumentsBasis} from './i9DifferentDocumentsBasis.js'
@@ -14,8 +16,9 @@ export async function previewI9DifferentDocuments(db,ctx,taskId,body){
  taskId=current.row.compliance_task_id
  const packet=[{documentKey:'replacement',sha256:prepared.previewSha256,pdfBase64:prepared.pdf.toString('base64'),pageCount:prepared.pageCount},...sourcePacket(current)]
  const pageCounts=Object.fromEntries(packet.map(p=>[p.documentKey,p.pageCount]))
- const retained={answers:{section2:body.section2,reason:body.reason,initials:body.initials},recordedOn:prepared.recordedOn,packet}
- const row=(await db.query(`INSERT INTO payroll_i9_different_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,page_counts) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,prepared.previewSha256,encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,taskId,ctx.admin)),pageCounts])).rows[0]
+ const section2=i9Section2Input(body.section2),fingerprints=Object.fromEntries(i9DocumentEntries(section2).map(p=>[p.key,p.fingerprint]))
+ const retained={answers:{section2,reason:body.reason,initials:body.initials},recordedOn:prepared.recordedOn,packet}
+ const row=(await db.query(`INSERT INTO payroll_i9_different_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,page_counts,document_fingerprints) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,prepared.previewSha256,encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,taskId,ctx.admin)),pageCounts,fingerprints])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_DIFFERENT_PREVIEW_CREATED','i9_different_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,complianceTaskId:taskId,signatureId:current.row.id,previewSha256:prepared.previewSha256}])
  return {reviewId:row.id,expiresAt:row.expires_at,previewSha256:prepared.previewSha256,...retained}
 }
@@ -26,6 +29,8 @@ export async function currentI9DifferentDocumentsReview(db,ctx,taskId,body){
  const latest=(await db.query('SELECT id FROM payroll_i9_different_review WHERE compliance_task_id=$1 ORDER BY id DESC LIMIT 1',[taskId])).rows[0]
  if(!row||!row.unexpired||String(row.id)!==String(latest?.id)||row.preview_sha256!==body.previewSha256||row.basis_hash!==current.basisHash||String(row.signature_id)!==String(current.row.id))throw fail('This replacement review expired or its source changed. Prepare it again.')
  const retained=JSON.parse(decryptDocument(row.encrypted_review,aad(ctx,taskId,ctx.admin)).toString())
+ const fingerprints=Object.fromEntries(i9DocumentEntries(retained.answers.section2).map(p=>[p.key,p.fingerprint]))
+ if(Object.keys(fingerprints).length!==Object.keys(row.document_fingerprints).length||Object.entries(fingerprints).some(([key,value])=>row.document_fingerprints[key]!==value))throw fail('The replacement document entries failed their integrity check.')
  const expected=[{documentKey:'replacement',sha256:row.preview_sha256},...sourcePacket(current)]
  if(!Array.isArray(retained.packet)||retained.packet.length!==expected.length||Object.keys(row.page_counts).length!==expected.length)throw fail('The retained replacement packet is incomplete.')
  for(const part of expected){
