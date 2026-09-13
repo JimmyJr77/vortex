@@ -1,23 +1,25 @@
+import I9DifferentCopies from './I9DifferentCopies'
 import {useEffect,useState} from 'react'
 import {workforceApi,type I9DifferentContext,type I9DifferentPreview,type I9EmployerDocument} from '../../utils/workforceApi'
 import I9DifferentReviewPages from './I9DifferentReviewPages'
 const blank=():I9EmployerDocument=>({title:'',issuingAuthority:'',number:'',expiresOn:''})
 const input='mt-1 block w-full min-w-0 rounded border p-2'
 export default function I9DifferentWorkspace({employeeId,taskId,signatureId}:{employeeId:number;taskId:string|number;signatureId:string|number}){
+ const [selected,setSelected]=useState<Record<string,string[]>>({})
  const [reload,setReload]=useState(0)
  const [open,setOpen]=useState(false),[context,setContext]=useState<I9DifferentContext|null>(null),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState<I9DifferentPreview|null>(null)
  const [choice,setChoice]=useState(''),[method,setMethod]=useState(''),[listA,setListA]=useState<I9EmployerDocument[]>([blank()]),[listB,setListB]=useState(blank),[listC,setListC]=useState(blank)
  const [businessName,setBusinessName]=useState(''),[businessAddress,setBusinessAddress]=useState(''),[representative,setRepresentative]=useState(''),[reason,setReason]=useState(''),[initials,setInitials]=useState(''),[notes,setNotes]=useState('')
  useEffect(()=>{
   if(!open)return
-  let live=true;setLoading(true);setError('');setContext(null);setPreview(null)
+  let live=true;setLoading(true);setError('');setContext(null);setPreview(null);setSelected({})
   void workforceApi.differentContext(employeeId,taskId).then(value=>{if(!live)return;if(String(value.signatureId)!==String(signatureId))throw new Error('Reload the current employer certification.');setContext(value);setBusinessName(value.employerDefaults.businessName);setBusinessAddress(value.employerDefaults.businessAddress)}).catch(e=>{if(live)setError(e instanceof Error?e.message:'Unable to load the receipt context.')}).finally(()=>{if(live)setLoading(false)})
   return()=>{live=false}
  },[open,employeeId,taskId,signatureId,reload])
- const change=(action:()=>void)=>{setPreview(null);setError('');action()}
+ const change=(action:()=>void)=>{setPreview(null);setSelected({});setError('');action()}
  const prepare=async()=>{
   if(!context)return
-  setBusy(true);setError('');setPreview(null)
+  setBusy(true);setError('');setPreview(null);setSelected({})
   try{setPreview(await workforceApi.differentPreview(employeeId,taskId,{signatureId,reason,initials,section2:{edition:'01/20/25',documentChoice:choice,...(choice==='LIST_A'?{listA}:{listB,listC}),examinationMethod:method,firstDayEmployed:context.employerDefaults.firstDayEmployed,representativeNameAndTitle:representative,businessName,businessAddress,additionalInformation:notes}}))}
   catch(e){setError(e instanceof Error?e.message:'Unable to prepare the replacement packet.')}
   finally{setBusy(false)}
@@ -44,7 +46,7 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId}:{em
     <button type="button" className="rounded border p-2" disabled={!choice||!method} onClick={()=>void prepare()}>Prepare replacement certification</button>
    </fieldset>
    {busy?<p role="status">Preparing replacement packet…</p>:null}
-   {preview?<div className="min-w-0 space-y-3"><p>Review every page. Preparing this packet does not complete the receipt follow-up.</p>{preview.packet.map(part=><I9DifferentReviewPages key={`${preview.reviewId}:${part.documentKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} documentKey={part.documentKey} pdfBase64={part.pdfBase64} pageCount={part.pageCount} title={part.documentKey==='replacement'?'Review new replacement certification':part.documentKey==='source'?'Review original employer I-9':part.documentKey==='employee'?'Review original employee I-9':`Review retained amendment ${part.documentKey}`}/>)}</div>:null}
+   {preview?<div className="min-w-0 space-y-3"><p>Review every page. Preparing this packet does not complete the receipt follow-up.</p>{preview.packet.map(part=><I9DifferentReviewPages key={`${preview.reviewId}:${part.documentKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} documentKey={part.documentKey} pdfBase64={part.pdfBase64} pageCount={part.pageCount} title={part.documentKey==='replacement'?'Review new replacement certification':part.documentKey==='source'?'Review original employer I-9':part.documentKey==='employee'?'Review original employee I-9':`Review retained amendment ${part.documentKey}`}/>) }{(choice==='LIST_A'?listA.map((_,index)=>`A${index+1}`):['B','C']).map(rowKey=><I9DifferentCopies key={`${preview.reviewId}:${rowKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} rowKey={rowKey} selected={selected[rowKey]||[]} onSelected={ids=>setSelected(value=>({...value,[rowKey]:ids}))}/>)}</div>:null}
   </>:null}
  </section>
 }
