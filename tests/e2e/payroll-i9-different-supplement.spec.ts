@@ -8,8 +8,8 @@ test('admin completes a different-document Supplement B replacement',async({page
  try{
  const {pdf,today}=await supplementReceiptFixture(h)
  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
- let loseSign=true
- await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0});if(loseSign&&response.status()===200&&u.pathname.includes('/different-supplement/')&&u.pathname.endsWith('/sign')){loseSign=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic signing response lost.'})});return}await route.fulfill({response})})
+ let loseSign=true,loseDraft=true,loseCopy=true
+ await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0});if(response.status()===200&&route.request().method()==='POST'&&u.pathname.includes('/different-supplement/')){const kind=loseDraft&&u.pathname.endsWith('/draft')?'draft':loseCopy&&u.pathname.endsWith('/copies')?'copy':null;if(kind){if(kind==='draft')loseDraft=false;else loseCopy=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:`Synthetic ${kind} response lost.`})});return}}if(loseSign&&response.status()===200&&u.pathname.includes('/different-supplement/')&&u.pathname.endsWith('/sign')){loseSign=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic signing response lost.'})});return}await route.fulfill({response})})
  await page.setViewportSize({width:1100,height:950})
  await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click()
  const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true});await records.locator('summary').filter({hasText:'Current certification'}).click()
@@ -19,6 +19,9 @@ test('admin completes a different-document Supplement B replacement',async({page
  for(const [label,value] of [['Reason for different replacement documents','Employee selected a different acceptable authorization document.'],['Examiner initials on replacement explanation','RA'],['Document title','Synthetic replacement authorization'],['Document number (if any)','SYNTHETIC-C'],['Document expiration (if any)','2032-01-01'],['Examiner name on Supplement B','Reviewer Alice']])await work.getByLabel(label,{exact:true}).fill(value)
  await work.getByLabel('Examination method',{exact:true}).selectOption('PHYSICAL')
  await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
+ await expect(work.getByRole('alert')).toContainText('Synthetic draft response lost.')
+ await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
+ expect((await h.pool.query('SELECT revision FROM payroll_i9_different_supplement_draft')).rows).toEqual([{revision:1}])
  await expect(work.getByText('Unfinished supplement replacement saved securely for your admin account.',{exact:true})).toBeVisible()
  await work.getByRole('button',{name:'Reload my saved supplement replacement (replaces unsaved entries)',exact:true}).click()
  await expect(work.getByLabel('Document title',{exact:true})).toHaveValue('Synthetic replacement authorization')
@@ -33,12 +36,34 @@ test('admin completes a different-document Supplement B replacement',async({page
  const copies=work.getByRole('region',{name:'Replacement document document copies',exact:true})
  await copies.getByLabel('Replacement document copy (PDF, PNG or JPEG, up to 5 MB)',{exact:true}).setInputFiles({name:'synthetic.pdf',mimeType:'application/pdf',buffer:pdf})
  await copies.getByRole('button',{name:'Retain replacement copy',exact:true}).click()
+ await expect(copies.getByRole('alert')).toContainText('Synthetic copy response lost.')
+ await copies.getByRole('button',{name:'Retain replacement copy',exact:true}).click()
+ expect(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_copy')).rows[0].count)).toBe(1)
  await copies.getByRole('button',{name:'Review replacement copy 1 (2 pages)',exact:true}).click()
  const viewer=copies.getByRole('region',{name:'Official replacement document document copy page review',exact:true})
  for(let n=1;n<=2;n++){await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(viewer.getByRole('status')).toContainText(`Page ${n} of 2 displayed and review visit saved.`,{timeout:30000})}
  await copies.getByLabel('Use replacement copy 1',{exact:true}).check()
  for(const [label,value] of [['Actual examination date',today],['Examiner identity and authority evidence','Reviewer Alice examined the original document.'],['Official reverification rule URL','https://www.uscis.gov/i-9-central'],['Employee-specific reason reverification is required','Synthetic finite authorization requires review.'],['Different-document replacement evidence','Employee chose different acceptable documentation.'],['Official document-acceptance rule URL','https://www.uscis.gov/i-9-central'],['Document acceptance and future-review evidence','Synthetic acceptance and current authorization review.'],['Current authorization expiration (unless indefinite)','2031-01-01'],['Next follow-up date (if required)','2031-01-01']])await work.getByLabel(label,{exact:true}).fill(value)
  await work.getByLabel('Document acceptance',{exact:true}).selectOption('STANDARD');await work.getByLabel('Is current authorization indefinite?',{exact:true}).selectOption('no');await work.getByLabel('Required next follow-up',{exact:true}).selectOption('REVERIFICATION')
+ await work.getByLabel('I read and affirm the Supplement B certification.',{exact:true}).check()
+ await work.getByLabel('Your examiner signature',{exact:true}).fill('Unsaved signature')
+ await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
+ await expect(work.getByText('Unfinished supplement replacement saved securely for your admin account.',{exact:true})).toBeVisible()
+ expect((await h.pool.query('SELECT revision FROM payroll_i9_different_supplement_draft')).rows).toEqual([{revision:2}])
+ await work.getByRole('button',{name:'Reload my saved supplement replacement (replaces unsaved entries)',exact:true}).click()
+ await expect(work.getByRole('button',{name:'Prepare replacement Supplement B for review',exact:true})).toBeEnabled()
+ await work.getByRole('button',{name:'Prepare replacement Supplement B for review',exact:true}).click()
+ await expect(work.getByLabel('Examiner identity and authority evidence',{exact:true})).toHaveValue('Reviewer Alice examined the original document.')
+ await expect(work.getByLabel('I read and affirm the Supplement B certification.',{exact:true})).not.toBeChecked()
+ await expect(work.getByLabel('Your examiner signature',{exact:true})).toHaveValue('')
+ await expect(copies.getByLabel('Use replacement copy 1',{exact:true})).not.toBeChecked()
+ for(const [key,count] of Object.entries(counts)){
+ const title=key==='replacement'?'Replacement Supplement B to sign':`Retained I-9 record ${key}`,part=work.getByRole('region',{name:`Official ${title} page review`,exact:true})
+ for(let n=1;n<=Number(count);n++){await part.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(part.getByRole('status')).toContainText(`Page ${n} of ${count} displayed and review visit saved.`,{timeout:30000})}
+ }
+ await copies.getByRole('button',{name:'Review replacement copy 1 (2 pages)',exact:true}).click()
+ for(let n=1;n<=2;n++){await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(viewer.getByRole('status')).toContainText(`Page ${n} of 2 displayed and review visit saved.`,{timeout:30000})}
+ await copies.getByLabel('Use replacement copy 1',{exact:true}).check()
  for(const label of ['The employee chose different acceptable documentation to replace the retained receipt.','This employee currently requires reverification and is not exempt.','The employee chose their acceptable List A or C documentation.','I reviewed current authorization and applicable automatic extensions.','The original documents reasonably appear genuine and relate to this employee.','The selected copies include every required side and page.','I examined the originals in the employee’s physical presence.','I read and affirm the Supplement B certification.','I am the representative who performed this examination.','I reviewed every source, prior supplement, new supplement and selected copy page.','My identity and authority as the named representative are confirmed.'])await work.getByLabel(label,{exact:true}).check()
  await work.getByLabel('Your examiner signature',{exact:true}).fill('Reviewer Alice')
  await page.setViewportSize({width:390,height:844});await work.screenshot({path:'/tmp/payroll-different-supplement-mobile.png'})
