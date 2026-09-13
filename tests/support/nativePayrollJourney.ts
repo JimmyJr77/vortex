@@ -38,10 +38,10 @@ export async function nativeMW507(page:Page){
  await panel.getByRole('button',{name:'Sign and submit MW507',exact:true}).click()
  await expect(page.getByRole('status').filter({hasText:'Your signed MW507 was submitted'})).toBeVisible()
 }
-export async function nativeI9(page:Page){
+export async function nativeI9(page:Page,assisted=false){
  const panel=page.getByRole('region',{name:'Internal I-9 draft',exact:true})
  for(const [name,value] of [['Last name (family name)','Browser'],['First name (given name)','Morgan'],['Street address','2 Test Street'],['City or town','Bowie'],['State','MD'],['ZIP code','20715'],['Date of birth (YYYY-MM-DD)','2000-01-01'],['Social Security number (if provided)','123456789']])await panel.getByLabel(name,{exact:true}).fill(value)
- for(const [name,value] of [['Citizenship or immigration attestation','CITIZEN'],['Have you applied for an SSN and are waiting to receive it?','NO'],['Did a preparer or translator assist you with Section 1?','NO']])await panel.getByRole('combobox',{name,exact:true}).selectOption(value)
+ for(const [name,value] of [['Citizenship or immigration attestation','CITIZEN'],['Have you applied for an SSN and are waiting to receive it?','NO'],['Did a preparer or translator assist you with Section 1?',assisted?'YES':'NO']])await panel.getByRole('combobox',{name,exact:true}).selectOption(value)
  await panel.getByRole('button',{name:'Save I-9 draft',exact:true}).click();await expect(panel.getByRole('status')).toContainText('I-9 draft saved securely.')
  await panel.getByLabel('First name (given name)',{exact:true}).fill('Unsaved edit')
  await panel.getByRole('button',{name:'Reload saved I-9 draft (replaces unsaved entries)',exact:true}).click()
@@ -52,7 +52,7 @@ export async function nativeI9(page:Page){
  await panel.getByRole('button',{name:'Sign I-9 Section 1',exact:true}).click()
  await expect(page.getByRole('status').filter({hasText:'Your signed I-9 Section 1 was submitted'})).toBeVisible()
 }
-export async function nativeEmployerI9(page:Page,pdf:Buffer){
+export async function nativeEmployerI9(page:Page,pdf:Buffer,preparers=0){
  const draft=page.getByRole('region',{name:'Employer I-9 draft',exact:true})
  await draft.getByRole('combobox',{name:'Employee-chosen document combination',exact:true}).selectOption('LIST_A')
  for(const [name,value] of [['List A document 1: Document title','U.S. Passport'],['List A document 1: Issuing authority','U.S. Department of State'],['List A document 1: Document number (if any)','SYNTHETIC-JOURNEY-ID'],['List A document 1: Expiration date (if any)','2030-01-01'],['First day of employment (YYYY-MM-DD)','2026-09-10'],['Representative last name, first name and title','Reviewer Alice, Hiring Admin'],['Employer business or organization name','Synthetic Payroll Journey'],['Employer business address, city, state and ZIP','123 Test Street, Bowie MD 20715']])await draft.getByLabel(name,{exact:true}).fill(value)
@@ -62,6 +62,7 @@ export async function nativeEmployerI9(page:Page,pdf:Buffer){
  await draft.getByRole('button',{name:'Reload employer draft (replaces unsaved entries)',exact:true}).click()
  await expect(draft.getByLabel('Employer business or organization name',{exact:true})).toHaveValue('Synthetic Payroll Journey')
  await draft.getByRole('button',{name:'Prepare employer I-9 preview',exact:true}).click();await pages(draft.getByRole('region',{name:'Official I-9 employer preview page review',exact:true}),4)
+ for(let index=1;index<=preparers;index++)await pages(draft.getByRole('region',{name:`Official I-9 preparer certificate ${index} page review`,exact:true}),1)
  const copies=draft.getByRole('region',{name:'I-9 document copies',exact:true})
  await copies.getByLabel('List A document 1: copy file (PDF, PNG or JPEG, up to 5 MB)',{exact:true}).setInputFiles({name:'synthetic-id.pdf',mimeType:'application/pdf',buffer:pdf})
  await copies.getByRole('button',{name:'Retain list a document 1 copy',exact:true}).click();await expect(copies.getByRole('status')).toContainText('Document copy retained securely')
