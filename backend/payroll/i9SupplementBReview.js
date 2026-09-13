@@ -6,15 +6,15 @@ const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const hash=value=>createHash('sha256').update(value).digest('hex')
 const aad=(ctx,row)=>`i9-supplement-review:${ctx.facility}:${ctx.employee}:${row.compliance_task_id}:${row.actor_user_id}`
 export const I9_SUPPLEMENT_B_ATTESTATION='I attest, under penalty of perjury, that to the best of my knowledge, this employee is authorized to work in the United States, and if the employee presented documentation, the documentation I examined appears to be genuine and to relate to the individual who presented it.'
-export async function i9SupplementBBasis(db,ctx,taskId){
+export async function i9DocumentFollowupBasis(db,ctx,taskId,kind){
  await db.query('SELECT facility_id FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[ctx.facility])
- const row=(await db.query(`SELECT c.id AS compliance_task_id,c.status,c.due_date::text AS due_on,f.kind,s.*,d.content_sha256,d.encrypted_content,e.status AS employee_status,e.response AS employee_response,t.status AS employer_status,t.response AS employer_response,t.onboarding_cycle AS current_cycle FROM payroll_compliance_task c JOIN payroll_i9_signature_followup f ON f.compliance_task_id=c.id JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_private_document d ON d.id=s.document_id JOIN payroll_onboarding_task t ON t.id=s.task_id JOIN payroll_onboarding_task e ON e.facility_id=s.facility_id AND e.employee_id=s.employee_id AND e.task_key='I9' WHERE c.id=$1 AND c.facility_id=$2 AND c.employee_id=$3 AND s.facility_id=c.facility_id AND s.employee_id=c.employee_id FOR UPDATE OF c,t,e`,[taskId,ctx.facility,ctx.employee])).rows[0]
+ const row=(await db.query(`SELECT c.id AS compliance_task_id,c.status,c.due_date::text AS due_on,f.kind,f.row_key AS followup_row_key,s.*,d.content_sha256,d.encrypted_content,e.status AS employee_status,e.response AS employee_response,t.status AS employer_status,t.response AS employer_response,t.onboarding_cycle AS current_cycle FROM payroll_compliance_task c JOIN payroll_i9_signature_followup f ON f.compliance_task_id=c.id JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_private_document d ON d.id=s.document_id JOIN payroll_onboarding_task t ON t.id=s.task_id JOIN payroll_onboarding_task e ON e.facility_id=s.facility_id AND e.employee_id=s.employee_id AND e.task_key='I9' WHERE c.id=$1 AND c.facility_id=$2 AND c.employee_id=$3 AND s.facility_id=c.facility_id AND s.employee_id=c.employee_id FOR UPDATE OF c,t,e`,[taskId,ctx.facility,ctx.employee])).rows[0]
  if(!row)throw fail('I-9 document follow-up not found.',404)
- if(row.kind!=='REVERIFICATION')throw fail('This follow-up requires its document replacement or correction workflow.')
+ if(row.kind!==kind)throw fail('This follow-up requires its document replacement or correction workflow.')
  if(!['OPEN','IN_PROGRESS'].includes(row.status))throw fail('This follow-up is already closed.')
  if(row.employee_status!=='COMPLETE'||row.employer_status!=='COMPLETE'||row.current_cycle!==row.onboarding_cycle||String(row.employee_response?.i9SubmissionId)!==String(row.submission_id)||String(row.employer_response?.i9EmployerSignatureId)!==String(row.id))throw fail('The source I-9 is historical or was reopened. Resolve its current certification first.')
  const retained=JSON.parse(decryptDocument(row.encrypted_signature,`i9-employer-signature:${ctx.facility}:${ctx.employee}:${row.task_id}:${row.onboarding_cycle}:${row.actor_user_id}`).toString())
- if(['CITIZEN','NONCITIZEN_NATIONAL'].includes(retained.context.attestationKind))throw fail('Do not reverify a U.S. citizen or noncitizen national.')
+ if(kind==='REVERIFICATION'&&['CITIZEN','NONCITIZEN_NATIONAL'].includes(retained.context.attestationKind))throw fail('Do not reverify a U.S. citizen or noncitizen national.')
  const bytes=decryptDocument(row.encrypted_content,`${ctx.facility}:${ctx.employee}:${row.task_id}`)
  if(hash(bytes)!==row.content_sha256||retained.documentSha256!==row.content_sha256)throw fail('The source employer certification failed its integrity check.')
  const previousSupplements=[]
@@ -27,6 +27,7 @@ export async function i9SupplementBBasis(db,ctx,taskId){
  const basisHash=hash(JSON.stringify({signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on,previousSupplements:previousSupplements.map(p=>[p.signatureId,p.sha256])}))
  return {row,bytes,retained,basisHash,previousSupplements}
 }
+export const i9SupplementBBasis=(db,ctx,taskId)=>i9DocumentFollowupBasis(db,ctx,taskId,'REVERIFICATION')
 export async function previewI9SupplementB(db,ctx,taskId,body){
  if(!body||Object.keys(body).some(k=>!['signatureId','answers'].includes(k)))throw fail('Use the supported Supplement B preview fields.',400)
  const current=await i9SupplementBBasis(db,ctx,taskId)

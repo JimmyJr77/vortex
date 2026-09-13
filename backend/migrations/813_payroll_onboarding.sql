@@ -5944,3 +5944,35 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_supplement_draft ON payroll_i9_supplement_draft;
 CREATE TRIGGER payroll_guard_i9_supplement_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_supplement_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_supplement_draft();
+
+
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_review (
+ id BIGSERIAL PRIMARY KEY, facility_id BIGINT NOT NULL, employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id), signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id), actor_user_id BIGINT NOT NULL,
+ basis_hash TEXT NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'), preview_sha256 TEXT NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'), encrypted_review BYTEA NOT NULL CHECK(octet_length(encrypted_review)>28),
+ page_count INTEGER NOT NULL CHECK(page_count BETWEEN 2 AND 100), source_page_count INTEGER NOT NULL CHECK(source_page_count IN (1,4)), CHECK(page_count>source_page_count),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), expires_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()+interval '30 minutes', CHECK(expires_at>created_at)
+);
+ALTER TABLE payroll_i9_receipt_review ADD COLUMN IF NOT EXISTS document_fingerprint TEXT CHECK(document_fingerprint ~ '^[a-f0-9]{64}$');
+CREATE INDEX IF NOT EXISTS payroll_i9_receipt_review_task ON payroll_i9_receipt_review(compliance_task_id,id DESC);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_review() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 receipt amendment review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NEW.document_fingerprint IS NULL THEN RAISE EXCEPTION 'Prepare a receipt amendment review with its document fingerprint.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_signature_followup f JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.signature_id=NEW.signature_id AND f.compliance_task_id=NEW.compliance_task_id AND f.kind='RECEIPT_REPLACEMENT' AND s.employee_id=NEW.employee_id AND s.facility_id=NEW.facility_id AND c.employee_id=NEW.employee_id AND c.facility_id=NEW.facility_id) THEN RAISE EXCEPTION 'receipt amendment review must match its employee certification and receipt follow-up.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_review ON payroll_i9_receipt_review;
+CREATE TRIGGER payroll_guard_i9_receipt_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_review();
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_receipt_review(id), document_key TEXT NOT NULL CHECK(document_key IN ('source','amendment')), page_number INTEGER NOT NULL,
+ viewed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(review_id,document_key,page_number), CHECK(page_number BETWEEN 1 AND 100)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 receipt amendment page review history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_review r WHERE r.id=NEW.review_id AND NEW.page_number<=CASE WHEN NEW.document_key='source' THEN r.source_page_count ELSE r.page_count END) THEN RAISE EXCEPTION 'Review a valid receipt packet page.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_page ON payroll_i9_receipt_page_visit;
+CREATE TRIGGER payroll_guard_i9_receipt_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_page();
