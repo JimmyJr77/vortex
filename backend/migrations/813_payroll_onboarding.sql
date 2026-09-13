@@ -6205,3 +6205,36 @@ BEGIN
  IF NEW.task_key LIKE 'I9_DOCUMENT_FOLLOWUP:%' AND (NEW.status='NOT_APPLICABLE' OR (NEW.status='COMPLETE' AND NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_resolution r JOIN payroll_i9_different_signature s ON s.id=r.different_signature_id WHERE r.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id))) THEN RAISE EXCEPTION 'I-9 document follow-up completion requires retained signed evidence.' USING ERRCODE='23514'; END IF;
  RETURN NEW;
 END $$;
+
+-- Retained different-document Supplement B replacement reviews.
+CREATE TABLE IF NOT EXISTS payroll_i9_different_supplement_review (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id),signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id),actor_user_id BIGINT NOT NULL,
+ basis_hash TEXT NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'),preview_sha256 TEXT NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ encrypted_review BYTEA NOT NULL CHECK(octet_length(encrypted_review)>28),page_counts JSONB NOT NULL CHECK(jsonb_typeof(page_counts)='object'),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),expires_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()+interval '30 minutes',CHECK(expires_at>created_at)
+);
+CREATE INDEX IF NOT EXISTS payroll_i9_different_supplement_review_task ON payroll_i9_different_supplement_review(compliance_task_id,id DESC);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_supplement_review() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Different-document review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT (NEW.page_counts ?& ARRAY['replacement','source','employee']) OR NEW.page_counts->>'source'<>'4' OR NEW.page_counts->>'employee'<>'4' OR COALESCE((NEW.page_counts->>'replacement')::integer,0)<2 OR EXISTS(SELECT 1 FROM jsonb_each_text(NEW.page_counts) p WHERE p.key !~ '^(replacement|source|employee|prior:[1-9][0-9]*|receipt:[1-9][0-9]*|different:[1-9][0-9]*)$' OR p.value !~ '^([1-9][0-9]?|100)$') THEN RAISE EXCEPTION 'Retain complete replacement packet page counts.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_signature_followup f JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id JOIN payroll_onboarding_task t ON t.id=s.task_id JOIN payroll_onboarding_task e ON e.facility_id=s.facility_id AND e.employee_id=s.employee_id AND e.task_key='I9' WHERE f.signature_id=NEW.signature_id AND f.compliance_task_id=NEW.compliance_task_id AND f.kind='RECEIPT_REPLACEMENT' AND f.row_key ~ '^SUPPLEMENT:[1-9][0-9]*$' AND EXISTS(SELECT 1 FROM payroll_i9_supplement_signature prior WHERE f.row_key='SUPPLEMENT:'||prior.id::text AND prior.signature_id=s.id) AND c.status IN ('OPEN','IN_PROGRESS') AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id AND c.facility_id=NEW.facility_id AND c.employee_id=NEW.employee_id AND t.status='COMPLETE' AND e.status='COMPLETE' AND t.onboarding_cycle=s.onboarding_cycle AND e.onboarding_cycle=s.onboarding_cycle AND t.response->>'i9EmployerSignatureId'=s.id::text AND e.response->>'i9SubmissionId'=s.submission_id::text) THEN RAISE EXCEPTION 'Use the current employee certification and open Supplement B receipt task.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_supplement_review ON payroll_i9_different_supplement_review;
+CREATE TRIGGER payroll_guard_i9_different_supplement_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_supplement_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_supplement_review();
+CREATE TABLE IF NOT EXISTS payroll_i9_different_supplement_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_different_supplement_review(id),document_key TEXT NOT NULL,page_number INTEGER NOT NULL CHECK(page_number BETWEEN 1 AND 100),
+ viewed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(review_id,document_key,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_supplement_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Different-document page review history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_different_supplement_review r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.id=NEW.review_id AND r.expires_at>clock_timestamp() AND c.status IN ('OPEN','IN_PROGRESS') AND r.id=(SELECT MAX(id) FROM payroll_i9_different_supplement_review WHERE compliance_task_id=r.compliance_task_id) AND NEW.page_number<=(r.page_counts->>NEW.document_key)::integer) THEN RAISE EXCEPTION 'Display a valid page from the current replacement review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_supplement_page ON payroll_i9_different_supplement_page_visit;
+CREATE TRIGGER payroll_guard_i9_different_supplement_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_supplement_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_supplement_page();
+
+ALTER TABLE payroll_i9_different_supplement_review ADD COLUMN IF NOT EXISTS document_fingerprints JSONB NOT NULL DEFAULT '{}'::jsonb CHECK(jsonb_typeof(document_fingerprints)='object');
