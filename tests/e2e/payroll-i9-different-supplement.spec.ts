@@ -74,7 +74,14 @@ for(const scenario of ['List C','List A extension and name change','Alternative 
  for(const label of ['The employee chose different acceptable documentation to replace the retained receipt.','This employee currently requires reverification and is not exempt.','The employee chose their acceptable List A or C documentation.','I reviewed current authorization and applicable automatic extensions.','The original documents reasonably appear genuine and relate to this employee.','The selected copies include every required side and page.',...(alternative?[]:[physicalCheck]),'I read and affirm the Supplement B certification.','I am the representative who performed this examination.','I reviewed every source, prior supplement, new supplement and selected copy page.','My identity and authority as the named representative are confirmed.'])await work.getByLabel(label,{exact:true}).check()
  if(alternative){await expect(work.getByLabel('Live-video examination evidence',{exact:true})).toHaveValue('Examiner reviewed the same original documents during live video.');for(const label of ['Current E-Verify good standing is verified.','Every hiring site using this procedure is enrolled.','Required examiner training is complete.','The procedure is applied consistently and without discrimination.','I reviewed copies before the live video examination.','The same original documents were presented during live video.']){await expect(work.getByLabel(label,{exact:true})).not.toBeChecked();await work.getByLabel(label,{exact:true}).check()}for(const label of ['I read and affirm the Supplement B certification.','I am the representative who performed this examination.','I reviewed every source, prior supplement, new supplement and selected copy page.','My identity and authority as the named representative are confirmed.'])await work.getByLabel(label,{exact:true}).check()}
  await work.getByLabel('Your examiner signature',{exact:true}).fill('Reviewer Alice')
- await page.setViewportSize({width:390,height:844});await work.screenshot({path:'/tmp/payroll-different-supplement-mobile.png'})
+ for(const width of [320,390]){
+  await page.setViewportSize({width,height:844})
+  const box=await work.boundingBox(),signatureBox=await work.getByLabel('Your examiner signature',{exact:true}).boundingBox()
+  expect(box?.width).toBeGreaterThanOrEqual(width-110);expect(signatureBox?.width).toBeGreaterThanOrEqual(width-140)
+  expect(await work.evaluate(node=>node.scrollWidth<=node.clientWidth+1)).toBe(true)
+ }
+ await work.locator('form').last().screenshot({path:'/tmp/payroll-different-supplement-exam-mobile.png'})
+ await work.screenshot({path:'/tmp/payroll-different-supplement-mobile.png'})
  await work.getByRole('button',{name:'Sign and retain replacement Supplement B',exact:true}).click()
  await expect(work.getByRole('alert')).toContainText('Synthetic signing response lost.')
  await work.getByRole('button',{name:'Sign and retain replacement Supplement B',exact:true}).click()

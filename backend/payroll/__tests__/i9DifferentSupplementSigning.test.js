@@ -49,7 +49,9 @@ test('Supplement B replacement signing is atomic and recovers completed retries'
  assert.equal(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_signature')).rows[0].count),0)
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[receiptTaskId])).rows[0].status,'OPEN')
  await h.pool.query('DROP TRIGGER reject_replacement_sign_audit ON payroll_audit_log')
- const signedReplacement=await api(path+'/sign',request)
+ const concurrent=await Promise.all([api(path+'/sign',request),api(path+'/sign',{...request,requestKey:request.requestKey.toUpperCase()})])
+ const signedReplacement=concurrent[0];assert.deepEqual(concurrent[1],signedReplacement)
+ assert.equal(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_signature')).rows[0].count),1)
  assert.equal(signedReplacement.status,'COMPLETE')
  const saved=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[signedReplacement.documentId])).rows[0]
  const signedPdf=await PDFDocument.load(decryptDocument(saved.encrypted_content,`1:${employee.id}:${saved.task_id}`))
