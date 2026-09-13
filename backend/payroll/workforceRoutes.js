@@ -1,3 +1,4 @@
+import {signI9Employer} from './i9EmployerSigning.js'
 import {listI9EmployerCopies,uploadI9EmployerCopy,viewI9EmployerCopy,recordI9CopyPage} from './i9EmployerCopies.js'
 import {previewI9Employer,recordI9EmployerPage} from './i9EmployerReview.js'
 import {readI9EmployerDraft,saveI9EmployerDraft} from './i9EmployerDraft.js'
@@ -102,6 +103,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9Employer(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>listI9EmployerCopies(db,context(req),req.params.taskId,req.query))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>uploadI9EmployerCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copy-view',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9EmployerCopy(db,context(req),req.params.taskId,req.body||{}))})
@@ -154,6 +156,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(status==='COMPLETE'&&task.task_key==='I9_REVIEW'){
    const section1=(await db.query("SELECT status,response FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key='I9'",[ctx.facility,ctx.employee])).rows[0]
    if(section1?.response?.i9SubmissionId&&section1.status!=='COMPLETE')throw fail('Review and complete the employee Section 1 and any required preparer certifications before completing employer review.',409)
+   if(section1?.response?.i9SubmissionId)throw fail('Complete the internal employer examination and sign Section 2 to finish this native I-9.',409)
   }
   if(status==='COMPLETE'&&task.task_key==='I9'&&task.response?.i9PreparerRequired){
    const roster=await preparerRoster(db,ctx,task.id,task.onboarding_cycle),active=roster.requests.filter(r=>!r.cancelledAt)

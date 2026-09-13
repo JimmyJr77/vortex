@@ -5760,3 +5760,43 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_review_document_entry ON payroll_i9_review_document_entry;
 CREATE TRIGGER payroll_guard_i9_review_document_entry BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_review_document_entry FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_review_document_entry();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_employer_signature (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),submission_id BIGINT NOT NULL REFERENCES payroll_i9_submission(id),review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_employer_review(id),
+ document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),actor_user_id BIGINT NOT NULL,request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),
+ selected_copy_ids BIGINT[] NOT NULL CHECK(cardinality(selected_copy_ids)>0),encrypted_signature bytea NOT NULL CHECK(octet_length(encrypted_signature)>28),signed_at timestamptz NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_employer_signature() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE r payroll_i9_employer_review%ROWTYPE;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Employer I-9 signature evidence is immutable.' USING ERRCODE='23514'; END IF;
+ SELECT * INTO r FROM payroll_i9_employer_review WHERE id=NEW.review_id AND facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle AND submission_id=NEW.submission_id AND actor_user_id=NEW.actor_user_id AND expires_at>clock_timestamp();
+ IF NOT FOUND OR r.id<>(SELECT MAX(id) FROM payroll_i9_employer_review WHERE task_id=r.task_id AND onboarding_cycle=r.onboarding_cycle) THEN RAISE EXCEPTION 'Employer signature requires its current scoped review.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_draft d JOIN payroll_onboarding_task t ON t.id=d.task_id JOIN payroll_i9_submission s ON s.id=r.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id JOIN payroll_i9_review v ON v.id=s.review_id WHERE d.task_id=r.task_id AND d.onboarding_cycle=r.onboarding_cycle AND d.revision=r.draft_revision AND d.basis_hash=r.basis_hash AND d.submission_id=r.submission_id AND t.onboarding_cycle=r.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND e.onboarding_cycle=s.onboarding_cycle AND e.status='COMPLETE' AND e.response->>'i9SubmissionId'=s.id::text AND (NOT s.preparer_required OR e.response->'i9PreparerReview'->>'fingerprint'=r.preparer_fingerprint) AND v.hiring_revision=(SELECT MAX(revision) FROM payroll_i9_hiring_context WHERE task_id=e.id AND onboarding_cycle=e.onboarding_cycle)) THEN RAISE EXCEPTION 'Employer signature requires current employee, preparer and draft evidence.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_private_document WHERE id=NEW.document_id AND facility_id=r.facility_id AND employee_id=r.employee_id AND task_id=r.task_id AND onboarding_cycle=r.onboarding_cycle AND mime_type='application/pdf') THEN RAISE EXCEPTION 'Employer signature PDF must match its review scope.' USING ERRCODE='23514'; END IF;
+ IF (SELECT count(*) FROM payroll_i9_employer_page_visit WHERE review_id=r.id AND document_key='main')<>4 OR EXISTS(SELECT 1 FROM unnest(r.preparer_document_ids) AS required(id) WHERE NOT EXISTS(SELECT 1 FROM payroll_i9_employer_page_visit WHERE review_id=r.id AND document_key=required.id::text AND page_number=1)) THEN RAISE EXCEPTION 'Employer signing requires all main and preparer pages.' USING ERRCODE='23514'; END IF;
+ IF cardinality(NEW.selected_copy_ids)<>(SELECT count(DISTINCT id) FROM unnest(NEW.selected_copy_ids) AS selected(id)) OR EXISTS(SELECT 1 FROM unnest(NEW.selected_copy_ids) AS selected(id) WHERE NOT EXISTS(SELECT 1 FROM payroll_i9_document_copy c JOIN payroll_i9_review_document_entry e ON e.review_id=r.id AND e.row_key=c.row_key AND e.document_fingerprint=c.document_fingerprint WHERE c.id=selected.id AND c.task_id=r.task_id AND c.onboarding_cycle=r.onboarding_cycle AND c.submission_id=r.submission_id AND (SELECT count(*) FROM payroll_i9_copy_page_visit WHERE review_id=r.id AND copy_id=c.id)=c.page_count)) OR EXISTS(SELECT 1 FROM payroll_i9_review_document_entry e WHERE e.review_id=r.id AND NOT EXISTS(SELECT 1 FROM payroll_i9_document_copy WHERE id=ANY(NEW.selected_copy_ids) AND row_key=e.row_key AND document_fingerprint=e.document_fingerprint)) THEN RAISE EXCEPTION 'Employer signing requires reviewed copies for every current document.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_employer_signature ON payroll_i9_employer_signature;
+CREATE TRIGGER payroll_guard_i9_employer_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_signature();
+CREATE TABLE IF NOT EXISTS payroll_i9_signature_followup (
+ signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id),row_key text NOT NULL,kind text NOT NULL CHECK(kind IN ('RECEIPT_REPLACEMENT','REVERIFICATION','OTHER')),
+ due_on date NOT NULL,compliance_task_id BIGINT NOT NULL UNIQUE REFERENCES payroll_compliance_task(id),PRIMARY KEY(signature_id,row_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_signature_followup() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Signed I-9 follow-up provenance is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_signature s JOIN payroll_compliance_task c ON c.id=NEW.compliance_task_id WHERE s.id=NEW.signature_id AND c.facility_id=s.facility_id AND c.employee_id=s.employee_id AND c.due_date=NEW.due_on AND c.task_key='I9_DOCUMENT_FOLLOWUP:'||s.id::text||':'||NEW.row_key) THEN RAISE EXCEPTION 'I-9 follow-up must match the signed employee and due date.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_signature_followup ON payroll_i9_signature_followup;
+CREATE TRIGGER payroll_guard_i9_signature_followup BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_signature_followup FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_signature_followup();
+CREATE OR REPLACE FUNCTION payroll_guard_native_i9_employer_completion() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.task_key='I9_REVIEW' AND NEW.status='COMPLETE' AND EXISTS(SELECT 1 FROM payroll_onboarding_task WHERE facility_id=NEW.facility_id AND employee_id=NEW.employee_id AND task_key='I9' AND response->>'i9SubmissionId' IS NOT NULL) AND NOT EXISTS(SELECT 1 FROM payroll_i9_employer_signature s JOIN payroll_onboarding_task e ON e.facility_id=s.facility_id AND e.employee_id=s.employee_id AND e.task_key='I9' WHERE s.task_id=NEW.id AND s.onboarding_cycle=NEW.onboarding_cycle AND s.id::text=NEW.response->>'i9EmployerSignatureId' AND s.submission_id::text=e.response->>'i9SubmissionId' AND e.onboarding_cycle=NEW.onboarding_cycle AND e.status='COMPLETE') THEN RAISE EXCEPTION 'Native I-9 employer completion requires the current employer signature.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_native_i9_employer_completion ON payroll_onboarding_task;
+CREATE TRIGGER payroll_guard_native_i9_employer_completion BEFORE INSERT OR UPDATE ON payroll_onboarding_task FOR EACH ROW EXECUTE FUNCTION payroll_guard_native_i9_employer_completion();
